@@ -7,10 +7,6 @@
 
 #include <iostream>
 
-class Listener {
-
-};
-
 bool XRCEParser::parse()
 {
     MessageHeader message_header;
@@ -72,15 +68,8 @@ bool XRCEParser::process_create()
     CREATE_PAYLOAD create_payload;
     if (deserializer_.deserialize(create_payload))
     {
-        if (create_callback_)
-        {
-            create_callback_();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        listener_->on_create(create_payload);
+        return true;
     }
     return false;
 }
@@ -90,15 +79,8 @@ bool XRCEParser::process_read_data()
     READ_DATA_PAYLOAD read_data_payload;
     if (deserializer_.deserialize(read_data_payload))
     {
-        if (read_data_callback_)
-        {
-            read_data_callback_();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        listener_->on_read(read_data_payload);
+        return true;
     }
     return false;
 }
@@ -108,15 +90,8 @@ bool XRCEParser::process_write_data()
     WRITE_DATA_PAYLOAD write_data_payload;
     if (deserializer_.deserialize(write_data_payload))
     {
-        if (write_data_callback_)
-        {
-            write_data_callback_();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        listener_->on_write(write_data_payload);
+        return true;
     }
     return false;
 }

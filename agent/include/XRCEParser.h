@@ -5,14 +5,28 @@
 
 #include <functional>
 
+class CREATE_PAYLOAD;
+class DELETE_PAYLOAD;
+class WRITE_DATA_PAYLOAD;
+class READ_DATA_PAYLOAD;
+
+class XRCEListener {
+public:
+    XRCEListener() {};
+    virtual ~XRCEListener() {};
+
+    virtual void on_create(const CREATE_PAYLOAD& create_payload) = 0;
+    virtual void on_delete(const DELETE_PAYLOAD& create_payload) = 0;
+    virtual void on_write(const WRITE_DATA_PAYLOAD&  write_payload) = 0;
+    virtual void on_read(const READ_DATA_PAYLOAD&   read_payload) = 0;
+};
+
 class XRCEParser
 {
 public:
-    XRCEParser(char* buffer, size_t size, std::function<void()> create_callback, std::function< void() > write_data_callback, std::function< void() > read_data_callback)
+    XRCEParser(char* buffer, size_t size, XRCEListener* listener)
         : deserializer_(buffer, size),
-        create_callback_(create_callback),
-        write_data_callback_(write_data_callback),
-        read_data_callback_(read_data_callback)
+        listener_(listener)
     {
 
     }
@@ -23,9 +37,7 @@ private:
     bool process_write_data();
     bool process_read_data();
 
-    std::function< void() > create_callback_;
-    std::function< void() > write_data_callback_;
-    std::function< void() > read_data_callback_;
+    XRCEListener* listener_ = nullptr;
     Serializer deserializer_;
 };
 
