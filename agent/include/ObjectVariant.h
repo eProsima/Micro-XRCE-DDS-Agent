@@ -50,7 +50,7 @@ typedef std::array<uint8_t, 3> ObjectId;
 #define  OBJECTID_CLIENT  {0xFF,0xFF,0xF0}
 #define  OBJECTID_SESSION {0xFF,0xFF,0xF1}
 
-// Spells ‘X’ ‘R’ ‘C’ ‘E’
+// Spells XRCE
 #define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
 #define XRCE_VESION_MAJOR     0x01
 #define XRCE_VESION_MINOR     0x00
