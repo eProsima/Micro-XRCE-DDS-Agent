@@ -27,6 +27,7 @@ bool Serializer::serialize(const T& data)
 template bool Serializer::serialize(const MessageHeader& data);
 template bool Serializer::serialize(const SubmessageHeader& data);
 template bool Serializer::serialize(const CREATE_PAYLOAD& data);
+template bool Serializer::serialize(const DELETE_PAYLOAD& data);
 template bool Serializer::serialize(const RESOURCE_STATUS_PAYLOAD& data);
 template bool Serializer::serialize(const DATA_PAYLOAD& data);
 template bool Serializer::serialize(const READ_DATA_PAYLOAD& data);
@@ -48,6 +49,7 @@ template<class T> bool Serializer::deserialize(T& data)
 template bool Serializer::deserialize(MessageHeader& data);
 template bool Serializer::deserialize(SubmessageHeader& data);
 template bool Serializer::deserialize(CREATE_PAYLOAD& data);
+template bool Serializer::deserialize(DELETE_PAYLOAD& data);
 template bool Serializer::deserialize(RESOURCE_STATUS_PAYLOAD& data);
 template bool Serializer::deserialize(DATA_PAYLOAD& data);
 template bool Serializer::deserialize(READ_DATA_PAYLOAD& data);
