@@ -3,8 +3,6 @@
 
 #include "Serializer.h"
 
-#include <functional>
-
 class CREATE_PAYLOAD;
 class DELETE_PAYLOAD;
 class WRITE_DATA_PAYLOAD;
@@ -34,6 +32,7 @@ public:
 private:
 
     bool process_create();
+    bool process_delete();
     bool process_write_data();
     bool process_read_data();
 

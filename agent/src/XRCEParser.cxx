@@ -74,6 +74,17 @@ bool XRCEParser::process_create()
     return false;
 }
 
+bool XRCEParser::process_delete()
+{
+    DELETE_PAYLOAD delete_payload;
+    if (deserializer_.deserialize(delete_payload))
+    {
+        listener_->on_delete(delete_payload);
+        return true;
+    }
+    return false;
+}
+
 bool XRCEParser::process_read_data()
 {
     READ_DATA_PAYLOAD read_data_payload;
