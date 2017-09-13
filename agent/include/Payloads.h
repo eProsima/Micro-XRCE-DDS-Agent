@@ -220,6 +220,154 @@ private:
     ObjectId object_id_;
     ObjectVariant object_representation_;
 };
+
+/*!
+* @brief This class represents the structure DELETE_PAYLOAD defined by the user in the IDL file.
+* @ingroup PAYLOADS
+*/
+class DELETE_PAYLOAD
+{
+public:
+
+    /*!
+    * @brief Default constructor.
+    */
+    DELETE_PAYLOAD();
+
+    /*!
+    * @brief Default destructor.
+    */
+    ~DELETE_PAYLOAD();
+
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object DELETE_PAYLOAD that will be copied.
+    */
+    DELETE_PAYLOAD(const DELETE_PAYLOAD &x);
+
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object DELETE_PAYLOAD that will be copied.
+    */
+    DELETE_PAYLOAD(DELETE_PAYLOAD &&x);
+
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object DELETE_PAYLOAD that will be copied.
+    */
+    DELETE_PAYLOAD& operator=(const DELETE_PAYLOAD &x);
+
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object DELETE_PAYLOAD that will be copied.
+    */
+    DELETE_PAYLOAD& operator=(DELETE_PAYLOAD &&x);
+
+    /*!
+    * @brief This function copies the value in member request_id
+    * @param _request_id New value to be copied in member request_id
+    */
+    inline void request_id(const RequestId &_request_id)
+    {
+        request_id_ = _request_id;
+    }
+
+    /*!
+    * @brief This function moves the value in member request_id
+    * @param _request_id New value to be moved in member request_id
+    */
+    inline void request_id(RequestId &&_request_id)
+    {
+        request_id_ = std::move(_request_id);
+    }
+
+    /*!
+    * @brief This function returns a constant reference to member request_id
+    * @return Constant reference to member request_id
+    */
+    inline const RequestId& request_id() const
+    {
+        return request_id_;
+    }
+
+    /*!
+    * @brief This function returns a reference to member request_id
+    * @return Reference to member request_id
+    */
+    inline RequestId& request_id()
+    {
+        return request_id_;
+    }
+    /*!
+    * @brief This function copies the value in member object_id
+    * @param _object_id New value to be copied in member object_id
+    */
+    inline void object_id(const ObjectId &_object_id)
+    {
+        object_id_ = _object_id;
+    }
+
+    /*!
+    * @brief This function moves the value in member object_id
+    * @param _object_id New value to be moved in member object_id
+    */
+    inline void object_id(ObjectId &&_object_id)
+    {
+        object_id_ = std::move(_object_id);
+    }
+
+    /*!
+    * @brief This function returns a constant reference to member object_id
+    * @return Constant reference to member object_id
+    */
+    inline const ObjectId& object_id() const
+    {
+        return object_id_;
+    }
+
+    /*!
+    * @brief This function returns a reference to member object_id
+    * @return Reference to member object_id
+    */
+    inline ObjectId& object_id()
+    {
+        return object_id_;
+    }
+
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const DELETE_PAYLOAD& data, size_t current_alignment = 0);
+
+
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    RequestId request_id_;
+    ObjectId object_id_;
+};
+
 /*!
  * @brief This class represents the structure RESOURCE_STATUS_PAYLOAD defined by the user in the IDL file.
  * @ingroup PAYLOADS
