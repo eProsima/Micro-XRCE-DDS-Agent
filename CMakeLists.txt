@@ -46,7 +46,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-include_directories(/home/vmonge/Workspace/Fast-RTPS/install/include transport/include/transport agent/include)
+include_directories(${CMAKE_PREFIX_PATH}/include transport/include/transport agent/include)
 
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
 add_library(transport SHARED ${TRANS_LIB_SRCS})
