@@ -281,25 +281,25 @@ OBJK_QOSPROFILE_Representation::~OBJK_QOSPROFILE_Representation()
 }
 
 OBJK_QOSPROFILE_Representation::OBJK_QOSPROFILE_Representation(const OBJK_QOSPROFILE_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 
 }
 
 OBJK_QOSPROFILE_Representation::OBJK_QOSPROFILE_Representation(OBJK_QOSPROFILE_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 }
 
 OBJK_QOSPROFILE_Representation& OBJK_QOSPROFILE_Representation::operator=(const OBJK_QOSPROFILE_Representation &x)	
 {  
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     return *this;
 }
 
 OBJK_QOSPROFILE_Representation& OBJK_QOSPROFILE_Representation::operator=(OBJK_QOSPROFILE_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);    
+    OBJK_CommonString_Representation::operator=(x);    
     return *this;
 }
 
@@ -323,12 +323,12 @@ size_t OBJK_QOSPROFILE_Representation::getCdrSerializedSize(const OBJK_QOSPROFIL
 
 void OBJK_QOSPROFILE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
 }
 
 void OBJK_QOSPROFILE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
 }
 
 OBJK_APPLICATION_Representation::OBJK_APPLICATION_Representation()
@@ -340,24 +340,24 @@ OBJK_APPLICATION_Representation::~OBJK_APPLICATION_Representation()
 }
 
 OBJK_APPLICATION_Representation::OBJK_APPLICATION_Representation(const OBJK_APPLICATION_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 }
 
 OBJK_APPLICATION_Representation::OBJK_APPLICATION_Representation(OBJK_APPLICATION_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 }
 
 OBJK_APPLICATION_Representation& OBJK_APPLICATION_Representation::operator=(const OBJK_APPLICATION_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);    
+    OBJK_CommonString_Representation::operator=(x);    
     return *this;
 }
 
 OBJK_APPLICATION_Representation& OBJK_APPLICATION_Representation::operator=(OBJK_APPLICATION_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);    
+    OBJK_CommonString_Representation::operator=(x);    
     return *this;
 }
 
@@ -381,12 +381,12 @@ size_t OBJK_APPLICATION_Representation::getCdrSerializedSize(const OBJK_APPLICAT
 
 void OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
 }
 
 void OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
 }
 
 OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation()
@@ -398,24 +398,24 @@ OBJK_PARTICIPANT_Representation::~OBJK_PARTICIPANT_Representation()
 }
 
 OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation(const OBJK_PARTICIPANT_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 }
 
 OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation(OBJK_PARTICIPANT_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
 }
 
 OBJK_PARTICIPANT_Representation& OBJK_PARTICIPANT_Representation::operator=(const OBJK_PARTICIPANT_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);    
+    OBJK_CommonString_Representation::operator=(x);    
     return *this;
 }
 
 OBJK_PARTICIPANT_Representation& OBJK_PARTICIPANT_Representation::operator=(OBJK_PARTICIPANT_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);    
+    OBJK_CommonString_Representation::operator=(x);    
     return *this;
 }
 
@@ -439,12 +439,12 @@ size_t OBJK_PARTICIPANT_Representation::getCdrSerializedSize(const OBJK_PARTICIP
 
 void OBJK_PARTICIPANT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
 }
 
 void OBJK_PARTICIPANT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
 }
 
 OBJK_TYPE_Representation::OBJK_TYPE_Representation()
@@ -458,14 +458,14 @@ OBJK_TYPE_Representation::~OBJK_TYPE_Representation()
 }
 
 OBJK_TYPE_Representation::OBJK_TYPE_Representation(const OBJK_TYPE_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
     registered_type_name_ = x.registered_type_name_;
 }
 
 OBJK_TYPE_Representation::OBJK_TYPE_Representation(OBJK_TYPE_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
     registered_type_name_ = std::move(x.registered_type_name_);
@@ -473,7 +473,7 @@ OBJK_TYPE_Representation::OBJK_TYPE_Representation(OBJK_TYPE_Representation &&x)
 
 OBJK_TYPE_Representation& OBJK_TYPE_Representation::operator=(const OBJK_TYPE_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     registered_type_name_ = x.registered_type_name_;
     
@@ -482,7 +482,7 @@ OBJK_TYPE_Representation& OBJK_TYPE_Representation::operator=(const OBJK_TYPE_Re
 
 OBJK_TYPE_Representation& OBJK_TYPE_Representation::operator=(OBJK_TYPE_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     registered_type_name_ = std::move(x.registered_type_name_);
     
@@ -493,7 +493,7 @@ size_t OBJK_TYPE_Representation::getMaxCdrSerializedSize(size_t current_alignmen
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
 
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -507,7 +507,7 @@ size_t OBJK_TYPE_Representation::getCdrSerializedSize(const OBJK_TYPE_Representa
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.registered_type_name().size() + 1;
 
@@ -517,14 +517,14 @@ size_t OBJK_TYPE_Representation::getCdrSerializedSize(const OBJK_TYPE_Representa
 
 void OBJK_TYPE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << registered_type_name_;
 }
 
 void OBJK_TYPE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
     dcdr >> registered_type_name_;
 }
@@ -538,20 +538,20 @@ OBJK_TOPIC_Representation::~OBJK_TOPIC_Representation()
 }
 
 OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(const OBJK_TOPIC_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
 }
 
 OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(OBJK_TOPIC_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
 }
 
 OBJK_TOPIC_Representation& OBJK_TOPIC_Representation::operator=(const OBJK_TOPIC_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     
     return *this;
@@ -559,7 +559,7 @@ OBJK_TOPIC_Representation& OBJK_TOPIC_Representation::operator=(const OBJK_TOPIC
 
 OBJK_TOPIC_Representation& OBJK_TOPIC_Representation::operator=(OBJK_TOPIC_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     
     return *this;
@@ -569,7 +569,7 @@ size_t OBJK_TOPIC_Representation::getMaxCdrSerializedSize(size_t current_alignme
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -579,20 +579,20 @@ size_t OBJK_TOPIC_Representation::getCdrSerializedSize(const OBJK_TOPIC_Represen
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     return current_alignment - initial_alignment;
 }
 
 void OBJK_TOPIC_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
 void OBJK_TOPIC_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
 }
 
@@ -605,20 +605,20 @@ OBJK_PUBLISHER_Representation::~OBJK_PUBLISHER_Representation()
 }
 
 OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(const OBJK_PUBLISHER_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
 }
 
 OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(OBJK_PUBLISHER_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
 }
 
 OBJK_PUBLISHER_Representation& OBJK_PUBLISHER_Representation::operator=(const OBJK_PUBLISHER_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     
     return *this;
@@ -626,7 +626,7 @@ OBJK_PUBLISHER_Representation& OBJK_PUBLISHER_Representation::operator=(const OB
 
 OBJK_PUBLISHER_Representation& OBJK_PUBLISHER_Representation::operator=(OBJK_PUBLISHER_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     
     return *this;
@@ -636,7 +636,7 @@ size_t OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(size_t current_ali
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -646,20 +646,20 @@ size_t OBJK_PUBLISHER_Representation::getCdrSerializedSize(const OBJK_PUBLISHER_
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     return current_alignment - initial_alignment;
 }
 
 void OBJK_PUBLISHER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
 void OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
 }
 
@@ -672,20 +672,20 @@ OBJK_SUBSCRIBER_Representation::~OBJK_SUBSCRIBER_Representation()
 }
 
 OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(const OBJK_SUBSCRIBER_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
 }
 
 OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(OBJK_SUBSCRIBER_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
 }
 
 OBJK_SUBSCRIBER_Representation& OBJK_SUBSCRIBER_Representation::operator=(const OBJK_SUBSCRIBER_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     
     return *this;
@@ -693,7 +693,7 @@ OBJK_SUBSCRIBER_Representation& OBJK_SUBSCRIBER_Representation::operator=(const 
 
 OBJK_SUBSCRIBER_Representation& OBJK_SUBSCRIBER_Representation::operator=(OBJK_SUBSCRIBER_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     
     return *this;
@@ -703,7 +703,7 @@ size_t OBJK_SUBSCRIBER_Representation::getMaxCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -713,20 +713,20 @@ size_t OBJK_SUBSCRIBER_Representation::getCdrSerializedSize(const OBJK_SUBSCRIBE
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     return current_alignment - initial_alignment;
 }
 
 void OBJK_SUBSCRIBER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
 void OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
 }
 
@@ -741,14 +741,14 @@ OBJK_DATAWRITER_Representation::~OBJK_DATAWRITER_Representation()
 }
 
 OBJK_DATAWRITER_Representation::OBJK_DATAWRITER_Representation(const OBJK_DATAWRITER_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
     publisher_id_ = x.publisher_id_;
 }
 
 OBJK_DATAWRITER_Representation::OBJK_DATAWRITER_Representation(OBJK_DATAWRITER_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
     publisher_id_ = std::move(x.publisher_id_);
@@ -756,7 +756,7 @@ OBJK_DATAWRITER_Representation::OBJK_DATAWRITER_Representation(OBJK_DATAWRITER_R
 
 OBJK_DATAWRITER_Representation& OBJK_DATAWRITER_Representation::operator=(const OBJK_DATAWRITER_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     publisher_id_ = x.publisher_id_;
     
@@ -765,7 +765,7 @@ OBJK_DATAWRITER_Representation& OBJK_DATAWRITER_Representation::operator=(const 
 
 OBJK_DATAWRITER_Representation& OBJK_DATAWRITER_Representation::operator=(OBJK_DATAWRITER_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     publisher_id_ = std::move(x.publisher_id_);
     
@@ -776,7 +776,7 @@ size_t OBJK_DATAWRITER_Representation::getMaxCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
 
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
             
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -790,7 +790,7 @@ size_t OBJK_DATAWRITER_Representation::getCdrSerializedSize(const OBJK_DATAWRITE
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -799,14 +799,14 @@ size_t OBJK_DATAWRITER_Representation::getCdrSerializedSize(const OBJK_DATAWRITE
 
 void OBJK_DATAWRITER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << publisher_id_;
 }
 
 void OBJK_DATAWRITER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
     dcdr >> publisher_id_;
 }
@@ -822,14 +822,14 @@ OBJK_DATAREADER_Representation::~OBJK_DATAREADER_Representation()
 }
 
 OBJK_DATAREADER_Representation::OBJK_DATAREADER_Representation(const OBJK_DATAREADER_Representation &x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = x.participant_id_;
     subscriber_id_ = x.subscriber_id_;
 }
 
 OBJK_DATAREADER_Representation::OBJK_DATAREADER_Representation(OBJK_DATAREADER_Representation &&x)
-	: OBJK_CommonString_Representation(x)
+    : OBJK_CommonString_Representation(x)
 {
     participant_id_ = std::move(x.participant_id_);
     subscriber_id_ = std::move(x.subscriber_id_);
@@ -837,7 +837,7 @@ OBJK_DATAREADER_Representation::OBJK_DATAREADER_Representation(OBJK_DATAREADER_R
 
 OBJK_DATAREADER_Representation& OBJK_DATAREADER_Representation::operator=(const OBJK_DATAREADER_Representation &x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = x.participant_id_;
     subscriber_id_ = x.subscriber_id_;
     
@@ -846,7 +846,7 @@ OBJK_DATAREADER_Representation& OBJK_DATAREADER_Representation::operator=(const 
 
 OBJK_DATAREADER_Representation& OBJK_DATAREADER_Representation::operator=(OBJK_DATAREADER_Representation &&x)
 {
-	OBJK_CommonString_Representation::operator=(x);
+    OBJK_CommonString_Representation::operator=(x);
     participant_id_ = std::move(x.participant_id_);
     subscriber_id_ = std::move(x.subscriber_id_);
     
@@ -857,7 +857,7 @@ size_t OBJK_DATAREADER_Representation::getMaxCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
 
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -871,7 +871,7 @@ size_t OBJK_DATAREADER_Representation::getCdrSerializedSize(const OBJK_DATAREADE
 {
     size_t initial_alignment = current_alignment;
             
-	current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
+    current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -880,14 +880,14 @@ size_t OBJK_DATAREADER_Representation::getCdrSerializedSize(const OBJK_DATAREADE
 
 void OBJK_DATAREADER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	OBJK_CommonString_Representation::serialize(scdr);
+    OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << subscriber_id_;
 }
 
 void OBJK_DATAREADER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	OBJK_CommonString_Representation::deserialize(dcdr);
+    OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
     dcdr >> subscriber_id_;
 }
