@@ -75,3 +75,19 @@ file(GLOB CLIENT_TEST_SOURCES "PoC_SendReceive.c")
 add_executable(client_test ${CLIENT_TEST_SOURCES})
 install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(client_test client transport)
+
+
+option(EPROSIMA_BUILD_TESTS "Activate the building and execution unit tests and integral tests" OFF)
+
+###############################################################################
+# Testing
+###############################################################################
+if(EPROSIMA_BUILD_TESTS)
+    include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
+    check_gtest()
+    if(GTEST_FOUND)
+        enable_testing()
+        include(CTest)
+        add_subdirectory(test)
+    endif()
+endif()
