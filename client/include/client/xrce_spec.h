@@ -32,16 +32,30 @@ extern "C"
 #define READ_MODE_SAMPLE_SEQ        0x03
 #define READ_MODE_PACKED_SAMPLE_SEQ 0x04
 
+#define STATUS_OK                    0x00
+#define STATUS_OK_MATCHED            0x01
+#define STATUS_ERR_DDS_ERROR         0x80
+#define STATUS_ERR_MISMATCH          0x81
+#define STATUS_ERR_ALREADY_EXISTS    0x82
+#define STATUS_ERR_DENIED            0x83
+#define STATUS_ERR_UNKNOWN_REFERENCE 0x84
+#define STATUS_ERR_INVALID_DATA      0x85
+#define STATUS_ERR_INCOMPATIBLE      0x86
+#define STATUS_ERR_RESOURCES         0x87
+
+#define STATUS_LAST_OP_NONE      0
+#define STATUS_LAST_OP_CREATE    1
+#define STATUS_LAST_OP_UPDATE    2
+#define STATUS_LAST_OP_DELETE    3
+#define STATUS_LAST_OP_LOOKUP    4
+#define STATUS_LAST_OP_READ      5
+#define STATUS_LAST_OP_WRITE     6
+
 typedef uint32_t uint_least24_t;
-typedef uint8_t boolean_t;
 
 // --------------------------------------------------------------------
 //                            OBJECT VARIANT
 // --------------------------------------------------------------------
-typedef struct CommonStringSpec
-{
-
-} CommonStringSpec;
 
 typedef struct DataWriterSpec
 {
@@ -80,9 +94,9 @@ typedef union ObjectVariantSpec
 
 typedef struct ObjectKindSpec
 {
+    uint8_t kind;
     uint32_t string_size;
     char* string;
-    uint8_t kind;
     ObjectVariantSpec variant;
 
 } ObjectKindSpec;
@@ -90,38 +104,39 @@ typedef struct ObjectKindSpec
 // --------------------------------------------------------------------
 //                                STATUS
 // --------------------------------------------------------------------
-/*typedef struct DataReaderStatus
+typedef struct ResultStatusSpec
 {
-    short highest_acked_num;
-} DataReaderStatus;
+    uint32_t request_id;
+    uint8_t status;
+    uint8_t implementation_status;
 
-typedef struct DataWriterStatus
+} ResultStatusSpec;
+
+typedef struct DataWriterStatusSpec
 {
-    short stream_seq_num;
+    uint16_t stream_seq_num;
     uint32_t sample_seq_num; //change to uint64_t
-} DataWriterStatus;
+
+} DataWriterStatusSpec;
+
+typedef struct DataReaderStatusSpec
+{
+    uint16_t highest_acked_num;
+
+} DataReaderStatusSpec;
 
 typedef union StatusVariantSpec
 {
+    DataWriterStatusSpec writer;
+    DataReaderStatusSpec reader;
 
-}
+} StatusVariantSpec;
 
-typedef struct ObjectKind
-
-union StatusVariantSpec (ObjectKind)
+typedef struct StatusKindSpec
 {
-    case OBJK_DATAWRITER :
-        OBJK_DW_Status data_writer;
-    case OBJK_DATAREADER :
-        OBJK_DR_Status data_reader;
-};
-
-struct Status
-{
-    ResultStatus  result;
-    ObjectId      object_id;
-    StatusVariant status;
-};*/
+    uint8_t kind;
+    StatusVariantSpec variant;
+} StatusKindSpec;
 
 
 // --------------------------------------------------------------------
@@ -179,6 +194,14 @@ typedef struct DeletePayloadSpec
     uint_least24_t object_id;
 
 } DeletePayloadSpec;
+
+typedef struct StatusPayloadSpec
+{
+    ResultStatusSpec  result;
+    uint_least24_t object_id;
+    StatusKindSpec status;
+
+} StatusPayloadSpec;
 
 typedef struct WriteDataPayloadSpec
 {

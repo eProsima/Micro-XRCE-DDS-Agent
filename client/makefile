@@ -1,5 +1,5 @@
 DEFINES=-D DEBUG
-CFLAGS=-Wall -O3 -Iinclude
+CFLAGS=-Wall -O3 -Iinclude/client
 COMPILER=gcc $(CFLAGS)
 
 OBJECTS=build/mini_cdr.o build/serialization.o build/message.o
