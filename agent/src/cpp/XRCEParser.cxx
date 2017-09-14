@@ -154,7 +154,7 @@ bool XRCEParser::process_create()
     if (deserializer_.deserialize(create_payload))
     {
         print(create_payload);
-        listener_->on_create(create_payload);
+        listener_->on_message(create_payload);
         return true;
     }
     return false;
@@ -165,7 +165,7 @@ bool XRCEParser::process_delete()
     DELETE_PAYLOAD delete_payload;
     if (deserializer_.deserialize(delete_payload))
     {
-        listener_->on_delete(delete_payload);
+        listener_->on_message(delete_payload);
         return true;
     }
     return false;
@@ -176,7 +176,7 @@ bool XRCEParser::process_read_data()
     READ_DATA_PAYLOAD read_data_payload;
     if (deserializer_.deserialize(read_data_payload))
     {
-        listener_->on_read(read_data_payload);
+        listener_->on_message(read_data_payload);
         return true;
     }
     return false;
@@ -187,7 +187,7 @@ bool XRCEParser::process_write_data()
     WRITE_DATA_PAYLOAD write_data_payload;
     if (deserializer_.deserialize(write_data_payload))
     {
-        listener_->on_write(write_data_payload);
+        listener_->on_message(write_data_payload);
         return true;
     }
     return false;

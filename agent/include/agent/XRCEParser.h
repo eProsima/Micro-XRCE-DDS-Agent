@@ -12,13 +12,13 @@ class READ_DATA_PAYLOAD;
 
 class XRCEListener {
 public:
-    XRCEListener() {};
-    virtual ~XRCEListener() {};
+    XRCEListener() = default;
+    virtual ~XRCEListener() = default;
 
-    virtual void on_create(const CREATE_PAYLOAD& create_payload) = 0;
-    virtual void on_delete(const DELETE_PAYLOAD& create_payload) = 0;
-    virtual void on_write(const WRITE_DATA_PAYLOAD&  write_payload) = 0;
-    virtual void on_read(const READ_DATA_PAYLOAD&   read_payload) = 0;
+    virtual void on_message(const CREATE_PAYLOAD& create_payload) = 0;
+    virtual void on_message(const DELETE_PAYLOAD& create_payload) = 0;
+    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload) = 0;
+    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload) = 0;
 };
 
 class XRCEParser
