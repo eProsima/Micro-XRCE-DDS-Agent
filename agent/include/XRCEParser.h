@@ -3,6 +3,8 @@
 
 #include "Serializer.h"
 
+class MessageHeader;
+class SubmessageHeader;
 class CREATE_PAYLOAD;
 class DELETE_PAYLOAD;
 class WRITE_DATA_PAYLOAD;
@@ -35,6 +37,10 @@ private:
     bool process_delete();
     bool process_write_data();
     bool process_read_data();
+
+    void print(const MessageHeader& message_header);
+    void print(const SubmessageHeader& submessage_header);
+    void print(const CREATE_PAYLOAD& create_message);
 
     XRCEListener* listener_ = nullptr;
     Serializer deserializer_;
