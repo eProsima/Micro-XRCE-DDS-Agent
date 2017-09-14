@@ -135,7 +135,7 @@ int main(int args, char** argv)
             printf("SEND ERROR: %d\n", ret);
         }
 
-        usleep(1000000);
+        usleep(2000000);
 
         if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
         {
@@ -148,7 +148,7 @@ int main(int args, char** argv)
             printf("RECV ERROR: %d\n", ret);
         }
 
-        usleep(1000000);
+        usleep(2000000);
     }
 
     printf("exiting...\n");

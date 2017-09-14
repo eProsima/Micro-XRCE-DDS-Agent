@@ -263,10 +263,6 @@ int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_
         return len;
     }
 
-    // copy message to outbuffer and set other return values
-    memmove(out_buffer, ch->rx_buffer, len);
-    return len;
-
     ch->rx_buff_pos += len;
 
     // We read some
@@ -339,7 +335,7 @@ int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_
     {
         // copy message to outbuffer and set other return values
         memmove(out_buffer, ch->rx_buffer + msg_start_pos + header_size, payload_len);
-        len = payload_len + header_size;
+        len = payload_len;
     }
 
     // discard message from rx_buffer

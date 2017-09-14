@@ -130,13 +130,13 @@ void create_message(SerializedBufferHandle* message)
         switch(payload.object.kind)
         {
             case OBJECT_KIND_DATAWRITER:
-                payload.object.variant.data_writer.participant_id = 0xAAAAAA;
-                payload.object.variant.data_writer.publisher_id = 0xBBBBBB;
+                payload.object.variant.data_writer.participant_id = 0xABCDEF;
+                payload.object.variant.data_writer.publisher_id = 0x123456;
             break;
 
             case OBJECT_KIND_DATAREADER:
-                payload.object.variant.data_reader.participant_id = 0xCCCCCC;
-                payload.object.variant.data_reader.subscriber_id = 0xDDDDDD;
+                payload.object.variant.data_reader.participant_id = 0xCBCDEFA;
+                payload.object.variant.data_reader.subscriber_id = 0x234561;
             break;
 
             case OBJECT_KIND_SUBSCRIBER:
