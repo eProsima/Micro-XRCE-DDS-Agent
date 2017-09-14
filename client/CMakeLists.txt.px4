@@ -1,0 +1,9 @@
+px4_add_module(
+	MODULE lib__client
+	SRCS
+		message.c
+		mini_cdr.c
+		serialization.c
+	DEPENDS
+		platforms__common
+	)
