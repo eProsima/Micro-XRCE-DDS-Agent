@@ -13,6 +13,7 @@ extern "C"
 // --------------------------------------------------------------------
 #define SUBMESSAGE_CREATE        0x01
 #define SUBMESSAGE_DELETE        0x03
+#define SUBMESSAGE_STATUS        0x04
 #define SUBMESSAGE_WRITE_DATA    0x06
 #define SUBMESSAGE_READ_DATA     0x07
 #define SUBMESSAGE_DATA          0x08
@@ -21,8 +22,8 @@ extern "C"
 #define OBJECT_ID_CLIENT     0xFFFFF0
 #define OBJECT_ID_SESSION    0xFFFFF1
 
-#define OBJECT_KIND_DATAWRITER   0x03
-#define OBJECT_KIND_DATAREADER   0x07
+#define OBJECT_KIND_DATA_WRITER   0x03
+#define OBJECT_KIND_DATA_READER   0x07
 #define OBJECT_KIND_SUBSCRIBER   0x08
 #define OBJECT_KIND_PUBLISHER    0x09
 
@@ -238,6 +239,7 @@ typedef union PayloadSpec
 {
     CreatePayloadSpec create_resource;
     DeletePayloadSpec delete_resource;
+    StatusPayloadSpec status;
     WriteDataPayloadSpec write_data;
     ReadDataPayloadSpec read_data;
     DataPayloadSpec data;

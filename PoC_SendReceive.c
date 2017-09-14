@@ -11,6 +11,7 @@ void on_message_header_received(const MessageHeaderSpec* header);
 void on_submessage_header_received(const SubmessageHeaderSpec* header);
 void on_create_submessage_received(const CreatePayloadSpec* payload);
 void on_delete_resource_received(const DeletePayloadSpec* payload);
+void on_status_received(const StatusPayloadSpec* payload);
 void on_write_data_submessage_received(const WriteDataPayloadSpec* payload);
 void on_read_data_received(const ReadDataPayloadSpec* payload);
 void on_data_received(const DataPayloadSpec* payload);
@@ -39,6 +40,7 @@ int client_test_main(int argc, char *argv[])
     callback.submessage_header = on_submessage_header_received;
     callback.create_resource = on_create_submessage_received;
     callback.delete_resource = on_delete_resource_received;
+    callback.status = on_status_received;
     callback.write_data = on_write_data_submessage_received;
     callback.read_data = on_read_data_received;
     callback.data = on_data_received;
@@ -122,21 +124,21 @@ void create_message(SerializedBufferHandle* message)
         CreatePayloadSpec payload;
         payload.request_id = 0xAABBCCDD;
         payload.object_id = 0x778899;
-        payload.object.kind = OBJECT_KIND_DATAWRITER;
+        payload.object.kind = OBJECT_KIND_DATA_WRITER;
 
         payload.object.string = string;
         payload.object.string_size = strlen(string) + 1;
 
         switch(payload.object.kind)
         {
-            case OBJECT_KIND_DATAWRITER:
-                payload.object.variant.data_writer.participant_id = 0xABCDEF;
-                payload.object.variant.data_writer.publisher_id = 0x123456;
+            case OBJECT_KIND_DATA_WRITER:
+                payload.object.variant.data_writer.participant_id = 0xAAAAAA;
+                payload.object.variant.data_writer.publisher_id = 0xBBBBBB;
             break;
 
-            case OBJECT_KIND_DATAREADER:
-                payload.object.variant.data_reader.participant_id = 0xCBCDEFA;
-                payload.object.variant.data_reader.subscriber_id = 0x234561;
+            case OBJECT_KIND_DATA_READER:
+                payload.object.variant.data_reader.participant_id = 0xCCCCCC;
+                payload.object.variant.data_reader.subscriber_id = 0xDDDDDD;
             break;
 
             case OBJECT_KIND_SUBSCRIBER:
@@ -161,6 +163,31 @@ void create_message(SerializedBufferHandle* message)
         add_delete_submessage(message, &payload);
     }
 
+    // [STATUS] SUBMESSAGE
+    {
+        StatusPayloadSpec payload;
+        payload.result.request_id = 0x12345678;
+        payload.result.status = 0x01;
+        payload.result.implementation_status = 0x02;
+
+        payload.object_id = 0xABCDEF;
+        payload.status.kind = OBJECT_KIND_DATA_WRITER;
+
+        StatusVariantSpec* variant = &payload.status.variant;
+        switch(payload.status.kind)
+        {
+            case OBJECT_KIND_DATA_WRITER:
+                variant->writer.stream_seq_num = 0xAABB;
+                variant->writer.sample_seq_num = 0x01234567;
+            break;
+
+            case OBJECT_KIND_DATA_READER:
+                variant->reader.highest_acked_num = 0xAABB;
+            break;
+        }
+
+        add_status_submessage(message, &payload);
+    }
 
     // [WRITE_DATA] SUBMESSAGE
     {
@@ -181,8 +208,8 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x01;
-                kind->sample.info.sequence_number = 0xFFFFFFFF;
-                kind->sample.info.session_time_offset = 0xAAAAAAAA;
+                kind->sample.info.sequence_number = 0x01234567;
+                kind->sample.info.session_time_offset = 0xAAAABBBB;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
             break;
@@ -197,7 +224,9 @@ void create_message(SerializedBufferHandle* message)
 
         ReadDataPayloadSpec payload;
         payload.request_id = 0x11223344;
+        payload.object_id = 0x778899;
         payload.max_messages = 12345;
+        payload.read_mode = 0x02;
         payload.max_elapsed_time = 987654321;
         payload.max_rate = 123123123;
         payload.content_filter_expression = expresion;
@@ -227,15 +256,16 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x08;
-                kind->sample.info.sequence_number = 0xAAAAAAAA;
-                kind->sample.info.session_time_offset = 0xBBBBBBBB;
+                kind->sample.info.sequence_number = 0x01234567;
+                kind->sample.info.session_time_offset = 0xAAAABBBB;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
             break;
         }
 
         add_data_submessage(message, &payload);
-    } */
+    }
+    */
 }
 
 void on_message_header_received(const MessageHeaderSpec* header)
@@ -257,6 +287,9 @@ void on_submessage_header_received(const SubmessageHeaderSpec* header)
         break;
         case SUBMESSAGE_DELETE:
             printf("<Submessage> [DELETE]\n");
+        break;
+        case SUBMESSAGE_STATUS:
+            printf("<Submessage> [STATUS]\n");
         break;
         case SUBMESSAGE_WRITE_DATA:
             printf("<Submessage> [WRITE_DATA]\n");
@@ -282,31 +315,37 @@ void on_create_submessage_received(const CreatePayloadSpec* payload)
     printf("  - request_id: 0x%08X\n", payload->request_id);
     printf("  - object_id: 0x%06X\n", payload->object_id);
     printf("  - kind: 0x%02X\n", payload->object.kind);
-    printf("  - string_size: 0x%08X\n", payload->object.string_size);
-    printf("  - string: %s\n", payload->object.string);
 
     const ObjectVariantSpec* variant = &payload->object.variant;
     switch(payload->object.kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             printf("    <Data writer>\n");
+            printf("    - string_size: 0x%08X\n", payload->object.string_size);
+            printf("    - string: %s\n", payload->object.string);
             printf("    - participan_id: 0x%06X\n", variant->data_writer.participant_id);
             printf("    - publisher_id: 0x%06X\n", variant->data_writer.publisher_id);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             printf("    <Data reader>\n");
+            printf("    - string_size: 0x%08X\n", payload->object.string_size);
+            printf("    - string: %s\n", payload->object.string);
             printf("    - participan_id: 0x%06X\n", variant->data_reader.participant_id);
             printf("    - subscriber_id: 0x%06X\n", variant->data_reader.subscriber_id);
         break;
 
         case OBJECT_KIND_SUBSCRIBER:
             printf("    <Data subscriber>\n");
+            printf("    - string_size: 0x%08X\n", payload->object.string_size);
+            printf("    - string: %s\n", payload->object.string);
             printf("    - participan_id: 0x%06X\n", variant->subscriber.participant_id);
         break;
 
         case OBJECT_KIND_PUBLISHER:
             printf("    <Data publisher>\n");
+            printf("    - string_size: 0x%08X\n", payload->object.string_size);
+            printf("    - string: %s\n", payload->object.string);
             printf("    - participan_id: 0x%06X\n", variant->publisher.participant_id);
         break;
     }
@@ -318,6 +357,30 @@ void on_delete_resource_received(const DeletePayloadSpec* payload)
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", payload->request_id);
     printf("  - object_id: 0x%06X\n", payload->object_id);
+    printf("\n\n");
+}
+
+void on_status_received(const StatusPayloadSpec* payload)
+{
+    printf("  <Payload>\n");
+    printf("  - request_id: 0x%08X\n", payload->result.request_id);
+    printf("  - status: 0x%02X\n", payload->result.status);
+    printf("  - implementation_status: 0x%02X\n", payload->result.implementation_status);
+    printf("  - object_id: 0x%06X\n", payload->object_id);
+    printf("  - kind: 0x%02X\n", payload->status.kind);
+
+    const StatusVariantSpec* variant = &payload->status.variant;
+    switch(payload->status.kind)
+        {
+            case OBJECT_KIND_DATA_WRITER:
+                printf("    - stream_seq_num: 0x%04X\n", variant->writer.stream_seq_num);
+                printf("    - sample_seq_num: 0x%08X\n", variant->writer.sample_seq_num);
+            break;
+
+            case OBJECT_KIND_DATA_READER:
+                printf("    - highest_acked_num: 0x%08X\n", variant->reader.highest_acked_num);
+            break;
+        }
     printf("\n\n");
 }
 
@@ -339,7 +402,7 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* payload)
 
         case READ_MODE_SAMPLE:
             printf("    - state: %02X\n", kind->sample.info.state);
-            printf("    - sequence_number: 0x%016lX\n", kind->sample.info.sequence_number);
+            printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
             printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);
@@ -352,13 +415,15 @@ void on_read_data_received(const ReadDataPayloadSpec* payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", payload->request_id);
-    printf("  - object_id: %hu\n", payload->max_messages);
-    printf("  - object_id: %u\n", payload->max_elapsed_time);
-    printf("  - object_id: %u\n", payload->max_rate);
-    printf("  - object_id: %u\n", payload->expression_size);
-    printf("  - object_id: %s\n", payload->content_filter_expression);
-    printf("  - object_id: %hu\n", payload->max_samples);
-    printf("  - object_id: 0x%02X\n", payload->include_sample_info);
+    printf("  - object_id: 0x%06X\n", payload->object_id);
+    printf("  - max_messages: %hu\n", payload->max_messages);
+    printf("  - read_mode: 0x%02X\n", payload->read_mode);
+    printf("  - max_elapsed_time: %u\n", payload->max_elapsed_time);
+    printf("  - max_rate: %u\n", payload->max_rate);
+    printf("  - expression_size: %u\n", payload->expression_size);
+    printf("  - content_filter_expression: %s\n", payload->content_filter_expression);
+    printf("  - max_samples: %hu\n", payload->max_samples);
+    printf("  - include_sample_info: 0x%02X\n", payload->include_sample_info);
     printf("\n\n");
 }
 
@@ -380,7 +445,7 @@ void on_data_received(const DataPayloadSpec* payload)
 
         case READ_MODE_SAMPLE:
             printf("    - state: 0x%02X\n", kind->sample.info.state);
-            printf("    - sequence_number: 0x%016lX\n", kind->sample.info.sequence_number);
+            printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
             printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);
