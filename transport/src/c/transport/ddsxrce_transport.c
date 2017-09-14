@@ -38,11 +38,6 @@
 #include "ddsxrce_serial_transport.h"
 #include "ddsxrce_transport.h"
 
-channel_id_t ch_id = -1;
-
-uint16_t crc16_byte(uint16_t crc, const octet data);
-uint16_t crc16(octet const *buffer, size_t len);
-
 channel_id_t add_locator(const locator_t* locator)
 {
     if (NULL ==  locator)
@@ -59,7 +54,6 @@ channel_id_t add_locator(const locator_t* locator)
             {
                 return TRANSPORT_ERROR;
             }
-            ch_id = id;
             return id;
         }
         break;
