@@ -59,7 +59,7 @@ void XRCEParser::print(const CREATE_PAYLOAD& create_message)
     {
         case OBJK_DATAWRITER:
             printf("  - string_size: 0x%08X\n", create_message.object_representation().data_writer().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().data_writer().as_string());
+            printf("  - string: %s\n", create_message.object_representation().data_writer().as_string().data());
             printf("    <Data writer>\n");
             printf("    - participan_id: 0x%06X\n", create_message.object_representation().data_writer().participant_id());
             printf("    - publisher_id: 0x%06X\n", create_message.object_representation().data_writer().publisher_id());
@@ -67,7 +67,7 @@ void XRCEParser::print(const CREATE_PAYLOAD& create_message)
 
         case OBJK_DATAREADER:
             printf("  - string_size: 0x%08X\n", create_message.object_representation().data_reader().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().data_reader().as_string());
+            printf("  - string: %s\n", create_message.object_representation().data_reader().as_string().data());
             printf("    <Data reader>\n");
             printf("    - participan_id: 0x%06X\n", create_message.object_representation().data_reader().participant_id());
             printf("    - subscriber_id: 0x%06X\n", create_message.object_representation().data_reader().subscriber_id());
@@ -75,14 +75,14 @@ void XRCEParser::print(const CREATE_PAYLOAD& create_message)
 
         case OBJK_SUBSCRIBER:
             printf("  - string_size: 0x%08X\n", create_message.object_representation().subscriber().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().subscriber().as_string());
+            printf("  - string: %s\n", create_message.object_representation().subscriber().as_string().data());
             printf("    <Data subscriber>\n");
             printf("    - participan_id: 0x%06X\n", create_message.object_representation().subscriber().participant_id());
         break;
 
         case OBJK_PUBLISHER:
             printf("  - string_size: 0x%08X\n", create_message.object_representation().publisher().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().publisher().as_string());
+            printf("  - string: %s\n", create_message.object_representation().publisher().as_string().data());
             printf("    <Data publisher>\n");
             printf("    - participan_id: 0x%06X\n", create_message.object_representation().publisher().participant_id());
         break;
