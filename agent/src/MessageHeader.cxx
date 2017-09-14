@@ -118,7 +118,7 @@ void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
     scdr << client_key_;
     scdr << session_id_;
     scdr << stream_id_;
-    scdr << sequence_nr_;
+    scdr.serialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
 
 void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -126,5 +126,5 @@ void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> client_key_;
     dcdr >> session_id_;
     dcdr >> stream_id_;
-    dcdr >> sequence_nr_;
+    dcdr.deserialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }

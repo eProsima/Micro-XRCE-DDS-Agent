@@ -108,12 +108,12 @@ void SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << submessage_id_;
     scdr << flags_;
-    scdr << submessage_length_;
+    scdr.serialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
 
 void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> submessage_id_;
     dcdr >> flags_;
-    dcdr >> submessage_length_;
+    dcdr.deserialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
