@@ -119,6 +119,78 @@ void CREATE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> object_representation_;
 }
 
+DELETE_PAYLOAD::DELETE_PAYLOAD()
+{
+
+
+}
+
+DELETE_PAYLOAD::~DELETE_PAYLOAD()
+{
+}
+
+DELETE_PAYLOAD::DELETE_PAYLOAD(const DELETE_PAYLOAD &x)
+{
+    request_id_ = x.request_id_;
+    object_id_ = x.object_id_;
+}
+
+DELETE_PAYLOAD::DELETE_PAYLOAD(DELETE_PAYLOAD &&x)
+{
+    request_id_ = std::move(x.request_id_);
+    object_id_ = std::move(x.object_id_);
+}
+
+DELETE_PAYLOAD& DELETE_PAYLOAD::operator=(const DELETE_PAYLOAD &x)
+{
+    request_id_ = x.request_id_;
+    object_id_ = x.object_id_;
+
+    return *this;
+}
+
+DELETE_PAYLOAD& DELETE_PAYLOAD::operator=(DELETE_PAYLOAD &&x)
+{
+    request_id_ = std::move(x.request_id_);
+    object_id_ = std::move(x.object_id_);
+
+    return *this;
+}
+
+size_t DELETE_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
+    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
+
+    return current_alignment - initial_alignment;
+}
+
+size_t DELETE_PAYLOAD::getCdrSerializedSize(const DELETE_PAYLOAD& data, size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
+    return current_alignment - initial_alignment;
+}
+
+void DELETE_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << request_id_;
+    scdr << object_id_;
+}
+
+void DELETE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr >> request_id_;
+    dcdr >> object_id_;
+}
+
 RESOURCE_STATUS_PAYLOAD::RESOURCE_STATUS_PAYLOAD()
 {
 

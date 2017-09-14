@@ -35,10 +35,10 @@ using namespace eprosima::fastcdr::exception;
 
 MessageHeader::MessageHeader()
 {
-	client_key_ = 0;
-	session_id_ = 0;
-	stream_id_ = 0;
-	sequence_nr_ = 0;
+    client_key_ = 0;
+    session_id_ = 0;
+    stream_id_ = 0;
+    sequence_nr_ = 0;
 }
 
 MessageHeader::~MessageHeader()
@@ -47,84 +47,84 @@ MessageHeader::~MessageHeader()
 
 MessageHeader::MessageHeader(const MessageHeader &x)
 {
-	client_key_ = x.client_key_;
-	session_id_ = x.session_id_;
-	stream_id_ = x.stream_id_;
-	sequence_nr_ = x.sequence_nr_;
+    client_key_ = x.client_key_;
+    session_id_ = x.session_id_;
+    stream_id_ = x.stream_id_;
+    sequence_nr_ = x.sequence_nr_;
 }
 
 MessageHeader::MessageHeader(MessageHeader &&x)
 {
-	client_key_ = x.client_key_;
-	session_id_ = x.session_id_;
-	stream_id_ = x.stream_id_;
-	sequence_nr_ = x.sequence_nr_;
+    client_key_ = x.client_key_;
+    session_id_ = x.session_id_;
+    stream_id_ = x.stream_id_;
+    sequence_nr_ = x.sequence_nr_;
 }
 
 MessageHeader& MessageHeader::operator=(const MessageHeader &x)
 {
-	client_key_ = x.client_key_;
-	session_id_ = x.session_id_;
-	stream_id_ = x.stream_id_;
-	sequence_nr_ = x.sequence_nr_;
+    client_key_ = x.client_key_;
+    session_id_ = x.session_id_;
+    stream_id_ = x.stream_id_;
+    sequence_nr_ = x.sequence_nr_;
 
-	return *this;
+    return *this;
 }
 
 MessageHeader& MessageHeader::operator=(MessageHeader &&x)
 {
-	client_key_ = x.client_key_;
-	session_id_ = x.session_id_;
-	stream_id_ = x.stream_id_;
-	sequence_nr_ = x.sequence_nr_;
+    client_key_ = x.client_key_;
+    session_id_ = x.session_id_;
+    stream_id_ = x.stream_id_;
+    sequence_nr_ = x.sequence_nr_;
 
-	return *this;
+    return *this;
 }
 
 size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 {
-	size_t initial_alignment = current_alignment;
+    size_t initial_alignment = current_alignment;
 
-	current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
-	current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-	current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-	current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
 
-	return current_alignment - initial_alignment;
+    return current_alignment - initial_alignment;
 }
 
 size_t MessageHeader::getCdrSerializedSize(const MessageHeader& data, size_t current_alignment)
 {
-	size_t initial_alignment = current_alignment;
+    size_t initial_alignment = current_alignment;
 
-	current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
-	current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-	current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-	current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
 
-	return current_alignment - initial_alignment;
+    return current_alignment - initial_alignment;
 }
 
 void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-	scdr << client_key_;
-	scdr << session_id_;
-	scdr << stream_id_;
-	scdr << sequence_nr_;
+    scdr << client_key_;
+    scdr << session_id_;
+    scdr << stream_id_;
+    scdr << sequence_nr_;
 }
 
 void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-	dcdr >> client_key_;
-	dcdr >> session_id_;
-	dcdr >> stream_id_;
-	dcdr >> sequence_nr_;
+    dcdr >> client_key_;
+    dcdr >> session_id_;
+    dcdr >> stream_id_;
+    dcdr >> sequence_nr_;
 }

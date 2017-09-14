@@ -140,7 +140,7 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x01;
-                kind->sample.info.sequence_number = 0xFFFFFFFFFFFFFFFF;
+                kind->sample.info.sequence_number = 0xAAAAFFFF;
                 kind->sample.info.session_time_offset = 0xAAAAAAAA;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
@@ -156,7 +156,9 @@ void create_message(SerializedBufferHandle* message)
 
         ReadDataPayloadSpec payload;
         payload.request_id = 0x11223344;
+        payload.object_id = 0x778899;
         payload.max_messages = 12345;
+        payload.read_mode = 0x02;
         payload.max_elapsed_time = 987654321;
         payload.max_rate = 123123123;
         payload.content_filter_expression = expresion;
@@ -186,7 +188,7 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x08;
-                kind->sample.info.sequence_number = 0xAAAAAAAAAAAAAAAA;
+                kind->sample.info.sequence_number = 0xAAAAFFFF;
                 kind->sample.info.session_time_offset = 0xBBBBBBBB;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
@@ -298,7 +300,7 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* payload)
 
         case READ_MODE_SAMPLE:
             printf("    - state: %02X\n", kind->sample.info.state);
-            printf("    - sequence_number: 0x%016lX\n", kind->sample.info.sequence_number);
+            printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
             printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);
@@ -311,13 +313,15 @@ void on_read_data_received(const ReadDataPayloadSpec* payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", payload->request_id);
-    printf("  - object_id: %hu\n", payload->max_messages);
-    printf("  - object_id: %u\n", payload->max_elapsed_time);
-    printf("  - object_id: %u\n", payload->max_rate);
-    printf("  - object_id: %u\n", payload->expression_size);
-    printf("  - object_id: %s\n", payload->content_filter_expression);
-    printf("  - object_id: %hu\n", payload->max_samples);
-    printf("  - object_id: 0x%02X\n", payload->include_sample_info);
+    printf("  - object_id: 0x%06X\n", payload->object_id);
+    printf("  - max_messages: %hu\n", payload->max_messages);
+    printf("  - read_mode: 0x%02X\n", payload->read_mode);
+    printf("  - max_elapsed_time: %u\n", payload->max_elapsed_time);
+    printf("  - max_rate: %u\n", payload->max_rate);
+    printf("  - expression_size: %u\n", payload->expression_size);
+    printf("  - content_filter_expression: %s\n", payload->content_filter_expression);
+    printf("  - max_samples: %hu\n", payload->max_samples);
+    printf("  - include_sample_info: 0x%02X\n", payload->include_sample_info);
     printf("\n\n");
 }
 
@@ -339,7 +343,7 @@ void on_data_received(const DataPayloadSpec* payload)
 
         case READ_MODE_SAMPLE:
             printf("    - state: 0x%02X\n", kind->sample.info.state);
-            printf("    - sequence_number: 0x%016lX\n", kind->sample.info.sequence_number);
+            printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
             printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);

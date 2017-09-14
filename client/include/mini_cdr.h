@@ -41,6 +41,16 @@ void deserialize_byte_8(SerializedBufferHandle* buffer, uint64_t* bytes);
 void deserialize_block(SerializedBufferHandle* buffer, uint8_t* block, uint32_t size);
 void deserialize_array(SerializedBufferHandle* buffer, uint8_t* array, uint32_t size);
 
+void serialize_byte_2_endian(SerializedBufferHandle* buffer, uint16_t bytes, uint8_t endian);
+void serialize_byte_4_endian(SerializedBufferHandle* buffer, uint32_t bytes, uint8_t endian);
+void serialize_byte_8_endian(SerializedBufferHandle* buffer, uint64_t bytes, uint8_t endian);
+void serialize_block_endian(SerializedBufferHandle* buffer, const uint8_t* block, uint32_t size, uint8_t endian);
+
+void deserialize_byte_2_endian(SerializedBufferHandle* buffer, uint16_t* bytes, uint8_t endian);
+void deserialize_byte_4_endian(SerializedBufferHandle* buffer, uint32_t* bytes, uint8_t endian);
+void deserialize_byte_8_endian(SerializedBufferHandle* buffer, uint64_t* bytes, uint8_t endian);
+void deserialize_block_endian(SerializedBufferHandle* buffer, uint8_t* block, uint32_t size, uint8_t endian);
+
 void align_to(SerializedBufferHandle* buffer, uint32_t alignment);
 
 //TODO:

@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <time.h>
 
+/*
+    Diferencias de implementacion:
+
+                     mini                                  micro
+    no comprueba si se sale de rango     |  comprueba si se sale de rango
+    no comprueba alineaciones            |  comprueba alineaciones incluso en char
+    no usa malloc nunca                  |  usa malloc en los arrays
+    no usa for para serlializar en tipos |  usa for en los tipos de tamaño cte
+*/
+
 #define BUFFER_SIZE 40000
 
 void test(int endian);

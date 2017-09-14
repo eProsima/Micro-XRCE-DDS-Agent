@@ -50,7 +50,7 @@ typedef std::array<uint8_t, 3> ObjectId;
 #define  OBJECTID_CLIENT  {0xFF,0xFF,0xF0}
 #define  OBJECTID_SESSION {0xFF,0xFF,0xF1}
 
-// Spells ‘X’ ‘R’ ‘C’ ‘E’
+// Spells XRCE
 #define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
 #define XRCE_VESION_MAJOR     0x01
 #define XRCE_VESION_MINOR     0x00
@@ -2942,161 +2942,161 @@ class DataReaderReadeSpec
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	DataReaderReadeSpec();
+    /*!
+    * @brief Default constructor.
+    */
+    DataReaderReadeSpec();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~DataReaderReadeSpec();
+    /*!
+    * @brief Default destructor.
+    */
+    ~DataReaderReadeSpec();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object DataReaderReadeSpec that will be copied.
-	*/
-	DataReaderReadeSpec(const DataReaderReadeSpec &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object DataReaderReadeSpec that will be copied.
+    */
+    DataReaderReadeSpec(const DataReaderReadeSpec &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object DataReaderReadeSpec that will be copied.
-	*/
-	DataReaderReadeSpec(DataReaderReadeSpec &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object DataReaderReadeSpec that will be copied.
+    */
+    DataReaderReadeSpec(DataReaderReadeSpec &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object DataReaderReadeSpec that will be copied.
-	*/
-	DataReaderReadeSpec& operator=(const DataReaderReadeSpec &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object DataReaderReadeSpec that will be copied.
+    */
+    DataReaderReadeSpec& operator=(const DataReaderReadeSpec &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object DataReaderReadeSpec that will be copied.
-	*/
-	DataReaderReadeSpec& operator=(DataReaderReadeSpec &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object DataReaderReadeSpec that will be copied.
+    */
+    DataReaderReadeSpec& operator=(DataReaderReadeSpec &&x);
 
-	/*!
-	* @brief This function sets a value in member max_samples
-	* @param _max_samples New value for member max_samples
-	*/
-	inline void max_samples(int16_t _max_samples)
-	{
-		max_samples_ = _max_samples;
-	}
+    /*!
+    * @brief This function sets a value in member max_samples
+    * @param _max_samples New value for member max_samples
+    */
+    inline void max_samples(int16_t _max_samples)
+    {
+        max_samples_ = _max_samples;
+    }
 
-	/*!
-	* @brief This function returns the value of member max_samples
-	* @return Value of member max_samples
-	*/
-	inline int16_t max_samples() const
-	{
-		return max_samples_;
-	}
+    /*!
+    * @brief This function returns the value of member max_samples
+    * @return Value of member max_samples
+    */
+    inline int16_t max_samples() const
+    {
+        return max_samples_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member max_samples
-	* @return Reference to member max_samples
-	*/
-	inline int16_t& max_samples()
-	{
-		return max_samples_;
-	}
-	/*!
-	* @brief This function sets a value in member include_info
-	* @param _include_info New value for member include_info
-	*/
-	inline void include_info(bool _include_info)
-	{
-		include_info_ = _include_info;
-	}
+    /*!
+    * @brief This function returns a reference to member max_samples
+    * @return Reference to member max_samples
+    */
+    inline int16_t& max_samples()
+    {
+        return max_samples_;
+    }
+    /*!
+    * @brief This function sets a value in member include_info
+    * @param _include_info New value for member include_info
+    */
+    inline void include_info(bool _include_info)
+    {
+        include_info_ = _include_info;
+    }
 
-	/*!
-	* @brief This function returns the value of member include_info
-	* @return Value of member include_info
-	*/
-	inline bool include_info() const
-	{
-		return include_info_;
-	}
+    /*!
+    * @brief This function returns the value of member include_info
+    * @return Value of member include_info
+    */
+    inline bool include_info() const
+    {
+        return include_info_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member include_info
-	* @return Reference to member include_info
-	*/
-	inline bool& include_info()
-	{
-		return include_info_;
-	}
-	/*!
-	* @brief This function copies the value in member content_filter
-	* @param _content_filter New value to be copied in member content_filter
-	*/
-	inline void content_filter(const std::string &_content_filter)
-	{
-		content_filter_ = _content_filter;
-	}
+    /*!
+    * @brief This function returns a reference to member include_info
+    * @return Reference to member include_info
+    */
+    inline bool& include_info()
+    {
+        return include_info_;
+    }
+    /*!
+    * @brief This function copies the value in member content_filter
+    * @param _content_filter New value to be copied in member content_filter
+    */
+    inline void content_filter(const std::string &_content_filter)
+    {
+        content_filter_ = _content_filter;
+    }
 
-	/*!
-	* @brief This function moves the value in member content_filter
-	* @param _content_filter New value to be moved in member content_filter
-	*/
-	inline void content_filter(std::string &&_content_filter)
-	{
-		content_filter_ = std::move(_content_filter);
-	}
+    /*!
+    * @brief This function moves the value in member content_filter
+    * @param _content_filter New value to be moved in member content_filter
+    */
+    inline void content_filter(std::string &&_content_filter)
+    {
+        content_filter_ = std::move(_content_filter);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member content_filter
-	* @return Constant reference to member content_filter
-	*/
-	inline const std::string& content_filter() const
-	{
-		return content_filter_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member content_filter
+    * @return Constant reference to member content_filter
+    */
+    inline const std::string& content_filter() const
+    {
+        return content_filter_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member content_filter
-	* @return Reference to member content_filter
-	*/
-	inline std::string& content_filter()
-	{
-		return content_filter_;
-	}
+    /*!
+    * @brief This function returns a reference to member content_filter
+    * @return Reference to member content_filter
+    */
+    inline std::string& content_filter()
+    {
+        return content_filter_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const DataReaderReadeSpec& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const DataReaderReadeSpec& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	int16_t max_samples_;
-	bool include_info_;
-	std::string content_filter_;
+    int16_t max_samples_;
+    bool include_info_;
+    std::string content_filter_;
 };
 typedef uint8_t ReadMode;
 const ReadMode READM_DATA = 0x00;
@@ -3112,152 +3112,152 @@ class SampleInfo
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	SampleInfo();
+    /*!
+    * @brief Default constructor.
+    */
+    SampleInfo();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~SampleInfo();
+    /*!
+    * @brief Default destructor.
+    */
+    ~SampleInfo();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object SampleInfo that will be copied.
-	*/
-	SampleInfo(const SampleInfo &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object SampleInfo that will be copied.
+    */
+    SampleInfo(const SampleInfo &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object SampleInfo that will be copied.
-	*/
-	SampleInfo(SampleInfo &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object SampleInfo that will be copied.
+    */
+    SampleInfo(SampleInfo &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object SampleInfo that will be copied.
-	*/
-	SampleInfo& operator=(const SampleInfo &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object SampleInfo that will be copied.
+    */
+    SampleInfo& operator=(const SampleInfo &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object SampleInfo that will be copied.
-	*/
-	SampleInfo& operator=(SampleInfo &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object SampleInfo that will be copied.
+    */
+    SampleInfo& operator=(SampleInfo &&x);
 
-	/*!
-	* @brief This function sets a value in member state
-	* @param _state New value for member state
-	*/
-	inline void state(uint8_t _state)
-	{
-		state_ = _state;
-	}
+    /*!
+    * @brief This function sets a value in member state
+    * @param _state New value for member state
+    */
+    inline void state(uint8_t _state)
+    {
+        state_ = _state;
+    }
 
-	/*!
-	* @brief This function returns the value of member state
-	* @return Value of member state
-	*/
-	inline uint8_t state() const
-	{
-		return state_;
-	}
+    /*!
+    * @brief This function returns the value of member state
+    * @return Value of member state
+    */
+    inline uint8_t state() const
+    {
+        return state_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member state
-	* @return Reference to member state
-	*/
-	inline uint8_t& state()
-	{
-		return state_;
-	}
-	/*!
-	* @brief This function sets a value in member sequence_number
-	* @param _sequence_number New value for member sequence_number
-	*/
-	inline void sequence_number(uint64_t _sequence_number)
-	{
-		sequence_number_ = _sequence_number;
-	}
+    /*!
+    * @brief This function returns a reference to member state
+    * @return Reference to member state
+    */
+    inline uint8_t& state()
+    {
+        return state_;
+    }
+    /*!
+    * @brief This function sets a value in member sequence_number
+    * @param _sequence_number New value for member sequence_number
+    */
+    inline void sequence_number(uint64_t _sequence_number)
+    {
+        sequence_number_ = _sequence_number;
+    }
 
-	/*!
-	* @brief This function returns the value of member sequence_number
-	* @return Value of member sequence_number
-	*/
-	inline uint64_t sequence_number() const
-	{
-		return sequence_number_;
-	}
+    /*!
+    * @brief This function returns the value of member sequence_number
+    * @return Value of member sequence_number
+    */
+    inline uint64_t sequence_number() const
+    {
+        return sequence_number_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member sequence_number
-	* @return Reference to member sequence_number
-	*/
-	inline uint64_t& sequence_number()
-	{
-		return sequence_number_;
-	}
-	/*!
-	* @brief This function sets a value in member session_time_offset
-	* @param _session_time_offset New value for member session_time_offset
-	*/
-	inline void session_time_offset(uint32_t _session_time_offset)
-	{
-		session_time_offset_ = _session_time_offset;
-	}
+    /*!
+    * @brief This function returns a reference to member sequence_number
+    * @return Reference to member sequence_number
+    */
+    inline uint64_t& sequence_number()
+    {
+        return sequence_number_;
+    }
+    /*!
+    * @brief This function sets a value in member session_time_offset
+    * @param _session_time_offset New value for member session_time_offset
+    */
+    inline void session_time_offset(uint32_t _session_time_offset)
+    {
+        session_time_offset_ = _session_time_offset;
+    }
 
-	/*!
-	* @brief This function returns the value of member session_time_offset
-	* @return Value of member session_time_offset
-	*/
-	inline uint32_t session_time_offset() const
-	{
-		return session_time_offset_;
-	}
+    /*!
+    * @brief This function returns the value of member session_time_offset
+    * @return Value of member session_time_offset
+    */
+    inline uint32_t session_time_offset() const
+    {
+        return session_time_offset_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member session_time_offset
-	* @return Reference to member session_time_offset
-	*/
-	inline uint32_t& session_time_offset()
-	{
-		return session_time_offset_;
-	}
+    /*!
+    * @brief This function returns a reference to member session_time_offset
+    * @return Reference to member session_time_offset
+    */
+    inline uint32_t& session_time_offset()
+    {
+        return session_time_offset_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const SampleInfo& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const SampleInfo& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	uint8_t state_;
-	uint64_t sequence_number_;
-	uint32_t session_time_offset_;
+    uint8_t state_;
+    uint64_t sequence_number_;
+    uint32_t session_time_offset_;
 };
 /*!
 * @brief This class represents the structure SampleInfoDelta defined by the user in the IDL file.
@@ -3267,152 +3267,152 @@ class SampleInfoDelta
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	SampleInfoDelta();
+    /*!
+    * @brief Default constructor.
+    */
+    SampleInfoDelta();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~SampleInfoDelta();
+    /*!
+    * @brief Default destructor.
+    */
+    ~SampleInfoDelta();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object SampleInfoDelta that will be copied.
-	*/
-	SampleInfoDelta(const SampleInfoDelta &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object SampleInfoDelta that will be copied.
+    */
+    SampleInfoDelta(const SampleInfoDelta &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object SampleInfoDelta that will be copied.
-	*/
-	SampleInfoDelta(SampleInfoDelta &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object SampleInfoDelta that will be copied.
+    */
+    SampleInfoDelta(SampleInfoDelta &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object SampleInfoDelta that will be copied.
-	*/
-	SampleInfoDelta& operator=(const SampleInfoDelta &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object SampleInfoDelta that will be copied.
+    */
+    SampleInfoDelta& operator=(const SampleInfoDelta &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object SampleInfoDelta that will be copied.
-	*/
-	SampleInfoDelta& operator=(SampleInfoDelta &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object SampleInfoDelta that will be copied.
+    */
+    SampleInfoDelta& operator=(SampleInfoDelta &&x);
 
-	/*!
-	* @brief This function sets a value in member state
-	* @param _state New value for member state
-	*/
-	inline void state(uint8_t _state)
-	{
-		state_ = _state;
-	}
+    /*!
+    * @brief This function sets a value in member state
+    * @param _state New value for member state
+    */
+    inline void state(uint8_t _state)
+    {
+        state_ = _state;
+    }
 
-	/*!
-	* @brief This function returns the value of member state
-	* @return Value of member state
-	*/
-	inline uint8_t state() const
-	{
-		return state_;
-	}
+    /*!
+    * @brief This function returns the value of member state
+    * @return Value of member state
+    */
+    inline uint8_t state() const
+    {
+        return state_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member state
-	* @return Reference to member state
-	*/
-	inline uint8_t& state()
-	{
-		return state_;
-	}
-	/*!
-	* @brief This function sets a value in member info_seq_number_delta
-	* @param _info_seq_number_delta New value for member info_seq_number_delta
-	*/
-	inline void info_seq_number_delta(uint8_t _info_seq_number_delta)
-	{
-		info_seq_number_delta_ = _info_seq_number_delta;
-	}
+    /*!
+    * @brief This function returns a reference to member state
+    * @return Reference to member state
+    */
+    inline uint8_t& state()
+    {
+        return state_;
+    }
+    /*!
+    * @brief This function sets a value in member info_seq_number_delta
+    * @param _info_seq_number_delta New value for member info_seq_number_delta
+    */
+    inline void info_seq_number_delta(uint8_t _info_seq_number_delta)
+    {
+        info_seq_number_delta_ = _info_seq_number_delta;
+    }
 
-	/*!
-	* @brief This function returns the value of member info_seq_number_delta
-	* @return Value of member info_seq_number_delta
-	*/
-	inline uint8_t info_seq_number_delta() const
-	{
-		return info_seq_number_delta_;
-	}
+    /*!
+    * @brief This function returns the value of member info_seq_number_delta
+    * @return Value of member info_seq_number_delta
+    */
+    inline uint8_t info_seq_number_delta() const
+    {
+        return info_seq_number_delta_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member info_seq_number_delta
-	* @return Reference to member info_seq_number_delta
-	*/
-	inline uint8_t& info_seq_number_delta()
-	{
-		return info_seq_number_delta_;
-	}
-	/*!
-	* @brief This function sets a value in member info_timestamp_delta
-	* @param _info_timestamp_delta New value for member info_timestamp_delta
-	*/
-	inline void info_timestamp_delta(uint16_t _info_timestamp_delta)
-	{
-		info_timestamp_delta_ = _info_timestamp_delta;
-	}
+    /*!
+    * @brief This function returns a reference to member info_seq_number_delta
+    * @return Reference to member info_seq_number_delta
+    */
+    inline uint8_t& info_seq_number_delta()
+    {
+        return info_seq_number_delta_;
+    }
+    /*!
+    * @brief This function sets a value in member info_timestamp_delta
+    * @param _info_timestamp_delta New value for member info_timestamp_delta
+    */
+    inline void info_timestamp_delta(uint16_t _info_timestamp_delta)
+    {
+        info_timestamp_delta_ = _info_timestamp_delta;
+    }
 
-	/*!
-	* @brief This function returns the value of member info_timestamp_delta
-	* @return Value of member info_timestamp_delta
-	*/
-	inline uint16_t info_timestamp_delta() const
-	{
-		return info_timestamp_delta_;
-	}
+    /*!
+    * @brief This function returns the value of member info_timestamp_delta
+    * @return Value of member info_timestamp_delta
+    */
+    inline uint16_t info_timestamp_delta() const
+    {
+        return info_timestamp_delta_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member info_timestamp_delta
-	* @return Reference to member info_timestamp_delta
-	*/
-	inline uint16_t& info_timestamp_delta()
-	{
-		return info_timestamp_delta_;
-	}
+    /*!
+    * @brief This function returns a reference to member info_timestamp_delta
+    * @return Reference to member info_timestamp_delta
+    */
+    inline uint16_t& info_timestamp_delta()
+    {
+        return info_timestamp_delta_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const SampleInfoDelta& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const SampleInfoDelta& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	uint8_t state_;
-	uint8_t info_seq_number_delta_;
-	uint16_t info_timestamp_delta_;
+    uint8_t state_;
+    uint8_t info_seq_number_delta_;
+    uint16_t info_timestamp_delta_;
 };
 /*!
 * @brief This class represents the structure SampleData defined by the user in the IDL file.
@@ -3422,107 +3422,107 @@ class SampleData
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	SampleData();
+    /*!
+    * @brief Default constructor.
+    */
+    SampleData();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~SampleData();
+    /*!
+    * @brief Default destructor.
+    */
+    ~SampleData();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object SampleData that will be copied.
-	*/
-	SampleData(const SampleData &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object SampleData that will be copied.
+    */
+    SampleData(const SampleData &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object SampleData that will be copied.
-	*/
-	SampleData(SampleData &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object SampleData that will be copied.
+    */
+    SampleData(SampleData &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object SampleData that will be copied.
-	*/
-	SampleData& operator=(const SampleData &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object SampleData that will be copied.
+    */
+    SampleData& operator=(const SampleData &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object SampleData that will be copied.
-	*/
-	SampleData& operator=(SampleData &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object SampleData that will be copied.
+    */
+    SampleData& operator=(SampleData &&x);
 
-	/*!
-	* @brief This function copies the value in member serialized_data
-	* @param _serialized_data New value to be copied in member serialized_data
-	*/
-	inline void serialized_data(const std::vector<uint8_t> &_serialized_data)
-	{
-		serialized_data_ = _serialized_data;
-	}
+    /*!
+    * @brief This function copies the value in member serialized_data
+    * @param _serialized_data New value to be copied in member serialized_data
+    */
+    inline void serialized_data(const std::vector<uint8_t> &_serialized_data)
+    {
+        serialized_data_ = _serialized_data;
+    }
 
-	/*!
-	* @brief This function moves the value in member serialized_data
-	* @param _serialized_data New value to be moved in member serialized_data
-	*/
-	inline void serialized_data(std::vector<uint8_t> &&_serialized_data)
-	{
-		serialized_data_ = std::move(_serialized_data);
-	}
+    /*!
+    * @brief This function moves the value in member serialized_data
+    * @param _serialized_data New value to be moved in member serialized_data
+    */
+    inline void serialized_data(std::vector<uint8_t> &&_serialized_data)
+    {
+        serialized_data_ = std::move(_serialized_data);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member serialized_data
-	* @return Constant reference to member serialized_data
-	*/
-	inline const std::vector<uint8_t>& serialized_data() const
-	{
-		return serialized_data_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member serialized_data
+    * @return Constant reference to member serialized_data
+    */
+    inline const std::vector<uint8_t>& serialized_data() const
+    {
+        return serialized_data_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member serialized_data
-	* @return Reference to member serialized_data
-	*/
-	inline std::vector<uint8_t>& serialized_data()
-	{
-		return serialized_data_;
-	}
+    /*!
+    * @brief This function returns a reference to member serialized_data
+    * @return Reference to member serialized_data
+    */
+    inline std::vector<uint8_t>& serialized_data()
+    {
+        return serialized_data_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const SampleData& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const SampleData& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	std::vector<uint8_t> serialized_data_;
+    std::vector<uint8_t> serialized_data_;
 };
 typedef std::vector<SampleData> SampleDataSeq;
 /*!
@@ -3533,143 +3533,143 @@ class Sample
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	Sample();
+    /*!
+    * @brief Default constructor.
+    */
+    Sample();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~Sample();
+    /*!
+    * @brief Default destructor.
+    */
+    ~Sample();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object Sample that will be copied.
-	*/
-	Sample(const Sample &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object Sample that will be copied.
+    */
+    Sample(const Sample &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object Sample that will be copied.
-	*/
-	Sample(Sample &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object Sample that will be copied.
+    */
+    Sample(Sample &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object Sample that will be copied.
-	*/
-	Sample& operator=(const Sample &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object Sample that will be copied.
+    */
+    Sample& operator=(const Sample &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object Sample that will be copied.
-	*/
-	Sample& operator=(Sample &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object Sample that will be copied.
+    */
+    Sample& operator=(Sample &&x);
 
-	/*!
-	* @brief This function copies the value in member info
-	* @param _info New value to be copied in member info
-	*/
-	inline void info(const SampleInfo &_info)
-	{
-		info_ = _info;
-	}
+    /*!
+    * @brief This function copies the value in member info
+    * @param _info New value to be copied in member info
+    */
+    inline void info(const SampleInfo &_info)
+    {
+        info_ = _info;
+    }
 
-	/*!
-	* @brief This function moves the value in member info
-	* @param _info New value to be moved in member info
-	*/
-	inline void info(SampleInfo &&_info)
-	{
-		info_ = std::move(_info);
-	}
+    /*!
+    * @brief This function moves the value in member info
+    * @param _info New value to be moved in member info
+    */
+    inline void info(SampleInfo &&_info)
+    {
+        info_ = std::move(_info);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member info
-	* @return Constant reference to member info
-	*/
-	inline const SampleInfo& info() const
-	{
-		return info_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member info
+    * @return Constant reference to member info
+    */
+    inline const SampleInfo& info() const
+    {
+        return info_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member info
-	* @return Reference to member info
-	*/
-	inline SampleInfo& info()
-	{
-		return info_;
-	}
-	/*!
-	* @brief This function copies the value in member data
-	* @param _data New value to be copied in member data
-	*/
-	inline void data(const SampleData &_data)
-	{
-		data_ = _data;
-	}
+    /*!
+    * @brief This function returns a reference to member info
+    * @return Reference to member info
+    */
+    inline SampleInfo& info()
+    {
+        return info_;
+    }
+    /*!
+    * @brief This function copies the value in member data
+    * @param _data New value to be copied in member data
+    */
+    inline void data(const SampleData &_data)
+    {
+        data_ = _data;
+    }
 
-	/*!
-	* @brief This function moves the value in member data
-	* @param _data New value to be moved in member data
-	*/
-	inline void data(SampleData &&_data)
-	{
-		data_ = std::move(_data);
-	}
+    /*!
+    * @brief This function moves the value in member data
+    * @param _data New value to be moved in member data
+    */
+    inline void data(SampleData &&_data)
+    {
+        data_ = std::move(_data);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member data
-	* @return Constant reference to member data
-	*/
-	inline const SampleData& data() const
-	{
-		return data_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member data
+    * @return Constant reference to member data
+    */
+    inline const SampleData& data() const
+    {
+        return data_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member data
-	* @return Reference to member data
-	*/
-	inline SampleData& data()
-	{
-		return data_;
-	}
+    /*!
+    * @brief This function returns a reference to member data
+    * @return Reference to member data
+    */
+    inline SampleData& data()
+    {
+        return data_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const Sample& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const Sample& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	SampleInfo info_;
-	SampleData data_;
+    SampleInfo info_;
+    SampleData data_;
 };
 typedef std::vector<Sample> SampleSeq;
 /*!
@@ -3680,143 +3680,143 @@ class SampleDelta
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	SampleDelta();
+    /*!
+    * @brief Default constructor.
+    */
+    SampleDelta();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~SampleDelta();
+    /*!
+    * @brief Default destructor.
+    */
+    ~SampleDelta();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object SampleDelta that will be copied.
-	*/
-	SampleDelta(const SampleDelta &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object SampleDelta that will be copied.
+    */
+    SampleDelta(const SampleDelta &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object SampleDelta that will be copied.
-	*/
-	SampleDelta(SampleDelta &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object SampleDelta that will be copied.
+    */
+    SampleDelta(SampleDelta &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object SampleDelta that will be copied.
-	*/
-	SampleDelta& operator=(const SampleDelta &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object SampleDelta that will be copied.
+    */
+    SampleDelta& operator=(const SampleDelta &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object SampleDelta that will be copied.
-	*/
-	SampleDelta& operator=(SampleDelta &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object SampleDelta that will be copied.
+    */
+    SampleDelta& operator=(SampleDelta &&x);
 
-	/*!
-	* @brief This function copies the value in member info_delta
-	* @param _info_delta New value to be copied in member info_delta
-	*/
-	inline void info_delta(const SampleInfoDelta &_info_delta)
-	{
-		info_delta_ = _info_delta;
-	}
+    /*!
+    * @brief This function copies the value in member info_delta
+    * @param _info_delta New value to be copied in member info_delta
+    */
+    inline void info_delta(const SampleInfoDelta &_info_delta)
+    {
+        info_delta_ = _info_delta;
+    }
 
-	/*!
-	* @brief This function moves the value in member info_delta
-	* @param _info_delta New value to be moved in member info_delta
-	*/
-	inline void info_delta(SampleInfoDelta &&_info_delta)
-	{
-		info_delta_ = std::move(_info_delta);
-	}
+    /*!
+    * @brief This function moves the value in member info_delta
+    * @param _info_delta New value to be moved in member info_delta
+    */
+    inline void info_delta(SampleInfoDelta &&_info_delta)
+    {
+        info_delta_ = std::move(_info_delta);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member info_delta
-	* @return Constant reference to member info_delta
-	*/
-	inline const SampleInfoDelta& info_delta() const
-	{
-		return info_delta_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member info_delta
+    * @return Constant reference to member info_delta
+    */
+    inline const SampleInfoDelta& info_delta() const
+    {
+        return info_delta_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member info_delta
-	* @return Reference to member info_delta
-	*/
-	inline SampleInfoDelta& info_delta()
-	{
-		return info_delta_;
-	}
-	/*!
-	* @brief This function copies the value in member data
-	* @param _data New value to be copied in member data
-	*/
-	inline void data(const SampleData &_data)
-	{
-		data_ = _data;
-	}
+    /*!
+    * @brief This function returns a reference to member info_delta
+    * @return Reference to member info_delta
+    */
+    inline SampleInfoDelta& info_delta()
+    {
+        return info_delta_;
+    }
+    /*!
+    * @brief This function copies the value in member data
+    * @param _data New value to be copied in member data
+    */
+    inline void data(const SampleData &_data)
+    {
+        data_ = _data;
+    }
 
-	/*!
-	* @brief This function moves the value in member data
-	* @param _data New value to be moved in member data
-	*/
-	inline void data(SampleData &&_data)
-	{
-		data_ = std::move(_data);
-	}
+    /*!
+    * @brief This function moves the value in member data
+    * @param _data New value to be moved in member data
+    */
+    inline void data(SampleData &&_data)
+    {
+        data_ = std::move(_data);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member data
-	* @return Constant reference to member data
-	*/
-	inline const SampleData& data() const
-	{
-		return data_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member data
+    * @return Constant reference to member data
+    */
+    inline const SampleData& data() const
+    {
+        return data_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member data
-	* @return Reference to member data
-	*/
-	inline SampleData& data()
-	{
-		return data_;
-	}
+    /*!
+    * @brief This function returns a reference to member data
+    * @return Reference to member data
+    */
+    inline SampleData& data()
+    {
+        return data_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const SampleDelta& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const SampleDelta& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	SampleInfoDelta info_delta_;
-	SampleData data_;
+    SampleInfoDelta info_delta_;
+    SampleData data_;
 };
 /*!
 * @brief This class represents the structure SamplePacked defined by the user in the IDL file.
@@ -3826,143 +3826,143 @@ class SamplePacked
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	SamplePacked();
+    /*!
+    * @brief Default constructor.
+    */
+    SamplePacked();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~SamplePacked();
+    /*!
+    * @brief Default destructor.
+    */
+    ~SamplePacked();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object SamplePacked that will be copied.
-	*/
-	SamplePacked(const SamplePacked &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object SamplePacked that will be copied.
+    */
+    SamplePacked(const SamplePacked &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object SamplePacked that will be copied.
-	*/
-	SamplePacked(SamplePacked &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object SamplePacked that will be copied.
+    */
+    SamplePacked(SamplePacked &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object SamplePacked that will be copied.
-	*/
-	SamplePacked& operator=(const SamplePacked &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object SamplePacked that will be copied.
+    */
+    SamplePacked& operator=(const SamplePacked &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object SamplePacked that will be copied.
-	*/
-	SamplePacked& operator=(SamplePacked &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object SamplePacked that will be copied.
+    */
+    SamplePacked& operator=(SamplePacked &&x);
 
-	/*!
-	* @brief This function copies the value in member info_base
-	* @param _info_base New value to be copied in member info_base
-	*/
-	inline void info_base(const SampleInfo &_info_base)
-	{
-		info_base_ = _info_base;
-	}
+    /*!
+    * @brief This function copies the value in member info_base
+    * @param _info_base New value to be copied in member info_base
+    */
+    inline void info_base(const SampleInfo &_info_base)
+    {
+        info_base_ = _info_base;
+    }
 
-	/*!
-	* @brief This function moves the value in member info_base
-	* @param _info_base New value to be moved in member info_base
-	*/
-	inline void info_base(SampleInfo &&_info_base)
-	{
-		info_base_ = std::move(_info_base);
-	}
+    /*!
+    * @brief This function moves the value in member info_base
+    * @param _info_base New value to be moved in member info_base
+    */
+    inline void info_base(SampleInfo &&_info_base)
+    {
+        info_base_ = std::move(_info_base);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member info_base
-	* @return Constant reference to member info_base
-	*/
-	inline const SampleInfo& info_base() const
-	{
-		return info_base_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member info_base
+    * @return Constant reference to member info_base
+    */
+    inline const SampleInfo& info_base() const
+    {
+        return info_base_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member info_base
-	* @return Reference to member info_base
-	*/
-	inline SampleInfo& info_base()
-	{
-		return info_base_;
-	}
-	/*!
-	* @brief This function copies the value in member sample
-	* @param _sample New value to be copied in member sample
-	*/
-	inline void sample(const std::vector<SampleDelta> &_sample)
-	{
-		sample_ = _sample;
-	}
+    /*!
+    * @brief This function returns a reference to member info_base
+    * @return Reference to member info_base
+    */
+    inline SampleInfo& info_base()
+    {
+        return info_base_;
+    }
+    /*!
+    * @brief This function copies the value in member sample
+    * @param _sample New value to be copied in member sample
+    */
+    inline void sample(const std::vector<SampleDelta> &_sample)
+    {
+        sample_ = _sample;
+    }
 
-	/*!
-	* @brief This function moves the value in member sample
-	* @param _sample New value to be moved in member sample
-	*/
-	inline void sample(std::vector<SampleDelta> &&_sample)
-	{
-		sample_ = std::move(_sample);
-	}
+    /*!
+    * @brief This function moves the value in member sample
+    * @param _sample New value to be moved in member sample
+    */
+    inline void sample(std::vector<SampleDelta> &&_sample)
+    {
+        sample_ = std::move(_sample);
+    }
 
-	/*!
-	* @brief This function returns a constant reference to member sample
-	* @return Constant reference to member sample
-	*/
-	inline const std::vector<SampleDelta>& sample() const
-	{
-		return sample_;
-	}
+    /*!
+    * @brief This function returns a constant reference to member sample
+    * @return Constant reference to member sample
+    */
+    inline const std::vector<SampleDelta>& sample() const
+    {
+        return sample_;
+    }
 
-	/*!
-	* @brief This function returns a reference to member sample
-	* @return Reference to member sample
-	*/
-	inline std::vector<SampleDelta>& sample()
-	{
-		return sample_;
-	}
+    /*!
+    * @brief This function returns a reference to member sample
+    * @return Reference to member sample
+    */
+    inline std::vector<SampleDelta>& sample()
+    {
+        return sample_;
+    }
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const SamplePacked& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const SamplePacked& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	SampleInfo info_base_;
-	std::vector<SampleDelta> sample_;
+    SampleInfo info_base_;
+    std::vector<SampleDelta> sample_;
 };
 typedef std::vector<SamplePacked> SamplePackedSeq;
 /*!
@@ -3973,222 +3973,222 @@ class RT_Data
 {
 public:
 
-	/*!
-	* @brief Default constructor.
-	*/
-	RT_Data();
+    /*!
+    * @brief Default constructor.
+    */
+    RT_Data();
 
-	/*!
-	* @brief Default destructor.
-	*/
-	~RT_Data();
+    /*!
+    * @brief Default destructor.
+    */
+    ~RT_Data();
 
-	/*!
-	* @brief Copy constructor.
-	* @param x Reference to the object RT_Data that will be copied.
-	*/
-	RT_Data(const RT_Data &x);
+    /*!
+    * @brief Copy constructor.
+    * @param x Reference to the object RT_Data that will be copied.
+    */
+    RT_Data(const RT_Data &x);
 
-	/*!
-	* @brief Move constructor.
-	* @param x Reference to the object RT_Data that will be copied.
-	*/
-	RT_Data(RT_Data &&x);
+    /*!
+    * @brief Move constructor.
+    * @param x Reference to the object RT_Data that will be copied.
+    */
+    RT_Data(RT_Data &&x);
 
-	/*!
-	* @brief Copy assignment.
-	* @param x Reference to the object RT_Data that will be copied.
-	*/
-	RT_Data& operator=(const RT_Data &x);
+    /*!
+    * @brief Copy assignment.
+    * @param x Reference to the object RT_Data that will be copied.
+    */
+    RT_Data& operator=(const RT_Data &x);
 
-	/*!
-	* @brief Move assignment.
-	* @param x Reference to the object RT_Data that will be copied.
-	*/
-	RT_Data& operator=(RT_Data &&x);
+    /*!
+    * @brief Move assignment.
+    * @param x Reference to the object RT_Data that will be copied.
+    */
+    RT_Data& operator=(RT_Data &&x);
 
-	/*!
-	* @brief This function sets the discriminator value.
-	* @param __d New value for the discriminator.
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
-	*/
-	void _d(ReadMode __d);
+    /*!
+    * @brief This function sets the discriminator value.
+    * @param __d New value for the discriminator.
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+    */
+    void _d(ReadMode __d);
 
-	/*!
-	* @brief This function returns the value of the discriminator.
-	* @return Value of the discriminator
-	*/
-	ReadMode _d() const;
+    /*!
+    * @brief This function returns the value of the discriminator.
+    * @return Value of the discriminator
+    */
+    ReadMode _d() const;
 
-	/*!
-	* @brief This function returns a reference to the discriminator.
-	* @return Reference to the discriminator.
-	*/
-	ReadMode& _d();
+    /*!
+    * @brief This function returns a reference to the discriminator.
+    * @return Reference to the discriminator.
+    */
+    ReadMode& _d();
 
-	/*!
-	* @brief This function copies the value in member data
-	* @param _data New value to be copied in member data
-	*/
-	void data(const SampleData &_data);
+    /*!
+    * @brief This function copies the value in member data
+    * @param _data New value to be copied in member data
+    */
+    void data(const SampleData &_data);
 
-	/*!
-	* @brief This function moves the value in member data
-	* @param _data New value to be moved in member data
-	*/
-	void data(SampleData &&_data);
+    /*!
+    * @brief This function moves the value in member data
+    * @param _data New value to be moved in member data
+    */
+    void data(SampleData &&_data);
 
-	/*!
-	* @brief This function returns a constant reference to member data
-	* @return Constant reference to member data
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	const SampleData& data() const;
+    /*!
+    * @brief This function returns a constant reference to member data
+    * @return Constant reference to member data
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    const SampleData& data() const;
 
-	/*!
-	* @brief This function returns a reference to member data
-	* @return Reference to member data
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	SampleData& data();
-	/*!
-	* @brief This function copies the value in member data_seq
-	* @param _data_seq New value to be copied in member data_seq
-	*/
-	void data_seq(const SampleDataSeq &_data_seq);
+    /*!
+    * @brief This function returns a reference to member data
+    * @return Reference to member data
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    SampleData& data();
+    /*!
+    * @brief This function copies the value in member data_seq
+    * @param _data_seq New value to be copied in member data_seq
+    */
+    void data_seq(const SampleDataSeq &_data_seq);
 
-	/*!
-	* @brief This function moves the value in member data_seq
-	* @param _data_seq New value to be moved in member data_seq
-	*/
-	void data_seq(SampleDataSeq &&_data_seq);
+    /*!
+    * @brief This function moves the value in member data_seq
+    * @param _data_seq New value to be moved in member data_seq
+    */
+    void data_seq(SampleDataSeq &&_data_seq);
 
-	/*!
-	* @brief This function returns a constant reference to member data_seq
-	* @return Constant reference to member data_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	const SampleDataSeq& data_seq() const;
+    /*!
+    * @brief This function returns a constant reference to member data_seq
+    * @return Constant reference to member data_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    const SampleDataSeq& data_seq() const;
 
-	/*!
-	* @brief This function returns a reference to member data_seq
-	* @return Reference to member data_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	SampleDataSeq& data_seq();
-	/*!
-	* @brief This function copies the value in member sample
-	* @param _sample New value to be copied in member sample
-	*/
-	void sample(const Sample &_sample);
+    /*!
+    * @brief This function returns a reference to member data_seq
+    * @return Reference to member data_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    SampleDataSeq& data_seq();
+    /*!
+    * @brief This function copies the value in member sample
+    * @param _sample New value to be copied in member sample
+    */
+    void sample(const Sample &_sample);
 
-	/*!
-	* @brief This function moves the value in member sample
-	* @param _sample New value to be moved in member sample
-	*/
-	void sample(Sample &&_sample);
+    /*!
+    * @brief This function moves the value in member sample
+    * @param _sample New value to be moved in member sample
+    */
+    void sample(Sample &&_sample);
 
-	/*!
-	* @brief This function returns a constant reference to member sample
-	* @return Constant reference to member sample
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	const Sample& sample() const;
+    /*!
+    * @brief This function returns a constant reference to member sample
+    * @return Constant reference to member sample
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    const Sample& sample() const;
 
-	/*!
-	* @brief This function returns a reference to member sample
-	* @return Reference to member sample
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	Sample& sample();
-	/*!
-	* @brief This function copies the value in member sample_seq
-	* @param _sample_seq New value to be copied in member sample_seq
-	*/
-	void sample_seq(const SampleSeq &_sample_seq);
+    /*!
+    * @brief This function returns a reference to member sample
+    * @return Reference to member sample
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    Sample& sample();
+    /*!
+    * @brief This function copies the value in member sample_seq
+    * @param _sample_seq New value to be copied in member sample_seq
+    */
+    void sample_seq(const SampleSeq &_sample_seq);
 
-	/*!
-	* @brief This function moves the value in member sample_seq
-	* @param _sample_seq New value to be moved in member sample_seq
-	*/
-	void sample_seq(SampleSeq &&_sample_seq);
+    /*!
+    * @brief This function moves the value in member sample_seq
+    * @param _sample_seq New value to be moved in member sample_seq
+    */
+    void sample_seq(SampleSeq &&_sample_seq);
 
-	/*!
-	* @brief This function returns a constant reference to member sample_seq
-	* @return Constant reference to member sample_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	const SampleSeq& sample_seq() const;
+    /*!
+    * @brief This function returns a constant reference to member sample_seq
+    * @return Constant reference to member sample_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    const SampleSeq& sample_seq() const;
 
-	/*!
-	* @brief This function returns a reference to member sample_seq
-	* @return Reference to member sample_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	SampleSeq& sample_seq();
-	/*!
-	* @brief This function copies the value in member sample_packed_seq
-	* @param _sample_packed_seq New value to be copied in member sample_packed_seq
-	*/
-	void sample_packed_seq(const SamplePackedSeq &_sample_packed_seq);
+    /*!
+    * @brief This function returns a reference to member sample_seq
+    * @return Reference to member sample_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    SampleSeq& sample_seq();
+    /*!
+    * @brief This function copies the value in member sample_packed_seq
+    * @param _sample_packed_seq New value to be copied in member sample_packed_seq
+    */
+    void sample_packed_seq(const SamplePackedSeq &_sample_packed_seq);
 
-	/*!
-	* @brief This function moves the value in member sample_packed_seq
-	* @param _sample_packed_seq New value to be moved in member sample_packed_seq
-	*/
-	void sample_packed_seq(SamplePackedSeq &&_sample_packed_seq);
+    /*!
+    * @brief This function moves the value in member sample_packed_seq
+    * @param _sample_packed_seq New value to be moved in member sample_packed_seq
+    */
+    void sample_packed_seq(SamplePackedSeq &&_sample_packed_seq);
 
-	/*!
-	* @brief This function returns a constant reference to member sample_packed_seq
-	* @return Constant reference to member sample_packed_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	const SamplePackedSeq& sample_packed_seq() const;
+    /*!
+    * @brief This function returns a constant reference to member sample_packed_seq
+    * @return Constant reference to member sample_packed_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    const SamplePackedSeq& sample_packed_seq() const;
 
-	/*!
-	* @brief This function returns a reference to member sample_packed_seq
-	* @return Reference to member sample_packed_seq
-	* @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
-	*/
-	SamplePackedSeq& sample_packed_seq();
+    /*!
+    * @brief This function returns a reference to member sample_packed_seq
+    * @return Reference to member sample_packed_seq
+    * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+    */
+    SamplePackedSeq& sample_packed_seq();
 
-	/*!
-	* @brief This function returns the maximum serialized size of an object
-	* depending on the buffer alignment.
-	* @param current_alignment Buffer alignment.
-	* @return Maximum serialized size.
-	*/
-	static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
 
-	/*!
-	* @brief This function returns the serialized size of a data depending on the buffer alignment.
-	* @param data Data which is calculated its serialized size.
-	* @param current_alignment Buffer alignment.
-	* @return Serialized size.
-	*/
-	static size_t getCdrSerializedSize(const RT_Data& data, size_t current_alignment = 0);
+    /*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+    static size_t getCdrSerializedSize(const RT_Data& data, size_t current_alignment = 0);
 
 
-	/*!
-	* @brief This function serializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    /*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
-	/*!
-	* @brief This function deserializes an object using CDR serialization.
-	* @param cdr CDR serialization object.
-	*/
-	void deserialize(eprosima::fastcdr::Cdr &cdr);
+    /*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-	ReadMode discriminator_;
+    ReadMode discriminator_;
 
-	SampleData data_;
-	SampleDataSeq data_seq_;
-	Sample sample_;
-	SampleSeq sample_seq_;
-	SamplePackedSeq sample_packed_seq_;
+    SampleData data_;
+    SampleDataSeq data_seq_;
+    Sample sample_;
+    SampleSeq sample_seq_;
+    SamplePackedSeq sample_packed_seq_;
 };
 
 #endif // _ObjectVariant_H_

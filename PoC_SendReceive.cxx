@@ -75,6 +75,33 @@ size_t fill_buffer(octet* out_buffer, size_t buffer_len)
     return newMessage.get_total_size();
 }
 
+class PoC_Listener : public XRCEListener
+{
+public:
+    PoC_Listener() {};
+    ~PoC_Listener() {};
+
+    virtual void on_create(const CREATE_PAYLOAD& create_payload)
+    {
+
+    }
+
+    virtual void on_delete(const DELETE_PAYLOAD& create_payload)
+    {
+
+    }
+
+    virtual void on_write(const WRITE_DATA_PAYLOAD&  write_payload)
+    {
+
+    }
+
+    virtual void on_read(const READ_DATA_PAYLOAD&   read_payload)
+    {
+
+    }
+};
+
 int main(int args, char** argv)
 {
     // Mesage creation
@@ -82,6 +109,9 @@ int main(int args, char** argv)
     octet in_buffer[1024] = {};
     size_t buffer_len = 1024;
     size_t message_size = fill_buffer(out_buffer, buffer_len);
+
+    // Listener for parser
+    PoC_Listener my_xrce_listener;
 
     // Init transport
     locator_t loc =
@@ -110,7 +140,7 @@ int main(int args, char** argv)
         if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
         {
             printf("RECV: %d bytes\n", ret);
-            XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, onMessage, onMessage, onMessage};
+            XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, &my_xrce_listener};
             myParser.parse();
         }
         else

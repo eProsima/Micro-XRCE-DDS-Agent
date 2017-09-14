@@ -12,20 +12,20 @@
 class Serializer
 {
 public:
-	Serializer(char* const buffer_, size_t buffer_size );
-	
-	template<class T> bool serialize(const T& data);
+    Serializer(char* const buffer_, size_t buffer_size );
+    
+    template<class T> bool serialize(const T& data);
 
-	template<class T> bool deserialize(T& data);
+    template<class T> bool deserialize(T& data);
 
-	size_t get_serialized_size();
-	bool bufferEnd();
+    size_t get_serialized_size();
+    bool bufferEnd();
 private:
 
-	void align();
+    void align();
 
-	eprosima::fastcdr::FastBuffer fastbuffer_; // Object that manages the raw buffer.
-	eprosima::fastcdr::Cdr serializer_; // Object that serializes the data.
+    eprosima::fastcdr::FastBuffer fastbuffer_; // Object that manages the raw buffer.
+    eprosima::fastcdr::Cdr serializer_; // Object that serializes the data.
 
 };
 #endif // !_SERIALIZER_H
