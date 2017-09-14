@@ -46,17 +46,31 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-include_directories(${CMAKE_PREFIX_PATH}/include transport/include/transport agent/include)
+include_directories(${CMAKE_PREFIX_PATH}/include transport/include/transport agent/include client/include)
 
+# libtransport.so
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
 add_library(transport SHARED ${TRANS_LIB_SRCS})
 install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
+# libagent.so
 file(GLOB AGENT_LIB_SRCS "agent/src/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
-file(GLOB POC_TEST_SOURCES "PoC_SendReceive.cxx")
-add_executable(poc_test ${POC_TEST_SOURCES})
-install(TARGETS poc_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(poc_test transport agent fastcdr)
+# agent_test
+file(GLOB AGENT_TEST_SOURCES "PoC_SendReceive.cxx")
+add_executable(agent_test ${AGENT_TEST_SOURCES})
+install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
+target_link_libraries(agent_test transport agent fastcdr)
+
+# libclient.so
+file(GLOB CLIENT_LIB_SRCS "client/src/*.c")
+add_library(client SHARED ${CLIENT_LIB_SRCS})
+install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
+
+# client_test
+file(GLOB CLIENT_TEST_SOURCES "PoC_SendReceive.c")
+add_executable(client_test ${CLIENT_TEST_SOURCES})
+install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
+target_link_libraries(client_test client transport)
