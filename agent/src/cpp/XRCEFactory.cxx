@@ -1,8 +1,8 @@
-#include "XRCEFactory.h"
+#include "agent/XRCEFactory.h"
 
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
-#include "Payloads.h"
+#include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
+#include "agent/Payloads.h"
 
 size_t XRCEFactory::get_total_size()
 {

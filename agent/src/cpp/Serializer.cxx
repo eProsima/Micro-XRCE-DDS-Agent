@@ -1,8 +1,8 @@
-#include "Serializer.h"
+#include "agent/Serializer.h"
 
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
-#include "Payloads.h"
+#include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
+#include "agent/Payloads.h"
 
 Serializer::Serializer(char* const buffer_, size_t buffer_size) :
     fastbuffer_(buffer_, buffer_size),

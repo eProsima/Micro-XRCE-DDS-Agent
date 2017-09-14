@@ -1,10 +1,10 @@
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
-#include "Serializer.h"
-#include "Payloads.h"
-#include "XRCEFactory.h"
-#include "XRCEParser.h"
-#include "ObjectVariant.h"
+#include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
+#include "agent/Serializer.h"
+#include "agent/Payloads.h"
+#include "agent/XRCEFactory.h"
+#include "agent/XRCEParser.h"
+#include "agent/ObjectVariant.h"
 
 #include <ddsxrce_transport.h>
 

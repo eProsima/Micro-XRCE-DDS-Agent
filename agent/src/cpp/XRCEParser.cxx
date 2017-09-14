@@ -1,9 +1,9 @@
-#include "XRCEParser.h"
+#include "agent/XRCEParser.h"
 
-#include "ObjectVariant.h"
-#include "Payloads.h"
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
+#include "agent/ObjectVariant.h"
+#include "agent/Payloads.h"
+#include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
 
 #include <iostream>
 

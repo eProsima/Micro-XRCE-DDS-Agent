@@ -24,7 +24,7 @@
 namespace { char dummy; }
 #endif
 
-#include "MessageHeader.h"
+#include "agent/MessageHeader.h"
 
 #include <fastcdr/Cdr.h>
 
