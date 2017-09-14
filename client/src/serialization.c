@@ -13,7 +13,7 @@ void serialize_message_header(SerializedBufferHandle* buffer, const MessageHeade
     serialize_byte_4(buffer, message_header->client_key);
     serialize_byte(buffer, message_header->session_id);
     serialize_byte(buffer, message_header->stream_id);
-    serialize_byte_2(buffer, message_header->sequence_nr);
+    serialize_byte_2_endian(buffer, message_header->sequence_nr, BIG_ENDIAN_MODE);
 }
 
 void deserialize_message_header(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory,  MessageHeaderSpec* message_header)
@@ -21,7 +21,7 @@ void deserialize_message_header(SerializedBufferHandle* buffer, DynamicBuffer* d
     deserialize_byte_4(buffer, &message_header->client_key);
     deserialize_byte(buffer, &message_header->session_id);
     deserialize_byte(buffer, &message_header->stream_id);
-    deserialize_byte_2(buffer, &message_header->sequence_nr);
+    deserialize_byte_2_endian(buffer, &message_header->sequence_nr, BIG_ENDIAN_MODE);
 }
 
 int size_of_message_header(const MessageHeaderSpec* message_header)
@@ -42,14 +42,14 @@ void serialize_submessage_header(SerializedBufferHandle* buffer, const Submessag
 {
     serialize_byte(buffer, submessage_header->id);
     serialize_byte(buffer, submessage_header->flags);
-    serialize_byte_2(buffer, submessage_header->length);
+    serialize_byte_2_endian(buffer, submessage_header->length, BIG_ENDIAN_MODE);
 }
 
 void deserialize_submessage_header(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SubmessageHeaderSpec* submessage_header)
 {
     deserialize_byte(buffer, &submessage_header->id);
     deserialize_byte(buffer, &submessage_header->flags);
-    deserialize_byte_2(buffer, &submessage_header->length);
+    deserialize_byte_2_endian(buffer, &submessage_header->length, BIG_ENDIAN_MODE);
 }
 
 int size_of_submessage_header(const SubmessageHeaderSpec* submessage_header)
@@ -78,7 +78,7 @@ void deserialize_create_payload(SerializedBufferHandle* buffer, DynamicBuffer* d
 int size_of_create_payload(const CreatePayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3
+         + 3 //object_id
          + size_of_object_kind(&payload->object);
 }
 
@@ -98,7 +98,7 @@ void deserialize_delete_payload(SerializedBufferHandle* buffer, DynamicBuffer* d
 int size_of_delete_payload(const DeletePayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3;
+         + 3; //object_id
 }
 
 void serialize_write_data_payload(SerializedBufferHandle* buffer, const WriteDataPayloadSpec* payload)
@@ -121,14 +121,17 @@ void deserialize_write_data_payload(SerializedBufferHandle* buffer, DynamicBuffe
 int size_of_write_data_payload(const WriteDataPayloadSpec* payload)
 {
     return sizeof(&payload->request_id)
-         + 3
+         + 3 //object_id
          + size_of_data_mode(&payload->data_writer);
 }
 
 void serialize_read_data_payload(SerializedBufferHandle* buffer, const ReadDataPayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
+    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+
     serialize_byte_2(buffer, payload->max_messages);
+    serialize_byte(buffer, payload->read_mode);
     serialize_byte_4(buffer, payload->max_elapsed_time);
     serialize_byte_4(buffer, payload->max_rate);
 
@@ -141,8 +144,12 @@ void serialize_read_data_payload(SerializedBufferHandle* buffer, const ReadDataP
 
 void deserialize_read_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ReadDataPayloadSpec* payload)
 {
+    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
+    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+
     deserialize_byte_2(buffer, &payload->max_messages);
+    deserialize_byte(buffer, &payload->read_mode);
     deserialize_byte_4(buffer, &payload->max_elapsed_time);
     deserialize_byte_4(buffer, &payload->max_rate);
 
@@ -157,6 +164,7 @@ void deserialize_read_data_payload(SerializedBufferHandle* buffer, DynamicBuffer
 int size_of_read_data_payload(const ReadDataPayloadSpec* payload)
 {
     return sizeof(payload->request_id)
+         + 3 //object_id
          + sizeof(payload->max_messages)
          + sizeof(payload->max_elapsed_time)
          + sizeof(payload->max_rate)
@@ -186,7 +194,7 @@ void deserialize_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dyn
 int size_of_data_payload(const DataPayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3
+         + 3 //object_id
          + size_of_data_mode(&payload->data_reader);
 }
 
@@ -337,7 +345,7 @@ void deserialize_object_variant_data_writer(SerializedBufferHandle* buffer, Dyna
 
 int size_of_object_variant_data_writer(const DataWriterSpec* data_writer)
 {
-    return 6;
+    return 6; //participant_id + publisher_id
 }
 
 void serialize_object_variant_data_reader(SerializedBufferHandle* buffer, const DataReaderSpec* data_reader)
@@ -356,7 +364,7 @@ void deserialize_object_variant_data_reader(SerializedBufferHandle* buffer, Dyna
 
 int size_of_object_variant_data_reader(const DataReaderSpec* data_reader)
 {
-    return 6;
+    return 6; //participant_id + subscriber_id
 }
 
 void serialize_object_variant_publisher(SerializedBufferHandle* buffer, const PublisherSpec* publisher)
@@ -372,7 +380,7 @@ void deserialize_object_variant_publisher(SerializedBufferHandle* buffer, Dynami
 
 int size_of_object_variant_publisher(const PublisherSpec* publisher)
 {
-    return 3;
+    return 3; //participant_id
 }
 
 void serialize_object_variant_subscriber(SerializedBufferHandle* buffer, const SubscriberSpec* subscriber)
@@ -388,7 +396,7 @@ void deserialize_object_variant_subscriber(SerializedBufferHandle* buffer, Dynam
 
 int size_of_object_variant_subscriber(const SubscriberSpec* subscriber)
 {
-    return 3;
+    return 3; //participant_id
 }
 
 void serialize_sample(SerializedBufferHandle* buffer, const SampleSpec* sample)
@@ -432,14 +440,14 @@ int size_of_sample_data(const SampleDataSpec* data)
 void serialize_sample_info(SerializedBufferHandle* buffer, const SampleInfoSpec* info)
 {
     serialize_byte(buffer, info->state);
-    serialize_byte_8(buffer, info->sequence_number);
+    serialize_byte_4(buffer, info->sequence_number);
     serialize_byte_4(buffer, info->session_time_offset);
 }
 
 void deserialize_sample_info(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleInfoSpec* info)
 {
     deserialize_byte(buffer, &info->state);
-    deserialize_byte_8(buffer, &info->sequence_number);
+    deserialize_byte_4(buffer, &info->sequence_number);
     deserialize_byte_4(buffer, &info->session_time_offset);
 }
 

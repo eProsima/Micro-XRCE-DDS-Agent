@@ -111,6 +111,8 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
             return 0;
         }
 
+        //buffer->endian_mode =
+
         if(callback->submessage_header)
             callback->submessage_header(&submessage_header);
 

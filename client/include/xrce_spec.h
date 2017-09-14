@@ -38,6 +38,11 @@ typedef uint8_t boolean_t;
 // --------------------------------------------------------------------
 //                            OBJECT VARIANT
 // --------------------------------------------------------------------
+typedef struct CommonStringSpec
+{
+
+} CommonStringSpec;
+
 typedef struct DataWriterSpec
 {
     uint_least24_t participant_id;
@@ -82,6 +87,42 @@ typedef struct ObjectKindSpec
 
 } ObjectKindSpec;
 
+// --------------------------------------------------------------------
+//                                STATUS
+// --------------------------------------------------------------------
+/*typedef struct DataReaderStatus
+{
+    short highest_acked_num;
+} DataReaderStatus;
+
+typedef struct DataWriterStatus
+{
+    short stream_seq_num;
+    uint32_t sample_seq_num; //change to uint64_t
+} DataWriterStatus;
+
+typedef union StatusVariantSpec
+{
+
+}
+
+typedef struct ObjectKind
+
+union StatusVariantSpec (ObjectKind)
+{
+    case OBJK_DATAWRITER :
+        OBJK_DW_Status data_writer;
+    case OBJK_DATAREADER :
+        OBJK_DR_Status data_reader;
+};
+
+struct Status
+{
+    ResultStatus  result;
+    ObjectId      object_id;
+    StatusVariant status;
+};*/
+
 
 // --------------------------------------------------------------------
 //                               SAMPLES
@@ -89,7 +130,7 @@ typedef struct ObjectKindSpec
 typedef struct SampleInfoSpec
 {
     uint8_t state;
-    uint64_t sequence_number;
+    uint32_t sequence_number; //change to uint64_t
     uint32_t session_time_offset;
 } SampleInfoSpec;
 
@@ -150,13 +191,15 @@ typedef struct WriteDataPayloadSpec
 typedef struct ReadDataPayloadSpec
 {
     uint32_t request_id;
+    uint_least24_t object_id;
     uint16_t max_messages;
+    uint8_t read_mode;
     uint32_t max_elapsed_time;
     uint32_t max_rate;
     uint32_t expression_size;
     char* content_filter_expression;
     uint16_t max_samples;
-    boolean_t include_sample_info;
+    uint8_t include_sample_info;
 
 } ReadDataPayloadSpec;
 

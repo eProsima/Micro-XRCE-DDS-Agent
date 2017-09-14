@@ -107,3 +107,56 @@ int main(int args, char** argv)
 
     return 0;
 }
+
+/*
+// ---------------------------------------------------------
+//                  MINIMAL EXAMPLE: Same handler
+// ---------------------------------------------------------
+#define BUFFER_SIZE 200
+
+// Test example
+int main(int args, char** argv)
+{
+    uint8_t data[BUFFER_SIZE];
+
+    SerializedBufferHandle handle;
+
+    init_serialized_buffer(&handle, data, BUFFER_SIZE);
+
+    uint8_t in_byte = 0xFF;
+    serialize_byte(&buffer_handle, in_byte);
+
+    reset_buffer_iterator(&buffer_handle);
+
+    uint8_t out_byte;
+    deserialize_byte(&buffer_handle, &out_byte);
+
+    return 0;
+}
+
+// ---------------------------------------------------------
+//                  MINIMAL EXAMPLE: 2 Handlesr
+// ---------------------------------------------------------
+#define BUFFER_SIZE 200
+
+// Test example
+int main(int args, char** argv)
+{
+    uint8_t data[BUFFER_SIZE];
+
+    SerializedBufferHandle writer;
+    SerializedBufferHandle reader;
+
+    init_serialized_buffer(&writer, data, BUFFER_SIZE);
+    init_serialized_buffer(&reader, data, BUFFER_SIZE);
+
+    uint8_t in_byte = 0xFF;
+    serialize_byte(&buffer_handle, in_byte);
+
+    uint8_t out_byte;
+    deserialize_byte(&buffer_handle, &out_byte);
+
+    return 0;
+}
+
+*/
