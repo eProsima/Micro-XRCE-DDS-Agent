@@ -46,7 +46,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-include_directories(${CMAKE_PREFIX_PATH}/include transport/include/transport agent/include client/include)
+include_directories(${CMAKE_PREFIX_PATH}/include transport/include transport/include/transport agent/include client/include/ client/include/client)
 
 # libtransport.so
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
@@ -68,6 +68,7 @@ target_link_libraries(agent_test transport agent fastcdr)
 file(GLOB CLIENT_LIB_SRCS "client/src/*.c")
 add_library(client SHARED ${CLIENT_LIB_SRCS})
 install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
+#install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
 
 # client_test
 file(GLOB CLIENT_TEST_SOURCES "PoC_SendReceive.c")

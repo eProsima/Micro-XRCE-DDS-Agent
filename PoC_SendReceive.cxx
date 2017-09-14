@@ -148,7 +148,7 @@ int main(int args, char** argv)
             printf("RECV ERROR: %d\n", ret);
         }
 
-        sleep(1000000);
+        usleep(1000000);
     }
 
     printf("exiting...\n");

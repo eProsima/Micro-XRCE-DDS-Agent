@@ -168,7 +168,7 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x01;
-                kind->sample.info.sequence_number = 0xFFFFFFFFFFFFFFFF;
+                kind->sample.info.sequence_number = 0xFFFFFFFF;
                 kind->sample.info.session_time_offset = 0xAAAAAAAA;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
@@ -214,7 +214,7 @@ void create_message(SerializedBufferHandle* message)
 
             case READ_MODE_SAMPLE:
                 kind->sample.info.state = 0x08;
-                kind->sample.info.sequence_number = 0xAAAAAAAAAAAAAAAA;
+                kind->sample.info.sequence_number = 0xAAAAAAAA;
                 kind->sample.info.session_time_offset = 0xBBBBBBBB;
                 kind->sample.data.serialized_data = data;
                 kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
@@ -374,4 +374,9 @@ void on_data_received(const DataPayloadSpec* payload)
         break;
     }
     printf("\n\n");
+}
+
+int main(int argc, char *argv[])
+{
+    return client_test_main(argc, argv);
 }
