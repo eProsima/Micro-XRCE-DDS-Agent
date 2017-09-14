@@ -335,7 +335,7 @@ int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_
     {
         // copy message to outbuffer and set other return values
         memmove(out_buffer, ch->rx_buffer + msg_start_pos + header_size, payload_len);
-        len = payload_len;
+        len = payload_len; // only payload, "+ header_size" for real size.
     }
 
     // discard message from rx_buffer
@@ -402,5 +402,5 @@ int send_serial(const octet* in_buffer, const size_t length, const channel_id_t 
         return len;
     }
 
-    return len + sizeof(header);
+    return len; // only payload, + sizeof(header); for real size.
 }
