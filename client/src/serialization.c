@@ -1,6 +1,11 @@
 #include "serialization.h"
 #include <stdlib.h>
 
+
+// --------------------------------------------------------------------------
+//                                 HEADERS
+// --------------------------------------------------------------------------
+
 // Message Header
 // 0                8                16              24               31
 // +---------------+----------------+----------------+----------------+
@@ -59,6 +64,10 @@ int size_of_submessage_header(const SubmessageHeaderSpec* submessage_header)
          + sizeof(submessage_header->length);
 }
 
+// --------------------------------------------------------------------------
+//                                  PAYLOADS
+// --------------------------------------------------------------------------
+
 void serialize_create_payload(SerializedBufferHandle* buffer, const CreatePayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
@@ -99,6 +108,28 @@ int size_of_delete_payload(const DeletePayloadSpec* payload)
 {
     return sizeof(payload->request_id)
          + 3; //object_id
+}
+
+void serialize_status_payload(SerializedBufferHandle* buffer, const StatusPayloadSpec* payload)
+{
+    serialize_result_status(buffer, &payload->result);
+    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    serialize_status_kind(buffer, &payload->status);
+}
+
+void deserialize_status_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusPayloadSpec* payload)
+{
+    payload->object_id = 0;
+    deserialize_result_status(buffer, dynamic_memory, &payload->result);
+    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    deserialize_status_kind(buffer, dynamic_memory, &payload->status);
+}
+
+int size_of_status_payload(const StatusPayloadSpec* payload)
+{
+    return sizeof(payload->result)
+         + 3 //object_id
+         + sizeof(payload->status);
 }
 
 void serialize_write_data_payload(SerializedBufferHandle* buffer, const WriteDataPayloadSpec* payload)
@@ -198,6 +229,10 @@ int size_of_data_payload(const DataPayloadSpec* payload)
          + size_of_data_mode(&payload->data_reader);
 }
 
+// --------------------------------------------------------------------------
+//                                  SWITCHES
+// --------------------------------------------------------------------------
+
 void serialize_object_kind(SerializedBufferHandle* buffer, const ObjectKindSpec* object)
 {
     serialize_byte(buffer, object->kind);
@@ -280,6 +315,56 @@ int size_of_object_kind(const ObjectKindSpec* object)
     return size;
 }
 
+void serialize_status_kind(SerializedBufferHandle* buffer, const StatusKindSpec* status)
+{
+    serialize_byte(buffer, status->kind);
+
+    switch(status->kind)
+    {
+        case OBJECT_KIND_DATAWRITER:
+            serialize_status_variant_data_writer(buffer, &status->variant.writer);
+        break;
+
+        case OBJECT_KIND_DATAREADER:
+            serialize_status_variant_data_reader(buffer, &status->variant.reader);
+        break;
+    }
+}
+
+void deserialize_status_kind(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusKindSpec* status)
+{
+    deserialize_byte(buffer, &status->kind);
+
+    switch(status->kind)
+    {
+        case OBJECT_KIND_DATAWRITER:
+            deserialize_status_variant_data_writer(buffer, dynamic_memory, &status->variant.writer);
+        break;
+
+        case OBJECT_KIND_DATAREADER:
+            deserialize_status_variant_data_reader(buffer, dynamic_memory, &status->variant.reader);
+        break;
+    }
+}
+
+int size_of_status_kind(const StatusKindSpec* status)
+{
+    uint32_t size = sizeof(status->kind);
+
+    switch(status->kind)
+    {
+        case OBJECT_KIND_DATAWRITER:
+            size += size_of_status_variant_data_writer(&status->variant.writer);
+        break;
+
+        case OBJECT_KIND_DATAREADER:
+            size += size_of_status_variant_data_reader(&status->variant.reader);
+        break;
+    }
+
+    return size;
+}
+
 void serialize_data_mode(SerializedBufferHandle* buffer, const DataModeSpec* data_mode)
 {
     serialize_byte(buffer, data_mode->read_mode);
@@ -328,6 +413,10 @@ int size_of_data_mode(const DataModeSpec* data_mode)
 
     return size;
 }
+
+// --------------------------------------------------------------------------
+//                               OBJECT VARIANTS
+// --------------------------------------------------------------------------
 
 void serialize_object_variant_data_writer(SerializedBufferHandle* buffer, const DataWriterSpec* data_writer)
 {
@@ -398,6 +487,70 @@ int size_of_object_variant_subscriber(const SubscriberSpec* subscriber)
 {
     return 3; //participant_id
 }
+
+
+// --------------------------------------------------------------------------
+//                                  STATUS
+// --------------------------------------------------------------------------
+
+void serialize_result_status(SerializedBufferHandle* buffer, const ResultStatusSpec* result)
+{
+    serialize_byte_4(buffer, result->request_id);
+    serialize_byte(buffer, result->status);
+    serialize_byte(buffer, result->implementation_status);
+}
+
+void deserialize_result_status(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ResultStatusSpec* result)
+{
+    deserialize_byte_4(buffer, &result->request_id);
+    deserialize_byte(buffer, &result->status);
+    deserialize_byte(buffer, &result->implementation_status);
+}
+
+int size_of_result_status(const ResultStatusSpec* result)
+{
+    return sizeof(result->request_id)
+         + sizeof(result->status)
+         + sizeof(result->implementation_status);
+}
+
+void serialize_status_variant_data_writer(SerializedBufferHandle* buffer, const DataWriterStatusSpec* writer_status)
+{
+    serialize_byte_2(buffer, writer_status->stream_seq_num);
+    serialize_byte_4(buffer, writer_status->sample_seq_num);
+}
+
+void deserialize_status_variant_data_writer(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataWriterStatusSpec* writer_status)
+{
+    deserialize_byte_2(buffer, &writer_status->stream_seq_num);
+    deserialize_byte_4(buffer, &writer_status->sample_seq_num);
+}
+
+int size_of_status_variant_data_writer(const DataWriterStatusSpec* writer_status)
+{
+    return sizeof(writer_status->stream_seq_num)
+         + sizeof(writer_status->sample_seq_num);
+}
+
+void serialize_status_variant_data_reader(SerializedBufferHandle* buffer, const DataReaderStatusSpec* reader_status)
+{
+    serialize_byte_2(buffer, reader_status->highest_acked_num);
+}
+
+void deserialize_status_variant_data_reader(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataReaderStatusSpec* reader_status)
+{
+    deserialize_byte_2(buffer, &reader_status->highest_acked_num);
+}
+
+int size_of_status_variant_data_reader(const DataReaderStatusSpec* reader_status)
+{
+    return sizeof(reader_status->highest_acked_num);
+}
+
+
+// --------------------------------------------------------------------------
+//                                  SAMPLES
+// --------------------------------------------------------------------------
 
 void serialize_sample(SerializedBufferHandle* buffer, const SampleSpec* sample)
 {

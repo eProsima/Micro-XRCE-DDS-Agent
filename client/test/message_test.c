@@ -46,7 +46,6 @@ int main(int args, char** argv)
 
 
     printf("\n%s\n", "DESERIALIZATION: \n");
-    reset_buffer_iterator(&message);
     init_serialized_buffer(&message, buffer, seliarized_size);
 
     MessageCallback callback;
@@ -60,6 +59,9 @@ int main(int args, char** argv)
     callback.data = on_data_received;
 
     parse_message(&message, &callback);
+
+    uint32_t parsed_size = message.iterator - message.data;
+    printf(" %u parsed bytes. \n", parsed_size);
 
     return 0;
 }

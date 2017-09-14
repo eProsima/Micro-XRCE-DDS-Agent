@@ -105,6 +105,9 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
         SubmessageHeaderSpec submessage_header;
         deserialize_submessage_header(reader, &dynamic_memory, &submessage_header);
 
+        if(callback->submessage_header)
+            callback->submessage_header(&submessage_header);
+
         if(submessage_header.length > get_free_space(reader))
         {
             free_memory_buffer(&dynamic_memory);
@@ -112,9 +115,6 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
         }
 
         //buffer->endian_mode =
-
-        if(callback->submessage_header)
-            callback->submessage_header(&submessage_header);
 
         PayloadSpec payload;
         #ifdef DEBUG
@@ -151,6 +151,10 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
                 if(callback->data)
                     callback->data(&payload.data);
             break;
+
+            default:
+                free_memory_buffer(&dynamic_memory);
+                return 0;
         }
 
         reset_memory_buffer(&dynamic_memory);
