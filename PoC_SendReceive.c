@@ -48,23 +48,29 @@ int client_test_main(int argc, char *argv[])
     init_serialized_buffer(&out_message, out_buffer, buffer_len);
     create_message(&out_message);
 
-    printf(" ");
-    for(uint8_t* i = out_message.data; i < out_message.iterator; i++)
-    {
-        printf("%02X ", *i);
-        if((i - out_message.data + 1) % 16 == 0)
-            printf("\n ");
-    }
-    printf("\n\n");
 
     uint32_t seliarized_size = out_message.iterator - out_message.data;
-    printf(" %u serialized bytes. \n", out_message);
+    printf(" %u serialized bytes. \n", seliarized_size);
 
     int loops = 1000;
     while (loops--)
     {
+        printf("----------------------------------------------\n");
+        printf("                      SEND                    \n");
+        printf("----------------------------------------------\n");
+
         if (0 < (ret = send(out_buffer, seliarized_size, loc.kind, ch_id)))
         {
+            printf(" ");
+            for(uint8_t* i = out_message.data; i < out_message.iterator; i++)
+            {
+                printf("%02X ", *i);
+                if((i - out_message.data + 1) % 16 == 0)
+                    printf("\n ");
+            }
+            printf("\n\n");
+            printf(" %u serialized bytes. \n", seliarized_size);
+
             printf("SEND: %d bytes\n", ret);
         }
         else
@@ -72,20 +78,27 @@ int client_test_main(int argc, char *argv[])
             printf("SEND ERROR: %d\n", ret);
         }
 
-        usleep(1000000);
+        usleep(2000000);
+
+        printf("----------------------------------------------\n");
+        printf("                    RECEIVED                  \n");
+        printf("----------------------------------------------\n");
 
         if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
         {
             printf("RECV: %d bytes\n", ret);
             init_serialized_buffer(&in_message, in_buffer, ret);
             parse_message(&in_message, &callback);
+
+            uint32_t parsed_seliarized_size = in_message.iterator - in_message.data;
+            printf(" %u serialized bytes. \n", parsed_seliarized_size);
         }
         else
         {
             printf("RECV ERROR: %d\n", ret);
         }
 
-        usleep(1000000);
+        usleep(2000000);
     }
 
     printf("exiting...\n");
@@ -138,7 +151,7 @@ void create_message(SerializedBufferHandle* message)
         add_create_submessage(message, &payload);
     }
 
-
+    /*
     // [DELETE] SUBMESSAGE
     {
         DeletePayloadSpec payload;
@@ -222,7 +235,7 @@ void create_message(SerializedBufferHandle* message)
         }
 
         add_data_submessage(message, &payload);
-    }
+    } */
 }
 
 void on_message_header_received(const MessageHeaderSpec* header)
