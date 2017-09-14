@@ -1,23 +1,23 @@
 #include <client/message.h>
-#include <ddsxrce_transport.h>
+#include <transport/ddsxrce_transport.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #define BUFFER_SIZE 2000
 
+int client_test_main(int argc, char *argv[]);
 void create_message(SerializedBufferHandle* message);
-
 void on_message_header_received(const MessageHeaderSpec* header);
 void on_submessage_header_received(const SubmessageHeaderSpec* header);
-
 void on_create_submessage_received(const CreatePayloadSpec* payload);
 void on_delete_resource_received(const DeletePayloadSpec* payload);
 void on_write_data_submessage_received(const WriteDataPayloadSpec* payload);
 void on_read_data_received(const ReadDataPayloadSpec* payload);
 void on_data_received(const DataPayloadSpec* payload);
 
-int main(int args, char** argv)
+int client_test_main(int argc, char *argv[])
 {
+
     // Mesage creation
     octet out_buffer[1024] = {};
     octet in_buffer[1024] = {};
@@ -37,7 +37,6 @@ int main(int args, char** argv)
     MessageCallback callback;
     callback.message_header = on_message_header_received;
     callback.submessage_header = on_submessage_header_received;
-
     callback.create_resource = on_create_submessage_received;
     callback.delete_resource = on_delete_resource_received;
     callback.write_data = on_write_data_submessage_received;
@@ -90,7 +89,6 @@ int main(int args, char** argv)
     }
 
     printf("exiting...\n");
-
     return 0;
 }
 
