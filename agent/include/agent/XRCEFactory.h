@@ -22,6 +22,4 @@ private:
     Serializer serializer_;
 };
 
-
 #endif // !_XRCE_FACTORY_H
-

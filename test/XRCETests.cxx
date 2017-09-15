@@ -1,13 +1,13 @@
 // XRCE.cpp : Defines the entry point for the console application.
 
 
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
-#include "Serializer.h"
-#include "Payloads.h"
-#include "XRCEFactory.h"
-#include "XRCEParser.h"
-#include "ObjectVariant.h"
+#include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
+#include "agent/Serializer.h"
+#include "agent/Payloads.h"
+#include "agent/XRCEFactory.h"
+#include "agent/XRCEParser.h"
+#include "agent/ObjectVariant.h"
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -34,23 +34,6 @@ void print(const SubmessageHeader& subheader)
     std::cout << "	flags:             " << std::hex << static_cast<int>(subheader.flags()) << std::endl;
     std::cout << "	submessage length: " << std::hex << static_cast<int>(subheader.submessage_length()) << std::endl;
     std::cout << "=====================" << std::endl;
-}
-void test24()
-{
-    char* buffer = new char[BUFFER_LENGTH];
-    eprosima::fastcdr::FastBuffer fastbuffer(buffer, BUFFER_LENGTH); // Object that manages the raw buffer.
-    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR); // Object that serializes the data.
-
-    ObjectId obid = { 5, 4, 3 };
-    ser << obid; // Serialize the object:
-    {
-        ObjectId obidout;
-        eprosima::fastcdr::FastBuffer fastbuffer(buffer, BUFFER_LENGTH); // Object that manages the raw buffer.
-        eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
-            eprosima::fastcdr::Cdr::DDS_CDR); // Object that deserializes the data.
-                                                Deserialize encapsulation.
-        deser >> obidout;
-    }
 }
 
 int main(int args, char** argv)
@@ -465,34 +448,63 @@ TEST_F(XRCEFactoryTests, StatusMessage)
 class XRCEParserTests : public testing::Test
 {
 public:
-    void create()
+
+    class BoolListener : public XRCEListener
+    {
+public:
+    void on_message(const CREATE_PAYLOAD& create_payload) override
     {
         create_called = true;
     }
 
-    void write()
+    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    {
+        //TODO write tests on this
+    }
+
+    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
     {
         write_called = true;
     }
 
-    void read()
+    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
     {
         read_called = true;
     }
-    void create_counter()
+
+    bool create_called = false;
+    bool write_called = false;
+    bool read_called = false;
+};
+  
+class CountListener : public XRCEListener
+{
+public:
+    void on_message(const CREATE_PAYLOAD& create_payload) override
     {
         ++creates;
     }
 
-    void write_counter()
+    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    {
+        //TODO write tests on this
+    }
+
+    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
     {
         ++writes;
     }
 
-    void read_counter()
+    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
     {
         ++reads;
     }
+
+    int creates = 0;
+    int writes = 0;
+    int reads = 0;
+};
+
 protected:
     XRCEParserTests() :
         test_buffer_(new char[BUFFER_LENGTH])
@@ -504,12 +516,9 @@ protected:
     }
     char* test_buffer_ = nullptr;
 
-    int creates = 0;
-    int writes = 0;
-    int reads = 0;
-    bool create_called = false;
-    bool write_called = false;
-    bool read_called = false;
+    BoolListener bool_listener_;
+    CountListener count_listener_;
+    
     const uint32_t client_key = 0xF1F2F3F4;
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
@@ -519,7 +528,7 @@ protected:
 TEST_F(XRCEParserTests, EmptyMessage)
 {
     testing::internal::CaptureStderr();
-    XRCEParser myParser{ test_buffer_, BUFFER_LENGTH,std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, BUFFER_LENGTH, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
     ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
 }
@@ -527,7 +536,7 @@ TEST_F(XRCEParserTests, EmptyMessage)
 TEST_F(XRCEParserTests, HeaderError)
 {
     testing::internal::CaptureStderr();
-    XRCEParser myParser{ test_buffer_, 0,std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, 0, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
     ASSERT_EQ("Error reading message header\n", testing::internal::GetCapturedStderr());
 }
@@ -536,7 +545,7 @@ TEST_F(XRCEParserTests, SubmessageHeaderError)
 {
     testing::internal::CaptureStderr();
     MessageHeader message_header;
-    XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header),&bool_listener_};
     ASSERT_FALSE(myParser.parse());
     ASSERT_EQ("Error reading submessage header\n", testing::internal::GetCapturedStderr());
 }
@@ -546,7 +555,7 @@ TEST_F(XRCEParserTests, SubmessagePayloadError)
     testing::internal::CaptureStderr();
     MessageHeader message_header;
     SubmessageHeader submessage_header;
-    XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header) + submessage_header.getCdrSerializedSize(submessage_header),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header) + submessage_header.getCdrSerializedSize(submessage_header), &bool_listener_};
     ASSERT_FALSE(myParser.parse());
     ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
 }
@@ -563,9 +572,9 @@ TEST_F(XRCEParserTests, CreateMessage)
     serializer_.serialize(submessage_header);
     serializer_.serialize(createData);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_ };
     ASSERT_TRUE(myParser.parse());
-    ASSERT_TRUE(create_called);
+    ASSERT_TRUE(bool_listener_.create_called);
 }
 
 TEST_F(XRCEParserTests, CreateMessageNoCallback)
@@ -580,11 +589,11 @@ TEST_F(XRCEParserTests, CreateMessageNoCallback)
     serializer_.serialize(submessage_header);
     serializer_.serialize(createData);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), nullptr, std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     testing::internal::CaptureStderr();
     ASSERT_TRUE(myParser.parse());
     ASSERT_EQ("Error processing create\n", testing::internal::GetCapturedStderr());	
-    ASSERT_FALSE(create_called);
+    ASSERT_FALSE(bool_listener_.create_called);
 
 }
 
@@ -604,9 +613,9 @@ TEST_F(XRCEParserTests, MultiCreateMessage)
         serializer_.serialize(createData);
     }
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create_counter, this), std::bind(&XRCEParserTests::write_counter, this),std::bind(&XRCEParserTests::read_counter, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &count_listener_};
     ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ(creates, num_creates);
+    ASSERT_EQ(count_listener_.creates, num_creates);
 }
 
 
@@ -622,9 +631,9 @@ TEST_F(XRCEParserTests, WriteMessage)
     serializer_.serialize(submessage_header);
     serializer_.serialize(write_payload);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     ASSERT_TRUE(myParser.parse());
-    ASSERT_TRUE(write_called);
+    ASSERT_TRUE(bool_listener_.write_called);
 }
 
 TEST_F(XRCEParserTests, WriteMessageNoCallback)
@@ -639,11 +648,11 @@ TEST_F(XRCEParserTests, WriteMessageNoCallback)
     serializer_.serialize(submessage_header);
     serializer_.serialize(write_payload);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create, this), nullptr,std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     testing::internal::CaptureStderr();
     ASSERT_TRUE(myParser.parse());
     ASSERT_EQ("Error processing write\n", testing::internal::GetCapturedStderr());
-    ASSERT_FALSE(write_called);
+    ASSERT_FALSE(bool_listener_.write_called);
 }
 
 TEST_F(XRCEParserTests, MultiWriteMessage)
@@ -662,9 +671,9 @@ TEST_F(XRCEParserTests, MultiWriteMessage)
         serializer_.serialize(write_payload);
     }
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create_counter, this), std::bind(&XRCEParserTests::write_counter, this),std::bind(&XRCEParserTests::read_counter, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &count_listener_};
     ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ(writes, num_writes);
+    ASSERT_EQ(count_listener_.writes, num_writes);
 }
 
 TEST_F(XRCEParserTests, ReadMessage)
@@ -679,9 +688,9 @@ TEST_F(XRCEParserTests, ReadMessage)
     serializer_.serialize(submessage_header);
     serializer_.serialize(read_payload);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),std::bind(&XRCEParserTests::read, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     ASSERT_TRUE(myParser.parse());
-    ASSERT_TRUE(read_called);
+    ASSERT_TRUE(bool_listener_.read_called);
 }
 
 TEST_F(XRCEParserTests, ReadMessageNoCallback)
@@ -696,11 +705,11 @@ TEST_F(XRCEParserTests, ReadMessageNoCallback)
     serializer_.serialize(submessage_header);
     serializer_.serialize(read_payload);
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create, this), std::bind(&XRCEParserTests::write, this),nullptr };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     testing::internal::CaptureStderr();
     ASSERT_TRUE(myParser.parse());
     ASSERT_EQ("Error processing read\n", testing::internal::GetCapturedStderr());
-    ASSERT_FALSE(read_called);
+    ASSERT_FALSE(bool_listener_.read_called);
 }
 
 TEST_F(XRCEParserTests, MultiSubMessage)
@@ -742,11 +751,11 @@ TEST_F(XRCEParserTests, MultiSubMessage)
         serializer_.serialize(write_payload);
     }
 
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(),std::bind(&XRCEParserTests::create_counter, this), std::bind(&XRCEParserTests::write_counter, this),std::bind(&XRCEParserTests::read_counter, this) };
+    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &count_listener_ };
     ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ(creates, num_creates);
-    ASSERT_EQ(writes, num_writes);
-    ASSERT_EQ(reads, num_reads);
+    ASSERT_EQ(count_listener_.creates, num_creates);
+    ASSERT_EQ(count_listener_.writes, num_writes);
+    ASSERT_EQ(count_listener_.reads, num_reads);
 }
 
 class XRCEFileTests : public testing::Test
@@ -811,11 +820,11 @@ TEST_F(XRCEFileTests, Simple)
     }
     else {
         s.write(test_buffer_, newMessage.get_total_size());
-        for fstream, this moves the file position pointer (both put and get)
+        //for fstream, this moves the file position pointer (both put and get)
         s.seekp(0);
 
         char* read_buffer = new char[newMessage.get_total_size()];
-        read
+        //read
         s.read(read_buffer, newMessage.get_total_size()); // binary input
 
         Serializer deserializer_(read_buffer, newMessage.get_total_size());
@@ -876,8 +885,3 @@ TEST_F(XRCEFileTests, Simple)
 // 	}
 // 	// TODO mirar como resetear cout para que 10 no sea a(hex) resetear manipulators
 // 	std::cout << 10;
-
-	XRCEParser myParser{ buffer, newMessage.get_total_size(), create, write, read };
-	myParser.parse();
-
- 

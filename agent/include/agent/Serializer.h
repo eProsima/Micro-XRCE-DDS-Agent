@@ -1,8 +1,6 @@
 #ifndef _SERIALIZER_H
 #define _SERIALIZER_H
 
-
-
 #include <stdint.h>
 
 #include "fastcdr/Cdr.h"
