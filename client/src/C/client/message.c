@@ -38,6 +38,22 @@ int add_delete_submessage(SerializedBufferHandle* writer, const DeletePayloadSpe
     return 1;
 }
 
+int add_status_submessage(SerializedBufferHandle* writer, const StatusPayloadSpec* payload)
+{
+    SubmessageHeaderSpec header;
+    header.id = SUBMESSAGE_STATUS;
+    header.flags = 0x07;
+    header.length = size_of_status_payload(payload);
+
+    if(align_and_check_size_of_submessage_header(writer) + header.length > get_free_space(writer))
+        return 0;
+
+    serialize_submessage_header(writer, &header);
+    serialize_status_payload(writer, payload);
+
+    return 1;
+}
+
 int add_write_data_submessage(SerializedBufferHandle* writer, const WriteDataPayloadSpec* payload)
 {
     SubmessageHeaderSpec header;
@@ -118,7 +134,7 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
 
         PayloadSpec payload;
         #ifdef DEBUG
-        memset(&payload, 0, sizeof(PayloadSpec));
+        memset(&payload, 0xFF, sizeof(PayloadSpec));
         #endif
         switch(submessage_header.id)
         {
@@ -132,6 +148,12 @@ int parse_message(SerializedBufferHandle* reader, const MessageCallback* callbac
                 deserialize_delete_payload(reader, &dynamic_memory, &payload.delete_resource);
                 if(callback->delete_resource)
                     callback->delete_resource(&payload.delete_resource);
+            break;
+
+            case SUBMESSAGE_STATUS:
+                deserialize_status_payload(reader, &dynamic_memory, &payload.status);
+                if(callback->status)
+                    callback->status(&payload.status);
             break;
 
             case SUBMESSAGE_WRITE_DATA:

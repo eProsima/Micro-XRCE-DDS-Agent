@@ -43,6 +43,19 @@ static serial_channel_t* g_channels[MAX_NUM_SERIAL_CHANNELS];
 static struct pollfd g_poll_fds[MAX_NUM_SERIAL_CHANNELS] = {};
 static channel_id_t g_num_channels = 0;
 
+uint16_t crc16_byte(uint16_t crc, const uint8_t data);
+uint16_t crc16(uint8_t const *buffer, size_t len);
+
+serial_channel_t* get_serial_channel(const channel_id_t ch_id);
+channel_id_t create_serial(const locator_t* locator);
+int destroy_serial(const channel_id_t channel_id);
+int open_serial(const channel_id_t channel_id);
+int close_serial(const channel_id_t channel_id);
+int read_serial(void *buffer, const size_t len, const serial_channel_t* channel);
+int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_t channel_id);
+int write_serial(const void* buffer, const size_t len, const serial_channel_t* channel);
+int send_serial(const octet* in_buffer, const size_t length, const channel_id_t channel_id);
+
 serial_channel_t* get_serial_channel(const channel_id_t ch_id)
 {
     if (0 > ch_id || MAX_NUM_SERIAL_CHANNELS <= ch_id)
@@ -162,7 +175,7 @@ int open_serial(const channel_id_t channel_id)
     bool flush = false;
     while (0 < read(channel->uart_fd, (void *)&aux, 64))
     {
-        //printf("%s", aux);
+        printf("%s", aux);
         flush = true;
         usleep(1000);
     }
@@ -250,10 +263,6 @@ int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_
         return len;
     }
 
-    // copy message to outbuffer and set other return values
-    memmove(out_buffer, ch->rx_buffer, len);
-    return len;
-
     ch->rx_buff_pos += len;
 
     // We read some
@@ -326,7 +335,7 @@ int receive_serial(octet* out_buffer, const size_t buffer_len, const channel_id_
     {
         // copy message to outbuffer and set other return values
         memmove(out_buffer, ch->rx_buffer + msg_start_pos + header_size, payload_len);
-        len = payload_len + header_size;
+        len = payload_len; // only payload, "+ header_size" for real size.
     }
 
     // discard message from rx_buffer
@@ -393,5 +402,5 @@ int send_serial(const octet* in_buffer, const size_t length, const channel_id_t 
         return len;
     }
 
-    return len + sizeof(header);
+    return len; // only payload, + sizeof(header); for real size.
 }

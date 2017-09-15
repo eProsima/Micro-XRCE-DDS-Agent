@@ -24,7 +24,7 @@
 namespace { char dummy; }
 #endif
 
-#include "Payloads.h"
+#include "agent/Payloads.h"
 
 #include <fastcdr/Cdr.h>
 

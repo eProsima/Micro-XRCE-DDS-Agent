@@ -1,0 +1,21 @@
+#lineWidth: 1.2
+#fontSize: 12
+#.header: dashed bold italic
+
+[<header>mini_cdr.h]
+[<header>serialization.h]
+[<header>message.h]
+[<header>xrce_spec.h]
+
+[mini_cdr.c]
+[serialization.c]
+[message.c]
+
+[mini_cdr.h]<:-[mini_cdr.c]
+[mini_cdr.h]<:--[serialization.h]
+[serialization.h]<:-[serialization.c]
+
+[mini_cdr.h]<:--[message.h]
+[xrce_spec.h]<:--[message.h]
+[serialization.h]<:-[message.c]
+[message.h]<:-[message.c]

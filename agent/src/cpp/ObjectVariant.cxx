@@ -24,7 +24,7 @@
 namespace { char dummy; }
 #endif
 
-#include "ObjectVariant.h"
+#include "agent/ObjectVariant.h"
 
 #include <fastcdr/Cdr.h>
 

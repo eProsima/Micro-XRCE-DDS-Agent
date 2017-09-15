@@ -1,0 +1,10 @@
+px4_add_module(
+    MODULE examples__client_test
+    MAIN client_test
+    STACK_MAIN 40960
+    SRCS
+        PoC_SendReceive.c
+    DEPENDS
+        platforms__common
+        lib__client
+    )

@@ -1,14 +1,14 @@
-#include "message.h"
-
+#include <client/message.h>
+#include <transport/ddsxrce_transport.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define BUFFER_SIZE 2000
 
+int client_test_main(int argc, char *argv[]);
 void create_message(SerializedBufferHandle* message);
-
 void on_message_header_received(const MessageHeaderSpec* header);
 void on_submessage_header_received(const SubmessageHeaderSpec* header);
-
 void on_create_submessage_received(const CreatePayloadSpec* payload);
 void on_delete_resource_received(const DeletePayloadSpec* payload);
 void on_status_received(const StatusPayloadSpec* payload);
@@ -16,45 +16,28 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* payload);
 void on_read_data_received(const ReadDataPayloadSpec* payload);
 void on_data_received(const DataPayloadSpec* payload);
 
-//UTIL
-const char* data_to_string(const uint8_t* data, uint32_t size);
-
-int main(int args, char** argv)
+int client_test_main(int argc, char *argv[])
 {
-    // Buffer for send the message
-    uint8_t buffer[BUFFER_SIZE] = {};
 
+    // Mesage creation
+    octet out_buffer[1024] = {};
+    octet in_buffer[1024] = {};
+    size_t buffer_len = 1024;
 
-    printf("%s\n\n", "SERIALIZATION:");
-    SerializedBufferHandle message;
-    init_serialized_buffer(&message, buffer, BUFFER_SIZE);
-
-    create_message(&message);
-
-
-
-    printf(" ");
-    for(uint8_t* i = message.data; i < message.iterator; i++)
+    // Init transport
+    locator_t loc =
     {
-        printf("%02X ", *i);
-        if((i - message.data + 1) % 16 == 0)
-            printf("\n ");
-    }
-    printf("\n\n");
+      LOC_SERIAL,
+      "/dev/ttyACM0"
+    };
 
-    uint32_t seliarized_size = message.iterator - message.data;
-    printf(" %u serialized bytes. \n", seliarized_size);
+    int ret = 0;
+    channel_id_t ch_id = add_locator(&loc);
 
-
-
-
-    printf("\n%s\n", "DESERIALIZATION: \n");
-    init_serialized_buffer(&message, buffer, seliarized_size);
-
-    MessageCallback callback = {};
+    // Init parser
+    MessageCallback callback;
     callback.message_header = on_message_header_received;
     callback.submessage_header = on_submessage_header_received;
-
     callback.create_resource = on_create_submessage_received;
     callback.delete_resource = on_delete_resource_received;
     callback.status = on_status_received;
@@ -62,11 +45,65 @@ int main(int args, char** argv)
     callback.read_data = on_read_data_received;
     callback.data = on_data_received;
 
-    parse_message(&message, &callback);
+    printf("%s\n\n", "SERIALIZATION:");
+    SerializedBufferHandle out_message, in_message;
+    init_serialized_buffer(&out_message, out_buffer, buffer_len);
+    create_message(&out_message);
 
-    uint32_t parsed_size = message.iterator - message.data;
-    printf(" %u parsed bytes. \n", parsed_size);
 
+    uint32_t seliarized_size = out_message.iterator - out_message.data;
+    printf(" %u serialized bytes. \n", seliarized_size);
+
+    int loops = 1000;
+    while (loops--)
+    {
+        printf("----------------------------------------------\n");
+        printf("                      SEND                    \n");
+        printf("----------------------------------------------\n");
+
+        if (0 < (ret = send(out_buffer, seliarized_size, loc.kind, ch_id)))
+        {
+            printf(" ");
+            for(uint8_t* i = out_message.data; i < out_message.iterator; i++)
+            {
+                printf("%02X ", *i);
+                if((i - out_message.data + 1) % 16 == 0)
+                    printf("\n ");
+            }
+            printf("\n\n");
+            printf(" %u serialized bytes. \n", seliarized_size);
+
+            printf("SEND: %d bytes\n", ret);
+        }
+        else
+        {
+            printf("SEND ERROR: %d\n", ret);
+        }
+
+        usleep(2000000);
+
+        printf("----------------------------------------------\n");
+        printf("                    RECEIVED                  \n");
+        printf("----------------------------------------------\n");
+
+        if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
+        {
+            printf("RECV: %d bytes\n", ret);
+            init_serialized_buffer(&in_message, in_buffer, ret);
+            parse_message(&in_message, &callback);
+
+            uint32_t parsed_seliarized_size = in_message.iterator - in_message.data;
+            printf(" %u serialized bytes. \n", parsed_seliarized_size);
+        }
+        else
+        {
+            printf("RECV ERROR: %d\n", ret);
+        }
+
+        usleep(2000000);
+    }
+
+    printf("exiting...\n");
     return 0;
 }
 
@@ -116,7 +153,7 @@ void create_message(SerializedBufferHandle* message)
         add_create_submessage(message, &payload);
     }
 
-
+    /*
     // [DELETE] SUBMESSAGE
     {
         DeletePayloadSpec payload;
@@ -154,7 +191,7 @@ void create_message(SerializedBufferHandle* message)
 
     // [WRITE_DATA] SUBMESSAGE
     {
-        uint8_t data[] = {0x01, 0x02, 0x03, 0x04, 0x05};
+        uint8_t data[] = "This data has been sent!";
 
         WriteDataPayloadSpec payload;
         payload.request_id = 0xAABBCCDD;
@@ -166,7 +203,7 @@ void create_message(SerializedBufferHandle* message)
         {
             case READ_MODE_DATA:
                 kind->data.serialized_data = data;
-                kind->data.serialized_data_size = 5;
+                kind->data.serialized_data_size = strlen((char*)data) + 1;
             break;
 
             case READ_MODE_SAMPLE:
@@ -174,7 +211,7 @@ void create_message(SerializedBufferHandle* message)
                 kind->sample.info.sequence_number = 0x01234567;
                 kind->sample.info.session_time_offset = 0xAAAABBBB;
                 kind->sample.data.serialized_data = data;
-                kind->sample.data.serialized_data_size = 5;
+                kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
             break;
         }
 
@@ -202,11 +239,11 @@ void create_message(SerializedBufferHandle* message)
 
     // [DATA] SUBMESSAGE
     {
-        uint8_t data[] = {0x01, 0x02, 0x03, 0x04, 0x05};
+        uint8_t data[] = "This data has been recieved!";
 
         DataPayloadSpec payload;
         payload.request_id = 0x87654321;
-        payload.object_id = 0x778899;
+        payload.object_id = 0xFEDCBA;
         payload.data_reader.read_mode = READ_MODE_SAMPLE;
 
         SampleKindSpec* kind = &payload.data_reader.sample_kind;
@@ -214,7 +251,7 @@ void create_message(SerializedBufferHandle* message)
         {
             case READ_MODE_DATA:
                 kind->data.serialized_data = data;
-                kind->data.serialized_data_size = 5;
+                kind->data.serialized_data_size = strlen((char*)data) + 1;
             break;
 
             case READ_MODE_SAMPLE:
@@ -222,12 +259,13 @@ void create_message(SerializedBufferHandle* message)
                 kind->sample.info.sequence_number = 0x01234567;
                 kind->sample.info.session_time_offset = 0xAAAABBBB;
                 kind->sample.data.serialized_data = data;
-                kind->sample.data.serialized_data_size = 5;
+                kind->sample.data.serialized_data_size = strlen((char*)data) + 1;
             break;
         }
 
         add_data_submessage(message, &payload);
     }
+    */
 }
 
 void on_message_header_received(const MessageHeaderSpec* header)
@@ -360,8 +398,6 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* payload)
             printf("    <Data>\n");
             printf("    - serialized_data_size: 0x%08X\n", kind->data.serialized_data_size);
             printf("    - serialized_data: %s\n", (char*)kind->data.serialized_data);
-            printf("    - serialized_data: %s\n", data_to_string(kind->data.serialized_data,
-                kind->data.serialized_data_size));
         break;
 
         case READ_MODE_SAMPLE:
@@ -369,8 +405,7 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* payload)
             printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
-            printf("    - serialized_data: %s\n", data_to_string(kind->sample.data.serialized_data,
-                kind->sample.data.serialized_data_size));
+            printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);
         break;
     }
     printf("\n\n");
@@ -405,8 +440,7 @@ void on_data_received(const DataPayloadSpec* payload)
         case READ_MODE_DATA:
             printf("    <Data>\n");
             printf("    - serialized_data_size: 0x%08X\n", kind->data.serialized_data_size);
-            printf("    - serialized_data: %s\n", data_to_string(kind->data.serialized_data,
-                kind->data.serialized_data_size));
+            printf("    - serialized_data: %s\n", (char*)kind->data.serialized_data);
         break;
 
         case READ_MODE_SAMPLE:
@@ -414,19 +448,13 @@ void on_data_received(const DataPayloadSpec* payload)
             printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
-            printf("    - serialized_data: %s\n", data_to_string(kind->sample.data.serialized_data,
-                kind->sample.data.serialized_data_size));
-
+            printf("    - serialized_data: %s\n", (char*)kind->sample.data.serialized_data);
         break;
     }
     printf("\n\n");
 }
 
-const char* data_to_string(const uint8_t* data, uint32_t size)
+int main(int argc, char *argv[])
 {
-    static char buffer[1024];
-    for(uint32_t i = 0; i < size; i++)
-        sprintf(buffer + 3 * i, "%02X ", data[i]);
-    sprintf(buffer + 5 * size, "\n");
-    return buffer;
+    return client_test_main(argc, argv);
 }

@@ -71,95 +71,88 @@ int size_of_submessage_header(const SubmessageHeaderSpec* submessage_header)
 void serialize_create_payload(SerializedBufferHandle* buffer, const CreatePayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
-
+    serialize_object_id(buffer, payload->object_id);
     serialize_object_kind(buffer, &payload->object);
 }
 
 void deserialize_create_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, CreatePayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    deserialize_object_id(buffer, &payload->object_id);
     deserialize_object_kind(buffer, dynamic_memory, &payload->object);
 }
 
 int size_of_create_payload(const CreatePayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3 //object_id
+         + size_of_object_id(payload->object_id)
          + size_of_object_kind(&payload->object);
 }
 
 void serialize_delete_payload(SerializedBufferHandle* buffer, const DeletePayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    serialize_object_id(buffer, payload->object_id);;
 }
 
 void deserialize_delete_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DeletePayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    deserialize_object_id(buffer, &payload->object_id);
 }
 
 int size_of_delete_payload(const DeletePayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3; //object_id
+         + size_of_object_id(payload->object_id);
 }
 
 void serialize_status_payload(SerializedBufferHandle* buffer, const StatusPayloadSpec* payload)
 {
     serialize_result_status(buffer, &payload->result);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    serialize_object_id(buffer, payload->object_id);
     serialize_status_kind(buffer, &payload->status);
 }
 
 void deserialize_status_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusPayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_result_status(buffer, dynamic_memory, &payload->result);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    deserialize_object_id(buffer, &payload->object_id);
     deserialize_status_kind(buffer, dynamic_memory, &payload->status);
 }
 
 int size_of_status_payload(const StatusPayloadSpec* payload)
 {
     return sizeof(payload->result)
-         + 3 //object_id
-         + sizeof(payload->status);
+         + size_of_object_id(payload->object_id)
+         + size_of_status_kind(&payload->status);
 }
 
 void serialize_write_data_payload(SerializedBufferHandle* buffer, const WriteDataPayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
-
+    serialize_object_id(buffer, payload->object_id);
     serialize_data_mode(buffer, &payload->data_writer);
 }
 
 void deserialize_write_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, WriteDataPayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
-
+    deserialize_object_id(buffer, &payload->object_id);
     deserialize_data_mode(buffer, dynamic_memory, &payload->data_writer);
 }
 
 int size_of_write_data_payload(const WriteDataPayloadSpec* payload)
 {
     return sizeof(&payload->request_id)
-         + 3 //object_id
+         + size_of_object_id(payload->object_id)
          + size_of_data_mode(&payload->data_writer);
 }
 
 void serialize_read_data_payload(SerializedBufferHandle* buffer, const ReadDataPayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    serialize_object_id(buffer, payload->object_id);
 
     serialize_byte_2(buffer, payload->max_messages);
     serialize_byte(buffer, payload->read_mode);
@@ -175,9 +168,8 @@ void serialize_read_data_payload(SerializedBufferHandle* buffer, const ReadDataP
 
 void deserialize_read_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ReadDataPayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
+    deserialize_object_id(buffer, &payload->object_id);
 
     deserialize_byte_2(buffer, &payload->max_messages);
     deserialize_byte(buffer, &payload->read_mode);
@@ -195,7 +187,7 @@ void deserialize_read_data_payload(SerializedBufferHandle* buffer, DynamicBuffer
 int size_of_read_data_payload(const ReadDataPayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3 //object_id
+         + size_of_object_id(payload->object_id)
          + sizeof(payload->max_messages)
          + sizeof(payload->max_elapsed_time)
          + sizeof(payload->max_rate)
@@ -208,24 +200,21 @@ int size_of_read_data_payload(const ReadDataPayloadSpec* payload)
 void serialize_data_payload(SerializedBufferHandle* buffer, const DataPayloadSpec* payload)
 {
     serialize_byte_4(buffer, payload->request_id);
-    serialize_block(buffer, (uint8_t*)&payload->object_id, 3);
-
+    serialize_object_id(buffer, payload->object_id);
     serialize_data_mode(buffer, &payload->data_reader);
 }
 
 void deserialize_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataPayloadSpec* payload)
 {
-    payload->object_id = 0;
     deserialize_byte_4(buffer, &payload->request_id);
-    deserialize_block(buffer, (uint8_t*)&payload->object_id, 3);
-
+    deserialize_object_id(buffer, &payload->object_id);
     deserialize_data_mode(buffer, dynamic_memory, &payload->data_reader);
 }
 
 int size_of_data_payload(const DataPayloadSpec* payload)
 {
     return sizeof(payload->request_id)
-         + 3 //object_id
+         + size_of_object_id(payload->object_id)
          + size_of_data_mode(&payload->data_reader);
 }
 
@@ -241,11 +230,11 @@ void serialize_object_kind(SerializedBufferHandle* buffer, const ObjectKindSpec*
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             serialize_object_variant_data_writer(buffer, &object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             serialize_object_variant_data_reader(buffer, &object->variant.data_reader);
         break;
 
@@ -269,11 +258,11 @@ void deserialize_object_kind(SerializedBufferHandle* buffer, DynamicBuffer* dyna
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             deserialize_object_variant_data_writer(buffer, dynamic_memory, &object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             deserialize_object_variant_data_reader(buffer, dynamic_memory, &object->variant.data_reader);
         break;
 
@@ -295,11 +284,11 @@ int size_of_object_kind(const ObjectKindSpec* object)
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             size += size_of_object_variant_data_writer(&object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             size += size_of_object_variant_data_reader(&object->variant.data_reader);
         break;
 
@@ -321,11 +310,11 @@ void serialize_status_kind(SerializedBufferHandle* buffer, const StatusKindSpec*
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             serialize_status_variant_data_writer(buffer, &status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             serialize_status_variant_data_reader(buffer, &status->variant.reader);
         break;
     }
@@ -337,11 +326,11 @@ void deserialize_status_kind(SerializedBufferHandle* buffer, DynamicBuffer* dyna
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             deserialize_status_variant_data_writer(buffer, dynamic_memory, &status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             deserialize_status_variant_data_reader(buffer, dynamic_memory, &status->variant.reader);
         break;
     }
@@ -353,11 +342,11 @@ int size_of_status_kind(const StatusKindSpec* status)
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             size += size_of_status_variant_data_writer(&status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             size += size_of_status_variant_data_reader(&status->variant.reader);
         break;
     }
@@ -420,72 +409,68 @@ int size_of_data_mode(const DataModeSpec* data_mode)
 
 void serialize_object_variant_data_writer(SerializedBufferHandle* buffer, const DataWriterSpec* data_writer)
 {
-    serialize_block(buffer, (uint8_t*)&data_writer->participant_id, 3);
-    serialize_block(buffer, (uint8_t*)&data_writer->publisher_id, 3);
+    serialize_object_id(buffer, data_writer->participant_id);
+    serialize_object_id(buffer, data_writer->publisher_id);
 }
 
 void deserialize_object_variant_data_writer(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataWriterSpec* data_writer)
 {
-    data_writer->participant_id = 0;
-    data_writer->publisher_id = 0;
-    deserialize_block(buffer, (uint8_t*)&data_writer->participant_id, 3);
-    deserialize_block(buffer, (uint8_t*)&data_writer->publisher_id, 3);
+    deserialize_object_id(buffer, &data_writer->participant_id);
+    deserialize_object_id(buffer, &data_writer->publisher_id);
 }
 
 int size_of_object_variant_data_writer(const DataWriterSpec* data_writer)
 {
-    return 6; //participant_id + publisher_id
+    return size_of_object_id(data_writer->participant_id)
+         + size_of_object_id(data_writer->publisher_id);
 }
 
 void serialize_object_variant_data_reader(SerializedBufferHandle* buffer, const DataReaderSpec* data_reader)
 {
-    serialize_block(buffer, (uint8_t*)&data_reader->participant_id, 3);
-    serialize_block(buffer, (uint8_t*)&data_reader->subscriber_id, 3);
+    serialize_object_id(buffer, data_reader->participant_id);
+    serialize_object_id(buffer, data_reader->subscriber_id);
 }
 
 void deserialize_object_variant_data_reader(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataReaderSpec* data_reader)
 {
-    data_reader->participant_id = 0;
-    data_reader->subscriber_id = 0;
-    deserialize_block(buffer, (uint8_t*)&data_reader->participant_id, 3);
-    deserialize_block(buffer, (uint8_t*)&data_reader->subscriber_id, 3);
+    deserialize_object_id(buffer, &data_reader->participant_id);
+    deserialize_object_id(buffer, &data_reader->subscriber_id);
 }
 
 int size_of_object_variant_data_reader(const DataReaderSpec* data_reader)
 {
-    return 6; //participant_id + subscriber_id
+    return size_of_object_id(data_reader->participant_id)
+         + size_of_object_id(data_reader->subscriber_id);
 }
 
 void serialize_object_variant_publisher(SerializedBufferHandle* buffer, const PublisherSpec* publisher)
 {
-    serialize_block(buffer, (uint8_t*)&publisher->participant_id, 3);
+    serialize_object_id(buffer, publisher->participant_id);
 }
 
 void deserialize_object_variant_publisher(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, PublisherSpec* publisher)
 {
-    publisher->participant_id = 0;
-    deserialize_block(buffer, (uint8_t*)&publisher->participant_id, 3);
+    deserialize_object_id(buffer, &publisher->participant_id);
 }
 
 int size_of_object_variant_publisher(const PublisherSpec* publisher)
 {
-    return 3; //participant_id
+    return size_of_object_id(publisher->participant_id);
 }
 
 void serialize_object_variant_subscriber(SerializedBufferHandle* buffer, const SubscriberSpec* subscriber)
 {
-    serialize_block(buffer, (uint8_t*)&subscriber->participant_id, 3);
+    serialize_object_id(buffer, subscriber->participant_id);
 }
 
 void deserialize_object_variant_subscriber(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SubscriberSpec* subscriber)
 {
-    subscriber->participant_id = 0;
-    deserialize_block(buffer, (uint8_t*)&subscriber->participant_id, 3);
+    deserialize_object_id(buffer, &subscriber->participant_id);
 }
 
 int size_of_object_variant_subscriber(const SubscriberSpec* subscriber)
 {
-    return 3; //participant_id
+    return size_of_object_id(subscriber->participant_id);
 }
 
 
@@ -611,11 +596,38 @@ int size_of_sample_info(const SampleInfoSpec* info)
           + sizeof(info->session_time_offset);
 }
 
+// --------------------------------------------------------------------------
+//                                  UTIL
+// --------------------------------------------------------------------------
+void serialize_object_id(SerializedBufferHandle* buffer, uint_least24_t object_id)
+{
+    if(buffer->endian_machine == BIG_ENDIAN_MODE)
+        object_id = object_id << 8;
+    serialize_array(buffer, (uint8_t*)&object_id, 3);
+}
+
+void deserialize_object_id(SerializedBufferHandle* buffer, uint_least24_t* object_id)
+{
+    *object_id = 0;
+    if(buffer->endian_machine == BIG_ENDIAN_MODE)
+        object_id++;
+    deserialize_array(buffer, (uint8_t*)object_id, 3);
+}
+
+int size_of_object_id(uint_least24_t object_id)
+{
+    return 3;
+}
+
 int align_and_check_size_of_submessage_header(SerializedBufferHandle* buffer)
 {
     align_to(buffer, 4);
     return sizeof(SubmessageHeaderSpec);
 }
+
+// --------------------------------------------------------------------------
+//                               DYNAMIC MEMORY
+// --------------------------------------------------------------------------
 
 void init_memory_buffer(DynamicBuffer* buffer, uint32_t size)
 {

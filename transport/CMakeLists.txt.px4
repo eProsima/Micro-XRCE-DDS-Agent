@@ -1,0 +1,9 @@
+px4_add_module(
+	MODULE lib__transport
+	SRCS
+		ddsxrce_transport_common.c
+		ddsxrce_serial_transport.c
+		ddsxrce_transport.c
+	DEPENDS
+		platforms__common
+	)
