@@ -13,4 +13,6 @@ elif [ "$1" = "mini_cdr_p" ]; then
     if [ $? -eq 0 ]; then
         build/mini_micro_cdr_performance_comparative_test
     fi
+else
+    echo "ERROR => Enter a valid build."
 fi

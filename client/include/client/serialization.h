@@ -53,7 +53,8 @@ void serialize_sample(SerializedBufferHandle* buffer, const SampleSpec* sample);
 void serialize_sample_data(SerializedBufferHandle* buffer, const SampleDataSpec* data);
 void serialize_sample_info(SerializedBufferHandle* buffer, const SampleInfoSpec* info);
 
-
+//util
+void serialize_object_id(SerializedBufferHandle* buffer, uint_least24_t object_id);
 
 //DESERIALIZATION
 //headers
@@ -89,6 +90,8 @@ void deserialize_sample(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_m
 void deserialize_sample_data(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleDataSpec* data);
 void deserialize_sample_info(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleInfoSpec* info);
 
+//util
+void deserialize_object_id(SerializedBufferHandle* buffer, uint_least24_t* object_id);
 
 
 //SIZE_OF
@@ -124,6 +127,9 @@ int size_of_status_variant_data_reader(const DataReaderStatusSpec* reader_status
 int size_of_sample(const SampleSpec* sample);
 int size_of_sample_data(const SampleDataSpec* data);
 int size_of_sample_info(const SampleInfoSpec* info);
+
+//util
+int size_of_object_id(uint_least24_t object_id);
 
 
 

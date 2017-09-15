@@ -16,6 +16,7 @@ typedef struct MessageCallback
 
     void (*create_resource)(const CreatePayloadSpec* payload);
     void (*delete_resource)(const DeletePayloadSpec* payload);
+    void (*status)(const StatusPayloadSpec* payload);
     void (*write_data)(const WriteDataPayloadSpec* payload);
     void (*read_data)(const ReadDataPayloadSpec* payload);
     void (*data)(const DataPayloadSpec* payload);
@@ -29,6 +30,7 @@ void init_message(SerializedBufferHandle* writer, const MessageHeaderSpec* messa
 
 int add_create_submessage(SerializedBufferHandle* writer, const CreatePayloadSpec* payload);
 int add_delete_submessage(SerializedBufferHandle* writer, const DeletePayloadSpec* payload);
+int add_status_submessage(SerializedBufferHandle* writer, const StatusPayloadSpec* payload);
 int add_write_data_submessage(SerializedBufferHandle* writer, const WriteDataPayloadSpec* payload);
 int add_read_data_submessage(SerializedBufferHandle* writer, const ReadDataPayloadSpec* payload);
 int add_data_submessage(SerializedBufferHandle* writer, const DataPayloadSpec* payload);

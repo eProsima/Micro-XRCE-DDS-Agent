@@ -46,7 +46,6 @@ void test(int endian)
 
     //init buffers
     init_serialized_buffer(&buffer_handle, data, BUFFER_SIZE);
-    buffer_handle.endian_mode = endian;
 
     newStaticAlignedBuffer((char*)data, BUFFER_SIZE, &microBufferWriter);
     newDeserializedAlignedBuffer((char*)data, BUFFER_SIZE, &microBufferReader);
@@ -89,7 +88,7 @@ void test(int endian)
     {
         for(unsigned j = 0; j < BUFFER_SIZE; j += 4)
         {
-            serialize_byte_4(&buffer_handle, byte_4);
+            serialize_byte_4_endian(&buffer_handle, byte_4, endian);
         }
         reset_buffer_iterator(&buffer_handle);
     }
@@ -102,7 +101,7 @@ void test(int endian)
     {
         for(unsigned j = 0; j < BUFFER_SIZE; j += 8)
         {
-            serialize_byte_8(&buffer_handle, byte_8);
+            serialize_byte_8_endian(&buffer_handle, byte_8, endian);
         }
         reset_buffer_iterator(&buffer_handle);
     }
@@ -143,7 +142,7 @@ void test(int endian)
     {
         for(unsigned j = 0; j < BUFFER_SIZE; j += 4)
         {
-            deserialize_byte_4(&buffer_handle, &byte_4);
+            deserialize_byte_4_endian(&buffer_handle, &byte_4, endian);
         }
         reset_buffer_iterator(&buffer_handle);
     }
@@ -156,7 +155,7 @@ void test(int endian)
     {
         for(unsigned j = 0; j < BUFFER_SIZE; j += 8)
         {
-            deserialize_byte_8(&buffer_handle, &byte_8);
+            deserialize_byte_8_endian(&buffer_handle, &byte_8, endian);
         }
         reset_buffer_iterator(&buffer_handle);
     }

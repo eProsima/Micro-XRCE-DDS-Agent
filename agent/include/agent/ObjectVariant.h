@@ -2366,7 +2366,7 @@ public:
      * @brief This function sets a value in member sample_seq_num
      * @param _sample_seq_num New value for member sample_seq_num
      */
-    inline void sample_seq_num(uint64_t _sample_seq_num)
+    inline void sample_seq_num(uint32_t _sample_seq_num)
     {
         sample_seq_num_ = _sample_seq_num;
     }
@@ -2375,7 +2375,7 @@ public:
      * @brief This function returns the value of member sample_seq_num
      * @return Value of member sample_seq_num
      */
-    inline uint64_t sample_seq_num() const
+    inline uint32_t sample_seq_num() const
     {
         return sample_seq_num_;
     }
@@ -2384,7 +2384,7 @@ public:
      * @brief This function returns a reference to member sample_seq_num
      * @return Reference to member sample_seq_num
      */
-    inline uint64_t& sample_seq_num()
+    inline uint32_t& sample_seq_num()
     {
         return sample_seq_num_;
     }
@@ -2420,7 +2420,8 @@ public:
     
 private:
     int16_t stream_seq_num_;
-    uint64_t sample_seq_num_;
+    // HACK uint64_t sample_seq_num_;
+    uint32_t sample_seq_num_;
 };
 /*!
  * @brief This class represents the union StatusVariant defined by the user in the IDL file.
@@ -3176,7 +3177,7 @@ public:
     * @brief This function sets a value in member sequence_number
     * @param _sequence_number New value for member sequence_number
     */
-    inline void sequence_number(uint64_t _sequence_number)
+    inline void sequence_number(uint32_t _sequence_number)
     {
         sequence_number_ = _sequence_number;
     }
@@ -3185,7 +3186,7 @@ public:
     * @brief This function returns the value of member sequence_number
     * @return Value of member sequence_number
     */
-    inline uint64_t sequence_number() const
+    inline uint32_t sequence_number() const
     {
         return sequence_number_;
     }
@@ -3194,7 +3195,7 @@ public:
     * @brief This function returns a reference to member sequence_number
     * @return Reference to member sequence_number
     */
-    inline uint64_t& sequence_number()
+    inline uint32_t& sequence_number()
     {
         return sequence_number_;
     }
@@ -3256,7 +3257,8 @@ public:
 
 private:
     uint8_t state_;
-    uint64_t sequence_number_;
+    // HACK uint64_t sequence_number_;
+    uint32_t sequence_number_;
     uint32_t session_time_offset_;
 };
 /*!
