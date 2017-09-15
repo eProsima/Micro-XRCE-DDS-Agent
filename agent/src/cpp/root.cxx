@@ -1,8 +1,15 @@
+#include "agent/root.h"
+
+using namespace eprosima::micrortps;
+
+XRCEAgent::XRCEAgent() {}
+
+XRCEAgent::~XRCEAgent() {}
 
 
 
-X& myX()
+XRCEAgent& root()
 {
-    static X my_x {3};
-    return my_x;
+    static XRCEAgent xrce_agent;
+    return xrce_agent;
 }
