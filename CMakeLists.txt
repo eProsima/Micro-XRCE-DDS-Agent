@@ -59,7 +59,7 @@ add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # agent_test
-file(GLOB AGENT_TEST_SOURCES "PoC_SendReceive.cxx")
+file(GLOB AGENT_TEST_SOURCES "agent_test.cxx")
 add_executable(agent_test ${AGENT_TEST_SOURCES})
 install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent_test transport agent fastcdr)
@@ -71,7 +71,7 @@ install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
 #install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
 
 # client_test
-file(GLOB CLIENT_TEST_SOURCES "PoC_SendReceive.c")
+file(GLOB CLIENT_TEST_SOURCES "client_test.c")
 add_executable(client_test ${CLIENT_TEST_SOURCES})
 install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(client_test client transport)
