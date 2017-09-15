@@ -2,14 +2,20 @@
 
 using namespace eprosima::micrortps;
 
-XRCEAgent::XRCEAgent() {}
+Agent::Agent() {}
 
-XRCEAgent::~XRCEAgent() {}
-
-
-
-XRCEAgent& root()
+Agent& root()
 {
-    static XRCEAgent xrce_agent;
+    static Agent xrce_agent;
     return xrce_agent;
+}
+
+ResultStatus Agent::create_client(const OBJK_CLIENT_Representation& client_representation)
+{
+    clients_.emplace_back(ProxyClient{});
+}
+
+void Agent::delete_client()
+{
+    clients_.pop_back();
 }
