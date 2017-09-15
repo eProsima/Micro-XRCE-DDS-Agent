@@ -241,11 +241,11 @@ void serialize_object_kind(SerializedBufferHandle* buffer, const ObjectKindSpec*
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             serialize_object_variant_data_writer(buffer, &object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             serialize_object_variant_data_reader(buffer, &object->variant.data_reader);
         break;
 
@@ -269,11 +269,11 @@ void deserialize_object_kind(SerializedBufferHandle* buffer, DynamicBuffer* dyna
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             deserialize_object_variant_data_writer(buffer, dynamic_memory, &object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             deserialize_object_variant_data_reader(buffer, dynamic_memory, &object->variant.data_reader);
         break;
 
@@ -295,11 +295,11 @@ int size_of_object_kind(const ObjectKindSpec* object)
 
     switch(object->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             size += size_of_object_variant_data_writer(&object->variant.data_writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             size += size_of_object_variant_data_reader(&object->variant.data_reader);
         break;
 
@@ -321,11 +321,11 @@ void serialize_status_kind(SerializedBufferHandle* buffer, const StatusKindSpec*
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             serialize_status_variant_data_writer(buffer, &status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             serialize_status_variant_data_reader(buffer, &status->variant.reader);
         break;
     }
@@ -337,11 +337,11 @@ void deserialize_status_kind(SerializedBufferHandle* buffer, DynamicBuffer* dyna
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             deserialize_status_variant_data_writer(buffer, dynamic_memory, &status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             deserialize_status_variant_data_reader(buffer, dynamic_memory, &status->variant.reader);
         break;
     }
@@ -353,11 +353,11 @@ int size_of_status_kind(const StatusKindSpec* status)
 
     switch(status->kind)
     {
-        case OBJECT_KIND_DATAWRITER:
+        case OBJECT_KIND_DATA_WRITER:
             size += size_of_status_variant_data_writer(&status->variant.writer);
         break;
 
-        case OBJECT_KIND_DATAREADER:
+        case OBJECT_KIND_DATA_READER:
             size += size_of_status_variant_data_reader(&status->variant.reader);
         break;
     }
