@@ -54,12 +54,12 @@ add_library(transport SHARED ${TRANS_LIB_SRCS})
 install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # libagent.so
-file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cxx" "agent/src/cpp/*/*.cxx")
+file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # agent_test
-file(GLOB AGENT_TEST_SOURCES "agent_test.cxx")
+file(GLOB AGENT_TEST_SOURCES "agent_test.cpp")
 add_executable(agent_test ${AGENT_TEST_SOURCES})
 install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent_test transport agent fastcdr)
