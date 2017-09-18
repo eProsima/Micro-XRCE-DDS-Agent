@@ -43,7 +43,7 @@ Status Agent::delete_client(const ClientKey& client_key)
     Status status;
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_DELETE);
-    if (clients_.erase(client_key))
+    if (0 == clients_.erase(client_key))
     {
         status.result().implementation_status(STATUS_ERR_INVALID_DATA);
         // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.

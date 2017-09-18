@@ -98,6 +98,58 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
     ASSERT_EQ(STATUS_ERR_INCOMPATIBLE, response.result().implementation_status());
 }
 
+TEST_F(AgentTests, DeleteExistingClient)
+{
+    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    OBJK_CLIENT_Representation client_representation;
+    client_representation.xrce_cookie(XRCE_COOKIE);
+    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_vendor_id();
+    client_representation.client_timestamp();
+    client_representation.session_id();
+
+    ObjectVariant variant;
+    variant.client(client_representation);
+    Status response = agent_.create_client(client_key, variant);
+
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
+    ASSERT_EQ(STATUS_OK, response.result().implementation_status());
+
+    response = agent_.delete_client(client_key);
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
+    ASSERT_EQ(STATUS_OK, response.result().implementation_status());
+}
+
+TEST_F(AgentTests, DeleteOnEmptyAgent)
+{
+    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    Status response = agent_.delete_client(client_key);
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
+    ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
+}
+
+TEST_F(AgentTests, DeleteNoExistingClient)
+{
+    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    OBJK_CLIENT_Representation client_representation;
+    client_representation.xrce_cookie(XRCE_COOKIE);
+    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_vendor_id();
+    client_representation.client_timestamp();
+    client_representation.session_id();
+
+    ObjectVariant variant;
+    variant.client(client_representation);
+    Status response = agent_.create_client(client_key, variant);
+
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
+    ASSERT_EQ(STATUS_OK, response.result().implementation_status());
+
+    response = agent_.delete_client({0xFA, 0xFB, 0xFC, 0xFD});
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
+    ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
+}
+
 int main(int args, char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
