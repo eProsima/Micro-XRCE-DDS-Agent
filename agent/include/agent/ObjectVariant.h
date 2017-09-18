@@ -52,9 +52,9 @@ typedef std::array<uint8_t, 3> ObjectId;
 
 // Spells XRCE
 #define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
-#define XRCE_VESION_MAJOR     0x01
-#define XRCE_VESION_MINOR     0x00
-#define XRCE_VERSION  { XRCE_VESION_MAJOR, XRCE_VESION_MINOR }
+#define XRCE_VERSION_MAJOR     0x01
+#define XRCE_VERSION_MINOR     0x00
+#define XRCE_VERSION  { XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR }
 
 typedef uint8_t SessionId;
 const uint8_t SESSIONID_INVALID = 0;

@@ -4,7 +4,7 @@
 #include <agent/ObjectVariant.h>
 #include <agent/client/ProxyClient.h>
 
-#include <vector>
+#include <map>
 
 namespace eprosima{
 namespace micrortps{
@@ -18,10 +18,10 @@ public:
     Agent();
     ~Agent() = default;
 
-    ResultStatus create_client(const OBJK_CLIENT_Representation& client_representation);
-    void delete_client();
+    Status create_client(const ClientKey& client_key,  const ObjectVariant& client_representation);
+    Status delete_client(const ClientKey& client_key);
 private:
-    std::vector<ProxyClient> clients_;
+    std::map<ClientKey, ProxyClient> clients_;
 };
 
 } // eprosima
