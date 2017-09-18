@@ -15,10 +15,10 @@ public:
     XRCEListener() = default;
     virtual ~XRCEListener() = default;
 
-    virtual void on_message(const CREATE_PAYLOAD& create_payload) = 0;
-    virtual void on_message(const DELETE_PAYLOAD& create_payload) = 0;
-    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload) = 0;
-    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload) = 0;
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload) = 0;
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload) = 0;
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload) = 0;
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload) = 0;
 };
 
 class XRCEParser
@@ -33,10 +33,10 @@ public:
     bool parse();
 private:
 
-    bool process_create();
-    bool process_delete();
-    bool process_write_data();
-    bool process_read_data();
+    bool process_create(const MessageHeader& header, const SubmessageHeader& sub_header);
+    bool process_delete(const MessageHeader& header, const SubmessageHeader& sub_header);
+    bool process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header);
+    bool process_read_data(const MessageHeader& header, const SubmessageHeader& sub_header);
 
     void print(const MessageHeader& message_header);
     void print(const SubmessageHeader& submessage_header);

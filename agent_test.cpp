@@ -94,22 +94,22 @@ public:
     PoC_Listener() {};
     ~PoC_Listener() {};
 
-    virtual void on_message(const CREATE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
     {
 
     }
 
-    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload)
     {
 
     }
 
-    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
     {
 
     }
 
-    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
     {
 
     }

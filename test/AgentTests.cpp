@@ -15,7 +15,7 @@ protected:
 
 TEST_F(AgentTests, CreateClientOk)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version(XRCE_VERSION);
@@ -33,7 +33,7 @@ TEST_F(AgentTests, CreateClientOk)
 
 TEST_F(AgentTests, CreateClientNoClient)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_PUBLISHER_Representation publisher_representation;
 
     ObjectVariant variant;
@@ -46,7 +46,7 @@ TEST_F(AgentTests, CreateClientNoClient)
 
 TEST_F(AgentTests, CreateClientBadCookie)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie();
     client_representation.xrce_version(XRCE_VERSION);
@@ -64,7 +64,7 @@ TEST_F(AgentTests, CreateClientBadCookie)
 
 TEST_F(AgentTests, CreateClientCompatibleVersion)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version({ XRCE_VERSION_MAJOR, 0x20 });
@@ -82,7 +82,7 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
 
 TEST_F(AgentTests, CreateClientIncompatibleVersion)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version({ 0x02, XRCE_VERSION_MINOR });
@@ -100,7 +100,7 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
 
 TEST_F(AgentTests, DeleteExistingClient)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version(XRCE_VERSION);
@@ -122,7 +122,7 @@ TEST_F(AgentTests, DeleteExistingClient)
 
 TEST_F(AgentTests, DeleteOnEmptyAgent)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     Status response = agent_.delete_client(client_key);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
@@ -130,7 +130,7 @@ TEST_F(AgentTests, DeleteOnEmptyAgent)
 
 TEST_F(AgentTests, DeleteNoExistingClient)
 {
-    ClientKey client_key = {0xF1, 0xF2, 0xF3, 0xF4};
+    int32_t client_key = 0xF1F2F3F4;
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version(XRCE_VERSION);
@@ -145,9 +145,22 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
 
-    response = agent_.delete_client({0xFA, 0xFB, 0xFC, 0xFD});
+    response = agent_.delete_client(0xFAFBFCFD);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
+}
+
+class ProxyClientTests : public testing::Test
+{
+protected:
+    ProxyClientTests() = default;
+
+    virtual ~ProxyClientTests() = default;
+};
+
+TEST_F(ProxyClientTests, a)
+{
+
 }
 
 int main(int args, char** argv)

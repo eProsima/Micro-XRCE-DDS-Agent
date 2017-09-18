@@ -106,15 +106,15 @@ bool XRCEParser::parse()
                 switch (submessage_header.submessage_id())
                 {
                 case CREATE:
-                    if (!process_create())
+                    if (!process_create(message_header, submessage_header))
                         std::cerr << "Error processing create" << std::endl;
                     break;
                 case WRITE_DATA:
-                    if (!process_write_data())
+                    if (!process_write_data(message_header, submessage_header))
                         std::cerr << "Error processing write" << std::endl;
                     break;
                 case READ_DATA:
-                    if (!process_read_data())
+                    if (!process_read_data(message_header, submessage_header))
                         std::cerr << "Error processing read" << std::endl;
                     break;
                 case GET_INFO:
@@ -148,46 +148,46 @@ bool XRCEParser::parse()
     return true;
 }
 
-bool XRCEParser::process_create()
+bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
     CREATE_PAYLOAD create_payload;
     if (deserializer_.deserialize(create_payload))
     {
         print(create_payload);
-        listener_->on_message(create_payload);
+        listener_->on_message(header, sub_header, create_payload);
         return true;
     }
     return false;
 }
 
-bool XRCEParser::process_delete()
+bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
     DELETE_PAYLOAD delete_payload;
     if (deserializer_.deserialize(delete_payload))
     {
-        listener_->on_message(delete_payload);
+        listener_->on_message(header, sub_header, delete_payload);
         return true;
     }
     return false;
 }
 
-bool XRCEParser::process_read_data()
+bool XRCEParser::process_read_data(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
     READ_DATA_PAYLOAD read_data_payload;
     if (deserializer_.deserialize(read_data_payload))
     {
-        listener_->on_message(read_data_payload);
+        listener_->on_message(header, sub_header, read_data_payload);
         return true;
     }
     return false;
 }
 
-bool XRCEParser::process_write_data()
+bool XRCEParser::process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
     WRITE_DATA_PAYLOAD write_data_payload;
     if (deserializer_.deserialize(write_data_payload))
     {
-        listener_->on_message(write_data_payload);
+        listener_->on_message(header, sub_header, write_data_payload);
         return true;
     }
     return false;

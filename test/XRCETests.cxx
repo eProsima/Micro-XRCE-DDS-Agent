@@ -452,22 +452,22 @@ public:
     class BoolListener : public XRCEListener
     {
 public:
-    void on_message(const CREATE_PAYLOAD& create_payload) override
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload) override
     {
         create_called = true;
     }
 
-    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload)
     {
         //TODO write tests on this
     }
 
-    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
     {
         write_called = true;
     }
 
-    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
     {
         read_called = true;
     }
@@ -480,22 +480,22 @@ public:
 class CountListener : public XRCEListener
 {
 public:
-    void on_message(const CREATE_PAYLOAD& create_payload) override
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload) override
     {
         ++creates;
     }
 
-    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload)
     {
         //TODO write tests on this
     }
 
-    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
     {
         ++writes;
     }
 
-    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
     {
         ++reads;
     }
