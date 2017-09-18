@@ -61,7 +61,7 @@ add_library(transport SHARED ${TRANS_LIB_SRCS})
 install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # libagent.so
-file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp")
+file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp" "agent/src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
