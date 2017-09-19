@@ -24,6 +24,7 @@
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/Publisher.h>
 
+#include <agent/Common.h>
 #include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
@@ -33,13 +34,12 @@ namespace micrortps {
  * Class DataWriter, used to send data to associated datareaders.
  * @ingroup MICRORTPS_MODULE
  */
-class DataWriter
+class DataWriter: public XRCEObject
 {
-    virtual ~DataWriter();
-
 public:
 
     DataWriter(fastrtps::Participant* participant, const std::string &rtps_publisher_profile = "");
+    virtual ~DataWriter();
 
     bool init();
     bool write(void* data);

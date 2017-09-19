@@ -30,10 +30,11 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(fastrtps::Participant* participant, const std::string &rtps_subscriber_profile):
-        mp_rtps_participant(participant),
+DataReader::DataReader(const ReaderListener* read_list):
+        mp_reader_listener(read_list),
+        mp_rtps_participant(nullptr),
         mp_rtps_subscriber(nullptr),
-        m_rtps_subscriber_prof(rtps_subscriber_profile)
+        m_rtps_subscriber_prof("")
 {
 
 }

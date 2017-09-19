@@ -26,19 +26,29 @@
 
 #include <agent/types/ShapePubSubTypes.h>
 #include <agent/Payloads.h>
+#include <agent/Common.h>
 
 namespace eprosima {
 namespace micrortps {
+
+class ReaderListener
+{
+public:
+    ReaderListener() = default;
+    virtual ~ReaderListener() = default;
+
+    virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length) = 0;
+};
 
 /**
  * Class DataReader, contains the public API that allows the user to control the reception of messages.
  * @ingroup MICRORTPS_MODULE
  */
-class DataReader
+class DataReader: public XRCEObject
 {
-    virtual ~DataReader();
 public:
-    DataReader(fastrtps::Participant* participant, const std::string &rtps_subscriber_profile = "");
+    DataReader(const ReaderListener* read_list);
+    virtual ~DataReader();
 
     bool init();
     int read(READ_DATA_PAYLOAD &read_data);
@@ -49,6 +59,7 @@ public:
     bool takeNextData(void* data);
 private:
 
+    const ReaderListener* mp_reader_listener;
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
     std::string m_rtps_subscriber_prof;

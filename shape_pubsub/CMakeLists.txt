@@ -31,8 +31,9 @@
 ################################################################################
 
 cmake_minimum_required(VERSION 2.8.12)
-project(PoC_SendReceive)
+project(shape_pubsub)
 
+# Find requirements
 find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
 
@@ -48,59 +49,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-include_directories(${CMAKE_PREFIX_PATH}/include
-					transport/include
-					transport/include/transport
-					agent/include
-					agent/include/agent
-					client/include
-					client/include/client)
-
-# libtransport.so
-file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
-add_library(transport SHARED ${TRANS_LIB_SRCS})
-install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
-
-# libagent.so
-file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp" "agent/src/cpp/*/*.cxx")
-add_library(agent SHARED ${AGENT_LIB_SRCS})
-install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent transport)
-
-# agent_test
-file(GLOB AGENT_TEST_SOURCES "agent_test.cpp")
-add_executable(agent_test ${AGENT_TEST_SOURCES})
-install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent_test transport agent fastcdr fastrtps)
-
-# libclient.so
-file(GLOB CLIENT_LIB_SRCS "client/src/*.c")
-add_library(client SHARED ${CLIENT_LIB_SRCS})
-install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
-#install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
-
-# client_test
-file(GLOB CLIENT_TEST_SOURCES "client_test.c")
-add_executable(client_test ${CLIENT_TEST_SOURCES})
-install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(client_test client transport)
-
-# shape_subs_test
-file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
-add_executable(shape_subs_test ${SHAPE_TEST_SOURCES})
-install(TARGETS shape_subs_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(shape_subs_test agent fastcdr fastrtps)
-
-###############################################################################
-# Testing
-###############################################################################
-option(EPROSIMA_BUILD_TESTS "Activate the building and execution unit tests and integral tests" OFF)
-if(EPROSIMA_BUILD_TESTS)
-    include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
-    check_gtest()
-    if(GTEST_FOUND)
-        enable_testing()
-        include(CTest)
-        add_subdirectory(test)
-    endif()
-endif()
+file(GLOB SOURCES *.cxx)
+add_executable(shape_pubsub ${SOURCES})
+target_link_libraries(shape_pubsub fastrtps fastcdr)
