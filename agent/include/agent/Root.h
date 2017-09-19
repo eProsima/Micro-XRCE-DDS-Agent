@@ -44,9 +44,11 @@ public:
     void run();
 
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD&      create_payload) override;
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD&      create_payload) override;
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD&      delete_payload) override;
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)  override;
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)   override;
+
+    ProxyClient* get_client(int32_t client_key);
 
 private:
     channel_id_t ch_id;

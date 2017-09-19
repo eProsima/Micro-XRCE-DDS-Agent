@@ -213,20 +213,42 @@ TEST_F(ProxyClientTests, CreatePublisher)
     create_payload.object_representation(variant);
 
     SubmessageHeader sub_header;
-    sub_header.submessage_id(submessage_id); // STATUS
+    sub_header.submessage_id(submessage_id);
     sub_header.flags(flags);
     sub_header.submessage_length(create_payload.getCdrSerializedSize(create_payload));
     serializer.serialize(sub_header);
     serializer.serialize(create_payload);
 
     agent_.on_message(message_header, sub_header, create_payload);
-
-    
 }
 
 TEST_F(ProxyClientTests, CreateSubscriber)
 {
+    Serializer serializer(test_buffer_, BUFFER_LENGTH);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
 
+    CREATE_PAYLOAD create_payload;
+    create_payload.request_id({ 1,2 });
+    create_payload.object_id({ 10,20,30 });
+    ObjectVariant variant;
+    OBJK_SUBSCRIBER_Representation subscriber_representation;
+    subscriber_representation.as_string(std::string("SUBSCRIBER"));
+    subscriber_representation.participant_id({ 4,4,4 });
+    variant.subscriber(subscriber_representation);
+    create_payload.object_representation(variant);
+
+    SubmessageHeader sub_header;
+    sub_header.submessage_id(submessage_id);
+    sub_header.flags(flags);
+    sub_header.submessage_length(create_payload.getCdrSerializedSize(create_payload));
+    serializer.serialize(sub_header);
+    serializer.serialize(create_payload);
+
+    agent_.on_message(message_header, sub_header, create_payload);
 }
 
 int main(int args, char** argv)

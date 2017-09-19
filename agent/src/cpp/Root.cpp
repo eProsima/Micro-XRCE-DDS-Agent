@@ -90,7 +90,7 @@ void Agent::init()
 void Agent::run()
 {
     int loops = 1000;
-    int ret = 0;
+    size_t ret = 0;
     while (loops--)
     {
         if (0 < (ret = send(out_buffer, 0, loc.kind, ch_id)))
@@ -120,26 +120,67 @@ void Agent::run()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
 {
-    CreationMode creation_mode;
-    creation_mode.reuse(false);
-    creation_mode.replace(true);
+    if (ProxyClient* client = get_client(header.client_key()))
+    {
+        CreationMode creation_mode;
+        creation_mode.reuse(false);
+        creation_mode.replace(true);
 
-    // TODO get sub_header flags
-    // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
-    // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
-    clients_[header.client_key()].create(creation_mode, create_payload.object_id(), create_payload.object_representation());
+        // TODO get sub_header flags
+        // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
+        // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
+        Status result_status = client->create(creation_mode, create_payload);
+    }
+    else
+    {
+        
+    }
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload)
 {
-    clients_[header.client_key()].delete_object(delete_payload.object_id());
+    if (ProxyClient* client = get_client(header.client_key()))
+    {
+        Status result_status = client->delete_object(delete_payload);
+    }
+    else
+    {
+        std::cerr << "Write message rejected" << std::endl;
+    }
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
 {
+    if (ProxyClient* client = get_client(header.client_key()))
+    {
+        Status result_status = client->write(write_payload.object_id(), write_payload);
+    }
+    else
+    {
+        std::cerr << "Write message rejected" << std::endl;
+    }
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
 {
-
+    if (ProxyClient* client = get_client(header.client_key()))
+    {
+        Status result_status = client->read(read_payload.object_id(), read_payload);
+    }
+    else
+    {
+        std::cerr << "Read message rejected" << std::endl;
+    }
 } 
+
+ProxyClient* Agent::get_client(int32_t client_key)
+{
+    try
+    {
+        return &clients_.at(client_key);
+    } catch (const std::out_of_range& e)
+    {
+        std::cerr << "Client " << client_key << "not found" << std::endl;
+        return nullptr;
+    }
+}

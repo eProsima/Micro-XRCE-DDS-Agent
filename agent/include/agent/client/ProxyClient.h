@@ -31,23 +31,24 @@ public:
     ProxyClient(const OBJK_CLIENT_Representation& client);
     ~ProxyClient();
 
-    Status create(const CreationMode& creation_mode, const ObjectId& object_id, const ObjectVariant& representation);
+    Status create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload);
+    Status delete_object(const DELETE_PAYLOAD& delete_payload);
     Status update(const ObjectId& object_id, const ObjectVariant& representation);
-    Info get_info(const ObjectId& object_id);
-    Status delete_object(const ObjectId& object_id);
-
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length){;}
-    Status write(const ObjectId& object_id, const DATA_PAYLOAD& data_payload);
     Status read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload);
-
+    Status write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload);
+    Info get_info(const ObjectId& object_id);
+    
+    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length){;}
+    
 private:
     using InternalObjectId = std::array<uint8_t, 4>;
-
+    
     OBJK_CLIENT_Representation representation_;
-
+    
     std::map<InternalObjectId, XRCEObject*> _objects;
-
+    
     bool create(const InternalObjectId& internal_id, const ObjectVariant& representation);
+    bool delete_object(const ObjectId& object_id);
     InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
 
 };

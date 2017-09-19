@@ -36,10 +36,10 @@ bool ProxyClient::create(const InternalObjectId& internal_id, const ObjectVarian
 switch(representation.discriminator())
 {
     case OBJK_PUBLISHER:
-       // _objects.insert(std::make_pair(internal_id, new DataWriter()));
+        //_objects.insert(std::make_pair(internal_id, new DataWriter()));
     break;
     case OBJK_SUBSCRIBER:
-        //_objects.insert(std::make_pair(internal_id, new DataReader()));
+        _objects.insert(std::make_pair(internal_id, new DataReader(this)));
     break;
     case OBJK_CLIENT:
     case OBJK_APPLICATION:
@@ -56,18 +56,18 @@ return true;
 }
 
 
-Status ProxyClient::create(const CreationMode& creation_mode, const ObjectId& object_id, const ObjectVariant& representation)
+Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(create_payload.request_id());
     status.result().status(STATUS_LAST_OP_CREATE);
 
-    auto internal_id = generate_object_id(object_id, 0x00);
+    auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
     auto object_it = _objects.find(internal_id);
     if(object_it == _objects.end()) 
     {
-        if (create(internal_id, representation))
+        if (create(internal_id, create_payload.object_representation()))
         {
             status.result().implementation_status(STATUS_OK);
         }
@@ -82,8 +82,8 @@ Status ProxyClient::create(const CreationMode& creation_mode, const ObjectId& ob
             }
             else // replace = true
             {
-                delete_object(object_id);
-                create(internal_id, representation);
+                delete_object(create_payload.object_id());
+                create(internal_id, create_payload.object_representation());
             }
         }
         else // reuse = true
@@ -111,15 +111,13 @@ Info ProxyClient::get_info(const ObjectId& object_id)
     // TODO
 }
 
-Status ProxyClient::delete_object(const ObjectId& object_id)
+Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 {
-    
-
     Status status;
-    status.result().request_id();
+    status.result().request_id(delete_payload.request_id());
     status.result().status(STATUS_LAST_OP_DELETE);
     // TODO comprobar permisos
-    if (0 == _objects.erase(generate_object_id(object_id, 0x00)))
+    if (delete_object(delete_payload.object_id()))
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
         // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.
@@ -131,10 +129,15 @@ Status ProxyClient::delete_object(const ObjectId& object_id)
     return status;
 }
 
-Status ProxyClient::write(const ObjectId& object_id, const DATA_PAYLOAD& data_payload)
+bool ProxyClient::delete_object(const ObjectId& object_id)
+{
+    return (0 != _objects.erase(generate_object_id(object_id, 0x00)));
+}
+
+Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
     auto object_it = _objects.find(internal_id);
@@ -145,15 +148,27 @@ Status ProxyClient::write(const ObjectId& object_id, const DATA_PAYLOAD& data_pa
     else
     {
         DataWriter* writer = dynamic_cast<DataWriter*>(object_it->second);
-        
-        //writer->write(data_payload.data_reader().data());
+        writer->write(nullptr);
     }
     return status;
 }
 
 Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload)
 {
+    Status status;
+    status.result().request_id();
+    status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
+    auto object_it = _objects.find(internal_id);
+    if(object_it == _objects.end()) 
+    {
+        status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+    }
+    else
+    {
+        DataReader* reader = dynamic_cast<DataReader*>(object_it->second);
+        //reader->read(data_payload); // TODO const ref?
+    }
 }
 
 ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id, uint8_t suffix) const
