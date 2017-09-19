@@ -19,6 +19,9 @@
 
 #include "Serializer.h"
 
+namespace eprosima {
+namespace micrortps {
+
 class RESOURCE_STATUS_PAYLOAD;
 class DATA_PAYLOAD;
 
@@ -35,5 +38,9 @@ private:
     void submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length);
     Serializer serializer_;
 };
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // !_XRCE_FACTORY_H

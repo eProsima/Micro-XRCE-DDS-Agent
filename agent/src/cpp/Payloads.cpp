@@ -35,7 +35,8 @@ using namespace eprosima::fastcdr::exception;
 
 
 
-
+namespace eprosima {
+namespace micrortps {
 
 
 CREATE_PAYLOAD::CREATE_PAYLOAD()
@@ -773,3 +774,7 @@ void WRITE_DATA_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> object_id_;
     dcdr >> data_writer_;
 }
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */

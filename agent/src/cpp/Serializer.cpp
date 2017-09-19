@@ -18,6 +18,9 @@
 #include "agent/SubMessageHeader.h"
 #include "agent/Payloads.h"
 
+namespace eprosima {
+namespace micrortps {
+
 Serializer::Serializer(char* const buffer_, size_t buffer_size) :
     fastbuffer_(buffer_, buffer_size),
     serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR)	
@@ -84,3 +87,7 @@ void Serializer::align()
 {
 
 }
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */

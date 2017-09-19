@@ -14,6 +14,8 @@
 #include <functional>
 #include <unistd.h>
 
+using namespace eprosima::micrortps;
+
 void print(const MessageHeader& header)
 {
     std::cout << "=MESSAGE HEADER=" << std::endl;

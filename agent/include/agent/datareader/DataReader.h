@@ -25,6 +25,7 @@
 #include <fastrtps/subscriber/Subscriber.h>
 
 #include <agent/types/ShapePubSubTypes.h>
+#include <agent/Payloads.h>
 
 namespace eprosima {
 namespace micrortps {
@@ -40,21 +41,12 @@ public:
     DataReader(fastrtps::Participant* participant, const std::string &rtps_subscriber_profile = "");
 
     bool init();
+    int read(READ_DATA_PAYLOAD &read_data);
+    int cancel_read();
+    int read_sample();
 
-    /**
-     * Read next unread Data from the Subscriber.
-     * @param data Pointer to the object where you want the data stored.
-     * @return True if a sample was read.
-     */
     bool readNextData(void* data);
-
-    /**
-     * Take next Data from the Subscriber. The data is removed from the subscriber.
-     * @param data Pointer to the object where you want the data stored.
-     * @return True if a sample was taken.
-     */
     bool takeNextData(void* data);
-
 private:
 
     fastrtps::Participant* mp_rtps_participant;

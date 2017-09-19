@@ -28,6 +28,9 @@ namespace eprosima
     }
 }
 
+namespace eprosima {
+namespace micrortps {
+
 typedef uint8_t subMessageId;
 const subMessageId CREATE = 0x01;
 const subMessageId GET_INFO = 0x02;
@@ -4206,5 +4209,8 @@ private:
     SampleSeq sample_seq_;
     SamplePackedSeq sample_packed_seq_;
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // _ObjectVariant_H_

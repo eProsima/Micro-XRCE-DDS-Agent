@@ -28,6 +28,9 @@ namespace eprosima
     }
 }
 
+namespace eprosima {
+namespace micrortps {
+
 class MessageHeader
 {
 public:
@@ -206,4 +209,7 @@ private:
     uint8_t stream_id_;
     uint16_t sequence_nr_;
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 #endif // !_MESSAGE_HEADER_H

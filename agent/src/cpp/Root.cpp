@@ -137,8 +137,6 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
 {
-    client(id)->object(id)-cast->publisher->send
-    client(id)->send();
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)

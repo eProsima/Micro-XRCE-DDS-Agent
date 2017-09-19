@@ -18,6 +18,9 @@
 #include "agent/SubMessageHeader.h"
 #include "agent/Payloads.h"
 
+namespace eprosima {
+namespace micrortps {
+
 size_t XRCEFactory::get_total_size()
 {
     return serializer_.get_serialized_size();
@@ -53,3 +56,7 @@ void XRCEFactory::submessage_header(uint8_t submessage_id, uint8_t flags, uint16
     subMessage.submessage_length(submessage_length);
     serializer_.serialize(subMessage); // Add submessage
 }
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */

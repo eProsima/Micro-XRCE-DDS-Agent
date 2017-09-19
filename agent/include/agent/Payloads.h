@@ -38,6 +38,9 @@ namespace eprosima
     }
 }
 
+namespace eprosima {
+namespace micrortps {
+
 /*!
  * @brief This class represents the structure CREATE_PAYLOAD defined by the user in the IDL file.
  * @ingroup PAYLOADS
@@ -1626,5 +1629,8 @@ private:
     ObjectId object_id_;
     RT_Data data_writer_;
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // _Payloads_H_

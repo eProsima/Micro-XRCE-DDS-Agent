@@ -78,7 +78,27 @@ bool DataReader::init()
     return true;
 }
 
+int DataReader::read(READ_DATA_PAYLOAD &read_data)
+{
+    switch(read_data.read_mode())
+    {
+        case READM_DATA:
+        case READM_SAMPLE:
+            read_sample();
+        break;
+        case READM_DATA_SEQ: break;
+        case READM_SAMPLE_SEQ: break;
+        case READM_PACKED_SAMPLE_SEQ: break;
+        default: break;
+    }
 
+    return 0;
+}
+
+int DataReader::read_sample()
+{
+    return 0;
+}
 
 bool DataReader::readNextData(void* data)
 {

@@ -21,6 +21,9 @@
 
 #include <iostream>
 
+namespace eprosima {
+namespace micrortps {
+
 // TODO cxx style
 void XRCEParser::print(const MessageHeader& message_header)
 {
@@ -206,3 +209,8 @@ bool XRCEParser::process_write_data(const MessageHeader& header, const Submessag
     }
     return false;
 }
+
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */

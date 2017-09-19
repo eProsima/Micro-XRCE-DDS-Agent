@@ -17,6 +17,9 @@
 
 #include "Serializer.h"
 
+namespace eprosima {
+namespace micrortps {
+
 class MessageHeader;
 class SubmessageHeader;
 class CREATE_PAYLOAD;
@@ -59,5 +62,9 @@ private:
     XRCEListener* listener_ = nullptr;
     Serializer deserializer_;
 };
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // !_XRCE_PARSER_H_

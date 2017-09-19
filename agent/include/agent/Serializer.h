@@ -21,6 +21,9 @@
 #include "fastcdr/FastCdr.h"
 #include "fastcdr/exceptions/Exception.h"
 
+namespace eprosima {
+namespace micrortps {
+
 class Serializer
 {
 public:
@@ -40,4 +43,8 @@ private:
     eprosima::fastcdr::Cdr serializer_; // Object that serializes the data.
 
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
+
 #endif // !_SERIALIZER_H

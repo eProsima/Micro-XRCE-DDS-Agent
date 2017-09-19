@@ -33,6 +33,9 @@ using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 
+namespace eprosima {
+namespace micrortps {
+
 SubmessageHeader::SubmessageHeader()
 {
     submessage_id_ = 0;
@@ -117,3 +120,7 @@ void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> flags_;
     dcdr.deserialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */
