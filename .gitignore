@@ -520,6 +520,9 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
+# YCM config files
+.ycm_extra_conf.py
+
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
