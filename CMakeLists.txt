@@ -74,16 +74,16 @@ install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent_test transport agent fastcdr fastrtps)
 
 # libclient.so
-file(GLOB CLIENT_LIB_SRCS "client/src/*.c")
+file(GLOB CLIENT_LIB_SRCS "client/src/C/*.c" "client/src/C/*/*.c")
 add_library(client SHARED ${CLIENT_LIB_SRCS})
 install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
 #install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
 
 # client_test
-file(GLOB CLIENT_TEST_SOURCES "client_test.c")
-add_executable(client_test ${CLIENT_TEST_SOURCES})
-install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(client_test client transport)
+# file(GLOB CLIENT_TEST_SOURCES "client_test.c")
+# add_executable(client_test ${CLIENT_TEST_SOURCES})
+# install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# target_link_libraries(client_test client transport)
 
 # shape_subs_test
 file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
