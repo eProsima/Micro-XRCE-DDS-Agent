@@ -47,6 +47,7 @@ public:
 class DataReader: public XRCEObject
 {
 public:
+    DataReader() = default;
     DataReader(const ReaderListener* read_list);
     virtual ~DataReader();
 
