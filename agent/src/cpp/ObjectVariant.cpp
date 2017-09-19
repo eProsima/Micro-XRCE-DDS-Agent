@@ -34,7 +34,8 @@ using namespace eprosima::fastcdr::exception;
 #include <utility>
 
 
-
+namespace eprosima {
+namespace micrortps {
 
 Time_t::Time_t()
 {
@@ -3732,4 +3733,7 @@ void RT_Data::deserialize(eprosima::fastcdr::Cdr &dcdr)
         break;
     }
 }
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 

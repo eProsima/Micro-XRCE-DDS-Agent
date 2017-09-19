@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ namespace { char dummy; }
 using namespace eprosima::fastcdr::exception;
 
 #include <utility>
+
+namespace eprosima {
+namespace micrortps {
 
 SubmessageHeader::SubmessageHeader()
 {
@@ -117,3 +120,7 @@ void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> flags_;
     dcdr.deserialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
+
+
+} /* namespace micrortps */
+} /* namespace eprosima */

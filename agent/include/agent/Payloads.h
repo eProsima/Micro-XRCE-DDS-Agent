@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,6 +37,9 @@ namespace eprosima
         class Cdr;
     }
 }
+
+namespace eprosima {
+namespace micrortps {
 
 /*!
  * @brief This class represents the structure CREATE_PAYLOAD defined by the user in the IDL file.
@@ -1626,5 +1629,8 @@ private:
     ObjectId object_id_;
     RT_Data data_writer_;
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // _Payloads_H_

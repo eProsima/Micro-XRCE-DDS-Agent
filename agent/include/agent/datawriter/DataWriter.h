@@ -12,35 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _XRCE_FACTORY_H_
-#define _XRCE_FACTORY_H_
+/**
+ * @file DataWriter.h
+ *
+ */
 
-#include <stdint.h>
+#ifndef DATAWRITER_H_
+#define DATAWRITER_H_
 
-#include "Serializer.h"
+#include <string>
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/publisher/Publisher.h>
+
+#include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
 namespace micrortps {
 
-class RESOURCE_STATUS_PAYLOAD;
-class DATA_PAYLOAD;
-
-class XRCEFactory
+/**
+ * Class DataWriter, used to send data to associated datareaders.
+ * @ingroup MICRORTPS_MODULE
+ */
+class DataWriter
 {
+    virtual ~DataWriter();
+
 public:
-    XRCEFactory(char* buffer, uint32_t max_size) : serializer_(buffer, max_size) {};
-    void header(int32_t client_key, uint8_t session_id, uint8_t stream_id, uint16_t sequence_nr);
-    void status(const RESOURCE_STATUS_PAYLOAD& payload);
-    void data(const DATA_PAYLOAD& payload);
-    size_t get_total_size();
+
+    DataWriter(fastrtps::Participant* participant, const std::string &rtps_publisher_profile = "");
+
+    bool init();
+    bool write(void* data);
+
 private:
 
-    void submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length);
-    Serializer serializer_;
+    fastrtps::Participant* mp_rtps_participant;
+    fastrtps::Publisher* mp_rtps_publisher;
+    std::string m_rtps_publisher_prof;
+    ShapeTypePubSubType m_shape_type;
 };
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */
 
-#endif // !_XRCE_FACTORY_H
+#endif /* DATAWRITER_H_ */

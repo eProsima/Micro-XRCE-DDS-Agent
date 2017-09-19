@@ -37,6 +37,9 @@ namespace eprosima
     }
 }
 
+namespace eprosima {
+namespace micrortps {
+
 /*!
  * @brief This class represents the structure SubmessageHeader defined by the user in the IDL file.
  * @ingroup SUBMESSAGEHEADER
@@ -192,5 +195,8 @@ private:
     uint8_t flags_;
     uint16_t submessage_length_;
 };
+
+} /* namespace micrortps */
+} /* namespace eprosima */
 
 #endif // _SubMessageHeader_H_

@@ -1,0 +1,6 @@
+struct SubmessageHeader
+{
+    octet submessage_id;
+    octet flags;
+    unsigned short submessage_length;
+};

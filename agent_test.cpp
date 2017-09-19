@@ -14,6 +14,8 @@
 #include <functional>
 #include <unistd.h>
 
+using namespace eprosima::micrortps;
+
 void print(const MessageHeader& header)
 {
     std::cout << "=MESSAGE HEADER=" << std::endl;
@@ -75,7 +77,7 @@ size_t fill_buffer(octet* out_buffer, size_t buffer_len)
 
     RT_Data data_reader;
     SampleData sample_data;
-    sample_data.serialized_data({ 0x00,0x11,0x22, 0x33 });
+    sample_data.serialized_data({0x0A, 0x0B, 0x0C, 0x0D});
     data_reader.data(sample_data);
     
     DATA_PAYLOAD data;
@@ -94,22 +96,22 @@ public:
     PoC_Listener() {};
     ~PoC_Listener() {};
 
-    virtual void on_message(const CREATE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
     {
 
     }
 
-    virtual void on_message(const DELETE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload)
     {
 
     }
 
-    virtual void on_message(const WRITE_DATA_PAYLOAD&  write_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
     {
 
     }
 
-    virtual void on_message(const READ_DATA_PAYLOAD&   read_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
     {
 
     }

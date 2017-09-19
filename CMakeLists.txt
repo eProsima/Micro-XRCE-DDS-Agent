@@ -32,6 +32,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(PoC_SendReceive)
 
+find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
 
 # Set C++11
@@ -46,7 +47,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-include_directories(${CMAKE_PREFIX_PATH}/include transport/include transport/include/transport agent/include client/include/ client/include/client)
+include_directories(${CMAKE_PREFIX_PATH}/include
+					transport/include
+					transport/include/transport
+					agent/include
+					agent/include/agent
+					client/include
+					client/include/client)
 
 # libtransport.so
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
@@ -54,15 +61,15 @@ add_library(transport SHARED ${TRANS_LIB_SRCS})
 install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # libagent.so
-file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cxx")
+file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp" "agent/src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 
 # agent_test
-file(GLOB AGENT_TEST_SOURCES "PoC_SendReceive.cxx")
+file(GLOB AGENT_TEST_SOURCES "agent_test.cpp")
 add_executable(agent_test ${AGENT_TEST_SOURCES})
 install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent_test transport agent fastcdr)
+target_link_libraries(agent_test transport agent fastcdr fastrtps)
 
 # libclient.so
 file(GLOB CLIENT_LIB_SRCS "client/src/*.c")
@@ -71,7 +78,7 @@ install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
 #install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
 
 # client_test
-file(GLOB CLIENT_TEST_SOURCES "PoC_SendReceive.c")
+file(GLOB CLIENT_TEST_SOURCES "client_test.c")
 add_executable(client_test ${CLIENT_TEST_SOURCES})
 install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(client_test client transport)
