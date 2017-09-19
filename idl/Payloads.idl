@@ -1,0 +1,55 @@
+#include "ObjectVariant.idl"
+
+struct CREATE_PAYLOAD {
+	RequestId request_id;
+	ObjectId object_id;
+	ObjectVariant object_representation;
+};
+
+struct DELETE_PAYLOAD {
+  RequestId request_id;
+	ObjectId object_id;
+};
+
+struct RESOURCE_STATUS_PAYLOAD {
+  RequestId     request_id;
+  Status        request_status;
+};
+
+struct GET_INFO_PAYLOAD {
+  RequestId     request_id;
+};
+
+struct INFO_PAYLOAD {
+  RequestId     request_id;
+  Info          resource_info;
+};
+
+struct READ_RESOURCE_PAYLOAD {
+  RequestId            request_id;
+  DataReaderReadeSpec  datareader_spec;
+};
+
+struct READ_DATA_PAYLOAD {
+    RequestId               request_id;
+    ObjectId                object_id;
+    unsigned short          max_messages;     // Maximum numbers of samples
+    ReadMode                read_mode;
+    long                    max_elapsed_time; // In milliseconds
+    long                    max_rate;         // Bytes per second
+    string                  content_filter_expression;
+    unsigned short          max_samples;      // Maximum numbers of samples
+    boolean                 include_sample_info;
+};
+
+struct DATA_PAYLOAD {
+    RequestId     request_id;
+    ObjectId      resource_id;
+    RT_Data       data_reader;
+};
+
+struct WRITE_DATA_PAYLOAD {
+    RequestId  request_id;
+    ObjectId   object_id;
+    RT_Data    data_writer;
+};
