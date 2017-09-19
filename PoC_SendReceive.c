@@ -113,7 +113,7 @@ void create_message(SerializedBufferHandle* message)
     header.client_key = 0xF1F2F3F4;
     header.session_id = 0x01;
     header.stream_id = 0x02;
-    header.sequence_nr = 1234;
+    header.sequence_number = 1234;
     init_message(message, &header);
 
 
@@ -274,7 +274,7 @@ void on_message_header_received(const MessageHeaderSpec* header)
     printf("  - client_key: 0x%08X\n", header->client_key);
     printf("  - session_id: 0x%02X\n", header->session_id);
     printf("  - stream_id: 0x%02X\n", header->stream_id);
-    printf("  - sequence_nr: %u\n", header->sequence_nr);
+    printf("  - sequence_number: %u\n", header->sequence_number);
     printf("\n\n");
 }
 
