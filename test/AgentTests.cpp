@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+using namespace eprosima::micrortps;
+
 class AgentTests : public testing::Test
 {
 protected:

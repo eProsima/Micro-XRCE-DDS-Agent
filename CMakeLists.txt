@@ -85,11 +85,11 @@ install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
 # install(TARGETS client_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 # target_link_libraries(client_test client transport)
 
-# shape_subs_test
-file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
-add_executable(shape_subs_test ${SHAPE_TEST_SOURCES})
-install(TARGETS shape_subs_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(shape_subs_test agent fastcdr fastrtps)
+# # shape_subs_test
+# file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
+# add_executable(shape_subs_test ${SHAPE_TEST_SOURCES})
+# install(TARGETS shape_subs_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# target_link_libraries(shape_subs_test agent fastcdr fastrtps)
 
 ###############################################################################
 # Testing

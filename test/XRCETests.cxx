@@ -18,6 +18,8 @@
 
 #define BUFFER_LENGTH 200
 
+using namespace eprosima::micrortps;
+
 void print(const MessageHeader& header)
 {
     std::cout << "=MESSAGE HEADER=" << std::endl;

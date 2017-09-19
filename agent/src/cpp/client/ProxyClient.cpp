@@ -36,10 +36,10 @@ bool ProxyClient::create(const InternalObjectId& internal_id, const ObjectVarian
 switch(representation.discriminator())
 {
     case OBJK_PUBLISHER:
-        _objects.insert(std::make_pair(internal_id, new DataWriter()));
+       // _objects.insert(std::make_pair(internal_id, new DataWriter()));
     break;
     case OBJK_SUBSCRIBER:
-        _objects.insert(std::make_pair(internal_id, new ));
+        //_objects.insert(std::make_pair(internal_id, new DataReader()));
     break;
     case OBJK_CLIENT:
     case OBJK_APPLICATION:
