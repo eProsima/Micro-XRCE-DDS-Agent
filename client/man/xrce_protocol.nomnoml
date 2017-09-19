@@ -10,7 +10,7 @@
     uint32_t client_key
     uint8_t session_id
     uint8_t stream_id
-    uint16_t sequence_nr
+    uint16_t sequence_number
 ]
 
 [SubessageHeaderSpec|
@@ -107,29 +107,11 @@
     uint8_t implementation_status
 ]
 
-[DataReaderStatusSpec|
-    uint16_t highest_acked_num
-]
-
-[DataWriterStatusSpec|
-    uint16_t stream_seq_num
-    uint32_t sample_seq_num (to 64)
-]
-
-[<union>StatusVariantSpec]
-
-[StatusKindSpec|
-    uint8_t kind
-]
-
 [PayloadSpec]<:-[StatusPayloadSpec]
 
 [StatusPayloadSpec]+->[ResultStatusSpec]
-[StatusPayloadSpec]+->[StatusKindSpec]
-[StatusKindSpec]+->[StatusVariantSpec]
 
-[StatusVariantSpec]<:-[DataReaderStatusSpec]
-[StatusVariantSpec]<:-[DataWriterStatusSpec]
+
 
 // -------------------------------------------------------------
 //                  WRITE_DATA / DATA PAYLOADS

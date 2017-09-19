@@ -1,4 +1,14 @@
-if [ "$1" = "message" ]; then
+if [ "$1" = "proto_client" ]; then
+    make prototype
+    if [ $? -eq 0 ]; then
+        build/prototype
+    fi        
+elif [ "$1" = "proto_agent" ]; then
+    make prototype_agent_test
+    if [ $? -eq 0 ]; then
+        build/prototype_agent_test
+    fi
+elif [ "$1" = "message" ]; then
     make message_test
     if [ $? -eq 0 ]; then
         build/message_test

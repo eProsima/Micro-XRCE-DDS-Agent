@@ -1,4 +1,5 @@
-#include "serialization.h"
+#include "micrortps/client/serialization.h"
+
 #include <stdlib.h>
 
 
@@ -11,14 +12,14 @@
 // +---------------+----------------+----------------+----------------+
 // |                          client_key                              |
 // +---------------+--------+-------+----------------+----------------+
-// |   session_id  |    stream_id   |           sequence_nr           |
+// |   session_id  |    stream_id   |           sequence_number           |
 // +---------------+--------+-------+----------------+----------------+
 void serialize_message_header(SerializedBufferHandle* buffer, const MessageHeaderSpec* message_header)
 {
     serialize_byte_4(buffer, message_header->client_key);
     serialize_byte(buffer, message_header->session_id);
     serialize_byte(buffer, message_header->stream_id);
-    serialize_byte_2_endian(buffer, message_header->sequence_nr, BIG_ENDIAN_MODE);
+    serialize_byte_2_endian(buffer, message_header->sequence_number, BIG_ENDIAN_MODE);
 }
 
 void deserialize_message_header(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory,  MessageHeaderSpec* message_header)
@@ -26,7 +27,7 @@ void deserialize_message_header(SerializedBufferHandle* buffer, DynamicBuffer* d
     deserialize_byte_4(buffer, &message_header->client_key);
     deserialize_byte(buffer, &message_header->session_id);
     deserialize_byte(buffer, &message_header->stream_id);
-    deserialize_byte_2_endian(buffer, &message_header->sequence_nr, BIG_ENDIAN_MODE);
+    deserialize_byte_2_endian(buffer, &message_header->sequence_number, BIG_ENDIAN_MODE);
 }
 
 int size_of_message_header(const MessageHeaderSpec* message_header)
@@ -34,7 +35,7 @@ int size_of_message_header(const MessageHeaderSpec* message_header)
     return sizeof(message_header->client_key)
          + sizeof(message_header->session_id)
          + sizeof(message_header->stream_id)
-         + sizeof(message_header->sequence_nr);
+         + sizeof(message_header->sequence_number);
 }
 
 
@@ -111,21 +112,18 @@ void serialize_status_payload(SerializedBufferHandle* buffer, const StatusPayloa
 {
     serialize_result_status(buffer, &payload->result);
     serialize_object_id(buffer, payload->object_id);
-    serialize_status_kind(buffer, &payload->status);
 }
 
 void deserialize_status_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusPayloadSpec* payload)
 {
     deserialize_result_status(buffer, dynamic_memory, &payload->result);
     deserialize_object_id(buffer, &payload->object_id);
-    deserialize_status_kind(buffer, dynamic_memory, &payload->status);
 }
 
 int size_of_status_payload(const StatusPayloadSpec* payload)
 {
-    return sizeof(payload->result)
-         + size_of_object_id(payload->object_id)
-         + size_of_status_kind(&payload->status);
+    return size_of_result_status(&payload->result)
+         + size_of_object_id(payload->object_id);
 }
 
 void serialize_write_data_payload(SerializedBufferHandle* buffer, const WriteDataPayloadSpec* payload)
@@ -304,56 +302,6 @@ int size_of_object_kind(const ObjectKindSpec* object)
     return size;
 }
 
-void serialize_status_kind(SerializedBufferHandle* buffer, const StatusKindSpec* status)
-{
-    serialize_byte(buffer, status->kind);
-
-    switch(status->kind)
-    {
-        case OBJECT_KIND_DATA_WRITER:
-            serialize_status_variant_data_writer(buffer, &status->variant.writer);
-        break;
-
-        case OBJECT_KIND_DATA_READER:
-            serialize_status_variant_data_reader(buffer, &status->variant.reader);
-        break;
-    }
-}
-
-void deserialize_status_kind(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusKindSpec* status)
-{
-    deserialize_byte(buffer, &status->kind);
-
-    switch(status->kind)
-    {
-        case OBJECT_KIND_DATA_WRITER:
-            deserialize_status_variant_data_writer(buffer, dynamic_memory, &status->variant.writer);
-        break;
-
-        case OBJECT_KIND_DATA_READER:
-            deserialize_status_variant_data_reader(buffer, dynamic_memory, &status->variant.reader);
-        break;
-    }
-}
-
-int size_of_status_kind(const StatusKindSpec* status)
-{
-    uint32_t size = sizeof(status->kind);
-
-    switch(status->kind)
-    {
-        case OBJECT_KIND_DATA_WRITER:
-            size += size_of_status_variant_data_writer(&status->variant.writer);
-        break;
-
-        case OBJECT_KIND_DATA_READER:
-            size += size_of_status_variant_data_reader(&status->variant.reader);
-        break;
-    }
-
-    return size;
-}
-
 void serialize_data_mode(SerializedBufferHandle* buffer, const DataModeSpec* data_mode)
 {
     serialize_byte(buffer, data_mode->read_mode);
@@ -499,40 +447,6 @@ int size_of_result_status(const ResultStatusSpec* result)
          + sizeof(result->implementation_status);
 }
 
-void serialize_status_variant_data_writer(SerializedBufferHandle* buffer, const DataWriterStatusSpec* writer_status)
-{
-    serialize_byte_2(buffer, writer_status->stream_seq_num);
-    serialize_byte_4(buffer, writer_status->sample_seq_num);
-}
-
-void deserialize_status_variant_data_writer(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataWriterStatusSpec* writer_status)
-{
-    deserialize_byte_2(buffer, &writer_status->stream_seq_num);
-    deserialize_byte_4(buffer, &writer_status->sample_seq_num);
-}
-
-int size_of_status_variant_data_writer(const DataWriterStatusSpec* writer_status)
-{
-    return sizeof(writer_status->stream_seq_num)
-         + sizeof(writer_status->sample_seq_num);
-}
-
-void serialize_status_variant_data_reader(SerializedBufferHandle* buffer, const DataReaderStatusSpec* reader_status)
-{
-    serialize_byte_2(buffer, reader_status->highest_acked_num);
-}
-
-void deserialize_status_variant_data_reader(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataReaderStatusSpec* reader_status)
-{
-    deserialize_byte_2(buffer, &reader_status->highest_acked_num);
-}
-
-int size_of_status_variant_data_reader(const DataReaderStatusSpec* reader_status)
-{
-    return sizeof(reader_status->highest_acked_num);
-}
-
-
 // --------------------------------------------------------------------------
 //                                  SAMPLES
 // --------------------------------------------------------------------------
@@ -551,7 +465,6 @@ void deserialize_sample(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_m
 
 int size_of_sample(const SampleSpec* sample)
 {
-    //TODO
     return size_of_sample_info(&sample->info)
         +  size_of_sample_data(&sample->data);
 }
@@ -617,49 +530,4 @@ void deserialize_object_id(SerializedBufferHandle* buffer, uint_least24_t* objec
 int size_of_object_id(uint_least24_t object_id)
 {
     return 3;
-}
-
-int align_and_check_size_of_submessage_header(SerializedBufferHandle* buffer)
-{
-    align_to(buffer, 4);
-    return sizeof(SubmessageHeaderSpec);
-}
-
-// --------------------------------------------------------------------------
-//                               DYNAMIC MEMORY
-// --------------------------------------------------------------------------
-
-void init_memory_buffer(DynamicBuffer* buffer, uint32_t size)
-{
-    buffer->memory = malloc(size);
-    buffer->memory_alloc = size;
-    buffer->size = 0;
-}
-
-void* request_memory_buffer(DynamicBuffer* buffer, uint32_t size)
-{
-    if(buffer->memory_alloc < buffer->size + size)
-    {
-        buffer->memory_alloc = (buffer->memory_alloc * 2 < buffer->size + size)
-                ? buffer->size + size : buffer->memory_alloc * 2;
-
-        void* new_memory = malloc(buffer->memory_alloc);
-        free(buffer->memory);
-
-        buffer->memory = new_memory;
-    }
-
-    uint32_t init = buffer->size;
-    buffer->size += size;
-    return buffer->memory + init;
-}
-
-void reset_memory_buffer(DynamicBuffer* buffer)
-{
-    buffer->size = 0;
-}
-
-void free_memory_buffer(DynamicBuffer* buffer)
-{
-    free(buffer->memory);
 }

@@ -6,17 +6,9 @@ extern "C"
 {
 #endif
 
-#include "xrce_spec.h"
-#include "mini_cdr.h"
-
-
-typedef struct DynamicBuffer
-{
-    uint8_t* memory;
-    uint32_t size;
-    uint32_t memory_alloc;
-
-} DynamicBuffer;
+#include "micrortps/client/xrce_spec.h"
+#include "micrortps/client/mini_cdr.h"
+#include "micrortps/client/dynamic_buffer.h"
 
 
 //SERIALIZATION
@@ -34,7 +26,6 @@ void serialize_data_payload(SerializedBufferHandle* buffer, const DataPayloadSpe
 
 //switches
 void serialize_object_kind(SerializedBufferHandle* buffer, const ObjectKindSpec* object);
-void serialize_status_kind(SerializedBufferHandle* buffer, const StatusKindSpec* status);
 void serialize_data_mode(SerializedBufferHandle* buffer, const DataModeSpec* data_mode);
 
 //object variants
@@ -45,8 +36,6 @@ void serialize_object_variant_subscriber(SerializedBufferHandle* buffer, const S
 
 //status
 void serialize_result_status(SerializedBufferHandle* buffer, const ResultStatusSpec* result);
-void serialize_status_variant_data_writer(SerializedBufferHandle* buffer, const DataWriterStatusSpec* writer_status);
-void serialize_status_variant_data_reader(SerializedBufferHandle* buffer, const DataReaderStatusSpec* reader_status);
 
 //samples
 void serialize_sample(SerializedBufferHandle* buffer, const SampleSpec* sample);
@@ -71,7 +60,6 @@ void deserialize_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dyn
 
 //switches
 void deserialize_object_kind(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ObjectKindSpec* object);
-void deserialize_status_kind(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusKindSpec* status);
 void deserialize_data_mode(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataModeSpec* data_mode);
 
 //object variants
@@ -82,8 +70,6 @@ void deserialize_object_variant_subscriber(SerializedBufferHandle* buffer, Dynam
 
 //status
 void deserialize_result_status(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ResultStatusSpec* result);
-void deserialize_status_variant_data_writer(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataWriterStatusSpec* writer_status);
-void deserialize_status_variant_data_reader(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataReaderStatusSpec* reader_status);
 
 //samples
 void deserialize_sample(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleSpec* sample);
@@ -109,7 +95,6 @@ int size_of_data_payload(const DataPayloadSpec* payload);
 
 //switches
 int size_of_object_kind(const ObjectKindSpec* object);
-int size_of_status_kind(const StatusKindSpec* status);
 int size_of_data_mode(const DataModeSpec* data_mode);
 
 //object variants
@@ -120,8 +105,6 @@ int size_of_object_variant_subscriber(const SubscriberSpec* subscriber);
 
 //status
 int size_of_result_status(const ResultStatusSpec* result);
-int size_of_status_variant_data_writer(const DataWriterStatusSpec* writer_status);
-int size_of_status_variant_data_reader(const DataReaderStatusSpec* reader_status);
 
 //samples
 int size_of_sample(const SampleSpec* sample);
@@ -130,19 +113,6 @@ int size_of_sample_info(const SampleInfoSpec* info);
 
 //util
 int size_of_object_id(uint_least24_t object_id);
-
-
-
-//UTIL
-int align_and_check_size_of_submessage_header(SerializedBufferHandle* buffer);
-
-
-
-//MEMORY MANEGEMENT
-void init_memory_buffer(DynamicBuffer* buffer, uint32_t size);
-void* request_memory_buffer(DynamicBuffer* buffer, uint32_t size);
-void reset_memory_buffer(DynamicBuffer* buffer);
-void free_memory_buffer(DynamicBuffer* buffer);
 
 
 #ifdef __cplusplus

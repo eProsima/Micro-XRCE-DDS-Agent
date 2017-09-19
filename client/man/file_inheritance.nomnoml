@@ -2,20 +2,17 @@
 #fontSize: 12
 #.header: dashed bold italic
 
-[<header>mini_cdr.h]
-[<header>serialization.h]
-[<header>message.h]
-[<header>xrce_spec.h]
+[<header>mini_cdr.h]<:-[mini_cdr.c]
+[<header>mini_cdr.h]<:--[<header>serialization.h]
+[<header>serialization.h]<:-[serialization.c]
 
-[mini_cdr.c]
-[serialization.c]
-[message.c]
+[<header>xrce_spec.h]<:--[<header>message.h]
+[<header>mini_cdr.h]<:--[<header>message.h]
+[<header>serialization.h]<:--[message.c]
+[<header>message.h]<:-[message.c]
 
-[mini_cdr.h]<:-[mini_cdr.c]
-[mini_cdr.h]<:--[serialization.h]
-[serialization.h]<:-[serialization.c]
+[<header>message.h]<:--[client.c]
+[<header>topic.h]<:--[client.c]
+[<header>client.h]<:-[client.c]
 
-[mini_cdr.h]<:--[message.h]
-[xrce_spec.h]<:--[message.h]
-[serialization.h]<:-[message.c]
-[message.h]<:-[message.c]
+[<header>client.h]<:--[<actor>user_app]

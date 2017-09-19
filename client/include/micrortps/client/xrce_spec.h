@@ -22,10 +22,11 @@ extern "C"
 #define OBJECT_ID_CLIENT     0xFFFFF0
 #define OBJECT_ID_SESSION    0xFFFFF1
 
+#define OBJECT_KIND_PARTICIPANT   0x01
 #define OBJECT_KIND_DATA_WRITER   0x03
 #define OBJECT_KIND_DATA_READER   0x07
-#define OBJECT_KIND_SUBSCRIBER   0x08
-#define OBJECT_KIND_PUBLISHER    0x09
+#define OBJECT_KIND_SUBSCRIBER    0x08
+#define OBJECT_KIND_PUBLISHER     0x09
 
 #define READ_MODE_DATA              0x00
 #define READ_MODE_DATA_SEQ          0x01
@@ -113,33 +114,6 @@ typedef struct ResultStatusSpec
 
 } ResultStatusSpec;
 
-typedef struct DataWriterStatusSpec
-{
-    uint16_t stream_seq_num;
-    uint32_t sample_seq_num; //change to uint64_t
-
-} DataWriterStatusSpec;
-
-typedef struct DataReaderStatusSpec
-{
-    uint16_t highest_acked_num;
-
-} DataReaderStatusSpec;
-
-typedef union StatusVariantSpec
-{
-    DataWriterStatusSpec writer;
-    DataReaderStatusSpec reader;
-
-} StatusVariantSpec;
-
-typedef struct StatusKindSpec
-{
-    uint8_t kind;
-    StatusVariantSpec variant;
-} StatusKindSpec;
-
-
 // --------------------------------------------------------------------
 //                               SAMPLES
 // --------------------------------------------------------------------
@@ -200,7 +174,6 @@ typedef struct StatusPayloadSpec
 {
     ResultStatusSpec  result;
     uint_least24_t object_id;
-    StatusKindSpec status;
 
 } StatusPayloadSpec;
 
@@ -254,7 +227,7 @@ typedef struct MessageHeaderSpec
     uint32_t client_key;
     uint8_t session_id;
     uint8_t stream_id;
-    uint16_t sequence_nr;
+    uint16_t sequence_number;
 
 } MessageHeaderSpec;
 
