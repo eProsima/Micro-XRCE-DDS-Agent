@@ -42,8 +42,8 @@ class XRCEParser
 {
 public:
     XRCEParser(char* buffer, size_t size, XRCEListener* listener)
-        : deserializer_(buffer, size),
-        listener_(listener)
+        : listener_(listener),
+          deserializer_(buffer, size)
     {
 
     }

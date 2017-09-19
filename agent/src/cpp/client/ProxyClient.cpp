@@ -15,6 +15,8 @@
 #include "agent/client/ProxyClient.h"
 
 #include "agent/ObjectVariant.h"
+#include "agent/datawriter/DataWriter.h"
+#include "agent/datareader/DataReader.h"
 
 using namespace eprosima::micrortps;
 
@@ -34,10 +36,10 @@ bool ProxyClient::create(const InternalObjectId& internal_id, const ObjectVarian
 switch(representation.discriminator())
 {
     case OBJK_PUBLISHER:
-        _objects.insert(std::make_pair(internal_id, new TestObjectP));
+        _objects.insert(std::make_pair(internal_id, new DataWriter()));
     break;
     case OBJK_SUBSCRIBER:
-        _objects.insert(std::make_pair(internal_id, new TestObjectS));
+        _objects.insert(std::make_pair(internal_id, new ));
     break;
     case OBJK_CLIENT:
     case OBJK_APPLICATION:
@@ -60,15 +62,12 @@ Status ProxyClient::create(const CreationMode& creation_mode, const ObjectId& ob
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_CREATE);
 
-    InternalObjectId internalId;
-    std::copy(object_id.begin(), object_id.end(), internalId.begin());
-    // TODO internalId[3] = representation.discriminator();
-    internalId[3] = 0x00;
+    auto internal_id = generate_object_id(object_id, 0x00);
 
-    auto object_it = _objects.find(internalId);
+    auto object_it = _objects.find(internal_id);
     if(object_it == _objects.end()) 
     {
-        if (create(internalId, representation))
+        if (create(internal_id, representation))
         {
             status.result().implementation_status(STATUS_OK);
         }
@@ -84,7 +83,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const ObjectId& ob
             else // replace = true
             {
                 delete_object(object_id);
-                create(internalId, representation);
+                create(internal_id, representation);
             }
         }
         else // reuse = true
@@ -114,16 +113,13 @@ Info ProxyClient::get_info(const ObjectId& object_id)
 
 Status ProxyClient::delete_object(const ObjectId& object_id)
 {
-    InternalObjectId internalId;
-    std::copy(object_id.begin(), object_id.end(), internalId.begin());
-    // TODO internalId[3] = representation.discriminator();
-    internalId[3] = 0x00;
+    
 
     Status status;
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_DELETE);
     // TODO comprobar permisos
-    if (0 == _objects.erase(internalId))
+    if (0 == _objects.erase(generate_object_id(object_id, 0x00)))
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
         // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.
@@ -133,4 +129,37 @@ Status ProxyClient::delete_object(const ObjectId& object_id)
         status.result().implementation_status(STATUS_OK);
     }
     return status;
+}
+
+Status ProxyClient::write(const ObjectId& object_id, const DATA_PAYLOAD& data_payload)
+{
+    Status status;
+    status.result().request_id();
+    status.result().status(STATUS_LAST_OP_WRITE);
+    auto internal_id = generate_object_id(object_id, 0x00);
+    auto object_it = _objects.find(internal_id);
+    if(object_it == _objects.end()) 
+    {
+        status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+    }
+    else
+    {
+        DataWriter* writer = dynamic_cast<DataWriter*>(object_it->second);
+        
+        //writer->write(data_payload.data_reader().data());
+    }
+    return status;
+}
+
+Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload)
+{
+    auto internal_id = generate_object_id(object_id, 0x00);
+}
+
+ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id, uint8_t suffix) const
+{
+    InternalObjectId internal_id;
+    std::copy(id.begin(), id.end(), internal_id.begin());
+    internal_id[id.size()] = suffix;
+    return internal_id;
 }

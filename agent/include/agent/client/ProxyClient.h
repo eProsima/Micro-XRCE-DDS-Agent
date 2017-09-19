@@ -17,22 +17,12 @@
 
 #include <agent/ObjectVariant.h>
 #include <agent/datareader/DataReader.h>
+#include <agent/Payloads.h>
 
 #include <map>
 
 namespace eprosima{
 namespace micrortps{
-
-using InternalObjectId = std::array<uint8_t, 4>;
-
-class TestObjectP : public XRCEObject
-{
-
-};
-class TestObjectS : public XRCEObject
-{
-
-};
 
 class ProxyClient: public ReaderListener
 {
@@ -47,14 +37,18 @@ public:
     Status delete_object(const ObjectId& object_id);
 
     void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length){;}
+    Status write(const ObjectId& object_id, const DATA_PAYLOAD& data_payload);
+    Status read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload);
 
 private:
+    using InternalObjectId = std::array<uint8_t, 4>;
 
     OBJK_CLIENT_Representation representation_;
 
     std::map<InternalObjectId, XRCEObject*> _objects;
 
     bool create(const InternalObjectId& internal_id, const ObjectVariant& representation);
+    InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
 
 };
 } // eprosima
