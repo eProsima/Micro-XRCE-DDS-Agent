@@ -22,6 +22,8 @@
 
 #include <transport/ddsxrce_transport.h>
 
+#include <thread>
+#include <memory>
 #include <map>
 
 namespace eprosima{
@@ -56,8 +58,20 @@ private:
     octet out_buffer[buffer_len];
     octet in_buffer[buffer_len];
     locator_t loc;
-
     std::map<int32_t, ProxyClient> clients_;
+
+    std::unique_ptr<std::thread> response_thread_;
+    struct ResponseControl
+    {
+        std::atomic<bool> running_;
+        std::atomic<bool> run_scheduled_;
+        std::condition_variable condition_;
+        std::mutex data_structure_mutex_;
+        std::mutex condition_variable_mutex_;
+    } response_control_;
+    
+    
+    void reply();
 };
 
 } // eprosima

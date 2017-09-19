@@ -19,7 +19,11 @@
 
 using namespace eprosima::micrortps;
 
-Agent::Agent() {}
+Agent::Agent() {
+
+    response_control_.running_ = false;
+    response_control_.run_scheduled_ = false;
+}
 
 Agent& root()
 {
@@ -87,35 +91,81 @@ void Agent::init()
     ch_id = add_locator(&loc);
 }
 
+// bool Agent::add_reply(const Response& res)
+// {
+//     response_control_.data_structure_mutex_.lock();
+//     returnedValue = true;
+
+//     std::lock_guard<std::mutex> data_guard(response_control_.condition_variable_mutex_);
+//     response_control_.data_structure_mutex_.unlock();
+//     // If thread not running, start it.
+//     if(response_thread_.get() == nullptr)
+//     {
+//         response_control_.running_ = true;
+//         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+//     }
+//     
+//      { // Lock scope
+//      std::lock_guard<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
+//      run_scheduled_ = true;
+//      }
+//      response_control_.condition_.notify_all();
+// 
+//     return returnedValue;
+// }
+
+
+void Agent::reply()
+{
+    std::unique_lock<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
+    while(response_control_.running_)
+    {
+       if(response_control_.run_scheduled_)
+       {
+          response_control_.run_scheduled_ = false;
+          cond_guard.unlock();
+          std::lock_guard<std::mutex> data_guard(response_control_.data_structure_mutex_);
+          // MY JOB
+          cond_guard.lock();
+       }
+       else
+        response_control_.condition_.wait(cond_guard);
+    }
+}
+
 void Agent::run()
 {
-    int loops = 1000;
-    size_t ret = 0;
-    while (loops--)
+    std::cout << "Running eProsima Agent. To stop execution enter \"Q\"" << std::endl;
+    char ch = 'Q';
+    int ret = 0;
+    do
     {
-        if (0 < (ret = send(out_buffer, 0, loc.kind, ch_id)))
+        if(ch != 'Q')
         {
-            printf("SEND: %d bytes\n", ret);
+            if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
+            {
+                printf("RECV: %d bytes\n", ret);
+                XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, this};
+                myParser.parse();
+            }
+            else
+            {
+                printf("RECV ERROR: %d\n", ret);
+            }
+        }
+        else if(ch == 'Q')
+        {
+            std::cout << "Stopping execution " << std::endl;
+            response_control_.running_ = false;
+            response_thread_->join();
+            break;
         }
         else
         {
-            printf("SEND ERROR: %d\n", ret);
+            std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":";
         }
-
-
-        if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
-        {
-            printf("RECV: %d bytes\n", ret);
-            XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, this};
-            myParser.parse();
-        }
-        else
-        {
-            printf("RECV ERROR: %d\n", ret);
-        }
-
-
-    }
+    }while(std::cin >> ch);
+    std::cout << "Execution stopped" << std::endl;
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
