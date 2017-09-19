@@ -31,15 +31,16 @@ ProxyClient::~ProxyClient()
     }
 }
 
-bool ProxyClient::create(const InternalObjectId& internal_id, const ObjectVariant& representation)
+bool ProxyClient::create(const InternalObjectId& internal_object_id, const ObjectVariant& representation)
 {
 switch(representation.discriminator())
 {
     case OBJK_PUBLISHER:
         //_objects.insert(std::make_pair(internal_id, new DataWriter()));
+        return false;
     break;
     case OBJK_SUBSCRIBER:
-        _objects.insert(std::make_pair(internal_id, new DataReader(this)));
+        return _objects.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
     break;
     case OBJK_CLIENT:
     case OBJK_APPLICATION:
@@ -50,9 +51,9 @@ switch(representation.discriminator())
     case OBJK_DATAWRITER:
     case OBJK_DATAREADER:
     default:
+        return false;
     break;
 }
-return true;
 }
 
 
@@ -61,6 +62,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
     Status status;
     status.result().request_id(create_payload.request_id());
     status.result().status(STATUS_LAST_OP_CREATE);
+    status.object_id(create_payload.object_id());
 
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
@@ -82,7 +84,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
             }
             else // replace = true
             {
-                delete_object(create_payload.object_id());
+                delete_object(internal_id);
                 create(internal_id, create_payload.object_representation());
             }
         }
@@ -114,24 +116,35 @@ Info ProxyClient::get_info(const ObjectId& object_id)
 Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 {
     Status status;
+    status.object_id(delete_payload.object_id());
     status.result().request_id(delete_payload.request_id());
     status.result().status(STATUS_LAST_OP_DELETE);
     // TODO comprobar permisos
-    if (delete_object(delete_payload.object_id()))
+    if (delete_object(generate_object_id(delete_payload.object_id(), 0x00)))
+    {
+        status.result().implementation_status(STATUS_OK);
+    }
+    else
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
         // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.
     }
-    else
-    {
-        status.result().implementation_status(STATUS_OK);
-    }
     return status;
 }
 
-bool ProxyClient::delete_object(const ObjectId& object_id)
+bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
 {
-    return (0 != _objects.erase(generate_object_id(object_id, 0x00)));
+    auto find_it = _objects.find(internal_object_id);
+    if (find_it != _objects.end())
+    {
+        delete find_it->second;
+        _objects.erase(find_it);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload)

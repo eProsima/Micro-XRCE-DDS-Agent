@@ -47,8 +47,8 @@ private:
     
     std::map<InternalObjectId, XRCEObject*> _objects;
     
-    bool create(const InternalObjectId& internal_id, const ObjectVariant& representation);
-    bool delete_object(const ObjectId& object_id);
+    bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
+    bool delete_object(const InternalObjectId& internal_object_id);
     InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
 
 };

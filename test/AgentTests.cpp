@@ -1,4 +1,5 @@
 #include <agent/Root.h>
+#include <agent/client/ProxyClient.h>
 
 #include <agent/MessageHeader.h>
 #include <agent/SubMessageHeader.h>
@@ -161,95 +162,200 @@ TEST_F(AgentTests, DeleteNoExistingClient)
 class ProxyClientTests : public testing::Test
 {
 protected:
-    ProxyClientTests()
-    : test_buffer_(new char[BUFFER_LENGTH])
-    {
-        OBJK_CLIENT_Representation client_representation;
-        client_representation.xrce_cookie(XRCE_COOKIE);
-        client_representation.xrce_version(XRCE_VERSION);
-        client_representation.xrce_vendor_id();
-        client_representation.client_timestamp();
-        client_representation.session_id();
+    ProxyClientTests() = default;
+    virtual ~ProxyClientTests() = default;
     
-        ObjectVariant variant;
-        variant.client(client_representation);
-        Status response = agent_.create_client(client_key, variant);
-    }
-
-    virtual ~ProxyClientTests()
-    {
-        delete[] test_buffer_;
-    } 
-
-    char* test_buffer_ = nullptr;
-    eprosima::micrortps::Agent agent_;
-    const int32_t client_key = 0xF1F2F3F4;
-    const uint8_t session_id = 0x01;
-    const uint8_t stream_id = 0x04;
-    const uint16_t sequence_nr = 0x0200;
-
-    const subMessageId submessage_id = CREATE;
-    const uint8_t flags = 0x07;
-
+    ProxyClient client_;
 };
 
-TEST_F(ProxyClientTests, CreatePublisher)
+TEST_F(ProxyClientTests, CreateSubscriberOK)
 {
-    Serializer serializer(test_buffer_, BUFFER_LENGTH);
-    MessageHeader message_header;
-    message_header.client_key(client_key);
-    message_header.session_id(session_id);
-    message_header.stream_id(stream_id);
-    message_header.sequence_nr(sequence_nr);
-
-    CREATE_PAYLOAD create_payload;
-    create_payload.request_id({ 1,2 });
-    create_payload.object_id({ 10,20,30 });
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id({ 10,20,30 });
     ObjectVariant variant;
-    OBJK_PUBLISHER_Representation pubRep;
-    pubRep.as_string(std::string("PUBLISHER"));
-    pubRep.participant_id({ 4,4,4 });
-    variant.publisher(pubRep);
-    create_payload.object_representation(variant);
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
 
-    SubmessageHeader sub_header;
-    sub_header.submessage_id(submessage_id);
-    sub_header.flags(flags);
-    sub_header.submessage_length(create_payload.getCdrSerializedSize(create_payload));
-    serializer.serialize(sub_header);
-    serializer.serialize(create_payload);
-
-    agent_.on_message(message_header, sub_header, create_payload);
+    Status result_status = client_.create(CreationMode{}, create_data);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
 }
 
-TEST_F(ProxyClientTests, CreateSubscriber)
+TEST_F(ProxyClientTests, CreateSubscriberDuplicated)
 {
-    Serializer serializer(test_buffer_, BUFFER_LENGTH);
-    MessageHeader message_header;
-    message_header.client_key(client_key);
-    message_header.session_id(session_id);
-    message_header.stream_id(stream_id);
-    message_header.sequence_nr(sequence_nr);
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id =  {10,20,30 };
+    CreationMode creation_mode;
+    creation_mode.reuse(false);
+    creation_mode.replace(false);
 
-    CREATE_PAYLOAD create_payload;
-    create_payload.request_id({ 1,2 });
-    create_payload.object_id({ 10,20,30 });
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
     ObjectVariant variant;
-    OBJK_SUBSCRIBER_Representation subscriber_representation;
-    subscriber_representation.as_string(std::string("SUBSCRIBER"));
-    subscriber_representation.participant_id({ 4,4,4 });
-    variant.subscriber(subscriber_representation);
-    create_payload.object_representation(variant);
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
 
-    SubmessageHeader sub_header;
-    sub_header.submessage_id(submessage_id);
-    sub_header.flags(flags);
-    sub_header.submessage_length(create_payload.getCdrSerializedSize(create_payload));
-    serializer.serialize(sub_header);
-    serializer.serialize(create_payload);
+    Status result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
 
-    agent_.on_message(message_header, sub_header, create_payload);
+    const RequestId request_id_2 = { 2,2 };
+    create_data.request_id(request_id_2);
+    create_data.object_id(object_id);
+    subs.as_string(std::string("SUBSCRIBER2"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
+
+    result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_ERR_ALREADY_EXISTS, result_status.result().implementation_status());
+    ASSERT_EQ(request_id_2, result_status.result().request_id());
 }
+
+TEST_F(ProxyClientTests, CreateSubscriberDuplicatedReplaced)
+{
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id =  {10,20,30 };
+    CreationMode creation_mode;
+    creation_mode.reuse(false);
+    creation_mode.replace(true);
+
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    ObjectVariant variant;
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
+
+    Status result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
+
+    const RequestId request_id_2 = { 2,2 };
+    const ObjectId object_id_2 =  {20,20,30 };
+    create_data.request_id(request_id_2);
+    create_data.object_id(object_id_2);
+    subs.as_string(std::string("SUBSCRIBER2"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
+
+    result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(object_id_2, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id_2, result_status.result().request_id());
+}
+
+TEST_F(ProxyClientTests, DeleteOnEmpty)
+{
+    DELETE_PAYLOAD delete_payload;
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id =  {10,20,30 };
+    delete_payload.request_id(request_id);
+    delete_payload.object_id(object_id);
+
+    Status result_status = client_.delete_object(delete_payload);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, result_status.result().status());
+    ASSERT_EQ(STATUS_ERR_UNKNOWN_REFERENCE, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
+}
+
+TEST_F(ProxyClientTests, DeleteWrongId)
+{
+    DELETE_PAYLOAD delete_payload;
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id =  {10,20,30 };
+    const RequestId create_request_id = { 2,1 };
+    const ObjectId create_object_id =  {01,02,03 };
+    delete_payload.request_id(request_id);
+    delete_payload.object_id(object_id);
+
+    CreationMode creation_mode;
+    creation_mode.reuse(false);
+    creation_mode.replace(true);
+
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(create_request_id);
+    create_data.object_id(create_object_id);
+    ObjectVariant variant;
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
+
+    Status result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(create_object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(create_request_id, result_status.result().request_id());
+
+    result_status = client_.delete_object(delete_payload);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, result_status.result().status());
+    ASSERT_EQ(STATUS_ERR_UNKNOWN_REFERENCE, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
+}
+
+TEST_F(ProxyClientTests, DeletePubliserOK)
+{
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id =  {10,20,30 };
+    CreationMode creation_mode;
+    creation_mode.reuse(false);
+    creation_mode.replace(true);
+
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    ObjectVariant variant;
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+    variant.subscriber(subs);
+    create_data.object_representation(variant);
+
+    Status result_status = client_.create(creation_mode, create_data);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_CREATE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id, result_status.result().request_id());
+
+    const RequestId request_id_2 = { 2,2 };
+    DELETE_PAYLOAD delete_payload;
+    delete_payload.request_id(request_id_2);
+    delete_payload.object_id(object_id);
+
+    result_status = client_.delete_object(delete_payload);
+    ASSERT_EQ(object_id, result_status.object_id());
+    ASSERT_EQ(STATUS_LAST_OP_DELETE, result_status.result().status());
+    ASSERT_EQ(STATUS_OK, result_status.result().implementation_status());
+    ASSERT_EQ(request_id_2, result_status.result().request_id());
+}
+
 
 int main(int args, char** argv)
 {
