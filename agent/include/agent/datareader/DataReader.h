@@ -20,9 +20,16 @@
 #ifndef DATAREADER_H_
 #define DATAREADER_H_
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <asio/io_service.hpp>
+#include <asio/steady_timer.hpp>
 
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/subscriber/SampleInfo.h>
 
 #include <agent/types/ShapePubSubTypes.h>
 #include <agent/Payloads.h>
@@ -40,11 +47,27 @@ public:
     virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length) = 0;
 };
 
+class timer
+{
+public:
+    timer();
+    virtual ~timer() = default;
+    void run();
+
+    virtual void on_timeout(const asio::error_code& error) = 0;
+
+protected:
+    asio::io_service io_serv;
+    asio::steady_timer* timr;
+    bool time_expired = false;
+
+};
+
 /**
  * Class DataReader, contains the public API that allows the user to control the reception of messages.
  * @ingroup MICRORTPS_MODULE
  */
-class DataReader: public XRCEObject
+class DataReader: public XRCEObject, public timer
 {
 public:
     DataReader() = default;
@@ -56,15 +79,37 @@ public:
     int cancel_read();
     int read_sample();
 
+    void on_timeout(const asio::error_code& error);
+
     bool readNextData(void* data);
     bool takeNextData(void* data);
+
 private:
+    void read_task();
+
+    std::thread m_read_thread;
+    std::mutex mutx;
+    std::condition_variable cond_var;
 
     ReaderListener* mp_reader_listener;
+    std::string m_rtps_subscriber_prof;
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
-    std::string m_rtps_subscriber_prof;
     ShapeTypePubSubType m_shape_type;
+
+    class RTPSSubListener : public fastrtps::SubscriberListener
+    {
+    public:
+        RTPSSubListener() : n_matched(0), n_msg(0), new_message(false){};
+        ~RTPSSubListener(){};
+        void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info);
+        void onNewDataMessage(fastrtps::Subscriber* sub);
+        fastrtps::SampleInfo_t m_info;
+        int n_matched;
+        int n_msg;
+        bool new_message;
+    } m_rtps_listener;
+
 };
 
 
