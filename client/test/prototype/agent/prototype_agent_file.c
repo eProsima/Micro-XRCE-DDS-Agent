@@ -143,7 +143,7 @@ void on_create_submessage_received(const CreatePayloadSpec* recv_payload, void* 
     StatusPayloadSpec payload;
     payload.result.request_id = recv_payload->request_id;
     payload.result.status = STATUS_OK;
-    payload.result.implementation_status = STATUS_LAST_OP_CREATE;
+    payload.result.last_operation = STATUS_LAST_OP_CREATE;
     payload.object_id = recv_payload->object_id;
 
     add_status_submessage(&agent->message_manager, &payload);
@@ -154,8 +154,21 @@ void on_create_submessage_received(const CreatePayloadSpec* recv_payload, void* 
 
 void on_delete_submessage_received(const DeletePayloadSpec* recv_payload, void* data)
 {
-    print_delete_submessage(recv_payload, NULL);
-    //TODO
+    printf("<== ");
+    printl_delete_submessage(recv_payload, NULL);
+
+    Agent* agent = (Agent*)data;
+
+    StatusPayloadSpec payload;
+    payload.result.request_id = recv_payload->request_id;
+    payload.result.status = STATUS_OK;
+    payload.result.last_operation = STATUS_LAST_OP_DELETE;
+    payload.object_id = recv_payload->object_id;
+
+    add_status_submessage(&agent->message_manager, &payload);
+
+    printf("==> ");
+    printl_status_submessage(&payload, NULL);
 }
 
 void on_write_data_submessage_received(const WriteDataPayloadSpec* recv_payload, void* data)

@@ -137,9 +137,9 @@ void compute_command(char* file_name, UserData* user, Topic* topic)
     uint32_t x;
     uint32_t y;
     uint32_t size;
-
-    int command_size = fscanf(commands_file, "%s %u %s %u %u %u", command, &id, color, &x, &y, &size);
     int valid_command = 0;
+    int command_size = fscanf(commands_file, "%s %u %s %u %u %u", command, &id, color, &x, &y, &size);
+
     if(command_size == -1)
     {
         valid_command = 1;
@@ -156,6 +156,24 @@ void compute_command(char* file_name, UserData* user, Topic* topic)
             Subscriber* subscriber = create_subscriber(topic);
             add_listener_topic(subscriber, on_listener_shape_topic);
             valid_command = 1;
+        }
+    }
+    else if(command_size == 2)
+    {
+        if(strcmp(command, "delete") == 0)
+        {
+            void* object;
+            int kind = get_xrce_object(id, &object);
+            if(kind == OBJECT_PUBLISHER)
+            {
+                delete_publisher(object);
+                valid_command = 1;
+            }
+            else if(kind == OBJECT_SUBSCRIBER)
+            {
+                delete_subscriber(object);
+                valid_command = 1;
+            }
         }
     }
     else if(command_size == 3)

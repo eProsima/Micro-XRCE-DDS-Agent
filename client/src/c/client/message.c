@@ -49,8 +49,11 @@ int check_and_set_headers(MessageManager* message_manager, const SubmessageHeade
 
         serialize_message_header(writer, &message_header);
     }
+    else //because the message header is already alignment.
+    {
+        align_to(writer, 4);
+    }
 
-    align_to(writer, 4);
     if(writer->iterator + sizeof(SubmessageHeaderSpec) + header->length > writer->final)
         return 0;
 

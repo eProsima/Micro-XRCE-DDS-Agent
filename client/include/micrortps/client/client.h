@@ -8,7 +8,9 @@ extern "C"
 
 #include <stdint.h>
 
-#define STATUS_UNKNOWN 0xFF
+#define OBJECT_STATUS_UNKNOWN        0
+#define OBJECT_STATUS_AVALIABLE      1
+#define OBJECT_STATUS_UNAVALIABLE    2
 
 #define OBJECT_PARTICIPANT   0x01
 #define OBJECT_DATA_WRITER   0x03
@@ -26,7 +28,8 @@ typedef void (*OnListenerTopic)(const void* topic_data, void* callback_object);
 typedef struct XRCEObject
 {
     uint32_t id;
-    uint16_t status;
+    uint8_t status;
+    uint8_t last_operation;
 
 } XRCEObject;
 

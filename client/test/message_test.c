@@ -121,7 +121,7 @@ void create_message(MessageManager* message)
         StatusPayloadSpec payload;
         payload.result.request_id = 0x12345678;
         payload.result.status = 0x01;
-        payload.result.implementation_status = 0x02;
+        payload.result.last_operation = 0x02;
 
         payload.object_id = 0xABCDEF;
 

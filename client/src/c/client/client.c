@@ -70,7 +70,7 @@ void* callback_object;
 void add_xrce_object(XRCEObject* object)
 {
     object->id = ++object_id_counter;
-    object->status = STATUS_UNKNOWN;
+    object->status = OBJECT_STATUS_UNKNOWN;
     xrce_object_list[xrce_object_list_size++] = object;
 }
 
@@ -130,12 +130,12 @@ int on_initialize_message(MessageHeaderSpec* header, void* data)
     return 1;
 }
 
-
 Participant* create_participant()
 {
     Participant* participant = malloc(sizeof(Participant));
     participant->publisher_list_size = 0;
     participant->subscriber_list_size = 0;
+    participant->object.last_operation = STATUS_LAST_OP_CREATE;
     participant_list[participant_list_size++] = participant;
     add_xrce_object(&participant->object);
 
@@ -162,6 +162,7 @@ Publisher* create_publisher(Topic* topic)
     Publisher* publisher = malloc(sizeof(Publisher));
     publisher->participant = participant;
     publisher->topic = topic;
+    publisher->object.last_operation = STATUS_LAST_OP_CREATE;
     participant->publisher_list[participant->publisher_list_size++] = publisher;
     add_xrce_object(&publisher->object);
 
@@ -192,6 +193,7 @@ Subscriber* create_subscriber(Topic* topic)
     subscriber->listener_list_size = 0;
     subscriber->topic = topic;
     subscriber->remaning_messages = 0;
+    subscriber->object.last_operation = STATUS_LAST_OP_CREATE;
     participant->subscriber_list[participant->subscriber_list_size++] = subscriber;
     add_xrce_object(&subscriber->object);
 
@@ -215,7 +217,7 @@ Subscriber* create_subscriber(Topic* topic)
 
 int send_topic(Publisher* publisher, void* topic_data)
 {
-    if(publisher->object.status != STATUS_OK)
+    if(publisher->object.status != OBJECT_STATUS_AVALIABLE)
         return 0;
 
     uint32_t topic_size = publisher->topic->size_of(topic_data);
@@ -244,7 +246,7 @@ int send_topic(Publisher* publisher, void* topic_data)
 
 int read_data(Subscriber* subscriber, uint16_t max_messages)
 {
-    if(subscriber->object.status != STATUS_OK)
+    if(subscriber->object.status != OBJECT_STATUS_AVALIABLE)
         return 0;
 
     subscriber->remaning_messages = max_messages;
@@ -272,12 +274,40 @@ void add_listener_topic(Subscriber* subscriber, OnListenerTopic on_listener_topi
 
 void delete_publisher(Publisher* publisher)
 {
-    //TODO
+    if(publisher->object.status != OBJECT_STATUS_AVALIABLE)
+        return;
+
+    publisher->object.last_operation = STATUS_LAST_OP_DELETE;
+
+    DeletePayloadSpec payload;
+    payload.request_id = ++request_counter;
+    payload.object_id = publisher->object.id;
+
+    add_delete_submessage(&message_manager, &payload);
+
+    #ifdef _VERBOSE_
+    printf("==> ");
+    printl_delete_submessage(&payload, NULL);
+    #endif
 }
 
 void delete_subscriber(Subscriber* subscriber)
 {
-    //TODO
+    if(subscriber->object.status != OBJECT_STATUS_AVALIABLE)
+        return;
+
+    subscriber->object.last_operation = STATUS_LAST_OP_DELETE;
+
+    DeletePayloadSpec payload;
+    payload.request_id = ++request_counter;
+    payload.object_id = subscriber->object.id;
+
+    add_delete_submessage(&message_manager, &payload);
+
+    #ifdef _VERBOSE_
+    printf("==> ");
+    printl_delete_submessage(&payload, NULL);
+    #endif
 }
 
 void update_communication()
@@ -336,7 +366,21 @@ void on_status_received(const StatusPayloadSpec* payload, void* data)
     for(uint32_t i = 0; i < xrce_object_list_size; i++) //to hash table
         if(xrce_object_list[i]->id == payload->object_id)
         {
-            xrce_object_list[i]->status = payload->result.status;
+            switch(payload->result.last_operation)
+            {
+                case STATUS_LAST_OP_CREATE:
+                    if(payload->result.status == STATUS_OK ||
+                       payload->result.status == STATUS_OK_MATCHED)
+                        xrce_object_list[i]->status = OBJECT_STATUS_AVALIABLE;
+                    else
+                        xrce_object_list[i]->status = OBJECT_STATUS_UNAVALIABLE;
+                break;
+
+                case STATUS_LAST_OP_DELETE:
+                    if(payload->result.status == STATUS_OK)
+                        xrce_object_list[i]->status = OBJECT_STATUS_UNAVALIABLE;
+                break;
+            }
             return;
         }
 }
@@ -353,7 +397,7 @@ void on_data_received(const DataPayloadSpec* payload, void* data)
     {
         Subscriber* subscriber = (Subscriber*)object;
 
-        if(subscriber->object.status != STATUS_OK)
+        if(subscriber->object.status != OBJECT_STATUS_AVALIABLE)
             return;
 
         if(subscriber->remaning_messages > 0)
