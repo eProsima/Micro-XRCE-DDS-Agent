@@ -1,11 +1,13 @@
 #include "shape_topic.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 // -------------------------------------------------------------------------------
 //                               TOPIC SERIALIZATION
 // -------------------------------------------------------------------------------
-void serialize_shape_topic(SerializedBufferHandle* writer, const void* topic_struct)
+void serialize_shape_topic(SerializedBufferHandle* writer, const void* topic_struct, void* callback_object)
 {
     ShapeTopic* topic = (ShapeTopic*)topic_struct;
 
@@ -16,17 +18,18 @@ void serialize_shape_topic(SerializedBufferHandle* writer, const void* topic_str
     serialize_byte_4(writer, topic->size);
 }
 
-void deserialize_shape_topic(SerializedBufferHandle* reader, DynamicBuffer* dynamic_buffer, void* topic_struct)
+void* deserialize_shape_topic(SerializedBufferHandle* reader, void* callback_object)
 {
-    ShapeTopic* topic = (ShapeTopic*)topic_struct;
+    ShapeTopic* topic = malloc(sizeof(ShapeTopic));
 
     deserialize_byte_4(reader, &topic->color_length);
-
-    topic->color = (char*)request_memory_buffer(dynamic_buffer, topic->color_length);
+    topic->color = malloc(topic->color_length);
     deserialize_array(reader, (uint8_t*)topic->color, topic->color_length);
     deserialize_byte_4(reader, &topic->x);
     deserialize_byte_4(reader, &topic->y);
     deserialize_byte_4(reader, &topic->size);
+
+    return topic;
 }
 
 uint32_t size_of_shape_topic(const void* topic_struct)
@@ -42,7 +45,7 @@ uint32_t size_of_shape_topic(const void* topic_struct)
 // -------------------------------------------------------------------------------
 //                                       UTIL
 // -------------------------------------------------------------------------------
-void print_shape_topic(ShapeTopic* topic)
+void print_shape_topic(const ShapeTopic* topic)
 {
     printf("\e[1;36m");
     printf("      - color: %s (%u characters)\n", topic->color, topic->color_length);

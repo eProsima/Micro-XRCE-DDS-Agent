@@ -8,7 +8,9 @@ extern "C"
 
 #include <stdint.h>
 
-#define STATUS_UNKNOWN 0xFF
+#define OBJECT_STATUS_UNKNOWN        0
+#define OBJECT_STATUS_AVALIABLE      1
+#define OBJECT_STATUS_UNAVALIABLE    2
 
 #define OBJECT_PARTICIPANT   0x01
 #define OBJECT_DATA_WRITER   0x03
@@ -23,17 +25,11 @@ typedef struct Topic Topic;
 typedef void (*OnListenerTopic)(const void* topic_data, void* callback_object);
 
 
-typedef struct SubscriberListener
-{
-    OnListenerTopic on_topic;
-    void* callback_object;
-} SubscriberListener;
-
-
 typedef struct XRCEObject
 {
     uint32_t id;
-    uint16_t status;
+    uint8_t status;
+    uint8_t last_operation;
 
 } XRCEObject;
 
@@ -51,8 +47,8 @@ typedef struct Subscriber
 {
     XRCEObject object;
     Participant* participant;
-    SubscriberListener listener_list[10]; //make dynamically
-    uint32_t listeners_size;
+    OnListenerTopic listener_list[10]; //make dynamically
+    uint32_t listener_list_size;
     Topic* topic;
 
     uint32_t remaning_messages;
@@ -71,17 +67,18 @@ struct Participant
 
 
 //DDS XRCE API
-void init_client(uint32_t buffer_size, DataOutEvent send_data_io, DataInEvent receive_data_io, void* data_io);
+void init_client(uint32_t buffer_size, DataOutEvent send_data_io, DataInEvent receive_data_io,
+        void* data_io, void* callback_object);
 void destroy_client();
 
 Publisher* create_publisher(Topic* topic);
 Subscriber* create_subscriber(Topic* topic);
 
-void send_topic(Publisher* publisher, void* topic_data);
+int send_topic(Publisher* publisher, void* topic_data);
 
-void read_data(Subscriber* subscriber, uint16_t max_messages);
+int read_data(Subscriber* subscriber, uint16_t max_messages);
 
-void add_listener_topic(Subscriber* subscriber, OnListenerTopic on_listener_topic, void* callback_object);
+void add_listener_topic(Subscriber* subscriber, OnListenerTopic on_listener_topic);
 
 void delete_publisher(Publisher* publisher);
 void delete_subscriber(Subscriber* subscriber);
