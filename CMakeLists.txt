@@ -65,13 +65,18 @@ install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
 file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp" "agent/src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent transport)
 
-# agent_test
-file(GLOB AGENT_TEST_SOURCES "agent_test.cpp")
-add_executable(agent_test ${AGENT_TEST_SOURCES})
-install(TARGETS agent_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent_test transport agent fastcdr fastrtps)
+# agent_parser_test
+file(GLOB AGENT_PARSER_TEST_SOURCES "agent_parser_test.cpp")
+add_executable(agent_parser_test ${AGENT_PARSER_TEST_SOURCES})
+install(TARGETS agent_parser_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
+target_link_libraries(agent_parser_test transport agent fastcdr fastrtps)
+
+# micrortps_agent
+file(GLOB MICRORTPS_AGENT_SOURCES "micrortps_agent.cpp")
+add_executable(micrortps_agent ${MICRORTPS_AGENT_SOURCES})
+install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
+target_link_libraries(micrortps_agent transport agent fastcdr fastrtps)
 
 # libclient.so
 file(GLOB CLIENT_LIB_SRCS "client/src/C/*.c" "client/src/C/*/*.c")
