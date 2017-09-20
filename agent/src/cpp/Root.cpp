@@ -16,13 +16,14 @@
 
 #include "agent/Payloads.h"
 #include "agent/MessageHeader.h"
+#include "agent/SubMessageHeader.h"
 
 using namespace eprosima::micrortps;
 
-Agent& root()
+Agent* eprosima::micrortps::root()
 {
     static Agent xrce_agent;
-    return xrce_agent;
+    return &xrce_agent;
 }
 
 Agent::Agent() {
@@ -33,9 +34,10 @@ Agent::Agent() {
 
 void Agent::init()
 {
-    // Init transport
-    loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
-    ch_id = add_locator(&loc);
+    std::cout << "Agent initialization" << std::endl;
+    // // Init transport
+    // loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
+    // ch_id = add_locator(&loc);
 }
 
 Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_info)
@@ -61,6 +63,7 @@ Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_inf
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             clients_[client_key] = ProxyClient{create_info.object_representation().client()};
+            std::cout << "ProxyClient created: " << std::endl;
             status.result().implementation_status(STATUS_OK);
         }
         else{
@@ -93,81 +96,155 @@ Status Agent::delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_inf
 
 void Agent::run()
 {
+    const size_t buffer_size = 2048;
+    char* test_buffer = new char[buffer_size];
     std::cout << "Running eProsima Agent. To stop execution enter \"Q\"" << std::endl;
-    char ch = 'Q';
+    char ch = ' ';
     int ret = 0;
     do
     {
-        if(ch != 'Q')
-        {
-            if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
-            {
-                printf("RECV: %d bytes\n", ret);
-                XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, this};
-                myParser.parse();
-            }
-            else
-            {
-                printf("RECV ERROR: %d\n", ret);
-            }
-        }
-        else if(ch == 'Q')
+        if(ch == 'Q')
         {
             std::cout << "Stopping execution " << std::endl;
-            response_control_.running_ = false;
-            response_thread_->join();
+            abort_execution();
+            if (response_thread_.get())
+            {
+                response_thread_->join();
+            }
             break;
         }
-        else
+        if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r')
         {
-            std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":";
+            const uint32_t client_key = 0xF1F2F3F4;
+            const uint8_t session_id = 0x01;
+            const uint8_t stream_id = 0x04;
+            const uint16_t sequence_nr = 0x0200;
+
+            switch (ch)
+            {
+                case 'c':
+                {
+                    std::cout << "Testing creation" << std::endl;
+                    Serializer serializer(test_buffer, buffer_size);
+                    MessageHeader message_header;
+                    message_header.client_key(client_key);
+                    message_header.session_id(session_id);
+                    message_header.stream_id(stream_id);
+                    message_header.sequence_nr(sequence_nr);
+                    OBJK_CLIENT_Representation client_representation;
+                    client_representation.xrce_cookie(XRCE_COOKIE);
+                    client_representation.xrce_version(XRCE_VERSION);
+                    client_representation.xrce_vendor_id();
+                    client_representation.client_timestamp();
+                    client_representation.session_id();
+                    ObjectVariant variant;
+                    variant.client(client_representation);                    
+                    const RequestId request_id = { 1,2 };
+                    const ObjectId object_id = { 10,20,30 };
+                    CREATE_PAYLOAD create_data;
+                    create_data.request_id(request_id);
+                    create_data.object_id(object_id);
+                    create_data.object_representation().client(client_representation);
+
+                    SubmessageHeader submessage_header;
+                    submessage_header.submessage_id(CREATE);
+                    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+
+                    serializer.serialize(message_header);
+                    serializer.serialize(submessage_header);
+                    serializer.serialize(create_data);
+
+                    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+                    myParser.parse();
+                }
+                case 'd':
+                case 'w':
+                case 'r':
+                default:
+                break;
+            }
         }
+        else if (ch)
+        {
+            std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":" << std::endl;
+        }
+        // if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
+        // {
+        //     printf("RECV: %d bytes\n", ret);
+        //     XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, this};
+        //     myParser.parse();
+        // }
+        // else
+        // {
+        //     printf("RECV ERROR: %d\n", ret);
+        // }
+
     }while(std::cin >> ch);
     std::cout << "Execution stopped" << std::endl;
+    delete[] test_buffer;
 }
 
-// bool Agent::add_reply(const Response& res)
-// {
-//     response_control_.data_structure_mutex_.lock();
-//     returnedValue = true;
-    // std::vector<buffer> move(res.buffer);
-//     std::lock_guard<std::mutex> data_guard(response_control_.condition_variable_mutex_);
-//     response_control_.data_structure_mutex_.unlock();
-//     // If thread not running, start it.
-//     if(response_thread_.get() == nullptr)
-//     {
-//         response_control_.running_ = true;
-//         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-//     }
-//     
-//      { // Lock scope
-//      std::lock_guard<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
-//      run_scheduled_ = true;
-//      }
-//      response_control_.condition_.notify_all();
-// 
-//     return returnedValue;
-// }
+void Agent::abort_execution()
+{
+    response_control_.running_ = false;
+    messages_.abort();
+}
+
+void add_reply(const Status& status_reply)
+{
+    // struct BaseReply {
+    //     ResultStatus result;
+    //     RequestId request_id;
+    //     };
+    //     @extensibility(FINAL)
+    //     struct BaseObjectReply : BaseReply {
+    //     ObjectId object_id;
+    //     };
+
+    // XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
+    // newMessage.header(client_key, session_id, stream_id, sequence_nr);
+
+    // RESOURCE_STATUS_PAYLOAD resource_status;
+    // resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
+    // resource_status.request_status(status);
+
+    // SubmessageHeader submessage_header;
+    // submessage_header.submessage_id(STATUS);
+    // submessage_header.flags(0x07);
+    // submessage_header.submessage_length(static_cast<uint16_t>(resource_status.getCdrSerializedSize(resource_status)));
+
+    // newMessage.status(resource_status);   
+    // messages_.push(Message{});
+    // // If thread not running, start it.
+    // if(response_thread_.get() == nullptr)
+    // {
+    //     response_control_.running_ = true;
+    //     response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+    // }
+}
+void add_reply(const DATA_PAYLOAD& status_reply)
+{
+    // messages_.push(Message{});
+    // // If thread not running, start it.
+    // if(response_thread_.get() == nullptr)
+    // {
+    //     response_control_.running_ = true;
+    //     response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+    // }
+}
 
 void Agent::reply()
 {
-    //buffer = x;
-    std::unique_lock<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
+    std::cout << "Reply thread started. Id: " << std::this_thread::get_id() << std::endl;
     while(response_control_.running_)
     {
-       if(response_control_.run_scheduled_)
-       {
-          response_control_.run_scheduled_ = false;
-          cond_guard.unlock();
-          std::lock_guard<std::mutex> data_guard(response_control_.data_structure_mutex_);
-          // MY send JOB
-          // std::vector<buffer>
-          // send(reply_buffer)
-          cond_guard.lock();
-       }
-       else
-        response_control_.condition_.wait(cond_guard);
+        auto message = messages_.pop();
+        // if (!nullptr)
+        // {
+        //     send(message);
+        // }
     }
+    std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
 
 
@@ -186,13 +263,13 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
-            // buffer = seralize (status)
-            // add_replut(buffer)
+            //add_reply("TEST");
         }
     }
     else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
     {
         Status result_status = create_client(header.client_key(), create_payload);
+        //add_reply("TEST");
     }
 }
 

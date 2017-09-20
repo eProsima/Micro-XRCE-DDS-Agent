@@ -49,12 +49,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
 endif()
 
 include_directories(${CMAKE_PREFIX_PATH}/include
-					transport/include
-					transport/include/transport
-					agent/include
-					agent/include/agent
-					client/include
-					client/include/client)
+                    transport/include
+                    transport/include/transport
+                    agent/include
+                    agent/src/cpp
+                    agent/include/agent
+                    client/include
+                    client/include/client)
 
 # libtransport.so
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")

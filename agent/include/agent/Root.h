@@ -19,6 +19,7 @@
 #include <agent/client/ProxyClient.h>
 #include <agent/XRCEFactory.h>
 #include <agent/XRCEParser.h>
+#include "MessageQueue.h"
 
 #include <transport/ddsxrce_transport.h>
 
@@ -31,7 +32,7 @@ namespace micrortps{
 
 class Agent;
 
-Agent& root();
+Agent* root();
 
 /**
  * Class XRCE Agent. Handle XRCE messages and distribute them to different ProxyClients. It implements XRCEListener interface
@@ -103,6 +104,9 @@ public:
 
     ProxyClient* get_client(int32_t client_key);
 
+    void add_reply(const Status& status_reply);
+    void add_reply(const DATA_PAYLOAD& status_reply);
+
 private:
     channel_id_t ch_id;
     static const size_t buffer_len = 1024;
@@ -121,8 +125,10 @@ private:
         std::mutex condition_variable_mutex_;
     } response_control_;
     
+    MessageQueue messages_;
     
     void reply();
+    void abort_execution();
 };
 
 } // eprosima
