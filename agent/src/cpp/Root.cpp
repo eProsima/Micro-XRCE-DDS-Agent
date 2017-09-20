@@ -226,15 +226,25 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!message.get_buffer().empty())
         {
-            int ret = 0;
-            if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
-            {
-                printf("SEND: %d bytes\n", ret);
-            }
-            else
-            {
-                printf("SEND ERROR: %d\n", ret);
-            }
+            Serializer deserializer(reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().size());
+            MessageHeader deserialized_header;
+            SubmessageHeader deserialized_submessage_header;
+            // RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
+            Status deserialized_status;
+            deserializer.deserialize(deserialized_header);
+            deserializer.deserialize(deserialized_submessage_header);
+            deserializer.deserialize(deserialized_status);
+            std::cout << deserialized_header << std::endl;
+            std::cout << deserialized_submessage_header << std::endl;
+            // int ret = 0;
+            // if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
+            // {
+            //     printf("SEND: %d bytes\n", ret);
+            // }
+            // else
+            // {
+            //     printf("SEND ERROR: %d\n", ret);
+            // }
         }
     }
     std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;

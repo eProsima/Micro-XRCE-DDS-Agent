@@ -25,46 +25,6 @@ namespace eprosima {
 namespace micrortps {
 
 // TODO cxx style
-void XRCEParser::print(const MessageHeader& message_header)
-{
-    printf("<Header> \n");
-    printf("  - client_key: 0x%08X\n", message_header.client_key());
-    printf("  - session_id: 0x%02X\n", message_header.session_id());
-    printf("  - stream_id: 0x%02X\n", message_header.stream_id());
-    printf("  - sequence_nr: %u\n", message_header.sequence_nr());
-    printf("\n\n");
-}
-
-// TODO cxx style
-void XRCEParser::print(const SubmessageHeader& submessage_header)
-{
-    switch(submessage_header.submessage_id())
-    {
-        case CREATE:
-            printf("<Submessage> [CREATE] \n");
-        break;
-        case DELETE:
-            printf("<Submessage> [DELETE]\n");
-        break;
-        case WRITE_DATA:
-            printf("<Submessage> [WRITE_DATA]\n");
-        break;
-        case READ_DATA:
-            printf("<Submessage> [READ_DATA]\n");
-        break;
-        case DATA:
-            printf("<Submessage> [DATA]\n");
-        break;
-    }
-
-    printf("  <Submessage header> \n");
-    printf("  - id: 0x%02X\n", submessage_header.submessage_id());
-    printf("  - flags: 0x%02X\n", submessage_header.flags());
-    printf("  - length: %u\n", submessage_header.submessage_length());
-    printf("\n");
-}
-
-// TODO cxx style
 void XRCEParser::print(const CREATE_PAYLOAD& create_message)
 {
     printf("  <Payload>\n");
@@ -112,14 +72,12 @@ bool XRCEParser::parse()
     MessageHeader message_header;
     if (deserializer_.deserialize(message_header))
     {
-        print(message_header);
         SubmessageHeader submessage_header;
         bool valid_submessage = false;
         do
         {
             if (valid_submessage = deserializer_.deserialize(submessage_header))
             {
-                print(submessage_header);
                 switch (submessage_header.submessage_id())
                 {
                 case CREATE:

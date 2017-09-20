@@ -32,6 +32,8 @@ namespace { char dummy; }
 using namespace eprosima::fastcdr::exception;
 
 #include <utility>
+#include <iostream>
+#include <iomanip>
 
 namespace eprosima {
 namespace micrortps {
@@ -131,6 +133,28 @@ void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> stream_id_;
     dcdr.deserialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
+
+std::ostream& operator<<(std::ostream& stream, const MessageHeader& header)
+{
+    // setw es +2 porque showbase ocupa ya 2.
+    std::cout << std::showbase << std::internal << std::setfill('0') << std::hex;
+    std::cout << "<Header>" << std::endl;
+    std::cout << "  - client_key: " <<  std::setw(10) << header.client_key() << std::endl;
+    std::cout << "  - session_id: " << std::setw(4) << +header.session_id() << std::endl;
+    std::cout << "  - stream_id: " << std::setw(4) << +header.stream_id() << std::endl;
+    std::cout << "  - sequence_nr: " << std::setw(6) << header.sequence_nr();
+}
+
+// ios_base::fmtflags oldFlags = cout.flags();
+// streamsize         oldPrec  = cout.precision();
+// char               oldFill  = cout.fill();
+
+// // Do lots of output
+
+// cout.flags(oldFlags);
+// cout.precision(oldPrec);
+// cout.fill(oldFill);
+
 
 } /* namespace micrortps */
 } /* namespace eprosima */
