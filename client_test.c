@@ -181,7 +181,7 @@ void create_message(SerializedBufferHandle* message)
         StatusPayloadSpec payload;
         payload.result.request_id = 0x12345678;
         payload.result.status = 0x01;
-        payload.result.implementation_status = 0x02;
+        payload.result.last_operation = 0x02;
 
         payload.object_id = 0xABCDEF;
         payload.status.kind = OBJECT_KIND_DATA_WRITER;
@@ -378,7 +378,7 @@ void on_status_received(const StatusPayloadSpec* payload)
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", payload->result.request_id);
     printf("  - status: 0x%02X\n", payload->result.status);
-    printf("  - implementation_status: 0x%02X\n", payload->result.implementation_status);
+    printf("  - last_operation: 0x%02X\n", payload->result.last_operation);
     printf("  - object_id: 0x%06X\n", payload->object_id);
     printf("  - kind: 0x%02X\n", payload->status.kind);
 
