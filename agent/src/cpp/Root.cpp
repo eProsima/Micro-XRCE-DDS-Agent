@@ -190,47 +190,32 @@ void Agent::abort_execution()
     messages_.abort();
 }
 
-void add_reply(const Status& status_reply)
+void Agent::add_reply(const Message& message)
 {
-    // struct BaseReply {
-    //     ResultStatus result;
-    //     RequestId request_id;
-    //     };
-    //     @extensibility(FINAL)
-    //     struct BaseObjectReply : BaseReply {
-    //     ObjectId object_id;
-    //     };
-
-    // XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    // newMessage.header(client_key, session_id, stream_id, sequence_nr);
-
-    // RESOURCE_STATUS_PAYLOAD resource_status;
-    // resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
-    // resource_status.request_status(status);
-
-    // SubmessageHeader submessage_header;
-    // submessage_header.submessage_id(STATUS);
-    // submessage_header.flags(0x07);
-    // submessage_header.submessage_length(static_cast<uint16_t>(resource_status.getCdrSerializedSize(resource_status)));
-
-    // newMessage.status(resource_status);   
-    // messages_.push(Message{});
-    // // If thread not running, start it.
-    // if(response_thread_.get() == nullptr)
-    // {
-    //     response_control_.running_ = true;
-    //     response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-    // }
+    messages_.push(message);
+    if(response_thread_.get() == nullptr)
+    {
+        response_control_.running_ = true;
+        response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+    }
 }
-void add_reply(const DATA_PAYLOAD& status_reply)
+
+
+void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
-    // messages_.push(Message{});
-    // // If thread not running, start it.
-    // if(response_thread_.get() == nullptr)
-    // {
-    //     response_control_.running_ = true;
-    //     response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-    // }
+    Message message;
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    message_creator.header(header);
+    message_creator.status(status_reply);
+    add_reply(message);
+}
+void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
+{
+    Message message;
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    message_creator.header(header);
+    message_creator.data(data);
+    add_reply(message);
 }
 
 void Agent::reply()
@@ -238,11 +223,19 @@ void Agent::reply()
     std::cout << "Reply thread started. Id: " << std::this_thread::get_id() << std::endl;
     while(response_control_.running_)
     {
-        auto message = messages_.pop();
-        // if (!nullptr)
-        // {
-        //     send(message);
-        // }
+        Message message = messages_.pop();
+        if (!message.get_buffer().empty())
+        {
+            int ret = 0;
+            if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
+            {
+                printf("SEND: %d bytes\n", ret);
+            }
+            else
+            {
+                printf("SEND ERROR: %d\n", ret);
+            }
+        }
     }
     std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
@@ -263,13 +256,18 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
-            //add_reply("TEST");
+            add_reply(header, result_status);
+        }
+        else
+        {
+            std::cerr << "Create message rejected" << std::endl;
+            // TODO Cuando el cliente no existe
         }
     }
     else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
     {
         Status result_status = create_client(header.client_key(), create_payload);
-        //add_reply("TEST");
+        add_reply(header, result_status);
     }
 }
 
@@ -278,6 +276,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->delete_object(delete_payload);
+        add_reply(header, result_status);
     }
     else
     {
@@ -290,6 +289,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->write(write_payload.object_id(), write_payload);
+        add_reply(header, result_status);
     }
     else
     {
@@ -302,6 +302,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->read(read_payload.object_id(), read_payload);
+        add_reply(header, result_status);
     }
     else
     {

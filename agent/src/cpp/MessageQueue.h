@@ -9,12 +9,15 @@
 
 namespace eprosima {
 namespace micrortps {
+
+const size_t max_message_size = 2048;
+
 class Message
 {
 public:
-    
+    std::array<unsigned char, max_message_size>& get_buffer() {return buffer_;};  
 private:
-
+    std::array<unsigned char, max_message_size> buffer_;
 };
 
 class MessageQueue

@@ -104,8 +104,9 @@ public:
 
     ProxyClient* get_client(int32_t client_key);
 
-    void add_reply(const Status& status_reply);
-    void add_reply(const DATA_PAYLOAD& status_reply);
+    void add_reply(const Message& message);
+    void add_reply(const MessageHeader& header, const Status& status_reply);
+    void add_reply(const MessageHeader& header, const DATA_PAYLOAD& status_reply);
 
 private:
     channel_id_t ch_id;

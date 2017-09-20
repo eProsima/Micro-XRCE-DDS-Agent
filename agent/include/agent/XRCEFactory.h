@@ -24,12 +24,13 @@ namespace micrortps {
 
 class Status;
 class DATA_PAYLOAD;
+class MessageHeader;
 
 class XRCEFactory
 {
 public:
     XRCEFactory(char* buffer, uint32_t max_size) : serializer_(buffer, max_size) {};
-    void header(int32_t client_key, uint8_t session_id, uint8_t stream_id, uint16_t sequence_nr);
+    void header(const MessageHeader& header);
     void status(const Status& payload);
     void data(const DATA_PAYLOAD& payload);
     size_t get_total_size();

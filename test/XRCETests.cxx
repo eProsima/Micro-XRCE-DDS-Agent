@@ -309,13 +309,13 @@ protected:
 TEST_F(XRCEFactoryTests, MessageHeader)
 {
     XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
 
     MessageHeader message_header;
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
+    newMessage.header(message_header);
 
     Serializer deserializer_(test_buffer_, BUFFER_LENGTH);
     MessageHeader deserialized_header;
@@ -330,13 +330,13 @@ TEST_F(XRCEFactoryTests, MessageHeader)
 TEST_F(XRCEFactoryTests, MessageSize)
 {
     XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
-
     MessageHeader message_header;
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
+
+    newMessage.header(message_header);
 
     ASSERT_EQ(newMessage.get_total_size(), message_header.getCdrSerializedSize(message_header));
 
@@ -350,7 +350,14 @@ TEST_F(XRCEFactoryTests, MessageSize)
 TEST_F(XRCEFactoryTests, MessageData)
 {
     XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
+
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    newMessage.header(message_header);
 
     RT_Data data_reader;
     SampleData sample_data;
@@ -394,7 +401,14 @@ TEST_F(XRCEFactoryTests, MessageData)
 TEST_F(XRCEFactoryTests, StatusMessage)
 {
     XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
+
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+    
+    newMessage.header(message_header);
 
     OBJK_DATAWRITER_Status data_writer;
     data_writer.stream_seq_num(0x7FFF);
@@ -788,7 +802,13 @@ protected:
 TEST_F(XRCEFileTests, Simple)
 {
     XRCEFactory newMessage{ test_buffer_, BUFFER_LENGTH };
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    newMessage.header(message_header);
 
     OBJK_DATAWRITER_Status data_writer;
     data_writer.stream_seq_num(0x7FFF);

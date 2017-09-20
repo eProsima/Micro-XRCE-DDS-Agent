@@ -61,7 +61,12 @@ size_t fill_buffer(octet* out_buffer, size_t buffer_len)
     const uint16_t sequence_nr = 0x0200;
 
     XRCEFactory newMessage{reinterpret_cast<char*>(out_buffer), (uint32_t)buffer_len};
-    newMessage.header(client_key, session_id, stream_id, sequence_nr);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+    newMessage.header(message_header);
 
     // OBJK_DATAWRITER_Status data_writer;
     // data_writer.stream_seq_num(0x7FFF);

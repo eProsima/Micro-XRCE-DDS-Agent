@@ -26,14 +26,9 @@ size_t XRCEFactory::get_total_size()
     return serializer_.get_serialized_size();
 }
 
-void XRCEFactory::header(int32_t client_key, uint8_t session_id, uint8_t stream_id, uint16_t sequence_nr)
+void XRCEFactory::header(const MessageHeader& header)
 {
-    MessageHeader myHeader;
-    myHeader.client_key(client_key);
-    myHeader.session_id(session_id);
-    myHeader.stream_id(stream_id);
-    myHeader.sequence_nr(sequence_nr);
-    serializer_.serialize(myHeader); // Add message header
+    serializer_.serialize(header);
 }
 
 void XRCEFactory::status(const Status& payload)
