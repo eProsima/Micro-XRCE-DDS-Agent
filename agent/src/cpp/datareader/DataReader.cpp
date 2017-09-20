@@ -30,13 +30,13 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(const ReaderListener* read_list):
+DataReader::DataReader(ReaderListener* read_list):
         mp_reader_listener(read_list),
         mp_rtps_participant(nullptr),
         mp_rtps_subscriber(nullptr),
         m_rtps_subscriber_prof("")
 {
-
+    init();
 }
 
 DataReader::~DataReader()
@@ -85,7 +85,11 @@ int DataReader::read(READ_DATA_PAYLOAD &read_data)
     {
         case READM_DATA:
         case READM_SAMPLE:
-            read_sample();
+        {
+            ShapeType st;
+            takeNextData(&st);
+            mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), (octet*)&st, sizeof(ShapeType));
+        }
         break;
         case READM_DATA_SEQ: break;
         case READM_SAMPLE_SEQ: break;

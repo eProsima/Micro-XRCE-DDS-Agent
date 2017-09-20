@@ -44,7 +44,6 @@ public:
     Status write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload);
     Info get_info(const ObjectId& object_id);
     
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length){;}
 
     void store_request_info(const ObjectId& object_id, const MessageHeader& message_header);
     void remove_request_info(const ObjectId& object_id);
@@ -52,6 +51,8 @@ public:
 
     uint16_t sequence();
     
+    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length);
+
 private:
     using InternalObjectId = std::array<uint8_t, 4>;
     

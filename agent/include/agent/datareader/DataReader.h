@@ -48,7 +48,7 @@ class DataReader: public XRCEObject
 {
 public:
     DataReader() = default;
-    DataReader(const ReaderListener* read_list);
+    DataReader(ReaderListener* read_list);
     virtual ~DataReader();
 
     bool init();
@@ -60,7 +60,7 @@ public:
     bool takeNextData(void* data);
 private:
 
-    const ReaderListener* mp_reader_listener;
+    ReaderListener* mp_reader_listener;
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
     std::string m_rtps_subscriber_prof;

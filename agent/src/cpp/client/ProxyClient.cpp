@@ -254,3 +254,8 @@ uint16_t ProxyClient::sequence()
 {
     return sequence_count_++;
 }
+
+void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length)
+{
+
+}
