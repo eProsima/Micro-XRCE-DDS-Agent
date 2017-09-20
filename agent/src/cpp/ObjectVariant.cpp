@@ -2478,21 +2478,21 @@ Status::Status(const Status &x)
 {
     result_ = x.result_;
     object_id_ = x.object_id_;
-    status_ = x.status_;
+    //status_ = x.status_;
 }
 
 Status::Status(Status &&x)
 {
     result_ = std::move(x.result_);
     object_id_ = std::move(x.object_id_);
-    status_ = std::move(x.status_);
+    //status_ = std::move(x.status_);
 }
 
 Status& Status::operator=(const Status &x)
 {
     result_ = x.result_;
     object_id_ = x.object_id_;
-    status_ = x.status_;
+    //status_ = x.status_;
     
     return *this;
 }
@@ -2501,7 +2501,7 @@ Status& Status::operator=(Status &&x)
 {
     result_ = std::move(x.result_);
     object_id_ = std::move(x.object_id_);
-    status_ = std::move(x.status_);
+    //status_ = std::move(x.status_);
     
     return *this;
 }
@@ -2513,7 +2513,7 @@ size_t Status::getMaxCdrSerializedSize(size_t current_alignment)
     current_alignment += ResultStatus::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    current_alignment += StatusVariant::getMaxCdrSerializedSize(current_alignment);
+    //current_alignment += StatusVariant::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -2524,7 +2524,7 @@ size_t Status::getCdrSerializedSize(const Status& data, size_t current_alignment
             
     current_alignment += ResultStatus::getCdrSerializedSize(data.result(), current_alignment);
     current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += StatusVariant::getCdrSerializedSize(data.status(), current_alignment);
+    //current_alignment += StatusVariant::getCdrSerializedSize(data.status(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -2533,14 +2533,14 @@ void Status::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << result_;
     scdr << object_id_;
-    scdr << status_;
+    //scdr << status_;
 }
 
 void Status::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> result_;
     dcdr >> object_id_;
-    dcdr >> status_;
+    //dcdr >> status_;
 }
 
 Info::Info()

@@ -22,7 +22,7 @@
 namespace eprosima {
 namespace micrortps {
 
-class RESOURCE_STATUS_PAYLOAD;
+class Status;
 class DATA_PAYLOAD;
 
 class XRCEFactory
@@ -30,7 +30,7 @@ class XRCEFactory
 public:
     XRCEFactory(char* buffer, uint32_t max_size) : serializer_(buffer, max_size) {};
     void header(int32_t client_key, uint8_t session_id, uint8_t stream_id, uint16_t sequence_nr);
-    void status(const RESOURCE_STATUS_PAYLOAD& payload);
+    void status(const Status& payload);
     void data(const DATA_PAYLOAD& payload);
     size_t get_total_size();
 private:

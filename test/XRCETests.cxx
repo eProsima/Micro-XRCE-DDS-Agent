@@ -183,26 +183,26 @@ TEST_F(SerializerDeserializerTests, ResourceStatusSubmessage)
     result.status(STATUS_OK);
     result.implementation_status(STATUS_ERR_INCOMPATIBLE);
     Status status;
-    status.status(variant);
+    // status.status(variant);
     status.result(result);
     status.object_id({ 10,20,30 });
 
-    RESOURCE_STATUS_PAYLOAD resource_status;
-    resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
-    resource_status.request_status(status);
-    serializer_.serialize(resource_status);
+    // RESOURCE_STATUS_PAYLOAD resource_status;
+    // resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
+    // resource_status.request_status(status);
+    serializer_.serialize(status);
 
     Serializer deserializer_(test_buffer_, BUFFER_LENGTH);
-    RESOURCE_STATUS_PAYLOAD deserialized_resource_status;
-    deserializer_.deserialize(deserialized_resource_status);
+    // RESOURCE_STATUS_PAYLOAD deserialized_resource_status;
+    Status deserialized_status;
+    deserializer_.deserialize(deserialized_status);
 
-    ASSERT_EQ(resource_status.request_id(), deserialized_resource_status.request_id());
-    ASSERT_EQ(resource_status.request_status().object_id(), deserialized_resource_status.request_status().object_id());
-    ASSERT_EQ(resource_status.request_status().result().request_id(), deserialized_resource_status.request_status().result().request_id());
-    ASSERT_EQ(resource_status.request_status().result().status(), deserialized_resource_status.request_status().result().status());
-    ASSERT_EQ(resource_status.request_status().result().implementation_status(), deserialized_resource_status.request_status().result().implementation_status());
-    ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_resource_status.request_status().status().data_writer().stream_seq_num());
-    ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_resource_status.request_status().status().data_writer().sample_seq_num());
+    ASSERT_EQ(status.object_id(), deserialized_status.object_id());
+    ASSERT_EQ(status.result().request_id(), deserialized_status.result().request_id());
+    ASSERT_EQ(status.result().status(), deserialized_status.result().status());
+    ASSERT_EQ(status.result().implementation_status(), deserialized_status.result().implementation_status());
+    // ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_resource_status.request_status().status().data_writer().stream_seq_num());
+    // ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_resource_status.request_status().status().data_writer().sample_seq_num());
 }
 
 TEST_F(SerializerDeserializerTests, DataSubmessage)
@@ -406,28 +406,29 @@ TEST_F(XRCEFactoryTests, StatusMessage)
     result.status(STATUS_OK);
     result.implementation_status(STATUS_ERR_INCOMPATIBLE);
     Status status;
-    status.status(variant);
+    // status.status(variant);
     status.result(result);
     status.object_id({ 10,20,30 });
 
-    RESOURCE_STATUS_PAYLOAD resource_status;
-    resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
-    resource_status.request_status(status);
+    // RESOURCE_STATUS_PAYLOAD resource_status;
+    // resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
+    // resource_status.request_status(status);
     
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(STATUS);
     submessage_header.flags(0x07);
-    submessage_header.submessage_length(static_cast<uint16_t>(resource_status.getCdrSerializedSize(resource_status)));
+    submessage_header.submessage_length(static_cast<uint16_t>(status.getCdrSerializedSize(status)));
 
-    newMessage.status(resource_status);
+    newMessage.status(status);
 
     Serializer deserializer_(test_buffer_, BUFFER_LENGTH);
     MessageHeader deserialized_header;
     SubmessageHeader deserialized_submessage_header;
-    RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
+    // RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
+    Status deserialized_status;
     deserializer_.deserialize(deserialized_header);
     deserializer_.deserialize(deserialized_submessage_header);
-    deserializer_.deserialize(deserialized_status_payload);
+    deserializer_.deserialize(deserialized_status);
 
     ASSERT_EQ(client_key, deserialized_header.client_key());
     ASSERT_EQ(session_id, deserialized_header.session_id());
@@ -438,13 +439,12 @@ TEST_F(XRCEFactoryTests, StatusMessage)
     ASSERT_EQ(submessage_header.flags(), deserialized_submessage_header.flags());
     ASSERT_EQ(submessage_header.submessage_length(), deserialized_submessage_header.submessage_length());
 
-    ASSERT_EQ(resource_status.request_id(), deserialized_status_payload.request_id());
-    ASSERT_EQ(resource_status.request_status().object_id(), deserialized_status_payload.request_status().object_id());
-    ASSERT_EQ(resource_status.request_status().result().request_id(), deserialized_status_payload.request_status().result().request_id());
-    ASSERT_EQ(resource_status.request_status().result().status(), deserialized_status_payload.request_status().result().status());
-    ASSERT_EQ(resource_status.request_status().result().implementation_status(), deserialized_status_payload.request_status().result().implementation_status());
-    ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_status_payload.request_status().status().data_writer().stream_seq_num());
-    ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_status_payload.request_status().status().data_writer().sample_seq_num());
+    ASSERT_EQ(status.object_id(), deserialized_status.object_id());
+    ASSERT_EQ(status.result().request_id(), deserialized_status.result().request_id());
+    ASSERT_EQ(status.result().status(), deserialized_status.result().status());
+    ASSERT_EQ(status.result().implementation_status(), deserialized_status.result().implementation_status());
+    // ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_status_payload.request_status().status().data_writer().stream_seq_num());
+    // ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_status_payload.request_status().status().data_writer().sample_seq_num());
 }
 
 class XRCEParserTests : public testing::Test
@@ -800,20 +800,20 @@ TEST_F(XRCEFileTests, Simple)
     result.status(STATUS_OK);
     result.implementation_status(STATUS_ERR_INCOMPATIBLE);
     Status status;
-    status.status(variant);
+    // status.status(variant);
     status.result(result);
     status.object_id({ 10,20,30 });
 
-    RESOURCE_STATUS_PAYLOAD resource_status;
-    resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
-    resource_status.request_status(status);
+    // RESOURCE_STATUS_PAYLOAD resource_status;
+    // resource_status.request_id({ 0x00, 0x01, 0x02, 0x03 });
+    // resource_status.request_status(status);
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(STATUS);
     submessage_header.flags(0x07);
-    submessage_header.submessage_length(static_cast<uint16_t>(resource_status.getCdrSerializedSize(resource_status)));
+    submessage_header.submessage_length(static_cast<uint16_t>(status.getCdrSerializedSize(status)));
 
-    newMessage.status(resource_status);
+    newMessage.status(status);
 
     std::string filename = "test.bin";
     std::fstream s(filename, std::ios::binary | std::ios::trunc | std::ios::in | std::ios::out);
@@ -832,10 +832,11 @@ TEST_F(XRCEFileTests, Simple)
         Serializer deserializer_(read_buffer, newMessage.get_total_size());
         MessageHeader deserialized_header;
         SubmessageHeader deserialized_submessage_header;
-        RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
+        Status deserialized_status;
+        // RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
         deserializer_.deserialize(deserialized_header);
         deserializer_.deserialize(deserialized_submessage_header);
-        deserializer_.deserialize(deserialized_status_payload);
+        deserializer_.deserialize(deserialized_status);
 
         ASSERT_EQ(client_key, deserialized_header.client_key());
         ASSERT_EQ(session_id, deserialized_header.session_id());
@@ -846,13 +847,12 @@ TEST_F(XRCEFileTests, Simple)
         ASSERT_EQ(submessage_header.flags(), deserialized_submessage_header.flags());
         ASSERT_EQ(submessage_header.submessage_length(), deserialized_submessage_header.submessage_length());
 
-        ASSERT_EQ(resource_status.request_id(), deserialized_status_payload.request_id());
-        ASSERT_EQ(resource_status.request_status().object_id(), deserialized_status_payload.request_status().object_id());
-        ASSERT_EQ(resource_status.request_status().result().request_id(), deserialized_status_payload.request_status().result().request_id());
-        ASSERT_EQ(resource_status.request_status().result().status(), deserialized_status_payload.request_status().result().status());
-        ASSERT_EQ(resource_status.request_status().result().implementation_status(), deserialized_status_payload.request_status().result().implementation_status());
-        ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_status_payload.request_status().status().data_writer().stream_seq_num());
-        ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_status_payload.request_status().status().data_writer().sample_seq_num());
+        ASSERT_EQ(status.object_id(), deserialized_status.object_id());
+        ASSERT_EQ(status.result().request_id(), deserialized_status.result().request_id());
+        ASSERT_EQ(status.result().status(), deserialized_status.result().status());
+        ASSERT_EQ(status.result().implementation_status(), deserialized_status.result().implementation_status());
+        // ASSERT_EQ(resource_status.request_status().status().data_writer().stream_seq_num(), deserialized_status_payload.request_status().status().data_writer().stream_seq_num());
+        // ASSERT_EQ(resource_status.request_status().status().data_writer().sample_seq_num(), deserialized_status_payload.request_status().status().data_writer().sample_seq_num());
 
 
         delete[] read_buffer;

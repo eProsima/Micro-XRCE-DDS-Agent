@@ -2699,41 +2699,41 @@ public:
     {
         return object_id_;
     }
-    /*!
-     * @brief This function copies the value in member status
-     * @param _status New value to be copied in member status
-     */
-    inline void status(const StatusVariant &_status)
-    {
-        status_ = _status;
-    }
+    // /*!
+    //  * @brief This function copies the value in member status
+    //  * @param _status New value to be copied in member status
+    //  */
+    // inline void status(const StatusVariant &_status)
+    // {
+    //     status_ = _status;
+    // }
 
-    /*!
-     * @brief This function moves the value in member status
-     * @param _status New value to be moved in member status
-     */
-    inline void status(StatusVariant &&_status)
-    {
-        status_ = std::move(_status);
-    }
+    // /*!
+    //  * @brief This function moves the value in member status
+    //  * @param _status New value to be moved in member status
+    //  */
+    // inline void status(StatusVariant &&_status)
+    // {
+    //     status_ = std::move(_status);
+    // }
 
-    /*!
-     * @brief This function returns a constant reference to member status
-     * @return Constant reference to member status
-     */
-    inline const StatusVariant& status() const
-    {
-        return status_;
-    }
+    // /*!
+    //  * @brief This function returns a constant reference to member status
+    //  * @return Constant reference to member status
+    //  */
+    // inline const StatusVariant& status() const
+    // {
+    //     return status_;
+    // }
 
-    /*!
-     * @brief This function returns a reference to member status
-     * @return Reference to member status
-     */
-    inline StatusVariant& status()
-    {
-        return status_;
-    }
+    // /*!
+    //  * @brief This function returns a reference to member status
+    //  * @return Reference to member status
+    //  */
+    // inline StatusVariant& status()
+    // {
+    //     return status_;
+    // }
     
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -2767,7 +2767,7 @@ public:
 private:
     ResultStatus result_;
     ObjectId object_id_;
-    StatusVariant status_;
+    //StatusVariant status_;
 };
 /*!
  * @brief This class represents the structure Info defined by the user in the IDL file.

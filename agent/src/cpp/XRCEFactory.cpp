@@ -36,7 +36,7 @@ void XRCEFactory::header(int32_t client_key, uint8_t session_id, uint8_t stream_
     serializer_.serialize(myHeader); // Add message header
 }
 
-void XRCEFactory::status(const RESOURCE_STATUS_PAYLOAD& payload)
+void XRCEFactory::status(const Status& payload)
 {
     submessage_header(STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize(payload)));
     serializer_.serialize(payload);
