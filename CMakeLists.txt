@@ -54,8 +54,7 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     agent/include
                     agent/src/cpp
                     agent/include/agent
-                    client/include
-                    client/include/client)
+                    )
 
 # libtransport.so
 file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
@@ -79,10 +78,10 @@ add_executable(micrortps_agent ${MICRORTPS_AGENT_SOURCES})
 install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(micrortps_agent transport agent fastcdr fastrtps)
 
-# libclient.so
-file(GLOB CLIENT_LIB_SRCS "client/src/C/*.c" "client/src/C/*/*.c")
-add_library(client SHARED ${CLIENT_LIB_SRCS})
-install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# # libclient.so
+# file(GLOB CLIENT_LIB_SRCS "client/src/C/*.c" "client/src/C/*/*.c")
+# add_library(client SHARED ${CLIENT_LIB_SRCS})
+# install(TARGETS client DESTINATION ${CMAKE_SOURCE_DIR}/install)
 #install(FILES client/include/*.h DESTINATION ${CMAKE_SOURCE_DIR}/install/include/client/)
 
 # client_test
