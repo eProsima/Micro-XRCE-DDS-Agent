@@ -30,25 +30,76 @@ namespace eprosima{
 namespace micrortps{
 
 class Agent;
+
 Agent& root();
 
+/**
+ * Class XRCE Agent. Handle XRCE messages and distribute them to different ProxyClients. It implements XRCEListener interface
+ * for receibe messages from a XRCEParser.
+ */
 class Agent : public XRCEListener
 {
 public:
     Agent();
     ~Agent() = default;
 
+    /*
+     * Initialize the Agent.
+     */
     void init();
 
-    Status create_client(int32_t client_key,  const ObjectVariant& client_representation);
-    Status delete_client(int32_t client_key);
+    /*
+     * Creates and stores a ProxyClient
+     * @param client_key: ProxyClient unique key.
+     * @param create_info: Create payload containing all the creation information.
+     * @return Status struct with the operation result info.
+     */
+    Status create_client(int32_t client_key, const CREATE_PAYLOAD& create_info);
 
+    /*
+     * Removes a previously stored ProxyClient
+     * @param client_key: ProxyClient unique key.
+     * @param delete_info: Delete payload containing all the deletion information.
+     * @return Status struct with the operation result info.
+     */
+    Status delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_info);
+
+    /*
+     * Starts Agent loop to listen messages. It parses and dispaches those XRCE messages to its owner.
+     */
     void run();
 
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD&      create_payload) override;
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD&      delete_payload) override;
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)  override;
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)   override;
+    /*
+     * Receives a creation message.
+     * @param header: Message header.
+     * @param sub_header: Submessage header.
+     * @param create_payload: Creation information.
+     */
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload) override;
+
+    /*
+     * Receives a deletion message.
+     * @param header: Message header.
+     * @param sub_header: Submessage header.
+     * @param delete_payload: Deletion information.
+     */
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload) override;
+
+    /*
+     * Receives a Write message.
+     * @param header: Message header.
+     * @param sub_header: Submessage header.
+     * @param write_payload: Write information.
+     */
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD& write_payload)  override;
+
+    /*
+     * Receives a Read message.
+     * @param header: Message header.
+     * @param sub_header: Submessage header.
+     * @param read_payload: Read information.
+     */
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD& read_payload)   override;
 
     ProxyClient* get_client(int32_t client_key);
 

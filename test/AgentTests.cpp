@@ -21,17 +21,25 @@ protected:
 
 TEST_F(AgentTests, CreateClientOk)
 {
-    int32_t client_key = 0xF1F2F3F4;
+    const int32_t client_key = 0xF1F2F3F4;
+    
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie(XRCE_COOKIE);
     client_representation.xrce_version(XRCE_VERSION);
     client_representation.xrce_vendor_id();
     client_representation.client_timestamp();
     client_representation.session_id();
-
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+    
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
@@ -44,7 +52,15 @@ TEST_F(AgentTests, CreateClientNoClient)
 
     ObjectVariant variant;
     variant.publisher(publisher_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().publisher(publisher_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
@@ -62,7 +78,15 @@ TEST_F(AgentTests, CreateClientBadCookie)
 
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
@@ -80,7 +104,15 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
 
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
@@ -98,7 +130,15 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
 
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INCOMPATIBLE, response.result().implementation_status());
@@ -116,12 +156,24 @@ TEST_F(AgentTests, DeleteExistingClient)
 
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
+
+    DELETE_PAYLOAD delete_payload;
+    delete_payload.object_id(object_id);
+    delete_payload.request_id({2,2});
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
 
-    response = agent_.delete_client(client_key);
+    response = agent_.delete_client(client_key, delete_payload);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
 }
@@ -129,7 +181,10 @@ TEST_F(AgentTests, DeleteExistingClient)
 TEST_F(AgentTests, DeleteOnEmptyAgent)
 {
     int32_t client_key = 0xF1F2F3F4;
-    Status response = agent_.delete_client(client_key);
+    DELETE_PAYLOAD delete_payload;
+    delete_payload.object_id({10,20,30});
+    delete_payload.request_id({2,2});
+    Status response = agent_.delete_client(client_key, delete_payload);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
 }
@@ -146,12 +201,24 @@ TEST_F(AgentTests, DeleteNoExistingClient)
 
     ObjectVariant variant;
     variant.client(client_representation);
-    Status response = agent_.create_client(client_key, variant);
+
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    Status response = agent_.create_client(client_key, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
 
-    response = agent_.delete_client(0xFAFBFCFD);
+    DELETE_PAYLOAD delete_payload;
+    delete_payload.object_id({10,20,30});
+    delete_payload.request_id({2,2});
+
+    response = agent_.delete_client(0xFAFBFCFD, delete_payload);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
 }

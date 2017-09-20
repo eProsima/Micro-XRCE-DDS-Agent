@@ -19,29 +19,36 @@
 
 using namespace eprosima::micrortps;
 
-Agent::Agent() {
-
-    response_control_.running_ = false;
-    response_control_.run_scheduled_ = false;
-}
-
 Agent& root()
 {
     static Agent xrce_agent;
     return xrce_agent;
 }
 
-Status Agent::create_client(int32_t client_key,  const ObjectVariant& client_representation)
+Agent::Agent() {
+
+    response_control_.running_ = false;
+    response_control_.run_scheduled_ = false;
+}
+
+void Agent::init()
+{
+    // Init transport
+    loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
+    ch_id = add_locator(&loc);
+}
+
+Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_info)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(create_info.request_id());
     status.result().status(STATUS_LAST_OP_CREATE);
-    status.object_id(); // TODO que object id?
+    status.object_id(create_info.object_id());
 
-    if ((client_representation.discriminator() == OBJK_CLIENT) && 
-        (client_representation.client().xrce_cookie() == std::array<uint8_t, 4>XRCE_COOKIE))
+    if ((create_info.object_representation().discriminator() == OBJK_CLIENT) && 
+        (create_info.object_representation().client().xrce_cookie() == std::array<uint8_t, 4>XRCE_COOKIE))
     {
-        if (client_representation.client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
+        if (create_info.object_representation().client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
         {
             // TODO The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
             // If this check fails the operation shall fail and returnValue is set to {STATUS_LAST_OP_CREATE,STATUS_ERR_DENIED}.
@@ -53,7 +60,7 @@ Status Agent::create_client(int32_t client_key,  const ObjectVariant& client_rep
             // DdsXrce::ProxyClient object and shall proceed as if the ProxyClient did not exist.
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
-            clients_[client_key] = ProxyClient{client_representation.client()};
+            clients_[client_key] = ProxyClient{create_info.object_representation().client()};
             status.result().implementation_status(STATUS_OK);
         }
         else{
@@ -67,70 +74,21 @@ Status Agent::create_client(int32_t client_key,  const ObjectVariant& client_rep
     return status;
 }
 
-Status Agent::delete_client(int32_t client_key)
+Status Agent::delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_info)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(delete_info.request_id());
     status.result().status(STATUS_LAST_OP_DELETE);
+    status.object_id(delete_info.object_id());
     if (0 == clients_.erase(client_key))
     {
         status.result().implementation_status(STATUS_ERR_INVALID_DATA);
-        // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.
     }
     else
     {
         status.result().implementation_status(STATUS_OK);
     }
     return status;
-}
-
-void Agent::init()
-{
-    // Init transport
-    loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
-    ch_id = add_locator(&loc);
-}
-
-// bool Agent::add_reply(const Response& res)
-// {
-//     response_control_.data_structure_mutex_.lock();
-//     returnedValue = true;
-
-//     std::lock_guard<std::mutex> data_guard(response_control_.condition_variable_mutex_);
-//     response_control_.data_structure_mutex_.unlock();
-//     // If thread not running, start it.
-//     if(response_thread_.get() == nullptr)
-//     {
-//         response_control_.running_ = true;
-//         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-//     }
-//     
-//      { // Lock scope
-//      std::lock_guard<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
-//      run_scheduled_ = true;
-//      }
-//      response_control_.condition_.notify_all();
-// 
-//     return returnedValue;
-// }
-
-
-void Agent::reply()
-{
-    std::unique_lock<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
-    while(response_control_.running_)
-    {
-       if(response_control_.run_scheduled_)
-       {
-          response_control_.run_scheduled_ = false;
-          cond_guard.unlock();
-          std::lock_guard<std::mutex> data_guard(response_control_.data_structure_mutex_);
-          // MY JOB
-          cond_guard.lock();
-       }
-       else
-        response_control_.condition_.wait(cond_guard);
-    }
 }
 
 void Agent::run()
@@ -168,22 +126,73 @@ void Agent::run()
     std::cout << "Execution stopped" << std::endl;
 }
 
+// bool Agent::add_reply(const Response& res)
+// {
+//     response_control_.data_structure_mutex_.lock();
+//     returnedValue = true;
+    // std::vector<buffer> move(res.buffer);
+//     std::lock_guard<std::mutex> data_guard(response_control_.condition_variable_mutex_);
+//     response_control_.data_structure_mutex_.unlock();
+//     // If thread not running, start it.
+//     if(response_thread_.get() == nullptr)
+//     {
+//         response_control_.running_ = true;
+//         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+//     }
+//     
+//      { // Lock scope
+//      std::lock_guard<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
+//      run_scheduled_ = true;
+//      }
+//      response_control_.condition_.notify_all();
+// 
+//     return returnedValue;
+// }
+
+void Agent::reply()
+{
+    //buffer = x;
+    std::unique_lock<std::mutex> cond_guard(response_control_.condition_variable_mutex_);
+    while(response_control_.running_)
+    {
+       if(response_control_.run_scheduled_)
+       {
+          response_control_.run_scheduled_ = false;
+          cond_guard.unlock();
+          std::lock_guard<std::mutex> data_guard(response_control_.data_structure_mutex_);
+          // MY send JOB
+          // std::vector<buffer>
+          // send(reply_buffer)
+          cond_guard.lock();
+       }
+       else
+        response_control_.condition_.wait(cond_guard);
+    }
+}
+
+
+
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
 {
-    if (ProxyClient* client = get_client(header.client_key()))
+    if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
     {
-        CreationMode creation_mode;
-        creation_mode.reuse(false);
-        creation_mode.replace(true);
+        if (ProxyClient* client = get_client(header.client_key()))
+        {
+            CreationMode creation_mode;
+            creation_mode.reuse(false);
+            creation_mode.replace(true);
 
-        // TODO get sub_header flags
-        // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
-        // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
-        Status result_status = client->create(creation_mode, create_payload);
+            // TODO get sub_header flags
+            // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
+            // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
+            Status result_status = client->create(creation_mode, create_payload);
+            // buffer = seralize (status)
+            // add_replut(buffer)
+        }
     }
-    else
+    else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
     {
-        
+        Status result_status = create_client(header.client_key(), create_payload);
     }
 }
 
