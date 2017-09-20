@@ -8,7 +8,7 @@ extern "C"
 
 #include "micrortps/client/xrce_spec.h"
 #include "micrortps/client/mini_cdr.h"
-#include "micrortps/client/dynamic_buffer.h"
+#include "micrortps/client/memory_cache.h"
 
 
 //SERIALIZATION
@@ -47,34 +47,34 @@ void serialize_object_id(SerializedBufferHandle* buffer, uint_least24_t object_i
 
 //DESERIALIZATION
 //headers
-void deserialize_submessage_header(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SubmessageHeaderSpec* submessage_header);
-void deserialize_message_header(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, MessageHeaderSpec* message_header);
+void deserialize_submessage_header(SerializedBufferHandle* buffer, MemoryCache* cache, SubmessageHeaderSpec* submessage_header);
+void deserialize_message_header(SerializedBufferHandle* buffer, MemoryCache* cache, MessageHeaderSpec* message_header);
 
 //payloads
-void deserialize_create_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, CreatePayloadSpec* payload);
-void deserialize_delete_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DeletePayloadSpec* payload);
-void deserialize_status_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, StatusPayloadSpec* payload);
-void deserialize_write_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, WriteDataPayloadSpec* payload);
-void deserialize_read_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ReadDataPayloadSpec* payload);
-void deserialize_data_payload(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataPayloadSpec* payload);
+void deserialize_create_payload(SerializedBufferHandle* buffer, MemoryCache* cache, CreatePayloadSpec* payload);
+void deserialize_delete_payload(SerializedBufferHandle* buffer, MemoryCache* cache, DeletePayloadSpec* payload);
+void deserialize_status_payload(SerializedBufferHandle* buffer, MemoryCache* cache, StatusPayloadSpec* payload);
+void deserialize_write_data_payload(SerializedBufferHandle* buffer, MemoryCache* cache, WriteDataPayloadSpec* payload);
+void deserialize_read_data_payload(SerializedBufferHandle* buffer, MemoryCache* cache, ReadDataPayloadSpec* payload);
+void deserialize_data_payload(SerializedBufferHandle* buffer, MemoryCache* cache, DataPayloadSpec* payload);
 
 //switches
-void deserialize_object_kind(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ObjectKindSpec* object);
-void deserialize_data_mode(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataModeSpec* data_mode);
+void deserialize_object_kind(SerializedBufferHandle* buffer, MemoryCache* cache, ObjectKindSpec* object);
+void deserialize_data_mode(SerializedBufferHandle* buffer, MemoryCache* cache, DataModeSpec* data_mode);
 
 //object variants
-void deserialize_object_variant_data_writer(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataWriterSpec* data_writer);
-void deserialize_object_variant_data_reader(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, DataReaderSpec* data_reader);
-void deserialize_object_variant_publisher(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, PublisherSpec* publisher);
-void deserialize_object_variant_subscriber(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SubscriberSpec* subscriber);
+void deserialize_object_variant_data_writer(SerializedBufferHandle* buffer, MemoryCache* cache, DataWriterSpec* data_writer);
+void deserialize_object_variant_data_reader(SerializedBufferHandle* buffer, MemoryCache* cache, DataReaderSpec* data_reader);
+void deserialize_object_variant_publisher(SerializedBufferHandle* buffer, MemoryCache* cache, PublisherSpec* publisher);
+void deserialize_object_variant_subscriber(SerializedBufferHandle* buffer, MemoryCache* cache, SubscriberSpec* subscriber);
 
 //status
-void deserialize_result_status(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, ResultStatusSpec* result);
+void deserialize_result_status(SerializedBufferHandle* buffer, MemoryCache* cache, ResultStatusSpec* result);
 
 //samples
-void deserialize_sample(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleSpec* sample);
-void deserialize_sample_data(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleDataSpec* data);
-void deserialize_sample_info(SerializedBufferHandle* buffer, DynamicBuffer* dynamic_memory, SampleInfoSpec* info);
+void deserialize_sample(SerializedBufferHandle* buffer, MemoryCache* cache, SampleSpec* sample);
+void deserialize_sample_data(SerializedBufferHandle* buffer, MemoryCache* cache, SampleDataSpec* data);
+void deserialize_sample_info(SerializedBufferHandle* buffer, MemoryCache* cache, SampleInfoSpec* info);
 
 //util
 void deserialize_object_id(SerializedBufferHandle* buffer, uint_least24_t* object_id);

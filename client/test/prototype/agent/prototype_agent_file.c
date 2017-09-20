@@ -12,15 +12,20 @@
 typedef struct Agent
 {
     MessageManager message_manager;
-    DynamicBuffer dynamic_buffer;
+    MemoryCache cache;
     uint16_t current_sequence_number_sent;
     uint16_t expected_sequence_number_recieved;
+    uint32_t messages_to_send;
+    uint32_t subscriber_request_id;
+    uint32_t subscriber_object_id;
 
 } Agent;
 
-void create_header(Agent* agent);
 
-void on_message_header_received(const MessageHeaderSpec* header, void* data);
+void send_topic(Agent* agent, uint32_t key);
+
+int initialize_message(MessageHeaderSpec* header, void* data);
+int on_message_header_received(const MessageHeaderSpec* header, void* data);
 void on_create_submessage_received(const CreatePayloadSpec* payload, void* data);
 void on_delete_submessage_received(const DeletePayloadSpec* payload, void* data);
 void on_write_data_submessage_received(const WriteDataPayloadSpec* payload, void* data);
@@ -34,9 +39,13 @@ int main(int args, char** argv)
     Agent agent = {};
     agent.current_sequence_number_sent = 0;
     agent.expected_sequence_number_recieved = 0;
-    init_memory_buffer(&agent.dynamic_buffer, 0);
+    init_memory_cache(&agent.cache, 0);
+    agent.messages_to_send = 0;
+    agent.subscriber_request_id = 0;
+    agent.subscriber_object_id = 0;
 
     MessageCallback callback = {};
+    callback.on_initialize_message = initialize_message;
     callback.on_message_header = on_message_header_received;
     callback.on_create_resource = on_create_submessage_received;
     callback.on_delete_resource = on_delete_submessage_received;
@@ -46,8 +55,9 @@ int main(int args, char** argv)
 
     init_message_manager(&agent.message_manager, out_buffer, BUFFER_SIZE, in_buffer, BUFFER_SIZE, callback);
 
-    char in_file_name[256] = "build/client_to_agent.bin";
-    char out_file_name[256] = "build/agent_to_client.bin";
+    char in_file_name[256] = "client_to_agent.bin";
+    char out_file_name[256] = "agent_to_client.bin";
+    fclose(fopen(in_file_name, "wb"));
 
     uint32_t dt = 2;
     char time_string[80];
@@ -68,6 +78,11 @@ int main(int args, char** argv)
         fclose(fopen(in_file_name,"wb"));
 
         parse_message(&agent.message_manager, in_file_size);
+
+        // send topic if clien request it.
+        if(agent.messages_to_send)
+            send_topic(&agent, timeinfo->tm_sec);
+
         printf("<-- [Received %u bytes]\n", in_file_size);
 
         // Send file
@@ -90,20 +105,32 @@ int main(int args, char** argv)
     return 0;
 }
 
-void on_message_header_received(const MessageHeaderSpec* header, void* data)
+int initialize_message(MessageHeaderSpec* header, void* data)
 {
     Agent* agent = (Agent*)data;
+
+    header->client_key = 0xF1F2F3F4;
+    header->session_id = 0x01;
+    header->stream_id = 0x01;
+    header->sequence_number = agent->current_sequence_number_sent++;
+
+    return 1;
+}
+
+
+int on_message_header_received(const MessageHeaderSpec* header, void* data)
+{
+    Agent* agent = (Agent*)data;
+
+    printf("    <<Sequence number | expected: %u | received: %u>>\n",
+            agent->expected_sequence_number_recieved, header->sequence_number);
+
     if(agent->expected_sequence_number_recieved == header->sequence_number)
     {
-        printf("    <<Sequence number | expected: %u | received: %u>>\n",
-            agent->expected_sequence_number_recieved, header->sequence_number);
         agent->expected_sequence_number_recieved = header->sequence_number + 1;
+        return 1;
     }
-    else
-    {
-        printf("\e[1;31mERROR:\e[0m expected s_nr: %u, found: %u\n",
-            agent->expected_sequence_number_recieved, header->sequence_number);
-    }
+    return 0;
 }
 
 void on_create_submessage_received(const CreatePayloadSpec* recv_payload, void* data)
@@ -118,9 +145,6 @@ void on_create_submessage_received(const CreatePayloadSpec* recv_payload, void* 
     payload.result.status = STATUS_OK;
     payload.result.implementation_status = STATUS_LAST_OP_CREATE;
     payload.object_id = recv_payload->object_id;
-
-    if(agent->message_manager.writer.iterator == agent->message_manager.writer.data)
-        create_header(agent);
 
     add_status_submessage(&agent->message_manager, &payload);
 
@@ -155,25 +179,54 @@ void on_write_data_submessage_received(const WriteDataPayloadSpec* recv_payload,
         size_of_shape_topic
     };
 
-    ShapeTopic shape_topic;
-    topic.deserialize(&reader, &agent->dynamic_buffer, &shape_topic);
-    reset_memory_buffer(&agent->dynamic_buffer);
+    void* user_topic = topic.deserialize(&reader, agent);
 
-    print_shape_topic(&shape_topic);
+    if(topic_size > 0)
+        print_shape_topic(user_topic);
 }
 
 void on_read_data_submessage_received(const ReadDataPayloadSpec* recv_payload, void* data)
 {
     printf("<== ");
     printl_read_data_submessage(recv_payload, NULL);
+
+    Agent* agent = (Agent*)data;
+    agent->messages_to_send = recv_payload->max_messages;
+    agent->subscriber_request_id = recv_payload->request_id;
+    agent->subscriber_object_id = recv_payload->object_id;
 }
 
-void create_header(Agent* agent)
+void send_topic(Agent* agent, uint32_t key)
 {
-    MessageHeaderSpec header;
-    header.client_key = 0xF1F2F3F4;
-    header.session_id = 0x01;
-    header.stream_id = 0x01;
-    header.sequence_number = agent->current_sequence_number_sent++;
-    start_message(&agent->message_manager, &header);
+    agent->messages_to_send--;
+    Topic topic =
+    {
+        "SQUARE",
+        serialize_shape_topic,
+        deserialize_shape_topic,
+        size_of_shape_topic
+    };
+
+    ShapeTopic topic_data = {6, "GREEN", 0, 0, key};
+
+    uint8_t topic_buffer[1024];
+    uint32_t topic_size = topic.size_of(&topic_data);
+
+    SerializedBufferHandle writer;
+    init_serialized_buffer(&writer, topic_buffer, topic_size);
+    topic.serialize(&writer, &topic_data, agent);
+
+    DataPayloadSpec payload;
+    payload.request_id = agent->subscriber_request_id;
+    payload.object_id = agent->subscriber_object_id;
+    payload.data_reader.read_mode = READ_MODE_DATA;
+    payload.data_reader.sample_kind.data.serialized_data = topic_buffer;
+    payload.data_reader.sample_kind.data.serialized_data_size = topic_size;
+
+    add_data_submessage(&agent->message_manager, &payload);
+
+    printf("==> ");
+    printl_data_submessage(&payload, NULL);
+
+    print_shape_topic(&topic_data);
 }

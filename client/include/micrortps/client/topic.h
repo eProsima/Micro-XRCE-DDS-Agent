@@ -7,14 +7,13 @@ extern "C"
 #endif
 
 #include "micrortps/client/mini_cdr.h"
-#include "micrortps/client/dynamic_buffer.h"
 
 typedef struct Topic
 {
     char name[256];
 
-    void (*serialize)(SerializedBufferHandle*  writer, const void* topic);
-    void (*deserialize)(SerializedBufferHandle*  reader, DynamicBuffer* dynamic_buffer, void* topic);
+    void (*serialize)(SerializedBufferHandle*  writer, const void* topic, void* callback_object);
+    void* (*deserialize)(SerializedBufferHandle*  reader, void* callback_object);
     uint32_t (*size_of)(const void* topic);
 
 } Topic;

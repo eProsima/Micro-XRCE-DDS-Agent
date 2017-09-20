@@ -7,7 +7,6 @@ extern "C"
 #endif
 
 #include <stdint.h>
-#include <string.h>
 
 #define BIG_ENDIAN_MODE 0
 #define LITTLE_ENDIAN_MODE 1

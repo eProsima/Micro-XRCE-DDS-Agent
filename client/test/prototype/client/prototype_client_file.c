@@ -6,8 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
-
-
+#include <string.h>
 
 typedef struct UserData
 {
@@ -23,7 +22,6 @@ typedef struct SharedFile
 } SharedFile;
 
 
-
 void compute_command(char* file_name, UserData* user, Topic* topic);
 
 //callbacks for send and recieved from io.
@@ -33,16 +31,20 @@ uint32_t recieved_data_file(uint8_t* buffer, uint32_t size, void* data);
 //callbacks for listening topics
 void on_listener_shape_topic(const void* topic_data, void* callback_object);
 
+char command_file[] = "command.io";
+
 
 int main(int args, char** argv)
 {
     // For internal test only
-    SharedFile shared_file = {"build/client_to_agent.bin", "build/agent_to_client.bin"};
+    SharedFile shared_file = {"client_to_agent.bin", "agent_to_client.bin"};
+    fclose(fopen(shared_file.in_file_name, "wb"));
+    fclose(fopen(command_file, "w"));
 
     // User data
     UserData user = {0};
 
-    init_client(1024, send_data_file, recieved_data_file, &shared_file);
+    init_client(1024, send_data_file, recieved_data_file, &shared_file, &user);
 
     Topic topic =
     {
@@ -62,7 +64,7 @@ int main(int args, char** argv)
         printf("============================ CLIENT ========================> %s\n", time_string);
 
         // user code here
-        compute_command("build/command.io", &user, &topic);
+        compute_command(command_file, &user, &topic);
 
         // this function does all comunnications
         update_communication();
@@ -75,7 +77,7 @@ int main(int args, char** argv)
 
 void on_listener_shape_topic(const void* topic_data, void* callback_object)
 {
-    ShapeTopic* shape_topic = (ShapeTopic*)topic_data;
+    const ShapeTopic* shape_topic = (const ShapeTopic*)topic_data;
 
     print_shape_topic(shape_topic);
 
@@ -84,24 +86,21 @@ void on_listener_shape_topic(const void* topic_data, void* callback_object)
 }
 
 
-
-
-
 // -------------------------------------------------------------------------------
 //                               IN OUT FROM FILE
 // -------------------------------------------------------------------------------
-void send_data_file(uint8_t* buffer, uint32_t length, void* data)
+void send_data_file(uint8_t* buffer, uint32_t length, void* callback_object)
 {
-    SharedFile* shared_file = (SharedFile*)data;
+    SharedFile* shared_file = (SharedFile*)callback_object;
 
     FILE* out_file = fopen(shared_file->out_file_name, "wb");
     fwrite(buffer, 1, length, out_file);
     fclose(out_file);
 }
 
-uint32_t recieved_data_file(uint8_t* buffer, uint32_t size, void* data)
+uint32_t recieved_data_file(uint8_t* buffer, uint32_t size, void* callback_object)
 {
-    SharedFile* shared_file = (SharedFile*)data;
+    SharedFile* shared_file = (SharedFile*)callback_object;
 
     FILE* in_file = fopen(shared_file->in_file_name, "rb");
     fseek(in_file, 0L, SEEK_END);
@@ -128,6 +127,7 @@ COMMANDS:
     > delete_pub pub_id
     > delete_sub sub_id
 */
+
 void compute_command(char* file_name, UserData* user, Topic* topic)
 {
     FILE* commands_file = fopen(file_name, "r");
@@ -154,7 +154,7 @@ void compute_command(char* file_name, UserData* user, Topic* topic)
         else if(strcmp(command, "create_sub") == 0)
         {
             Subscriber* subscriber = create_subscriber(topic);
-            add_listener_topic(subscriber, on_listener_shape_topic, user);
+            add_listener_topic(subscriber, on_listener_shape_topic);
             valid_command = 1;
         }
     }
@@ -178,8 +178,8 @@ void compute_command(char* file_name, UserData* user, Topic* topic)
             if(get_xrce_object(id, &object) == OBJECT_PUBLISHER)
             {
                 ShapeTopic shape_topic = {strlen(color) + 1, color, x, y, size};
-                send_topic(object, &shape_topic);
-                print_shape_topic(&shape_topic);
+                if(send_topic(object, &shape_topic))
+                    print_shape_topic(&shape_topic);
                 valid_command = 1;
             }
         }
@@ -191,6 +191,7 @@ void compute_command(char* file_name, UserData* user, Topic* topic)
     fclose(commands_file);
     fclose(fopen(file_name, "w"));
 
+    //TODO
     //delete_publisher(publisher);
     //delete_subscriber(subscriber);
 }

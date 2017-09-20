@@ -2,9 +2,11 @@
 #include "micrortps/client/debug/message_debugger.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #define BUFFER_SIZE 2000
 
+int init_message_header(MessageHeaderSpec* header, void* data);
 void create_message(MessageManager* message);
 
 
@@ -13,6 +15,7 @@ int main(int args, char** argv)
     uint8_t buffer[BUFFER_SIZE] = {};
 
     MessageCallback callback = {};
+    callback.on_initialize_message = init_message_header;
     callback.on_message_header = print_message_header;
     callback.on_submessage_header = print_submessage_header;
     callback.on_create_resource = print_create_submessage;
@@ -55,16 +58,18 @@ int main(int args, char** argv)
     return 0;
 }
 
+int init_message_header(MessageHeaderSpec* header, void* data)
+{
+    header->client_key = 0xF1F2F3F4;
+    header->session_id = 0x01;
+    header->stream_id = 0x02;
+    header->sequence_number = 1234;
+
+    return 1;
+}
+
 void create_message(MessageManager* message)
 {
-    MessageHeaderSpec header;
-    header.client_key = 0xF1F2F3F4;
-    header.session_id = 0x01;
-    header.stream_id = 0x02;
-    header.sequence_number = 1234;
-    start_message(message, &header);
-
-
     // [CREATE] SUBMESSAGE
     {
         char string[] = "Hello world";

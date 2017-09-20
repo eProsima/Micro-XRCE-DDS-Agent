@@ -1,5 +1,6 @@
 #include "micrortps/client/mini_cdr.h"
 
+#include <string.h>
 
 void init_serialized_buffer(SerializedBufferHandle* buffer, uint8_t* buffer_input, uint32_t size)
 {

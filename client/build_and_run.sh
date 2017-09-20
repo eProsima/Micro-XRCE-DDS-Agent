@@ -1,12 +1,12 @@
 if [ "$1" = "proto_client" ]; then
-    make prototype
+    make prototype_client_file
     if [ $? -eq 0 ]; then
-        build/prototype
-    fi        
+        build/prototype_client_file
+    fi
 elif [ "$1" = "proto_agent" ]; then
-    make prototype_agent_test
+    make prototype_agent_file
     if [ $? -eq 0 ]; then
-        build/prototype_agent_test
+        build/prototype_agent_file
     fi
 elif [ "$1" = "message" ]; then
     make message_test

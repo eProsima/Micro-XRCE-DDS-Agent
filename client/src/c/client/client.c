@@ -2,20 +2,23 @@
 
 #include "micrortps/client/topic.h"
 #include "micrortps/client/message.h"
-#include "micrortps/client/dynamic_buffer.h"
+#include "micrortps/client/memory_cache.h"
 
-#ifdef DEBUG
+#ifdef _VERBOSE_
 #include "micrortps/client/debug/message_debugger.h"
+#include <stdio.h>
 #endif
 
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
+
 
 // ---------------------------------------------------------------------
 //                          INTERNAL FUNCTIONS DEFINITION
 // ---------------------------------------------------------------------
 // Callbacks definition
-void on_message_header_received(const MessageHeaderSpec* header, void* data);
+int on_initialize_message(MessageHeaderSpec* header, void* data);
+int on_message_header_received(const MessageHeaderSpec* header, void* data);
 void on_status_received(const StatusPayloadSpec* payload, void* data);
 void on_data_received(const DataPayloadSpec* payload, void* data);
 
@@ -38,8 +41,6 @@ uint8_t stream_id;
 uint16_t current_sequence_number_sent;
 uint16_t expected_sequence_number_recieved;
 
-uint8_t message_header_prepared;
-
 // Counters to create message ids
 uint32_t request_counter;
 uint32_t object_id_counter;
@@ -53,13 +54,14 @@ uint32_t participant_list_size;
 
 // Message manegement.
 MessageManager message_manager;
-DynamicBuffer topic_dynamic_buffer;
+MemoryCache topic_cache;
 
 // External input and output
 DataOutEvent send_data_io;
 DataInEvent receive_data_io;
 
 void* data_io;
+void* callback_object;
 
 
 // ---------------------------------------------------------------------
@@ -78,21 +80,22 @@ void remove_xrce_object(XRCEObject* object)
 }
 
 void init_client(uint32_t buffer_size, DataOutEvent send_data_io_, DataInEvent receive_data_io_,
-    void* data_io_)
+    void* data_io_, void* callback_object_)
 {
     // Client message header
     current_sequence_number_sent = 0;
     expected_sequence_number_recieved = 0;
-
-    message_header_prepared = 0;
 
     // External input and output
     send_data_io = send_data_io_;
     receive_data_io = receive_data_io_;
     data_io = data_io_;
 
+    callback_object = callback_object_;
+
     // Message manegement.
     MessageCallback callback = {};
+    callback.on_initialize_message = on_initialize_message;
     callback.on_message_header = on_message_header_received;
     callback.on_status = on_status_received;
     callback.on_data = on_data_received;
@@ -101,7 +104,7 @@ void init_client(uint32_t buffer_size, DataOutEvent send_data_io_, DataInEvent r
     init_message_manager(&message_manager, malloc(buffer_size), buffer_size,
         malloc(buffer_size), buffer_size, callback);
 
-    init_memory_buffer(&topic_dynamic_buffer, 0);
+    init_memory_cache(&topic_cache, 0);
 
     // Counters
     request_counter = 0;
@@ -117,17 +120,16 @@ void destroy_client()
     //TODO
 }
 
-void create_message_header()
+int on_initialize_message(MessageHeaderSpec* header, void* data)
 {
-    MessageHeaderSpec header;
-    header.client_key = 0xF1F2F3F4;
-    header.session_id = 0x01;
-    header.stream_id = 0x01;
-    header.sequence_number = current_sequence_number_sent++;
+    header->client_key = 0xF1F2F3F4;
+    header->session_id = 0x01;
+    header->stream_id = 0x01;
+    header->sequence_number = current_sequence_number_sent++;
 
-    start_message(&message_manager, &header);
-    message_header_prepared = 1;
+    return 1;
 }
+
 
 Participant* create_participant()
 {
@@ -143,12 +145,9 @@ Participant* create_participant()
     payload.object.kind = OBJECT_KIND_PARTICIPANT;
     payload.object.string_size = 0;
 
-    if(!message_header_prepared)
-        create_message_header();
-
     add_create_submessage(&message_manager, &payload);
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("==> ");
     printl_create_submessage(&payload, NULL);
     #endif
@@ -174,12 +173,9 @@ Publisher* create_publisher(Topic* topic)
     payload.object.string_size = strlen(topic->name) + 1;
     payload.object.variant.publisher.participant_id = participant->object.id;
 
-    if(!message_header_prepared)
-        create_message_header();
-
     add_create_submessage(&message_manager, &payload);
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("==> ");
     printl_create_submessage(&payload, NULL);
     #endif
@@ -193,7 +189,7 @@ Subscriber* create_subscriber(Topic* topic)
 
     Subscriber* subscriber = malloc(sizeof(Subscriber));
     subscriber->participant = participant;
-    subscriber->listeners_size = 0;
+    subscriber->listener_list_size = 0;
     subscriber->topic = topic;
     subscriber->remaning_messages = 0;
     participant->subscriber_list[participant->subscriber_list_size++] = subscriber;
@@ -207,12 +203,9 @@ Subscriber* create_subscriber(Topic* topic)
     payload.object.string_size = strlen(topic->name) + 1;
     payload.object.variant.subscriber.participant_id = participant->object.id;
 
-    if(!message_header_prepared)
-        create_message_header();
-
     add_create_submessage(&message_manager, &payload);
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("==> ");
     printl_create_submessage(&payload, NULL);
     #endif
@@ -220,17 +213,17 @@ Subscriber* create_subscriber(Topic* topic)
     return subscriber;
 }
 
-void send_topic(Publisher* publisher, void* topic_data)
+int send_topic(Publisher* publisher, void* topic_data)
 {
-    reset_memory_buffer(&topic_dynamic_buffer);
+    if(publisher->object.status != STATUS_OK)
+        return 0;
 
     uint32_t topic_size = publisher->topic->size_of(topic_data);
-    uint8_t* topic_buffer = request_memory_buffer(&topic_dynamic_buffer, topic_size);
+    uint8_t* topic_buffer = reset_memory_cache(&topic_cache, topic_size);
 
     SerializedBufferHandle writer;
     init_serialized_buffer(&writer, topic_buffer, topic_size);
-    publisher->topic->serialize(&writer, topic_data);
-
+    publisher->topic->serialize(&writer, topic_data, callback_object);
 
     WriteDataPayloadSpec payload;
     payload.request_id = ++request_counter;
@@ -239,43 +232,42 @@ void send_topic(Publisher* publisher, void* topic_data)
     payload.data_writer.sample_kind.data.serialized_data = topic_buffer;
     payload.data_writer.sample_kind.data.serialized_data_size = topic_size;
 
-    if(!message_header_prepared)
-        create_message_header();
-
     add_write_data_submessage(&message_manager, &payload);
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("==> ");
     printl_write_data_submessage(&payload, NULL);
     #endif
+
+    return 1;
 }
 
-void read_data(Subscriber* subscriber, uint16_t max_messages)
+int read_data(Subscriber* subscriber, uint16_t max_messages)
 {
+    if(subscriber->object.status != STATUS_OK)
+        return 0;
+
     subscriber->remaning_messages = max_messages;
 
-    ReadDataPayloadSpec payload;
+    ReadDataPayloadSpec payload = {}; //compleate
     payload.request_id = ++request_counter;
     payload.object_id = subscriber->object.id;
     payload.max_messages = max_messages;
     payload.expression_size = 0;
 
-    if(!message_header_prepared)
-        create_message_header();
-
     add_read_data_submessage(&message_manager, &payload);
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("==> ");
     printl_read_data_submessage(&payload, NULL);
     #endif
+
+    return 1;
 }
 
-void add_listener_topic(Subscriber* subscriber, OnListenerTopic on_listener_topic, void* callback_object)
+void add_listener_topic(Subscriber* subscriber, OnListenerTopic on_listener_topic)
 {
-    SubscriberListener* listener = &subscriber->listener_list[subscriber->listeners_size++];
-    listener->on_topic = on_listener_topic;
-    listener->callback_object = callback_object;
+    subscriber->listener_list[subscriber->listener_list_size++] = on_listener_topic;
 }
 
 void delete_publisher(Publisher* publisher)
@@ -300,7 +292,7 @@ void update_communication()
         parse_message(&message_manager, in_length);
     }
 
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("<-- [Received %u bytes]\n", in_length);
     #endif
 
@@ -311,42 +303,37 @@ void update_communication()
     {
         send_data_io(out_buffer, out_length, data_io);
         reset_buffer_iterator(&message_manager.writer);
-        message_header_prepared = 0;
 
-        #ifdef DEBUG
+        #ifdef _VERBOSE_
         printf("--> [Send %u bytes]\n", out_length);
         #endif
     }
 
 }
 
-void on_message_header_received(const MessageHeaderSpec* header, void* data)
+int on_message_header_received(const MessageHeaderSpec* header, void* data)
 {
-    if(expected_sequence_number_recieved == header->sequence_number)
-    {
-        #ifdef DEBUG
+    #ifdef _VERBOSE_
         printf("    <<Sequence number | expected: %u | received: %u>>\n",
             expected_sequence_number_recieved, header->sequence_number);
-        expected_sequence_number_recieved = header->sequence_number + 1;
-        #endif
-    }
-    else
+     #endif
+
+    if(expected_sequence_number_recieved == header->sequence_number)
     {
-        #ifdef DEBUG
-        printf("\e[1;31mERROR:\e[0m expected s_nr: %u, found: %u\n",
-            expected_sequence_number_recieved, header->sequence_number);
-        #endif
+        expected_sequence_number_recieved = header->sequence_number + 1;
+        return 1;
     }
+    return 0;
 }
 
 void on_status_received(const StatusPayloadSpec* payload, void* data)
 {
-    #ifdef DEBUG
+    #ifdef _VERBOSE_
     printf("<== ");
     printl_status_submessage(payload, NULL);
     #endif
 
-    for(uint32_t i = 0; i < xrce_object_list_size; i++)
+    for(uint32_t i = 0; i < xrce_object_list_size; i++) //to hash table
         if(xrce_object_list[i]->id == payload->object_id)
         {
             xrce_object_list[i]->status = payload->result.status;
@@ -356,7 +343,35 @@ void on_status_received(const StatusPayloadSpec* payload, void* data)
 
 void on_data_received(const DataPayloadSpec* payload, void* data)
 {
-    //TODO
+    #ifdef _VERBOSE_
+    printf("<== ");
+    printl_data_submessage(payload, NULL);
+    #endif
+
+    void* object;
+    if(get_xrce_object(payload->object_id, &object) == OBJECT_SUBSCRIBER)
+    {
+        Subscriber* subscriber = (Subscriber*)object;
+
+        if(subscriber->object.status != STATUS_OK)
+            return;
+
+        if(subscriber->remaning_messages > 0)
+            subscriber->remaning_messages--;
+
+        uint32_t topic_size = payload->data_reader.sample_kind.data.serialized_data_size;
+        uint8_t* topic_data = payload->data_reader.sample_kind.data.serialized_data;
+
+        SerializedBufferHandle reader;
+        init_serialized_buffer(&reader, topic_data, topic_size);
+        void* user_topic = subscriber->topic->deserialize(&reader, callback_object);
+
+        for(uint32_t i = 0; i < subscriber->listener_list_size; i++)
+        {
+            OnListenerTopic on_topic = subscriber->listener_list[i];
+            on_topic(user_topic, callback_object);
+        }
+    }
 }
 
 uint32_t get_xrce_object(uint32_t id, void** object)

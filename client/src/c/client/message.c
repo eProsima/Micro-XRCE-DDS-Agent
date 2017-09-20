@@ -1,6 +1,14 @@
 #include "micrortps/client/message.h"
 #include "micrortps/client/serialization.h"
 
+#ifdef _DEBUG_
+#include <string.h>
+#endif
+
+// PRIVATE DEFINITIONS
+int check_and_set_headers(MessageManager* message_manager, const SubmessageHeaderSpec* header);
+
+
 void init_message_manager(MessageManager* message_manager, uint8_t* out_buffer, uint32_t out_buffer_size,
         uint8_t* in_buffer, uint32_t in_buffer_size, MessageCallback callback)
 {
@@ -12,20 +20,42 @@ void init_message_manager(MessageManager* message_manager, uint8_t* out_buffer, 
 
     message_manager->callback = callback;
 
-    init_memory_buffer(&message_manager->aux_memory, 0);
+    // Initialize with the headers cache requirements. Currently 0.
+    init_memory_cache(&message_manager->cache, 0);
 }
 
 void destroy_message_manager(MessageManager* message_manager)
 {
-    free_memory_buffer(&message_manager->aux_memory);
+    free_memory_cache(&message_manager->cache);
 }
 
-uint32_t start_message(MessageManager* message_manager, const MessageHeaderSpec* message_header)
+void remove_cache(MessageManager* message_manager)
 {
-    //no check because the minimun buffer musth be higher than sizeof(MessageHeaderSpec)
-    serialize_message_header(&message_manager->writer, message_header);
+    free_memory_cache(&message_manager->cache);
 
-    return size_of_message_header(message_header);
+    // Initialize with the headers cache requirements. Currently 0.
+    init_memory_cache(&message_manager->cache, 0);
+}
+
+int check_and_set_headers(MessageManager* message_manager, const SubmessageHeaderSpec* header)
+{
+    SerializedBufferHandle* writer = &message_manager->writer;
+
+    if(writer->iterator == writer->data)
+    {
+        MessageHeaderSpec message_header;
+        if(!message_manager->callback.on_initialize_message(&message_header, message_manager->callback.data))
+            return 0;
+
+        serialize_message_header(writer, &message_header);
+    }
+
+    align_to(writer, 4);
+    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header->length > writer->final)
+        return 0;
+
+    serialize_submessage_header(writer, header);
+    return 1;
 }
 
 uint32_t add_create_submessage(MessageManager* message_manager, const CreatePayloadSpec* payload)
@@ -37,14 +67,13 @@ uint32_t add_create_submessage(MessageManager* message_manager, const CreatePayl
     header.flags = 0x07;
     header.length = size_of_create_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_create_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_create_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 uint32_t add_delete_submessage(MessageManager* message_manager, const DeletePayloadSpec* payload)
@@ -56,14 +85,13 @@ uint32_t add_delete_submessage(MessageManager* message_manager, const DeletePayl
     header.flags = 0x07;
     header.length = size_of_delete_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_delete_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_delete_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 uint32_t add_status_submessage(MessageManager* message_manager, const StatusPayloadSpec* payload)
@@ -75,14 +103,13 @@ uint32_t add_status_submessage(MessageManager* message_manager, const StatusPayl
     header.flags = 0x07;
     header.length = size_of_status_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_status_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_status_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 uint32_t add_write_data_submessage(MessageManager* message_manager, const WriteDataPayloadSpec* payload)
@@ -94,14 +121,13 @@ uint32_t add_write_data_submessage(MessageManager* message_manager, const WriteD
     header.flags = 0x07;
     header.length = size_of_write_data_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_write_data_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_write_data_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 uint32_t add_read_data_submessage(MessageManager* message_manager, const ReadDataPayloadSpec* payload)
@@ -113,14 +139,13 @@ uint32_t add_read_data_submessage(MessageManager* message_manager, const ReadDat
     header.flags = 0x07;
     header.length = size_of_read_data_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_read_data_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_read_data_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 uint32_t add_data_submessage(MessageManager* message_manager, const DataPayloadSpec* payload)
@@ -132,20 +157,19 @@ uint32_t add_data_submessage(MessageManager* message_manager, const DataPayloadS
     header.flags = 0x07;
     header.length = size_of_data_payload(payload);
 
-    align_to(writer, 4);
-    if(writer->iterator + sizeof(SubmessageHeaderSpec) + header.length > writer->final)
-        return 0;
+    if(check_and_set_headers(message_manager, &header))
+    {
+        serialize_data_payload(writer, payload);
+        return writer->iterator - writer->data;
+    }
 
-    serialize_submessage_header(writer, &header);
-    serialize_data_payload(writer, payload);
-
-    return writer->iterator - writer->data;
+    return 0;
 }
 
 int parse_message(MessageManager* message_manager, uint32_t message_length)
 {
     MessageCallback* callback = &message_manager->callback;
-    DynamicBuffer* memory = &message_manager->aux_memory;
+    MemoryCache* cache = &message_manager->cache;
     SerializedBufferHandle* reader = &message_manager->reader;
     reset_buffer_iterator(reader);
 
@@ -153,14 +177,15 @@ int parse_message(MessageManager* message_manager, uint32_t message_length)
         return 0;
 
     MessageHeaderSpec message_header;
-    deserialize_message_header(reader, memory, &message_header);
+    deserialize_message_header(reader, cache, &message_header);
     if(callback->on_message_header)
-        callback->on_message_header(&message_header, callback->data);
+        if(!callback->on_message_header(&message_header, callback->data))
+            return 0;
 
     do
     {
         SubmessageHeaderSpec submessage_header;
-        deserialize_submessage_header(reader, memory, &submessage_header);
+        deserialize_submessage_header(reader, cache, &submessage_header);
         if(callback->on_submessage_header)
             callback->on_submessage_header(&submessage_header, callback->data);
 
@@ -169,44 +194,46 @@ int parse_message(MessageManager* message_manager, uint32_t message_length)
 
         //buffer->endian_mode = //set with flags
 
+        reset_memory_cache(cache, message_length);
+
         PayloadSpec payload;
-        #ifdef DEBUG
+        #ifdef _DEBUG_
         memset(&payload, 0xFF, sizeof(PayloadSpec));
         #endif
         switch(submessage_header.id)
         {
             case SUBMESSAGE_CREATE:
-                deserialize_create_payload(reader, memory, &payload.create_resource);
+                deserialize_create_payload(reader, cache, &payload.create_resource);
                 if(callback->on_create_resource)
                     callback->on_create_resource(&payload.create_resource, callback->data);
             break;
 
             case SUBMESSAGE_DELETE:
-                deserialize_delete_payload(reader, memory, &payload.delete_resource);
+                deserialize_delete_payload(reader, cache, &payload.delete_resource);
                 if(callback->on_delete_resource)
                     callback->on_delete_resource(&payload.delete_resource, callback->data);
             break;
 
             case SUBMESSAGE_STATUS:
-                deserialize_status_payload(reader, memory, &payload.status);
+                deserialize_status_payload(reader, cache, &payload.status);
                 if(callback->on_status)
                     callback->on_status(&payload.status, callback->data);
             break;
 
             case SUBMESSAGE_WRITE_DATA:
-                deserialize_write_data_payload(reader, memory, &payload.write_data);
+                deserialize_write_data_payload(reader, cache, &payload.write_data);
                 if(callback->on_write_data)
                     callback->on_write_data(&payload.write_data, callback->data);
             break;
 
             case SUBMESSAGE_READ_DATA:
-                deserialize_read_data_payload(reader, memory, &payload.read_data);
+                deserialize_read_data_payload(reader, cache, &payload.read_data);
                 if(callback->on_read_data)
                     callback->on_read_data(&payload.read_data, callback->data);
             break;
 
             case SUBMESSAGE_DATA:
-                deserialize_data_payload(reader, memory, &payload.data);
+                deserialize_data_payload(reader, cache, &payload.data);
                 if(callback->on_data)
                     callback->on_data(&payload.data, callback->data);
             break;
@@ -215,7 +242,6 @@ int parse_message(MessageManager* message_manager, uint32_t message_length)
                 return 0;
         }
 
-        reset_memory_buffer(memory);
         align_to(reader, 4);
     }
     while(reader->iterator + sizeof(SubmessageHeaderSpec) <= reader->data + message_length);
