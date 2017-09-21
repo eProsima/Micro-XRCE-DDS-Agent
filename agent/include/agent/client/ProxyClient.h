@@ -29,7 +29,7 @@ class ProxyClient: public ReaderListener
 {
 public:
     ProxyClient() = default;
-    ProxyClient(OBJK_CLIENT_Representation  client);
+    ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header);
     ~ProxyClient();
 
     ProxyClient(const ProxyClient &x);
@@ -44,14 +44,9 @@ public:
     Status write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload);
     Info get_info(const ObjectId& object_id);
     
-
-    void store_request_info(const ObjectId& object_id, const MessageHeader& message_header);
-    void remove_request_info(const ObjectId& object_id);
-    const MessageHeader *const get_request_info(const ObjectId& object_id) const;
-
     uint16_t sequence();
     
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length);
+    void on_read_data(/*const ObjectId&*/int object_id, /*const RequestId&*/int req_id, const octet* data, const size_t length);
 
 private:
     using InternalObjectId = std::array<uint8_t, 4>;
@@ -59,9 +54,12 @@ private:
     OBJK_CLIENT_Representation representation_;
     
     std::map<InternalObjectId, XRCEObject*> objects_;
-    std::map<InternalObjectId, MessageHeader> requests_info_;
     std::atomic<uint16_t> sequence_count_;
     
+    uint32_t client_key;
+    SessionId session_id;
+    uint8_t stream_id;
+
     bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
     bool delete_object(const InternalObjectId& internal_object_id);
     InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;

@@ -29,6 +29,14 @@ using namespace eprosima::fastrtps;
 
 #include <agent/types/Shape.h>
 
+typedef unsigned char octet;
+struct ShapeTypePlus
+{
+    uint32_t length;
+    ShapeType shape;
+    octet* ser_data;
+};
+
 /*!
  * @brief This class represents the TopicDataType of the type ShapeType defined by the user in the IDL file.
  * @ingroup SHAPE

@@ -24,8 +24,8 @@ extern "C"
 
 channel_id_t add_locator(const locator_t* locator);
 int rm_locator(const locator_t* locator);
-int send(const octet* in_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id);
-int receive(octet* out_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id);
+int send_data(const octet* in_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id);
+int receive_data(octet* out_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id);
 
 #ifdef __cplusplus
 }

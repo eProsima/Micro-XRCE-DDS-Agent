@@ -18,16 +18,19 @@
 #include <unistd.h>
 
 #include <agent/datareader/DataReader.h>
+#include <agent/client/ProxyClient.h>
 
 using namespace eprosima::micrortps;
 
 int main(int args, char** argv)
 {
 
-    DataReader reader;
+    ProxyClient client;
+    DataReader reader(&client);
     READ_DATA_PAYLOAD read_config;
     read_config.read_mode(READM_DATA);
     read_config.max_samples(1);
+    printf("read\n");
     reader.read(read_config);
 
     printf("exiting...\n");

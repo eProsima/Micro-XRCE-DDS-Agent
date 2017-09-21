@@ -7,12 +7,13 @@
         </leaseDuration>
         <domainId>0</domainId>
       </builtin>
+      <name>DataReader_participant_subscriber</name>
     </rtps>
   </participant>
   <publisher profile_name="default_xrce_publisher_profile">
     <topic>
       <kind>WITH_KEY</kind>
-      <name>Shape</name>
+      <name>ShapePubSubTopic</name>
       <dataType>ShapeType</dataType>
       <historyQos>
         <kind>KEEP_LAST</kind>
@@ -26,7 +27,7 @@
   <subscriber profile_name="default_xrce_subscriber_profile">
     <topic>
       <kind>WITH_KEY</kind>
-      <name>Shape</name>
+      <name>ShapePubSubTopic</name>
       <dataType>ShapeType</dataType>
       <historyQos>
         <kind>KEEP_LAST</kind>

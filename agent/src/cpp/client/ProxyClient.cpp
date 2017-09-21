@@ -21,9 +21,16 @@
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
 
+#include "agent/Root.h"
+
 using namespace eprosima::micrortps;
 
-ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client) : representation_(std::move(client)), sequence_count_(0)
+ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header):
+        representation_(std::move(client)),
+        sequence_count_(0),
+        client_key(header.client_key()),
+        session_id(header.session_id()),
+        stream_id(header.stream_id())
 { }
 
 ProxyClient::~ProxyClient()
@@ -38,7 +45,6 @@ ProxyClient::ProxyClient(const ProxyClient &x)
 :
     representation_( x.representation_),
     objects_(x.objects_),
-    requests_info_(x.requests_info_),
     sequence_count_(x.sequence_count_.load())
 {
 }
@@ -47,7 +53,6 @@ ProxyClient::ProxyClient(ProxyClient &&x)
 :
     representation_(std::move(x.representation_)),
     objects_(std::move(x.objects_)),
-    requests_info_(std::move(x.requests_info_)),
     sequence_count_(x.sequence_count_.load())
 {
 }
@@ -55,7 +60,6 @@ ProxyClient& ProxyClient::operator=(const ProxyClient &x)
 {
     representation_ =  x.representation_;
     objects_ = x.objects_;
-    requests_info_ = x.requests_info_;
     sequence_count_ = x.sequence_count_.load();
     return *this;
 }
@@ -63,7 +67,6 @@ ProxyClient& ProxyClient::operator=(ProxyClient &&x)
 {
     representation_ = std::move(x.representation_);
     objects_ = std::move(x.objects_);
-    requests_info_ = std::move(x.requests_info_);
     sequence_count_ = x.sequence_count_.load();
     return *this;
 }
@@ -228,34 +231,42 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
     return internal_id;
 }
 
-void ProxyClient::store_request_info(const ObjectId& object_id, const MessageHeader& message_header)
-{
-    requests_info_[generate_object_id(object_id, 0x00)] = message_header;
-}
-
-void ProxyClient::remove_request_info(const ObjectId& object_id)
-{
-    requests_info_.erase(generate_object_id(object_id, 0x00));
-}
-
-const MessageHeader *const ProxyClient::get_request_info(const ObjectId& object_id) const
-{
-    try
-    {
-        return &requests_info_.at(generate_object_id(object_id, 0x00));
-    } catch (const std::out_of_range&)
-    {
-        std::cerr << "Client " << object_id << "not found" << std::endl;
-        return nullptr;
-    }
-}
-
 uint16_t ProxyClient::sequence()
 {
     return sequence_count_++;
 }
 
-void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length)
+void ProxyClient::on_read_data(/*const ObjectId&*/int object_id, /*const RequestId&*/int req_id, const octet* data, const size_t length)
 {
+    printf("on_read_data\n");
+
+//    MessageHeader message_header;
+//    message_header.client_key(client_key);
+//    message_header.session_id(session_id);
+//    message_header.stream_id(stream_id);
+//    message_header.sequence_nr(sequence_nr);
+//
+//    DATA_PAYLOAD payload;
+//    payload.request_id(req_id);
+//    payload.resource_id(object_id);
+//    payload.data_reader()._d(READM_DATA);
+//    payload.data_reader().data(data);
+//
+//    /*RequestId request_id_;
+//    ObjectId resource_id_;
+//    RT_Data data_reader_;
+//
+//    ReadMode discriminator_;
+//    SampleData data_;
+//    SampleDataSeq data_seq_;
+//    Sample sample_;
+//    SampleSeq sample_seq_;
+//    SamplePackedSeq sample_packed_seq_;*/
+//
+//    root()->add_reply(message_header, payload);
 
 }
+
+
+
+

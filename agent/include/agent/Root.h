@@ -55,7 +55,7 @@ public:
      * @param create_info: Create payload containing all the creation information.
      * @return Status struct with the operation result info.
      */
-    Status create_client(int32_t client_key, const CREATE_PAYLOAD& create_info);
+    Status create_client(const MessageHeader& header, const CREATE_PAYLOAD& create_info);
 
     /*
      * Removes a previously stored ProxyClient
