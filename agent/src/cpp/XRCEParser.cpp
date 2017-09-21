@@ -24,49 +24,6 @@
 namespace eprosima {
 namespace micrortps {
 
-// TODO cxx style
-void XRCEParser::print(const CREATE_PAYLOAD& create_message)
-{
-    printf("  <Payload>\n");
-    printf("  - request_id: 0x%08X\n", create_message.request_id());
-    printf("  - object_id: 0x%06X\n", create_message.object_id());
-    printf("  - kind: 0x%02X\n", create_message.object_representation().discriminator());
-
-    switch(create_message.object_representation().discriminator())
-    {
-        case OBJK_DATAWRITER:
-            printf("  - string_size: 0x%08X\n", create_message.object_representation().data_writer().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().data_writer().as_string().data());
-            printf("    <Data writer>\n");
-            printf("    - participan_id: 0x%06X\n", create_message.object_representation().data_writer().participant_id());
-            printf("    - publisher_id: 0x%06X\n", create_message.object_representation().data_writer().publisher_id());
-        break;
-
-        case OBJK_DATAREADER:
-            printf("  - string_size: 0x%08X\n", create_message.object_representation().data_reader().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().data_reader().as_string().data());
-            printf("    <Data reader>\n");
-            printf("    - participan_id: 0x%06X\n", create_message.object_representation().data_reader().participant_id());
-            printf("    - subscriber_id: 0x%06X\n", create_message.object_representation().data_reader().subscriber_id());
-        break;
-
-        case OBJK_SUBSCRIBER:
-            printf("  - string_size: 0x%08X\n", create_message.object_representation().subscriber().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().subscriber().as_string().data());
-            printf("    <Data subscriber>\n");
-            printf("    - participan_id: 0x%06X\n", create_message.object_representation().subscriber().participant_id());
-        break;
-
-        case OBJK_PUBLISHER:
-            printf("  - string_size: 0x%08X\n", create_message.object_representation().publisher().as_string().size());
-            printf("  - string: %s\n", create_message.object_representation().publisher().as_string().data());
-            printf("    <Data publisher>\n");
-            printf("    - participan_id: 0x%06X\n", create_message.object_representation().publisher().participant_id());
-        break;
-    }
-    printf("\n\n");
-}
-
 bool XRCEParser::parse()
 {
     MessageHeader message_header;
@@ -128,7 +85,6 @@ bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHea
     CREATE_PAYLOAD create_payload;
     if (deserializer_.deserialize(create_payload))
     {
-        print(create_payload);
         listener_->on_message(header, sub_header, create_payload);
         return true;
     }

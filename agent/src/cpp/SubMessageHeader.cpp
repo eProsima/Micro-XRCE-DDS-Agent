@@ -35,6 +35,7 @@ using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 #include <iostream>
+#include <iomanip>
 
 namespace eprosima {
 namespace micrortps {
@@ -126,32 +127,33 @@ void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 
 std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessage_header)
 {
-    std::cout << std::showbase << std::hex;
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     switch(submessage_header.submessage_id())
     {
         case CREATE:
-            std::cout << "<Submessage> [CREATE]" << std::endl;
+            stream << "<Submessage> [CREATE]" << std::endl;
         break;
         case DELETE:
-            std::cout << "<Submessage> [DELETE]" << std::endl;
+            stream << "<Submessage> [DELETE]" << std::endl;
         break;
         case WRITE_DATA:
-            std::cout << "<Submessage> [WRITE_DATA]" << std::endl;
+            stream << "<Submessage> [WRITE_DATA]" << std::endl;
         break;
         case READ_DATA:
-            std::cout << "<Submessage> [READ_DATA]" << std::endl;
+            stream << "<Submessage> [READ_DATA]" << std::endl;
         break;
         case DATA:
-            std::cout << "<Submessage> [DATA]" << std::endl;
+            stream << "<Submessage> [DATA]" << std::endl;
             break;
         case STATUS:
-            std::cout << "<Submessage> [STATUS]" << std::endl;
+            stream << "<Submessage> [STATUS]" << std::endl;
         break;
     }
-    std::cout << "  <Submessage header> " << std::endl;
-    std::cout << "  - id: " << +submessage_header.submessage_id() << std::endl;
-    std::cout << "  - flags: " << +submessage_header.flags() << std::endl;
-    std::cout << "  - length: " << submessage_header.submessage_length();
+    stream << "  <Submessage header> " << std::endl;
+    stream << "  - id: " << std::setw(4) << +submessage_header.submessage_id() << std::endl;
+    stream << "  - flags: " << std::setw(4) << +submessage_header.flags() << std::endl;
+    stream << "  - length: " << std::setw(6) << submessage_header.submessage_length();
+    return stream;
 }
 
 } /* namespace micrortps */

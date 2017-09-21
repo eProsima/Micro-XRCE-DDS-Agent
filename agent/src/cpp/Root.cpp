@@ -139,8 +139,8 @@ void Agent::run()
                     client_representation.session_id();
                     ObjectVariant variant;
                     variant.client(client_representation);                    
-                    const RequestId request_id = { 1,2 };
-                    const ObjectId object_id = { 10,20,30 };
+                    const RequestId request_id = { 0x01,0x02 };
+                    const ObjectId object_id = { 0xC0,0xB0,0xA0 };
                     CREATE_PAYLOAD create_data;
                     create_data.request_id(request_id);
                     create_data.object_id(object_id);
@@ -236,6 +236,7 @@ void Agent::reply()
             deserializer.deserialize(deserialized_status);
             std::cout << deserialized_header << std::endl;
             std::cout << deserialized_submessage_header << std::endl;
+            std::cout << deserialized_status << std::endl;
             // int ret = 0;
             // if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
             // {

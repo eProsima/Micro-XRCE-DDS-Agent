@@ -120,6 +120,17 @@ void CREATE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> object_representation_;
 }
 
+std::ostream& operator<<(std::ostream& stream, const CREATE_PAYLOAD& create_payload)
+{ 
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Payload>" << std::endl;
+    stream << "  - request_id : " << create_payload.request_id() << std::endl;
+    stream << "  - object_id: " << create_payload.object_id() << std::endl;
+    stream << "  - object_representation: " << create_payload.object_representation();
+    return stream;   
+}
+
 DELETE_PAYLOAD::DELETE_PAYLOAD()
 {
 

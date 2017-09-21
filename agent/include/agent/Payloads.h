@@ -224,6 +224,11 @@ private:
     ObjectVariant object_representation_;
 };
 
+/*
+ * Inserts create payload on the stream.
+ */
+ std::ostream& operator<<(std::ostream& stream, const CREATE_PAYLOAD& create_payload);
+
 /*!
 * @brief This class represents the structure DELETE_PAYLOAD defined by the user in the IDL file.
 * @ingroup PAYLOADS

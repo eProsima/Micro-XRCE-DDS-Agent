@@ -32,10 +32,12 @@ namespace { char dummy; }
 using namespace eprosima::fastcdr::exception;
 
 #include <utility>
-
+#include <iostream>
 
 namespace eprosima {
 namespace micrortps {
+
+
 
 Time_t::Time_t()
 {
@@ -664,6 +666,17 @@ void OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> participant_id_;
 }
 
+std::ostream& operator<<(std::ostream& stream, const OBJK_PUBLISHER_Representation& data)
+{
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Publisher>" << std::endl;
+    stream << "  - string_size: " << std::setw(8) << data.as_string().size() << std::endl;
+    stream << "  - string: " << data.as_string() << std::endl;
+    stream << "  - participan_id: " << data.participant_id();
+    return stream;
+}
+
 OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation()
 {
 }
@@ -729,6 +742,17 @@ void OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
+}
+
+std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representation& data)
+{
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Subscriber>" << std::endl;
+    stream << "  - string_size: " << std::setw(8) << data.as_string().size() << std::endl;
+    stream << "  - string: " << data.as_string() << std::endl;
+    stream << "  - participan_id: " << data.participant_id();
+    return stream;
 }
 
 OBJK_DATAWRITER_Representation::OBJK_DATAWRITER_Representation()
@@ -812,6 +836,18 @@ void OBJK_DATAWRITER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> publisher_id_;
 }
 
+std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representation& data)
+{
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Data writer>" << std::endl;
+    stream << "  - string_size: " << std::setw(8) << data.as_string().size() << std::endl;
+    stream << "  - string: " << data.as_string() << std::endl;
+    stream << "  - participan_id: " << data.participant_id() << std::endl;
+    stream << "  - publisher_id: " << data.publisher_id();
+    return stream;
+}
+
 OBJK_DATAREADER_Representation::OBJK_DATAREADER_Representation()
 {
 
@@ -891,6 +927,18 @@ void OBJK_DATAREADER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
     dcdr >> subscriber_id_;
+}
+
+std::ostream& operator<<(std::ostream& stream, const OBJK_DATAREADER_Representation& data)
+{
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Data Reader>" << std::endl;
+    stream << "  - string_size: " << std::setw(8) << data.as_string().size() << std::endl;
+    stream << "  - string: " << data.as_string() << std::endl;
+    stream << "  - participan_id: " << data.participant_id() << std::endl;
+    stream << "  - subscriber_id: " << data.subscriber_id();
+    return stream;
 }
 
 ObjectVariant::ObjectVariant()
@@ -1865,6 +1913,35 @@ void ObjectVariant::deserialize(eprosima::fastcdr::Cdr &dcdr)
     }
 }
 
+std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_representation)
+{ 
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  - Kind " << std::setw(4) << +object_representation.discriminator() << std::endl;
+    switch(object_representation.discriminator())
+    {
+        case OBJK_DATAWRITER:
+            stream << object_representation.data_writer();
+        break;
+
+        case OBJK_DATAREADER:
+            stream << object_representation.data_reader();
+        break;
+
+        case OBJK_SUBSCRIBER:
+            stream << object_representation.subscriber();
+        break;
+
+        case OBJK_PUBLISHER:
+            stream << object_representation.publisher();
+        break;
+        default:
+            stream << "No string representation for this kind of object";
+        break;
+    }
+    
+    return stream;   
+}
 
 CreationMode::CreationMode()
 {
@@ -2021,6 +2098,16 @@ void ResultStatus::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> request_id_;
     dcdr >> status_;
     dcdr >> implementation_status_;
+}
+
+std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
+{
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <ResultStatus>" << std::endl;
+    stream << "  - request_id : " << status.request_id() << std::endl;
+    stream << "  - status: " << std::setw(4) << +status.status() << std::endl;
+    stream << "  - implementation_status: " << std::setw(4) << +status.implementation_status();
+    return stream;
 }
 
 OBJK_DATAREADER_Status::OBJK_DATAREADER_Status()
@@ -2541,6 +2628,15 @@ void Status::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> result_;
     dcdr >> object_id_;
     //dcdr >> status_;
+}
+
+std::ostream& operator<<(std::ostream& stream, const Status& status)
+{
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "  <Payload>" << std::endl;
+    stream << "  - result : " << status.result() << std::endl;
+    stream << "  - object_id: " << status.object_id();
+    return stream;
 }
 
 Info::Info()

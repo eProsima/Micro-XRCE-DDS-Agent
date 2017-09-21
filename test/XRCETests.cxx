@@ -20,24 +20,6 @@
 
 using namespace eprosima::micrortps;
 
-void print(const MessageHeader& header)
-{
-    std::cout << "=MESSAGE HEADER=" << std::endl;
-    std::cout << "	client key:  " << std::hex << header.client_key() << std::endl;
-    std::cout << "	session id:  " << std::hex << +header.session_id() << std::endl;
-    std::cout << "	stream id:   " << std::hex << +header.stream_id() << std::endl;
-    std::cout << "	sequence nr: " << std::hex << header.sequence_nr() << std::endl;
-    std::cout << "===============" << std::endl;
-}
-void print(const SubmessageHeader& subheader)
-{
-    std::cout << "=SUBMESSAGE HEADER=" << std::endl;
-    std::cout << "	submessage id:     " << std::hex << static_cast<int>(subheader.submessage_id()) << std::endl;
-    std::cout << "	flags:             " << std::hex << static_cast<int>(subheader.flags()) << std::endl;
-    std::cout << "	submessage length: " << std::hex << static_cast<int>(subheader.submessage_length()) << std::endl;
-    std::cout << "=====================" << std::endl;
-}
-
 int main(int args, char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
