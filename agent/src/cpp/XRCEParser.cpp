@@ -14,9 +14,9 @@
 
 #include "agent/XRCEParser.h"
 
+#include "agent/MessageHeader.h"
 #include "agent/ObjectVariant.h"
 #include "agent/Payloads.h"
-#include "agent/MessageHeader.h"
 #include "agent/SubMessageHeader.h"
 
 #include <iostream>
@@ -33,21 +33,27 @@ bool XRCEParser::parse()
         bool valid_submessage = false;
         do
         {
-            if (valid_submessage = deserializer_.deserialize(submessage_header))
+            if ((valid_submessage = deserializer_.deserialize(submessage_header)))
             {
                 switch (submessage_header.submessage_id())
                 {
                 case CREATE:
                     if (!process_create(message_header, submessage_header))
+                    {
                         std::cerr << "Error processing create" << std::endl;
+                    }
                     break;
                 case WRITE_DATA:
                     if (!process_write_data(message_header, submessage_header))
+                    {
                         std::cerr << "Error processing write" << std::endl;
+                    }
                     break;
                 case READ_DATA:
                     if (!process_read_data(message_header, submessage_header))
+                    {
                         std::cerr << "Error processing read" << std::endl;
+                    }
                     break;
                 case GET_INFO:
                 case DELETE:
