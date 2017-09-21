@@ -26,8 +26,16 @@ Agent* eprosima::micrortps::root()
     return &xrce_agent;
 }
 
-Agent::Agent() {
-
+Agent::Agent() :
+    ch_id_{},
+    out_buffer_{},
+    in_buffer_{},
+    loc_{},
+    clients_{},
+    response_thread_{},
+    response_control_{},
+    messages_{}
+{
     response_control_.running_ = false;
     response_control_.run_scheduled_ = false;
 }
@@ -203,16 +211,16 @@ void Agent::add_reply(const Message& message)
 
 void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
-    Message message;
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    Message message{};
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), static_cast<uint32_t>(message.get_buffer().max_size()) };
     message_creator.header(header);
     message_creator.status(status_reply);
     add_reply(message);
 }
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
-    Message message;
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    Message message{};
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), static_cast<uint32_t>(message.get_buffer().max_size()) };
     message_creator.header(header);
     message_creator.data(data);
     add_reply(message);

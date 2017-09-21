@@ -109,11 +109,11 @@ public:
     void add_reply(const MessageHeader& header, const DATA_PAYLOAD& status_reply);
 
 private:
-    channel_id_t ch_id;
-    static const size_t buffer_len = 1024;
-    octet out_buffer[buffer_len];
-    octet in_buffer[buffer_len];
-    locator_t loc;
+    channel_id_t ch_id_;
+    static const size_t buffer_len_ = 1024;
+    octet out_buffer_[buffer_len_];
+    octet in_buffer_[buffer_len_];
+    locator_t loc_;
     std::map<int32_t, ProxyClient> clients_;
 
     std::unique_ptr<std::thread> response_thread_;
