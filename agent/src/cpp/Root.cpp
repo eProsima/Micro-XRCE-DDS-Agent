@@ -46,6 +46,33 @@ void Agent::init()
     // // Init transport
     // loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
     // ch_id = add_locator(&loc);
+
+    // Create fixed client
+    demo_create_client();
+
+}
+
+void Agent::demo_create_client()
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    
+     OBJK_CLIENT_Representation client_representation;
+     client_representation.xrce_cookie(XRCE_COOKIE);
+     client_representation.xrce_version(XRCE_VERSION);
+     client_representation.xrce_vendor_id();
+     client_representation.client_timestamp();
+     client_representation.session_id();
+     ObjectVariant variant;
+     variant.client(client_representation);
+     
+     const RequestId request_id = { 1,2 };
+     const ObjectId object_id = { 10,20,30 };
+     CREATE_PAYLOAD create_data;
+     create_data.request_id(request_id);
+     create_data.object_id(object_id);
+     create_data.object_representation().client(client_representation);
+ 
+     create_client(client_key, create_data);
 }
 
 Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_info)
@@ -275,6 +302,9 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
+            
+            MessageHeader modified_header{header};
+            update_header(modified_header, *client);
             add_reply(header, result_status);
         }
         else
@@ -339,4 +369,9 @@ ProxyClient* Agent::get_client(int32_t client_key)
         std::cerr << "Client " << client_key << "not found" << std::endl;
         return nullptr;
     }
+}
+
+void Agent::update_header(MessageHeader& header, ProxyClient& client)
+{
+    header.sequence_nr(client.sequence());
 }

@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <utility>
+
 #include "agent/client/ProxyClient.h"
 
-#include "agent/Root.h"
 #include "agent/ObjectVariant.h"
-#include "agent/datawriter/DataWriter.h"
+#include "agent/Root.h"
 #include "agent/datareader/DataReader.h"
+#include "agent/datawriter/DataWriter.h"
 
 using namespace eprosima::micrortps;
 
-ProxyClient::ProxyClient(const OBJK_CLIENT_Representation& client) : representation_(client)
+ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client) : representation_(std::move(client)), sequence_count_(0)
 { }
 
 ProxyClient::~ProxyClient()
@@ -32,29 +34,65 @@ ProxyClient::~ProxyClient()
     }
 }
 
+ProxyClient::ProxyClient(const ProxyClient &x)
+:
+    representation_( x.representation_),
+    objects_(x.objects_),
+    requests_info_(x.requests_info_),
+    sequence_count_(x.sequence_count_.load())
+{
+}
+
+ProxyClient::ProxyClient(ProxyClient &&x)
+:
+    representation_(std::move(x.representation_)),
+    objects_(std::move(x.objects_)),
+    requests_info_(std::move(x.requests_info_)),
+    sequence_count_(x.sequence_count_.load())
+{
+}
+ProxyClient& ProxyClient::operator=(const ProxyClient &x)
+{
+    representation_ =  x.representation_;
+    objects_ = x.objects_;
+    requests_info_ = x.requests_info_;
+    sequence_count_ = x.sequence_count_.load();
+    return *this;
+}
+ProxyClient& ProxyClient::operator=(ProxyClient &&x)
+{
+    representation_ = std::move(x.representation_);
+    objects_ = std::move(x.objects_);
+    requests_info_ = std::move(x.requests_info_);
+    sequence_count_ = x.sequence_count_.load();
+    return *this;
+}
+
 bool ProxyClient::create(const InternalObjectId& internal_object_id, const ObjectVariant& representation)
 {
-switch(representation.discriminator())
-{
-    case OBJK_PUBLISHER:
-        //objects_.insert(std::make_pair(internal_id, new DataWriter()));
-        return false;
-    break;
-    case OBJK_SUBSCRIBER:
-        return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
-    break;
-    case OBJK_CLIENT:
-    case OBJK_APPLICATION:
-    case OBJK_PARTICIPANT:
-    case OBJK_QOSPROFILE:
-    case OBJK_TYPE:
-    case OBJK_TOPIC:
-    case OBJK_DATAWRITER:
-    case OBJK_DATAREADER:
-    default:
-        return false;
-    break;
-}
+    switch(representation.discriminator())
+    {
+        case OBJK_PUBLISHER:
+            //objects_.insert(std::make_pair(internal_id, new DataWriter()));
+            return false;
+        break;
+        case OBJK_SUBSCRIBER:
+            return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
+        break;
+        case OBJK_PARTICIPANT:
+            return true;
+        break;
+        case OBJK_CLIENT:
+        case OBJK_APPLICATION:
+        case OBJK_QOSPROFILE:
+        case OBJK_TYPE:
+        case OBJK_TOPIC:
+        case OBJK_DATAWRITER:
+        case OBJK_DATAREADER:
+        default:
+            return false;
+        break;
+    }
 }
 
 
@@ -93,25 +131,25 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
         {
             if (!creation_mode.replace()) // replace = false
             {
-                // TODO Compara representaciones
+                // TODO(borja): Compara representaciones
             }
             else // replace = true
             {
-               // TODO compara representaciones
+               // TODO(borja): compara representaciones
             }
         }
     }
     return status;
 }
 
-Status ProxyClient::update(const ObjectId& object_id, const ObjectVariant& representation)
+Status ProxyClient::update(const ObjectId&  /*object_id*/, const ObjectVariant&  /*representation*/)
 {
-    // TODO
+    // TODO(borja): 
 }
 
-Info ProxyClient::get_info(const ObjectId& object_id)
+Info ProxyClient::get_info(const ObjectId&  /*object_id*/)
 {
-    // TODO
+    // TODO(borja): 
 }
 
 Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
@@ -120,7 +158,7 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
     status.object_id(delete_payload.object_id());
     status.result().request_id(delete_payload.request_id());
     status.result().status(STATUS_LAST_OP_DELETE);
-    // TODO comprobar permisos
+    // TODO(borja): comprobar permisos
     if (delete_object(generate_object_id(delete_payload.object_id(), 0x00)))
     {
         status.result().implementation_status(STATUS_OK);
@@ -128,7 +166,7 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
     else
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
-        // TODO en el documento se menciona STATUS_ERR_INVALID pero no existe.
+        // TODO(borja): en el documento se menciona STATUS_ERR_INVALID pero no existe.
     }
     return status;
 }
@@ -141,11 +179,8 @@ bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
         delete find_it->second;
         objects_.erase(find_it);
         return true;
-    }
-    else
-    {
-        return false;
-    }
+    }   
+    return false;    
 }
 
 Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload)
@@ -161,13 +196,13 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     }
     else
     {
-        DataWriter* writer = dynamic_cast<DataWriter*>(object_it->second);
+        auto* writer = dynamic_cast<DataWriter*>(object_it->second);
         writer->write(nullptr);
     }
     return status;
 }
 
-Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload)
+Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  /*data_payload*/)
 {
     Status status;
     status.result().request_id();
@@ -180,14 +215,14 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD& dat
     }
     else
     {
-        DataReader* reader = dynamic_cast<DataReader*>(object_it->second);
+        auto* reader = dynamic_cast<DataReader*>(object_it->second);
         //reader->read(data_payload); // TODO const ref?
     }
 }
 
 ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id, uint8_t suffix) const
 {
-    InternalObjectId internal_id;
+    InternalObjectId internal_id{};
     std::copy(id.begin(), id.end(), internal_id.begin());
     internal_id[id.size()] = suffix;
     return internal_id;
@@ -213,4 +248,9 @@ const MessageHeader *const ProxyClient::get_request_info(const ObjectId& object_
         std::cerr << "Client " << object_id << "not found" << std::endl;
         return nullptr;
     }
+}
+
+uint16_t ProxyClient::sequence()
+{
+    return sequence_count_++;
 }

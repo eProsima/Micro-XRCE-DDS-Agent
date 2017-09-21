@@ -29,8 +29,13 @@ class ProxyClient: public ReaderListener
 {
 public:
     ProxyClient() = default;
-    ProxyClient(const OBJK_CLIENT_Representation& client);
+    ProxyClient(OBJK_CLIENT_Representation  client);
     ~ProxyClient();
+
+    ProxyClient(const ProxyClient &x);
+    ProxyClient(ProxyClient &&x);
+    ProxyClient& operator=(const ProxyClient &x);
+    ProxyClient& operator=(ProxyClient &&x);
 
     Status create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload);
     Status delete_object(const DELETE_PAYLOAD& delete_payload);
@@ -44,6 +49,8 @@ public:
     void store_request_info(const ObjectId& object_id, const MessageHeader& message_header);
     void remove_request_info(const ObjectId& object_id);
     const MessageHeader *const get_request_info(const ObjectId& object_id) const;
+
+    uint16_t sequence();
     
 private:
     using InternalObjectId = std::array<uint8_t, 4>;
@@ -52,6 +59,7 @@ private:
     
     std::map<InternalObjectId, XRCEObject*> objects_;
     std::map<InternalObjectId, MessageHeader> requests_info_;
+    std::atomic<uint16_t> sequence_count_;
     
     bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
     bool delete_object(const InternalObjectId& internal_object_id);

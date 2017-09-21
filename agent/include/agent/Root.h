@@ -130,6 +130,9 @@ private:
     
     void reply();
     void abort_execution();
+    void demo_create_client();
+
+    void update_header(MessageHeader& header, ProxyClient& client);
 };
 
 } // eprosima
