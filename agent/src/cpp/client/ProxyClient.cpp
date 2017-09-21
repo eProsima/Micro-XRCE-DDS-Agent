@@ -14,6 +14,7 @@
 
 #include "agent/client/ProxyClient.h"
 
+#include "agent/Root.h"
 #include "agent/ObjectVariant.h"
 #include "agent/datawriter/DataWriter.h"
 #include "agent/datareader/DataReader.h"
@@ -190,4 +191,26 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
     std::copy(id.begin(), id.end(), internal_id.begin());
     internal_id[id.size()] = suffix;
     return internal_id;
+}
+
+void ProxyClient::store_request_info(const ObjectId& object_id, const MessageHeader& message_header)
+{
+    requests_info_[generate_object_id(object_id, 0x00)] = message_header;
+}
+
+void ProxyClient::remove_request_info(const ObjectId& object_id)
+{
+    requests_info_.erase(generate_object_id(object_id, 0x00));
+}
+
+const MessageHeader *const ProxyClient::get_request_info(const ObjectId& object_id) const
+{
+    try
+    {
+        return &requests_info_.at(generate_object_id(object_id, 0x00));
+    } catch (const std::out_of_range&)
+    {
+        std::cerr << "Client " << object_id << "not found" << std::endl;
+        return nullptr;
+    }
 }

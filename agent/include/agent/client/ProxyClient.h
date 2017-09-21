@@ -18,6 +18,7 @@
 #include <agent/ObjectVariant.h>
 #include <agent/datareader/DataReader.h>
 #include <agent/Payloads.h>
+#include <agent/MessageHeader.h>
 
 #include <map>
 
@@ -39,6 +40,10 @@ public:
     Info get_info(const ObjectId& object_id);
     
     void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length){;}
+
+    void store_request_info(const ObjectId& object_id, const MessageHeader& message_header);
+    void remove_request_info(const ObjectId& object_id);
+    const MessageHeader *const get_request_info(const ObjectId& object_id) const;
     
 private:
     using InternalObjectId = std::array<uint8_t, 4>;
@@ -46,6 +51,7 @@ private:
     OBJK_CLIENT_Representation representation_;
     
     std::map<InternalObjectId, XRCEObject*> objects_;
+    std::map<InternalObjectId, MessageHeader> requests_info_;
     
     bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
     bool delete_object(const InternalObjectId& internal_object_id);
