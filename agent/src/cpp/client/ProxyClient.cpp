@@ -25,7 +25,7 @@ ProxyClient::ProxyClient(const OBJK_CLIENT_Representation& client) : representat
 
 ProxyClient::~ProxyClient()
 {
-    for (auto& xrce_object : _objects)
+    for (auto& xrce_object : objects_)
     {
         delete xrce_object.second;
     }
@@ -36,11 +36,11 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
 switch(representation.discriminator())
 {
     case OBJK_PUBLISHER:
-        //_objects.insert(std::make_pair(internal_id, new DataWriter()));
+        //objects_.insert(std::make_pair(internal_id, new DataWriter()));
         return false;
     break;
     case OBJK_SUBSCRIBER:
-        return _objects.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
+        return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
     break;
     case OBJK_CLIENT:
     case OBJK_APPLICATION:
@@ -66,8 +66,8 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
 
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
-    auto object_it = _objects.find(internal_id);
-    if(object_it == _objects.end()) 
+    auto object_it = objects_.find(internal_id);
+    if(object_it == objects_.end()) 
     {
         if (create(internal_id, create_payload.object_representation()))
         {
@@ -134,11 +134,11 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 
 bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
 {
-    auto find_it = _objects.find(internal_object_id);
-    if (find_it != _objects.end())
+    auto find_it = objects_.find(internal_object_id);
+    if (find_it != objects_.end())
     {
         delete find_it->second;
-        _objects.erase(find_it);
+        objects_.erase(find_it);
         return true;
     }
     else
@@ -153,8 +153,8 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
-    auto object_it = _objects.find(internal_id);
-    if(object_it == _objects.end()) 
+    auto object_it = objects_.find(internal_id);
+    if(object_it == objects_.end()) 
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
     }
@@ -172,8 +172,8 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD& dat
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
-    auto object_it = _objects.find(internal_id);
-    if(object_it == _objects.end()) 
+    auto object_it = objects_.find(internal_id);
+    if(object_it == objects_.end()) 
     {
         status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
     }
