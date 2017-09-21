@@ -179,7 +179,7 @@ void Agent::run()
         // if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
         // {
         //     printf("RECV: %d bytes\n", ret);
-        //     XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, this};
+        //     XRCEParser myParser{in_buffer, ret, this};
         //     myParser.parse();
         // }
         // else
@@ -212,7 +212,7 @@ void Agent::add_reply(const Message& message)
 void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
     Message message{};
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.status(status_reply);
     add_reply(message);
@@ -220,7 +220,7 @@ void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
     Message message{};
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
+    XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.data(data);
     add_reply(message);
@@ -234,7 +234,7 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!message.get_buffer().empty())
         {
-            Serializer deserializer(reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().size());
+            Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
             MessageHeader deserialized_header;
             SubmessageHeader deserialized_submessage_header;
             // RESOURCE_STATUS_PAYLOAD deserialized_status_payload;

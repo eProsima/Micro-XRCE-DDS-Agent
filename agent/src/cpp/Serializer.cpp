@@ -15,14 +15,14 @@
 #include "agent/Serializer.h"
 
 #include "agent/MessageHeader.h"
-#include "agent/SubMessageHeader.h"
 #include "agent/Payloads.h"
+#include "agent/SubMessageHeader.h"
 
 namespace eprosima {
 namespace micrortps {
 
-Serializer::Serializer(char* const buffer_, size_t buffer_size) :
-    fastbuffer_(buffer_, buffer_size),
+Serializer::Serializer(char* buffer, size_t buffer_size) :
+    fastbuffer_(buffer, buffer_size),
     serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR)	
 {
 }

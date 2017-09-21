@@ -27,7 +27,7 @@ namespace micrortps {
 class Serializer
 {
 public:
-    Serializer(char* const buffer_, size_t buffer_size );
+    Serializer(char* buffer, size_t buffer_size );
     
     template<class T> bool serialize(const T& data);
 
