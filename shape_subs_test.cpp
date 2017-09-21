@@ -33,6 +33,8 @@ int main(int args, char** argv)
     printf("read\n");
     reader.read(read_config);
 
+    while(1)sleep(1);
+
     printf("exiting...\n");
     return 0;
 }

@@ -46,7 +46,7 @@ public:
     
     uint16_t sequence();
     
-    void on_read_data(/*const ObjectId&*/int object_id, /*const RequestId&*/int req_id, const octet* data, const size_t length);
+    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length);
 
 private:
     using InternalObjectId = std::array<uint8_t, 4>;

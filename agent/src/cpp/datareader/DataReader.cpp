@@ -99,10 +99,10 @@ int DataReader::read(READ_DATA_PAYLOAD &read_data)
 
     if (!m_read_thread.joinable())
     {
-        m_read_thread = std::thread(&DataReader::read_task, this);
+        m_read_thread = std::thread(&DataReader::read_task, this, read_data);
         m_timer_thread = std::thread(&DataReader::run_timer, this);
-        m_read_thread.join();
-        m_timer_thread.join();
+        //m_read_thread.detach();
+        //m_timer_thread.join();
     }
     else
     {
@@ -122,7 +122,7 @@ int DataReader::read(READ_DATA_PAYLOAD &read_data)
 //    return 0;
 //}
 
-void DataReader::read_task()
+void DataReader::read_task(READ_DATA_PAYLOAD read_data)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     int pos = 0;
@@ -140,7 +140,7 @@ void DataReader::read_task()
 
         ShapeType st;
         takeNextData(&st);
-        mp_reader_listener->on_read_data(0, 0, (octet*)&st, sizeof(st));
+        mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), (octet*)&st, sizeof(st));
 
         m_time_expired = m_new_message = false;
     }

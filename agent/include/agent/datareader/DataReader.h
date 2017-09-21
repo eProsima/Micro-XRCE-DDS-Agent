@@ -44,7 +44,7 @@ public:
     ReaderListener() = default;
     virtual ~ReaderListener() = default;
 
-    virtual void on_read_data(/*const ObjectId&*/int object_id, /*const RequestId&*/int req_id, const octet* data, const size_t length) = 0;
+    virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length) = 0;
 };
 
 class TimerEvent
@@ -98,7 +98,7 @@ public:
 
 
 private:
-    void read_task();
+    void read_task(READ_DATA_PAYLOAD read_data);
     bool takeNextData(void* data);
 
     std::thread m_read_thread, m_timer_thread;

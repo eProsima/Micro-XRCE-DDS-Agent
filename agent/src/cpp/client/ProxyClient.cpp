@@ -233,37 +233,29 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
 
 uint16_t ProxyClient::sequence()
 {
-    return sequence_count_++;
+    return ++sequence_count_;
 }
 
-void ProxyClient::on_read_data(/*const ObjectId&*/int object_id, /*const RequestId&*/int req_id, const octet* data, const size_t length)
+void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length)
 {
     printf("on_read_data\n");
 
-//    MessageHeader message_header;
-//    message_header.client_key(client_key);
-//    message_header.session_id(session_id);
-//    message_header.stream_id(stream_id);
-//    message_header.sequence_nr(sequence_nr);
-//
-//    DATA_PAYLOAD payload;
-//    payload.request_id(req_id);
-//    payload.resource_id(object_id);
-//    payload.data_reader()._d(READM_DATA);
-//    payload.data_reader().data(data);
-//
-//    /*RequestId request_id_;
-//    ObjectId resource_id_;
-//    RT_Data data_reader_;
-//
-//    ReadMode discriminator_;
-//    SampleData data_;
-//    SampleDataSeq data_seq_;
-//    Sample sample_;
-//    SampleSeq sample_seq_;
-//    SamplePackedSeq sample_packed_seq_;*/
-//
-//    root()->add_reply(message_header, payload);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence());
+
+    std::vector<uint8_t> vdata(data, data + length);
+    SampleData sdata;
+    sdata.serialized_data(vdata);
+    DATA_PAYLOAD payload;
+    payload.request_id(req_id);
+    payload.resource_id(object_id);
+    payload.data_reader()._d(READM_DATA);
+    payload.data_reader().data(sdata);
+
+    root()->add_reply(message_header, payload);
 
 }
 
