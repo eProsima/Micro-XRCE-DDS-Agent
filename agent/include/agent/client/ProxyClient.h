@@ -45,12 +45,11 @@ private:
     
     OBJK_CLIENT_Representation representation_;
     
-    std::map<InternalObjectId, XRCEObject*> _objects;
+    std::map<InternalObjectId, XRCEObject*> objects_;
     
     bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
     bool delete_object(const InternalObjectId& internal_object_id);
     InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
-
 };
 } // eprosima
 } // micrortps
