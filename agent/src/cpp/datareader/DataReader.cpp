@@ -79,7 +79,7 @@ bool DataReader::init()
     return true;
 }
 
-int DataReader::read(READ_DATA_PAYLOAD &read_data)
+int DataReader::read(const READ_DATA_PAYLOAD &read_data)
 {
     switch(read_data.read_mode())
     {

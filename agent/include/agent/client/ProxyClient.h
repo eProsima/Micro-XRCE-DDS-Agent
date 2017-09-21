@@ -57,6 +57,7 @@ private:
     
     OBJK_CLIENT_Representation representation_;
     
+    std::mutex objects_mutex_;
     std::map<InternalObjectId, XRCEObject*> objects_;
     std::map<InternalObjectId, MessageHeader> requests_info_;
     std::atomic<uint16_t> sequence_count_;

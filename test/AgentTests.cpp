@@ -39,7 +39,16 @@ TEST_F(AgentTests, CreateClientOk)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
@@ -60,7 +69,16 @@ TEST_F(AgentTests, CreateClientNoClient)
     create_data.object_id(object_id);
     create_data.object_representation().publisher(publisher_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
@@ -86,7 +104,16 @@ TEST_F(AgentTests, CreateClientBadCookie)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.result().implementation_status());
@@ -112,7 +139,16 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
@@ -138,7 +174,16 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_ERR_INCOMPATIBLE, response.result().implementation_status());
@@ -164,7 +209,16 @@ TEST_F(AgentTests, DeleteExistingClient)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    Status response = agent_.create_client(message_header, create_data);
 
     DELETE_PAYLOAD delete_payload;
     delete_payload.object_id(object_id);
@@ -209,7 +263,17 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
-    Status response = agent_.create_client(client_key, create_data);
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+
+    Status response = agent_.create_client(message_header, create_data);
 
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.result().status());
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());

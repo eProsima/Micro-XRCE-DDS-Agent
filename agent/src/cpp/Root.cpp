@@ -129,6 +129,147 @@ Status Agent::delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_inf
     return status;
 }
 
+void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    std::cout << "Testing creation" << std::endl;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+    OBJK_CLIENT_Representation client_representation;
+    client_representation.xrce_cookie(XRCE_COOKIE);
+    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_vendor_id();
+    client_representation.client_timestamp();
+    client_representation.session_id();
+    ObjectVariant variant;
+    variant.client(client_representation);                    
+    const RequestId request_id = { 0x01,0x02 };
+    const ObjectId object_id = { 0xC0,0xB0,0xA0 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
+
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(CREATE);
+    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(create_data);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
+void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    std::cout << "Testing creation" << std::endl;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    const RequestId request_id = { 0x01,0x02 };
+
+    ObjectVariant variant;
+    OBJK_SUBSCRIBER_Representation subs;
+    subs.as_string(std::string("SUBSCRIBER"));
+    subs.participant_id({ 4,4,4 });
+
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id({ 10,20,30 });
+    create_data.object_representation().subscriber(subs);
+
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(CREATE);
+    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(create_data);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
+void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    std::cout << "Testing read" << std::endl;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+    READ_DATA_PAYLOAD read_payload;
+    read_payload.request_id();
+    read_payload.object_id();
+    read_payload.max_messages();
+    read_payload.read_mode();
+    read_payload.max_elapsed_time();
+    read_payload.max_rate();
+    read_payload.content_filter_expression();
+    read_payload.max_samples();
+    read_payload.include_sample_info();
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(READ_DATA);
+    submessage_header.submessage_length(read_payload.getCdrSerializedSize(read_payload));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(read_payload);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
+void Agent::demo_process_response(Message& message)
+{
+Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
+MessageHeader deserialized_header;
+SubmessageHeader deserialized_submessage_header;
+
+deserializer.deserialize(deserialized_header);
+deserializer.deserialize(deserialized_submessage_header);
+
+std::cout << deserialized_header << std::endl;
+std::cout << deserialized_submessage_header << std::endl;
+switch (deserialized_submessage_header.submessage_id())
+{
+    case STATUS:
+    {
+        Status deserialized_status;
+        deserializer.deserialize(deserialized_status);
+        std::cout << deserialized_status << std::endl;
+    }
+    case DATA:
+    {
+        DATA_PAYLOAD deserialized_data;
+        deserializer.deserialize(deserialized_data);
+        //std::cout << deserialized_data << std::endl;
+    }
+}
+}
+
 void Agent::run()
 {
     const size_t buffer_size = 2048;
@@ -148,53 +289,29 @@ void Agent::run()
             }
             break;
         }
-        if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r')
+        if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's')
         {
-            const uint32_t client_key = 0xF1F2F3F4;
-            const uint8_t session_id = 0x01;
-            const uint8_t stream_id = 0x04;
-            const uint16_t sequence_nr = 0x0200;
+
 
             switch (ch)
             {
                 case 'c':
                 {
-                    std::cout << "Testing creation" << std::endl;
-                    Serializer serializer(test_buffer, buffer_size);
-                    MessageHeader message_header;
-                    message_header.client_key(client_key);
-                    message_header.session_id(session_id);
-                    message_header.stream_id(stream_id);
-                    message_header.sequence_nr(sequence_nr);
-                    OBJK_CLIENT_Representation client_representation;
-                    client_representation.xrce_cookie(XRCE_COOKIE);
-                    client_representation.xrce_version(XRCE_VERSION);
-                    client_representation.xrce_vendor_id();
-                    client_representation.client_timestamp();
-                    client_representation.session_id();
-                    ObjectVariant variant;
-                    variant.client(client_representation);                    
-                    const RequestId request_id = { 0x01,0x02 };
-                    const ObjectId object_id = { 0xC0,0xB0,0xA0 };
-                    CREATE_PAYLOAD create_data;
-                    create_data.request_id(request_id);
-                    create_data.object_id(object_id);
-                    create_data.object_representation().client(client_representation);
-
-                    SubmessageHeader submessage_header;
-                    submessage_header.submessage_id(CREATE);
-                    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
-
-                    serializer.serialize(message_header);
-                    serializer.serialize(submessage_header);
-                    serializer.serialize(create_data);
-
-                    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
-                    myParser.parse();
+                    demo_message_create(test_buffer, buffer_size);
+                    break;
+                }
+                case 's':
+                {
+                    demo_message_subscriber(test_buffer, buffer_size);
+                    break;
+                }
+                case 'r':
+                {
+                    demo_message_read(test_buffer, buffer_size);
+                    break;
                 }
                 case 'd':
                 case 'w':
-                case 'r':
                 default:
                 break;
             }
@@ -261,17 +378,7 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!message.get_buffer().empty())
         {
-            Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
-            MessageHeader deserialized_header;
-            SubmessageHeader deserialized_submessage_header;
-            // RESOURCE_STATUS_PAYLOAD deserialized_status_payload;
-            Status deserialized_status;
-            deserializer.deserialize(deserialized_header);
-            deserializer.deserialize(deserialized_submessage_header);
-            deserializer.deserialize(deserialized_status);
-            std::cout << deserialized_header << std::endl;
-            std::cout << deserialized_submessage_header << std::endl;
-            std::cout << deserialized_status << std::endl;
+            demo_process_response(message);
             // int ret = 0;
             // if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
             // {

@@ -28,6 +28,7 @@ ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client) : representation_(s
 
 ProxyClient::~ProxyClient()
 {
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     for (auto& xrce_object : objects_)
     {
         delete xrce_object.second;
@@ -73,12 +74,15 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
     switch(representation.discriminator())
     {
         case OBJK_PUBLISHER:
-            //objects_.insert(std::make_pair(internal_id, new DataWriter()));
+            //return objects_.insert(std::make_pair(internal_id, new DataWriter()));
             return false;
         break;
         case OBJK_SUBSCRIBER:
+        {
+            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
-        break;
+            break;
+        }
         case OBJK_PARTICIPANT:
             return true;
         break;
@@ -105,6 +109,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
 
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -173,6 +178,7 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 
 bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
 {
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto find_it = objects_.find(internal_object_id);
     if (find_it != objects_.end())
     {
@@ -189,6 +195,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -202,12 +209,13 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     return status;
 }
 
-Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  /*data_payload*/)
+Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  data_payload)
 {
     Status status;
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -216,8 +224,12 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  /*
     else
     {
         auto* reader = dynamic_cast<DataReader*>(object_it->second);
-        //reader->read(data_payload); // TODO const ref?
+        if (!reader->read(data_payload))
+        {
+            status.result().status(STATUS_OK);
+        }
     }
+    return status;
 }
 
 ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id, uint8_t suffix) const

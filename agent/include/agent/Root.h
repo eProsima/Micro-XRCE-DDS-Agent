@@ -131,7 +131,11 @@ private:
     void reply();
     void abort_execution();
     void demo_create_client();
-
+    void demo_message_create(char* test_buffer, size_t buffer_size);
+    void demo_message_read(char* test_buffer, size_t buffer_size);
+    void demo_process_response(Message& message);
+    void demo_message_subscriber(char* test_buffer, size_t buffer_size);
+    
     void update_header(MessageHeader& header, ProxyClient& client);
 };
 
