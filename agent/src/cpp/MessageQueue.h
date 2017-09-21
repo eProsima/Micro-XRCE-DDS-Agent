@@ -28,7 +28,7 @@ public:
     MessageQueue& operator=(const MessageQueue& other) = delete;
     
     Message pop();
-    void push(const Message& item);
+    void push(const Message& new_message);
     void abort();
   
  private:

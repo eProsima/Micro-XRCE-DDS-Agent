@@ -18,7 +18,7 @@ Message MessageQueue::pop()
     condition_.wait(queuelock, [this]{
         return (!internal_queue_.empty() || aborted_);
     });
-    Message message;
+    Message message{};
     if (!aborted_ && !internal_queue_.empty())
     {
         message = internal_queue_.front();
