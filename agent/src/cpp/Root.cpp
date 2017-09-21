@@ -212,7 +212,7 @@ void Agent::add_reply(const Message& message)
 void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
     Message message{};
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), static_cast<uint32_t>(message.get_buffer().max_size()) };
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.status(status_reply);
     add_reply(message);
@@ -220,7 +220,7 @@ void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
     Message message{};
-    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), static_cast<uint32_t>(message.get_buffer().max_size()) };
+    XRCEFactory message_creator{ reinterpret_cast<char*>(message.get_buffer().data()), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.data(data);
     add_reply(message);

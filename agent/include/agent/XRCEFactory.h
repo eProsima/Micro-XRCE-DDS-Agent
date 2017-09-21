@@ -29,7 +29,7 @@ class MessageHeader;
 class XRCEFactory
 {
 public:
-    XRCEFactory(char* buffer, uint32_t max_size) : serializer_(buffer, max_size) {};
+    XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {};
     void header(const MessageHeader& header);
     void status(const Status& payload);
     void data(const DATA_PAYLOAD& payload);
