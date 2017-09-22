@@ -16,7 +16,18 @@ namespace micrortps{
 namespace debug{
 
 const std::string separator = " | ";
-    
+
+std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values)
+{
+    StreamScopedFlags flag_backup{stream};
+    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
+    for (auto& number : values)
+    {
+        stream << std::setw(2) << +number;
+    }
+    return stream;
+}
+
 std::ostream& operator<<(std::ostream& stream, const MessageHeader& header)
 {
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -367,88 +378,28 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_da
     return stream;
 }
 
-// void printl_data_submessage(const DataPayloadSpec* payload)
-// {
-//     char content[64];
-//     const SampleKindSpec* kind = &payload->data_reader.sample_kind;
-//     switch(payload->data_reader.read_mode)
-//     {
-//         case READ_MODE_DATA:
-//             sprintf(content, "DATA | data size: %u",
-//                     kind->data.serialized_data_size);
-//         break;
+std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data)
+{
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << "[Data" << separator;
+    stream << "#" << data.request_id() << separator;
+    stream << "id: " << data.resource_id() << separator;
+    switch(data.data_reader()._d())
+    {
+        case READM_DATA:
+        {
+            stream << "DATA" << separator << "data size: " << data.data_reader().data().serialized_data().size();
+            break;
+        }
+        default:
+        break;
+    }
 
-//         case READ_MODE_SAMPLE:
-//             sprintf(content, "DATA | sq_nr: %u | session time: %u | data size: %u",
-//                     kind->sample.info.sequence_number,
-//                     kind->sample.info.session_time_offset,
-//                     kind->sample.data.serialized_data_size);
-//         break;
-//     }
+    stream << "]";
+    return stream;
+}
 
-//     printf("%s[Data | #%08X | id: %u | %s]%s\n", YELLOW,
-//             payload->request_id,
-//             payload->object_id,
-//             content,
-//             RESTORE_COLOR);
-// }
-
-// void print_read_data_submessage(const ReadDataPayloadSpec* payload)
-// {
-//     printf("  <Payload>\n");
-//     printf("  - request_id: 0x%08X\n", payload->request_id);
-//     printf("  - object_id: 0x%06X\n", payload->object_id);
-//     printf("  - max_messages: %hu\n", payload->max_messages);
-//     printf("  - read_mode: 0x%02X\n", payload->read_mode);
-//     printf("  - max_elapsed_time: %u\n", payload->max_elapsed_time);
-//     printf("  - max_rate: %u\n", payload->max_rate);
-//     printf("  - expression_size: %u\n", payload->expression_size);
-//     printf("  - content_filter_expression: %s\n", payload->content_filter_expression);
-//     printf("  - max_samples: %hu\n", payload->max_samples);
-//     printf("  - include_sample_info: 0x%02X\n", payload->include_sample_info);
-//     printf("\n\n");
-// }
-
-// void print_data_submessage(const DataPayloadSpec* payload)
-// {
-//     printf("  <Payload>\n");
-//     printf("  - request_id: 0x%08X\n", payload->request_id);
-//     printf("  - object_id: 0x%06X\n", payload->object_id);
-//     printf("  - read_mode: 0x%02X\n", payload->data_reader.read_mode);
-
-//     const SampleKindSpec* kind = &payload->data_reader.sample_kind;
-//     switch(payload->data_reader.read_mode)
-//     {
-//         case READ_MODE_DATA:
-//             printf("    <Data>\n");
-//             printf("    - serialized_data_size: 0x%08X\n", kind->data.serialized_data_size);
-//             printf("    - serialized_data: %s\n", data_to_string(kind->data.serialized_data,
-//                 kind->data.serialized_data_size));
-//         break;
-
-//         case READ_MODE_SAMPLE:
-//             printf("    - state: 0x%02X\n", kind->sample.info.state);
-//             printf("    - sequence_number: 0x%08X\n", kind->sample.info.sequence_number);
-//             printf("    - session_time_offset: 0x%08X\n", kind->sample.info.session_time_offset);
-//             printf("    - serialized_data_size: 0x%08X\n", kind->sample.data.serialized_data_size);
-//             printf("    - serialized_data: %s\n", data_to_string(kind->sample.data.serialized_data,
-//                 kind->sample.data.serialized_data_size));
-
-//         break;
-//     }
-//     printf("\n\n");
-// }
-
-
-
-// const char* data_to_string(const uint8_t* data, uint32_t size)
-// {
-//     static char buffer[1024];
-//     for(uint32_t i = 0; i < size; i++)
-//         sprintf(buffer + 3 * i, "%02X ", data[i]);
-//     sprintf(buffer + 5 * size, "\n");
-//     return buffer;
-// }
 } // namespace debug
 } // namespace micrortps
 } // namespace eprosima

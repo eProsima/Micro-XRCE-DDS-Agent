@@ -19,9 +19,8 @@
 #include <agent/SubMessageHeader.h>
 #include <types/Shape.h>
 
-#ifdef _DEBUG
-    #include <debug/MessageDebugger.h>
-#endif
+#include <libdev/MessageDebugger.h>
+
 
 using namespace eprosima::micrortps;
 
@@ -48,9 +47,9 @@ Agent::Agent() :
 void Agent::init()
 {
     std::cout << "Agent initialization" << std::endl;
-    // // Init transport
-    // loc = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
-    // ch_id = add_locator(&loc);
+    // Init transport
+    loc_ = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
+    ch_id_ = add_locator(&loc_);
 
     // Create fixed client
     demo_create_client();
@@ -61,29 +60,29 @@ void Agent::demo_create_client()
 {
     const uint32_t client_key = 0xF1F2F3F4;
     
-     OBJK_CLIENT_Representation client_representation;
-     client_representation.xrce_cookie(XRCE_COOKIE);
-     client_representation.xrce_version(XRCE_VERSION);
-     client_representation.xrce_vendor_id();
-     client_representation.client_timestamp();
-     client_representation.session_id();
-     ObjectVariant variant;
-     variant.client(client_representation);
-     
-     const RequestId request_id = { 1,2 };
-     const ObjectId object_id = { 10,20,30 };
-     CREATE_PAYLOAD create_data;
-     create_data.request_id(request_id);
-     create_data.object_id(object_id);
-     create_data.object_representation().client(client_representation);
- 
-     MessageHeader message_header;
-     message_header.client_key(client_key);
-     message_header.session_id(1);
-     message_header.stream_id(2);
-     message_header.sequence_nr(0);
+    OBJK_CLIENT_Representation client_representation;
+    client_representation.xrce_cookie(XRCE_COOKIE);
+    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_vendor_id();
+    client_representation.client_timestamp();
+    client_representation.session_id();
+    ObjectVariant variant;
+    variant.client(client_representation);
+    
+    const RequestId request_id = { 1,2 };
+    const ObjectId object_id = { 10,20,30 };
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation().client(client_representation);
 
-     create_client(message_header, create_data);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(1);
+    message_header.stream_id(2);
+    message_header.sequence_nr(0);
+
+    create_client(message_header, create_data);
 }
 
 Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& create_info)
@@ -186,7 +185,6 @@ void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
-    std::cout << "Testing creation" << std::endl;
     Serializer serializer(test_buffer, buffer_size);
     MessageHeader message_header;
     message_header.client_key(client_key);
@@ -216,6 +214,42 @@ void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
 
     XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
     myParser.parse();
+}
+
+void Agent::demo_delete_subscriber(char* test_buffer, size_t buffer_size)
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    const RequestId request_id = { 0x01,0x02 };
+
+    DELETE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id({ 10,20,30 });
+
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(CREATE);
+    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(create_data);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
+void demo_message_publisher(char* test_buffer, size_t buffer_size)
+{
+
 }
 
 void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
@@ -276,18 +310,20 @@ void Agent::demo_process_response(Message& message)
             #ifdef _DEBUG
                 std::cout << deserialized_status << std::endl;
             #endif
+            debug::short_print(std::cout, deserialized_status) << std::endl;
             break;
         }
         case DATA:
         {
             DATA_PAYLOAD deserialized_data;
             deserializer.deserialize(deserialized_data);
-            printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
-            ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
-            std::cout << "<SHAPE TYPE>" << std::endl;
-            std::cout << " - color: " << shape->color().data() << std::endl;
-            std::cout << " - x: " << shape->x() << std::endl;
-            std::cout << " - y: " << shape->y() << std::endl;
+            debug::short_print(std::cout, deserialized_data) << std::endl;
+            // printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
+            // ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
+            // std::cout << "<SHAPE TYPE>" << std::endl;
+            // std::cout << " - color: " << shape->color().data() << std::endl;
+            // std::cout << " - x: " << shape->x() << std::endl;
+            // std::cout << " - y: " << shape->y() << std::endl;
             break;
         }
     }
@@ -295,8 +331,8 @@ void Agent::demo_process_response(Message& message)
 
 void Agent::run()
 {
-    const size_t buffer_size = 2048;
-    char* test_buffer = new char[buffer_size];
+    // const size_t buffer_size = 2048;
+    // char* test_buffer = new char[buffer_size];
     std::cout << "Running eProsima Agent. To stop execution enter \"Q\"" << std::endl;
     char ch = ' ';
     int ret = 0;
@@ -312,51 +348,51 @@ void Agent::run()
             }
             break;
         }
-        if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's')
-        {
+        // if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's')
+        // {
 
 
-            switch (ch)
-            {
-                case 'c':
-                {
-                    demo_message_create(test_buffer, buffer_size);
-                    break;
-                }
-                case 's':
-                {
-                    demo_message_subscriber(test_buffer, buffer_size);
-                    break;
-                }
-                case 'r':
-                {
-                    demo_message_read(test_buffer, buffer_size);
-                    break;
-                }
-                case 'd':
-                case 'w':
-                default:
-                break;
-            }
-        }
+        //     switch (ch)
+        //     {
+        //         case 'c':
+        //         {
+        //             demo_message_create(test_buffer, buffer_size);
+        //             break;
+        //         }
+        //         case 's':
+        //         {
+        //             demo_message_subscriber(test_buffer, buffer_size);
+        //             break;
+        //         }
+        //         case 'r':
+        //         {
+        //             demo_message_read(test_buffer, buffer_size);
+        //             break;
+        //         }
+        //         case 'd':
+        //         case 'w':
+        //         default:
+        //         break;
+        //     }
+        // }
         else if (ch)
         {
             std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":" << std::endl;
         }
-        // if (0 < (ret = receive_data(in_buffer, buffer_len, loc.kind, ch_id)))
-        // {
-        //     printf("RECV: %d bytes\n", ret);
-        //     XRCEParser myParser{in_buffer, ret, this};
-        //     myParser.parse();
-        // }
-        // else
-        // {
-        //     printf("RECV ERROR: %d\n", ret);
-        // }
+        if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
+        {
+            printf("RECV: %d bytes\n", ret);
+            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), ret, this};
+            myParser.parse();
+        }
+        else
+        {
+            printf("RECV ERROR: %d\n", ret);
+        }
 
     }while(std::cin >> ch);
     std::cout << "Execution stopped" << std::endl;
-    delete[] test_buffer;
+    //delete[] test_buffer;
 }
 
 void Agent::abort_execution()
@@ -402,15 +438,15 @@ void Agent::reply()
         if (!message.get_buffer().empty())
         {
             demo_process_response(message);
-            // int ret = 0;
-            // if (0 < (ret = send_data(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
-            // {
-            //     printf("SEND: %d bytes\n", ret);
-            // }
-            // else
-            // {
-            //     printf("SEND ERROR: %d\n", ret);
-            // }
+            int ret = 0;
+            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_buffer().size(), loc_.kind, ch_id_)))
+            {
+                printf("SEND: %d bytes\n", ret);
+            }
+            else
+            {
+                printf("SEND ERROR: %d\n", ret);
+            }
         }
     }
     std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
@@ -420,6 +456,7 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
 {
+    debug::short_print(std::cout, create_payload) << std::endl;
     if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
     {
         if (ProxyClient* client = get_client(header.client_key()))
@@ -452,6 +489,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload)
 {
+    debug::short_print(std::cout, delete_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->delete_object(delete_payload);
@@ -465,6 +503,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
 {
+    debug::short_print(std::cout, write_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->write(write_payload.object_id(), write_payload);
@@ -478,6 +517,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
 {
+    debug::short_print(std::cout, read_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->read(read_payload.object_id(), read_payload);

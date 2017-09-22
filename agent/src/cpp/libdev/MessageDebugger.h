@@ -2,6 +2,7 @@
 #define _MESSAGE_DEBUGGER_H_
 
 #include <array>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -24,8 +25,11 @@ class WRITE_DATA_PAYLOAD;
 class RT_Data;
 class SampleData;
 class READ_DATA_PAYLOAD;
+class DATA_PAYLOAD;
 
 namespace debug{
+
+
 
 class StreamScopedFlags
 {
@@ -65,16 +69,7 @@ std::ostream& operator<<(std::ostream& stream, const std::array<unsigned char, N
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values)
-{
-    StreamScopedFlags flag_backup{stream};
-    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (auto& number : values)
-    {
-        stream << std::setw(2) << +number;
-    }
-    return stream;
-}
+std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values);
 
 /*
 * Inserts MessageHeader on the stream.
@@ -176,17 +171,22 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_
  */
 std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data);
 
-    // void print_delete_submessage(const DeletePayloadSpec* payload);
-    // void print_write_data_submessage(const WriteDataPayloadSpec* payload);
-    // void print_read_data_submessage(const ReadDataPayloadSpec* payload);
-    // void print_data_submessage(const DataPayloadSpec* payload);
-    
+/*
+ * Inserts DATA_PAYLOAD short representation on the stream.
+ */
+ std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data);
 
+// template <typename T>
+// std::ostream& operator<<(std::ostream& stream, const std::function<void(const T&)>& stream_func)
+// {
+//     stream_func()
+// }
 
-    // void printl_read_data_submessage(const ReadDataPayloadSpec* payload);
-    // void printl_data_submessage(const DataPayloadSpec* payload);
-    // //UTIL
-    // const char* data_to_string(const uint8_t* data, uint32_t size);
+// template <typename T>
+// std::ostream& short_int(const T&)
+// {
+//     return short_int(str)
+// }
 
 } // namespace debug
 } // namespace micrortps
