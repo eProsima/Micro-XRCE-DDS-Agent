@@ -372,7 +372,7 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
 
 void Agent::demo_process_response(Message& message)
 {
-    Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
+    Serializer deserializer(message.get_buffer().data(), message.get_real_size());
     MessageHeader deserialized_header;
     SubmessageHeader deserialized_submessage_header;
 
@@ -416,73 +416,19 @@ void Agent::run()
 {
     // const size_t buffer_size = 2048;
     // char* test_buffer = new char[buffer_size];
-    std::cout << "Running eProsima Agent. To stop execution enter \"Q\"" << std::endl;
+    std::cout << "Running eProsima Agent..." << std::endl;
     char ch = ' ';
     int ret = 0;
     do
     {
-        if(ch == 'Q')
-        {
-            std::cout << "Stopping execution " << std::endl;
-            abort_execution();
-            if (response_thread_.get())
-            {
-                response_thread_->join();
-            }
-            break;
-        }
-        // if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's' || ch == 'p')
-        // {
-
-
-        //     switch (ch)
-        //     {
-        //         case 'c':
-        //         {
-        //             demo_message_create(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 's':
-        //         {
-        //             demo_message_subscriber(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'r':
-        //         {
-        //             demo_message_read(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'p':
-        //         {
-        //             demo_message_publisher(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'w':
-        //         {
-        //             demo_message_write(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'd':
-        //         default:
-        //         break;
-        //     }
-        // }
-        else if (ch)
-        {
-            std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":" << std::endl;
-        }
         if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
         {
             printf("RECV: %d bytes\n", ret);
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), ret, this};
             myParser.parse();
         }
-        else
-        {
-            printf("RECV ERROR: %d\n", ret);
-        }
 
-    }while(std::cin >> ch);
+    }while(true);
     std::cout << "Execution stopped" << std::endl;
     //delete[] test_buffer;
 }
@@ -510,6 +456,7 @@ void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.status(status_reply);
+    message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
@@ -518,6 +465,7 @@ void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
     message_creator.header(header);
     message_creator.data(data);
+    message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
 
@@ -531,13 +479,9 @@ void Agent::reply()
         {
             demo_process_response(message);
             int ret = 0;
-            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_buffer().size(), loc_.kind, ch_id_)))
+            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
             {
-                printf("SEND: %d bytes\n", ret);
-            }
-            else
-            {
-                printf("SEND ERROR: %d\n", ret);
+                printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
             }
         }
     }
