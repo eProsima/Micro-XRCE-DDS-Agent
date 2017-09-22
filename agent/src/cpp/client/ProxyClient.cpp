@@ -76,14 +76,16 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
     switch(representation.discriminator())
     {
         case OBJK_PUBLISHER:
+        {
+            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             //return objects_.insert(std::make_pair(internal_id, new DataWriter()));
             return false;
-        break;
+            break;
+        }
         case OBJK_SUBSCRIBER:
         {
-            // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
-            break;
         }
         case OBJK_PARTICIPANT:
             return true;
@@ -111,10 +113,11 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
 
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
-    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    std::unique_lock<std::mutex> lock(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
+        lock.unlock();
         if (create(internal_id, create_payload.object_representation()))
         {
             status.result().implementation_status(STATUS_OK);
@@ -180,7 +183,7 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 
 bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
 {
-    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto find_it = objects_.find(internal_object_id);
     if (find_it != objects_.end())
     {
@@ -197,7 +200,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
-    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -217,7 +220,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
-    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
