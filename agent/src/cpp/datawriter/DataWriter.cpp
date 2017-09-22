@@ -30,8 +30,17 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(fastrtps::Participant* participant, const std::string &rtps_publisher_profile):
-        mp_rtps_participant(participant),
+DataWriter::DataWriter():
+        mp_rtps_participant(nullptr),
+        mp_rtps_publisher(nullptr),
+        m_rtps_publisher_prof("")
+
+{
+    init();
+}
+
+DataWriter::DataWriter(const std::string &rtps_publisher_profile):
+        mp_rtps_participant(nullptr),
         mp_rtps_publisher(nullptr),
         m_rtps_publisher_prof(rtps_publisher_profile)
 
@@ -65,27 +74,42 @@ bool DataWriter::init()
 
     if (!m_rtps_publisher_prof.empty())
     {
+        printf("init DataWriter RTPS publisher\n");
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
     }
     else
     {
+        printf("init DataWriter RTPS default publisher\n");
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
     }
 
     if(mp_rtps_publisher == nullptr)
     {
+        printf("init publisher error\n");
         return false;
     }
     return true;
 }
 
-bool DataWriter::write(void* data)
+bool DataWriter::write(const WRITE_DATA_PAYLOAD& write_data)
 {
+    switch(write_data.data_writer()._d())
+    {
+        case READM_DATA: break;
+        case READM_SAMPLE: break;
+        case READM_DATA_SEQ: break;
+        case READM_SAMPLE_SEQ: break;
+        case READM_PACKED_SAMPLE_SEQ: break;
+        default: break;
+    }
+
     if (nullptr == mp_rtps_publisher)
     {
         return false;
     }
-    return mp_rtps_publisher->write(data);
+
+    std::vector<uint8_t> serialized_data = write_data.data_writer().data().serialized_data();
+    return mp_rtps_publisher->write(&serialized_data);
 }
 
 

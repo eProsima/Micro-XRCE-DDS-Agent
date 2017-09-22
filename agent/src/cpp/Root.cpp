@@ -287,6 +287,89 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     myParser.parse();
 }
 
+void Agent::demo_message_publisher(char* test_buffer, size_t buffer_size)
+{
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    std::cout << "Testing creation" << std::endl;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+
+    const RequestId request_id = { 0x01,0x02 };
+
+    ObjectVariant variant;
+    OBJK_PUBLISHER_Representation pubs;
+    pubs.as_string(std::string("PUBLISHER"));
+    pubs.participant_id({ 4,4,4 });
+
+    CREATE_PAYLOAD create_data;
+    create_data.request_id(request_id);
+    create_data.object_id({ 10,20,40 });
+    create_data.object_representation().publisher(pubs);
+
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(CREATE);
+    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(create_data);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
+void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
+{
+    static int x = 0;
+    static int y = 0;
+    ++x; ++y;
+
+    const uint32_t client_key = 0xF1F2F3F4;
+    const uint8_t session_id = 0x01;
+    const uint8_t stream_id = 0x04;
+    const uint16_t sequence_nr = 0x0200;
+    std::cout << "Testing read" << std::endl;
+    Serializer serializer(test_buffer, buffer_size);
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence_nr);
+    WRITE_DATA_PAYLOAD write_payload;
+    write_payload.request_id();
+    write_payload.object_id({ 10,20,40 });
+
+    // Serialize data
+    ShapeType st;
+    st.color("RED");
+    st.x(x);
+    st.y(y);
+    st.shapesize(10);
+    eprosima::fastcdr::FastBuffer fbuffer;
+    eprosima::fastcdr::Cdr ser(fbuffer);
+    ser.serialize(st);
+    std::vector<unsigned char> buffer(ser.getBufferPointer(), ser.getBufferPointer() + ser.getSerializedDataLength());
+    write_payload.data_writer().data().serialized_data(buffer);
+
+    SubmessageHeader submessage_header;
+    submessage_header.submessage_id(WRITE_DATA);
+    submessage_header.submessage_length(write_payload.getCdrSerializedSize(write_payload));
+
+    serializer.serialize(message_header);
+    serializer.serialize(submessage_header);
+    serializer.serialize(write_payload);
+
+    XRCEParser myParser{test_buffer, serializer.get_serialized_size(), this};
+    myParser.parse();
+}
+
 void Agent::demo_process_response(Message& message)
 {
     Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
@@ -348,7 +431,7 @@ void Agent::run()
             }
             break;
         }
-        // if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's')
+        // if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's' || ch == 'p')
         // {
 
 
@@ -369,8 +452,17 @@ void Agent::run()
         //             demo_message_read(test_buffer, buffer_size);
         //             break;
         //         }
-        //         case 'd':
+        //         case 'p':
+        //         {
+        //             demo_message_publisher(test_buffer, buffer_size);
+        //             break;
+        //         }
         //         case 'w':
+        //         {
+        //             demo_message_write(test_buffer, buffer_size);
+        //             break;
+        //         }
+        //         case 'd':
         //         default:
         //         break;
         //     }

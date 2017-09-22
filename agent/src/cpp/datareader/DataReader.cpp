@@ -41,6 +41,16 @@ DataReader::DataReader(ReaderListener* read_list):
 
 DataReader::~DataReader()
 {
+    if (m_read_thread.joinable())
+    {
+        m_read_thread.detach();
+    }
+
+    if (m_timer_thread.joinable())
+    {
+        m_timer_thread.detach();
+    }
+
     if (nullptr != mp_rtps_subscriber)
     {
         fastrtps::Domain::removeSubscriber(mp_rtps_subscriber);
@@ -66,12 +76,12 @@ bool DataReader::init()
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        printf("init subscriber\n");
+        printf("init DataReader RTPS subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        printf("init default subscriber\n");
+        printf("init DataReader RTPS default subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
@@ -83,13 +93,12 @@ bool DataReader::init()
     return true;
 }
 
-int DataReader::read(const READ_DATA_PAYLOAD &read_data)
+int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 {
     switch(read_data.read_mode())
     {
-        case READM_DATA:
-        case READM_SAMPLE:
-        break;
+        case READM_DATA: break;
+        case READM_SAMPLE: break;
         case READM_DATA_SEQ: break;
         case READM_SAMPLE_SEQ: break;
         case READM_PACKED_SAMPLE_SEQ: break;
@@ -101,8 +110,6 @@ int DataReader::read(const READ_DATA_PAYLOAD &read_data)
     {
         m_read_thread = std::thread(&DataReader::read_task, this, read_data);
         m_timer_thread = std::thread(&DataReader::run_timer, this);
-        //m_read_thread.detach();
-        //m_timer_thread.join();
     }
     else
     {
@@ -138,10 +145,9 @@ void DataReader::read_task(READ_DATA_PAYLOAD read_data)
         mp_reader_listener->on_read_data(0, 0, stp.ser_data, stp.length);
         delete[] stp.ser_data;*/
 
-        ShapeType st;
-        takeNextData(&st);
-        printf(">>>>>>>   x: %d y: %d\n", st.x(), st.y());
-        mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), (octet*)&st, sizeof(st));
+        std::vector<unsigned char> buffer;
+        takeNextData(&buffer);
+        mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
 
         m_time_expired = m_new_message = false;
     }
@@ -171,15 +177,14 @@ void DataReader::on_timeout(const asio::error_code& error)
 void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
 {
     // Take data
-    ShapeType st;
-
-    if (sub->readNextData(&st, &m_info))
+    std::vector<unsigned char> buffer;
+    if (sub->readNextData(&buffer, &m_info))
     {
         if (m_info.sampleKind == ALIVE)
         {
             // Print your structure data here.
             ++n_msg;
-            std::cout << "Sample received, count=" << n_msg << " x: " << st.x() << " - y: " << st.y() << std::endl;
+            std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
 
             std::lock_guard<std::mutex> lock(m_mutex);
             m_new_message = true;
@@ -205,7 +210,16 @@ bool DataReader::takeNextData(void* data)
         return false;
     }
     fastrtps::SampleInfo_t info;
-    return mp_rtps_subscriber->takeNextData(data, &info);
+    bool ret = mp_rtps_subscriber->takeNextData(data, &info);
+    if(ret)
+    {
+        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
+    }
+    else
+    {
+        std::cout << "Error taken sample" << std::endl;
+    }
+    return ret;
 }
 
 void DataReader::onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::MatchingInfo& info)
