@@ -54,7 +54,7 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     agent/include
                     agent/src/cpp
                     agent/include/agent
-                    /home/borja/dev/rtps/thirdparty/asio/asio/include
+                    /home/ricardo/workspace/curro/eProsima/desarrollo/proyectos/fastrtps/thirdparty/asio/asio/include
                     )
 
 # libtransport.so
