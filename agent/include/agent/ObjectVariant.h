@@ -19,8 +19,6 @@
 #include <array>
 #include <string>
 #include <vector>
-#include <iomanip>
-#include <iterator>
 
 namespace eprosima
 {
@@ -97,45 +95,6 @@ const uint8_t STATUS_LAST_OP_DELETE = 3;
 const uint8_t STATUS_LAST_OP_LOOKUP = 4;
 const uint8_t STATUS_LAST_OP_READ = 5;
 const uint8_t STATUS_LAST_OP_WRITE = 6;
-
-class StreamScopedFlags
-{
-public:
-    StreamScopedFlags(std::ostream& stream) : stream_(stream)            
-    {
-        oldFlags_ = stream.flags();
-        oldPrec_ = stream.precision();
-        oldFill_ = stream.fill();
-    }
-
-    ~StreamScopedFlags()
-    {
-        stream_.flags(oldFlags_);
-        stream_.precision(oldPrec_);
-        stream_.fill(oldFill_);
-    }
-private:
-    std::ostream& stream_;
-    std::ios_base::fmtflags oldFlags_;
-    std::streamsize         oldPrec_;
-    char                    oldFill_;
-};
-
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& stream, const std::array<T, N>& v);
-
-template <size_t N>
-std::ostream& operator<<(std::ostream& stream, const std::array<unsigned char, N>& values)
-{
-    StreamScopedFlags flag_backup{stream};
-    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (auto& number : values)
-    {
-        stream << std::setw(2) << +number;
-    }
-    return stream;
-}
-
 
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
@@ -1202,12 +1161,6 @@ private:
     ObjectId participant_id_;
 };
 
-/*
- * Inserts OBJK_PUBLISHER_Representation on the stream.
- */
- std::ostream& operator<<(std::ostream& stream, const OBJK_PUBLISHER_Representation& data);
-
-
 /*!
  * @brief This class represents the structure OBJK_SUBSCRIBER_Representation defined by the user in the IDL file.
  * @ingroup OBJECTVARIANT
@@ -1318,11 +1271,6 @@ public:
 private:
     ObjectId participant_id_;
 };
-
-/*
- * Inserts OBJK_SUBSCRIBER on the stream.
- */
- std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representation& data);
 
 /*!
  * @brief This class represents the structure OBJK_DATAWRITER_Representation defined by the user in the IDL file.
@@ -1471,11 +1419,6 @@ private:
     ObjectId publisher_id_;
 };
 
-/*
- * Inserts OBJK_DATAWRITER_Representation on the stream.
- */
- std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representation& data);
-
 /*!
  * @brief This class represents the structure OBJK_DATAREADER_Representation defined by the user in the IDL file.
  * @ingroup OBJECTVARIANT
@@ -1622,11 +1565,6 @@ private:
     ObjectId participant_id_;
     ObjectId subscriber_id_;
 };
-
-/*
- * Inserts OBJK_DATAREADER_Representation on the stream.
- */
- std::ostream& operator<<(std::ostream& stream, const OBJK_DATAREADER_Representation& data);
 
 /*!
  * @brief This class represents the union ObjectVariant defined by the user in the IDL file.
@@ -1984,11 +1922,6 @@ private:
     OBJK_DATAREADER_Representation data_reader_;
 };
 
-/*
- * Inserts objectvariant on the stream.
- */
- std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_representation);
-
 /*!
  * @brief This class represents the structure CreationMode defined by the user in the IDL file.
  * @ingroup OBJECTVARIANT
@@ -2282,11 +2215,6 @@ private:
     uint8_t status_;
     uint8_t implementation_status_;
 };
-
-/*
- * Inserts MessageHeader on the stream.
- */
-std::ostream& operator<<(std::ostream& stream, const ResultStatus& status);
 
 /*!
  * @brief This class represents the structure OBJK_DATAREADER_Status defined by the user in the IDL file.
@@ -2847,11 +2775,6 @@ private:
     ObjectId object_id_;
     //StatusVariant status_;
 };
-
-/*
- * Inserts MessageHeader on the stream.
- */
-std::ostream& operator<<(std::ostream& stream, const Status& status);
 
 /*!
  * @brief This class represents the structure Info defined by the user in the IDL file.

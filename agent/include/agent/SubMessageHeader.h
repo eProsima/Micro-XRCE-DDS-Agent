@@ -196,11 +196,6 @@ private:
     uint16_t submessage_length_;
 };
 
-/*
- * Inserts SubMessageHeader on the stream.
- */
-std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessage_header);
-
 } /* namespace micrortps */
 } /* namespace eprosima */
 

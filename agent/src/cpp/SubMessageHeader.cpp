@@ -125,36 +125,5 @@ void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr.deserialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
 
-std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessage_header)
-{
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
-    switch(submessage_header.submessage_id())
-    {
-        case CREATE:
-            stream << "<Submessage> [CREATE]" << std::endl;
-        break;
-        case DELETE:
-            stream << "<Submessage> [DELETE]" << std::endl;
-        break;
-        case WRITE_DATA:
-            stream << "<Submessage> [WRITE_DATA]" << std::endl;
-        break;
-        case READ_DATA:
-            stream << "<Submessage> [READ_DATA]" << std::endl;
-        break;
-        case DATA:
-            stream << "<Submessage> [DATA]" << std::endl;
-            break;
-        case STATUS:
-            stream << "<Submessage> [STATUS]" << std::endl;
-        break;
-    }
-    stream << "  <Submessage header> " << std::endl;
-    stream << "  - id: " << std::setw(4) << +submessage_header.submessage_id() << std::endl;
-    stream << "  - flags: " << std::setw(4) << +submessage_header.flags() << std::endl;
-    stream << "  - length: " << std::setw(6) << submessage_header.submessage_length();
-    return stream;
-}
-
 } /* namespace micrortps */
 } /* namespace eprosima */

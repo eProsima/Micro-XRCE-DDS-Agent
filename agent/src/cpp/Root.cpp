@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "agent/Root.h"
+#include <agent/Root.h>
 
-#include "agent/Payloads.h"
-#include "agent/MessageHeader.h"
-#include "agent/SubMessageHeader.h"
-#include "types/Shape.h"
+#include <agent/Payloads.h>
+#include <agent/MessageHeader.h>
+#include <agent/SubMessageHeader.h>
+#include <types/Shape.h>
+
+#ifdef _DEBUG
+    #include <debug/MessageDebugger.h>
+#endif
 
 using namespace eprosima::micrortps;
 
@@ -251,37 +255,42 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
 
 void Agent::demo_process_response(Message& message)
 {
-Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
-MessageHeader deserialized_header;
-SubmessageHeader deserialized_submessage_header;
+    Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
+    MessageHeader deserialized_header;
+    SubmessageHeader deserialized_submessage_header;
 
-deserializer.deserialize(deserialized_header);
-deserializer.deserialize(deserialized_submessage_header);
+    deserializer.deserialize(deserialized_header);
+    deserializer.deserialize(deserialized_submessage_header);
 
-std::cout << deserialized_header << std::endl;
-std::cout << deserialized_submessage_header << std::endl;
-switch (deserialized_submessage_header.submessage_id())
-{
-    case STATUS:
+    #ifdef _DEBUG
+        std::cout << deserialized_header << std::endl;
+        std::cout << deserialized_submessage_header << std::endl;
+    #endif
+
+    switch (deserialized_submessage_header.submessage_id())
     {
-        Status deserialized_status;
-        deserializer.deserialize(deserialized_status);
-        std::cout << deserialized_status << std::endl;
-        break;
+        case STATUS:
+        {
+            Status deserialized_status;
+            deserializer.deserialize(deserialized_status);
+            #ifdef _DEBUG
+                std::cout << deserialized_status << std::endl;
+            #endif
+            break;
+        }
+        case DATA:
+        {
+            DATA_PAYLOAD deserialized_data;
+            deserializer.deserialize(deserialized_data);
+            printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
+            ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
+            std::cout << "<SHAPE TYPE>" << std::endl;
+            std::cout << " - color: " << shape->color().data() << std::endl;
+            std::cout << " - x: " << shape->x() << std::endl;
+            std::cout << " - y: " << shape->y() << std::endl;
+            break;
+        }
     }
-    case DATA:
-    {
-        DATA_PAYLOAD deserialized_data;
-        deserializer.deserialize(deserialized_data);
-        printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
-        ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
-        std::cout << "<SHAPE TYPE>" << std::endl;
-        std::cout << " - color: " << shape->color().data() << std::endl;
-        std::cout << " - x: " << shape->x() << std::endl;
-        std::cout << " - y: " << shape->y() << std::endl;
-        break;
-    }
-}
 }
 
 void Agent::run()

@@ -210,11 +210,6 @@ private:
     uint16_t sequence_nr_;
 };
 
-/*
- * Inserts MessageHeader on the stream.
- */
-std::ostream& operator<<(std::ostream& stream, const MessageHeader& header);
-
 } /* namespace micrortps */
 } /* namespace eprosima */
 #endif // !_MESSAGE_HEADER_H

@@ -134,15 +134,5 @@ void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr.deserialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
 }
 
-std::ostream& operator<<(std::ostream& stream, const MessageHeader& header)
-{
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
-    stream << "<Header>" << std::endl;
-    stream << "  - client_key: " <<  std::setw(10) << header.client_key() << std::endl;
-    stream << "  - session_id: " << std::setw(4) << +header.session_id() << std::endl;
-    stream << "  - stream_id: " << std::setw(4) << +header.stream_id() << std::endl;
-    stream << "  - sequence_nr: " << std::setw(6) << header.sequence_nr();
-    return stream;
-}
 } /* namespace micrortps */
 } /* namespace eprosima */
