@@ -88,7 +88,7 @@ public:
     virtual ~DataReader();
 
     bool init();
-    int read(const READ_DATA_PAYLOAD &read_data);
+    int read(const READ_DATA_PAYLOAD& read_data);
     int cancel_read();
     int read_sample();
 

@@ -41,6 +41,16 @@ DataReader::DataReader(ReaderListener* read_list):
 
 DataReader::~DataReader()
 {
+    if (m_read_thread.joinable())
+    {
+        m_read_thread.detach();
+    }
+
+    if (m_timer_thread.joinable())
+    {
+        m_timer_thread.detach();
+    }
+
     if (nullptr != mp_rtps_subscriber)
     {
         fastrtps::Domain::removeSubscriber(mp_rtps_subscriber);
@@ -66,12 +76,12 @@ bool DataReader::init()
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        printf("init subscriber\n");
+        printf("init DataReader RTPS subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        printf("init default subscriber\n");
+        printf("init DataReader RTPS default subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
@@ -83,13 +93,12 @@ bool DataReader::init()
     return true;
 }
 
-int DataReader::read(const READ_DATA_PAYLOAD &read_data)
+int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 {
     switch(read_data.read_mode())
     {
-        case READM_DATA:
-        case READM_SAMPLE:
-        break;
+        case READM_DATA: break;
+        case READM_SAMPLE: break;
         case READM_DATA_SEQ: break;
         case READM_SAMPLE_SEQ: break;
         case READM_PACKED_SAMPLE_SEQ: break;
@@ -101,8 +110,6 @@ int DataReader::read(const READ_DATA_PAYLOAD &read_data)
     {
         m_read_thread = std::thread(&DataReader::read_task, this, read_data);
         m_timer_thread = std::thread(&DataReader::run_timer, this);
-        //m_read_thread.detach();
-        //m_timer_thread.join();
     }
     else
     {

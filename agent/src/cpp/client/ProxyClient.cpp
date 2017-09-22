@@ -78,7 +78,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_PUBLISHER:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            //return objects_.insert(std::make_pair(internal_id, new DataWriter()));
+            return objects_.insert(std::make_pair(internal_object_id, new DataWriter()));
             return false;
             break;
         }
@@ -209,7 +209,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     else
     {
         auto* writer = dynamic_cast<DataWriter*>(object_it->second);
-        writer->write(nullptr);
+        writer->write(data_payload);
     }
     return status;
 }

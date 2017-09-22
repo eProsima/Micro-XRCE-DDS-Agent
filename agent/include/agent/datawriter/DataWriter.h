@@ -38,11 +38,12 @@ class DataWriter: public XRCEObject
 {
 public:
 
-    DataWriter(fastrtps::Participant* participant, const std::string &rtps_publisher_profile = "");
+    DataWriter();
+    DataWriter(const std::string &rtps_publisher_profile);
     virtual ~DataWriter();
 
     bool init();
-    bool write(void* data);
+    bool write(const WRITE_DATA_PAYLOAD& write_data);
 
 private:
 
