@@ -30,13 +30,13 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(const ReaderListener* read_list):
+DataReader::DataReader(ReaderListener* read_list):
         mp_reader_listener(read_list),
         mp_rtps_participant(nullptr),
         mp_rtps_subscriber(nullptr),
         m_rtps_subscriber_prof("")
 {
-
+    init();
 }
 
 DataReader::~DataReader()
@@ -58,6 +58,7 @@ bool DataReader::init()
     if (nullptr == mp_rtps_participant &&
         nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
     {
+        printf("init participant error\n");
         return false;
     }
 
@@ -65,15 +66,18 @@ bool DataReader::init()
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, nullptr);
+        printf("init subscriber\n");
+        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, nullptr);
+        printf("init default subscriber\n");
+        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
     if(mp_rtps_subscriber == nullptr)
     {
+        printf("init subscriber error\n");
         return false;
     }
     return true;
@@ -85,7 +89,6 @@ int DataReader::read(const READ_DATA_PAYLOAD &read_data)
     {
         case READM_DATA:
         case READM_SAMPLE:
-            read_sample();
         break;
         case READM_DATA_SEQ: break;
         case READM_SAMPLE_SEQ: break;
@@ -93,22 +96,106 @@ int DataReader::read(const READ_DATA_PAYLOAD &read_data)
         default: break;
     }
 
-    return 0;
-}
 
-int DataReader::read_sample()
-{
-    return 0;
-}
-
-bool DataReader::readNextData(void* data)
-{
-    if (nullptr == mp_rtps_subscriber)
+    if (!m_read_thread.joinable())
     {
-        return false;
+        m_read_thread = std::thread(&DataReader::read_task, this, read_data);
+        m_timer_thread = std::thread(&DataReader::run_timer, this);
+        //m_read_thread.detach();
+        //m_timer_thread.join();
     }
-    fastrtps::SampleInfo_t info;
-    return mp_rtps_subscriber->readNextData(data, &info);
+    else
+    {
+        printf("DataReader busy\n");
+    }
+
+    return 0;
+}
+
+//int DataReader::cancel_read(READ_DATA_PAYLOAD &read_data)
+//{
+//    if (m_read_thread.joinable())
+//    {
+//        m_read_thread = std::thread(read_task, this);
+//    }
+//
+//    return 0;
+//}
+
+void DataReader::read_task(READ_DATA_PAYLOAD read_data)
+{
+    std::unique_lock<std::mutex> lock(m_mutex);
+    int pos = 0;
+    while(true) // running
+    {
+        m_cond_var.wait(lock, [&]{return m_time_expired && m_new_message;});
+
+        /*std::vector<uint8_t> serialized_data_;
+        ShapeTypePlus stp;
+        stp.ser_data = nullptr;
+        takeNextData(&stp);
+        printf("SIZEOF %d\n", stp.length);
+        mp_reader_listener->on_read_data(0, 0, stp.ser_data, stp.length);
+        delete[] stp.ser_data;*/
+
+        ShapeType st;
+        takeNextData(&st);
+        printf(">>>>>>>   x: %d y: %d\n", st.x(), st.y());
+        mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), (octet*)&st, sizeof(st));
+
+        m_time_expired = m_new_message = false;
+    }
+    printf("exiting read_task...\n");
+}
+
+void DataReader::on_timeout(const asio::error_code& error)
+{
+  if (error)
+  {
+      printf("error");
+  }
+  else
+  {
+      printf("Time expired\n");
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_time_expired = true;
+      m_cond_var.notify_one();
+
+      // Relaunch timer
+      m_timer.expires_from_now(std::chrono::milliseconds(3000));
+      m_timer.async_wait(std::bind(&TimerEvent::on_timeout, this, std::placeholders::_1));
+  }
+
+}
+
+void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
+{
+    // Take data
+    ShapeType st;
+
+    if (sub->readNextData(&st, &m_info))
+    {
+        if (m_info.sampleKind == ALIVE)
+        {
+            // Print your structure data here.
+            ++n_msg;
+            std::cout << "Sample received, count=" << n_msg << " x: " << st.x() << " - y: " << st.y() << std::endl;
+
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_new_message = true;
+            m_cond_var.notify_one();
+        }
+    }
+}
+
+TimerEvent::TimerEvent(): m_timer(m_io_service, std::chrono::milliseconds(1000))
+{
+    m_timer.async_wait(std::bind(&TimerEvent::on_timeout, this, std::placeholders::_1));
+}
+
+void TimerEvent::run_timer()
+{
+    m_io_service.run();
 }
 
 bool DataReader::takeNextData(void* data)
@@ -120,6 +207,22 @@ bool DataReader::takeNextData(void* data)
     fastrtps::SampleInfo_t info;
     return mp_rtps_subscriber->takeNextData(data, &info);
 }
+
+void DataReader::onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::MatchingInfo& info)
+{
+    if (info.status == MATCHED_MATCHING)
+    {
+        n_matched++;
+        std::cout << "Subscriber matched" << std::endl;
+    }
+    else
+    {
+        n_matched--;
+        std::cout << "Subscriber unmatched" << std::endl;
+    }
+}
+
+
 
 } /* namespace micrortps */
 } /* namespace eprosima */

@@ -65,6 +65,7 @@ namespace eprosima
  * @brief This class represents the structure ShapeType defined by the user in the IDL file.
  * @ingroup SHAPE
  */
+
 class ShapeType
 {
 public:

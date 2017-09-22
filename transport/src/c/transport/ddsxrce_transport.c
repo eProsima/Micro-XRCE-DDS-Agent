@@ -55,7 +55,7 @@ int rm_locator(const locator_t* locator)
 }
 
 
-int send(const octet* in_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id)
+int send_data(const octet* in_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id)
 {
     if (NULL == in_buffer)
     {
@@ -69,7 +69,7 @@ int send(const octet* in_buffer, const size_t buffer_len, const locator_kind_t k
     }
 }
 
-int receive(octet* out_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id)
+int receive_data(octet* out_buffer, const size_t buffer_len, const locator_kind_t kind, const channel_id_t channel_id)
 {
     if (NULL == out_buffer)
     {

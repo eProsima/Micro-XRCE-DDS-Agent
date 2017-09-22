@@ -17,6 +17,7 @@
 #include "agent/Payloads.h"
 #include "agent/MessageHeader.h"
 #include "agent/SubMessageHeader.h"
+#include "types/Shape.h"
 
 using namespace eprosima::micrortps;
 
@@ -72,10 +73,16 @@ void Agent::demo_create_client()
      create_data.object_id(object_id);
      create_data.object_representation().client(client_representation);
  
-     create_client(client_key, create_data);
+     MessageHeader message_header;
+     message_header.client_key(client_key);
+     message_header.session_id(1);
+     message_header.stream_id(2);
+     message_header.sequence_nr(0);
+
+     create_client(message_header, create_data);
 }
 
-Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_info)
+Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& create_info)
 {
     Status status;
     status.result().request_id(create_info.request_id());
@@ -97,7 +104,7 @@ Status Agent::create_client(int32_t client_key, const CREATE_PAYLOAD& create_inf
             // DdsXrce::ProxyClient object and shall proceed as if the ProxyClient did not exist.
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
-            clients_[client_key] = ProxyClient{create_info.object_representation().client()};
+            clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
             std::cout << "ProxyClient created: " << std::endl;
             status.result().implementation_status(STATUS_OK);
         }
@@ -222,7 +229,7 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     message_header.sequence_nr(sequence_nr);
     READ_DATA_PAYLOAD read_payload;
     read_payload.request_id();
-    read_payload.object_id();
+    read_payload.object_id({ 10,20,30 });
     read_payload.max_messages();
     read_payload.read_mode();
     read_payload.max_elapsed_time();
@@ -260,12 +267,19 @@ switch (deserialized_submessage_header.submessage_id())
         Status deserialized_status;
         deserializer.deserialize(deserialized_status);
         std::cout << deserialized_status << std::endl;
+        break;
     }
     case DATA:
     {
         DATA_PAYLOAD deserialized_data;
         deserializer.deserialize(deserialized_data);
-        //std::cout << deserialized_data << std::endl;
+        printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
+        ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
+        std::cout << "<SHAPE TYPE>" << std::endl;
+        std::cout << " - color: " << shape->color().data() << std::endl;
+        std::cout << " - x: " << shape->x() << std::endl;
+        std::cout << " - y: " << shape->y() << std::endl;
+        break;
     }
 }
 }
@@ -320,7 +334,7 @@ void Agent::run()
         {
             std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":" << std::endl;
         }
-        // if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
+        // if (0 < (ret = receive_data(in_buffer, buffer_len, loc.kind, ch_id)))
         // {
         //     printf("RECV: %d bytes\n", ret);
         //     XRCEParser myParser{in_buffer, ret, this};
@@ -380,7 +394,7 @@ void Agent::reply()
         {
             demo_process_response(message);
             // int ret = 0;
-            // if (0 < (ret = send(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
+            // if (0 < (ret = send_data(message.get_buffer().data(), message.get_buffer().size(), loc.kind, ch_id)))
             // {
             //     printf("SEND: %d bytes\n", ret);
             // }
@@ -422,7 +436,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
     else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
     {
-        Status result_status = create_client(header.client_key(), create_payload);
+        Status result_status = create_client(header, create_payload);
         add_reply(header, result_status);
     }
 }

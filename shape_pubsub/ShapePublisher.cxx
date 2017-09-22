@@ -91,7 +91,9 @@ void ShapePublisher::run()
 	// Publication code
 	
 	ShapeType st;
-	
+	st.color("BLUE");
+	st.x(10);
+	st.y(100);
 	/* Initialize your structure here */
 	
 	int msgsent = 0;
@@ -100,6 +102,7 @@ void ShapePublisher::run()
 	{
 		if(ch == 'y')
 		{
+			st.y(++st.y());
 			mp_publisher->write(&st);  ++msgsent;
 			std::cout << "Sending sample, count=" << msgsent << ", send another sample?(y-yes,n-stop): ";
 		}

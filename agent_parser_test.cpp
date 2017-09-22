@@ -159,7 +159,7 @@ int main(int args, char** argv)
     int loops = 1000;
     while (loops--)
     {
-        if (0 < (ret = send(out_buffer, message_size, loc.kind, ch_id)))
+        if (0 < (ret = send_data(out_buffer, message_size, loc.kind, ch_id)))
         {
             printf("SEND: %d bytes\n", ret);
         }
@@ -170,7 +170,7 @@ int main(int args, char** argv)
 
         usleep(2000000);
 
-        if (0 < (ret = receive(in_buffer, buffer_len, loc.kind, ch_id)))
+        if (0 < (ret = receive_data(in_buffer, buffer_len, loc.kind, ch_id)))
         {
             printf("RECV: %d bytes\n", ret);
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, &my_xrce_listener};

@@ -21,14 +21,20 @@
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
 
+#include "agent/Root.h"
+
 using namespace eprosima::micrortps;
 
-ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client) : representation_(std::move(client)), sequence_count_(0)
+ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header):
+        representation_(std::move(client)),
+        sequence_count_(0),
+        client_key(header.client_key()),
+        session_id(header.session_id()),
+        stream_id(header.stream_id())
 { }
 
 ProxyClient::~ProxyClient()
 {
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     for (auto& xrce_object : objects_)
     {
         delete xrce_object.second;
@@ -39,7 +45,6 @@ ProxyClient::ProxyClient(const ProxyClient &x)
 :
     representation_( x.representation_),
     objects_(x.objects_),
-    requests_info_(x.requests_info_),
     sequence_count_(x.sequence_count_.load())
 {
 }
@@ -48,7 +53,6 @@ ProxyClient::ProxyClient(ProxyClient &&x)
 :
     representation_(std::move(x.representation_)),
     objects_(std::move(x.objects_)),
-    requests_info_(std::move(x.requests_info_)),
     sequence_count_(x.sequence_count_.load())
 {
 }
@@ -56,7 +60,6 @@ ProxyClient& ProxyClient::operator=(const ProxyClient &x)
 {
     representation_ =  x.representation_;
     objects_ = x.objects_;
-    requests_info_ = x.requests_info_;
     sequence_count_ = x.sequence_count_.load();
     return *this;
 }
@@ -64,7 +67,6 @@ ProxyClient& ProxyClient::operator=(ProxyClient &&x)
 {
     representation_ = std::move(x.representation_);
     objects_ = std::move(x.objects_);
-    requests_info_ = std::move(x.requests_info_);
     sequence_count_ = x.sequence_count_.load();
     return *this;
 }
@@ -79,7 +81,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         break;
         case OBJK_SUBSCRIBER:
         {
-            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+            // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
             break;
         }
@@ -109,7 +111,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
 
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -178,7 +180,7 @@ Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
 
 bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
 {
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto find_it = objects_.find(internal_object_id);
     if (find_it != objects_.end())
     {
@@ -195,7 +197,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -215,7 +217,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
     status.result().request_id();
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    // std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
@@ -240,29 +242,41 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
     return internal_id;
 }
 
-void ProxyClient::store_request_info(const ObjectId& object_id, const MessageHeader& message_header)
-{
-    requests_info_[generate_object_id(object_id, 0x00)] = message_header;
-}
-
-void ProxyClient::remove_request_info(const ObjectId& object_id)
-{
-    requests_info_.erase(generate_object_id(object_id, 0x00));
-}
-
-const MessageHeader *const ProxyClient::get_request_info(const ObjectId& object_id) const
-{
-    try
-    {
-        return &requests_info_.at(generate_object_id(object_id, 0x00));
-    } catch (const std::out_of_range&)
-    {
-        std::cerr << "Client " << object_id << "not found" << std::endl;
-        return nullptr;
-    }
-}
-
 uint16_t ProxyClient::sequence()
 {
-    return sequence_count_++;
+    return ++sequence_count_;
 }
+
+void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length)
+{
+    printf("on_read_data\n");
+
+    printf("%s %u\n", data, length);
+    ShapeType* shape = (ShapeType*)data;
+    std::cout << "<SHAPE TYPE>" << std::endl;
+    std::cout << " - color: " << shape->color().data() << std::endl;
+    std::cout << " - x: " << shape->x() << std::endl;
+    std::cout << " - y: " << shape->y() << std::endl;
+
+    MessageHeader message_header;
+    message_header.client_key(client_key);
+    message_header.session_id(session_id);
+    message_header.stream_id(stream_id);
+    message_header.sequence_nr(sequence());
+
+    std::vector<uint8_t> vdata(data, data + length);
+    SampleData sdata;
+    sdata.serialized_data(vdata);
+    DATA_PAYLOAD payload;
+    payload.request_id(req_id);
+    payload.resource_id(object_id);
+    payload.data_reader()._d(READM_DATA);
+    payload.data_reader().data(sdata);
+
+    root()->add_reply(message_header, payload);
+
+}
+
+
+
+
