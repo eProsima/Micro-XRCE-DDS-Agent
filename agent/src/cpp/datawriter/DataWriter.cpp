@@ -108,27 +108,8 @@ bool DataWriter::write(const WRITE_DATA_PAYLOAD& write_data)
         return false;
     }
 
-    ShapeType st;
-    std::vector<uint8_t>* serialized_data = write_data.data_writer().data().serialized_data();
-    SerializedPayload_t payload;
-    eprosima::fastcdr::FastBuffer fastbuffer(serialized_data->data(), serialized_data->size()); // Object that manages the raw buffer.
-    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR); // Object that deserializes the data.
-    // Deserialize encapsulation.
-    deser.read_encapsulation();
-    payload.encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS? CDR_BE: CDR_LE;
-
-    try
-    {
-        st.deserialize(deser); //Deserialize the object:
-    }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
-    {
-        return false;
-    }
-
-    printf();
-
-    return mp_rtps_publisher->write(&st);
+    std::vector<uint8_t> serialized_data = write_data.data_writer().data().serialized_data();
+    return mp_rtps_publisher->write(&serialized_data);
 }
 
 

@@ -37,56 +37,24 @@ ShapeTypePubSubType::~ShapeTypePubSubType() {
         free(m_keyBuffer);
 }
 
-bool ShapeTypePubSubType::serialize(void *data, SerializedPayload_t *payload) {
-    ShapeType *p_type = (ShapeType*) data;
-    eprosima::fastcdr::FastBuffer fastbuffer((char*) payload->data, payload->max_size); // Object that manages the raw buffer.
-    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
-            eprosima::fastcdr::Cdr::DDS_CDR); // Object that serializes the data.
-    payload->encapsulation = ser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-    // Serialize encapsulation
-    ser.serialize_encapsulation();
-
-    try
-    {
-        p_type->serialize(ser); // Serialize the object:
-    }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
-    {
-        return false;
-    }
-
-    payload->length = (uint32_t)ser.getSerializedDataLength(); //Get the serialized length
+bool ShapeTypePubSubType::serialize(void *data, SerializedPayload_t *payload)
+{
+    std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
+    payload->data[0] = 0;
+    payload->data[1] = 1;
+    payload->data[2] = 0;
+    payload->data[3] = 0;
+    memcpy(&payload->data[4], buffer->data(), buffer->size());
+    payload->length = (uint32_t)buffer->size() + 4; //Get the serialized length
     return true;
 }
 
 bool ShapeTypePubSubType::deserialize(SerializedPayload_t* payload, void* data)
 {
-    /*ShapeTypePlus* stp = (ShapeTypePlus*)data;
-    if (stp->ser_data != nullptr) return true;
-    stp->length = payload->length;
-    stp->ser_data = new octet[payload->length];
-    memcpy(stp->ser_data, payload->data, payload->length);
-    printf("payload->length %d %d\n", payload->length, stp->length);
-
-    return true;*/
 
     /******************************/
-    ShapeType* p_type = (ShapeType*) data;  //Convert DATA to pointer of your type
-    eprosima::fastcdr::FastBuffer fastbuffer((char*)payload->data, payload->length); // Object that manages the raw buffer.
-    eprosima::fastcdr::Cdr deser(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
-            eprosima::fastcdr::Cdr::DDS_CDR); // Object that deserializes the data.
-    // Deserialize encapsulation.
-    deser.read_encapsulation();
-    payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
-
-    try
-    {
-        p_type->deserialize(deser); //Deserialize the object:
-    }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
-    {
-        return false;
-    }
+    std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
+    buffer->assign(payload->data + 4, payload->data + payload->length);
 
     return true;
 }

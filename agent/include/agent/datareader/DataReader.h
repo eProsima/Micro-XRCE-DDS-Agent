@@ -44,7 +44,8 @@ public:
     ReaderListener() = default;
     virtual ~ReaderListener() = default;
 
-    virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length) = 0;
+    virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id,
+            const std::vector<unsigned char>& buffer) = 0;
 };
 
 class TimerEvent

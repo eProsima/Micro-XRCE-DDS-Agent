@@ -25,6 +25,7 @@
 #include <fastrtps/publisher/Publisher.h>
 
 #include <agent/Common.h>
+#include <agent/Payloads.h>
 #include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {

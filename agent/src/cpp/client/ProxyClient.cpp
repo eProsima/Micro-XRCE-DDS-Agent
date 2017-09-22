@@ -78,7 +78,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_PUBLISHER:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new DataWriter()));
+            return objects_.insert(std::make_pair(internal_object_id, new DataWriter())).second;
             return false;
             break;
         }
@@ -250,16 +250,10 @@ uint16_t ProxyClient::sequence()
     return ++sequence_count_;
 }
 
-void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id, const octet* data, const size_t length)
+void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id,
+        const std::vector<unsigned char>& buffer)
 {
     printf("on_read_data\n");
-
-    printf("%s %u\n", data, length);
-    ShapeType* shape = (ShapeType*)data;
-    std::cout << "<SHAPE TYPE>" << std::endl;
-    std::cout << " - color: " << shape->color().data() << std::endl;
-    std::cout << " - x: " << shape->x() << std::endl;
-    std::cout << " - y: " << shape->y() << std::endl;
 
     MessageHeader message_header;
     message_header.client_key(client_key);
@@ -267,14 +261,11 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence());
 
-    std::vector<uint8_t> vdata(data, data + length);
-    SampleData sdata;
-    sdata.serialized_data(vdata);
     DATA_PAYLOAD payload;
     payload.request_id(req_id);
     payload.resource_id(object_id);
     payload.data_reader()._d(READM_DATA);
-    payload.data_reader().data(sdata);
+    payload.data_reader().data().serialized_data(buffer);
 
     root()->add_reply(message_header, payload);
 
