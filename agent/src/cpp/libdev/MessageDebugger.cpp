@@ -103,7 +103,7 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status)
 
     stream << "#" << status.request_id() << separator;
     stream << std::setw(4) << +status.status() << " ";
-    switch(status.status())
+    switch(status.implementation_status())
     {
         case STATUS_OK:
             stream << "OK";
@@ -140,7 +140,7 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status)
     }
     stream << separator;
     stream << std::setw(4) << +status.implementation_status() << " ";
-    switch(status.implementation_status())
+    switch(status.status())
     {
         case STATUS_LAST_OP_NONE:
             stream << "NONE";
