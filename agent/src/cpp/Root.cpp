@@ -452,18 +452,22 @@ void Agent::add_reply(const Message& message)
 
 void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
+    MessageHeader updated_header{header};
+    update_header(updated_header);
     Message message{};
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
-    message_creator.header(header);
+    message_creator.header(updated_header);
     message_creator.status(status_reply);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
+    MessageHeader updated_header{header};
+    update_header(updated_header);
     Message message{};
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
-    message_creator.header(header);
+    message_creator.header(updated_header);
     message_creator.data(data);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
@@ -505,9 +509,6 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
-            
-            MessageHeader modified_header{header};
-            update_header(modified_header, *client);
             add_reply(header, result_status);
         }
         else
@@ -556,7 +557,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     debug::short_print(std::cout, read_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
-        Status result_status = client->read(read_payload.object_id(), read_payload);
+        Status result_status = client->read(read_payload.object_id(), header.sequence_nr(), read_payload);
         add_reply(header, result_status);
     }
     else
@@ -577,7 +578,7 @@ ProxyClient* Agent::get_client(int32_t client_key)
     }
 }
 
-void Agent::update_header(MessageHeader& header, ProxyClient& client)
+void Agent::update_header(MessageHeader& header)
 {
-    header.sequence_nr(client.sequence());
+    header.sequence_nr(++header.sequence_nr());
 }

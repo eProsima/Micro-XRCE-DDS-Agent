@@ -27,10 +27,10 @@ using namespace eprosima::micrortps;
 
 ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header):
         representation_(std::move(client)),
-        sequence_count_(0),
         client_key(header.client_key()),
         session_id(header.session_id()),
-        stream_id(header.stream_id())
+        stream_id(header.stream_id()),
+        sequence_nr(header.sequence_nr())
 { }
 
 ProxyClient::~ProxyClient()
@@ -44,30 +44,26 @@ ProxyClient::~ProxyClient()
 ProxyClient::ProxyClient(const ProxyClient &x)
 :
     representation_( x.representation_),
-    objects_(x.objects_),
-    sequence_count_(x.sequence_count_.load())
+    objects_(x.objects_)
 {
 }
 
 ProxyClient::ProxyClient(ProxyClient &&x)
 :
     representation_(std::move(x.representation_)),
-    objects_(std::move(x.objects_)),
-    sequence_count_(x.sequence_count_.load())
+    objects_(std::move(x.objects_))
 {
 }
 ProxyClient& ProxyClient::operator=(const ProxyClient &x)
 {
     representation_ =  x.representation_;
     objects_ = x.objects_;
-    sequence_count_ = x.sequence_count_.load();
     return *this;
 }
 ProxyClient& ProxyClient::operator=(ProxyClient &&x)
 {
     representation_ = std::move(x.representation_);
     objects_ = std::move(x.objects_);
-    sequence_count_ = x.sequence_count_.load();
     return *this;
 }
 
@@ -214,7 +210,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     return status;
 }
 
-Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  data_payload)
+Status ProxyClient::read(const ObjectId& object_id, uint8_t sequ, const READ_DATA_PAYLOAD&  data_payload)
 {
     Status status;
     status.result().request_id();
@@ -232,6 +228,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
         if (!reader->read(data_payload))
         {
             status.result().status(STATUS_OK);
+            sequence_nr = sequ;
         }
     }
     return status;
@@ -245,11 +242,6 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
     return internal_id;
 }
 
-uint16_t ProxyClient::sequence()
-{
-    return ++sequence_count_;
-}
-
 void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id,
         const std::vector<unsigned char>& buffer)
 {
@@ -259,7 +251,7 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
-    message_header.sequence_nr(sequence());
+    message_header.sequence_nr(sequence_nr++);
 
     DATA_PAYLOAD payload;
     payload.request_id(req_id);

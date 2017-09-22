@@ -40,12 +40,10 @@ public:
     Status create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload);
     Status delete_object(const DELETE_PAYLOAD& delete_payload);
     Status update(const ObjectId& object_id, const ObjectVariant& representation);
-    Status read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload);
+    Status read(const ObjectId& object_id, uint8_t sequ, const READ_DATA_PAYLOAD& data_payload);
     Status write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload);
     Info get_info(const ObjectId& object_id);
-    
-    uint16_t sequence();
-    
+        
     void on_read_data(const ObjectId& object_id, const RequestId& req_id,
             const std::vector<unsigned char>& buffer);
 
@@ -56,11 +54,11 @@ private:
     
     std::mutex objects_mutex_;
     std::map<InternalObjectId, XRCEObject*> objects_;
-    std::atomic<uint16_t> sequence_count_;
-    
+        
     uint32_t client_key;
     SessionId session_id;
     uint8_t stream_id;
+    uint8_t sequence_nr;
 
     bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
     bool delete_object(const InternalObjectId& internal_object_id);
