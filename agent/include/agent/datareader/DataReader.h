@@ -54,6 +54,7 @@ public:
     TimerEvent();
     virtual ~TimerEvent() = default;
     void run_timer();
+    int init_timer(int milliseconds);
 
     virtual void on_timeout(const asio::error_code& error) = 0;
 
@@ -90,8 +91,7 @@ public:
 
     bool init();
     int read(const READ_DATA_PAYLOAD& read_data);
-    int cancel_read();
-    int read_sample();
+
 
     void on_timeout(const asio::error_code& error);
     void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info);
@@ -99,12 +99,15 @@ public:
 
 
 private:
+    int start_read(const READ_DATA_PAYLOAD& read_data);
+    int stop_read();
     void read_task(READ_DATA_PAYLOAD read_data);
     bool takeNextData(void* data);
 
     std::thread m_read_thread, m_timer_thread;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
+    std::atomic_bool m_running;
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;

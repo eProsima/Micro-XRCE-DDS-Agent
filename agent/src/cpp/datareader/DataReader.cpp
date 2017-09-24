@@ -19,6 +19,7 @@
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <atomic>
 
 #include <agent/datareader/DataReader.h>
 
@@ -108,15 +109,34 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 
     if (!m_read_thread.joinable())
     {
-
-        m_read_thread = std::thread(&DataReader::read_task, this, read_data);
-        m_timer_thread = std::thread(&DataReader::run_timer, this);
+        start_read(read_data);
     }
     else
     {
-        printf("DataReader busy\n");
+        printf("DataReader m_read_thread busy\n");
+        stop_read();
+        start_read(read_data);
     }
 
+    return 0;
+}
+
+int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
+{
+    printf("START READ\n");
+    m_running = true;
+    m_timer_thread = std::thread(&DataReader::run_timer, this);
+    m_read_thread = std::thread(&DataReader::read_task, this, read_data);
+    return 0;
+}
+
+int DataReader::stop_read()
+{
+    printf("STOP READ\n");
+    m_running = false;
+    m_cond_var.notify_one();
+    m_timer_thread.join();
+    m_read_thread.join();
     return 0;
 }
 
@@ -132,40 +152,47 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 
 void DataReader::read_task(READ_DATA_PAYLOAD read_data)
 {
+    printf("Starting read_task...\n");
     std::unique_lock<std::mutex> lock(m_mutex);
-    int sample_count = 0;
-    while(0 == read_data.max_samples() || sample_count < read_data.max_samples()) // running
+    uint16_t message_count = 0;
+    while(m_running && (0 == read_data.max_messages() || message_count < read_data.max_messages()))
     {
-        m_cond_var.wait(lock, [&]{return m_time_expired && m_new_message;});
+        m_cond_var.wait(lock, [&]{return !m_running || (m_time_expired && m_new_message);});
+
+        printf("Read %u of %u\n", message_count + 1, read_data.max_messages());
 
         std::vector<unsigned char> buffer;
         if (takeNextData(&buffer))
         {
             mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
-            ++sample_count;
+            ++message_count;
         }
 
         m_time_expired = m_new_message = false;
     }
+    m_running = false;
     printf("exiting read_task...\n");
 }
 
 void DataReader::on_timeout(const asio::error_code& error)
 {
-  if (error)
-  {
-      printf("error");
-  }
-  else
-  {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_time_expired = true;
-      m_cond_var.notify_one();
+    printf("on_timeout\n");
+    if (error)
+    {
+        printf("error\n");
+    }
+    else
+    {
+        std::lock_guard < std::mutex > lock(m_mutex);
+        m_time_expired = true;
+        m_cond_var.notify_one();
 
-      // Relaunch timer
-      m_timer.expires_from_now(std::chrono::milliseconds(3000));
-      m_timer.async_wait(std::bind(&TimerEvent::on_timeout, this, std::placeholders::_1));
-  }
+        // Relaunch timer
+        if (m_running)
+        {
+            init_timer(2000);
+        }
+    }
 
 }
 
@@ -179,7 +206,7 @@ void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
         {
             // Print your structure data here.
             ++n_msg;
-            std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
+            //std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
 
             std::lock_guard<std::mutex> lock(m_mutex);
             m_new_message = true;
@@ -188,13 +215,22 @@ void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
     }
 }
 
-TimerEvent::TimerEvent(): m_timer(m_io_service, std::chrono::milliseconds(1000))
+TimerEvent::TimerEvent(): m_timer(m_io_service)
 {
+}
+
+int TimerEvent::init_timer(int milliseconds)
+{
+    m_io_service.reset();
+    m_timer.expires_from_now(std::chrono::milliseconds(milliseconds));
     m_timer.async_wait(std::bind(&TimerEvent::on_timeout, this, std::placeholders::_1));
+    return 0;
 }
 
 void TimerEvent::run_timer()
 {
+    printf("Starting run_timer...\n");
+    init_timer(2000);
     m_io_service.run();
     printf("exiting run_timer...\n");
 }
