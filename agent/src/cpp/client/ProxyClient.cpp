@@ -29,8 +29,7 @@ ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader
         representation_(std::move(client)),
         client_key(header.client_key()),
         session_id(header.session_id()),
-        stream_id(header.stream_id()),
-        sequence_nr(header.sequence_nr())
+        stream_id(header.stream_id())
 { }
 
 ProxyClient::~ProxyClient()
@@ -195,6 +194,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     Status status;
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
+    status.object_id(object_id);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
@@ -210,10 +210,11 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     return status;
 }
 
-Status ProxyClient::read(const ObjectId& object_id, uint8_t sequ, const READ_DATA_PAYLOAD&  data_payload)
+Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  data_payload)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(data_payload.request_id());
+    status.object_id(object_id);
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -227,8 +228,7 @@ Status ProxyClient::read(const ObjectId& object_id, uint8_t sequ, const READ_DAT
         auto* reader = dynamic_cast<DataReader*>(object_it->second);
         if (!reader->read(data_payload))
         {
-            status.result().status(STATUS_OK);
-            sequence_nr = sequ;
+            status.result().implementation_status(STATUS_OK);
         }
     }
     return status;
@@ -251,7 +251,6 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
-    message_header.sequence_nr(sequence_nr++);
 
     DATA_PAYLOAD payload;
     payload.request_id(req_id);
