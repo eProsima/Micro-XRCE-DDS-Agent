@@ -29,7 +29,45 @@ class DATA_PAYLOAD;
 
 namespace debug{
 
+enum class STREAM_COLOR
+{
+    YELLOW,
+    RED
+};
 
+class ColorStream
+{
+public:
+    ColorStream(std::ostream& stream, STREAM_COLOR color) : stream_(stream)
+    {
+        switch(color)
+        {
+            case STREAM_COLOR::YELLOW:
+            {
+                stream_ << YELLOW;
+                break;
+            }
+            case STREAM_COLOR::RED:
+            {
+                stream_ << RED;
+                break;
+            }
+            default:
+            break;
+        }
+    }
+
+    ~ColorStream()
+    {
+        stream_ << RESTORE_COLOR;
+    }
+
+private:
+    std::ostream& stream_;
+    const std::string YELLOW = "\e[1;33m";
+    const std::string RED = "\e[1;31m";
+    const std::string RESTORE_COLOR = "\e[0m";
+};
 
 class StreamScopedFlags
 {

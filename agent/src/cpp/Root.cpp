@@ -513,6 +513,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
         }
         else
         {
+            debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
             std::cerr << "Create message rejected" << std::endl;
             // TODO Cuando el cliente no existe
         }
@@ -535,6 +536,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
     else
     {
+        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
@@ -550,6 +552,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
     else
     {
+        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
@@ -565,6 +568,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
     else
     {
+        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Read message rejected" << std::endl;
     }
 } 
@@ -576,6 +580,7 @@ ProxyClient* Agent::get_client(int32_t client_key)
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
     {
+        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Client " << client_key << "not found" << std::endl;
         return nullptr;
     }

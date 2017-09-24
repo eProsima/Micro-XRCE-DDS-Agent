@@ -7,10 +7,6 @@
 
 #include <iomanip>
 
-#define YELLOW "\e[1;33m"
-#define RESTORE_COLOR "\e[0m"
-
-
 namespace eprosima{
 namespace micrortps{
 namespace debug{
@@ -81,10 +77,12 @@ std::ostream& operator<<(std::ostream& stream, const Status& status)
 
 std::ostream& short_print(std::ostream& stream, const Status& status)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Status" << separator;
     stream << "id: " << status.object_id() << separator;
     short_print(stream, status.result()) << "]";
+
 }
 
 std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
@@ -98,7 +96,8 @@ std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
 }
 
 std::ostream& short_print(std::ostream& stream, const ResultStatus& status)
-{    
+{
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
 
     stream << "#" << status.request_id() << separator;
@@ -306,6 +305,7 @@ std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_d
 
 std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Create" << separator;
     stream << "#" << create_payload.request_id() << separator;
@@ -335,6 +335,7 @@ std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_pay
 
 std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Delete" << separator;
@@ -346,6 +347,7 @@ std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_dat
 
 std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Write data" << separator;
@@ -368,6 +370,7 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_
 
 std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Read data" << separator;
@@ -380,6 +383,7 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_da
 
 std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data)
 {
+    ColorStream cs(stream, STREAM_COLOR::YELLOW);
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Data" << separator;
