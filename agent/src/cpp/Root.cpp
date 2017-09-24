@@ -109,7 +109,7 @@ Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& c
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
-            std::cout << "ProxyClient created: " << std::endl;
+            std::cout << "ProxyClient created " << std::endl;
             status.result().implementation_status(STATUS_OK);
         }
         else{
@@ -380,20 +380,13 @@ void Agent::demo_process_response(Message& message)
     deserializer.deserialize(deserialized_header);
     deserializer.deserialize(deserialized_submessage_header);
 
-    #ifdef _DEBUG
-        std::cout << deserialized_header << std::endl;
-        std::cout << deserialized_submessage_header << std::endl;
-    #endif
-
     switch (deserialized_submessage_header.submessage_id())
     {
         case STATUS:
         {
             Status deserialized_status;
             deserializer.deserialize(deserialized_status);
-            #ifdef _DEBUG
-                std::cout << deserialized_status << std::endl;
-            #endif
+            std::cout << "<==";
             debug::short_print(std::cout, deserialized_status) << std::endl;
             break;
         }
@@ -401,6 +394,7 @@ void Agent::demo_process_response(Message& message)
         {
             DATA_PAYLOAD deserialized_data;
             deserializer.deserialize(deserialized_data);
+            std::cout << "<==";
             debug::short_print(std::cout, deserialized_data) << std::endl;
             // printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
             // ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
@@ -501,6 +495,7 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
 {
+    std::cout << "==>";
     debug::short_print(std::cout, create_payload) << std::endl;
     if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
     {
@@ -531,6 +526,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload)
 {
+    std::cout << "==>";
     debug::short_print(std::cout, delete_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
@@ -545,6 +541,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
 {
+    std::cout << "==>";
     debug::short_print(std::cout, write_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
@@ -559,6 +556,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
 {
+    std::cout << "==>";
     debug::short_print(std::cout, read_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
