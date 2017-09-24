@@ -54,7 +54,7 @@ bool ShapeSubscriber::init()
 	SubscriberAttributes Rparam;
 	Rparam.topic.topicKind = WITH_KEY;
 	Rparam.topic.topicDataType = myType.getName(); //Must be registered before the creation of the subscriber
-	Rparam.topic.topicName = "ShapePubSubTopic";
+	Rparam.topic.topicName = "Square";
 	mp_subscriber = Domain::createSubscriber(mp_participant,Rparam,(SubscriberListener*)&m_listener);
 	if(mp_subscriber == nullptr)
 		return false;

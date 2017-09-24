@@ -59,7 +59,7 @@ bool ShapePublisher::init()
 	PublisherAttributes Wparam;
 	Wparam.topic.topicKind = WITH_KEY;
 	Wparam.topic.topicDataType = myType.getName();  //This type MUST be registered
-	Wparam.topic.topicName = "ShapePubSubTopic";
+	Wparam.topic.topicName = "Square";
 	mp_publisher = Domain::createPublisher(mp_participant,Wparam,(PublisherListener*)&m_listener);
 	if(mp_publisher == nullptr)
 		return false;
@@ -91,7 +91,7 @@ void ShapePublisher::run()
 	// Publication code
 	
 	ShapeType st;
-	st.color("BLUE");
+	st.color("RED");
 	st.x(10);
 	st.y(100);
 	/* Initialize your structure here */
