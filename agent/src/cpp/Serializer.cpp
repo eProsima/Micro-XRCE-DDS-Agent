@@ -23,7 +23,7 @@ namespace micrortps {
 
 Serializer::Serializer(char* buffer, size_t buffer_size) :
     fastbuffer_(buffer, buffer_size),
-    serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::Cdr::DDS_CDR)	
+    serializer_(fastbuffer_)	
 {
 }
 

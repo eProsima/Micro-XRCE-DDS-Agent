@@ -18,6 +18,7 @@
 #include <agent/MessageHeader.h>
 #include <agent/SubMessageHeader.h>
 #include <types/Shape.h>
+#include <fastcdr/Cdr.h>
 
 #include <libdev/MessageDebugger.h>
 

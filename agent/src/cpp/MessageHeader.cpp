@@ -26,7 +26,7 @@ namespace { char dummy; }
 
 #include "agent/MessageHeader.h"
 
-#include <fastcdr/Cdr.h>
+#include <fastcdr/FastCdr.h>
 
 #include <fastcdr/exceptions/BadParamException.h>
 using namespace eprosima::fastcdr::exception;
@@ -90,13 +90,13 @@ size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
@@ -106,32 +106,29 @@ size_t MessageHeader::getCdrSerializedSize(const MessageHeader& data, size_t cur
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 4;
+    current_alignment += 1;
+    current_alignment += 1;
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
 }
 
-void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void MessageHeader::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << client_key_;
     scdr << session_id_;
     scdr << stream_id_;
-    scdr.serialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
+    scdr << sequence_nr_;
 }
 
-void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void MessageHeader::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> client_key_;
     dcdr >> session_id_;
     dcdr >> stream_id_;
-    dcdr.deserialize(sequence_nr_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
+    dcdr >> sequence_nr_;
 }
 
 } /* namespace micrortps */

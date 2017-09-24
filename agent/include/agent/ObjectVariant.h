@@ -24,7 +24,7 @@ namespace eprosima
 {
     namespace fastcdr
     {
-        class Cdr;
+        class FastCdr;
     }
 }
 
@@ -212,13 +212,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     int32_t seconds_;
@@ -455,13 +455,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     std::array<uint8_t, 4> xrce_cookie_;
@@ -569,13 +569,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     std::string as_string_;
@@ -644,13 +644,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 };
 /*!
  * @brief This class represents the structure OBJK_APPLICATION_Representation defined by the user in the IDL file.
@@ -715,13 +715,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 };
 /*!
  * @brief This class represents the structure OBJK_PARTICIPANT_Representation defined by the user in the IDL file.
@@ -786,13 +786,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 };
 /*!
  * @brief This class represents the structure OBJK_TYPE_Representation defined by the user in the IDL file.
@@ -928,13 +928,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectId participant_id_;
@@ -1039,13 +1039,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     ObjectId participant_id_;
@@ -1149,13 +1149,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectId participant_id_;
@@ -1260,13 +1260,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectId participant_id_;
@@ -1406,13 +1406,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectId participant_id_;
@@ -1553,13 +1553,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectId participant_id_;
@@ -1899,13 +1899,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectKind discriminator_;
@@ -2038,13 +2038,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     bool reuse_;
@@ -2202,13 +2202,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     RequestId request_id_;
@@ -2306,13 +2306,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     int16_t highest_acked_num_;
@@ -2433,13 +2433,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     int16_t stream_seq_num_;
@@ -2579,13 +2579,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ObjectKind discriminator_;
@@ -2762,13 +2762,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
    
 private:
     ResultStatus result_;
@@ -2945,13 +2945,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     ResultStatus result_;
@@ -3110,13 +3110,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     int16_t max_samples_;
@@ -3271,13 +3271,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     uint8_t state_;
@@ -3427,13 +3427,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     uint8_t state_;
@@ -3539,13 +3539,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     std::vector<uint8_t> serialized_data_;
@@ -3685,13 +3685,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     SampleInfo info_;
@@ -3832,13 +3832,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     SampleInfoDelta info_delta_;
@@ -3978,13 +3978,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     SampleInfo info_base_;
@@ -4199,13 +4199,13 @@ public:
     * @brief This function serializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
     * @brief This function deserializes an object using CDR serialization.
     * @param cdr CDR serialization object.
     */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
 
 private:
     ReadMode discriminator_;

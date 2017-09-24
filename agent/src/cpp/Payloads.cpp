@@ -26,7 +26,7 @@ namespace { char dummy; }
 
 #include "agent/Payloads.h"
 
-#include <fastcdr/Cdr.h>
+#include <fastcdr/FastCdr.h>
 
 #include <fastcdr/exceptions/BadParamException.h>
 using namespace eprosima::fastcdr::exception;
@@ -86,9 +86,9 @@ size_t CREATE_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     current_alignment += ObjectVariant::getMaxCdrSerializedSize(current_alignment);
 
@@ -99,21 +99,21 @@ size_t CREATE_PAYLOAD::getCdrSerializedSize(const CREATE_PAYLOAD& data, size_t c
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += ((3) * 1);
     current_alignment += ObjectVariant::getCdrSerializedSize(data.object_representation(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void CREATE_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void CREATE_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << object_id_;
     scdr << object_representation_;
 }
 
-void CREATE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void CREATE_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> object_id_;
@@ -162,9 +162,9 @@ size_t DELETE_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
 
     return current_alignment - initial_alignment;
@@ -174,19 +174,19 @@ size_t DELETE_PAYLOAD::getCdrSerializedSize(const DELETE_PAYLOAD& data, size_t c
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
 
-void DELETE_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void DELETE_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << object_id_;
 }
 
-void DELETE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void DELETE_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> object_id_;
@@ -234,7 +234,7 @@ size_t RESOURCE_STATUS_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
     current_alignment += Status::getMaxCdrSerializedSize(current_alignment);
 
@@ -245,19 +245,19 @@ size_t RESOURCE_STATUS_PAYLOAD::getCdrSerializedSize(const RESOURCE_STATUS_PAYLO
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
     current_alignment += Status::getCdrSerializedSize(data.request_status(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void RESOURCE_STATUS_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void RESOURCE_STATUS_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << request_status_;
 }
 
-void RESOURCE_STATUS_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void RESOURCE_STATUS_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> request_status_;
@@ -299,7 +299,7 @@ size_t GET_INFO_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
     return current_alignment - initial_alignment;
 }
@@ -308,16 +308,16 @@ size_t GET_INFO_PAYLOAD::getCdrSerializedSize(const GET_INFO_PAYLOAD& data, size
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
     return current_alignment - initial_alignment;
 }
 
-void GET_INFO_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void GET_INFO_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
 }
 
-void GET_INFO_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void GET_INFO_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
 }
@@ -364,7 +364,7 @@ size_t INFO_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
     current_alignment += Info::getMaxCdrSerializedSize(current_alignment);
 
@@ -375,19 +375,19 @@ size_t INFO_PAYLOAD::getCdrSerializedSize(const INFO_PAYLOAD& data, size_t curre
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
     current_alignment += Info::getCdrSerializedSize(data.resource_info(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void INFO_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void INFO_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << resource_info_;
 }
 
-void INFO_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void INFO_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> resource_info_;
@@ -435,7 +435,7 @@ size_t READ_RESOURCE_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
     current_alignment += DataReaderReadeSpec::getMaxCdrSerializedSize(current_alignment);
 
@@ -446,19 +446,19 @@ size_t READ_RESOURCE_PAYLOAD::getCdrSerializedSize(const READ_RESOURCE_PAYLOAD& 
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
     current_alignment += DataReaderReadeSpec::getCdrSerializedSize(data.datareader_spec(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void READ_RESOURCE_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void READ_RESOURCE_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << datareader_spec_;
 }
 
-void READ_RESOURCE_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void READ_RESOURCE_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> datareader_spec_;
@@ -541,23 +541,17 @@ size_t READ_DATA_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 2;
+    current_alignment += 1;
+    current_alignment += 4;
+    current_alignment += 4;
+    current_alignment += 4;
+    current_alignment += 2;
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
@@ -567,27 +561,27 @@ size_t READ_DATA_PAYLOAD::getCdrSerializedSize(const READ_DATA_PAYLOAD& data, si
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += ((4) * 1);
+    current_alignment += ((3) * 1);
+    current_alignment += 2;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.content_filter_expression().size() + 1;
+    current_alignment += 4 + data.content_filter_expression().size() + 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void READ_DATA_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void READ_DATA_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << object_id_;
@@ -600,7 +594,7 @@ void READ_DATA_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
     scdr << include_sample_info_;
 }
 
-void READ_DATA_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void READ_DATA_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> object_id_;
@@ -660,9 +654,9 @@ size_t DATA_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     current_alignment += RT_Data::getMaxCdrSerializedSize(current_alignment);
 
@@ -673,21 +667,21 @@ size_t DATA_PAYLOAD::getCdrSerializedSize(const DATA_PAYLOAD& data, size_t curre
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += ((3) * 1);
     current_alignment += RT_Data::getCdrSerializedSize(data.data_reader(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void DATA_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void DATA_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << resource_id_;
     scdr << data_reader_;
 }
 
-void DATA_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void DATA_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> resource_id_;
@@ -741,9 +735,9 @@ size_t WRITE_DATA_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     current_alignment += RT_Data::getMaxCdrSerializedSize(current_alignment);
 
@@ -754,21 +748,21 @@ size_t WRITE_DATA_PAYLOAD::getCdrSerializedSize(const WRITE_DATA_PAYLOAD& data, 
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += ((3) * 1);
     current_alignment += RT_Data::getCdrSerializedSize(data.data_writer(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void WRITE_DATA_PAYLOAD::serialize(eprosima::fastcdr::Cdr &scdr) const
+void WRITE_DATA_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << object_id_;
     scdr << data_writer_;
 }
 
-void WRITE_DATA_PAYLOAD::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void WRITE_DATA_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> object_id_;

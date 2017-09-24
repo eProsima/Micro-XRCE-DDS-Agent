@@ -33,7 +33,7 @@ namespace eprosima
 {
     namespace fastcdr
     {
-        class Cdr;
+        class FastCdr;
     }
 }
 
@@ -182,13 +182,13 @@ public:
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(eprosima::fastcdr::FastCdr &cdr);
     
 private:
     uint8_t submessage_id_;

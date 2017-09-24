@@ -17,7 +17,6 @@
 
 #include <stdint.h>
 
-#include "fastcdr/Cdr.h"
 #include "fastcdr/FastCdr.h"
 #include "fastcdr/exceptions/Exception.h"
 
@@ -40,7 +39,7 @@ private:
     void align();
 
     eprosima::fastcdr::FastBuffer fastbuffer_; // Object that manages the raw buffer.
-    eprosima::fastcdr::Cdr serializer_; // Object that serializes the data.
+    eprosima::fastcdr::FastCdr serializer_; // Object that serializes the data.
 
 };
 

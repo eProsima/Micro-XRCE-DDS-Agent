@@ -28,7 +28,7 @@ namespace { char dummy; }
 
 #include "agent/ObjectVariant.h"
 
-#include <fastcdr/Cdr.h>
+#include <fastcdr/FastCdr.h>
 
 #include <fastcdr/exceptions/BadParamException.h>
 using namespace eprosima::fastcdr::exception;
@@ -87,11 +87,11 @@ size_t SubmessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
@@ -101,28 +101,28 @@ size_t SubmessageHeader::getCdrSerializedSize(const SubmessageHeader& data, size
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
 }
 
-void SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SubmessageHeader::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << submessage_id_;
     scdr << flags_;
-    scdr.serialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
+    scdr << submessage_length_;
 }
 
-void SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SubmessageHeader::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> submessage_id_;
     dcdr >> flags_;
-    dcdr.deserialize(submessage_length_, eprosima::fastcdr::Cdr::BIG_ENDIANNESS);
+    dcdr >> submessage_length_;
 }
 
 } /* namespace micrortps */

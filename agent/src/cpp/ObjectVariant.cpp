@@ -26,7 +26,7 @@ namespace { char dummy; }
 
 #include "agent/ObjectVariant.h"
 
-#include <fastcdr/Cdr.h>
+#include <fastcdr/FastCdr.h>
 
 #include <fastcdr/exceptions/BadParamException.h>
 using namespace eprosima::fastcdr::exception;
@@ -81,9 +81,9 @@ size_t Time_t::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
@@ -93,21 +93,21 @@ size_t Time_t::getCdrSerializedSize(const Time_t& data, size_t current_alignment
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
 }
 
-void Time_t::serialize(eprosima::fastcdr::Cdr &scdr) const
+void Time_t::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << seconds_;
     scdr << nanoseconds_;
 }
 
-void Time_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void Time_t::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> seconds_;
     dcdr >> nanoseconds_;
@@ -170,14 +170,14 @@ size_t OBJK_CLIENT_Representation::getMaxCdrSerializedSize(size_t current_alignm
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((2) * 1);
 
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((2) * 1);
 
     current_alignment += Time_t::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
@@ -187,17 +187,17 @@ size_t OBJK_CLIENT_Representation::getCdrSerializedSize(const OBJK_CLIENT_Repres
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += ((2) * 1);
+    current_alignment += ((2) * 1);
     current_alignment += Time_t::getCdrSerializedSize(data.client_timestamp(), current_alignment);
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_CLIENT_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << xrce_cookie_;
     scdr << xrce_version_;
@@ -206,7 +206,7 @@ void OBJK_CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
     scdr << session_id_;
 }
 
-void OBJK_CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_CLIENT_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> xrce_cookie_;
     dcdr >> xrce_version_;
@@ -251,7 +251,7 @@ size_t OBJK_CommonString_Representation::getMaxCdrSerializedSize(size_t current_
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+    current_alignment += 4;
 
     return current_alignment - initial_alignment;
 }
@@ -260,17 +260,17 @@ size_t OBJK_CommonString_Representation::getCdrSerializedSize(const OBJK_CommonS
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.as_string().size() + 1;
+    current_alignment += 4;
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_CommonString_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_CommonString_Representation::serialize(eprosima::fastcdr::FastCdr&scdr) const
 {
     scdr << as_string_;
 }
 
-void OBJK_CommonString_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_CommonString_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> as_string_;
 }
@@ -324,12 +324,12 @@ size_t OBJK_QOSPROFILE_Representation::getCdrSerializedSize(const OBJK_QOSPROFIL
     return current_alignment - initial_alignment;
 }
 
-void OBJK_QOSPROFILE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_QOSPROFILE_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
 }
 
-void OBJK_QOSPROFILE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_QOSPROFILE_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
 }
@@ -382,12 +382,12 @@ size_t OBJK_APPLICATION_Representation::getCdrSerializedSize(const OBJK_APPLICAT
     return current_alignment - initial_alignment;
 }
 
-void OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
 }
 
-void OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
 }
@@ -440,12 +440,12 @@ size_t OBJK_PARTICIPANT_Representation::getCdrSerializedSize(const OBJK_PARTICIP
     return current_alignment - initial_alignment;
 }
 
-void OBJK_PARTICIPANT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_PARTICIPANT_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
 }
 
-void OBJK_PARTICIPANT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_PARTICIPANT_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
 }
@@ -498,9 +498,9 @@ size_t OBJK_TYPE_Representation::getMaxCdrSerializedSize(size_t current_alignmen
             
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
@@ -511,21 +511,21 @@ size_t OBJK_TYPE_Representation::getCdrSerializedSize(const OBJK_TYPE_Representa
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.registered_type_name().size() + 1;
+    current_alignment += ((3) * 1);
+    current_alignment += 4 + data.registered_type_name().size() + 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_TYPE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_TYPE_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << registered_type_name_;
 }
 
-void OBJK_TYPE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_TYPE_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -573,7 +573,7 @@ size_t OBJK_TOPIC_Representation::getMaxCdrSerializedSize(size_t current_alignme
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
@@ -583,17 +583,17 @@ size_t OBJK_TOPIC_Representation::getCdrSerializedSize(const OBJK_TOPIC_Represen
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
     return current_alignment - initial_alignment;
 }
 
-void OBJK_TOPIC_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_TOPIC_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
-void OBJK_TOPIC_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_TOPIC_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -640,7 +640,7 @@ size_t OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(size_t current_ali
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
@@ -650,17 +650,17 @@ size_t OBJK_PUBLISHER_Representation::getCdrSerializedSize(const OBJK_PUBLISHER_
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
     return current_alignment - initial_alignment;
 }
 
-void OBJK_PUBLISHER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_PUBLISHER_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
-void OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -707,7 +707,7 @@ size_t OBJK_SUBSCRIBER_Representation::getMaxCdrSerializedSize(size_t current_al
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
@@ -717,17 +717,17 @@ size_t OBJK_SUBSCRIBER_Representation::getCdrSerializedSize(const OBJK_SUBSCRIBE
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
     return current_alignment - initial_alignment;
 }
 
-void OBJK_SUBSCRIBER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_SUBSCRIBER_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
 }
 
-void OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -781,9 +781,9 @@ size_t OBJK_DATAWRITER_Representation::getMaxCdrSerializedSize(size_t current_al
 
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
             
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
 
     return current_alignment - initial_alignment;
@@ -794,20 +794,20 @@ size_t OBJK_DATAWRITER_Representation::getCdrSerializedSize(const OBJK_DATAWRITE
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_DATAWRITER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_DATAWRITER_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << publisher_id_;
 }
 
-void OBJK_DATAWRITER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_DATAWRITER_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -862,9 +862,9 @@ size_t OBJK_DATAREADER_Representation::getMaxCdrSerializedSize(size_t current_al
             
     current_alignment += OBJK_CommonString_Representation::getMaxCdrSerializedSize(current_alignment);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
 
     return current_alignment - initial_alignment;
@@ -875,20 +875,20 @@ size_t OBJK_DATAREADER_Representation::getCdrSerializedSize(const OBJK_DATAREADE
     size_t initial_alignment = current_alignment;
             
     current_alignment += OBJK_CommonString_Representation::getCdrSerializedSize(data, current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
+    current_alignment += ((3) * 1);
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_DATAREADER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_DATAREADER_Representation::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     OBJK_CommonString_Representation::serialize(scdr);
     scdr << participant_id_;
     scdr << subscriber_id_;
 }
 
-void OBJK_DATAREADER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_DATAREADER_Representation::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     OBJK_CommonString_Representation::deserialize(dcdr);
     dcdr >> participant_id_;
@@ -1652,7 +1652,7 @@ size_t ObjectVariant::getMaxCdrSerializedSize(size_t current_alignment)
     size_t reset_alignment = 0;
     size_t union_max_size_serialized = 0;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
         reset_alignment = current_alignment;
@@ -1744,7 +1744,7 @@ size_t ObjectVariant::getCdrSerializedSize(const ObjectVariant& data, size_t cur
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
     switch(data.discriminator_)
     {
@@ -1785,7 +1785,7 @@ size_t ObjectVariant::getCdrSerializedSize(const ObjectVariant& data, size_t cur
     return current_alignment - initial_alignment;
 }
 
-void ObjectVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
+void ObjectVariant::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << discriminator_;
 
@@ -1826,7 +1826,7 @@ void ObjectVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
     }
 }
 
-void ObjectVariant::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void ObjectVariant::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> discriminator_;
 
@@ -1909,9 +1909,9 @@ size_t CreationMode::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
@@ -1921,21 +1921,21 @@ size_t CreationMode::getCdrSerializedSize(const CreationMode& data, size_t curre
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void CreationMode::serialize(eprosima::fastcdr::Cdr &scdr) const
+void CreationMode::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << reuse_;
     scdr << replace_;
 }
 
-void CreationMode::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void CreationMode::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> reuse_;
     dcdr >> replace_;
@@ -1987,11 +1987,11 @@ size_t ResultStatus::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
@@ -2001,23 +2001,23 @@ size_t ResultStatus::getCdrSerializedSize(const ResultStatus& data, size_t curre
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((4) * 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void ResultStatus::serialize(eprosima::fastcdr::Cdr &scdr) const
+void ResultStatus::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << request_id_;
     scdr << status_;
     scdr << implementation_status_;
 }
 
-void ResultStatus::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void ResultStatus::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> request_id_;
     dcdr >> status_;
@@ -2061,7 +2061,7 @@ size_t OBJK_DATAREADER_Status::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
@@ -2071,18 +2071,18 @@ size_t OBJK_DATAREADER_Status::getCdrSerializedSize(const OBJK_DATAREADER_Status
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_DATAREADER_Status::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_DATAREADER_Status::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << highest_acked_num_;
 }
 
-void OBJK_DATAREADER_Status::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_DATAREADER_Status::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> highest_acked_num_;
 }
@@ -2129,9 +2129,9 @@ size_t OBJK_DATAWRITER_Status::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
-    current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
+    current_alignment += 8;
 
 
     return current_alignment - initial_alignment;
@@ -2141,21 +2141,21 @@ size_t OBJK_DATAWRITER_Status::getCdrSerializedSize(const OBJK_DATAWRITER_Status
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
-    current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
+    current_alignment += 8;
 
 
     return current_alignment - initial_alignment;
 }
 
-void OBJK_DATAWRITER_Status::serialize(eprosima::fastcdr::Cdr &scdr) const
+void OBJK_DATAWRITER_Status::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << stream_seq_num_;
     scdr << sample_seq_num_;
 }
 
-void OBJK_DATAWRITER_Status::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void OBJK_DATAWRITER_Status::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> stream_seq_num_;
     dcdr >> sample_seq_num_;
@@ -2384,7 +2384,7 @@ size_t StatusVariant::getMaxCdrSerializedSize(size_t current_alignment)
     size_t reset_alignment = 0;
     size_t union_max_size_serialized = 0;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
         reset_alignment = current_alignment;
@@ -2412,7 +2412,7 @@ size_t StatusVariant::getCdrSerializedSize(const StatusVariant& data, size_t cur
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
     switch(data.discriminator_)
     {
@@ -2429,7 +2429,7 @@ size_t StatusVariant::getCdrSerializedSize(const StatusVariant& data, size_t cur
     return current_alignment - initial_alignment;
 }
 
-void StatusVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
+void StatusVariant::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << discriminator_;
 
@@ -2446,7 +2446,7 @@ void StatusVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
     }
 }
 
-void StatusVariant::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void StatusVariant::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> discriminator_;
 
@@ -2512,7 +2512,7 @@ size_t Status::getMaxCdrSerializedSize(size_t current_alignment)
     size_t initial_alignment = current_alignment;
             
     current_alignment += ResultStatus::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     //current_alignment += StatusVariant::getMaxCdrSerializedSize(current_alignment);
 
@@ -2524,20 +2524,20 @@ size_t Status::getCdrSerializedSize(const Status& data, size_t current_alignment
     size_t initial_alignment = current_alignment;
             
     current_alignment += ResultStatus::getCdrSerializedSize(data.result(), current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
     //current_alignment += StatusVariant::getCdrSerializedSize(data.status(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void Status::serialize(eprosima::fastcdr::Cdr &scdr) const
+void Status::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << result_;
     scdr << object_id_;
     //scdr << status_;
 }
 
-void Status::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void Status::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> result_;
     dcdr >> object_id_;
@@ -2592,7 +2592,7 @@ size_t Info::getMaxCdrSerializedSize(size_t current_alignment)
     size_t initial_alignment = current_alignment;
             
     current_alignment += ResultStatus::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
 
     current_alignment += ObjectVariant::getMaxCdrSerializedSize(current_alignment);
 
@@ -2604,20 +2604,20 @@ size_t Info::getCdrSerializedSize(const Info& data, size_t current_alignment)
     size_t initial_alignment = current_alignment;
             
     current_alignment += ResultStatus::getCdrSerializedSize(data.result(), current_alignment);
-    current_alignment += ((3) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((3) * 1);
     current_alignment += ObjectVariant::getCdrSerializedSize(data.info(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
-void Info::serialize(eprosima::fastcdr::Cdr &scdr) const
+void Info::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << result_;
     scdr << object_id_;
     scdr << info_;
 }
 
-void Info::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void Info::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> result_;
     dcdr >> object_id_;
@@ -2670,11 +2670,11 @@ size_t DataReaderReadeSpec::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
@@ -2684,24 +2684,24 @@ size_t DataReaderReadeSpec::getCdrSerializedSize(const DataReaderReadeSpec& data
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.content_filter().size() + 1;
+    current_alignment += 4 + data.content_filter().size() + 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-void DataReaderReadeSpec::serialize(eprosima::fastcdr::Cdr &scdr) const
+void DataReaderReadeSpec::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << max_samples_;
     scdr << include_info_;
     scdr << content_filter_;
 }
 
-void DataReaderReadeSpec::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void DataReaderReadeSpec::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> max_samples_;
     dcdr >> include_info_;
@@ -2755,11 +2755,11 @@ size_t SampleInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
+    current_alignment += 8;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
@@ -2769,24 +2769,24 @@ size_t SampleInfo::getCdrSerializedSize(const SampleInfo& data, size_t current_a
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
+    current_alignment += 8;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
 
 
     return current_alignment - initial_alignment;
 }
 
-void SampleInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SampleInfo::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << state_;
     scdr << sequence_number_;
     scdr << session_time_offset_;
 }
 
-void SampleInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SampleInfo::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> state_;
     dcdr >> sequence_number_;
@@ -2840,11 +2840,11 @@ size_t SampleInfoDelta::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
@@ -2854,24 +2854,24 @@ size_t SampleInfoDelta::getCdrSerializedSize(const SampleInfoDelta& data, size_t
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
+    current_alignment += 2;
 
 
     return current_alignment - initial_alignment;
 }
 
-void SampleInfoDelta::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SampleInfoDelta::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << state_;
     scdr << info_seq_number_delta_;
     scdr << info_timestamp_delta_;
 }
 
-void SampleInfoDelta::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SampleInfoDelta::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> state_;
     dcdr >> info_seq_number_delta_;
@@ -2914,8 +2914,8 @@ size_t SampleData::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (100 * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 4;
+    current_alignment += (100 * 1);
 
 
     return current_alignment - initial_alignment;
@@ -2925,19 +2925,19 @@ size_t SampleData::getCdrSerializedSize(const SampleData& data, size_t current_a
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (data.serialized_data().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 4;
+    current_alignment += (data.serialized_data().size() * 1);
 
 
     return current_alignment - initial_alignment;
 }
 
-void SampleData::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SampleData::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << serialized_data_;
 }
 
-void SampleData::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SampleData::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> serialized_data_;
 }
@@ -3000,13 +3000,13 @@ size_t Sample::getCdrSerializedSize(const Sample& data, size_t current_alignment
     return current_alignment - initial_alignment;
 }
 
-void Sample::serialize(eprosima::fastcdr::Cdr &scdr) const
+void Sample::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << info_;
     scdr << data_;
 }
 
-void Sample::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void Sample::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> info_;
     dcdr >> data_;
@@ -3070,13 +3070,13 @@ size_t SampleDelta::getCdrSerializedSize(const SampleDelta& data, size_t current
     return current_alignment - initial_alignment;
 }
 
-void SampleDelta::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SampleDelta::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << info_delta_;
     scdr << data_;
 }
 
-void SampleDelta::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SampleDelta::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> info_delta_;
     dcdr >> data_;
@@ -3125,7 +3125,7 @@ size_t SamplePacked::getMaxCdrSerializedSize(size_t current_alignment)
     size_t initial_alignment = current_alignment;
             
     current_alignment += SampleInfo::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
     for(size_t a = 0; a < 100; ++a)
     {
         current_alignment += SampleDelta::getMaxCdrSerializedSize(current_alignment);}
@@ -3139,7 +3139,7 @@ size_t SamplePacked::getCdrSerializedSize(const SamplePacked& data, size_t curre
     size_t initial_alignment = current_alignment;
             
     current_alignment += SampleInfo::getCdrSerializedSize(data.info_base(), current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4;
     for(size_t a = 0; a < data.sample().size(); ++a)
     {
         current_alignment += SampleDelta::getCdrSerializedSize(data.sample().at(a), current_alignment);}
@@ -3148,13 +3148,13 @@ size_t SamplePacked::getCdrSerializedSize(const SamplePacked& data, size_t curre
     return current_alignment - initial_alignment;
 }
 
-void SamplePacked::serialize(eprosima::fastcdr::Cdr &scdr) const
+void SamplePacked::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << info_base_;
     scdr << sample_;
 }
 
-void SamplePacked::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void SamplePacked::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> info_base_;
     dcdr >> sample_;
@@ -3587,7 +3587,7 @@ size_t RT_Data::getMaxCdrSerializedSize(size_t current_alignment)
     size_t reset_alignment = 0;
     size_t union_max_size_serialized = 0;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
 
         reset_alignment = current_alignment;
@@ -3600,7 +3600,7 @@ size_t RT_Data::getMaxCdrSerializedSize(size_t current_alignment)
         
         reset_alignment = current_alignment;
 
-        reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4);
+        reset_alignment += 4;
         for(size_t a = 0; a < 100; ++a)
         {
             reset_alignment += SampleData::getMaxCdrSerializedSize(reset_alignment);}
@@ -3619,7 +3619,7 @@ size_t RT_Data::getMaxCdrSerializedSize(size_t current_alignment)
         
         reset_alignment = current_alignment;
 
-        reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4);
+        reset_alignment += 4;
         for(size_t a = 0; a < 100; ++a)
         {
             reset_alignment += Sample::getMaxCdrSerializedSize(reset_alignment);}
@@ -3630,7 +3630,7 @@ size_t RT_Data::getMaxCdrSerializedSize(size_t current_alignment)
         
         reset_alignment = current_alignment;
 
-        reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4);
+        reset_alignment += 4;
         for(size_t a = 0; a < 100; ++a)
         {
             reset_alignment += SamplePacked::getMaxCdrSerializedSize(reset_alignment);}
@@ -3648,7 +3648,7 @@ size_t RT_Data::getCdrSerializedSize(const RT_Data& data, size_t current_alignme
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1;
 
     switch(data.discriminator_)
     {
@@ -3656,7 +3656,7 @@ size_t RT_Data::getCdrSerializedSize(const RT_Data& data, size_t current_alignme
         current_alignment += SampleData::getCdrSerializedSize(data.data(), current_alignment);
         break;
         case READM_DATA_SEQ:
-        current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+        current_alignment += 4;
         for(size_t a = 0; a < data.data_seq().size(); ++a)
         {
             current_alignment += SampleData::getCdrSerializedSize(data.data_seq().at(a), current_alignment);}
@@ -3665,13 +3665,13 @@ size_t RT_Data::getCdrSerializedSize(const RT_Data& data, size_t current_alignme
         current_alignment += Sample::getCdrSerializedSize(data.sample(), current_alignment);
         break;
         case READM_SAMPLE_SEQ:
-        current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+        current_alignment += 4;
         for(size_t a = 0; a < data.sample_seq().size(); ++a)
         {
             current_alignment += Sample::getCdrSerializedSize(data.sample_seq().at(a), current_alignment);}
         break;
         case READM_PACKED_SAMPLE_SEQ:
-        current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+        current_alignment += 4;
         for(size_t a = 0; a < data.sample_packed_seq().size(); ++a)
         {
             current_alignment += SamplePacked::getCdrSerializedSize(data.sample_packed_seq().at(a), current_alignment);}
@@ -3683,7 +3683,7 @@ size_t RT_Data::getCdrSerializedSize(const RT_Data& data, size_t current_alignme
     return current_alignment - initial_alignment;
 }
 
-void RT_Data::serialize(eprosima::fastcdr::Cdr &scdr) const
+void RT_Data::serialize(eprosima::fastcdr::FastCdr &scdr) const
 {
     scdr << discriminator_;
 
@@ -3709,7 +3709,7 @@ void RT_Data::serialize(eprosima::fastcdr::Cdr &scdr) const
     }
 }
 
-void RT_Data::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void RT_Data::deserialize(eprosima::fastcdr::FastCdr &dcdr)
 {
     dcdr >> discriminator_;
 
