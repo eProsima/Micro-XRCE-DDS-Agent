@@ -272,7 +272,7 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     read_payload.read_mode();
     read_payload.max_elapsed_time();
     read_payload.max_rate();
-    read_payload.content_filter_expression();
+//    read_payload.content_filter_expression();
     read_payload.max_samples();
     read_payload.include_sample_info();
     SubmessageHeader submessage_header;
@@ -414,8 +414,6 @@ void Agent::demo_process_response(Message& message)
 
 void Agent::run()
 {
-    // const size_t buffer_size = 2048;
-    // char* test_buffer = new char[buffer_size];
     std::cout << "Running eProsima Agent..." << std::endl;
     char ch = ' ';
     int ret = 0;
@@ -424,13 +422,18 @@ void Agent::run()
         if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
         {
             printf("RECV: %d bytes\n", ret);
+            /*for (int i = 0; i < ret; ++i)
+            {
+                printf("%X ", in_buffer_[i]);
+            }
+            printf("\n");*/
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), ret, this};
             myParser.parse();
         }
+        usleep(1000000);
 
     }while(true);
     std::cout << "Execution stopped" << std::endl;
-    //delete[] test_buffer;
 }
 
 void Agent::abort_execution()
@@ -488,6 +491,7 @@ void Agent::reply()
                 printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
             }
         }
+        usleep(1000000);
     }
     std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
@@ -557,7 +561,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     debug::short_print(std::cout, read_payload) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
-        Status result_status = client->read(read_payload.object_id(), header.sequence_nr(), read_payload);
+        Status result_status = client->read(read_payload.object_id(), read_payload);
         add_reply(header, result_status);
     }
     else
@@ -580,5 +584,7 @@ ProxyClient* Agent::get_client(int32_t client_key)
 
 void Agent::update_header(MessageHeader& header)
 {
-    header.sequence_nr(++header.sequence_nr());
+    // TODO: sequence number is general and not independent for each client
+    static uint8_t sequence = 0;
+    header.sequence_nr(sequence++);
 }
