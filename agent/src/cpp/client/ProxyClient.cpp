@@ -27,7 +27,6 @@ using namespace eprosima::micrortps;
 
 ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header):
         representation_(std::move(client)),
-        sequence_count_(0),
         client_key(header.client_key()),
         session_id(header.session_id()),
         stream_id(header.stream_id())
@@ -44,30 +43,26 @@ ProxyClient::~ProxyClient()
 ProxyClient::ProxyClient(const ProxyClient &x)
 :
     representation_( x.representation_),
-    objects_(x.objects_),
-    sequence_count_(x.sequence_count_.load())
+    objects_(x.objects_)
 {
 }
 
 ProxyClient::ProxyClient(ProxyClient &&x)
 :
     representation_(std::move(x.representation_)),
-    objects_(std::move(x.objects_)),
-    sequence_count_(x.sequence_count_.load())
+    objects_(std::move(x.objects_))
 {
 }
 ProxyClient& ProxyClient::operator=(const ProxyClient &x)
 {
     representation_ =  x.representation_;
     objects_ = x.objects_;
-    sequence_count_ = x.sequence_count_.load();
     return *this;
 }
 ProxyClient& ProxyClient::operator=(ProxyClient &&x)
 {
     representation_ = std::move(x.representation_);
     objects_ = std::move(x.objects_);
-    sequence_count_ = x.sequence_count_.load();
     return *this;
 }
 
@@ -199,6 +194,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     Status status;
     status.result().request_id(data_payload.request_id());
     status.result().status(STATUS_LAST_OP_WRITE);
+    status.object_id(object_id);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
@@ -217,7 +213,8 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
 Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  data_payload)
 {
     Status status;
-    status.result().request_id();
+    status.result().request_id(data_payload.request_id());
+    status.object_id(object_id);
     status.result().status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -231,7 +228,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
         auto* reader = dynamic_cast<DataReader*>(object_it->second);
         if (!reader->read(data_payload))
         {
-            status.result().status(STATUS_OK);
+            status.result().implementation_status(STATUS_OK);
         }
     }
     return status;
@@ -245,11 +242,6 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
     return internal_id;
 }
 
-uint16_t ProxyClient::sequence()
-{
-    return ++sequence_count_;
-}
-
 void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id,
         const std::vector<unsigned char>& buffer)
 {
@@ -259,7 +251,6 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
-    message_header.sequence_nr(sequence());
 
     DATA_PAYLOAD payload;
     payload.request_id(req_id);

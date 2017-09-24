@@ -108,6 +108,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 
     if (!m_read_thread.joinable())
     {
+
         m_read_thread = std::thread(&DataReader::read_task, this, read_data);
         m_timer_thread = std::thread(&DataReader::run_timer, this);
     }
@@ -132,22 +133,17 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 void DataReader::read_task(READ_DATA_PAYLOAD read_data)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
-    int pos = 0;
-    while(true) // running
+    int sample_count = 0;
+    while(0 == read_data.max_samples() || sample_count < read_data.max_samples()) // running
     {
         m_cond_var.wait(lock, [&]{return m_time_expired && m_new_message;});
 
-        /*std::vector<uint8_t> serialized_data_;
-        ShapeTypePlus stp;
-        stp.ser_data = nullptr;
-        takeNextData(&stp);
-        printf("SIZEOF %d\n", stp.length);
-        mp_reader_listener->on_read_data(0, 0, stp.ser_data, stp.length);
-        delete[] stp.ser_data;*/
-
         std::vector<unsigned char> buffer;
-        takeNextData(&buffer);
-        mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
+        if (takeNextData(&buffer))
+        {
+            mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
+            ++sample_count;
+        }
 
         m_time_expired = m_new_message = false;
     }
@@ -162,7 +158,6 @@ void DataReader::on_timeout(const asio::error_code& error)
   }
   else
   {
-      printf("Time expired\n");
       std::lock_guard<std::mutex> lock(m_mutex);
       m_time_expired = true;
       m_cond_var.notify_one();
@@ -201,6 +196,7 @@ TimerEvent::TimerEvent(): m_timer(m_io_service, std::chrono::milliseconds(1000))
 void TimerEvent::run_timer()
 {
     m_io_service.run();
+    printf("exiting run_timer...\n");
 }
 
 bool DataReader::takeNextData(void* data)

@@ -55,8 +55,13 @@ bool XRCEParser::parse()
                         std::cerr << "Error processing read" << std::endl;
                     }
                     break;
+               case DELETE:
+                    if (!process_delete(message_header, submessage_header))
+                     {
+                         std::cerr << "Error processing delete" << std::endl;
+                     }
+                     break;
                 case GET_INFO:
-                case DELETE:
                 case STATUS:
                 case INFO:
                 case DATA:

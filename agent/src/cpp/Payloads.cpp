@@ -33,8 +33,6 @@ using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 
-
-
 namespace eprosima {
 namespace micrortps {
 
@@ -489,7 +487,7 @@ READ_DATA_PAYLOAD::READ_DATA_PAYLOAD(const READ_DATA_PAYLOAD &x)
     read_mode_ = x.read_mode_;
     max_elapsed_time_ = x.max_elapsed_time_;
     max_rate_ = x.max_rate_;
-    content_filter_expression_ = x.content_filter_expression_;
+//    content_filter_expression_ = x.content_filter_expression_;
     max_samples_ = x.max_samples_;
     include_sample_info_ = x.include_sample_info_;
 }
@@ -502,7 +500,7 @@ READ_DATA_PAYLOAD::READ_DATA_PAYLOAD(READ_DATA_PAYLOAD &&x)
     read_mode_ = x.read_mode_;
     max_elapsed_time_ = x.max_elapsed_time_;
     max_rate_ = x.max_rate_;
-    content_filter_expression_ = std::move(x.content_filter_expression_);
+//    content_filter_expression_ = std::move(x.content_filter_expression_);
     max_samples_ = x.max_samples_;
     include_sample_info_ = x.include_sample_info_;
 }
@@ -515,7 +513,7 @@ READ_DATA_PAYLOAD& READ_DATA_PAYLOAD::operator=(const READ_DATA_PAYLOAD &x)
     read_mode_ = x.read_mode_;
     max_elapsed_time_ = x.max_elapsed_time_;
     max_rate_ = x.max_rate_;
-    content_filter_expression_ = x.content_filter_expression_;
+//    content_filter_expression_ = x.content_filter_expression_;
     max_samples_ = x.max_samples_;
     include_sample_info_ = x.include_sample_info_;
     
@@ -530,7 +528,7 @@ READ_DATA_PAYLOAD& READ_DATA_PAYLOAD::operator=(READ_DATA_PAYLOAD &&x)
     read_mode_ = x.read_mode_;
     max_elapsed_time_ = x.max_elapsed_time_;
     max_rate_ = x.max_rate_;
-    content_filter_expression_ = std::move(x.content_filter_expression_);
+//    content_filter_expression_ = std::move(x.content_filter_expression_);
     max_samples_ = x.max_samples_;
     include_sample_info_ = x.include_sample_info_;
     
@@ -547,7 +545,6 @@ size_t READ_DATA_PAYLOAD::getMaxCdrSerializedSize(size_t current_alignment)
 
     current_alignment += 2;
     current_alignment += 1;
-    current_alignment += 4;
     current_alignment += 4;
     current_alignment += 4;
     current_alignment += 2;
@@ -571,8 +568,6 @@ size_t READ_DATA_PAYLOAD::getCdrSerializedSize(const READ_DATA_PAYLOAD& data, si
 
     current_alignment += 4;
 
-    current_alignment += 4 + data.content_filter_expression().size() + 1;
-
     current_alignment += 2;
 
     current_alignment += 1;
@@ -589,7 +584,7 @@ void READ_DATA_PAYLOAD::serialize(eprosima::fastcdr::FastCdr &scdr) const
     scdr << read_mode_;
     scdr << max_elapsed_time_;
     scdr << max_rate_;
-    scdr << content_filter_expression_;
+    //scdr << content_filter_expression_;
     scdr << max_samples_;
     scdr << include_sample_info_;
 }
@@ -602,7 +597,7 @@ void READ_DATA_PAYLOAD::deserialize(eprosima::fastcdr::FastCdr &dcdr)
     dcdr >> read_mode_;
     dcdr >> max_elapsed_time_;
     dcdr >> max_rate_;
-    dcdr >> content_filter_expression_;
+    //dcdr >> content_filter_expression_;
     dcdr >> max_samples_;
     dcdr >> include_sample_info_;
 }

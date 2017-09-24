@@ -273,7 +273,7 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     read_payload.read_mode();
     read_payload.max_elapsed_time();
     read_payload.max_rate();
-    read_payload.content_filter_expression();
+//    read_payload.content_filter_expression();
     read_payload.max_samples();
     read_payload.include_sample_info();
     SubmessageHeader submessage_header;
@@ -373,7 +373,7 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
 
 void Agent::demo_process_response(Message& message)
 {
-    Serializer deserializer(message.get_buffer().data(), message.get_buffer().size());
+    Serializer deserializer(message.get_buffer().data(), message.get_real_size());
     MessageHeader deserialized_header;
     SubmessageHeader deserialized_submessage_header;
 
@@ -415,77 +415,26 @@ void Agent::demo_process_response(Message& message)
 
 void Agent::run()
 {
-    // const size_t buffer_size = 2048;
-    // char* test_buffer = new char[buffer_size];
-    std::cout << "Running eProsima Agent. To stop execution enter \"Q\"" << std::endl;
+    std::cout << "Running eProsima Agent..." << std::endl;
     char ch = ' ';
     int ret = 0;
     do
     {
-        if(ch == 'Q')
-        {
-            std::cout << "Stopping execution " << std::endl;
-            abort_execution();
-            if (response_thread_.get())
-            {
-                response_thread_->join();
-            }
-            break;
-        }
-        // if (ch == 'c' || ch == 'd' || ch == 'w' || ch == 'r' || ch == 's' || ch == 'p')
-        // {
-
-
-        //     switch (ch)
-        //     {
-        //         case 'c':
-        //         {
-        //             demo_message_create(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 's':
-        //         {
-        //             demo_message_subscriber(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'r':
-        //         {
-        //             demo_message_read(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'p':
-        //         {
-        //             demo_message_publisher(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'w':
-        //         {
-        //             demo_message_write(test_buffer, buffer_size);
-        //             break;
-        //         }
-        //         case 'd':
-        //         default:
-        //         break;
-        //     }
-        // }
-        else if (ch)
-        {
-            std::cout << "Command " << ch << " not recognized, please enter to stop execution enter \"Q\":" << std::endl;
-        }
         if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
         {
             printf("RECV: %d bytes\n", ret);
+            /*for (int i = 0; i < ret; ++i)
+            {
+                printf("%X ", in_buffer_[i]);
+            }
+            printf("\n");*/
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), ret, this};
             myParser.parse();
         }
-        else
-        {
-            printf("RECV ERROR: %d\n", ret);
-        }
+        usleep(1000000);
 
-    }while(std::cin >> ch);
+    }while(true);
     std::cout << "Execution stopped" << std::endl;
-    //delete[] test_buffer;
 }
 
 void Agent::abort_execution()
@@ -507,18 +456,24 @@ void Agent::add_reply(const Message& message)
 
 void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
 {
+    MessageHeader updated_header{header};
+    update_header(updated_header);
     Message message{};
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
-    message_creator.header(header);
+    message_creator.header(updated_header);
     message_creator.status(status_reply);
+    message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
+    MessageHeader updated_header{header};
+    update_header(updated_header);
     Message message{};
     XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
-    message_creator.header(header);
+    message_creator.header(updated_header);
     message_creator.data(data);
+    message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
 
@@ -532,15 +487,12 @@ void Agent::reply()
         {
             demo_process_response(message);
             int ret = 0;
-            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_buffer().size(), loc_.kind, ch_id_)))
+            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
             {
-                printf("SEND: %d bytes\n", ret);
-            }
-            else
-            {
-                printf("SEND ERROR: %d\n", ret);
+                printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
             }
         }
+        usleep(1000000);
     }
     std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
@@ -562,9 +514,6 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
-            
-            MessageHeader modified_header{header};
-            update_header(modified_header, *client);
             add_reply(header, result_status);
         }
         else
@@ -634,7 +583,9 @@ ProxyClient* Agent::get_client(int32_t client_key)
     }
 }
 
-void Agent::update_header(MessageHeader& header, ProxyClient& client)
+void Agent::update_header(MessageHeader& header)
 {
-    header.sequence_nr(client.sequence());
+    // TODO: sequence number is general and not independent for each client
+    static uint8_t sequence = 0;
+    header.sequence_nr(sequence++);
 }

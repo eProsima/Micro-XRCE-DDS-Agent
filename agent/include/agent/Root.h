@@ -140,7 +140,7 @@ private:
     void demo_message_write(char * test_buffer, size_t buffer_size);
     
     
-    void update_header(MessageHeader& header, ProxyClient& client);
+    void update_header(MessageHeader& header);
 };
 
 } // eprosima

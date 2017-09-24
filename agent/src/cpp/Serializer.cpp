@@ -18,6 +18,8 @@
 #include "agent/Payloads.h"
 #include "agent/SubMessageHeader.h"
 
+#include <iostream>
+
 namespace eprosima {
 namespace micrortps {
 
@@ -36,6 +38,7 @@ bool Serializer::serialize(const T& data)
     }
     catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
     {
+        std::cout << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         return false;
     }
     return true;
@@ -58,6 +61,7 @@ template<class T> bool Serializer::deserialize(T& data)
     }
     catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
     {
+        std::cout << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         return false;
     }
     return true;

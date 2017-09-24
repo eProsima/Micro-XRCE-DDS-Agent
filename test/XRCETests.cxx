@@ -222,7 +222,7 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessage)
     read_data.read_mode(READM_DATA);
     read_data.max_elapsed_time(16);//0x00000010);
     read_data.max_rate(0x00000001);
-    read_data.content_filter_expression("FILTER EXPRESION");
+    // read_data.content_filter_expression("FILTER EXPRESION");
     read_data.max_messages(0x0001);
     read_data.include_sample_info(false);
     serializer_.serialize(read_data);
@@ -237,7 +237,7 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessage)
     ASSERT_EQ(read_data.read_mode(), deserialized_read_data.read_mode());
     ASSERT_EQ(read_data.max_elapsed_time(), deserialized_read_data.max_elapsed_time());
     ASSERT_EQ(read_data.max_rate(), deserialized_read_data.max_rate());
-    ASSERT_EQ(read_data.content_filter_expression(), deserialized_read_data.content_filter_expression());
+    // ASSERT_EQ(read_data.content_filter_expression(), deserialized_read_data.content_filter_expression());
     ASSERT_EQ(read_data.max_messages(), deserialized_read_data.max_messages());
     ASSERT_EQ(read_data.include_sample_info(), deserialized_read_data.include_sample_info());
 }

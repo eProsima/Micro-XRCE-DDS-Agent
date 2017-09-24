@@ -51,8 +51,6 @@ bool ShapeTypePubSubType::serialize(void *data, SerializedPayload_t *payload)
 
 bool ShapeTypePubSubType::deserialize(SerializedPayload_t* payload, void* data)
 {
-
-    /******************************/
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
     buffer->assign(payload->data + 4, payload->data + payload->length);
 
@@ -76,7 +74,6 @@ void ShapeTypePubSubType::deleteData(void* data) {
 
 bool ShapeTypePubSubType::getKey(void *data, InstanceHandle_t* handle)
 {
-    printf("getKey\n");
     if(!m_isGetKeyDefined)
         return false;
     ShapeType* p_type = (ShapeType*) data;
