@@ -1140,37 +1140,37 @@ public:
     * @brief This function copies the value in member content_filter_expression
     * @param _content_filter_expression New value to be copied in member content_filter_expression
     */
-    inline void content_filter_expression(const std::string &_content_filter_expression)
-    {
-        content_filter_expression_ = _content_filter_expression;
-    }
+//    inline void content_filter_expression(const std::string &_content_filter_expression)
+//    {
+//        //content_filter_expression_ = _content_filter_expression;
+//    }
 
     /*!
     * @brief This function moves the value in member content_filter_expression
     * @param _content_filter_expression New value to be moved in member content_filter_expression
     */
-    inline void content_filter_expression(std::string &&_content_filter_expression)
-    {
-        content_filter_expression_ = std::move(_content_filter_expression);
-    }
+//    inline void content_filter_expression(std::string &&_content_filter_expression)
+//    {
+//        //content_filter_expression_ = std::move(_content_filter_expression);
+//    }
 
     /*!
     * @brief This function returns a constant reference to member content_filter_expression
     * @return Constant reference to member content_filter_expression
     */
-    inline const std::string& content_filter_expression() const
-    {
-        return content_filter_expression_;
-    }
+//    inline const std::string& content_filter_expression() const
+//    {
+//        return content_filter_expression_;
+//    }
 
     /*!
     * @brief This function returns a reference to member content_filter_expression
     * @return Reference to member content_filter_expression
     */
-    inline std::string& content_filter_expression()
-    {
-        return content_filter_expression_;
-    }
+//    inline std::string& content_filter_expression()
+//    {
+//        return content_filter_expression_;
+//    }
     /*!
     * @brief This function sets a value in member max_samples
     * @param _max_samples New value for member max_samples
@@ -1260,7 +1260,7 @@ private:
     ReadMode read_mode_;
     int32_t max_elapsed_time_;
     int32_t max_rate_;
-    std::string content_filter_expression_;
+    //std::string content_filter_expression_;
     uint16_t max_samples_;
     bool include_sample_info_;
 };
