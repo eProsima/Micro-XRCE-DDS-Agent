@@ -54,20 +54,29 @@ private:
     char                    oldFill_;
 };
 
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& stream, const std::array<T, N>& v);
-
 template <size_t N>
 std::ostream& operator<<(std::ostream& stream, const std::array<unsigned char, N>& values)
 {
-    StreamScopedFlags flag_backup{stream};
     stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (auto& number : values)
+    for (const auto& number : values)
     {
         stream << std::setw(2) << +number;
     }
     return stream;
 }
+
+template <size_t N>
+std::ostream& operator<<(std::ostream& stream, const std::array<char, N>& values)
+{
+    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
+    for (const auto& number : values)
+    {
+        stream << std::setw(2) << +number;
+    }
+    return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values);
 
 std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values);
 
@@ -90,6 +99,7 @@ std::ostream& operator<<(std::ostream& stream, const Status& status);
  * Inserts ResultStatus on the stream.
  */
 std::ostream& operator<<(std::ostream& stream, const ResultStatus& status);
+
 
 /*
 * Inserts Status short representation on the stream.
@@ -174,19 +184,7 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_da
 /*
  * Inserts DATA_PAYLOAD short representation on the stream.
  */
- std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data);
-
-// template <typename T>
-// std::ostream& operator<<(std::ostream& stream, const std::function<void(const T&)>& stream_func)
-// {
-//     stream_func()
-// }
-
-// template <typename T>
-// std::ostream& short_int(const T&)
-// {
-//     return short_int(str)
-// }
+std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data);
 
 } // namespace debug
 } // namespace micrortps
