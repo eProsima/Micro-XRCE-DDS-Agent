@@ -92,8 +92,9 @@ void ShapePublisher::run()
 	
 	ShapeType st;
 	st.color("RED");
-	st.x(10);
+	st.x(100);
 	st.y(100);
+	st.shapesize(100);
 	/* Initialize your structure here */
 	
 	int msgsent = 0;

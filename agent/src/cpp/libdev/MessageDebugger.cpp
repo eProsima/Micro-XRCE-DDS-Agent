@@ -82,6 +82,7 @@ std::ostream& short_print(std::ostream& stream, const Status& status)
     stream << "[Status" << separator;
     stream << "id: " << status.object_id() << separator;
     short_print(stream, status.result()) << "]";
+    return stream;
 
 }
 
