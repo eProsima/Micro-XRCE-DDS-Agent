@@ -405,6 +405,15 @@ std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data)
     return stream;
 }
 
+std::ostream& short_print(std::ostream& stream, const std::string text)
+{
+    ColorStream cs(stream, STREAM_COLOR::BLUE);
+    StreamScopedFlags flags_backup{stream};
+    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    stream << text;
+    return stream;
+}
+
 } // namespace debug
 } // namespace micrortps
 } // namespace eprosima

@@ -20,6 +20,8 @@
 #include "agent/Root.h"
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
+#include "libdev/MessageDebugger.h"
+
 
 #include "agent/Root.h"
 
@@ -73,8 +75,12 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_PUBLISHER:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new DataWriter())).second;
-            return false;
+            bool ret = objects_.insert(std::make_pair(internal_object_id, new DataWriter())).second;
+            if (ret)
+            {
+                debug::short_print(std::cout, "    [Create | id: internal | 0001 OK | DATA_WRITER]\n");
+            }
+            return ret;
             break;
         }
         case OBJK_SUBSCRIBER:

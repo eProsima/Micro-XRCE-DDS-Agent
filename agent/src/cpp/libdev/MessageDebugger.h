@@ -32,7 +32,8 @@ namespace debug{
 enum class STREAM_COLOR
 {
     YELLOW,
-    RED
+    RED,
+    BLUE
 };
 
 class ColorStream
@@ -52,6 +53,11 @@ public:
                 stream_ << RED;
                 break;
             }
+            case STREAM_COLOR::BLUE:
+            {
+                stream_ << BLUE;
+                break;
+            }
             default:
             break;
         }
@@ -66,6 +72,7 @@ private:
     std::ostream& stream_;
     const std::string YELLOW = "\e[1;33m";
     const std::string RED = "\e[1;31m";
+    const std::string BLUE = "\e[1;34m";
     const std::string RESTORE_COLOR = "\e[0m";
 };
 
@@ -148,6 +155,11 @@ std::ostream& short_print(std::ostream& stream, const Status& status);
  * Inserts ResultStatus short representation on the stream.
  */
 std::ostream& short_print(std::ostream& stream, const ResultStatus& status);
+
+/*
+ * Prints string
+ */
+std::ostream& short_print(std::ostream& stream, const std::string text);
 
 /*
  * Inserts create payload on the stream.
