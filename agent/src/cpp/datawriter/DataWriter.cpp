@@ -74,12 +74,12 @@ bool DataWriter::init()
 
     if (!m_rtps_publisher_prof.empty())
     {
-        printf("init DataWriter RTPS publisher\n");
+        //printf("init DataWriter RTPS publisher\n");
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
     }
     else
     {
-        printf("init DataWriter RTPS default publisher\n");
+        //printf("init DataWriter RTPS default publisher\n");
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
     }
 

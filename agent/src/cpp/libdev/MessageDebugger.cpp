@@ -16,11 +16,7 @@ const std::string separator = " | ";
 std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values)
 {
     StreamScopedFlags flag_backup{stream};
-    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (auto& number : values)
-    {
-        stream << std::setw(2) << +number;
-    }
+    stream  << std::setfill('0') << std::setw(2) << (uint8_t)values[0];
     return stream;
 }
 
@@ -75,10 +71,9 @@ std::ostream& operator<<(std::ostream& stream, const Status& status)
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const Status& status)
+std::ostream& short_print(std::ostream& stream, const Status& status, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    ColorStream cs(stream, color);
     stream << "[Status" << separator;
     stream << "id: " << status.object_id() << separator;
     short_print(stream, status.result()) << "]";
@@ -88,7 +83,6 @@ std::ostream& short_print(std::ostream& stream, const Status& status)
 
 std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
 {
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "  <ResultStatus>" << std::endl;
     stream << "  - request_id : " << status.request_id() << std::endl;
     stream << "  - status: " << std::setw(4) << +status.status() << std::endl;
@@ -96,13 +90,12 @@ std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const ResultStatus& status)
+std::ostream& short_print(std::ostream& stream, const ResultStatus& status, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    ColorStream cs(stream, color);
 
-    stream << "#" << status.request_id() << separator;
-    stream << std::setw(4) << +status.status() << " ";
+    stream << "#" << std::setfill('0') << std::setw(8) << +status.request_id()[0] << separator;
+
     switch(status.implementation_status())
     {
         case STATUS_OK:
@@ -139,7 +132,6 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status)
             stream << "UNKNOWN";
     }
     stream << separator;
-    stream << std::setw(4) << +status.implementation_status() << " ";
     switch(status.status())
     {
         case STATUS_LAST_OP_NONE:
@@ -304,26 +296,25 @@ std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_d
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload)
+std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
+    ColorStream cs(stream, color);
     stream << "[Create" << separator;
-    stream << "#" << create_payload.request_id() << separator;
-    stream << "id: " << create_payload.object_id() << separator;
+    stream  << "id: " << create_payload.object_id() << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +create_payload.request_id()[0] << separator;
     switch(create_payload.object_representation().discriminator())
     {
         case OBJK_PARTICIPANT:
             stream << "PARTICIPANT";
             break; 
         case OBJK_PUBLISHER:
-            stream << "PUBLISHER" << separator;;
-            stream << "id: " << create_payload.object_representation().publisher().participant_id() << separator;
+            stream << "PUBLISHER" << separator;
+            stream  << "id: " << create_payload.object_representation().publisher().participant_id() << separator;
             stream << "topic: " << create_payload.object_representation().publisher().as_string();
         break;
         case OBJK_SUBSCRIBER:
-            stream << "SUBSCRIBER" << separator;;
-            stream << "id: " << create_payload.object_representation().subscriber().participant_id() << separator;
+            stream << "SUBSCRIBER" << separator;
+            stream  << "id: " << create_payload.object_representation().subscriber().participant_id() << separator;
             stream << "topic: " << create_payload.object_representation().subscriber().as_string();
         break;
         default:
@@ -334,26 +325,24 @@ std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_pay
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data)
+std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
+    ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Delete" << separator;
-    stream << "#" << delete_data.request_id() << separator;
     stream << "id: " << delete_data.object_id() << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +delete_data.request_id()[0] << separator;
     stream << "]";
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data)
+std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
+    ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Write data" << separator;
-    stream << "#" << write_data.request_id() << separator;
     stream << "id: " << write_data.object_id() << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +write_data.request_id()[0] << separator;
     switch(write_data.data_writer()._d())
     {
         case READM_DATA:
@@ -369,27 +358,25 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_
 }
 
 
-std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data)
+std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
+    ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Read data" << separator;
-    stream << "#" << read_data.request_id() << separator;
     stream << "id: " << read_data.object_id() << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +read_data.request_id()[0] << separator;
     stream << "max messages: " << read_data.max_messages();
     stream << "]";
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data)
+std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::YELLOW);
+    ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "[Data" << separator;
-    stream << "#" << data.request_id() << separator;
     stream << "id: " << data.resource_id() << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +data.request_id()[0] << separator;
     switch(data.data_reader()._d())
     {
         case READM_DATA:
@@ -405,11 +392,10 @@ std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data)
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const std::string text)
+std::ostream& short_print(std::ostream& stream, const std::string text, const STREAM_COLOR color)
 {
     ColorStream cs(stream, STREAM_COLOR::BLUE);
     StreamScopedFlags flags_backup{stream};
-    stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << text;
     return stream;
 }

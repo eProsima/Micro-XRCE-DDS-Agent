@@ -157,19 +157,19 @@ int open_serial(const channel_id_t channel_id)
     bool flush = false;
     while (0 < read(channel->uart_fd, (void *)&aux, 64))
     {
-        printf("%s", aux);
+        //printf("%s", aux);
         flush = true;
         usleep(1000);
     }
 
-    if (flush)
-    {
-        printf("flush\n");
-
-    } else
-    {
-        printf("no flush\n");
-    }
+//    if (flush)
+//    {
+//        printf("flush\n");
+//
+//    } else
+//    {
+//        printf("no flush\n");
+//    }
 
     channel->open = true;
     g_poll_fds[channel->id].fd = channel->uart_fd;

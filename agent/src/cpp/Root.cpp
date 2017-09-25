@@ -47,13 +47,14 @@ Agent::Agent() :
 
 void Agent::init()
 {
-    std::cout << "Agent initialization" << std::endl;
+    std::cout << "Agent initialization..." << std::endl;
     // Init transport
     loc_ = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
     ch_id_ = add_locator(&loc_);
 
     // Create fixed client
     demo_create_client();
+    //std::cout << "Agent initialization finished." << std::endl;
 
 }
 
@@ -86,7 +87,7 @@ void Agent::demo_create_client()
     Status st = create_client(message_header, create_data);
     if (st.result().implementation_status() == STATUS_OK)
     {
-        debug::short_print(std::cout, "    [Create | id: 0xF1F2F3F4 | 0001 OK | CREATE_CLIENT]\n");
+        debug::short_print(std::cout, "    INTERNAL [Create | id: 0xF1F2F3F4 | 0001 OK | CREATE_CLIENT]\n");
     }
 }
 
@@ -113,7 +114,7 @@ Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& c
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
-            std::cout << "ProxyClient created " << std::endl;
+            //std::cout << "ProxyClient created " << std::endl;
             status.result().implementation_status(STATUS_OK);
         }
         else{
@@ -391,7 +392,7 @@ void Agent::demo_process_response(Message& message)
             Status deserialized_status;
             deserializer.deserialize(deserialized_status);
             std::cout << "<== ";
-            debug::short_print(std::cout, deserialized_status) << std::endl;
+            debug::short_print(std::cout, deserialized_status, debug::STREAM_COLOR::YELLOW) << std::endl;
             break;
         }
         case DATA:
@@ -399,7 +400,7 @@ void Agent::demo_process_response(Message& message)
             DATA_PAYLOAD deserialized_data;
             deserializer.deserialize(deserialized_data);
             std::cout << "<== ";
-            debug::short_print(std::cout, deserialized_data) << std::endl;
+            debug::short_print(std::cout, deserialized_data, debug::STREAM_COLOR::YELLOW) << std::endl;
             // printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
             // ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
             // std::cout << "<SHAPE TYPE>" << std::endl;
@@ -413,14 +414,14 @@ void Agent::demo_process_response(Message& message)
 
 void Agent::run()
 {
-    std::cout << "Running eProsima Agent..." << std::endl;
+    std::cout << "Running DDS-XRCE Agent..." << std::endl;
     char ch = ' ';
     int ret = 0;
     do
     {
         if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
         {
-            printf("RECV: %d bytes\n", ret);
+            //printf("RECV: %d bytes\n", ret);
             /*for (int i = 0; i < ret; ++i)
             {
                 printf("%X ", in_buffer_[i]);
@@ -477,7 +478,7 @@ void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 
 void Agent::reply()
 {
-    std::cout << "Reply thread started. Id: " << std::this_thread::get_id() << std::endl;
+    //std::cout << "Reply thread started. Id: " << std::this_thread::get_id() << std::endl;
     while(response_control_.running_)
     {
         Message message = messages_.pop();
@@ -487,13 +488,13 @@ void Agent::reply()
             int ret = 0;
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
             {
-                printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
-                for (int i = 0; i < ret; ++i) printf("%02X ", (unsigned char)message.get_buffer()[i]);printf("\n");
+                //printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
+                //for (int i = 0; i < ret; ++i) printf("%02X ", (unsigned char)message.get_buffer()[i]);printf("\n");
             }
         }
         usleep(1000000);
     }
-    std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
+    //std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
 
 
@@ -501,7 +502,7 @@ void Agent::reply()
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, create_payload) << std::endl;
+    debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
     {
         if (ProxyClient* client = get_client(header.client_key()))
@@ -533,7 +534,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, delete_payload) << std::endl;
+    debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->delete_object(delete_payload);
@@ -549,7 +550,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, write_payload) << std::endl;
+    debug::short_print(std::cout, write_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->write(write_payload.object_id(), write_payload);
@@ -565,7 +566,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, read_payload) << std::endl;
+    debug::short_print(std::cout, read_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->read(read_payload.object_id(), read_payload);

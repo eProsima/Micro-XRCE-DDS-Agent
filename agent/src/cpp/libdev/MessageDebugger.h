@@ -33,7 +33,9 @@ enum class STREAM_COLOR
 {
     YELLOW,
     RED,
-    BLUE
+    BLUE,
+    GREEN,
+    WHITE
 };
 
 class ColorStream
@@ -58,6 +60,16 @@ public:
                 stream_ << BLUE;
                 break;
             }
+            case STREAM_COLOR::GREEN:
+            {
+                stream_ << GREEN;
+                break;
+            }
+            case STREAM_COLOR::WHITE:
+            {
+                stream_ << WHITE;
+                break;
+            }
             default:
             break;
         }
@@ -70,9 +82,11 @@ public:
 
 private:
     std::ostream& stream_;
-    const std::string YELLOW = "\e[1;33m";
     const std::string RED = "\e[1;31m";
+    const std::string GREEN = "\e[1;32m";
+    const std::string YELLOW = "\e[1;33m";
     const std::string BLUE = "\e[1;34m";
+    const std::string WHITE = "\e[1;37m";
     const std::string RESTORE_COLOR = "\e[0m";
 };
 
@@ -102,22 +116,16 @@ private:
 template <size_t N>
 std::ostream& operator<<(std::ostream& stream, const std::array<unsigned char, N>& values)
 {
-    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (const auto& number : values)
-    {
-        stream << std::setw(2) << +number;
-    }
+    StreamScopedFlags flag_backup{stream};
+    stream  << std::setfill('0') << std::setw(2) << +values[0];
     return stream;
 }
 
 template <size_t N>
 std::ostream& operator<<(std::ostream& stream, const std::array<char, N>& values)
 {
-    stream << std::noshowbase << "0x" << std::internal << std::setfill('0') << std::hex;
-    for (const auto& number : values)
-    {
-        stream << std::setw(2) << +number;
-    }
+    StreamScopedFlags flag_backup{stream};
+    stream  << std::setfill('0') << std::setw(2) << +values[0];
     return stream;
 }
 
@@ -149,17 +157,17 @@ std::ostream& operator<<(std::ostream& stream, const ResultStatus& status);
 /*
 * Inserts Status short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const Status& status);
+std::ostream& short_print(std::ostream& stream, const Status& status, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts ResultStatus short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const ResultStatus& status);
+std::ostream& short_print(std::ostream& stream, const ResultStatus& status, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Prints string
  */
-std::ostream& short_print(std::ostream& stream, const std::string text);
+std::ostream& short_print(std::ostream& stream, const std::string text, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts create payload on the stream.
@@ -169,7 +177,7 @@ std::ostream& operator<<(std::ostream& stream, const CREATE_PAYLOAD& create_payl
 /*
 * Inserts create short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload);
+std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts OBJK_PUBLISHER_Representation on the stream.
@@ -204,7 +212,7 @@ std::ostream& operator<<(std::ostream& stream, const DELETE_PAYLOAD& delete_data
 /*
 * Inserts delete short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data);
+std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts SampleData data info on the stream.
@@ -224,17 +232,17 @@ std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_d
 /*
  * Inserts Write data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data);
+std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts Read data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data);
+std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts DATA_PAYLOAD short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data);
+std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 } // namespace debug
 } // namespace micrortps

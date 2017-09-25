@@ -77,12 +77,12 @@ bool DataReader::init()
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        printf("init DataReader RTPS subscriber\n");
+        //printf("init DataReader RTPS subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        printf("init DataReader RTPS default subscriber\n");
+        //printf("init DataReader RTPS default subscriber\n");
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
@@ -113,7 +113,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
     }
     else
     {
-        printf("DataReader m_read_thread busy\n");
+        //printf("DataReader m_read_thread busy\n");
         stop_read();
         start_read(read_data);
     }
@@ -123,7 +123,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 
 int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
 {
-    printf("START READ\n");
+    //printf("START READ\n");
     m_running = true;
     m_timer_thread = std::thread(&DataReader::run_timer, this);
     m_read_thread = std::thread(&DataReader::read_task, this, read_data);
@@ -132,7 +132,7 @@ int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
 
 int DataReader::stop_read()
 {
-    printf("STOP READ\n");
+    //printf("STOP READ\n");
     m_running = false;
     m_cond_var.notify_one();
     m_timer_thread.join();
@@ -152,7 +152,7 @@ int DataReader::stop_read()
 
 void DataReader::read_task(READ_DATA_PAYLOAD read_data)
 {
-    printf("Starting read_task...\n");
+    //printf("Starting read_task...\n");
     std::unique_lock<std::mutex> lock(m_mutex);
     uint16_t message_count = 0;
     while(m_running && (0 == read_data.max_messages() || message_count < read_data.max_messages()))
@@ -171,12 +171,12 @@ void DataReader::read_task(READ_DATA_PAYLOAD read_data)
         m_time_expired = m_new_message = false;
     }
     m_running = false;
-    printf("exiting read_task...\n");
+    //printf("exiting read_task...\n");
 }
 
 void DataReader::on_timeout(const asio::error_code& error)
 {
-    printf("on_timeout\n");
+    //printf("on_timeout\n");
     if (error)
     {
         printf("error\n");
@@ -229,10 +229,10 @@ int TimerEvent::init_timer(int milliseconds)
 
 void TimerEvent::run_timer()
 {
-    printf("Starting run_timer...\n");
+    //printf("Starting run_timer...\n");
     init_timer(2000);
     m_io_service.run();
-    printf("exiting run_timer...\n");
+    //printf("exiting run_timer...\n");
 }
 
 bool DataReader::takeNextData(void* data)
@@ -245,7 +245,7 @@ bool DataReader::takeNextData(void* data)
     bool ret = mp_rtps_subscriber->takeNextData(data, &info);
     if(ret)
     {
-        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
+        //std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
     }
     else
     {
@@ -259,12 +259,12 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::Matc
     if (info.status == MATCHED_MATCHING)
     {
         n_matched++;
-        std::cout << "Subscriber matched" << std::endl;
+        //std::cout << "RTPS Publisher matched" << std::endl;
     }
     else
     {
         n_matched--;
-        std::cout << "Subscriber unmatched" << std::endl;
+        //std::cout << "RTPS Publisher unmatched" << std::endl;
     }
 }
 

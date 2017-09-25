@@ -78,7 +78,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             bool ret = objects_.insert(std::make_pair(internal_object_id, new DataWriter())).second;
             if (ret)
             {
-                debug::short_print(std::cout, "    [Create | id: internal | 0001 OK | DATA_WRITER]\n");
+                debug::short_print(std::cout, "    INTERNAL [Create | 0001 OK | DATA_WRITER]\n");
             }
             return ret;
             break;
@@ -251,7 +251,7 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
 void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id,
         const std::vector<unsigned char>& buffer)
 {
-    printf("on_read_data\n");
+    //printf("on_read_data\n");
 
     MessageHeader message_header;
     message_header.client_key(client_key);
