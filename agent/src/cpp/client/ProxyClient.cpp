@@ -90,14 +90,17 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         }
         case OBJK_PARTICIPANT:
             return true;
+        case OBJK_DATAWRITER:
+            // TODO create publisher de verdad
+        break;
+        case OBJK_DATAREADER:
+            // TODO create subscriber de verdad
         break;
         case OBJK_CLIENT:
         case OBJK_APPLICATION:
         case OBJK_QOSPROFILE:
         case OBJK_TYPE:
         case OBJK_TOPIC:
-        case OBJK_DATAWRITER:
-        case OBJK_DATAREADER:
         default:
             return false;
         break;

@@ -51,11 +51,6 @@ void Agent::init()
     // Init transport
     loc_ = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
     ch_id_ = add_locator(&loc_);
-
-    // Create fixed client
-    demo_create_client();
-    //std::cout << "Agent initialization finished." << std::endl;
-
 }
 
 void Agent::demo_create_client()
@@ -521,7 +516,6 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
         {
             debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
             std::cerr << "Create message rejected" << std::endl;
-            // TODO Cuando el cliente no existe
         }
     }
     else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
