@@ -17,11 +17,11 @@
  *
  */
 
-#include <fastrtps/Domain.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <atomic>
-
 #include <agent/datareader/DataReader.h>
+
+#include <fastrtps/Domain.h>
+#include <fastrtps/subscriber/Subscriber.h>
+#include <atomic>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"
@@ -31,9 +31,9 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(ReaderListener* read_list):
+DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list):
         mp_reader_listener(read_list),
-        mp_rtps_participant(nullptr),
+        mp_rtps_participant(rtps_participant),
         mp_rtps_subscriber(nullptr),
         m_rtps_subscriber_prof("")
 {
@@ -196,7 +196,7 @@ void DataReader::on_timeout(const asio::error_code& error)
 
 }
 
-void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
+void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
     // Take data
     std::vector<unsigned char> buffer;

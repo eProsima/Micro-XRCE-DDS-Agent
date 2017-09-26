@@ -26,16 +26,21 @@
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
 
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/rtps/common/MatchingInfo.h>
 
 #include <agent/types/ShapePubSubTypes.h>
 #include <agent/Payloads.h>
 #include <agent/Common.h>
 
 namespace eprosima {
+
+namespace fastrtps {
+    class Participant;
+    class Subscriber;
+}
+
 namespace micrortps {
 
 class ReaderListener
@@ -70,7 +75,7 @@ class RTPSSubListener: public fastrtps::SubscriberListener
 public:
     RTPSSubListener() : n_matched(0), n_msg(0), m_new_message(false){};
     ~RTPSSubListener(){};
-    virtual void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info) = 0;
+    virtual void onSubscriptionMatched(fastrtps:: Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
     virtual void onNewDataMessage(fastrtps::Subscriber* sub) = 0;
     fastrtps::SampleInfo_t m_info;
     int n_matched;
@@ -86,7 +91,7 @@ class DataReader: public XRCEObject, public TimerEvent, public RTPSSubListener
 {
 
 public:
-    DataReader(ReaderListener* read_list);
+    DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     virtual ~DataReader();
 
     bool init();
@@ -94,7 +99,7 @@ public:
 
 
     void on_timeout(const asio::error_code& error);
-    void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info);
+    void onSubscriptionMatched(fastrtps:: Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 
 
@@ -111,8 +116,8 @@ private:
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;
-    fastrtps::Participant* mp_rtps_participant;
-    fastrtps::Subscriber* mp_rtps_subscriber;
+    eprosima::fastrtps::Participant* mp_rtps_participant;
+    eprosima::fastrtps::Subscriber* mp_rtps_subscriber;
     ShapeTypePubSubType m_shape_type;
 
 

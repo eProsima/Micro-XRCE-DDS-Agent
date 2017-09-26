@@ -19,6 +19,7 @@
 
 
 #include <fastrtps/Domain.h>
+#include <fastrtps/publisher/Publisher.h>
 
 #include <agent/datawriter/DataWriter.h>
 
@@ -30,8 +31,8 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter():
-        mp_rtps_participant(nullptr),
+DataWriter::DataWriter(fastrtps::Participant* rtps_participant):
+        mp_rtps_participant(rtps_participant),
         mp_rtps_publisher(nullptr),
         m_rtps_publisher_prof("")
 
@@ -39,14 +40,14 @@ DataWriter::DataWriter():
     init();
 }
 
-DataWriter::DataWriter(const std::string &rtps_publisher_profile):
-        mp_rtps_participant(nullptr),
-        mp_rtps_publisher(nullptr),
-        m_rtps_publisher_prof(rtps_publisher_profile)
+// DataWriter::DataWriter(const std::string &rtps_publisher_profile):
+//         mp_rtps_participant(nullptr),
+//         mp_rtps_publisher(nullptr),
+//         m_rtps_publisher_prof(rtps_publisher_profile)
 
-{
-    init();
-}
+// {
+//     init();
+// }
 
 DataWriter::~DataWriter()
 {
