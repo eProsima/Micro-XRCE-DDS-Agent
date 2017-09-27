@@ -54,8 +54,8 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     agent/include
                     agent/src/cpp
                     agent/include/agent
-                    /home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
-                    #/home/borja/dev/rtps/thirdparty/asio/asio/include
+                    #/home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
+                    /home/borja/dev/rtps/thirdparty/asio/asio/include
                     )
 
 # libtransport.so
@@ -86,6 +86,23 @@ file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
 add_executable(shape_subs_test ${SHAPE_TEST_SOURCES})
 install(TARGETS shape_subs_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(shape_subs_test agent fastcdr fastrtps)
+
+###############################################################################
+# Warning level
+###############################################################################
+if(MSVC OR MSVC_IDE)
+if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+endif()
+
+if(EPROSIMA_EXTRA_CMAKE_CXX_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EPROSIMA_EXTRA_CMAKE_CXX_FLAGS}")
+endif()
+else()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wno-unknown-pragmas -std=c++11")
+endif()
 
 ###############################################################################
 # Testing
