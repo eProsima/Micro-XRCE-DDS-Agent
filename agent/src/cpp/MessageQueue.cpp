@@ -1,6 +1,7 @@
 #include "MessageQueue.h"
 
-using namespace eprosima::micrortps;
+using eprosima::micrortps::MessageQueue;
+using eprosima::micrortps::Message;
 
 MessageQueue::MessageQueue() : aborted_(false)
 {
