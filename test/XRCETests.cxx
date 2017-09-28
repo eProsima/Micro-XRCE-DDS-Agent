@@ -528,7 +528,7 @@ TEST_F(XRCEParserTests, EmptyMessage)
     testing::internal::CaptureStderr();
     XRCEParser myParser{ test_buffer_, BUFFER_LENGTH, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error submessage ID not recognized\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, HeaderError)
@@ -536,7 +536,7 @@ TEST_F(XRCEParserTests, HeaderError)
     testing::internal::CaptureStderr();
     XRCEParser myParser{ test_buffer_, 0, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error reading message header\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error reading message header\n") != std::string::npos); 
 }
 
 TEST_F(XRCEParserTests, SubmessageHeaderError)
@@ -545,7 +545,7 @@ TEST_F(XRCEParserTests, SubmessageHeaderError)
     MessageHeader message_header;
     XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header),&bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error reading submessage header\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error reading submessage header\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, SubmessagePayloadError)
@@ -555,7 +555,7 @@ TEST_F(XRCEParserTests, SubmessagePayloadError)
     SubmessageHeader submessage_header;
     XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header) + submessage_header.getCdrSerializedSize(submessage_header), &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error submessage ID not recognized\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, CreateMessage)
