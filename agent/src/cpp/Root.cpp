@@ -51,11 +51,6 @@ void Agent::init()
     // Init transport
     loc_ = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
     ch_id_ = add_locator(&loc_);
-
-    // Create fixed client
-    demo_create_client();
-    //std::cout << "Agent initialization finished." << std::endl;
-
 }
 
 void Agent::demo_create_client()
