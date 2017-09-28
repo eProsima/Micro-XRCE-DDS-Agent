@@ -70,7 +70,7 @@ class RTPSSubListener: public fastrtps::SubscriberListener
 public:
     RTPSSubListener() : n_matched(0), n_msg(0), m_new_message(false){};
     ~RTPSSubListener(){};
-    virtual void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info) = 0;
+    virtual void onSubscriptionMatched(fastrtps::MatchingInfo& info) = 0;
     virtual void onNewDataMessage(fastrtps::Subscriber* sub) = 0;
     fastrtps::SampleInfo_t m_info;
     int n_matched;
@@ -94,7 +94,7 @@ public:
 
 
     void on_timeout(const asio::error_code& error);
-    void onSubscriptionMatched(fastrtps:: Subscriber* sub, fastrtps::MatchingInfo& info);
+    void onSubscriptionMatched(fastrtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 
 

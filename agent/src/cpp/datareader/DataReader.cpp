@@ -16,26 +16,25 @@
  * Subscriber.cpp
  *
  */
+#include <agent/datareader/DataReader.h>
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
-#include <atomic>
 
-#include <agent/datareader/DataReader.h>
+#include <atomic>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"
 
-
-
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(ReaderListener* read_list):
-        mp_reader_listener(read_list),
-        mp_rtps_participant(nullptr),
-        mp_rtps_subscriber(nullptr),
-        m_rtps_subscriber_prof("")
+DataReader::DataReader(ReaderListener* read_list)
+        : m_running(false)
+        , mp_reader_listener(read_list)
+        , m_rtps_subscriber_prof("")
+        , mp_rtps_participant(nullptr)
+        , mp_rtps_subscriber(nullptr)
 {
     init();
 }
@@ -57,7 +56,7 @@ DataReader::~DataReader()
         fastrtps::Domain::removeSubscriber(mp_rtps_subscriber);
     }
 
-    // TODO: remove participant?
+    // TODO(borja): remove participant?
     if (nullptr != mp_rtps_participant)
     {
         fastrtps::Domain::removeParticipant(mp_rtps_participant);
@@ -69,26 +68,26 @@ bool DataReader::init()
     if (nullptr == mp_rtps_participant &&
         nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
     {
-        printf("init participant error\n");
+        std::cout << "init participant error" << std::endl;
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant,(fastrtps::TopicDataType*) &m_shape_type);
+    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        //printf("init DataReader RTPS subscriber\n");
+        //std::cout << "init DataReader RTPS subscriber" << std::endl;
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        //printf("init DataReader RTPS default subscriber\n");
+        //std::cout << "init DataReader RTPS default subscriber" << std::endl;
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
     if(mp_rtps_subscriber == nullptr)
     {
-        printf("init subscriber error\n");
+        std::cout << "init subscriber error" << std::endl;
         return false;
     }
     return true;
@@ -113,7 +112,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
     }
     else
     {
-        //printf("DataReader m_read_thread busy\n");
+        //std::cout << "DataReader m_read_thread busy" << std::endl;
         stop_read();
         start_read(read_data);
     }
@@ -123,7 +122,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
 
 int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
 {
-    //printf("START READ\n");
+    //std::cout << "START READ" << std::endl;
     m_running = true;
     m_timer_thread = std::thread(&DataReader::run_timer, this);
     m_read_thread = std::thread(&DataReader::read_task, this, read_data);
@@ -132,7 +131,7 @@ int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
 
 int DataReader::stop_read()
 {
-    //printf("STOP READ\n");
+    //std::cout << "STOP READ" << std::endl;
     m_running = false;
     m_cond_var.notify_one();
     m_timer_thread.join();
@@ -152,14 +151,14 @@ int DataReader::stop_read()
 
 void DataReader::read_task(READ_DATA_PAYLOAD read_data)
 {
-    //printf("Starting read_task...\n");
+    //std::cout << "Starting read_task..." << std::endl;
     std::unique_lock<std::mutex> lock(m_mutex);
     uint16_t message_count = 0;
     while(m_running && (0 == read_data.max_messages() || message_count < read_data.max_messages()))
     {
         m_cond_var.wait(lock, [&]{return !m_running || (m_time_expired && m_new_message);});
 
-        printf("Read %u of %u\n", message_count + 1, read_data.max_messages());
+        std::cout << "Read " << message_count + 1 << "of " << read_data.max_messages() << std::endl;
 
         std::vector<unsigned char> buffer;
         if (takeNextData(&buffer))
@@ -171,15 +170,15 @@ void DataReader::read_task(READ_DATA_PAYLOAD read_data)
         m_time_expired = m_new_message = false;
     }
     m_running = false;
-    //printf("exiting read_task...\n");
+    //std::cout << "exiting read_task..." << std::endl;
 }
 
 void DataReader::on_timeout(const asio::error_code& error)
 {
-    //printf("on_timeout\n");
+    //std::cout << "on_timeout" << std::endl;
     if (error)
     {
-        printf("error\n");
+        std::cout << "error" << std::endl;
     }
     else
     {
@@ -229,10 +228,10 @@ int TimerEvent::init_timer(int milliseconds)
 
 void TimerEvent::run_timer()
 {
-    //printf("Starting run_timer...\n");
+    //std::cout << "Starting run_timer..." << std::endl;
     init_timer(2000);
     m_io_service.run();
-    //printf("exiting run_timer...\n");
+    //std::cout << "exiting run_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -254,7 +253,7 @@ bool DataReader::takeNextData(void* data)
     return ret;
 }
 
-void DataReader::onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::MatchingInfo& info)
+void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)
 {
     if (info.status == MATCHED_MATCHING)
     {
