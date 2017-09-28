@@ -11,12 +11,12 @@ namespace eprosima{
 namespace micrortps{
 namespace debug{
 
-const std::string separator = " | ";
+#define SEPARATOR " | "
 
 std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>& values)
 {
     StreamScopedFlags flag_backup{stream};
-    stream  << std::setfill('0') << std::setw(2) << (uint8_t)values[0];
+    stream  << std::setfill('0') << std::setw(2) << static_cast<uint8_t>(values[0]);
     return stream;
 }
 
@@ -74,8 +74,8 @@ std::ostream& operator<<(std::ostream& stream, const Status& status)
 std::ostream& short_print(std::ostream& stream, const Status& status, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
-    stream << "[Status" << separator;
-    stream << "id: " << status.object_id() << separator;
+    stream << "[Status" << SEPARATOR;
+    stream << "id: " << status.object_id() << SEPARATOR;
     short_print(stream, status.result()) << "]";
     return stream;
 
@@ -94,7 +94,7 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status, cons
 {
     ColorStream cs(stream, color);
 
-    stream << "#" << std::setfill('0') << std::setw(8) << +status.request_id()[0] << separator;
+    stream << "#" << std::setfill('0') << std::setw(8) << +status.request_id()[0] << SEPARATOR;
 
     switch(status.implementation_status())
     {
@@ -131,7 +131,7 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status, cons
         default:
             stream << "UNKNOWN";
     }
-    stream << separator;
+    stream << SEPARATOR;
     switch(status.status())
     {
         case STATUS_LAST_OP_NONE:
@@ -299,22 +299,22 @@ std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_d
 std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
-    stream << "[Create" << separator;
-    stream  << "id: " << create_payload.object_id() << separator;
-    stream << "#" << std::setfill('0') << std::setw(8) << +create_payload.request_id()[0] << separator;
+    stream << "[Create" << SEPARATOR;
+    stream  << "id: " << create_payload.object_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +create_payload.request_id()[0] << SEPARATOR;
     switch(create_payload.object_representation().discriminator())
     {
         case OBJK_PARTICIPANT:
             stream << "PARTICIPANT";
             break; 
         case OBJK_PUBLISHER:
-            stream << "PUBLISHER" << separator;
-            stream  << "id: " << create_payload.object_representation().publisher().participant_id() << separator;
+            stream << "PUBLISHER" << SEPARATOR;
+            stream  << "id: " << create_payload.object_representation().publisher().participant_id() << SEPARATOR;
             stream << "topic: " << create_payload.object_representation().publisher().as_string();
         break;
         case OBJK_SUBSCRIBER:
-            stream << "SUBSCRIBER" << separator;
-            stream  << "id: " << create_payload.object_representation().subscriber().participant_id() << separator;
+            stream << "SUBSCRIBER" << SEPARATOR;
+            stream  << "id: " << create_payload.object_representation().subscriber().participant_id() << SEPARATOR;
             stream << "topic: " << create_payload.object_representation().subscriber().as_string();
         break;
         default:
@@ -329,9 +329,9 @@ std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_dat
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << "[Delete" << separator;
-    stream << "id: " << delete_data.object_id() << separator;
-    stream << "#" << std::setfill('0') << std::setw(8) << +delete_data.request_id()[0] << separator;
+    stream << "[Delete" << SEPARATOR;
+    stream << "id: " << delete_data.object_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +delete_data.request_id()[0] << SEPARATOR;
     stream << "]";
     return stream;
 }
@@ -340,14 +340,14 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << "[Write data" << separator;
-    stream << "id: " << write_data.object_id() << separator;
-    stream << "#" << std::setfill('0') << std::setw(8) << +write_data.request_id()[0] << separator;
+    stream << "[Write data" << SEPARATOR;
+    stream << "id: " << write_data.object_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +write_data.request_id()[0] << SEPARATOR;
     switch(write_data.data_writer()._d())
     {
         case READM_DATA:
         {
-            stream << "DATA" << separator << "data size: " << write_data.data_writer().data().serialized_data().size();
+            stream << "DATA" << SEPARATOR << "data size: " << write_data.data_writer().data().serialized_data().size();
             break;
         }
         default:
@@ -362,9 +362,9 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_da
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << "[Read data" << separator;
-    stream << "id: " << read_data.object_id() << separator;
-    stream << "#" << std::setfill('0') << std::setw(8) << +read_data.request_id()[0] << separator;
+    stream << "[Read data" << SEPARATOR;
+    stream << "id: " << read_data.object_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +read_data.request_id()[0] << SEPARATOR;
     stream << "max messages: " << read_data.max_messages();
     stream << "]";
     return stream;
@@ -374,14 +374,14 @@ std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data, const 
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
-    stream << "[Data" << separator;
-    stream << "id: " << data.resource_id() << separator;
-    stream << "#" << std::setfill('0') << std::setw(8) << +data.request_id()[0] << separator;
+    stream << "[Data" << SEPARATOR;
+    stream << "id: " << data.resource_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +data.request_id()[0] << SEPARATOR;
     switch(data.data_reader()._d())
     {
         case READM_DATA:
         {
-            stream << "DATA" << separator << "data size: " << data.data_reader().data().serialized_data().size();
+            stream << "DATA" << SEPARATOR << "data size: " << data.data_reader().data().serialized_data().size();
             break;
         }
         default:
@@ -392,9 +392,9 @@ std::ostream& short_print(std::ostream& stream, const DATA_PAYLOAD& data, const 
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const std::string text, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const std::string& text, const STREAM_COLOR color)
 {
-    ColorStream cs(stream, STREAM_COLOR::BLUE);
+    ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
     stream << text;
     return stream;

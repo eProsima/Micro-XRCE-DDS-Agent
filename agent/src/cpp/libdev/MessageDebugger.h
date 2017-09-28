@@ -167,7 +167,7 @@ std::ostream& short_print(std::ostream& stream, const ResultStatus& status, cons
 /*
  * Prints string
  */
-std::ostream& short_print(std::ostream& stream, const std::string text, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const std::string& text, const STREAM_COLOR color = STREAM_COLOR::BLUE);
 
 /*
  * Inserts create payload on the stream.
