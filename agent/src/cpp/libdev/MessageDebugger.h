@@ -82,12 +82,12 @@ public:
 
 private:
     std::ostream& stream_;
-    const std::string RED = R"(\e[1;31m)";
-    const std::string GREEN = R"(\e[1;32m)";
-    const std::string YELLOW = R"(\e[1;33m)";
-    const std::string BLUE = R"(\e[1;34m)";
-    const std::string WHITE = R"(\e[1;37m)";
-    const std::string RESTORE_COLOR = R"(\e[0m)";
+    const std::string RED = "\x1b[1;31m";
+    const std::string GREEN = "\x1b[1;32m";
+    const std::string YELLOW = "\x1b[1;33m";
+    const std::string BLUE = "\x1b[1;34m";
+    const std::string WHITE = "\x1b[1;37m";
+    const std::string RESTORE_COLOR = "\x1b[0m";
 };
 
 class StreamScopedFlags
