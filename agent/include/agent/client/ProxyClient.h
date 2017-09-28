@@ -32,10 +32,10 @@ public:
     ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header);
     ~ProxyClient();
 
-    ProxyClient(const ProxyClient &x);
-    ProxyClient(ProxyClient &&x);
-    ProxyClient& operator=(const ProxyClient &x);
-    ProxyClient& operator=(ProxyClient &&x);
+    ProxyClient(const ProxyClient &x) = delete;
+    ProxyClient(ProxyClient &&x) noexcept;
+    ProxyClient& operator=(const ProxyClient &x) = delete;
+    ProxyClient& operator=(ProxyClient &&x) noexcept;
 
     Status create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload);
     Status delete_object(const DELETE_PAYLOAD& delete_payload);

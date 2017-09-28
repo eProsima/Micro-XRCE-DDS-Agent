@@ -25,13 +25,15 @@
 
 #include "agent/Root.h"
 
-using namespace eprosima::micrortps;
+using eprosima::micrortps::ProxyClient;
+using eprosima::micrortps::Status;
+using eprosima::micrortps::Info;
 
-ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header):
-        representation_(std::move(client)),
-        client_key(header.client_key()),
-        session_id(header.session_id()),
-        stream_id(header.stream_id())
+ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header)
+       : representation_(std::move(client))
+       , client_key(header.client_key())
+       , session_id(header.session_id())
+       , stream_id(header.stream_id())
 { }
 
 ProxyClient::~ProxyClient()
@@ -42,26 +44,16 @@ ProxyClient::~ProxyClient()
     }
 }
 
-ProxyClient::ProxyClient(const ProxyClient &x)
-:
-    representation_( x.representation_),
-    objects_(x.objects_)
+ProxyClient::ProxyClient(ProxyClient &&x) noexcept
+    : representation_(std::move(x.representation_))
+    , objects_(std::move(x.objects_))
+    , client_key(x.client_key)
+    , session_id(x.session_id)
+    , stream_id(x.stream_id)
 {
 }
 
-ProxyClient::ProxyClient(ProxyClient &&x)
-:
-    representation_(std::move(x.representation_)),
-    objects_(std::move(x.objects_))
-{
-}
-ProxyClient& ProxyClient::operator=(const ProxyClient &x)
-{
-    representation_ =  x.representation_;
-    objects_ = x.objects_;
-    return *this;
-}
-ProxyClient& ProxyClient::operator=(ProxyClient &&x)
+ProxyClient& ProxyClient::operator=(ProxyClient &&x) noexcept
 {
     representation_ = std::move(x.representation_);
     objects_ = std::move(x.objects_);
@@ -155,12 +147,14 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
 
 Status ProxyClient::update(const ObjectId&  /*object_id*/, const ObjectVariant&  /*representation*/)
 {
-    // TODO(borja): 
+    // TODO(borja):
+    return Status{};
 }
 
 Info ProxyClient::get_info(const ObjectId&  /*object_id*/)
 {
-    // TODO(borja): 
+    // TODO(borja):
+    return Info{};
 }
 
 Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
@@ -231,8 +225,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
     }
     else
     {
-        auto* reader = dynamic_cast<DataReader*>(object_it->second);
-        if (!reader->read(data_payload))
+        if (!(dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0))
         {
             status.result().implementation_status(STATUS_OK);
         }
@@ -244,7 +237,12 @@ ProxyClient::InternalObjectId ProxyClient::generate_object_id(const ObjectId& id
 {
     InternalObjectId internal_id{};
     std::copy(id.begin(), id.end(), internal_id.begin());
-    internal_id[id.size()] = suffix;
+    try {
+        internal_id.at(internal_id.size()-1) = suffix;
+    }
+    catch (std::out_of_range const& exc) {
+        std::cerr << "Impossible to generate internal object ID: "<< exc.what() << std::endl;
+    }
     return internal_id;
 }
 
