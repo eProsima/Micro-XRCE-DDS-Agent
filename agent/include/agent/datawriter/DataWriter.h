@@ -40,7 +40,7 @@ class DataWriter: public XRCEObject
 public:
 
     DataWriter();
-    DataWriter(const std::string &rtps_publisher_profile);
+    DataWriter(std::string rtps_publisher_profile);
     virtual ~DataWriter();
 
     bool init();

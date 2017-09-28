@@ -39,10 +39,10 @@ DataWriter::DataWriter():
     init();
 }
 
-DataWriter::DataWriter(const std::string &rtps_publisher_profile):
+DataWriter::DataWriter(std::string rtps_publisher_profile):
         mp_rtps_participant(nullptr),
         mp_rtps_publisher(nullptr),
-        m_rtps_publisher_prof(rtps_publisher_profile)
+        m_rtps_publisher_prof(std::move(rtps_publisher_profile))
 
 {
     init();
@@ -55,7 +55,7 @@ DataWriter::~DataWriter()
         fastrtps::Domain::removePublisher(mp_rtps_publisher);
     }
 
-    // TODO: remove participant?
+    // TODO(borja): remove participant?
     if (nullptr != mp_rtps_participant)
     {
         fastrtps::Domain::removeParticipant(mp_rtps_participant);
@@ -70,22 +70,22 @@ bool DataWriter::init()
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant,(fastrtps::TopicDataType*) &m_shape_type);
+    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
 
     if (!m_rtps_publisher_prof.empty())
     {
-        //printf("init DataWriter RTPS publisher\n");
+        //std::cout << "init DataWriter RTPS publisher" << std::endl;
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
     }
     else
     {
-        //printf("init DataWriter RTPS default publisher\n");
+        //std::cout << "init DataWriter RTPS default publisher" << std::endl;
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
     }
 
     if(mp_rtps_publisher == nullptr)
     {
-        printf("init publisher error\n");
+        std::cout << "init publisher error" << std::endl;
         return false;
     }
     return true;
