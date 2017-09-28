@@ -14,16 +14,18 @@
 
 #include <agent/Root.h>
 
-#include <agent/Payloads.h>
 #include <agent/MessageHeader.h>
+#include <agent/Payloads.h>
 #include <agent/SubMessageHeader.h>
+#include <libdev/MessageDebugger.h>
 #include <types/Shape.h>
+
 #include <fastcdr/Cdr.h>
 
-#include <libdev/MessageDebugger.h>
+#include <memory>
 
-
-using namespace eprosima::micrortps;
+using eprosima::micrortps::Agent;
+using eprosima::micrortps::Status;
 
 Agent* eprosima::micrortps::root()
 {
@@ -35,11 +37,9 @@ Agent::Agent() :
     ch_id_{},
     out_buffer_{},
     in_buffer_{},
-    loc_{},
-    clients_{},
+    loc_{},    
     response_thread_{},
-    response_control_{},
-    messages_{}
+    response_control_{}    
 {
     response_control_.running_ = false;
     response_control_.run_scheduled_ = false;
@@ -63,16 +63,16 @@ void Agent::demo_create_client()
     const uint32_t client_key = 0xF1F2F3F4;
     
     OBJK_CLIENT_Representation client_representation;
-    client_representation.xrce_cookie(XRCE_COOKIE);
-    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_cookie({XRCE_COOKIE});
+    client_representation.xrce_version({XRCE_VERSION});
     client_representation.xrce_vendor_id();
     client_representation.client_timestamp();
     client_representation.session_id();
     ObjectVariant variant;
     variant.client(client_representation);
     
-    const RequestId request_id = { 1,2 };
-    const ObjectId object_id = { 10,20,30 };
+    const RequestId request_id{ {1,2} };
+    const ObjectId object_id{ {10,20,30} };
     CREATE_PAYLOAD create_data;
     create_data.request_id(request_id);
     create_data.object_id(object_id);
@@ -99,13 +99,13 @@ Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& c
     status.object_id(create_info.object_id());
 
     if ((create_info.object_representation().discriminator() == OBJK_CLIENT) && 
-        (create_info.object_representation().client().xrce_cookie() == std::array<uint8_t, 4>XRCE_COOKIE))
+        (create_info.object_representation().client().xrce_cookie() == std::array<uint8_t, 4>{XRCE_COOKIE}))
     {
         if (create_info.object_representation().client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
         {
-            // TODO The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
+            // TODO(borja): The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
             // If this check fails the operation shall fail and returnValue is set to {STATUS_LAST_OP_CREATE,STATUS_ERR_DENIED}.
-            //TODO Check if there is an existing DdsXrce::ProxyClient object associated with the same ClientKey and if
+            // TODO(borja): Check if there is an existing DdsXrce::ProxyClient object associated with the same ClientKey and if
             // so compare the session_id of the existing ProxyClient with the one in the object_representation:
             // o If a ProxyClient exists and has the same session_id then the operation shall not perform any action
             // and shall set the returnValue to {STATUS_LAST_OP_CREATE,STATUS_OK}.
@@ -159,15 +159,15 @@ void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
     OBJK_CLIENT_Representation client_representation;
-    client_representation.xrce_cookie(XRCE_COOKIE);
-    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_cookie({XRCE_COOKIE});
+    client_representation.xrce_version({XRCE_VERSION});
     client_representation.xrce_vendor_id();
     client_representation.client_timestamp();
     client_representation.session_id();
     ObjectVariant variant;
     variant.client(client_representation);                    
-    const RequestId request_id = { 0x01,0x02 };
-    const ObjectId object_id = { 0xC0,0xB0,0xA0 };
+    const RequestId request_id{ {0x01,0x02} };
+    const ObjectId object_id{ {0xC0,0xB0,0xA0} };
     CREATE_PAYLOAD create_data;
     create_data.request_id(request_id);
     create_data.object_id(object_id);
@@ -198,16 +198,16 @@ void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
 
-    const RequestId request_id = { 0x01,0x02 };
+    const RequestId request_id{ {0x01,0x02} };
 
     ObjectVariant variant;
     OBJK_SUBSCRIBER_Representation subs;
     subs.as_string(std::string("SUBSCRIBER"));
-    subs.participant_id({ 4,4,4 });
+    subs.participant_id({ {4,4,4} });
 
     CREATE_PAYLOAD create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ 10,20,30 });
+    create_data.object_id({ {10,20,30} });
     create_data.object_representation().subscriber(subs);
 
     SubmessageHeader submessage_header;
@@ -235,11 +235,11 @@ void Agent::demo_delete_subscriber(char* test_buffer, size_t buffer_size)
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
 
-    const RequestId request_id = { 0x01,0x02 };
+    const RequestId request_id = { {0x01,0x02} };
 
     DELETE_PAYLOAD create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ 10,20,30 });
+    create_data.object_id({ {10,20,30} });
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(CREATE);
@@ -253,7 +253,7 @@ void Agent::demo_delete_subscriber(char* test_buffer, size_t buffer_size)
     myParser.parse();
 }
 
-void demo_message_publisher(char* test_buffer, size_t buffer_size)
+void demo_message_publisher(char*  /*test_buffer*/, size_t  /*buffer_size*/)
 {
 
 }
@@ -273,7 +273,7 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     message_header.sequence_nr(sequence_nr);
     READ_DATA_PAYLOAD read_payload;
     read_payload.request_id();
-    read_payload.object_id({ 10,20,30 });
+    read_payload.object_id({ {10,20,30} });
     read_payload.max_messages();
     read_payload.read_mode();
     read_payload.max_elapsed_time();
@@ -307,16 +307,16 @@ void Agent::demo_message_publisher(char* test_buffer, size_t buffer_size)
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
 
-    const RequestId request_id = { 0x01,0x02 };
+    const RequestId request_id = { {0x01,0x02} };
 
     ObjectVariant variant;
     OBJK_PUBLISHER_Representation pubs;
     pubs.as_string(std::string("PUBLISHER"));
-    pubs.participant_id({ 4,4,4 });
+    pubs.participant_id({ {4,4,4} });
 
     CREATE_PAYLOAD create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ 10,20,40 });
+    create_data.object_id({ {10,20,40} });
     create_data.object_representation().publisher(pubs);
 
     SubmessageHeader submessage_header;
@@ -350,7 +350,7 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
     message_header.sequence_nr(sequence_nr);
     WRITE_DATA_PAYLOAD write_payload;
     write_payload.request_id();
-    write_payload.object_id({ 10,20,40 });
+    write_payload.object_id({ {10,20,40} });
 
     // Serialize data
     ShapeType st;
@@ -415,11 +415,10 @@ void Agent::demo_process_response(Message& message)
 void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
-    char ch = ' ';
     int ret = 0;
     do
     {
-        if (0 < (ret = receive_data(in_buffer_, buffer_len_, loc_.kind, ch_id_)))
+        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_.kind, ch_id_)))
         {
             //printf("RECV: %d bytes\n", ret);
             /*for (int i = 0; i < ret; ++i)
@@ -427,7 +426,7 @@ void Agent::run()
                 printf("%X ", in_buffer_[i]);
             }
             printf("\n");*/
-            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), ret, this};
+            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
             myParser.parse();
         }
         usleep(1000000);
@@ -445,10 +444,11 @@ void Agent::abort_execution()
 void Agent::add_reply(const Message& message)
 {
     messages_.push(message);
-    if(response_thread_.get() == nullptr)
+    if(response_thread_ == nullptr)
     {
         response_control_.running_ = true;
         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+        // = std::make_unique<std::thread>(std::bind(&Agent::reply, this));
     }
 }
 
@@ -464,6 +464,7 @@ void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
+
 void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
 {
     MessageHeader updated_header{header};
@@ -499,7 +500,7 @@ void Agent::reply()
 
 
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const CREATE_PAYLOAD& create_payload)
 {
     std::cout << "==> ";
     debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
@@ -511,7 +512,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
             creation_mode.reuse(false);
             creation_mode.replace(true);
 
-            // TODO get sub_header flags
+            // TODO(borja): get sub_header flags
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
             Status result_status = client->create(creation_mode, create_payload);
@@ -521,7 +522,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
         {
             debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
             std::cerr << "Create message rejected" << std::endl;
-            // TODO Cuando el cliente no existe
+            // TODO(borja): Cuando el cliente no existe
         }
     }
     else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
@@ -531,7 +532,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const DELETE_PAYLOAD& delete_payload)
 {
     std::cout << "==> ";
     debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
@@ -547,7 +548,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const WRITE_DATA_PAYLOAD&  write_payload)
 {
     std::cout << "==> ";
     debug::short_print(std::cout, write_payload, debug::STREAM_COLOR::GREEN) << std::endl;
@@ -563,7 +564,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const READ_DATA_PAYLOAD&   read_payload)
 {
     std::cout << "==> ";
     debug::short_print(std::cout, read_payload, debug::STREAM_COLOR::GREEN) << std::endl;
@@ -579,7 +580,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     }
 } 
 
-ProxyClient* Agent::get_client(int32_t client_key)
+eprosima::micrortps::ProxyClient* Agent::get_client(int32_t client_key)
 {
     try
     {
@@ -594,7 +595,7 @@ ProxyClient* Agent::get_client(int32_t client_key)
 
 void Agent::update_header(MessageHeader& header)
 {
-    // TODO: sequence number is general and not independent for each client
+    // TODO(borja): sequence number is general and not independent for each client
     static uint8_t sequence = 0;
     header.sequence_nr(sequence++);
 }

@@ -106,7 +106,7 @@ public:
 
     void add_reply(const Message& message);
     void add_reply(const MessageHeader& header, const Status& status_reply);
-    void add_reply(const MessageHeader& header, const DATA_PAYLOAD& status_reply);
+    void add_reply(const MessageHeader& header, const DATA_PAYLOAD& data);
 
 private:
     channel_id_t ch_id_;
