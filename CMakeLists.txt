@@ -1,4 +1,4 @@
-################################################################################
+###############################################################################
 #
 # Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
@@ -55,7 +55,8 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     agent/src/cpp
                     agent/include/agent
                     #/home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
-                    /home/borja/dev/rtps/thirdparty/asio/asio/include
+                    #/home/borja/dev/rtps/thirdparty/asio/asio/include
+                    /home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
                     )
 
 # libtransport.so
