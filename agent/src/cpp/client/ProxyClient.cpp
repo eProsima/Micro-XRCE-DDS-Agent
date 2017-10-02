@@ -73,35 +73,30 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
             auto object_it = objects_.find(internal_object_id);
+            bool insertion_done = false;
             if(object_it == objects_.end()) 
             {
-                return objects_.insert(std::make_pair(internal_object_id, new Publisher())).second;
+                insertion_done = objects_.insert(std::make_pair(internal_object_id, new Publisher())).second;
             }
-            else
-            {
-                return false;
-            }
+            return insertion_done;
             break;
         }
         case OBJK_SUBSCRIBER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
             auto object_it = objects_.find(internal_object_id);
+            bool insertion_done = false;
             if(object_it == objects_.end()) 
             {
-                return objects_.insert(std::make_pair(internal_object_id, new Subscriber())).second;
+                insertion_done = objects_.insert(std::make_pair(internal_object_id, new Subscriber())).second;
             }
-            else
-            {
-                return false;
-            }
+            return insertion_done;
             break;
         }
         case OBJK_PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            eprosima::micrortps::XRCEParticipant* xrce_participant = new eprosima::micrortps::XRCEParticipant();
-            return objects_.insert(std::make_pair(internal_object_id, xrce_participant)).second;
+            return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant())).second;
             break;
         }
         case OBJK_DATAWRITER:
@@ -111,16 +106,14 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto participant_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
             auto publisher_it = objects_.find(generate_object_id(representation.data_writer().publisher_id(), 0x00));
             auto data_writer_it = objects_.find(internal_object_id);
+            bool insertion_done = false;
             if ((participant_it != objects_.end()) && (publisher_it != objects_.end()) && (data_writer_it == objects_.end() ))
             {
                 auto data_w = dynamic_cast<XRCEParticipant*>(participant_it->second)->create_writer();
                 dynamic_cast<Publisher*>(publisher_it->second)->add_writer(data_w);
-                return objects_.insert(std::make_pair(internal_object_id, data_w)).second;
+                insertion_done = objects_.insert(std::make_pair(internal_object_id, data_w)).second;
             }
-            else
-            {
-                return false;
-            }
+            return insertion_done;
             break;
         }
         case OBJK_DATAREADER:
@@ -129,16 +122,14 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto participant_it = objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             auto subscriber_it = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));
             auto data_writer_it = objects_.find(internal_object_id);
+            bool insertion_done = false;
             if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) && (data_writer_it == objects_.end() ))
             {
                 auto data_r = dynamic_cast<XRCEParticipant*>(participant_it->second)->create_reader(this);
                 dynamic_cast<Subscriber*>(subscriber_it->second)->add_reader(data_r);
-                return objects_.insert(std::make_pair(internal_object_id, data_r)).second;
+                insertion_done = objects_.insert(std::make_pair(internal_object_id, data_r)).second;
             }
-            else
-            {
-                return false;
-            }
+            return insertion_done;
             break;
         }
         case OBJK_APPLICATION:
