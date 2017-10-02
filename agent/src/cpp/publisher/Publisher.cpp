@@ -22,11 +22,6 @@ Publisher::Publisher()
 {
 }
 
-Publisher::~Publisher()
-{
-
-}
-
 void Publisher::add_writer(XRCEObject* writer)
 {
     writer_ = writer; 

@@ -24,7 +24,7 @@ class Publisher : public XRCEObject
 {
 public:
     Publisher();
-    virtual ~Publisher();
+    virtual ~Publisher() = default;
 
    
     void add_writer(XRCEObject*);
