@@ -104,7 +104,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_DATAWRITER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(internal_object_id);
+            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
             if(object_it == objects_.end()) 
             {
                 return objects_.insert(std::make_pair(internal_object_id, dynamic_cast<XRCEParticipant*>(object_it->second)->create_writer())).second;
@@ -118,7 +118,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_DATAREADER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(internal_object_id);
+            auto object_it = objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             if(object_it == objects_.end()) 
             {
