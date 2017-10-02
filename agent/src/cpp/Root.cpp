@@ -499,7 +499,6 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const CREATE_PAYLOAD& create_payload)
 {
-    std::cout << create_payload;
     std::cout << "==> ";
     debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
