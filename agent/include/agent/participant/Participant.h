@@ -44,8 +44,8 @@ public:
 
     fastrtps::Participant* get_participant() { return mp_rtps_participant;};
 
-    XRCEObject* create_publisher() {}
-    XRCEObject* create_subscriber() {}
+    XRCEObject* create_publisher() { return nullptr;}
+    XRCEObject* create_subscriber() { return nullptr;}
     XRCEObject* create_writer();
     XRCEObject* create_reader(ReaderListener* message_listener);
 

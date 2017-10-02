@@ -22,11 +22,6 @@ Subscriber::Subscriber()
 {
 }
 
-Subscriber::~Subscriber()
-{
-
-}
-
 void Subscriber::add_reader(XRCEObject* reader)
 {
     reader_ = reader; 

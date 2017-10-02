@@ -24,7 +24,7 @@ class Subscriber : public XRCEObject
 {
 public:
     Subscriber();
-    virtual ~Subscriber();
+    virtual ~Subscriber() = default;
 
    
     void add_reader(XRCEObject*);
