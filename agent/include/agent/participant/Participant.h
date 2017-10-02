@@ -49,9 +49,14 @@ public:
     XRCEObject* create_writer();
     XRCEObject* create_reader(ReaderListener* message_listener);
 
+    XRCEObject* get_writer();
+    XRCEObject* get_reader();
+
 private:
 
     eprosima::fastrtps::Participant* mp_rtps_participant;
+    XRCEObject* writer_;
+    XRCEObject* reader_;
 };
 
 } /* namespace micrortps */

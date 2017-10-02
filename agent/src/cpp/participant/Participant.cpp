@@ -23,8 +23,10 @@
 namespace eprosima {
 namespace micrortps {
 
-XRCEParticipant::XRCEParticipant():
-        mp_rtps_participant(nullptr)
+XRCEParticipant::XRCEParticipant()
+    : mp_rtps_participant(nullptr)
+    , writer_(nullptr)
+    , reader_(nullptr)
 
 {
     init();
@@ -50,13 +52,25 @@ bool XRCEParticipant::init()
 
 XRCEObject* XRCEParticipant::create_writer()
 {
-    return new DataWriter(mp_rtps_participant);
+    writer_ = new DataWriter(mp_rtps_participant); 
+    return writer_;
 }
 
 
 XRCEObject* XRCEParticipant::create_reader(ReaderListener* message_listener)
 {
-    return new DataReader(mp_rtps_participant, message_listener);
+    reader_ = new DataReader(mp_rtps_participant, message_listener);
+    return reader_;
+}
+
+XRCEObject* XRCEParticipant::get_writer()
+{
+    return writer_;
+}
+
+XRCEObject* XRCEParticipant::get_reader()
+{
+    return reader_;
 }
 
 } /* namespace micrortps */
