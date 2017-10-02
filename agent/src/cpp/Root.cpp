@@ -111,6 +111,7 @@ Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& c
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
+            client_ids_[create_info.object_id()] = header.client_key();
             //std::cout << "ProxyClient created " << std::endl;
             status.result().implementation_status(STATUS_OK);
         }
@@ -131,7 +132,7 @@ Status Agent::delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_inf
     status.result().request_id(delete_info.request_id());
     status.result().status(STATUS_LAST_OP_DELETE);
     status.object_id(delete_info.object_id());
-    if (0 == clients_.erase(client_key))
+    if ((0 == clients_.erase(client_key)) && (0 == client_ids_.erase(delete_info.object_id())))
     {
         status.result().implementation_status(STATUS_ERR_INVALID_DATA);
     }
@@ -532,7 +533,13 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
 {
     std::cout << "==> ";
     debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
-    if (ProxyClient* client = get_client(header.client_key()))
+    auto client_id = client_ids_.find(delete_payload.object_id());
+    if (client_id != client_ids_.end())
+    {
+        Status result_status = delete_client(client_ids_.at(delete_payload.object_id()), delete_payload);
+        add_reply(header, result_status);
+    }
+    else if (ProxyClient* client = get_client(header.client_key()))
     {
         Status result_status = client->delete_object(delete_payload);
         add_reply(header, result_status);

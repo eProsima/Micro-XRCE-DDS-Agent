@@ -43,7 +43,7 @@ class DataWriter: public XRCEObject
 {
 public:
 
-    DataWriter(fastrtps::Participant* mp_rtps_participant);
+    DataWriter(fastrtps::Participant* rtps_participant);
     // DataWriter(const std::string &rtps_publisher_profile);
     virtual ~DataWriter();
 

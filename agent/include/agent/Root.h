@@ -115,6 +115,7 @@ private:
     octet in_buffer_[buffer_len_];
     locator_t loc_;
     std::map<int32_t, ProxyClient> clients_;
+    std::map<ObjectId, int32_t> client_ids_;
 
     std::unique_ptr<std::thread> response_thread_;
     struct ResponseControl
