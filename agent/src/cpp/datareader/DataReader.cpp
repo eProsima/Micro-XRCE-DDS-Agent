@@ -18,8 +18,11 @@
  */
 #include <agent/datareader/DataReader.h>
 
+#include <agent/datareader/DataReader.h>
+
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/subscriber/Subscriber.h>
 
 #include <atomic>
 
@@ -29,12 +32,12 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(ReaderListener* read_list)
-        : m_running(false)
-        , mp_reader_listener(read_list)
-        , m_rtps_subscriber_prof("")
-        , mp_rtps_participant(nullptr)
-        , mp_rtps_subscriber(nullptr)
+DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
+    : m_running(false)
+    , mp_reader_listener(read_list)
+    , m_rtps_subscriber_prof("")
+    , mp_rtps_participant(nullptr)
+    , mp_rtps_subscriber(nullptr)
 {
     init();
 }
@@ -195,7 +198,7 @@ void DataReader::on_timeout(const asio::error_code& error)
 
 }
 
-void DataReader::onNewDataMessage(fastrtps::Subscriber* sub)
+void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
     // Take data
     std::vector<unsigned char> buffer;

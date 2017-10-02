@@ -20,6 +20,8 @@
 #include "agent/Root.h"
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
+#include "agent/participant/Participant.h"
+
 #include "libdev/MessageDebugger.h"
 
 
@@ -66,30 +68,69 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
     {
         case OBJK_PUBLISHER:
         {
-            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            bool ret = objects_.insert(std::make_pair(internal_object_id, new DataWriter())).second;
-            if (ret)
+            std::unique_lock<std::mutex> lock(objects_mutex_);    
+            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            if(object_it == objects_.end()) 
             {
-                debug::short_print(std::cout, "    INTERNAL [Create | 0001 OK | DATA_WRITER]\n");
+                return true;
             }
-            return ret;
-            break;
+            else
+            {
+                return false;
+            }
         }
         case OBJK_SUBSCRIBER:
         {
-            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new DataReader(this))).second;
+            std::unique_lock<std::mutex> lock(objects_mutex_);    
+            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            if(object_it == objects_.end()) 
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         case OBJK_PARTICIPANT:
-            return true;
-        break;
-        case OBJK_CLIENT:
+        {
+            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+            eprosima::micrortps::XRCEParticipant* xrce_participant = new eprosima::micrortps::XRCEParticipant();
+            return objects_.insert(std::make_pair(internal_object_id, xrce_participant)).second;
+            break;
+        }
+        case OBJK_DATAWRITER:
+        {
+            std::unique_lock<std::mutex> lock(objects_mutex_);    
+            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            if(object_it == objects_.end()) 
+            {
+                return objects_.insert(std::make_pair(internal_object_id, dynamic_cast<XRCEParticipant*>(object_it->second)->create_writer())).second;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        case OBJK_DATAREADER:
+        {
+            std::unique_lock<std::mutex> lock(objects_mutex_);    
+            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+            if(object_it == objects_.end()) 
+            {
+                return objects_.insert(std::make_pair(internal_object_id, dynamic_cast<XRCEParticipant*>(object_it->second)->create_reader(this))).second;
+            }
+            else
+            {
+                return false;
+            }
+            break;
+        }
         case OBJK_APPLICATION:
         case OBJK_QOSPROFILE:
         case OBJK_TYPE:
         case OBJK_TOPIC:
-        case OBJK_DATAWRITER:
-        case OBJK_DATAREADER:
         default:
             return false;
         break;

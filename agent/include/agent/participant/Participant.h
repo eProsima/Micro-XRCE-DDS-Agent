@@ -12,53 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @file DataWriter.h
- *
- */
-
-#ifndef DATAWRITER_H_
-#define DATAWRITER_H_
+#ifndef PARTICIPANT_H_
+#define PARTICIPANT_H_
 
 #include <string>
 
 #include <agent/Common.h>
 #include <agent/Payloads.h>
 #include <agent/types/ShapePubSubTypes.h>
+#include <agent/datareader/DataReader.h>
 
 namespace eprosima {
 
 namespace fastrtps {
     class Participant;
-    class Publisher;
 }
 
 namespace micrortps {
 
 /**
- * Class DataWriter, used to send data to associated datareaders.
+ * Class Participana, modules DDS participant.
  * @ingroup MICRORTPS_MODULE
  */
-class DataWriter: public XRCEObject
+class XRCEParticipant : public XRCEObject
 {
 public:
-
-    DataWriter(fastrtps::Participant* mp_rtps_participant);
-    // DataWriter(const std::string &rtps_publisher_profile);
-    virtual ~DataWriter();
+    XRCEParticipant();
+    virtual ~XRCEParticipant();
 
     bool init();
-    bool write(const WRITE_DATA_PAYLOAD& write_data);
+
+    fastrtps::Participant* get_participant() { return mp_rtps_participant;};
+
+    XRCEObject* create_publisher() {}
+    XRCEObject* create_subscriber() {}
+    XRCEObject* create_writer();
+    XRCEObject* create_reader(ReaderListener* message_listener);
 
 private:
 
-    fastrtps::Participant* mp_rtps_participant;
-    fastrtps::Publisher* mp_rtps_publisher;
-    std::string m_rtps_publisher_prof;
-    ShapeTypePubSubType m_shape_type;
+    eprosima::fastrtps::Participant* mp_rtps_participant;
 };
 
 } /* namespace micrortps */
 } /* namespace eprosima */
 
-#endif /* DATAWRITER_H_ */
+#endif /* PARTICIPANT_H_ */
