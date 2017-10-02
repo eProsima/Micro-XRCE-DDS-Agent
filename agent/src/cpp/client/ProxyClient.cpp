@@ -69,28 +69,30 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_PUBLISHER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto object_it = objects_.find(internal_object_id);
             if(object_it == objects_.end()) 
             {
-                return true;
+                return objects_.insert(std::make_pair(internal_object_id, nullptr)).second;
             }
             else
             {
                 return false;
             }
+            break;
         }
         case OBJK_SUBSCRIBER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto object_it = objects_.find(internal_object_id);
             if(object_it == objects_.end()) 
             {
-                return true;
+                return objects_.insert(std::make_pair(internal_object_id, nullptr)).second;
             }
             else
             {
                 return false;
             }
+            break;
         }
         case OBJK_PARTICIPANT:
         {
@@ -102,7 +104,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_DATAWRITER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto object_it = objects_.find(internal_object_id);
             if(object_it == objects_.end()) 
             {
                 return objects_.insert(std::make_pair(internal_object_id, dynamic_cast<XRCEParticipant*>(object_it->second)->create_writer())).second;
@@ -111,11 +113,12 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             {
                 return false;
             }
+            break;
         }
         case OBJK_DATAREADER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto object_it = objects_.find(internal_object_id);
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             if(object_it == objects_.end()) 
             {
