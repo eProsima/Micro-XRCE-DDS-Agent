@@ -126,7 +126,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_DATAREADER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto participant_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto participant_it = objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             auto subscriber_it = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));
             auto data_writer_it = objects_.find(internal_object_id);
             if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) && (data_writer_it == objects_.end() ))
