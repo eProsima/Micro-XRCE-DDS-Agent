@@ -21,6 +21,9 @@
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
 #include "agent/participant/Participant.h"
+#include "agent/publisher/Publisher.h"
+#include "agent/subscriber/Subscriber.h"
+
 
 #include "libdev/MessageDebugger.h"
 
@@ -72,7 +75,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto object_it = objects_.find(internal_object_id);
             if(object_it == objects_.end()) 
             {
-                return objects_.insert(std::make_pair(internal_object_id, nullptr)).second;
+                return objects_.insert(std::make_pair(internal_object_id, new Publisher())).second;
             }
             else
             {
@@ -86,7 +89,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto object_it = objects_.find(internal_object_id);
             if(object_it == objects_.end()) 
             {
-                return objects_.insert(std::make_pair(internal_object_id, nullptr)).second;
+                return objects_.insert(std::make_pair(internal_object_id, new Subscriber())).second;
             }
             else
             {
@@ -105,11 +108,13 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);
             
-            auto object_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
-            if(object_it == objects_.end()) 
+            auto participant_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto publisher_it = objects_.find(generate_object_id(representation.data_writer().publisher_id(), 0x00));
+            auto data_writer_it = objects_.find(internal_object_id);
+            if ((participant_it != objects_.end()) && (publisher_it != objects_.end()) && (data_writer_it == objects_.end() ))
             {
-                auto data_w = dynamic_cast<XRCEParticipant*>(object_it->second)->create_writer();
-                objects_.at(generate_object_id(representation.data_writer().publisher_id(), 0x00)) = data_w;
+                auto data_w = dynamic_cast<XRCEParticipant*>(participant_it->second)->create_writer();
+                dynamic_cast<Publisher*>(publisher_it->second)->add_writer(data_w);
                 return objects_.insert(std::make_pair(internal_object_id, data_w)).second;
             }
             else
@@ -121,12 +126,13 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_DATAREADER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);    
-            auto object_it = objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
-            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            if(object_it == objects_.end()) 
+            auto participant_it = objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
+            auto subscriber_it = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));
+            auto data_writer_it = objects_.find(internal_object_id);
+            if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) && (data_writer_it == objects_.end() ))
             {
-                auto data_r = dynamic_cast<XRCEParticipant*>(object_it->second)->create_reader(this);
-                objects_.at(generate_object_id(representation.data_reader().subscriber_id(), 0x00)) = data_r;
+                auto data_r = dynamic_cast<XRCEParticipant*>(participant_it->second)->create_reader(this);
+                dynamic_cast<Subscriber*>(subscriber_it->second)->add_reader(data_r);
                 return objects_.insert(std::make_pair(internal_object_id, data_r)).second;
             }
             else
@@ -253,7 +259,7 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     }
     else
     {
-        dynamic_cast<DataWriter*>(object_it->second)->write(data_payload);
+        dynamic_cast<DataWriter*>(dynamic_cast<Publisher*>(object_it->second)->get_writer())->write(data_payload);
     }
     return status;
 }
@@ -273,7 +279,7 @@ Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  da
     }
     else
     {
-        if (!(dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0))
+        if (!(dynamic_cast<DataReader*>(dynamic_cast<Subscriber*>(object_it->second)->get_reader())->read(data_payload) == 0))
         {
             status.result().implementation_status(STATUS_OK);
         }

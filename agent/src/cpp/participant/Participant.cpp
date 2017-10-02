@@ -25,9 +25,6 @@ namespace micrortps {
 
 XRCEParticipant::XRCEParticipant()
     : mp_rtps_participant(nullptr)
-    , writer_(nullptr)
-    , reader_(nullptr)
-
 {
     init();
 }
@@ -52,25 +49,13 @@ bool XRCEParticipant::init()
 
 XRCEObject* XRCEParticipant::create_writer()
 {
-    writer_ = new DataWriter(mp_rtps_participant); 
-    return writer_;
+    return new DataWriter(mp_rtps_participant); 
 }
 
 
 XRCEObject* XRCEParticipant::create_reader(ReaderListener* message_listener)
 {
-    reader_ = new DataReader(mp_rtps_participant, message_listener);
-    return reader_;
-}
-
-XRCEObject* XRCEParticipant::get_writer()
-{
-    return writer_;
-}
-
-XRCEObject* XRCEParticipant::get_reader()
-{
-    return reader_;
+    return new DataReader(mp_rtps_participant, message_listener);
 }
 
 } /* namespace micrortps */
