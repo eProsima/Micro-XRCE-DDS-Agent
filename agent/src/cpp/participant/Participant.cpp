@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/participant/Participant.h>
-#include <agent/datawriter/DataWriter.h>
 #include <agent/datareader/DataReader.h>
+#include <agent/datawriter/DataWriter.h>
+#include <agent/participant/Participant.h>
 
 #include <fastrtps/Domain.h>
 
@@ -39,12 +39,8 @@ XRCEParticipant::~XRCEParticipant()
 
 bool XRCEParticipant::init()
 {
-    if (nullptr == mp_rtps_participant &&
-        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
-    {
-        return false;
-    }
-    return true;
+    return !(nullptr == mp_rtps_participant &&
+        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
 }
 
 XRCEObject* XRCEParticipant::create_writer()
