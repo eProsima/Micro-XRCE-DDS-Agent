@@ -317,6 +317,9 @@ std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_pay
             stream  << "id: " << create_payload.object_representation().subscriber().participant_id() << SEPARATOR;
             stream << "topic: " << create_payload.object_representation().subscriber().as_string();
         break;
+        case OBJK_CLIENT:
+            stream << "OBJK_CLIENT" << SEPARATOR;
+        break;
         default:
             stream << "UNKNOWN";
         break;

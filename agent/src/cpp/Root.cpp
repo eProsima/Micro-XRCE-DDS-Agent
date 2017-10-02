@@ -26,6 +26,8 @@
 
 using eprosima::micrortps::Agent;
 using eprosima::micrortps::Status;
+using eprosima::micrortps::debug::operator<<;
+
 
 Agent* eprosima::micrortps::root()
 {
@@ -484,8 +486,8 @@ void Agent::reply()
             int ret = 0;
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
             {
-                //printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
-                //for (int i = 0; i < ret; ++i) printf("%02X ", (unsigned char)message.get_buffer()[i]);printf("\n");
+                printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
+                for (int i = 0; i < ret; ++i) printf("%02X ", (unsigned char)message.get_buffer()[i]);printf("\n");
             }
         }
         usleep(1000000);
@@ -497,6 +499,7 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const CREATE_PAYLOAD& create_payload)
 {
+    std::cout << create_payload;
     std::cout << "==> ";
     debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (create_payload.object_representation().discriminator() != OBJK_CLIENT)

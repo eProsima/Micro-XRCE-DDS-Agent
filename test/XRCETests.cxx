@@ -528,7 +528,7 @@ TEST_F(XRCEParserTests, EmptyMessage)
     testing::internal::CaptureStderr();
     XRCEParser myParser{ test_buffer_, BUFFER_LENGTH, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error submessage ID not recognized\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, HeaderError)
@@ -536,7 +536,7 @@ TEST_F(XRCEParserTests, HeaderError)
     testing::internal::CaptureStderr();
     XRCEParser myParser{ test_buffer_, 0, &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error reading message header\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error reading message header\n") != std::string::npos); 
 }
 
 TEST_F(XRCEParserTests, SubmessageHeaderError)
@@ -545,7 +545,7 @@ TEST_F(XRCEParserTests, SubmessageHeaderError)
     MessageHeader message_header;
     XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header),&bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error reading submessage header\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error reading submessage header\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, SubmessagePayloadError)
@@ -555,7 +555,7 @@ TEST_F(XRCEParserTests, SubmessagePayloadError)
     SubmessageHeader submessage_header;
     XRCEParser myParser{ test_buffer_, message_header.getCdrSerializedSize(message_header) + submessage_header.getCdrSerializedSize(submessage_header), &bool_listener_};
     ASSERT_FALSE(myParser.parse());
-    ASSERT_EQ("Error submessage ID not recognized\n", testing::internal::GetCapturedStderr());
+    ASSERT_TRUE(testing::internal::GetCapturedStderr().find("Error submessage ID not recognized\n") != std::string::npos);
 }
 
 TEST_F(XRCEParserTests, CreateMessage)
@@ -573,26 +573,6 @@ TEST_F(XRCEParserTests, CreateMessage)
     XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_ };
     ASSERT_TRUE(myParser.parse());
     ASSERT_TRUE(bool_listener_.create_called);
-}
-
-TEST_F(XRCEParserTests, CreateMessageNoCallback)
-{
-    Serializer serializer_(test_buffer_, BUFFER_LENGTH);
-    MessageHeader message_header;;
-    serializer_.serialize(message_header);
-    CREATE_PAYLOAD createData;
-    SubmessageHeader submessage_header;
-    submessage_header.submessage_id(CREATE);
-    submessage_header.submessage_length(createData.getCdrSerializedSize(createData));
-    serializer_.serialize(submessage_header);
-    serializer_.serialize(createData);
-
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
-    testing::internal::CaptureStderr();
-    ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ("Error processing create\n", testing::internal::GetCapturedStderr());	
-    ASSERT_FALSE(bool_listener_.create_called);
-
 }
 
 TEST_F(XRCEParserTests, MultiCreateMessage)
@@ -634,25 +614,6 @@ TEST_F(XRCEParserTests, WriteMessage)
     ASSERT_TRUE(bool_listener_.write_called);
 }
 
-TEST_F(XRCEParserTests, WriteMessageNoCallback)
-{
-    Serializer serializer_(test_buffer_, BUFFER_LENGTH);
-    MessageHeader message_header;;
-    serializer_.serialize(message_header);
-    WRITE_DATA_PAYLOAD write_payload;
-    SubmessageHeader submessage_header;
-    submessage_header.submessage_id(WRITE_DATA);
-    submessage_header.submessage_length(write_payload.getCdrSerializedSize(write_payload));
-    serializer_.serialize(submessage_header);
-    serializer_.serialize(write_payload);
-
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
-    testing::internal::CaptureStderr();
-    ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ("Error processing write\n", testing::internal::GetCapturedStderr());
-    ASSERT_FALSE(bool_listener_.write_called);
-}
-
 TEST_F(XRCEParserTests, MultiWriteMessage)
 {
     const int num_writes = 3;
@@ -689,25 +650,6 @@ TEST_F(XRCEParserTests, ReadMessage)
     XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
     ASSERT_TRUE(myParser.parse());
     ASSERT_TRUE(bool_listener_.read_called);
-}
-
-TEST_F(XRCEParserTests, ReadMessageNoCallback)
-{
-    Serializer serializer_(test_buffer_, BUFFER_LENGTH);
-    MessageHeader message_header;;
-    serializer_.serialize(message_header);
-    READ_DATA_PAYLOAD read_payload;
-    SubmessageHeader submessage_header;
-    submessage_header.submessage_id(READ_DATA);
-    submessage_header.submessage_length(read_payload.getCdrSerializedSize(read_payload));
-    serializer_.serialize(submessage_header);
-    serializer_.serialize(read_payload);
-
-    XRCEParser myParser{ test_buffer_, serializer_.get_serialized_size(), &bool_listener_};
-    testing::internal::CaptureStderr();
-    ASSERT_TRUE(myParser.parse());
-    ASSERT_EQ("Error processing read\n", testing::internal::GetCapturedStderr());
-    ASSERT_FALSE(bool_listener_.read_called);
 }
 
 TEST_F(XRCEParserTests, MultiSubMessage)
