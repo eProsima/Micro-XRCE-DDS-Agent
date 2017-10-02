@@ -279,8 +279,6 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     ASSERT_EQ(STATUS_OK, response.result().implementation_status());
 
     DELETE_PAYLOAD delete_payload;
-    delete_payload.object_id({10,20,30});
-    delete_payload.request_id({2,2});
 
     response = agent_.delete_client(0xFAFBFCFD, delete_payload);
     ASSERT_EQ(STATUS_LAST_OP_DELETE, response.result().status());
