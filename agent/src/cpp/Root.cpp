@@ -488,7 +488,11 @@ void Agent::reply()
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
             {
                 printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
-                for (int i = 0; i < ret; ++i) printf("%02X ", (unsigned char)message.get_buffer()[i]);printf("\n");
+                for (int i = 0; i < ret; ++i)
+                {
+                    printf("%02X ", (unsigned char)message.get_buffer()[i]);
+                }
+                printf("\n");
             }
         }
         usleep(1000000);
