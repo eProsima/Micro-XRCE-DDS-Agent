@@ -1,40 +1,57 @@
-###############################################################################
-#
 # Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# 1. Redistributions of source code must retain the above copyright notice, this
-# list of conditions and the following disclaimer.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-# this list of conditions and the following disclaimer in the documentation
-# and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors
-# may be used to endorse or promote products derived from this software without
-# specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-################################################################################
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
+###############################################################################
+# CMake build rules for micro RTPS agent
+###############################################################################
 cmake_minimum_required(VERSION 2.8.12)
-project(PoC_SendReceive)
 
+# Set CMAKE_BUILD_TYPE to Release by default.
+if(DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        )
+else()
+    set(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        )
+endif()
+
+project(micrortps_agent)
+
+###############################################################################
+# eProsima build options
+###############################################################################
+option(EPROSIMA_BUILD "Activate internal building" OFF)
+
+###############################################################################
+# Load external eProsima projects.
+###############################################################################
+include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
+option(THIRDPARTY "Activate the build of thirdparties" OFF)
+
+if(EPROSIMA_BUILD)
+    set(THIRDPARTY ON)
+endif()
+
+###############################################################################
+# Compile
+###############################################################################
+# Find requirements
 find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
+find_eprosima_package(micrortps_transport)
 
 # Set C++11
 include(CheckCXXCompilerFlag)
@@ -51,24 +68,24 @@ endif()
 include_directories(${CMAKE_PREFIX_PATH}/include
                     transport/include
                     transport/include/transport
-                    agent/include
-                    agent/src/cpp
-                    agent/include/agent
-                    #/home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
+                    src/cpp
+                    include
+                    include/agent
+                    /home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
                     #/home/borja/dev/rtps/thirdparty/asio/asio/include
-                    /home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
+                    #/home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
                     )
-
-# libtransport.so
-file(GLOB TRANS_LIB_SRCS "transport/src/c/transport/*.c")
-add_library(transport SHARED ${TRANS_LIB_SRCS})
-install(TARGETS transport DESTINATION ${CMAKE_SOURCE_DIR}/install)
+                    
+if(THIRDPARTY)
+    # Required libs for examples
+    add_subdirectory(thirdparty/micrortps_transport)
+endif()
 
 # libagent.so
-file(GLOB AGENT_LIB_SRCS "agent/src/cpp/*.cpp" "agent/src/cpp/*/*.cpp" "agent/src/cpp/*/*.cxx")
+file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent transport)
+target_link_libraries(agent transport fastcdr)
 
 # agent_parser_test
 file(GLOB AGENT_PARSER_TEST_SOURCES "agent_parser_test.cpp")
