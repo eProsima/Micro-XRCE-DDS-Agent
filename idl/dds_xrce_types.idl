@@ -1,0 +1,476 @@
+
+module dds { module xrce {
+		
+		typedef octet ClientKey[4];
+		typedef octet ObjectKind;
+
+		const ObjectKind OBJK_INVALID     = 0x0;
+		const ObjectKind OBJK_PARTICIPANT = 0x1; // Matches RTPS EntityKind
+		const ObjectKind OBJK_TOPIC       = 0x4;
+		const ObjectKind OBJK_DATAWRITER  = 0x3; // Matches RTPS EntityKind
+		const ObjectKind OBJK_DATAREADER  = 0x7; // Matches RTPS EntityKind
+		const ObjectKind OBJK_SUBSCRIBER  = 0x8;
+		const ObjectKind OBJK_PUBLISHER   = 0x9;
+		const ObjectKind OBJK_TYPE        = 0x10;
+		const ObjectKind OBJK_QOSPROFILE  = 0x11;
+		const ObjectKind OBJK_APPLICATION = 0x20;
+		const ObjectKind OBJK_CLIENT      = 0x21;
+
+		typedef octet ObjectId [2];
+
+		// There are three predefined values ObjectId
+		// IDL does not have a syntax to express array constants so we 
+		// use #define with is legal in IDL
+#define  OBJECTID_INVALID {0xFF,0xFF}
+#define  OBJECTID_CLIENT  {0xFF,0xF0}
+#define  OBJECTID_SESSION {0xFF,0xF1}
+
+		typedef octet XrceCookie[4];
+		// Spells ‘X’ ‘R’ ‘C’ ‘E’
+#define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
+
+		typedef octet XrceVersion[2];
+#define XRCE_VESION_MAJOR     0x01
+#define XRCE_VESION_MINOR     0x00
+#define XRCE_VERSION  { XRCE_VESION_MAJOR, XRCE_VESION_MINOR }
+
+		typedef octet XrceVendorId[2];
+#define XRCE_VENDOR_INVALID1  0x00
+#define XRCE_VENDOR_INVALID1  0x00
+	
+		
+		struct Time_t {
+				long           seconds;
+				unsigned long  nanoseconds;
+		};
+	
+		typedef octet SessionId;
+		const SessionId SESSIONID_NONE_WITH_CLIENT_KEY     = 0x00;
+		const SessionId SESSIONID_NONE_WITHOUT_CLIENT_KEY  = 0x80;
+
+		typedef octet StreamId;
+		const SessionId STREAMID_NONE                        = 0x00;
+		const SessionId STREAMID_BUILTIN_BEST_EFFORTS        = 0x01;
+		const SessionId STREAMID_BUILTIN_RELIABLE            = 0x80;
+	
+		// fastrpsgen not supported: @extensibility(FINAL) 
+		struct OBJK_CLIENT_Representation {
+				XrceCookie   xrce_cookie;  // XRCE_COOKIE
+				XrceVersion  xrce_version;
+				XrceVendorId xrce_vendor_id;
+			
+				Time_t       client_timestamp; 
+				ClientKey    client_key;
+				SessionId    session_id;
+		};
+
+		typedef octet RepresentationFormat;
+		const RepresentationFormat REPRESENTATION_BY_NAME   = 0x01;
+		const RepresentationFormat REPRESENTATION_AS_STRING = 0x02;
+		const RepresentationFormat REPRESENTATION_BINARY    = 0x03;
+	
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union OBJK_Representation3Formats switch(RepresentationFormat) {
+			case REPRESENTATION_BY_REFERENCE :
+				string<255>      object_reference;
+			case REPRESENTATION_AS_XML_STRING :
+				string           xml_string_representation;
+			case REPRESENTATION_IN_BINARY :
+				sequence<octet>  binary_representation;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union OBJK_Representation2Formats switch(RepresentationFormat) {
+			case REPRESENTATION_BY_REFERENCE :
+				string<255>      object_name;
+			case REPRESENTATION_AS_XML_STRING :
+				string           string_representation;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_Representation2_Base {
+			OBJK_Representation2Formats representation;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_Representation3_Base {
+			OBJK_Representation3Formats representation;
+		};
+	
+		/* Objects supporting 2 different representation formats */
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_QOSPROFILE_Representation { //:  OBJK_Representation2_Base {
+			OBJK_Representation2_Base base_representation;
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_APPLICATION_Representation { //:  OBJK_Representation2_Base {
+			OBJK_Representation2_Base base_representation;
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_PARTICIPANT_Representation { //:  OBJK_Representation2_Base {
+			OBJK_Representation2_Base base_representation;
+		};
+
+		/* Objects supporting 3 different representation formats */
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_TYPE_Representation        { //:  OBJK_Representation2_Base {
+				OBJK_Representation2_Base base_representation;
+				ObjectId participant_id;
+				string   registered_type_name;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_TOPIC_Representation { //:  OBJK_Representation3_Base {
+				OBJK_Representation3_Base base_representation;
+				ObjectId participant_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_PUB_Representation   { //:  OBJK_Representation3_Base {
+				OBJK_Representation3_Base base_representation;
+				ObjectId participant_id;
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_SUB_Representation   { //:  OBJK_Representation3_Base {
+				OBJK_Representation3_Base base_representation;
+				ObjectId participant_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_DW_Representation    { //:  OBJK_Representation3_Base {
+				OBJK_Representation3_Base base_representation;
+				ObjectId participant_id;
+				ObjectId publisher_id;
+		};
+		
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct OBJK_DR_Representation    { //:  OBJK_Representation3_Base {
+				OBJK_Representation3_Base base_representation;
+				ObjectId participant_id;
+				ObjectId subscriber_id;
+		};
+
+		/* Content of the binary representation format */
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_Type_Binary {
+			// fastrpsgen not supported: DDS:XTypes::TypeIdentifier type_name;	
+			string type_name;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_Topic_QosBinary {
+			string topic_name;
+			string type_name;
+			// fastrpsgen not supported: @optional string type_name;	
+			// fastrpsgen not supported: @optional DDS:XTypes::TypeIdentifier type_name;	
+		};
+
+		struct  OBJK_PUB_QosBinary {
+			sequence<string>  partitions;	
+			sequence<octet>   group_data;	
+	// fastrpsgen not supported: @optional sequence<string>  partitions;	
+	// fastrpsgen not supported: @optional sequence<octet>   group_data;	
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_SUB_QosBinary {
+			sequence<string>  partitions;	
+			sequence<octet>   group_data;	
+	// fastrpsgen not supported: @optional sequence<string>  partitions;	
+	// fastrpsgen not supported: @optional sequence<octet>   group_data;	
+		};
+	
+		//@bit_bound(16)
+		enum EndpointQosFlags {
+		//bitmask EndpointQosFlags {
+				is_reliable,
+				is_history_keep_last,
+				is_ownership_exclusive,
+				is_durability_transient_local,
+				is_durability_transient,
+				is_durability_persistent
+				// @position(0) is_reliable,
+				// @position(1) is_history_keep_last,
+				// @position(2) is_ownership_exclusive,
+				// @position(3) is_durability_transient_local,
+				// @position(4) is_durability_transient,
+				// @position(5) is_durability_persistent,
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_Endpoint_QosBinary {
+	EndpointQosFlags            qos_flags;
+	unsigned short    history_depth;
+	unsigned long     deadline_msec;
+	unsigned long     lifespan_msec;
+	sequence<octet>   user_data;
+
+	// fastrpsgen not supported: @optional unsigned short    history_depth;
+	// fastrpsgen not supported: @optional unsigned long     deadline_msec;
+	// fastrpsgen not supported: @optional unsigned long     lifespan_msec;
+	// fastrpsgen not supported: @optional sequence<octet>   user_data;	
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_DataReader_Binary {
+	string                      topic_name;
+	OBJK_Endpoint_QosBinary     endpoint_qos;
+	unsigned long     timebasedfilter_msec;
+	string            contentbased_filter;	
+
+	// fastrpsgen not supported: @optional unsigned long     timebasedfilter_msec;
+	// fastrpsgen not supported: @optional string            contentbased_filter;	
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct  OBJK_DataWriter_Binary {
+	string                      topic_name;
+	OBJK_Endpoint_QosBinary     endpoint_qos;
+	unsigned long     ownership_strength;
+
+	// fastrpsgen not supported: @optional unsigned long     ownership_strength;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union ObjectVariant switch(ObjectKind) {
+			// case OBJK_INVALID : indicates default or selected by Agent. No data.
+		case OBJK_CLIENT :
+			OBJK_CLIENT_Representation client;
+		case OBJK_APP :
+			OBJK_APPLICATION_Representation application;
+		case OBJK_PARTICIPANT :
+			OBJK_PARTICIPANT_Representation participant;
+		case OBJK_QOSPROFILE :
+			OBJK_QOSPROFILE_Representation qos_profile;
+		case OBJK_TYPE :
+			OBJK_TYPE_Representation type;
+		case OBJK_TOPIC :
+			OBJK_TOPIC_Representation topic;
+		case OBJK_PUBLISHER :
+			OBJK_PUB_Representation publisher;
+		case OBJK_SUBSCRIBER :
+			OBJK_SUB_Representation subscriber;
+		case OBJK_DATAWRITER :
+			OBJK_DW_Representation data_writer;
+		case OBJK_DATAREADER :
+			OBJK_DR_Representation data_reader;
+		};
+
+		struct CreationMode {
+			boolean reuse;
+			boolean replace;
+		};
+
+
+		typedef octet RequestId[2];
+
+		struct ResultStatus {
+			RequestId     request_id;
+			octet         status;
+			octet         implementation_status;
+		};
+	
+		const   octet STATUS_OK                    = 0x00;
+		const   octet STATUS_OK_MATCHED            = 0x01;
+		const   octet STATUS_ERR_DDS_ERROR         = 0x80;
+		const   octet STATUS_ERR_MISMATCH          = 0x81;
+		const   octet STATUS_ERR_ALREADY_EXISTS    = 0x82;
+		const   octet STATUS_ERR_DENIED            = 0x83;
+		const   octet STATUS_ERR_UNKNOWN_REFERENCE = 0x84;
+		const   octet STATUS_ERR_INVALID_DATA      = 0x85;
+		const   octet STATUS_ERR_INCOMPATIBLE      = 0x86;
+		const   octet STATUS_ERR_RESOURCES         = 0x87;
+
+		const   octet STATUS_LAST_OP_NONE      = 0;
+		const   octet STATUS_LAST_OP_CREATE    = 1;
+		const   octet STATUS_LAST_OP_UPDATE    = 2;
+		const   octet STATUS_LAST_OP_DELETE    = 3;
+		const   octet STATUS_LAST_OP_LOOKUP    = 4;
+		const   octet STATUS_LAST_OP_READ      = 5;
+		const   octet STATUS_LAST_OP_WRITE     = 6;
+
+		//bitmask InfoMask {
+		enum InfoMask {
+			INFO_CONFIGURATION,
+			INFO_ACTIVITY
+			// @position(0) INFO_CONFIGURATION,
+			// @position(1) INFO_ACTIVITY
+		};
+
+		// fastrpsgen not supported: @extensibility(APPENDABLE)
+		struct OBJK_DATAREADER_ActivityInfo {
+	short highest_acked_num;
+		};
+
+		// fastrpsgen not supported: @extensibility(APPENDABLE)
+		struct OBJK_DATAWRITER_ActivityInfo {
+				short stream_seq_num;
+				unsigned long long sample_seq_num;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union ActivityInfoVariant switch(ObjectKind) {
+			case OBJK_DATAWRITER :
+				OBJK_DATAWRITER_ActivityInfo data_writer;
+			case OBJK_DATAREADER :
+				OBJK_DATAREADER_ActivityInfo data_reader;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct Info {
+			ObjectVariant        config;
+			ActivityInfoVariant  activity;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct BaseRequest {
+			RequestId     request_id;
+			ObjectId      object_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct BaseObjectRequest { // fastrpsgen not supported: BaseRequest {
+			BaseRequest   base_request;
+			ObjectId      object_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct BaseReply {
+			ResultStatus  result;
+			RequestId     request_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct BaseObjectReply { // fastrpsgen not supported: : BaseReply {
+			BaseReply     base_reply;
+			ObjectId      object_id;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct InfoReply { // fastrpsgen not supported: : BaseObjectReply {
+			BaseObjectReply base_object_reply;
+			ObjectVariant info;
+		};
+
+		typedef octet DataFormat;
+		const DataFormat FORMAT_DATA           = 0x00;
+		const DataFormat FORMAT_DATA_SEQ       = 0x01;
+		const DataFormat FORMAT_SAMPLE         = 0x02;
+		const DataFormat FORMAT_SAMPLE_SEQ     = 0x03;
+		const DataFormat FORMAT_PACKED_SAMPLES = 0x04;
+
+		// fastrpsgen not supported: @extensibility(APPENDABLE)
+		struct DataDeliveryControl {
+	unsigned short          max_samples;   // Maximum numbers of samples
+	unsigned long           max_elapsed_time; // In milliseconds
+				unsigned long           max_rate;         // Bytes per second
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union DataDeliveryConfig switch(DataFormat) {
+			case FORMAT_DATA_SEQ:
+			case FORMAT_SAMPLE_SEQ:
+			case FORMAT_PACKED_SAMPLES:
+				DataDeliveryControl delivey_control;
+			case FORMAT_DATA:
+			case FORMAT_SAMPLE:
+				octet dummy;
+		};
+	
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct ReadSpecification  {
+				string    content_filter_expression;
+				// fastrpsgen not supported: @optional string    content_filter_expression;
+				DataDeliveryConfig  delivery_config;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct SampleInfo {
+			unsigned long state;  //Combines SampleState, InstanceState, ViewState
+			unsigned long  sequence_number;
+			unsigned long  session_time_offset; // milliseconds up to 53 days
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct SampleInfoDelta {
+			octet      state;  // Combines SampleState, InstanceState, ViewState
+			octet           seq_number_delta;
+			unsigned short  timestamp_delta; // milliseconds
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct SampleData {
+				sequence<octet> serialized_data;
+		};
+		typedef sequence<SampleData> SampleDataSeq;
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct Sample {
+			SampleInfo   info;
+			SampleData   data;
+		};
+		typedef sequence<Sample> SampleSeq;
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct SampleDelta {
+			SampleInfoDelta   info_delta;
+			SampleData        data;
+		};
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		struct PackedSamples {
+			SampleInfo             info_base;
+			sequence<SampleDelta>  sample_delta_seq;
+		};
+		typedef sequence<PackedSamples> PackedSampleSeq;
+
+		// fastrpsgen not supported: @extensibility(FINAL)
+		union  DataRepresentation switch(DataFormat) {
+		case FORMAT_DATA : // Read data with no sample info
+			SampleData        data;
+		case FORMAT_DATA_SEQ : // Read data with no sample info
+			SampleDataSeq     data_seq;
+		case FORMAT_SAMPLE :   // Read data with the SampleInfo
+			Sample            sample; 
+		case FORMAT_SAMPLE_SEQ :   // Read data with the SampleInfo
+			SampleSeq         sample_seq; 
+		case FORMAT_PACKED_SAMPLES : // Read data with compact sample info
+			PackedSamples     packed_samples; 
+		};
+
+		//@bit_bount(8)
+		enum SubmessageId {
+			CREATE_CLIENT,
+			CREATE,
+			GET_INFO,
+			DELETE,
+			STATUS,
+			INFO,
+			WRITE_DATA,
+			READ_DATA,
+			DATA,
+			ACKNACK,
+			HEARTBEAT,
+			FRAGMENT,
+			FRAGMENT_END
+	// @value(0)  CREATE_CLIENT,
+	// @value(1)  CREATE,
+	// @value(2)  GET_INFO,
+	// @value(3)  DELETE,
+	// @value(4)  STATUS,
+	// @value(5)  INFO,
+	// @value(6)  WRITE_DATA,
+	// @value(7)  READ_DATA,
+	// @value(8)  DATA,
+	// @value(9)  ACKNACK,
+	// @value(10) HEARTBEAT,
+	// @value(12) FRAGMENT,
+	// @value(13) FRAGMENT_END
+		};
+	
+	}; };
