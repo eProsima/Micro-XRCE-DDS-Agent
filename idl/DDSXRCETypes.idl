@@ -117,7 +117,7 @@ module dds { module xrce {
 
 		/* Objects supporting 3 different representation formats */
 		// fastrpsgen not supported: @extensibility(FINAL)
-		struct OBJK_TYPE_Representation        { //:  OBJK_Representation2_Base {
+		struct OBJK_TYPE_Representation        { //:  OBJK_Representation3_Base {
 				OBJK_Representation2_Base base_representation;
 				ObjectId participant_id;
 				string   registered_type_name;
