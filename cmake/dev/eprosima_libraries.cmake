@@ -52,23 +52,46 @@ macro(find_eprosima_package package)
                 "\${CMAKE_PREFIX_PATH_}"
                 )
             list(APPEND ${package}_CMAKE_ARGS LIST_SEPARATOR "|")
+            string(REPLACE ";" "\;" ${package}_CMAKE_ARGS "${${package}_CMAKE_ARGS}")
+            if(UPDATE_SUBMODULES)
+                 set(EXT_CMAKELISTS
+                    "cmake_minimum_required(VERSION 2.8.12)\n"
+                    "include(ExternalProject)\n"
+                    "set(SOURCE_DIR_ \"${PROJECT_SOURCE_DIR}/${package}\")\n"
+                    "set(GENERATOR_ -G \"${CMAKE_GENERATOR}\")\n"
+                    "set(CMAKE_INSTALL_PREFIX_ \"-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX_}\")\n"
+                    "set(CMAKE_PREFIX_PATH_ -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH_}\")\n"
+                    "ExternalProject_Add(${package}\n"
+                    "CONFIGURE_COMMAND \"${CMAKE_COMMAND}\"\n"
+                    "${${package}_CMAKE_ARGS}\n"
+                    "DOWNLOAD_COMMAND \"\"\n"
+                    "UPDATE_COMMAND cd \"${PROJECT_SOURCE_DIR}\" && git submodule update --remote --recursive --init \"${package}\"\n"
+                    "SOURCE_DIR \${SOURCE_DIR_}\n"
+                    "BINARY_DIR \"${${package}ExternalDir}/build\"\n"
+                    ")\n"
+                    )
+            else()
+                set(EXT_CMAKELISTS
+                    "cmake_minimum_required(VERSION 2.8.12)\n"
+                    "include(ExternalProject)\n"
+                    "set(SOURCE_DIR_ \"${PROJECT_SOURCE_DIR}/${package}\")\n"
+                    "set(GENERATOR_ -G \"${CMAKE_GENERATOR}\")\n"
+                    "set(CMAKE_INSTALL_PREFIX_ \"-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX_}\")\n"
+                    "set(CMAKE_PREFIX_PATH_ -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH_}\")\n"
+                    "ExternalProject_Add(${package}\n"
+                    "CONFIGURE_COMMAND \"${CMAKE_COMMAND}\"\n"
+                    "${${package}_CMAKE_ARGS}\n"
+                    "DOWNLOAD_COMMAND \"\"\n"
+                    #"UPDATE_COMMAND cd \"${PROJECT_SOURCE_DIR}\" && git submodule update --remote --recursive --init \"${package}\"\n"
+                    "SOURCE_DIR \${SOURCE_DIR_}\n"
+                    "BINARY_DIR \"${${package}ExternalDir}/build\"\n"
+                    ")\n"
+                    )
+            endif()
 
             file(MAKE_DIRECTORY ${${package}ExternalDir})
-            file(WRITE ${${package}ExternalDir}/CMakeLists.txt
-                "cmake_minimum_required(VERSION 2.8.12)\n"
-                "include(ExternalProject)\n"
-                "set(SOURCE_DIR_ \"${PROJECT_SOURCE_DIR}/thirdparty/${package}\")\n"
-                "set(GENERATOR_ -G \"${CMAKE_GENERATOR}\")\n"
-                "set(CMAKE_INSTALL_PREFIX_ \"-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX_}\")\n"
-                "set(CMAKE_PREFIX_PATH_ -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH_}\")\n"
-                "ExternalProject_Add(${package}\n"
-                "CONFIGURE_COMMAND \"${CMAKE_COMMAND}\"\n"
-                "${${package}_CMAKE_ARGS}\n"
-                "DOWNLOAD_COMMAND \"\"\n"
-                "UPDATE_COMMAND cd \"${PROJECT_SOURCE_DIR}\" && git submodule update --remote --recursive --init \"thirdparty/${package}\"\n"
-                "SOURCE_DIR \${SOURCE_DIR_}\n"
-                "BINARY_DIR \"${${package}ExternalDir}/build\"\n"
-                ")\n")
+            file(WRITE ${${package}ExternalDir}/CMakeLists.txt ${EXT_CMAKELISTS})
+
 
             if(NOT "$ENV{CMAKE_MAKEFLAGS}" STREQUAL "")
                 set(ENV{MAKEFLAGS} "$ENV{CMAKE_MAKEFLAGS}")
