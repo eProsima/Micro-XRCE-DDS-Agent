@@ -40,6 +40,7 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
+option(UPDATE_SUBMODULES "Update to the latest" ON)
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
