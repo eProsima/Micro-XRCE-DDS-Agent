@@ -63,10 +63,10 @@ const eprosima::micrortps::XrceCookie XRCE_COOKIE = {0x58, 0x52, 0x43, 0x45};
 typedef std::array<uint8_t, 2> XrceVersion;
 const uint8_t XRCE_VESION_MAJOR                     = 0x01;
 const uint8_t XRCE_VESION_MINOR                     = 0x00;
-const eprosima::micrortps::XrceVerison XRCE_VERSION = {XRCE_VESION_MAJOR, XRCE_VESION_MINOR};
+const eprosima::micrortps::XrceVersion XRCE_VERSION = {XRCE_VESION_MAJOR, XRCE_VESION_MINOR};
 
 typedef std::array<uint8_t, 2> XrceVendorId;
-const eprosima::micrortps::XRCE_VENDOR_INVALID = {0x00, 0x00};
+const eprosima::micrortps::XrceVendorId XRCE_VENDOR_INVALID = {0x00, 0x00};
 
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
