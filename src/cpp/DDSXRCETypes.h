@@ -27,18 +27,14 @@
 #include <string>
 #include <vector>
 
-namespace eprosima
-{
-namespace fastcdr
-{
+namespace eprosima {
+namespace fastcdr {
 class Cdr;
 }
 } // namespace eprosima
 
-namespace eprosima
-{
-namespace micrortps
-{
+namespace eprosima {
+namespace micrortps {
 
 typedef std::array<uint8_t, 4> ClientKey;
 typedef uint8_t ObjectKind;
@@ -56,33 +52,18 @@ const eprosima::micrortps::ObjectKind OBJK_CLIENT      = 0x21;
 
 typedef std::array<uint8_t, 2> ObjectId;
 // There are three predefined values ObjectId
-#define OBJECTID_INVALID                                                                                               \
-    {                                                                                                                  \
-        0xFF, 0xFF                                                                                                     \
-    }
-#define OBJECTID_CLIENT                                                                                                \
-    {                                                                                                                  \
-        0xFF, 0xF0                                                                                                     \
-    }
-#define OBJECTID_SESSION                                                                                               \
-    {                                                                                                                  \
-        0xFF, 0xF1                                                                                                     \
-    }
+#define OBJECTID_INVALID { 0xFF, 0xFF }
+#define OBJECTID_CLIENT { 0xFF, 0xF0 }
+#define OBJECTID_SESSION { 0xFF, 0xF1 }
 
 typedef std::array<uint8_t, 4> XrceCookie;
 // Spells ‘X’ ‘R’ ‘C’ ‘E’
-#define XRCE_COOKIE                                                                                                    \
-    {                                                                                                                  \
-        0x58, 0x52, 0x43, 0x45                                                                                         \
-    }
+#define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
 
 typedef std::array<uint8_t, 2> XrceVersion;
 #define XRCE_VESION_MAJOR 0x01
 #define XRCE_VESION_MINOR 0x00
-#define XRCE_VERSION                                                                                                   \
-    {                                                                                                                  \
-        XRCE_VESION_MAJOR, XRCE_VESION_MINOR                                                                           \
-    }
+#define XRCE_VERSION { XRCE_VESION_MAJOR, XRCE_VESION_MINOR }
 
 typedef std::array<uint8_t, 2> XrceVendorId;
 #define XRCE_VENDOR_INVALID1 0x00
@@ -155,6 +136,7 @@ class Time_t
     {
         return m_seconds;
     }
+
     /*!
      * @brief This function sets a value in member nanoseconds
      * @param _nanoseconds New value for member nanoseconds
