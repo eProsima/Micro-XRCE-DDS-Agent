@@ -52,22 +52,21 @@ const eprosima::micrortps::ObjectKind OBJK_CLIENT      = 0x21;
 
 typedef std::array<uint8_t, 2> ObjectId;
 // There are three predefined values ObjectId
-#define OBJECTID_INVALID { 0xFF, 0xFF }
-#define OBJECTID_CLIENT { 0xFF, 0xF0 }
-#define OBJECTID_SESSION { 0xFF, 0xF1 }
+const eprosima::micrortps::ObjectId OBJECTID_INVALID = {0xFF, 0xFF};
+const eprosima::micrortps::ObjectId OBJECTID_CLIENT  = {0xFF, 0xF0};
+const eprosima::micrortps::ObjectId OBJECTID_SESSION = {0xFF, 0xF1};
 
 typedef std::array<uint8_t, 4> XrceCookie;
 // Spells ‘X’ ‘R’ ‘C’ ‘E’
-#define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
+const eprosima::micrortps::XrceCookie XRCE_COOKIE = {0x58, 0x52, 0x43, 0x45};
 
 typedef std::array<uint8_t, 2> XrceVersion;
-#define XRCE_VESION_MAJOR 0x01
-#define XRCE_VESION_MINOR 0x00
-#define XRCE_VERSION { XRCE_VESION_MAJOR, XRCE_VESION_MINOR }
+const uint8_t XRCE_VESION_MAJOR                     = 0x01;
+const uint8_t XRCE_VESION_MINOR                     = 0x00;
+const eprosima::micrortps::XrceVerison XRCE_VERSION = {XRCE_VESION_MAJOR, XRCE_VESION_MINOR};
 
 typedef std::array<uint8_t, 2> XrceVendorId;
-#define XRCE_VENDOR_INVALID1 0x00
-#define XRCE_VENDOR_INVALID1 0x00
+const eprosima::micrortps::XRCE_VENDOR_INVALID = {0x00, 0x00};
 
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
