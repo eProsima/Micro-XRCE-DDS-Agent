@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*! 
+/*!
  * @file SubMessageHeader.h
  * This header file contains the declaration of the described types in the IDL file.
  *
@@ -23,72 +23,73 @@
 #define _SubMessageHeader_H_
 
 // TODO Poner en el contexto.
+#include "DDSXRCETypes.h"
 
-#include <stdint.h>
 #include <array>
+#include <stdint.h>
 #include <string>
 #include <vector>
 
 namespace eprosima
 {
-    namespace fastcdr
-    {
-        class FastCdr;
-    }
+namespace fastcdr
+{
+class Cdr;
+}
 }
 
-namespace eprosima {
-namespace micrortps {
-
+namespace eprosima
+{
+namespace micrortps
+{
 /*!
  * @brief This class represents the structure SubmessageHeader defined by the user in the IDL file.
  * @ingroup SUBMESSAGEHEADER
  */
 class SubmessageHeader
 {
-public:
-
+  public:
     /*!
      * @brief Default constructor.
      */
     SubmessageHeader();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~SubmessageHeader();
-    
+
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object SubmessageHeader that will be copied.
+     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
      */
     SubmessageHeader(const SubmessageHeader &x);
-    
+
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object SubmessageHeader that will be copied.
+     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
      */
     SubmessageHeader(SubmessageHeader &&x);
-    
+
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object SubmessageHeader that will be copied.
+     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
      */
-    SubmessageHeader& operator=(const SubmessageHeader &x);
-    
+    SubmessageHeader &operator=(const SubmessageHeader &x);
+
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object SubmessageHeader that will be copied.
+     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
      */
-    SubmessageHeader& operator=(SubmessageHeader &&x);
-    
+    SubmessageHeader &operator=(SubmessageHeader &&x);
+
     /*!
      * @brief This function sets a value in member submessage_id
      * @param _submessage_id New value for member submessage_id
      */
     inline void submessage_id(uint8_t _submessage_id)
     {
-        submessage_id_ = _submessage_id;
+        m_submessage_id = _submessage_id;
     }
 
     /*!
@@ -97,16 +98,16 @@ public:
      */
     inline uint8_t submessage_id() const
     {
-        return submessage_id_;
+        return m_submessage_id;
     }
 
     /*!
      * @brief This function returns a reference to member submessage_id
      * @return Reference to member submessage_id
      */
-    inline uint8_t& submessage_id()
+    inline uint8_t &submessage_id()
     {
-        return submessage_id_;
+        return m_submessage_id;
     }
     /*!
      * @brief This function sets a value in member flags
@@ -114,7 +115,7 @@ public:
      */
     inline void flags(uint8_t _flags)
     {
-        flags_ = _flags;
+        m_flags = _flags;
     }
 
     /*!
@@ -123,16 +124,16 @@ public:
      */
     inline uint8_t flags() const
     {
-        return flags_;
+        return m_flags;
     }
 
     /*!
      * @brief This function returns a reference to member flags
      * @return Reference to member flags
      */
-    inline uint8_t& flags()
+    inline uint8_t &flags()
     {
-        return flags_;
+        return m_flags;
     }
     /*!
      * @brief This function sets a value in member submessage_length
@@ -140,7 +141,7 @@ public:
      */
     inline void submessage_length(uint16_t _submessage_length)
     {
-        submessage_length_ = _submessage_length;
+        m_submessage_length = _submessage_length;
     }
 
     /*!
@@ -149,18 +150,18 @@ public:
      */
     inline uint16_t submessage_length() const
     {
-        return submessage_length_;
+        return m_submessage_length;
     }
 
     /*!
      * @brief This function returns a reference to member submessage_length
      * @return Reference to member submessage_length
      */
-    inline uint16_t& submessage_length()
+    inline uint16_t &submessage_length()
     {
-        return submessage_length_;
+        return m_submessage_length;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -175,28 +176,27 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const SubmessageHeader& data, size_t current_alignment = 0);
-
+    static size_t getCdrSerializedSize(const eprosima::micrortps::SubmessageHeader &data,
+                                                               size_t current_alignment = 0);
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::FastCdr &cdr) const;
+    void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::FastCdr &cdr);
-    
-private:
-    uint8_t submessage_id_;
-    uint8_t flags_;
-    uint16_t submessage_length_;
-};
+    void deserialize(eprosima::fastcdr::Cdr &cdr);
 
-} /* namespace micrortps */
-} /* namespace eprosima */
+  private:
+    uint8_t m_submessage_id;
+    uint8_t m_flags;
+    uint16_t m_submessage_length;
+};
+}
+}
 
 #endif // _SubMessageHeader_H_

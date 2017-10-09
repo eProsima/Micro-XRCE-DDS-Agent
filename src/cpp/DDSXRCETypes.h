@@ -837,7 +837,7 @@ class OBJK_Representation2_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_Representation2_Base();
+    virtual ~OBJK_Representation2_Base();
 
     /*!
      * @brief Copy constructor.
@@ -920,13 +920,13 @@ class OBJK_Representation2_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::OBJK_Representation2Formats m_representation;
@@ -947,7 +947,7 @@ class OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_Representation3_Base();
+    virtual ~OBJK_Representation3_Base();
 
     /*!
      * @brief Copy constructor.
@@ -1030,13 +1030,13 @@ class OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::OBJK_Representation3Formats m_representation;
@@ -1057,7 +1057,7 @@ class OBJK_QOSPROFILE_Representation : public OBJK_Representation2_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_QOSPROFILE_Representation();
+    virtual ~OBJK_QOSPROFILE_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1104,13 +1104,13 @@ class OBJK_QOSPROFILE_Representation : public OBJK_Representation2_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 };
 
 /*!
@@ -1128,7 +1128,7 @@ class OBJK_APPLICATION_Representation : public OBJK_Representation2_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_APPLICATION_Representation();
+    virtual ~OBJK_APPLICATION_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1175,13 +1175,13 @@ class OBJK_APPLICATION_Representation : public OBJK_Representation2_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 };
 
 /*!
@@ -1199,7 +1199,7 @@ class OBJK_PARTICIPANT_Representation : public OBJK_Representation2_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_PARTICIPANT_Representation();
+    virtual ~OBJK_PARTICIPANT_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1246,13 +1246,13 @@ class OBJK_PARTICIPANT_Representation : public OBJK_Representation2_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 };
 
 /*!
@@ -1270,7 +1270,7 @@ class OBJK_TYPE_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_TYPE_Representation();
+    virtual ~OBJK_TYPE_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1388,13 +1388,13 @@ class OBJK_TYPE_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -1416,7 +1416,7 @@ class OBJK_TOPIC_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_TOPIC_Representation();
+    virtual ~OBJK_TOPIC_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1499,13 +1499,13 @@ class OBJK_TOPIC_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -1526,7 +1526,7 @@ class OBJK_PUB_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_PUB_Representation();
+    virtual ~OBJK_PUB_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1609,13 +1609,13 @@ class OBJK_PUB_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -1635,7 +1635,7 @@ class OBJK_SUB_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_SUB_Representation();
+    virtual ~OBJK_SUB_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1718,13 +1718,13 @@ class OBJK_SUB_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -1744,7 +1744,7 @@ class OBJK_DW_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_DW_Representation();
+    virtual ~OBJK_DW_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -1862,13 +1862,13 @@ class OBJK_DW_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -1889,7 +1889,7 @@ class OBJK_DR_Representation : public OBJK_Representation3_Base
     /*!
      * @brief Default destructor.
      */
-    ~OBJK_DR_Representation();
+    virtual ~OBJK_DR_Representation();
 
     /*!
      * @brief Copy constructor.
@@ -2007,13 +2007,13 @@ class OBJK_DR_Representation : public OBJK_Representation3_Base
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_participant_id;
@@ -4406,7 +4406,7 @@ class BaseRequest
     /*!
      * @brief Default destructor.
      */
-    ~BaseRequest();
+    virtual ~BaseRequest();
 
     /*!
      * @brief Copy constructor.
@@ -4523,13 +4523,13 @@ class BaseRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::RequestId m_request_id;
@@ -4550,7 +4550,7 @@ class BaseObjectRequest : public BaseRequest
     /*!
      * @brief Default destructor.
      */
-    ~BaseObjectRequest();
+    virtual ~BaseObjectRequest();
 
     /*!
      * @brief Copy constructor.
@@ -4633,13 +4633,13 @@ class BaseObjectRequest : public BaseRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_object_id;
@@ -4659,7 +4659,7 @@ class BaseReply
     /*!
      * @brief Default destructor.
      */
-    ~BaseReply();
+    virtual ~BaseReply();
 
     /*!
      * @brief Copy constructor.
@@ -4776,13 +4776,13 @@ class BaseReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ResultStatus m_result;
@@ -4803,7 +4803,7 @@ class BaseObjectReply : public BaseReply
     /*!
      * @brief Default destructor.
      */
-    ~BaseObjectReply();
+    virtual ~BaseObjectReply();
 
     /*!
      * @brief Copy constructor.
@@ -4885,13 +4885,13 @@ class BaseObjectReply : public BaseReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectId m_object_id;
@@ -4911,7 +4911,7 @@ class InfoReply : public BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~InfoReply();
+    virtual ~InfoReply();
 
     /*!
      * @brief Copy constructor.
@@ -4993,13 +4993,13 @@ class InfoReply : public BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectVariant m_info;
