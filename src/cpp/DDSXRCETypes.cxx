@@ -84,8 +84,7 @@ size_t eprosima::micrortps::Time_t::getMaxCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::Time_t::getCdrSerializedSize(const eprosima::micrortps::Time_t &data,
-                                                         size_t current_alignment)
+size_t eprosima::micrortps::Time_t::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -181,15 +180,14 @@ size_t eprosima::micrortps::OBJK_CLIENT_Representation::getMaxCdrSerializedSize(
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_CLIENT_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_CLIENT_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_CLIENT_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += eprosima::micrortps::Time_t::getCdrSerializedSize(data.client_timestamp(), current_alignment);
+    current_alignment += m_client_timestamp.getCdrSerializedSize(current_alignment);
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -545,27 +543,26 @@ size_t eprosima::micrortps::OBJK_Representation3Formats::getMaxCdrSerializedSize
 }
 
 // TODO(Ricardo) Review
-size_t eprosima::micrortps::OBJK_Representation3Formats::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_Representation3Formats &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Representation3Formats::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
             current_alignment +=
-                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.object_reference().size() + 1;
+                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_object_reference.size() + 1;
             break;
         case REPRESENTATION_AS_XML_STRING:
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) +
-                                 data.xml_string_representation().size() + 1;
+                                 m_xml_string_representation.size() + 1;
             break;
         case REPRESENTATION_IN_BINARY:
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
             current_alignment +=
-                (data.binary_representation().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+                (m_binary_representation.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
             break;
         default:
@@ -863,22 +860,21 @@ size_t eprosima::micrortps::OBJK_Representation2Formats::getMaxCdrSerializedSize
 }
 
 // TODO(Ricardo) Review
-size_t eprosima::micrortps::OBJK_Representation2Formats::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_Representation2Formats &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Representation2Formats::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
             current_alignment +=
-                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.object_name().size() + 1;
+                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_object_name.size() + 1;
             break;
         case REPRESENTATION_AS_XML_STRING:
             current_alignment +=
-                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.string_representation().size() + 1;
+                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_string_representation.size() + 1;
             break;
         default:
             break;
@@ -964,13 +960,11 @@ size_t eprosima::micrortps::OBJK_Representation2_Base::getMaxCdrSerializedSize(s
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_Representation2_Base &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation2Formats::getCdrSerializedSize(data.representation(),
-                                                                                                current_alignment);
+    current_alignment += m_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -1028,13 +1022,11 @@ size_t eprosima::micrortps::OBJK_Representation3_Base::getMaxCdrSerializedSize(s
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_Representation3_Base &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3Formats::getCdrSerializedSize(data.representation(),
-                                                                                                current_alignment);
+    current_alignment += m_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -1091,12 +1083,11 @@ size_t eprosima::micrortps::OBJK_QOSPROFILE_Representation::getMaxCdrSerializedS
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_QOSPROFILE_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_QOSPROFILE_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_QOSPROFILE_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -1157,12 +1148,11 @@ size_t eprosima::micrortps::OBJK_APPLICATION_Representation::getMaxCdrSerialized
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_APPLICATION_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_APPLICATION_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_APPLICATION_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -1222,12 +1212,11 @@ size_t eprosima::micrortps::OBJK_PARTICIPANT_Representation::getMaxCdrSerialized
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_PARTICIPANT_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_PARTICIPANT_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_PARTICIPANT_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -1296,15 +1285,14 @@ size_t eprosima::micrortps::OBJK_TYPE_Representation::getMaxCdrSerializedSize(si
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_TYPE_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_TYPE_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_TYPE_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment +=
-        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.registered_type_name().size() + 1;
+        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_registered_type_name.size() + 1;
 
     return current_alignment - initial_alignment;
 }
@@ -1370,12 +1358,11 @@ size_t eprosima::micrortps::OBJK_TOPIC_Representation::getMaxCdrSerializedSize(s
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_TOPIC_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_TOPIC_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_TOPIC_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -1441,12 +1428,11 @@ size_t eprosima::micrortps::OBJK_PUB_Representation::getMaxCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_PUB_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_PUB_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_PUB_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -1512,12 +1498,11 @@ size_t eprosima::micrortps::OBJK_SUB_Representation::getMaxCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_SUB_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_SUB_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_SUB_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -1589,12 +1574,11 @@ size_t eprosima::micrortps::OBJK_DW_Representation::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DW_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DW_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DW_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -1669,12 +1653,11 @@ size_t eprosima::micrortps::OBJK_DR_Representation::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DR_Representation::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DR_Representation &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DR_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -1736,12 +1719,11 @@ size_t eprosima::micrortps::OBJK_Type_Binary::getMaxCdrSerializedSize(size_t cur
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_Type_Binary::getCdrSerializedSize(const eprosima::micrortps::OBJK_Type_Binary &data,
-                                                                   size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Type_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.type_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_name.size() + 1;
 
     return current_alignment - initial_alignment;
 }
@@ -1806,14 +1788,13 @@ size_t eprosima::micrortps::OBJK_Topic_QosBinary::getMaxCdrSerializedSize(size_t
 }
 
 size_t
-eprosima::micrortps::OBJK_Topic_QosBinary::getCdrSerializedSize(const eprosima::micrortps::OBJK_Topic_QosBinary &data,
-                                                                size_t current_alignment)
+eprosima::micrortps::OBJK_Topic_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.type_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_name.size() + 1;
 
     return current_alignment - initial_alignment;
 }
@@ -1882,19 +1863,18 @@ size_t eprosima::micrortps::OBJK_PUB_QosBinary::getMaxCdrSerializedSize(size_t c
 }
 
 size_t
-eprosima::micrortps::OBJK_PUB_QosBinary::getCdrSerializedSize(const eprosima::micrortps::OBJK_PUB_QosBinary &data,
-                                                              size_t current_alignment)
+eprosima::micrortps::OBJK_PUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    for(size_t a = 0; a < data.partitions().size(); ++a)
+    for(size_t a = 0; a < m_partitions.size(); ++a)
     {
         current_alignment +=
-            4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.partitions().at(a).size() + 1;
+            4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_partitions.at(a).size() + 1;
     }
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (data.group_data().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += (m_group_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -1963,19 +1943,18 @@ size_t eprosima::micrortps::OBJK_SUB_QosBinary::getMaxCdrSerializedSize(size_t c
 }
 
 size_t
-eprosima::micrortps::OBJK_SUB_QosBinary::getCdrSerializedSize(const eprosima::micrortps::OBJK_SUB_QosBinary &data,
-                                                              size_t current_alignment)
+eprosima::micrortps::OBJK_SUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    for(size_t a = 0; a < data.partitions().size(); ++a)
+    for(size_t a = 0; a < m_partitions.size(); ++a)
     {
         current_alignment +=
-            4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.partitions().at(a).size() + 1;
+            4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_partitions.at(a).size() + 1;
     }
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (data.group_data().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += (m_group_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -2064,8 +2043,7 @@ size_t eprosima::micrortps::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_Endpoint_QosBinary &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -2078,7 +2056,7 @@ size_t eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (data.user_data().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += (m_user_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -2163,19 +2141,17 @@ size_t eprosima::micrortps::OBJK_DataReader_Binary::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DataReader_Binary::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DataReader_Binary &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DataReader_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
-    current_alignment +=
-        eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(data.endpoint_qos(), current_alignment);
+    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment +=
-        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.contentbased_filter().size() + 1;
+        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_contentbased_filter.size() + 1;
 
     return current_alignment - initial_alignment;
 }
@@ -2252,15 +2228,13 @@ size_t eprosima::micrortps::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DataWriter_Binary::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DataWriter_Binary &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
-    current_alignment +=
-        eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(data.endpoint_qos(), current_alignment);
+    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     return current_alignment - initial_alignment;
@@ -3148,54 +3122,43 @@ size_t eprosima::micrortps::ObjectVariant::getMaxCdrSerializedSize(size_t curren
 }
 
 // TODO(Ricardo) Review
-size_t eprosima::micrortps::ObjectVariant::getCdrSerializedSize(const eprosima::micrortps::ObjectVariant &data,
-                                                                size_t current_alignment)
+size_t eprosima::micrortps::ObjectVariant::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case OBJK_CLIENT:
-            current_alignment +=
-                eprosima::micrortps::OBJK_CLIENT_Representation::getCdrSerializedSize(data.client(), current_alignment);
+            current_alignment += m_client.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_APPLICATION:
-            current_alignment += eprosima::micrortps::OBJK_APPLICATION_Representation::getCdrSerializedSize(
-                data.application(), current_alignment);
+            current_alignment += m_application.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_PARTICIPANT:
-            current_alignment += eprosima::micrortps::OBJK_PARTICIPANT_Representation::getCdrSerializedSize(
-                data.participant(), current_alignment);
+            current_alignment += m_participant.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_QOSPROFILE:
-            current_alignment += eprosima::micrortps::OBJK_QOSPROFILE_Representation::getCdrSerializedSize(
-                data.qos_profile(), current_alignment);
+            current_alignment += m_qos_profile.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_TYPE:
-            current_alignment +=
-                eprosima::micrortps::OBJK_TYPE_Representation::getCdrSerializedSize(data.type(), current_alignment);
+            current_alignment += m_type.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_TOPIC:
-            current_alignment +=
-                eprosima::micrortps::OBJK_TOPIC_Representation::getCdrSerializedSize(data.topic(), current_alignment);
+            current_alignment += m_topic.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_PUBLISHER:
-            current_alignment +=
-                eprosima::micrortps::OBJK_PUB_Representation::getCdrSerializedSize(data.publisher(), current_alignment);
+            current_alignment += m_publisher.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_SUBSCRIBER:
-            current_alignment += eprosima::micrortps::OBJK_SUB_Representation::getCdrSerializedSize(data.subscriber(),
-                                                                                                    current_alignment);
+            current_alignment += m_subscriber.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_DATAWRITER:
-            current_alignment += eprosima::micrortps::OBJK_DW_Representation::getCdrSerializedSize(data.data_writer(),
-                                                                                                   current_alignment);
+            current_alignment += m_data_writer.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_DATAREADER:
-            current_alignment += eprosima::micrortps::OBJK_DR_Representation::getCdrSerializedSize(data.data_reader(),
-                                                                                                   current_alignment);
+            current_alignment += m_data_reader.getCdrSerializedSize(current_alignment);
             break;
         default:
             break;
@@ -3335,8 +3298,7 @@ size_t eprosima::micrortps::CreationMode::getMaxCdrSerializedSize(size_t current
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::CreationMode::getCdrSerializedSize(const eprosima::micrortps::CreationMode &data,
-                                                               size_t current_alignment)
+size_t eprosima::micrortps::CreationMode::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -3415,8 +3377,7 @@ size_t eprosima::micrortps::ResultStatus::getMaxCdrSerializedSize(size_t current
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::ResultStatus::getCdrSerializedSize(const eprosima::micrortps::ResultStatus &data,
-                                                               size_t current_alignment)
+size_t eprosima::micrortps::ResultStatus::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -3486,8 +3447,7 @@ size_t eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::getMaxCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -3557,8 +3517,7 @@ size_t eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::getMaxCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::getCdrSerializedSize(
-    const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &data, size_t current_alignment)
+size_t eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -3833,22 +3792,19 @@ size_t eprosima::micrortps::ActivityInfoVariant::getMaxCdrSerializedSize(size_t 
 
 // TODO(Ricardo) Review
 size_t
-eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(const eprosima::micrortps::ActivityInfoVariant &data,
-                                                               size_t current_alignment)
+eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case OBJK_DATAWRITER:
-            current_alignment += eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::getCdrSerializedSize(
-                data.data_writer(), current_alignment);
+            current_alignment += m_data_writer.getCdrSerializedSize(current_alignment);
             break;
         case OBJK_DATAREADER:
-            current_alignment += eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::getCdrSerializedSize(
-                data.data_reader(), current_alignment);
+            current_alignment += m_data_reader.getCdrSerializedSize(current_alignment);
             break;
         default:
             break;
@@ -3937,13 +3893,12 @@ size_t eprosima::micrortps::Info::getMaxCdrSerializedSize(size_t current_alignme
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::Info::getCdrSerializedSize(const eprosima::micrortps::Info &data, size_t current_alignment)
+size_t eprosima::micrortps::Info::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::ObjectVariant::getCdrSerializedSize(data.config(), current_alignment);
-    current_alignment +=
-        eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(data.activity(), current_alignment);
+    current_alignment += m_config.getCdrSerializedSize(current_alignment);
+    current_alignment += m_activity.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -4007,8 +3962,7 @@ size_t eprosima::micrortps::BaseRequest::getMaxCdrSerializedSize(size_t current_
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::BaseRequest::getCdrSerializedSize(const eprosima::micrortps::BaseRequest &data,
-                                                              size_t current_alignment)
+size_t eprosima::micrortps::BaseRequest::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4074,12 +4028,11 @@ size_t eprosima::micrortps::BaseObjectRequest::getMaxCdrSerializedSize(size_t cu
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(const eprosima::micrortps::BaseObjectRequest &data,
-                                                                    size_t current_alignment)
+size_t eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseRequest::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseRequest::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -4143,12 +4096,11 @@ size_t eprosima::micrortps::BaseReply::getMaxCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::BaseReply::getCdrSerializedSize(const eprosima::micrortps::BaseReply &data,
-                                                            size_t current_alignment)
+size_t eprosima::micrortps::BaseReply::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::ResultStatus::getCdrSerializedSize(data.result(), current_alignment);
+    current_alignment += m_result.getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -4210,12 +4162,11 @@ size_t eprosima::micrortps::BaseObjectReply::getMaxCdrSerializedSize(size_t curr
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(const eprosima::micrortps::BaseObjectReply &data,
-                                                                  size_t current_alignment)
+size_t eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseReply::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseReply::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -4277,13 +4228,12 @@ size_t eprosima::micrortps::InfoReply::getMaxCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::InfoReply::getCdrSerializedSize(const eprosima::micrortps::InfoReply &data,
-                                                            size_t current_alignment)
+size_t eprosima::micrortps::InfoReply::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
-    current_alignment += eprosima::micrortps::ObjectVariant::getCdrSerializedSize(data.info(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
+    current_alignment += m_info.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -4358,8 +4308,7 @@ size_t eprosima::micrortps::DataDeliveryControl::getMaxCdrSerializedSize(size_t 
 }
 
 size_t
-eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(const eprosima::micrortps::DataDeliveryControl &data,
-                                                               size_t current_alignment)
+eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4626,20 +4575,18 @@ size_t eprosima::micrortps::DataDeliveryConfig::getMaxCdrSerializedSize(size_t c
 
 // TODO(Ricardo) Review
 size_t
-eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(const eprosima::micrortps::DataDeliveryConfig &data,
-                                                              size_t current_alignment)
+eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            current_alignment += eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(data.delivey_control(),
-                                                                                                current_alignment);
+            current_alignment += m_delivey_control.getCdrSerializedSize(current_alignment);
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4733,16 +4680,14 @@ size_t eprosima::micrortps::ReadSpecification::getMaxCdrSerializedSize(size_t cu
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(const eprosima::micrortps::ReadSpecification &data,
-                                                                    size_t current_alignment)
+size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment +=
-        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.content_filter_expression().size() + 1;
+        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_content_filter_expression.size() + 1;
 
-    current_alignment +=
-        eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(data.delivery_config(), current_alignment);
+    current_alignment += m_delivery_config.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -4815,8 +4760,7 @@ size_t eprosima::micrortps::SampleInfo::getMaxCdrSerializedSize(size_t current_a
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::SampleInfo::getCdrSerializedSize(const eprosima::micrortps::SampleInfo &data,
-                                                             size_t current_alignment)
+size_t eprosima::micrortps::SampleInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4899,8 +4843,7 @@ size_t eprosima::micrortps::SampleInfoDelta::getMaxCdrSerializedSize(size_t curr
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::SampleInfoDelta::getCdrSerializedSize(const eprosima::micrortps::SampleInfoDelta &data,
-                                                                  size_t current_alignment)
+size_t eprosima::micrortps::SampleInfoDelta::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4969,13 +4912,12 @@ size_t eprosima::micrortps::SampleData::getMaxCdrSerializedSize(size_t current_a
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::SampleData::getCdrSerializedSize(const eprosima::micrortps::SampleData &data,
-                                                             size_t current_alignment)
+size_t eprosima::micrortps::SampleData::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (data.serialized_data().size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += (m_serialized_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -5036,13 +4978,12 @@ size_t eprosima::micrortps::Sample::getMaxCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::Sample::getCdrSerializedSize(const eprosima::micrortps::Sample &data,
-                                                         size_t current_alignment)
+size_t eprosima::micrortps::Sample::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::SampleInfo::getCdrSerializedSize(data.info(), current_alignment);
-    current_alignment += eprosima::micrortps::SampleData::getCdrSerializedSize(data.data(), current_alignment);
+    current_alignment += m_info.getCdrSerializedSize(current_alignment);
+    current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -5105,14 +5046,12 @@ size_t eprosima::micrortps::SampleDelta::getMaxCdrSerializedSize(size_t current_
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::SampleDelta::getCdrSerializedSize(const eprosima::micrortps::SampleDelta &data,
-                                                              size_t current_alignment)
+size_t eprosima::micrortps::SampleDelta::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment +=
-        eprosima::micrortps::SampleInfoDelta::getCdrSerializedSize(data.info_delta(), current_alignment);
-    current_alignment += eprosima::micrortps::SampleData::getCdrSerializedSize(data.data(), current_alignment);
+    current_alignment += m_info_delta.getCdrSerializedSize(current_alignment);
+    current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -5179,17 +5118,15 @@ size_t eprosima::micrortps::PackedSamples::getMaxCdrSerializedSize(size_t curren
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::PackedSamples::getCdrSerializedSize(const eprosima::micrortps::PackedSamples &data,
-                                                                size_t current_alignment)
+size_t eprosima::micrortps::PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::SampleInfo::getCdrSerializedSize(data.info_base(), current_alignment);
+    current_alignment += m_info_base.getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    for(size_t a = 0; a < data.sample_delta_seq().size(); ++a)
+    for(size_t a = 0; a < m_sample_delta_seq.size(); ++a)
     {
-        current_alignment +=
-            eprosima::micrortps::SampleDelta::getCdrSerializedSize(data.sample_delta_seq().at(a), current_alignment);
+        current_alignment += m_sample_delta_seq.at(a).getCdrSerializedSize(current_alignment);
     }
 
     return current_alignment - initial_alignment;
@@ -5690,40 +5627,38 @@ size_t eprosima::micrortps::DataRepresentation::getMaxCdrSerializedSize(size_t c
 
 // TODO(Ricardo) Review
 size_t
-eprosima::micrortps::DataRepresentation::getCdrSerializedSize(const eprosima::micrortps::DataRepresentation &data,
-                                                              size_t current_alignment)
+eprosima::micrortps::DataRepresentation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
-    switch(data.m__d)
+    switch(m__d)
     {
         case FORMAT_DATA:
-            current_alignment += eprosima::micrortps::SampleData::getCdrSerializedSize(data.data(), current_alignment);
+            current_alignment += m_data.getCdrSerializedSize(current_alignment);
             break;
         case FORMAT_DATA_SEQ:
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-            for(size_t a = 0; a < data.data_seq().size(); ++a)
+            for(size_t a = 0; a < m_data_seq.size(); ++a)
             {
-                current_alignment +=
-                    eprosima::micrortps::SampleData::getCdrSerializedSize(data.data_seq().at(a), current_alignment);
+                current_alignment += m_data_seq.at(a).getCdrSerializedSize(current_alignment);
             }
             break;
         case FORMAT_SAMPLE:
-            current_alignment += eprosima::micrortps::Sample::getCdrSerializedSize(data.sample(), current_alignment);
+            current_alignment += m_sample.getCdrSerializedSize(current_alignment);
             break;
         case FORMAT_SAMPLE_SEQ:
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-            for(size_t a = 0; a < data.sample_seq().size(); ++a)
+            for(size_t a = 0; a < m_sample_seq.size(); ++a)
             {
                 current_alignment +=
-                    eprosima::micrortps::Sample::getCdrSerializedSize(data.sample_seq().at(a), current_alignment);
+                    m_sample_seq.at(a).getCdrSerializedSize(current_alignment);
             }
             break;
         case FORMAT_PACKED_SAMPLES:
             current_alignment +=
-                eprosima::micrortps::PackedSamples::getCdrSerializedSize(data.packed_samples(), current_alignment);
+                m_packed_samples.getCdrSerializedSize(current_alignment);
             break;
         default:
             break;

@@ -173,11 +173,10 @@ class Time_t
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::Time_t &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -457,12 +456,10 @@ class OBJK_CLIENT_Representation
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_CLIENT_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -643,12 +640,10 @@ class OBJK_Representation3Formats
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Representation3Formats &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -796,12 +791,10 @@ class OBJK_Representation2Formats
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Representation2Formats &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -909,12 +902,10 @@ class OBJK_Representation2_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Representation2_Base &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1019,12 +1010,10 @@ class OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Representation3_Base &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1093,12 +1082,10 @@ class OBJK_QOSPROFILE_Representation : public OBJK_Representation2_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_QOSPROFILE_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1164,12 +1151,10 @@ class OBJK_APPLICATION_Representation : public OBJK_Representation2_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_APPLICATION_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1235,12 +1220,10 @@ class OBJK_PARTICIPANT_Representation : public OBJK_Representation2_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_PARTICIPANT_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1377,12 +1360,10 @@ class OBJK_TYPE_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_TYPE_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1488,12 +1469,10 @@ class OBJK_TOPIC_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_TOPIC_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1598,12 +1577,10 @@ class OBJK_PUB_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_PUB_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1707,12 +1684,10 @@ class OBJK_SUB_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_SUB_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1851,12 +1826,10 @@ class OBJK_DW_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DW_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -1996,12 +1969,10 @@ class OBJK_DR_Representation : public OBJK_Representation3_Base
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DR_Representation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2106,11 +2077,10 @@ class OBJK_Type_Binary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Type_Binary &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2249,12 +2219,10 @@ class OBJK_Topic_QosBinary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Topic_QosBinary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2394,12 +2362,10 @@ class OBJK_PUB_QosBinary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_PUB_QosBinary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2539,12 +2505,10 @@ class OBJK_SUB_QosBinary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_SUB_QosBinary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2768,12 +2732,10 @@ class OBJK_Endpoint_QosBinary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_Endpoint_QosBinary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -2977,12 +2939,10 @@ class OBJK_DataReader_Binary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DataReader_Binary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -3150,12 +3110,10 @@ class OBJK_DataWriter_Binary
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DataWriter_Binary &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -3516,11 +3474,10 @@ class ObjectVariant
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::ObjectVariant &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -3653,11 +3610,10 @@ class CreationMode
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::CreationMode &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -3816,11 +3772,10 @@ class ResultStatus
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::ResultStatus &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -3947,12 +3902,10 @@ class OBJK_DATAREADER_ActivityInfo
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4073,12 +4026,10 @@ class OBJK_DATAWRITER_ActivityInfo
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4222,12 +4173,10 @@ class ActivityInfoVariant
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::ActivityInfoVariant &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4369,11 +4318,10 @@ class Info
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::Info &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4513,11 +4461,10 @@ class BaseRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::BaseRequest &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4622,12 +4569,10 @@ class BaseObjectRequest : public BaseRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::BaseObjectRequest &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4766,11 +4711,10 @@ class BaseReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::BaseReply &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4875,11 +4819,10 @@ class BaseObjectReply : public BaseReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::BaseObjectReply &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -4983,11 +4926,10 @@ class InfoReply : public BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::InfoReply &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5141,12 +5083,10 @@ class DataDeliveryControl
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DataDeliveryControl &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5264,12 +5204,10 @@ class DataDeliveryConfig
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DataDeliveryConfig &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5410,12 +5348,10 @@ class ReadSpecification
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::ReadSpecification &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5563,11 +5499,10 @@ class SampleInfo
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::SampleInfo &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5716,11 +5651,10 @@ class SampleInfoDelta
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::SampleInfoDelta &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5826,11 +5760,10 @@ class SampleData
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::SampleData &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -5970,11 +5903,10 @@ class Sample
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::Sample &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -6117,11 +6049,10 @@ class SampleDelta
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::SampleDelta &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -6261,11 +6192,10 @@ class PackedSamples
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::PackedSamples &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -6491,12 +6421,10 @@ class DataRepresentation
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DataRepresentation &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
