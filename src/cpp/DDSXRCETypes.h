@@ -2562,19 +2562,21 @@ class OBJK_SUB_QosBinary
     std::vector<std::string> m_partitions;
     std::vector<uint8_t> m_group_data;
 };
+
 /*!
  * @brief This class represents the enumeration EndpointQosFlags defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES
  */
 enum EndpointQosFlags : uint16_t
 {
-    is_reliable,
-    is_history_keep_last,
-    is_ownership_exclusive,
-    is_durability_transient_local,
-    is_durability_transient,
-    is_durability_persistent
+    is_reliable                   = 0x01 << 0,
+    is_history_keep_last          = 0x01 << 1,
+    is_ownership_exclusive        = 0x01 << 2,
+    is_durability_transient_local = 0x01 << 3,
+    is_durability_transient       = 0x01 << 4,
+    is_durability_persistent      = 0x01 << 5
 };
+
 /*!
  * @brief This class represents the structure OBJK_Endpoint_QosBinary defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES

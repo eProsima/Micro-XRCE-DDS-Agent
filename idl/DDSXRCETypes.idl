@@ -1,5 +1,5 @@
 
-module dds { module xrce {
+module eprosima { module micrortps {
 		
 		typedef octet ClientKey[4];
 		typedef octet ObjectKind;
