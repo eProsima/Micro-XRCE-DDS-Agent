@@ -1,6 +1,13 @@
+#include "DDSXRCETypes.idl"
+
+module eprosima {
+module micrortps {
+
 struct SubmessageHeader
 {
     octet submessage_id;
     octet flags;
     unsigned short submessage_length;
+};
+};
 };

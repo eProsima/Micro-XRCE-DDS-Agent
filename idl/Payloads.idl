@@ -1,55 +1,63 @@
-#include "ObjectVariant.idl"
+#include "DDSXRCETypes.idl"
 
-struct CREATE_PAYLOAD {
-	RequestId request_id;
-	ObjectId object_id;
-	ObjectVariant object_representation;
+module eprosima { module micrortps {
+
+struct CREATE_Payload {
+  BaseObjectRequest todo;
+  ObjectVariant object_representation;
 };
 
-struct DELETE_PAYLOAD {
-  RequestId request_id;
-	ObjectId object_id;
+struct DELETE_RESOURCE_Payload {
+  BaseObjectRequest todo;
 };
 
 struct RESOURCE_STATUS_PAYLOAD {
-  RequestId     request_id;
-  Status        request_status;
+  BaseObjectReply todo;
 };
 
-struct GET_INFO_PAYLOAD {
-  RequestId     request_id;
+struct GET_INFO_Payload {
+  BaseObjectRequest todo;
+  InfoMask info_mask;
 };
 
-struct INFO_PAYLOAD {
-  RequestId     request_id;
-  Info          resource_info;
+struct INFO_Payload {
+  BaseObjectReply todo; // TODO(borja) ¿Esto hereda de BaseInfoReply?.
+  Info info;            // TODO(borja) Posible error en el documento del estandard. Info esta definido pero no se usa en el payload.
 };
 
-struct READ_RESOURCE_PAYLOAD {
-  RequestId            request_id;
-  DataReaderReadeSpec  datareader_spec;
+struct READ_DATA_Payload {
+  BaseObjectRequest todo;
+  ReadSpecification read_specification;
 };
 
-struct READ_DATA_PAYLOAD {
-    RequestId               request_id;
-    ObjectId                object_id;
-    unsigned short          max_messages;     // Maximum numbers of samples
-    ReadMode                read_mode;
-    long                    max_elapsed_time; // In milliseconds
-    long                    max_rate;         // Bytes per second
-    string                  content_filter_expression;
-    unsigned short          max_samples;      // Maximum numbers of samples
-    boolean                 include_sample_info;
+struct DATA_Payload_Data {
+  BaseObjectReply todo;
+  SampleData data;
 };
 
-struct DATA_PAYLOAD {
-    RequestId     request_id;
-    ObjectId      resource_id;
-    RT_Data       data_reader;
+struct DATA_Payload_Sample {
+  BaseObjectReply todo;
+  Sample sample;
 };
 
-struct WRITE_DATA_PAYLOAD {
-    RequestId  request_id;
-    ObjectId   object_id;
-    RT_Data    data_writer;
+struct DATA_Payload_DataSeq {
+  BaseObjectReply todo;
+  sequence<SampleData> data_seq;
+};
+
+struct DATA_Payload_SampleSeq {
+  BaseObjectReply todo;
+  sequence<Sample> sample_seq;
+};
+
+struct DATA_Payload_PackedSamples {
+  BaseObjectReply todo;
+  PackedSamples packed_samples;
+};
+
+struct WRITE_DATA_Payload {
+  BaseObjectRequest todo;
+  DataRepresentation data_to_write;
+};
+};
 };

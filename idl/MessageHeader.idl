@@ -1,7 +1,14 @@
+#include "DDSXRCETypes.idl"
+
+module eprosima {
+module micrortps {
+
 struct MessageHeader
 {
-    unsigned long client_key;
     octet session_id;
     octet stream_id;
     unsigned short sequence_nr;
+    eprosima::micrortps::ClientKey client_key;
+};
+};
 };
