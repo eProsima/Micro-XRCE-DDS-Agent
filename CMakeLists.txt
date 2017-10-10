@@ -40,6 +40,7 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
+option(UPDATE_SUBMODULES "Update to the latest" ON)
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
@@ -65,9 +66,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
+if(THIRDPARTY)
+    # Required libs for examples
+    include_directories(thirdparty/micrortps_transport/include)
+    add_subdirectory(thirdparty/micrortps_transport)
+endif()
+
 include_directories(${CMAKE_PREFIX_PATH}/include
-                    transport/include
-                    transport/include/transport
                     src/cpp
                     include
                     include/agent
@@ -75,11 +80,6 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     #/home/borja/dev/rtps/thirdparty/asio/asio/include
                     #/home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
                     )
-                    
-if(THIRDPARTY)
-    # Required libs for examples
-    add_subdirectory(thirdparty/micrortps_transport)
-endif()
 
 # libagent.so
 file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
