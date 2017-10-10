@@ -130,26 +130,26 @@ module eprosima { module micrortps {
 		};
 
 		// fastrpsgen not supported: @extensibility(FINAL)
-		struct OBJK_PUB_Representation   { //:  OBJK_Representation3_Base {
+		struct OBJK_PUBLISHER_Representation   { //:  OBJK_Representation3_Base {
 				OBJK_Representation3_Base base_representation;
 				ObjectId participant_id;
 		};
 	
 		// fastrpsgen not supported: @extensibility(FINAL)
-		struct OBJK_SUB_Representation   { //:  OBJK_Representation3_Base {
+		struct OBJK_SUBSCRIBER_Representation   { //:  OBJK_Representation3_Base {
 				OBJK_Representation3_Base base_representation;
 				ObjectId participant_id;
 		};
 
 		// fastrpsgen not supported: @extensibility(FINAL)
-		struct OBJK_DW_Representation    { //:  OBJK_Representation3_Base {
+		struct OBJK_DATA_WRITER_Representation    { //:  OBJK_Representation3_Base {
 				OBJK_Representation3_Base base_representation;
 				ObjectId participant_id;
 				ObjectId publisher_id;
 		};
 		
 		// fastrpsgen not supported: @extensibility(FINAL)
-		struct OBJK_DR_Representation    { //:  OBJK_Representation3_Base {
+		struct OBJK_DATA_READER_Representation    { //:  OBJK_Representation3_Base {
 				OBJK_Representation3_Base base_representation;
 				ObjectId participant_id;
 				ObjectId subscriber_id;
@@ -252,13 +252,13 @@ module eprosima { module micrortps {
 		case OBJK_TOPIC :
 			OBJK_TOPIC_Representation topic;
 		case OBJK_PUBLISHER :
-			OBJK_PUB_Representation publisher;
+			OBJK_PUBLISHER_Representation publisher;
 		case OBJK_SUBSCRIBER :
-			OBJK_SUB_Representation subscriber;
+			OBJK_SUBSCRIBER_Representation subscriber;
 		case OBJK_DATAWRITER :
-			OBJK_DW_Representation data_writer;
+			OBJK_DATA_WRITER_Representation data_writer;
 		case OBJK_DATAREADER :
-			OBJK_DR_Representation data_reader;
+			OBJK_DATA_READER_Representation data_reader;
 		};
 
 		struct CreationMode {

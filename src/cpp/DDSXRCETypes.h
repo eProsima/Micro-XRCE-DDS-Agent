@@ -61,9 +61,9 @@ typedef std::array<uint8_t, 4> XrceCookie;
 const eprosima::micrortps::XrceCookie XRCE_COOKIE = {0x58, 0x52, 0x43, 0x45};
 
 typedef std::array<uint8_t, 2> XrceVersion;
-const uint8_t XRCE_VESION_MAJOR                     = 0x01;
-const uint8_t XRCE_VESION_MINOR                     = 0x00;
-const eprosima::micrortps::XrceVersion XRCE_VERSION = {XRCE_VESION_MAJOR, XRCE_VESION_MINOR};
+const uint8_t XRCE_VERSION_MAJOR                     = 0x01;
+const uint8_t XRCE_VERSION_MINOR                     = 0x00;
+const eprosima::micrortps::XrceVersion XRCE_VERSION = {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR};
 
 typedef std::array<uint8_t, 2> XrceVendorId;
 const eprosima::micrortps::XrceVendorId XRCE_VENDOR_INVALID = {0x00, 0x00};
@@ -1491,45 +1491,45 @@ class OBJK_TOPIC_Representation : public OBJK_Representation3_Base
 };
 
 /*!
- * @brief This class represents the structure OBJK_PUB_Representation defined by the user in the IDL file.
+ * @brief This class represents the structure OBJK_PUBLISHER_Representation defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES
  */
-class OBJK_PUB_Representation : public OBJK_Representation3_Base
+class OBJK_PUBLISHER_Representation : public OBJK_Representation3_Base
 {
   public:
     /*!
      * @brief Default constructor.
      */
-    OBJK_PUB_Representation();
+    OBJK_PUBLISHER_Representation();
 
     /*!
      * @brief Default destructor.
      */
-    virtual ~OBJK_PUB_Representation();
+    virtual ~OBJK_PUBLISHER_Representation();
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_PUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUB_Representation(const OBJK_PUB_Representation &x);
+    OBJK_PUBLISHER_Representation(const OBJK_PUBLISHER_Representation &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_PUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUB_Representation(OBJK_PUB_Representation &&x);
+    OBJK_PUBLISHER_Representation(OBJK_PUBLISHER_Representation &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_PUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUB_Representation &operator=(const OBJK_PUB_Representation &x);
+    OBJK_PUBLISHER_Representation &operator=(const OBJK_PUBLISHER_Representation &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_PUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUB_Representation &operator=(OBJK_PUB_Representation &&x);
+    OBJK_PUBLISHER_Representation &operator=(OBJK_PUBLISHER_Representation &&x);
 
     /*!
      * @brief This function copies the value in member participant_id
@@ -1598,45 +1598,45 @@ class OBJK_PUB_Representation : public OBJK_Representation3_Base
     eprosima::micrortps::ObjectId m_participant_id;
 };
 /*!
- * @brief This class represents the structure OBJK_SUB_Representation defined by the user in the IDL file.
+ * @brief This class represents the structure OBJK_SUBSCRIBER_Representation defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES
  */
-class OBJK_SUB_Representation : public OBJK_Representation3_Base
+class OBJK_SUBSCRIBER_Representation : public OBJK_Representation3_Base
 {
   public:
     /*!
      * @brief Default constructor.
      */
-    OBJK_SUB_Representation();
+    OBJK_SUBSCRIBER_Representation();
 
     /*!
      * @brief Default destructor.
      */
-    virtual ~OBJK_SUB_Representation();
+    virtual ~OBJK_SUBSCRIBER_Representation();
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_SUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUB_Representation(const OBJK_SUB_Representation &x);
+    OBJK_SUBSCRIBER_Representation(const OBJK_SUBSCRIBER_Representation &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_SUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUB_Representation(OBJK_SUB_Representation &&x);
+    OBJK_SUBSCRIBER_Representation(OBJK_SUBSCRIBER_Representation &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_SUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUB_Representation &operator=(const OBJK_SUB_Representation &x);
+    OBJK_SUBSCRIBER_Representation &operator=(const OBJK_SUBSCRIBER_Representation &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_SUB_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUB_Representation &operator=(OBJK_SUB_Representation &&x);
+    OBJK_SUBSCRIBER_Representation &operator=(OBJK_SUBSCRIBER_Representation &&x);
 
     /*!
      * @brief This function copies the value in member participant_id
@@ -1705,45 +1705,45 @@ class OBJK_SUB_Representation : public OBJK_Representation3_Base
     eprosima::micrortps::ObjectId m_participant_id;
 };
 /*!
- * @brief This class represents the structure OBJK_DW_Representation defined by the user in the IDL file.
+ * @brief This class represents the structure OBJK_DATA_WRITER_Representation defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES
  */
-class OBJK_DW_Representation : public OBJK_Representation3_Base
+class OBJK_DATA_WRITER_Representation : public OBJK_Representation3_Base
 {
   public:
     /*!
      * @brief Default constructor.
      */
-    OBJK_DW_Representation();
+    OBJK_DATA_WRITER_Representation();
 
     /*!
      * @brief Default destructor.
      */
-    virtual ~OBJK_DW_Representation();
+    virtual ~OBJK_DATA_WRITER_Representation();
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DW_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_WRITER_Representation that will be copied.
      */
-    OBJK_DW_Representation(const OBJK_DW_Representation &x);
+    OBJK_DATA_WRITER_Representation(const OBJK_DATA_WRITER_Representation &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DW_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_WRITER_Representation that will be copied.
      */
-    OBJK_DW_Representation(OBJK_DW_Representation &&x);
+    OBJK_DATA_WRITER_Representation(OBJK_DATA_WRITER_Representation &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DW_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_WRITER_Representation that will be copied.
      */
-    OBJK_DW_Representation &operator=(const OBJK_DW_Representation &x);
+    OBJK_DATA_WRITER_Representation &operator=(const OBJK_DATA_WRITER_Representation &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DW_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_WRITER_Representation that will be copied.
      */
-    OBJK_DW_Representation &operator=(OBJK_DW_Representation &&x);
+    OBJK_DATA_WRITER_Representation &operator=(OBJK_DATA_WRITER_Representation &&x);
 
     /*!
      * @brief This function copies the value in member participant_id
@@ -1848,45 +1848,45 @@ class OBJK_DW_Representation : public OBJK_Representation3_Base
     eprosima::micrortps::ObjectId m_publisher_id;
 };
 /*!
- * @brief This class represents the structure OBJK_DR_Representation defined by the user in the IDL file.
+ * @brief This class represents the structure OBJK_DATA_READER_Representation defined by the user in the IDL file.
  * @ingroup DDS_XRCE_TYPES
  */
-class OBJK_DR_Representation : public OBJK_Representation3_Base
+class OBJK_DATA_READER_Representation : public OBJK_Representation3_Base
 {
   public:
     /*!
      * @brief Default constructor.
      */
-    OBJK_DR_Representation();
+    OBJK_DATA_READER_Representation();
 
     /*!
      * @brief Default destructor.
      */
-    virtual ~OBJK_DR_Representation();
+    virtual ~OBJK_DATA_READER_Representation();
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DR_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_READER_Representation that will be copied.
      */
-    OBJK_DR_Representation(const OBJK_DR_Representation &x);
+    OBJK_DATA_READER_Representation(const OBJK_DATA_READER_Representation &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DR_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_READER_Representation that will be copied.
      */
-    OBJK_DR_Representation(OBJK_DR_Representation &&x);
+    OBJK_DATA_READER_Representation(OBJK_DATA_READER_Representation &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DR_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_READER_Representation that will be copied.
      */
-    OBJK_DR_Representation &operator=(const OBJK_DR_Representation &x);
+    OBJK_DATA_READER_Representation &operator=(const OBJK_DATA_READER_Representation &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::OBJK_DR_Representation that will be copied.
+     * @param x Reference to the object eprosima::micrortps::OBJK_DATA_READER_Representation that will be copied.
      */
-    OBJK_DR_Representation &operator=(OBJK_DR_Representation &&x);
+    OBJK_DATA_READER_Representation &operator=(OBJK_DATA_READER_Representation &&x);
 
     /*!
      * @brief This function copies the value in member participant_id
@@ -3359,13 +3359,13 @@ class ObjectVariant
      * @brief This function copies the value in member publisher
      * @param _publisher New value to be copied in member publisher
      */
-    void publisher(const eprosima::micrortps::OBJK_PUB_Representation &_publisher);
+    void publisher(const eprosima::micrortps::OBJK_PUBLISHER_Representation &_publisher);
 
     /*!
      * @brief This function moves the value in member publisher
      * @param _publisher New value to be moved in member publisher
      */
-    void publisher(eprosima::micrortps::OBJK_PUB_Representation &&_publisher);
+    void publisher(eprosima::micrortps::OBJK_PUBLISHER_Representation &&_publisher);
 
     /*!
      * @brief This function returns a constant reference to member publisher
@@ -3373,7 +3373,7 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    const eprosima::micrortps::OBJK_PUB_Representation &publisher() const;
+    const eprosima::micrortps::OBJK_PUBLISHER_Representation &publisher() const;
 
     /*!
      * @brief This function returns a reference to member publisher
@@ -3381,18 +3381,18 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    eprosima::micrortps::OBJK_PUB_Representation &publisher();
+    eprosima::micrortps::OBJK_PUBLISHER_Representation &publisher();
     /*!
      * @brief This function copies the value in member subscriber
      * @param _subscriber New value to be copied in member subscriber
      */
-    void subscriber(const eprosima::micrortps::OBJK_SUB_Representation &_subscriber);
+    void subscriber(const eprosima::micrortps::OBJK_SUBSCRIBER_Representation &_subscriber);
 
     /*!
      * @brief This function moves the value in member subscriber
      * @param _subscriber New value to be moved in member subscriber
      */
-    void subscriber(eprosima::micrortps::OBJK_SUB_Representation &&_subscriber);
+    void subscriber(eprosima::micrortps::OBJK_SUBSCRIBER_Representation &&_subscriber);
 
     /*!
      * @brief This function returns a constant reference to member subscriber
@@ -3400,7 +3400,7 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    const eprosima::micrortps::OBJK_SUB_Representation &subscriber() const;
+    const eprosima::micrortps::OBJK_SUBSCRIBER_Representation &subscriber() const;
 
     /*!
      * @brief This function returns a reference to member subscriber
@@ -3408,18 +3408,18 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    eprosima::micrortps::OBJK_SUB_Representation &subscriber();
+    eprosima::micrortps::OBJK_SUBSCRIBER_Representation &subscriber();
     /*!
      * @brief This function copies the value in member data_writer
      * @param _data_writer New value to be copied in member data_writer
      */
-    void data_writer(const eprosima::micrortps::OBJK_DW_Representation &_data_writer);
+    void data_writer(const eprosima::micrortps::OBJK_DATA_WRITER_Representation &_data_writer);
 
     /*!
      * @brief This function moves the value in member data_writer
      * @param _data_writer New value to be moved in member data_writer
      */
-    void data_writer(eprosima::micrortps::OBJK_DW_Representation &&_data_writer);
+    void data_writer(eprosima::micrortps::OBJK_DATA_WRITER_Representation &&_data_writer);
 
     /*!
      * @brief This function returns a constant reference to member data_writer
@@ -3427,7 +3427,7 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    const eprosima::micrortps::OBJK_DW_Representation &data_writer() const;
+    const eprosima::micrortps::OBJK_DATA_WRITER_Representation &data_writer() const;
 
     /*!
      * @brief This function returns a reference to member data_writer
@@ -3435,18 +3435,18 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    eprosima::micrortps::OBJK_DW_Representation &data_writer();
+    eprosima::micrortps::OBJK_DATA_WRITER_Representation &data_writer();
     /*!
      * @brief This function copies the value in member data_reader
      * @param _data_reader New value to be copied in member data_reader
      */
-    void data_reader(const eprosima::micrortps::OBJK_DR_Representation &_data_reader);
+    void data_reader(const eprosima::micrortps::OBJK_DATA_READER_Representation &_data_reader);
 
     /*!
      * @brief This function moves the value in member data_reader
      * @param _data_reader New value to be moved in member data_reader
      */
-    void data_reader(eprosima::micrortps::OBJK_DR_Representation &&_data_reader);
+    void data_reader(eprosima::micrortps::OBJK_DATA_READER_Representation &&_data_reader);
 
     /*!
      * @brief This function returns a constant reference to member data_reader
@@ -3454,7 +3454,7 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    const eprosima::micrortps::OBJK_DR_Representation &data_reader() const;
+    const eprosima::micrortps::OBJK_DATA_READER_Representation &data_reader() const;
 
     /*!
      * @brief This function returns a reference to member data_reader
@@ -3462,7 +3462,7 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    eprosima::micrortps::OBJK_DR_Representation &data_reader();
+    eprosima::micrortps::OBJK_DATA_READER_Representation &data_reader();
 
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -3500,10 +3500,10 @@ class ObjectVariant
     eprosima::micrortps::OBJK_QOSPROFILE_Representation m_qos_profile;
     eprosima::micrortps::OBJK_TYPE_Representation m_type;
     eprosima::micrortps::OBJK_TOPIC_Representation m_topic;
-    eprosima::micrortps::OBJK_PUB_Representation m_publisher;
-    eprosima::micrortps::OBJK_SUB_Representation m_subscriber;
-    eprosima::micrortps::OBJK_DW_Representation m_data_writer;
-    eprosima::micrortps::OBJK_DR_Representation m_data_reader;
+    eprosima::micrortps::OBJK_PUBLISHER_Representation m_publisher;
+    eprosima::micrortps::OBJK_SUBSCRIBER_Representation m_subscriber;
+    eprosima::micrortps::OBJK_DATA_WRITER_Representation m_data_writer;
+    eprosima::micrortps::OBJK_DATA_READER_Representation m_data_reader;
 };
 
 /*!
