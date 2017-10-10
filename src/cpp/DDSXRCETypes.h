@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <Optional.h>
+
 namespace eprosima {
 namespace fastcdr {
 class Cdr;
@@ -52,21 +54,21 @@ const eprosima::micrortps::ObjectKind OBJK_CLIENT      = 0x21;
 
 typedef std::array<uint8_t, 2> ObjectId;
 // There are three predefined values ObjectId
-const eprosima::micrortps::ObjectId OBJECTID_INVALID = {0xFF, 0xFF};
-const eprosima::micrortps::ObjectId OBJECTID_CLIENT  = {0xFF, 0xF0};
-const eprosima::micrortps::ObjectId OBJECTID_SESSION = {0xFF, 0xF1};
+const eprosima::micrortps::ObjectId OBJECTID_INVALID = {{0xFF, 0xFF}};
+const eprosima::micrortps::ObjectId OBJECTID_CLIENT  = {{0xFF, 0xF0}};
+const eprosima::micrortps::ObjectId OBJECTID_SESSION = {{0xFF, 0xF1}};
 
 typedef std::array<uint8_t, 4> XrceCookie;
 // Spells ‘X’ ‘R’ ‘C’ ‘E’
-const eprosima::micrortps::XrceCookie XRCE_COOKIE = {0x58, 0x52, 0x43, 0x45};
+const eprosima::micrortps::XrceCookie XRCE_COOKIE = {{0x58, 0x52, 0x43, 0x45}};
 
 typedef std::array<uint8_t, 2> XrceVersion;
 const uint8_t XRCE_VERSION_MAJOR                     = 0x01;
 const uint8_t XRCE_VERSION_MINOR                     = 0x00;
-const eprosima::micrortps::XrceVersion XRCE_VERSION = {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR};
+const eprosima::micrortps::XrceVersion XRCE_VERSION = {{XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR}};
 
 typedef std::array<uint8_t, 2> XrceVendorId;
-const eprosima::micrortps::XrceVendorId XRCE_VENDOR_INVALID = {0x00, 0x00};
+const eprosima::micrortps::XrceVendorId XRCE_VENDOR_INVALID = {{0x00, 0x00}};
 
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
@@ -5267,6 +5269,11 @@ class ReadSpecification
      */
     ReadSpecification &operator=(ReadSpecification &&x);
 
+    inline bool has_content_filter_expresion() const
+    {
+        return static_cast<bool>(m_content_filter_expression);
+    }
+
     /*!
      * @brief This function copies the value in member content_filter_expression
      * @param _content_filter_expression New value to be copied in member content_filter_expression
@@ -5289,19 +5296,14 @@ class ReadSpecification
      * @brief This function returns a constant reference to member content_filter_expression
      * @return Constant reference to member content_filter_expression
      */
-    inline const std::string &content_filter_expression() const
-    {
-        return m_content_filter_expression;
-    }
+    const std::string &content_filter_expression() const;
 
     /*!
      * @brief This function returns a reference to member content_filter_expression
      * @return Reference to member content_filter_expression
      */
-    inline std::string &content_filter_expression()
-    {
-        return m_content_filter_expression;
-    }
+    std::string &content_filter_expression();
+
     /*!
      * @brief This function copies the value in member delivery_config
      * @param _delivery_config New value to be copied in member delivery_config
@@ -5366,7 +5368,7 @@ class ReadSpecification
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    std::string m_content_filter_expression;
+    eprosima::Optional<std::string> m_content_filter_expression;
     eprosima::micrortps::DataDeliveryConfig m_delivery_config;
 };
 /*!

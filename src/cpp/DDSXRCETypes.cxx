@@ -4669,12 +4669,30 @@ eprosima::micrortps::ReadSpecification &eprosima::micrortps::ReadSpecification::
     return *this;
 }
 
+const std::string &eprosima::micrortps::ReadSpecification::content_filter_expression() const
+{
+    if (!m_content_filter_expression)
+    {
+        throw BadParamException("Optional member is not been selected");
+    }
+    return *m_content_filter_expression;
+}
+    
+std::string &eprosima::micrortps::ReadSpecification::content_filter_expression()
+{
+    if (!m_content_filter_expression)
+    {
+        throw BadParamException("Optional member is not been selected");
+    }
+    return *m_content_filter_expression;
+}
+
 size_t eprosima::micrortps::ReadSpecification::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
 
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
-
     current_alignment += eprosima::micrortps::DataDeliveryConfig::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -4684,8 +4702,12 @@ size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(size_t curre
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment +=
-        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_content_filter_expression.size() + 1;
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    if (m_content_filter_expression)
+    {
+        current_alignment +=
+            4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_content_filter_expression->size() + 1;
+    }
 
     current_alignment += m_delivery_config.getCdrSerializedSize(current_alignment);
 
@@ -4694,13 +4716,25 @@ size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(size_t curre
 
 void eprosima::micrortps::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_content_filter_expression;
+    scdr << static_cast<bool>(m_content_filter_expression);
+    if (m_content_filter_expression)
+    {
+        scdr << *m_content_filter_expression;
+    }
+
     scdr << m_delivery_config;
 }
 
 void eprosima::micrortps::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_content_filter_expression;
+    bool optional_present = false;
+    dcdr >> optional_present;
+    if (optional_present)
+    {
+        std::string temp_content_filter;
+        dcdr >> temp_content_filter;
+        m_content_filter_expression = temp_content_filter;
+    }    
     dcdr >> m_delivery_config;
 }
 
