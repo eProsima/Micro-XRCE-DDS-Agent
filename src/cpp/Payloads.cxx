@@ -79,14 +79,12 @@ size_t eprosima::micrortps::CREATE_Payload::getMaxCdrSerializedSize(size_t curre
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::CREATE_Payload::getCdrSerializedSize(const eprosima::micrortps::CREATE_Payload &data,
-                                                                 size_t current_alignment)
+size_t eprosima::micrortps::CREATE_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(data, current_alignment);
-    current_alignment +=
-        eprosima::micrortps::ObjectVariant::getCdrSerializedSize(data.object_representation(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
+    current_alignment += m_object_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -146,12 +144,11 @@ size_t eprosima::micrortps::DELETE_RESOURCE_Payload::getMaxCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::DELETE_RESOURCE_Payload::getCdrSerializedSize(
-    const eprosima::micrortps::DELETE_RESOURCE_Payload &data, size_t current_alignment)
+size_t eprosima::micrortps::DELETE_RESOURCE_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -206,12 +203,11 @@ size_t eprosima::micrortps::RESOURCE_STATUS_Payload::getMaxCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::RESOURCE_STATUS_Payload::getCdrSerializedSize(
-    const eprosima::micrortps::RESOURCE_STATUS_Payload &data, size_t current_alignment)
+size_t eprosima::micrortps::RESOURCE_STATUS_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -236,12 +232,12 @@ eprosima::micrortps::GET_INFO_Payload::~GET_INFO_Payload()
 {
 }
 
-eprosima::micrortps::GET_INFO_Payload::GET_INFO_Payload(const GET_INFO_Payload &x) : BaseObjectRequest(x);
+eprosima::micrortps::GET_INFO_Payload::GET_INFO_Payload(const GET_INFO_Payload &x) : BaseObjectRequest(x)
 {
     m_info_mask = x.m_info_mask;
 }
 
-eprosima::micrortps::GET_INFO_Payload::GET_INFO_Payload(GET_INFO_Payload &&x) : BaseObjectRequest(x);
+eprosima::micrortps::GET_INFO_Payload::GET_INFO_Payload(GET_INFO_Payload &&x) : BaseObjectRequest(x)
 {
     m_info_mask = x.m_info_mask;
 }
@@ -272,12 +268,11 @@ size_t eprosima::micrortps::GET_INFO_Payload::getMaxCdrSerializedSize(size_t cur
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::GET_INFO_Payload::getCdrSerializedSize(const eprosima::micrortps::GET_INFO_Payload &data,
-                                                                   size_t current_alignment)
+size_t eprosima::micrortps::GET_INFO_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     return current_alignment - initial_alignment;
@@ -338,13 +333,12 @@ size_t eprosima::micrortps::INFO_Payload::getMaxCdrSerializedSize(size_t current
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::INFO_Payload::getCdrSerializedSize(const eprosima::micrortps::INFO_Payload &data,
-                                                               size_t current_alignment)
+size_t eprosima::micrortps::INFO_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
-    current_alignment += eprosima::micrortps::Info::getCdrSerializedSize(data.info(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
+    current_alignment += m_info.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -374,7 +368,7 @@ eprosima::micrortps::READ_DATA_Payload::READ_DATA_Payload(const READ_DATA_Payloa
     m_read_specification = x.m_read_specification;
 }
 
-eprosima::micrortps::READ_DATA_Payload::READ_DATA_Payload(READ_DATA_Payload &&x) : BaseObjectRequest(x);
+eprosima::micrortps::READ_DATA_Payload::READ_DATA_Payload(READ_DATA_Payload &&x) : BaseObjectRequest(x)
 {
     m_read_specification = std::move(x.m_read_specification);
 }
@@ -405,14 +399,12 @@ size_t eprosima::micrortps::READ_DATA_Payload::getMaxCdrSerializedSize(size_t cu
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::READ_DATA_Payload::getCdrSerializedSize(const eprosima::micrortps::READ_DATA_Payload &data,
-                                                                    size_t current_alignment)
+size_t eprosima::micrortps::READ_DATA_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(data, current_alignment);
-    current_alignment +=
-        eprosima::micrortps::ReadSpecification::getCdrSerializedSize(data.read_specification(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
+    current_alignment += m_read_specification.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -425,7 +417,7 @@ void eprosima::micrortps::READ_DATA_Payload::serialize(eprosima::fastcdr::Cdr &s
 
 void eprosima::micrortps::READ_DATA_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectRequest.deserialize(dcdr);
+    BaseObjectRequest::deserialize(dcdr);
     dcdr >> m_read_specification;
 }
 
@@ -473,13 +465,12 @@ size_t eprosima::micrortps::DATA_Payload_Data::getMaxCdrSerializedSize(size_t cu
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::DATA_Payload_Data::getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_Data &data,
-                                                                    size_t current_alignment)
+size_t eprosima::micrortps::DATA_Payload_Data::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
-    current_alignment += eprosima::micrortps::SampleData::getCdrSerializedSize(data.data(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
+    current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -492,7 +483,7 @@ void eprosima::micrortps::DATA_Payload_Data::serialize(eprosima::fastcdr::Cdr &s
 
 void eprosima::micrortps::DATA_Payload_Data::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectReply::deserialize(scdr);
+    BaseObjectReply::deserialize(dcdr);
     dcdr >> m_data;
 }
 
@@ -541,14 +532,12 @@ size_t eprosima::micrortps::DATA_Payload_Sample::getMaxCdrSerializedSize(size_t 
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::DATA_Payload_Sample::getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_Sample &data,
-                                                               size_t current_alignment)
+size_t eprosima::micrortps::DATA_Payload_Sample::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
-    current_alignment += eprosima::micrortps::Sample::getCdrSerializedSize(data.sample(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
+    current_alignment += m_sample.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -561,7 +550,7 @@ void eprosima::micrortps::DATA_Payload_Sample::serialize(eprosima::fastcdr::Cdr 
 
 void eprosima::micrortps::DATA_Payload_Sample::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectReply::deserialize(scdr);
+    BaseObjectReply::deserialize(dcdr);
     dcdr >> m_sample;
 }
 
@@ -615,18 +604,15 @@ size_t eprosima::micrortps::DATA_Payload_DataSeq::getMaxCdrSerializedSize(size_t
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::DATA_Payload_DataSeq::getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_DataSeq &data,
-                                                                size_t current_alignment)
+size_t eprosima::micrortps::DATA_Payload_DataSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    for(size_t a = 0; a < data.data_seq().size(); ++a)
+    for(size_t a = 0; a < m_data_seq.size(); ++a)
     {
-        current_alignment +=
-            eprosima::micrortps::SampleData::getCdrSerializedSize(data.data_seq().at(a), current_alignment);
+        current_alignment += m_data_seq.at(a).getCdrSerializedSize(current_alignment);
     }
 
     return current_alignment - initial_alignment;
@@ -640,7 +626,7 @@ void eprosima::micrortps::DATA_Payload_DataSeq::serialize(eprosima::fastcdr::Cdr
 
 void eprosima::micrortps::DATA_Payload_DataSeq::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectReply::deserialize(scdr);
+    BaseObjectReply::deserialize(dcdr);
     dcdr >> m_data_seq;
 }
 
@@ -695,17 +681,15 @@ size_t eprosima::micrortps::DATA_Payload_SampleSeq::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::DATA_Payload_SampleSeq::getCdrSerializedSize(
-    const eprosima::micrortps::DATA_Payload_SampleSeq &data, size_t current_alignment)
+size_t eprosima::micrortps::DATA_Payload_SampleSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    for(size_t a = 0; a < data.sample_seq().size(); ++a)
+    for(size_t a = 0; a < m_sample_seq.size(); ++a)
     {
-        current_alignment +=
-            eprosima::micrortps::Sample::getCdrSerializedSize(data.sample_seq().at(a), current_alignment);
+        current_alignment += m_sample_seq.at(a).getCdrSerializedSize(current_alignment);
     }
 
     return current_alignment - initial_alignment;
@@ -719,7 +703,7 @@ void eprosima::micrortps::DATA_Payload_SampleSeq::serialize(eprosima::fastcdr::C
 
 void eprosima::micrortps::DATA_Payload_SampleSeq::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectReply::deserialize(scdr);
+    BaseObjectReply::deserialize(dcdr);
     dcdr >> m_sample_seq;
 }
 
@@ -771,14 +755,12 @@ size_t eprosima::micrortps::DATA_Payload_PackedSamples::getMaxCdrSerializedSize(
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::DATA_Payload_PackedSamples::getCdrSerializedSize(
-    const eprosima::micrortps::DATA_Payload_PackedSamples &data, size_t current_alignment)
+size_t eprosima::micrortps::DATA_Payload_PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(data, current_alignment);
-    current_alignment +=
-        eprosima::micrortps::PackedSamples::getCdrSerializedSize(data.packed_samples(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(current_alignment);
+    current_alignment += m_packed_samples.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -839,15 +821,12 @@ size_t eprosima::micrortps::WRITE_DATA_Payload::getMaxCdrSerializedSize(size_t c
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::WRITE_DATA_Payload::getCdrSerializedSize(const eprosima::micrortps::WRITE_DATA_Payload &data,
-                                                              size_t current_alignment)
+size_t eprosima::micrortps::WRITE_DATA_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
-    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(data, current_alignment);
-    current_alignment +=
-        eprosima::micrortps::DataRepresentation::getCdrSerializedSize(data.data_to_write(), current_alignment);
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
+    current_alignment += m_data_to_write.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -859,6 +838,7 @@ void eprosima::micrortps::WRITE_DATA_Payload::serialize(eprosima::fastcdr::Cdr &
 }
 
 void eprosima::micrortps::WRITE_DATA_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
     BaseObjectRequest::deserialize(dcdr);
-dcdr >> m_data_to_write;
+    dcdr >> m_data_to_write;
 }

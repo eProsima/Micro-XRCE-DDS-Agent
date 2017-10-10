@@ -53,7 +53,7 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
     /*!
      * @brief Default destructor.
      */
-    ~CREATE_Payload();
+    virtual ~CREATE_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -125,23 +125,22 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::CREATE_Payload &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ObjectVariant m_object_representation;
@@ -161,7 +160,7 @@ class DELETE_RESOURCE_Payload : public eprosima::micrortps::BaseObjectRequest
     /*!
      * @brief Default destructor.
      */
-    ~DELETE_RESOURCE_Payload();
+    virtual ~DELETE_RESOURCE_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -197,24 +196,22 @@ class DELETE_RESOURCE_Payload : public eprosima::micrortps::BaseObjectRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DELETE_RESOURCE_Payload &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 };
 /*!
  * @brief This class represents the structure RESOURCE_STATUS_Payload defined by the user in the IDL file.
@@ -231,7 +228,7 @@ class RESOURCE_STATUS_Payload : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~RESOURCE_STATUS_Payload();
+    virtual ~RESOURCE_STATUS_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -267,24 +264,22 @@ class RESOURCE_STATUS_Payload : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::RESOURCE_STATUS_Payload &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 };
 /*!
  * @brief This class represents the structure GET_INFO_Payload defined by the user in the IDL file.
@@ -301,7 +296,7 @@ class GET_INFO_Payload : public eprosima::micrortps::BaseObjectRequest
     /*!
      * @brief Default destructor.
      */
-    ~GET_INFO_Payload();
+    virtual ~GET_INFO_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -364,23 +359,22 @@ class GET_INFO_Payload : public eprosima::micrortps::BaseObjectRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::GET_INFO_Payload &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::InfoMask m_info_mask;
@@ -400,7 +394,7 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~INFO_Payload();
+    virtual ~INFO_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -472,42 +466,22 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::INFO_Payload &data, size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
-
-    /*!
-     * @brief This function returns the maximum serialized size of the Key of an object
-     * depending on the buffer alignment.
-     * @param current_alignment Buffer alignment.
-     * @return Maximum serialized size.
-     */
-    static size_t getKeyMaxCdrSerializedSize(size_t current_alignment = 0);
-
-    /*!
-     * @brief This function tells you if the Key has been defined for this type
-     */
-    static bool isKeyDefined();
-
-    /*!
-     * @brief This function serializes the key members of an object using CDR serialization.
-     * @param cdr CDR serialization object.
-     */
-    void serializeKey(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::Info m_info;
@@ -527,7 +501,7 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
     /*!
      * @brief Default destructor.
      */
-    ~READ_DATA_Payload();
+    virtual ~READ_DATA_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -599,24 +573,22 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::READ_DATA_Payload &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::ReadSpecification m_read_specification;
@@ -636,7 +608,7 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~DATA_Payload_Data();
+    virtual ~DATA_Payload_Data();
 
     /*!
      * @brief Copy constructor.
@@ -708,24 +680,22 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_Data &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::SampleData m_data;
@@ -745,7 +715,7 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~DATA_Payload_Sample();
+    virtual ~DATA_Payload_Sample();
 
     /*!
      * @brief Copy constructor.
@@ -817,24 +787,22 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_Sample &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::Sample m_sample;
@@ -854,7 +822,7 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~DATA_Payload_DataSeq();
+    virtual ~DATA_Payload_DataSeq();
 
     /*!
      * @brief Copy constructor.
@@ -926,24 +894,22 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_DataSeq &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     std::vector<eprosima::micrortps::SampleData> m_data_seq;
@@ -963,7 +929,7 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~DATA_Payload_SampleSeq();
+    virtual ~DATA_Payload_SampleSeq();
 
     /*!
      * @brief Copy constructor.
@@ -1035,24 +1001,22 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_SampleSeq &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     std::vector<eprosima::micrortps::Sample> m_sample_seq;
@@ -1072,7 +1036,7 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
     /*!
      * @brief Default destructor.
      */
-    ~DATA_Payload_PackedSamples();
+    virtual ~DATA_Payload_PackedSamples();
 
     /*!
      * @brief Copy constructor.
@@ -1144,24 +1108,22 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::DATA_Payload_PackedSamples &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::PackedSamples m_packed_samples;
@@ -1181,7 +1143,7 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
     /*!
      * @brief Default destructor.
      */
-    ~WRITE_DATA_Payload();
+    virtual ~WRITE_DATA_Payload();
 
     /*!
      * @brief Copy constructor.
@@ -1253,24 +1215,22 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::WRITE_DATA_Payload &data,
-                                       size_t current_alignment = 0);
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     eprosima::micrortps::DataRepresentation m_data_to_write;
