@@ -14,9 +14,9 @@
 
 #include "agent/XRCEFactory.h"
 
-#include "agent/MessageHeader.h"
-#include "agent/Payloads.h"
-#include "agent/SubMessageHeader.h"
+#include "MessageHeader.h"
+#include "Payloads.h"
+#include "SubMessageHeader.h"
 
 namespace eprosima {
 namespace micrortps {
@@ -31,16 +31,35 @@ void XRCEFactory::header(const MessageHeader& header)
     serializer_.serialize(header);
 }
 
-void XRCEFactory::status(const Status& payload)
+void XRCEFactory::status(const RESOURCE_STATUS_Payload& payload)
 {
-    submessage_header(STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize(payload)));
+    submessage_header(STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
-void XRCEFactory::data(const DATA_PAYLOAD& payload)
+void XRCEFactory::data(const DATA_Payload_Data& payload)
 {
-    submessage_header(DATA, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize(payload)));
-    serializer_.serialize(payload);
+    reply(DATA, payload);
+}
+
+void XRCEFactory::data(const DATA_Payload_Sample& payload)
+{
+    reply(DATA, payload);
+}
+
+void XRCEFactory::data(const DATA_Payload_DataSeq& payload)
+{
+    reply(DATA, payload);
+}
+
+void XRCEFactory::data(const DATA_Payload_SampleSeq& payload)
+{
+    reply(DATA, payload);
+}
+
+void XRCEFactory::data(const DATA_Payload_PackedSamples& payload)
+{
+    reply(DATA, payload);
 }
 
 void XRCEFactory::submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length)
@@ -52,6 +71,11 @@ void XRCEFactory::submessage_header(uint8_t submessage_id, uint8_t flags, uint16
     serializer_.serialize(subMessage); // Add submessage
 }
 
+void XRCEFactory::reply(uint8_t m_submessage_id, const BaseObjectReply& object_reply)
+{
+    submessage_header(m_submessage_id, 0x07, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
+    serializer_.serialize(object_reply);
+}
 
 } /* namespace micrortps */
 } /* namespace eprosima */

@@ -18,7 +18,6 @@
 #include <string>
 
 #include <agent/Common.h>
-#include <agent/Payloads.h>
 #include <agent/types/ShapePubSubTypes.h>
 #include <agent/datareader/DataReader.h>
 

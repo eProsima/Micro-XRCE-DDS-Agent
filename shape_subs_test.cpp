@@ -27,7 +27,7 @@ int main(int args, char** argv)
 
     // ProxyClient client;
     // DataReader reader(&client);
-    // READ_DATA_PAYLOAD read_config;
+    // READ_DATA_Payload read_config;
     // read_config.read_mode(READM_DATA);
     // read_config.max_samples(1);
     // printf("read\n");

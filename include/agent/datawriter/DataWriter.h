@@ -23,7 +23,6 @@
 #include <string>
 
 #include <agent/Common.h>
-#include <agent/Payloads.h>
 #include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
@@ -35,6 +34,7 @@ namespace fastrtps {
 
 namespace micrortps {
 
+class WRITE_DATA_Payload;
 /**
  * Class DataWriter, used to send data to associated datareaders.
  * @ingroup MICRORTPS_MODULE
@@ -48,7 +48,7 @@ public:
     virtual ~DataWriter();
 
     bool init();
-    bool write(const WRITE_DATA_PAYLOAD& write_data);
+    bool write(const WRITE_DATA_Payload& write_data);
 
 private:
 

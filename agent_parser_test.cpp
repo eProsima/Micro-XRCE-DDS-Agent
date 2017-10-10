@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "agent/MessageHeader.h"
-#include "agent/SubMessageHeader.h"
-#include "agent/Serializer.h"
-#include "agent/Payloads.h"
-#include "agent/XRCEFactory.h"
-#include "agent/XRCEParser.h"
-#include "agent/ObjectVariant.h"
+#include <MessageHeader.h>
+#include <SubMessageHeader.h>
+#include <Serializer.h>
+#include <Payloads.h>
+#include <XRCEFactory.h>
+#include <XRCEParser.h>
+#include <DDSXRCETypes.h>
 
 #include <ddsxrce_transport.h>
 
@@ -32,7 +32,7 @@ using namespace eprosima::micrortps;
 void print(const MessageHeader& header)
 {
     std::cout << "=MESSAGE HEADER=" << std::endl;
-    std::cout << "  client key:  " << std::hex << header.client_key() << std::endl;
+    std::cout << "  client key:  " << std::hex << header.client_key()[0] << header.client_key()[1] << header.client_key()[2] << header.client_key()[3] << std::endl;
     std::cout << "  session id:  " << std::hex << +header.session_id() << std::endl;
     std::cout << "  stream id:   " << std::hex << +header.stream_id() << std::endl;
     std::cout << "  sequence nr: " << std::hex << header.sequence_nr() << std::endl;
@@ -55,7 +55,7 @@ void onMessage()
 
 size_t fill_buffer(octet* out_buffer, size_t buffer_len)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    const ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -93,17 +93,17 @@ size_t fill_buffer(octet* out_buffer, size_t buffer_len)
 
     // newMessage.status(resource_status);
 
-    RT_Data data_reader;
-    SampleData sample_data;
-    sample_data.serialized_data({0x0A, 0x0B, 0x0C, 0x0D});
-    data_reader.data(sample_data);
+    // RT_Data data_reader;
+    // SampleData sample_data;
+    // sample_data.serialized_data({0x0A, 0x0B, 0x0C, 0x0D});
+    // data_reader.data(sample_data);
     
-    DATA_PAYLOAD data;
-    data.data_reader(data_reader);
-    data.resource_id({ 0xF0,0xF1,0xF2 });
-    data.request_id({ 0x00,0x11,0x22, 0x33 });
+    // DATA_PAYLOAD data;
+    // data.data_reader(data_reader);
+    // data.resource_id({ 0xF0,0xF1,0xF2 });
+    // data.request_id({ 0x00,0x11,0x22, 0x33 });
 
-    newMessage.data(data);
+    // newMessage.data(data);
 
     return newMessage.get_total_size();
 }
@@ -114,22 +114,22 @@ public:
     PoC_Listener() {};
     ~PoC_Listener() {};
 
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload)
     {
 
     }
 
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& create_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& delete_payload)
     {
 
     }
 
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD&  write_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload&  write_payload)
     {
 
     }
 
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD&   read_payload)
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_Payload&   read_payload)
     {
 
     }

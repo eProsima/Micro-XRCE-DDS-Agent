@@ -14,11 +14,11 @@
 
 #include "agent/XRCEParser.h"
 
-#include "agent/MessageHeader.h"
-#include "agent/ObjectVariant.h"
-#include "agent/Payloads.h"
-#include "agent/SubMessageHeader.h"
-#include "libdev/MessageDebugger.h"
+// #include "libdev/MessageDebugger.h"
+
+#include "MessageHeader.h"
+#include "SubMessageHeader.h"
+#include "Payloads.h"
 
 #include <iostream>
 
@@ -41,29 +41,29 @@ bool XRCEParser::parse()
                 case CREATE:
                     if (!process_create(message_header, submessage_header))
                     {
-                        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing create" << std::endl;
                     }
                     break;
                 case WRITE_DATA:
                     if (!process_write_data(message_header, submessage_header))
                     {
-                        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing write" << std::endl;
                     }
                     break;
                 case READ_DATA:
                     if (!process_read_data(message_header, submessage_header))
                     {
-                        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing read" << std::endl;
                     }
                     break;
                case DELETE:
                     if (!process_delete(message_header, submessage_header))
                      {
-                        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
-                         std::cerr << "Error processing delete" << std::endl;
+                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                        std::cerr << "Error processing delete" << std::endl;
                      }
                      break;
                 case GET_INFO:
@@ -72,11 +72,10 @@ bool XRCEParser::parse()
                 case DATA:
                 case ACKNACK:
                 case HEARTBEAT:
-                case RESET:
                 case FRAGMENT:
                 case FRAGMENT_END:
                 default:
-                    debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                    //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                     std::cerr << "Error submessage ID not recognized" << std::endl;
                     return false;
                     break;
@@ -84,7 +83,7 @@ bool XRCEParser::parse()
             }
             else
             {
-                debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+                //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                 std::cerr << "Error reading submessage header" << std::endl;
                 return false;
             }
@@ -92,7 +91,7 @@ bool XRCEParser::parse()
     }
     else
     {
-        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Error reading message header" << std::endl;
         return false;
     }
@@ -101,7 +100,7 @@ bool XRCEParser::parse()
 
 bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
-    CREATE_PAYLOAD create_payload;
+    CREATE_Payload create_payload;
     if (deserializer_.deserialize(create_payload))
     {
         listener_->on_message(header, sub_header, create_payload);
@@ -112,7 +111,7 @@ bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHea
 
 bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
-    DELETE_PAYLOAD delete_payload;
+    CREATE_Payload delete_payload;
     if (deserializer_.deserialize(delete_payload))
     {
         listener_->on_message(header, sub_header, delete_payload);
@@ -123,7 +122,7 @@ bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHea
 
 bool XRCEParser::process_read_data(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
-    READ_DATA_PAYLOAD read_data_payload;
+    READ_DATA_Payload read_data_payload;
     if (deserializer_.deserialize(read_data_payload))
     {
         listener_->on_message(header, sub_header, read_data_payload);
@@ -134,7 +133,7 @@ bool XRCEParser::process_read_data(const MessageHeader& header, const Submessage
 
 bool XRCEParser::process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
-    WRITE_DATA_PAYLOAD write_data_payload;
+    WRITE_DATA_Payload write_data_payload;
     if (deserializer_.deserialize(write_data_payload))
     {
         listener_->on_message(header, sub_header, write_data_payload);
@@ -142,8 +141,6 @@ bool XRCEParser::process_write_data(const MessageHeader& header, const Submessag
     }
     return false;
 }
-
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */

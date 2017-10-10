@@ -15,7 +15,6 @@
 #ifndef _ROOT_H
 #define _ROOT_H
 
-#include <agent/ObjectVariant.h>
 #include <agent/client/ProxyClient.h>
 #include <agent/XRCEFactory.h>
 #include <agent/XRCEParser.h>
@@ -31,6 +30,8 @@ namespace eprosima{
 namespace micrortps{
 
 class Agent;
+class CREATE_Payload;
+class DELETE_RESOURCE_Payload;
 
 Agent* root();
 
@@ -53,17 +54,17 @@ public:
      * Creates and stores a ProxyClient
      * @param client_key: ProxyClient unique key.
      * @param create_info: Create payload containing all the creation information.
-     * @return Status struct with the operation result info.
+     * @return ResultStatus struct with the operation result info.
      */
-    Status create_client(const MessageHeader& header, const CREATE_PAYLOAD& create_info);
+    ResultStatus create_client(const MessageHeader& header, const CREATE_Payload& create_info);
 
     /*
      * Removes a previously stored ProxyClient
      * @param client_key: ProxyClient unique key.
      * @param delete_info: Delete payload containing all the deletion information.
-     * @return Status struct with the operation result info.
+     * @return ResultStatus struct with the operation result info.
      */
-    Status delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_info);
+    ResultStatus delete_client(ClientKey client_key, const DELETE_RESOURCE_Payload& delete_info);
 
     /*
      * Starts Agent loop to listen messages. It parses and dispaches those XRCE messages to its owner.
@@ -76,7 +77,7 @@ public:
      * @param sub_header: Submessage header.
      * @param create_payload: Creation information.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_PAYLOAD& create_payload) override;
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload) override;
 
     /*
      * Receives a deletion message.
@@ -84,7 +85,7 @@ public:
      * @param sub_header: Submessage header.
      * @param delete_payload: Deletion information.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_PAYLOAD& delete_payload) override;
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& delete_payload) override;
 
     /*
      * Receives a Write message.
@@ -92,7 +93,7 @@ public:
      * @param sub_header: Submessage header.
      * @param write_payload: Write information.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_PAYLOAD& write_payload)  override;
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload& write_payload)  override;
 
     /*
      * Receives a Read message.
@@ -100,13 +101,17 @@ public:
      * @param sub_header: Submessage header.
      * @param read_payload: Read information.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_PAYLOAD& read_payload)   override;
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_Payload& read_payload)   override;
 
-    ProxyClient* get_client(int32_t client_key);
+    ProxyClient* get_client(ClientKey client_key);
 
     void add_reply(const Message& message);
-    void add_reply(const MessageHeader& header, const Status& status_reply);
-    void add_reply(const MessageHeader& header, const DATA_PAYLOAD& data);
+    void add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload& status_reply);
+    void add_reply(const MessageHeader& header, const DATA_Payload_Data& payload);
+    void add_reply(const MessageHeader& header, const DATA_Payload_Sample& payload);
+    void add_reply(const MessageHeader& header, const DATA_Payload_DataSeq& payload);
+    void add_reply(const MessageHeader& header, const DATA_Payload_SampleSeq& payload);
+    void add_reply(const MessageHeader& header, const DATA_Payload_PackedSamples& payload);
 
 private:
     channel_id_t ch_id_;
@@ -114,8 +119,8 @@ private:
     octet out_buffer_[buffer_len_];
     octet in_buffer_[buffer_len_];
     locator_t loc_;
-    std::map<int32_t, ProxyClient> clients_;
-    std::map<ObjectId, int32_t> client_ids_;
+    std::map<ClientKey, ProxyClient> clients_;
+    std::map<ObjectId, ClientKey> client_ids_;
 
     std::unique_ptr<std::thread> response_thread_;
     struct ResponseControl

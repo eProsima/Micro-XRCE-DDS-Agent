@@ -14,29 +14,26 @@
 
 #include "agent/Serializer.h"
 
-#include "agent/MessageHeader.h"
-#include "agent/Payloads.h"
-#include "agent/SubMessageHeader.h"
+#include "MessageHeader.h"
+#include "Payloads.h"
+#include "SubMessageHeader.h"
 
 #include <iostream>
 
 namespace eprosima {
 namespace micrortps {
 
-Serializer::Serializer(char* buffer, size_t buffer_size) :
-    fastbuffer_(buffer, buffer_size),
-    serializer_(fastbuffer_)	
+Serializer::Serializer(char *buffer, size_t buffer_size) : fastbuffer_(buffer, buffer_size), serializer_(fastbuffer_)
 {
 }
 
-template<class T>
-bool Serializer::serialize(const T& data)
+template <class T> bool Serializer::serialize(const T &data)
 {
     try
     {
         data.serialize(serializer_); // Serialize the object:
     }
-    catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+    catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
         std::cout << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         return false;
@@ -44,22 +41,28 @@ bool Serializer::serialize(const T& data)
     return true;
 }
 
-template bool Serializer::serialize(const MessageHeader& data);
-template bool Serializer::serialize(const SubmessageHeader& data);
-template bool Serializer::serialize(const CREATE_PAYLOAD& data);
-template bool Serializer::serialize(const DELETE_PAYLOAD& data);
-template bool Serializer::serialize(const Status& data);
-template bool Serializer::serialize(const DATA_PAYLOAD& data);
-template bool Serializer::serialize(const READ_DATA_PAYLOAD& data);
-template bool Serializer::serialize(const WRITE_DATA_PAYLOAD& data);
+template bool Serializer::serialize(const MessageHeader &data);
+template bool Serializer::serialize(const SubmessageHeader &data);
+template bool Serializer::serialize(const RESOURCE_STATUS_Payload &data);
+template bool Serializer::serialize(const DATA_Payload_Data &data);
+template bool Serializer::serialize(const DATA_Payload_DataSeq &data);
+template bool Serializer::serialize(const DATA_Payload_Sample &data);
+template bool Serializer::serialize(const DATA_Payload_SampleSeq &data);
+template bool Serializer::serialize(const DATA_Payload_PackedSamples &data);
+template bool Serializer::serialize(const BaseObjectReply &data);
+template bool Serializer::serialize(const ResultStatus &data);
+// TODO(borja) No deberia poder serializar. Estan instanciados para tests.
+template bool Serializer::serialize(const READ_DATA_Payload &data);
+template bool Serializer::serialize(const WRITE_DATA_Payload &data);
+template bool Serializer::serialize(const CREATE_Payload &data);
 
-template<class T> bool Serializer::deserialize(T& data)
+template <class T> bool Serializer::deserialize(T &data)
 {
     try
     {
-        data.deserialize(serializer_); //Deserialize the object:
+        data.deserialize(serializer_); // Deserialize the object:
     }
-    catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+    catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
         std::cout << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         return false;
@@ -67,15 +70,19 @@ template<class T> bool Serializer::deserialize(T& data)
     return true;
 }
 
-template bool Serializer::deserialize(MessageHeader& data);
-template bool Serializer::deserialize(SubmessageHeader& data);
-template bool Serializer::deserialize(CREATE_PAYLOAD& data);
-template bool Serializer::deserialize(DELETE_PAYLOAD& data);
-template bool Serializer::deserialize(Status& data);
-template bool Serializer::deserialize(DATA_PAYLOAD& data);
-template bool Serializer::deserialize(READ_DATA_PAYLOAD& data);
-template bool Serializer::deserialize(WRITE_DATA_PAYLOAD& data);
-
+template bool Serializer::deserialize(MessageHeader &data);
+template bool Serializer::deserialize(SubmessageHeader &data);
+template bool Serializer::deserialize(CREATE_Payload &data);
+template bool Serializer::deserialize(DELETE_RESOURCE_Payload &data);
+template bool Serializer::deserialize(RESOURCE_STATUS_Payload &data);
+template bool Serializer::deserialize(READ_DATA_Payload &data);
+template bool Serializer::deserialize(WRITE_DATA_Payload &data);
+// TODO(borja) No deberia poder serializar. Estan instanciados para tests.
+template bool Serializer::deserialize(DATA_Payload_Data &data);
+template bool Serializer::deserialize(DATA_Payload_DataSeq &data);
+template bool Serializer::deserialize(DATA_Payload_Sample &data);
+template bool Serializer::deserialize(DATA_Payload_SampleSeq &data);
+template bool Serializer::deserialize(DATA_Payload_PackedSamples &data);
 
 size_t Serializer::get_serialized_size()
 {
@@ -89,9 +96,7 @@ bool Serializer::bufferEnd()
 
 void Serializer::align()
 {
-
 }
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */

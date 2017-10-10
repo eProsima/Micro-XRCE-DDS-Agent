@@ -31,7 +31,8 @@
 #include <fastrtps/rtps/common/MatchingInfo.h>
 
 #include <agent/types/ShapePubSubTypes.h>
-#include <agent/Payloads.h>
+#include <DDSXRCETypes.h>
+#include <Payloads.h>
 #include <agent/Common.h>
 
 namespace eprosima {
@@ -95,7 +96,7 @@ public:
     virtual ~DataReader();
 
     bool init();
-    int read(const READ_DATA_PAYLOAD& read_data);
+    int read(const READ_DATA_Payload& read_data);
 
 
     void on_timeout(const asio::error_code& error);
@@ -104,9 +105,9 @@ public:
 
 
 private:
-    int start_read(const READ_DATA_PAYLOAD& read_data);
+    int start_read(const READ_DATA_Payload& read_data);
     int stop_read();
-    void read_task(READ_DATA_PAYLOAD read_data);
+    void read_task(READ_DATA_Payload read_data);
     bool takeNextData(void* data);
 
     std::thread m_read_thread, m_timer_thread;
@@ -119,9 +120,6 @@ private:
     eprosima::fastrtps::Participant* mp_rtps_participant;
     eprosima::fastrtps::Subscriber* mp_rtps_subscriber;
     ShapeTypePubSubType m_shape_type;
-
-
-
 };
 
 

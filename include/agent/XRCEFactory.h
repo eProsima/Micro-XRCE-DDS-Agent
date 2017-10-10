@@ -22,21 +22,33 @@
 namespace eprosima {
 namespace micrortps {
 
-class Status;
-class DATA_PAYLOAD;
 class MessageHeader;
+class RESOURCE_STATUS_Payload;
+class DATA_Payload_Data;
+class DATA_Payload_Sample;
+class DATA_Payload_DataSeq;
+class DATA_Payload_SampleSeq;
+class DATA_Payload_PackedSamples;
+class BaseObjectReply;
 
 class XRCEFactory
 {
 public:
     XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {};
     void header(const MessageHeader& header);
-    void status(const Status& payload);
-    void data(const DATA_PAYLOAD& payload);
+    void status(const RESOURCE_STATUS_Payload& result);
+    
+    void data(const DATA_Payload_Data& payload);
+    void data(const DATA_Payload_Sample& payload);
+    void data(const DATA_Payload_DataSeq& payload);
+    void data(const DATA_Payload_SampleSeq& payload);
+    void data(const DATA_Payload_PackedSamples& payload);
+    
     size_t get_total_size();
 private:
 
     void submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length);
+    void reply(uint8_t m_submessage_id, const BaseObjectReply& object_reply);
     Serializer serializer_;
 };
 

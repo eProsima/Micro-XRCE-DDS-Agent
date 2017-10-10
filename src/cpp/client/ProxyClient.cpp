@@ -16,7 +16,6 @@
 
 #include "agent/client/ProxyClient.h"
 
-#include "agent/ObjectVariant.h"
 #include "agent/Root.h"
 #include "agent/datareader/DataReader.h"
 #include "agent/datawriter/DataWriter.h"
@@ -25,13 +24,13 @@
 #include "agent/subscriber/Subscriber.h"
 
 
-#include "libdev/MessageDebugger.h"
+// #include "libdev/MessageDebugger.h"
 
 
 #include "agent/Root.h"
 
 using eprosima::micrortps::ProxyClient;
-using eprosima::micrortps::Status;
+using eprosima::micrortps::ResultStatus;
 using eprosima::micrortps::Info;
 
 ProxyClient::ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header)
@@ -67,7 +66,7 @@ ProxyClient& ProxyClient::operator=(ProxyClient &&x) noexcept
 
 bool ProxyClient::create(const InternalObjectId& internal_object_id, const ObjectVariant& representation)
 {
-    switch(representation.discriminator())
+    switch(representation._d())
     {
         case OBJK_PUBLISHER:
         {
@@ -143,13 +142,10 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
 }
 
 
-Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload)
+ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE_Payload& create_payload)
 {
-    Status status;
-    status.result().request_id(create_payload.request_id());
-    status.result().status(STATUS_LAST_OP_CREATE);
-    status.object_id(create_payload.object_id());
-
+    ResultStatus status;
+    status.status(STATUS_LAST_OP_CREATE);
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
     std::unique_lock<std::mutex> lock(objects_mutex_);
@@ -159,7 +155,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
         lock.unlock();
         if (create(internal_id, create_payload.object_representation()))
         {
-            status.result().implementation_status(STATUS_OK);
+            status.implementation_status(STATUS_OK);
         }
     }
     else
@@ -168,7 +164,7 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
         {
             if (!creation_mode.replace()) // replace = false
             {
-                status.result().implementation_status(STATUS_ERR_ALREADY_EXISTS);
+                status.implementation_status(STATUS_ERR_ALREADY_EXISTS);
             }
             else // replace = true
             {
@@ -191,10 +187,10 @@ Status ProxyClient::create(const CreationMode& creation_mode, const CREATE_PAYLO
     return status;
 }
 
-Status ProxyClient::update(const ObjectId&  /*object_id*/, const ObjectVariant&  /*representation*/)
+ResultStatus ProxyClient::update(const ObjectId&  /*object_id*/, const ObjectVariant&  /*representation*/)
 {
     // TODO(borja):
-    return Status{};
+    return ResultStatus{};
 }
 
 Info ProxyClient::get_info(const ObjectId&  /*object_id*/)
@@ -203,20 +199,18 @@ Info ProxyClient::get_info(const ObjectId&  /*object_id*/)
     return Info{};
 }
 
-Status ProxyClient::delete_object(const DELETE_PAYLOAD& delete_payload)
+ResultStatus ProxyClient::delete_object(const DELETE_RESOURCE_Payload& delete_payload)
 {
-    Status status;
-    status.object_id(delete_payload.object_id());
-    status.result().request_id(delete_payload.request_id());
-    status.result().status(STATUS_LAST_OP_DELETE);
+    ResultStatus status;
+    status.status(STATUS_LAST_OP_DELETE);
     // TODO(borja): comprobar permisos
     if (delete_object(generate_object_id(delete_payload.object_id(), 0x00)))
     {
-        status.result().implementation_status(STATUS_OK);
+        status.implementation_status(STATUS_OK);
     }
     else
     {
-        status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
         // TODO(borja): en el documento se menciona STATUS_ERR_INVALID pero no existe.
     }
     return status;
@@ -235,18 +229,16 @@ bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
     return false;    
 }
 
-Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload)
+ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload)
 {
-    Status status;
-    status.result().request_id(data_payload.request_id());
-    status.result().status(STATUS_LAST_OP_WRITE);
-    status.object_id(object_id);
+    ResultStatus status;
+    status.status(STATUS_LAST_OP_WRITE);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
-        status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
     }
     else
     {
@@ -255,24 +247,22 @@ Status ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& d
     return status;
 }
 
-Status ProxyClient::read(const ObjectId& object_id, const READ_DATA_PAYLOAD&  data_payload)
+ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payload&  data_payload)
 {
-    Status status;
-    status.result().request_id(data_payload.request_id());
-    status.object_id(object_id);
-    status.result().status(STATUS_LAST_OP_READ);
+    ResultStatus status;
+    status.status(STATUS_LAST_OP_READ);
     auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(internal_id);
     if(object_it == objects_.end()) 
     {
-        status.result().implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
     }
     else
     {
         if (!(dynamic_cast<DataReader*>(dynamic_cast<Subscriber*>(object_it->second)->get_reader())->read(data_payload) == 0))
         {
-            status.result().implementation_status(STATUS_OK);
+            status.implementation_status(STATUS_OK);
         }
     }
     return status;
@@ -301,14 +291,12 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
 
-    DATA_PAYLOAD payload;
+    DATA_Payload_Data payload;
     payload.request_id(req_id);
-    payload.resource_id(object_id);
-    payload.data_reader()._d(READM_DATA);
-    payload.data_reader().data().serialized_data(buffer);
+    payload.object_id(object_id);
+    payload.data().serialized_data(buffer);
 
     root()->add_reply(message_header, payload);
-
 }
 
 

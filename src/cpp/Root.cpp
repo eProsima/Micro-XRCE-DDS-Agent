@@ -14,10 +14,9 @@
 
 #include <agent/Root.h>
 
-#include <agent/MessageHeader.h>
-#include <agent/Payloads.h>
-#include <agent/SubMessageHeader.h>
-#include <libdev/MessageDebugger.h>
+#include <MessageHeader.h>
+#include <SubMessageHeader.h>
+// #include <libdev/MessageDebugger.h>
 #include <types/Shape.h>
 
 #include <fastcdr/Cdr.h>
@@ -25,8 +24,8 @@
 #include <memory>
 
 using eprosima::micrortps::Agent;
-using eprosima::micrortps::Status;
-using eprosima::micrortps::debug::operator<<;
+using eprosima::micrortps::ResultStatus;
+//using eprosima::micrortps::debug::operator<<;
 
 
 Agent* eprosima::micrortps::root()
@@ -57,7 +56,7 @@ void Agent::init()
 
 void Agent::demo_create_client()
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie({XRCE_COOKIE});
@@ -69,9 +68,8 @@ void Agent::demo_create_client()
     variant.client(client_representation);
     
     const RequestId request_id{ {1,2} };
-    const ObjectId object_id{ {10,20,30} };
-    CREATE_PAYLOAD create_data;
-    create_data.request_id(request_id);
+    const ObjectId object_id{ {10,20} };
+    CREATE_Payload create_data;
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
@@ -81,22 +79,21 @@ void Agent::demo_create_client()
     message_header.stream_id(2);
     message_header.sequence_nr(0);
 
-    Status st = create_client(message_header, create_data);
-    if (st.result().implementation_status() == STATUS_OK)
+    ResultStatus st = create_client(message_header, create_data);
+    if (st.implementation_status() == STATUS_OK)
     {
-        debug::short_print(std::cout, "    INTERNAL [Create | id: 0xF1F2F3F4 | 0001 OK | CREATE_CLIENT]\n");
+        //debug::short_print(std::cout, "    INTERNAL [Create | id: 0xF1F2F3F4 | 0001 OK | CREATE_CLIENT]\n");
     }
 }
 
-Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& create_info)
+ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_Payload& create_info)
 {
-    Status status;
-    status.result().request_id(create_info.request_id());
-    status.result().status(STATUS_LAST_OP_CREATE);
-    status.object_id(create_info.object_id());
+    ResultStatus status;
+    status.request_id(create_info.request_id());
+    status.status(STATUS_LAST_OP_CREATE);
 
-    if ((create_info.object_representation().discriminator() == OBJK_CLIENT) && 
-        (create_info.object_representation().client().xrce_cookie() == std::array<uint8_t, 4>{XRCE_COOKIE}))
+    if ((create_info.object_representation()._d() == OBJK_CLIENT) && 
+        (create_info.object_representation().client().xrce_cookie() == XRCE_COOKIE))
     {
         if (create_info.object_representation().client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
         {
@@ -113,39 +110,38 @@ Status Agent::create_client(const MessageHeader& header, const CREATE_PAYLOAD& c
             clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
             client_ids_[create_info.object_id()] = header.client_key();
             //std::cout << "ProxyClient created " << std::endl;
-            status.result().implementation_status(STATUS_OK);
+            status.implementation_status(STATUS_OK);
         }
         else{
-            status.result().implementation_status(STATUS_ERR_INCOMPATIBLE);
+            status.implementation_status(STATUS_ERR_INCOMPATIBLE);
         }
     }
     else
     {        
-        status.result().implementation_status(STATUS_ERR_INVALID_DATA);
+        status.implementation_status(STATUS_ERR_INVALID_DATA);
     }
     return status;
 }
 
-Status Agent::delete_client(int32_t client_key, const DELETE_PAYLOAD& delete_info)
+ResultStatus Agent::delete_client(ClientKey client_key, const DELETE_RESOURCE_Payload& delete_info)
 {
-    Status status;
-    status.result().request_id(delete_info.request_id());
-    status.result().status(STATUS_LAST_OP_DELETE);
-    status.object_id(delete_info.object_id());
+    ResultStatus status;
+    status.request_id(delete_info.request_id());
+    status.status(STATUS_LAST_OP_DELETE);
     if ((0 == clients_.erase(client_key)) && (0 == client_ids_.erase(delete_info.object_id())))
     {
-        status.result().implementation_status(STATUS_ERR_INVALID_DATA);
+        status.implementation_status(STATUS_ERR_INVALID_DATA);
     }
     else
     {
-        status.result().implementation_status(STATUS_OK);
+        status.implementation_status(STATUS_OK);
     }
     return status;
 }
 
 void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -165,15 +161,15 @@ void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
     ObjectVariant variant;
     variant.client(client_representation);                    
     const RequestId request_id{ {0x01,0x02} };
-    const ObjectId object_id{ {0xC0,0xB0,0xA0} };
-    CREATE_PAYLOAD create_data;
+    const ObjectId object_id{ {0xC0,0xB0} };
+    CREATE_Payload create_data;
     create_data.request_id(request_id);
     create_data.object_id(object_id);
     create_data.object_representation().client(client_representation);
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(CREATE);
-    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+    submessage_header.submessage_length(create_data.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -185,7 +181,7 @@ void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
 
 void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -200,17 +196,17 @@ void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
 
     ObjectVariant variant;
     OBJK_SUBSCRIBER_Representation subs;
-    subs.as_string(std::string("SUBSCRIBER"));
-    subs.participant_id({ {4,4,4} });
+    subs.representation().object_reference(std::string("SUBSCRIBER"));
+    subs.participant_id({ {4,4} });
 
-    CREATE_PAYLOAD create_data;
+    CREATE_Payload create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ {10,20,30} });
+    create_data.object_id({ {10,20} });
     create_data.object_representation().subscriber(subs);
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(CREATE);
-    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+    submessage_header.submessage_length(create_data.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -222,7 +218,7 @@ void Agent::demo_message_subscriber(char* test_buffer, size_t buffer_size)
 
 void Agent::demo_delete_subscriber(char* test_buffer, size_t buffer_size)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -235,13 +231,13 @@ void Agent::demo_delete_subscriber(char* test_buffer, size_t buffer_size)
 
     const RequestId request_id = { {0x01,0x02} };
 
-    DELETE_PAYLOAD create_data;
+    CREATE_Payload create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ {10,20,30} });
+    create_data.object_id({ {10,20} });
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(CREATE);
-    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+    submessage_header.submessage_length(create_data.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -258,7 +254,7 @@ void demo_message_publisher(char*  /*test_buffer*/, size_t  /*buffer_size*/)
 
 void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -269,19 +265,13 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
-    READ_DATA_PAYLOAD read_payload;
+    READ_DATA_Payload read_payload;
     read_payload.request_id();
-    read_payload.object_id({ {10,20,30} });
-    read_payload.max_messages();
-    read_payload.read_mode();
-    read_payload.max_elapsed_time();
-    read_payload.max_rate();
-//    read_payload.content_filter_expression();
-    read_payload.max_samples();
-    read_payload.include_sample_info();
+    read_payload.object_id({ {10,20} });
+    read_payload.read_specification();
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(READ_DATA);
-    submessage_header.submessage_length(read_payload.getCdrSerializedSize(read_payload));
+    submessage_header.submessage_length(read_payload.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -293,7 +283,7 @@ void Agent::demo_message_read(char * test_buffer, size_t buffer_size)
 
 void Agent::demo_message_publisher(char* test_buffer, size_t buffer_size)
 {
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -309,17 +299,17 @@ void Agent::demo_message_publisher(char* test_buffer, size_t buffer_size)
 
     ObjectVariant variant;
     OBJK_PUBLISHER_Representation pubs;
-    pubs.as_string(std::string("PUBLISHER"));
-    pubs.participant_id({ {4,4,4} });
+    pubs.representation().object_reference(std::string("PUBLISHER"));
+    pubs.participant_id({ {4,4} });
 
-    CREATE_PAYLOAD create_data;
+    CREATE_Payload create_data;
     create_data.request_id(request_id);
-    create_data.object_id({ {10,20,40} });
+    create_data.object_id({ {10,20} });
     create_data.object_representation().publisher(pubs);
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(CREATE);
-    submessage_header.submessage_length(create_data.getCdrSerializedSize(create_data));
+    submessage_header.submessage_length(create_data.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -335,7 +325,7 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
     static int y = 0;
     ++x; ++y;
 
-    const uint32_t client_key = 0xF1F2F3F4;
+    ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const uint8_t session_id = 0x01;
     const uint8_t stream_id = 0x04;
     const uint16_t sequence_nr = 0x0200;
@@ -346,9 +336,9 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
     message_header.sequence_nr(sequence_nr);
-    WRITE_DATA_PAYLOAD write_payload;
+    WRITE_DATA_Payload write_payload;
     write_payload.request_id();
-    write_payload.object_id({ {10,20,40} });
+    write_payload.object_id({ {10,20} });
 
     // Serialize data
     ShapeType st;
@@ -360,11 +350,11 @@ void Agent::demo_message_write(char * test_buffer, size_t buffer_size)
     eprosima::fastcdr::Cdr ser(fbuffer);
     ser.serialize(st);
     std::vector<unsigned char> buffer(ser.getBufferPointer(), ser.getBufferPointer() + ser.getSerializedDataLength());
-    write_payload.data_writer().data().serialized_data(buffer);
+    write_payload.data_to_write().data().serialized_data(buffer);
 
     SubmessageHeader submessage_header;
     submessage_header.submessage_id(WRITE_DATA);
-    submessage_header.submessage_length(write_payload.getCdrSerializedSize(write_payload));
+    submessage_header.submessage_length(write_payload.getCdrSerializedSize());
 
     serializer.serialize(message_header);
     serializer.serialize(submessage_header);
@@ -387,18 +377,18 @@ void Agent::demo_process_response(Message& message)
     {
         case STATUS:
         {
-            Status deserialized_status;
+            RESOURCE_STATUS_Payload deserialized_status;
             deserializer.deserialize(deserialized_status);
             std::cout << "<== ";
-            debug::short_print(std::cout, deserialized_status, debug::STREAM_COLOR::YELLOW) << std::endl;
+            //debug::short_print(std::cout, deserialized_status, debug::STREAM_COLOR::YELLOW) << std::endl;
             break;
         }
         case DATA:
         {
-            DATA_PAYLOAD deserialized_data;
+            DATA_Payload_Data deserialized_data;
             deserializer.deserialize(deserialized_data);
             std::cout << "<== ";
-            debug::short_print(std::cout, deserialized_data, debug::STREAM_COLOR::YELLOW) << std::endl;
+            //debug::short_print(std::cout, deserialized_data, debug::STREAM_COLOR::YELLOW) << std::endl;
             // printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
             // ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
             // std::cout << "<SHAPE TYPE>" << std::endl;
@@ -451,7 +441,7 @@ void Agent::add_reply(const Message& message)
 }
 
 
-void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
+void Agent::add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload& status_reply)
 {
     MessageHeader updated_header{header};
     update_header(updated_header);
@@ -463,14 +453,62 @@ void Agent::add_reply(const MessageHeader& header, const Status& status_reply)
     add_reply(message);
 }
 
-void Agent::add_reply(const MessageHeader& header, const DATA_PAYLOAD& data)
+void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Data &payload)
 {
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
-    XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
     message_creator.header(updated_header);
-    message_creator.data(data);
+    message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    add_reply(message);
+}
+
+void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Sample &payload)
+{
+    MessageHeader updated_header{header};
+    update_header(updated_header);
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(updated_header);
+    message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    add_reply(message);
+}
+
+void Agent::add_reply(const MessageHeader &header, const DATA_Payload_DataSeq &payload)
+{
+    MessageHeader updated_header{header};
+    update_header(updated_header);
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(updated_header);
+    message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    add_reply(message);
+}
+
+void Agent::add_reply(const MessageHeader &header, const DATA_Payload_SampleSeq &payload)
+{
+    MessageHeader updated_header{header};
+    update_header(updated_header);
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(updated_header);
+    message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    add_reply(message);
+}
+
+void Agent::add_reply(const MessageHeader &header, const DATA_Payload_PackedSamples &payload)
+{
+    MessageHeader updated_header{header};
+    update_header(updated_header);
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(updated_header);
+    message_creator.data(payload);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
@@ -502,11 +540,11 @@ void Agent::reply()
 
 
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const CREATE_PAYLOAD& create_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub_header, const CREATE_Payload& create_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
-    if (create_payload.object_representation().discriminator() != OBJK_CLIENT)
+    //debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    if (create_payload.object_representation()._d() != OBJK_CLIENT)
     {
         if (ProxyClient* client = get_client(header.client_key()))
         {
@@ -517,85 +555,107 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
             // TODO(borja): get sub_header flags
             // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
             // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
-            Status result_status = client->create(creation_mode, create_payload);
-            add_reply(header, result_status);
+            RESOURCE_STATUS_Payload status;
+            status.object_id(create_payload.object_id());
+            status.request_id(create_payload.request_id());
+            ResultStatus result_status = client->create(creation_mode, create_payload);
+            status.result(result_status);
+            add_reply(header, status);
         }
         else
         {
-            debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+            //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
             std::cerr << "Create message rejected" << std::endl;
         }
     }
-    else if (create_payload.object_representation().discriminator() == OBJK_CLIENT)
+    else if (create_payload.object_representation()._d() == OBJK_CLIENT)
     {
-        Status result_status = create_client(header, create_payload);
-        add_reply(header, result_status);
+        RESOURCE_STATUS_Payload status;
+        status.object_id(create_payload.object_id());
+        status.request_id(create_payload.request_id());
+        ResultStatus result_status = create_client(header, create_payload);
+        add_reply(header, status);
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const DELETE_PAYLOAD& delete_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const DELETE_RESOURCE_Payload& delete_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    //debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     auto client_id = client_ids_.find(delete_payload.object_id());
     if (client_id != client_ids_.end())
     {
-        Status result_status = delete_client(client_ids_.at(delete_payload.object_id()), delete_payload);
-        add_reply(header, result_status);
+        RESOURCE_STATUS_Payload status;
+        status.request_id(delete_payload.request_id());
+        status.object_id(delete_payload.object_id());
+        status.result(delete_client(client_ids_.at(delete_payload.object_id()), delete_payload));
+        add_reply(header, status);
     }
     else if (ProxyClient* client = get_client(header.client_key()))
     {
-        Status result_status = client->delete_object(delete_payload);
-        add_reply(header, result_status);
+        RESOURCE_STATUS_Payload status;
+        status.request_id(delete_payload.request_id());
+        status.object_id(delete_payload.object_id());        
+        status.result(client->delete_object(delete_payload));
+        add_reply(header, status);
     }
     else
     {
-        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const WRITE_DATA_PAYLOAD&  write_payload)
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const WRITE_DATA_Payload&  write_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, write_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    //debug::short_print(std::cout, write_payload, debug::STREAM_COLOR::GREEN) << std::endl;
     if (ProxyClient* client = get_client(header.client_key()))
     {
-        Status result_status = client->write(write_payload.object_id(), write_payload);
-        add_reply(header, result_status);
+        RESOURCE_STATUS_Payload status;
+        status.request_id(write_payload.request_id());
+        status.object_id(write_payload.object_id());
+        ResultStatus result_status = client->write(write_payload.object_id(), write_payload);
+        status.result(result_status);
+        add_reply(header, status);
     }
     else
     {
-        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
 
-void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const READ_DATA_PAYLOAD&   read_payload)
+void Agent::on_message(const MessageHeader &header, const SubmessageHeader & /*sub_header*/,
+                       const READ_DATA_Payload &read_payload)
 {
     std::cout << "==> ";
-    debug::short_print(std::cout, read_payload, debug::STREAM_COLOR::GREEN) << std::endl;
-    if (ProxyClient* client = get_client(header.client_key()))
+    // debug::short_print(std::cout, read_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    if(ProxyClient *client = get_client(header.client_key()))
     {
-        Status result_status = client->read(read_payload.object_id(), read_payload);
-        add_reply(header, result_status);
+        RESOURCE_STATUS_Payload status;
+        status.request_id(read_payload.request_id());
+        status.object_id(read_payload.object_id());
+        ResultStatus result_status = client->read(read_payload.object_id(), read_payload);
+        status.result(result_status);
+        add_reply(header, status);
     }
     else
     {
-        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Read message rejected" << std::endl;
     }
-} 
+}
 
-eprosima::micrortps::ProxyClient* Agent::get_client(int32_t client_key)
+eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
 {
     try
     {
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
     {
-        debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
-        std::cerr << "Client " << client_key << "not found" << std::endl;
+        // debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        // std::cerr << "Client " << client_key << "not found" << std::endl;
         return nullptr;
     }
 }

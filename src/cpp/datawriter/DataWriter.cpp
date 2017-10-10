@@ -23,6 +23,8 @@
 
 #include <agent/datawriter/DataWriter.h>
 
+#include <DDSXRCETypes.h>
+#include <Payloads.h>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_PUBLISHER_PROFILE "default_xrce_publisher_profile"
@@ -83,15 +85,15 @@ bool DataWriter::init()
     return true;
 }
 
-bool DataWriter::write(const WRITE_DATA_PAYLOAD& write_data)
+bool DataWriter::write(const WRITE_DATA_Payload& write_data)
 {
-    switch(write_data.data_writer()._d())
+    switch(write_data.data_to_write()._d())
     {
-        case READM_DATA: break;
-        case READM_SAMPLE: break;
-        case READM_DATA_SEQ: break;
-        case READM_SAMPLE_SEQ: break;
-        case READM_PACKED_SAMPLE_SEQ: break;
+        case FORMAT_DATA:
+        case FORMAT_DATA_SEQ:
+        case FORMAT_SAMPLE:
+        case FORMAT_SAMPLE_SEQ:
+        case FORMAT_PACKED_SAMPLES:
         default: break;
     }
 
@@ -100,7 +102,7 @@ bool DataWriter::write(const WRITE_DATA_PAYLOAD& write_data)
         return false;
     }
 
-    std::vector<uint8_t> serialized_data = write_data.data_writer().data().serialized_data();
+    std::vector<uint8_t> serialized_data = write_data.data_to_write().data().serialized_data();
     return mp_rtps_publisher->write(&serialized_data);
 }
 

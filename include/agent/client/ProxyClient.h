@@ -15,10 +15,9 @@
 #ifndef _PROXY_CLIENT_H
 #define _PROXY_CLIENT_H
 
-#include <agent/ObjectVariant.h>
+
 #include <agent/datareader/DataReader.h>
-#include <agent/Payloads.h>
-#include <agent/MessageHeader.h>
+#include <MessageHeader.h>
 
 #include <map>
 
@@ -37,11 +36,11 @@ public:
     ProxyClient& operator=(const ProxyClient &x) = delete;
     ProxyClient& operator=(ProxyClient &&x) noexcept;
 
-    Status create(const CreationMode& creation_mode, const CREATE_PAYLOAD& create_payload);
-    Status delete_object(const DELETE_PAYLOAD& delete_payload);
-    Status update(const ObjectId& object_id, const ObjectVariant& representation);
-    Status read(const ObjectId& object_id, const READ_DATA_PAYLOAD& data_payload);
-    Status write(const ObjectId& object_id, const WRITE_DATA_PAYLOAD& data_payload);
+    ResultStatus create(const CreationMode& creation_mode, const CREATE_Payload& create_payload);
+    ResultStatus delete_object(const DELETE_RESOURCE_Payload& delete_payload);
+    ResultStatus update(const ObjectId& object_id, const ObjectVariant& representation);
+    ResultStatus read(const ObjectId& object_id, const READ_DATA_Payload& data_payload);
+    ResultStatus write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload);
     Info get_info(const ObjectId& object_id);
         
     void on_read_data(const ObjectId& object_id, const RequestId& req_id,
@@ -55,7 +54,7 @@ private:
     std::mutex objects_mutex_;
     std::map<InternalObjectId, XRCEObject*> objects_;
         
-    uint32_t client_key;
+    ClientKey client_key;
     SessionId session_id;
     uint8_t stream_id;
 

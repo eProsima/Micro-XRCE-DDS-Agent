@@ -96,18 +96,18 @@ bool DataReader::init()
     return true;
 }
 
-int DataReader::read(const READ_DATA_PAYLOAD& read_data)
+int DataReader::read(const READ_DATA_Payload& read_data)
 {
-    switch(read_data.read_mode())
+    switch(read_data.read_specification().delivery_config()._d())
     {
-        case READM_DATA: break;
-        case READM_SAMPLE: break;
-        case READM_DATA_SEQ: break;
-        case READM_SAMPLE_SEQ: break;
-        case READM_PACKED_SAMPLE_SEQ: break;
-        default: break;
+        case FORMAT_DATA:
+        case FORMAT_DATA_SEQ:
+        case FORMAT_SAMPLE:
+        case FORMAT_SAMPLE_SEQ:
+        case FORMAT_PACKED_SAMPLES:
+        default:
+            break;
     }
-
 
     if (!m_read_thread.joinable())
     {
@@ -123,7 +123,7 @@ int DataReader::read(const READ_DATA_PAYLOAD& read_data)
     return 0;
 }
 
-int DataReader::start_read(const READ_DATA_PAYLOAD& read_data)
+int DataReader::start_read(const READ_DATA_Payload& read_data)
 {
     //std::cout << "START READ" << std::endl;
     m_running = true;
@@ -142,7 +142,7 @@ int DataReader::stop_read()
     return 0;
 }
 
-//int DataReader::cancel_read(READ_DATA_PAYLOAD &read_data)
+//int DataReader::cancel_read(READ_DATA_Payload &read_data)
 //{
 //    if (m_read_thread.joinable())
 //    {
@@ -152,16 +152,16 @@ int DataReader::stop_read()
 //    return 0;
 //}
 
-void DataReader::read_task(READ_DATA_PAYLOAD read_data)
+void DataReader::read_task(READ_DATA_Payload read_data)
 {
     //std::cout << "Starting read_task..." << std::endl;
     std::unique_lock<std::mutex> lock(m_mutex);
     uint16_t message_count = 0;
-    while(m_running && (0 == read_data.max_messages() || message_count < read_data.max_messages()))
+    while(m_running)
     {
         m_cond_var.wait(lock, [&]{return !m_running || (m_time_expired && m_new_message);});
 
-        std::cout << "Read " << message_count + 1 << "of " << read_data.max_messages() << std::endl;
+        std::cout << "Read " << message_count + 1 << std::endl;
 
         std::vector<unsigned char> buffer;
         if (takeNextData(&buffer))
