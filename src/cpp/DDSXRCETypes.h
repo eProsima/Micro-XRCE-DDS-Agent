@@ -40,20 +40,18 @@ namespace micrortps {
 
 typedef std::array<uint8_t, 4> ClientKey;
 typedef uint8_t ObjectKind;
-enum OBJECTKIND : ObjectKind
-{
-    OBJK_INVALID     = 0x0,
-    OBJK_PARTICIPANT = 0x1,
-    OBJK_TOPIC       = 0x4,
-    OBJK_DATAWRITER  = 0x3,
-    OBJK_DATAREADER  = 0x7,
-    OBJK_SUBSCRIBER  = 0x8,
-    OBJK_PUBLISHER   = 0x9,
-    OBJK_TYPE        = 0x10,
-    OBJK_QOSPROFILE  = 0x11,
-    OBJK_APPLICATION = 0x20,
-    OBJK_CLIENT      = 0x21
-};
+// TODO(borja) Change to enum?
+const eprosima::micrortps::ObjectKind OBJK_INVALID     = 0x0;
+const eprosima::micrortps::ObjectKind OBJK_PARTICIPANT = 0x1;
+const eprosima::micrortps::ObjectKind OBJK_TOPIC       = 0x4;
+const eprosima::micrortps::ObjectKind OBJK_DATAWRITER  = 0x3;
+const eprosima::micrortps::ObjectKind OBJK_DATAREADER  = 0x7;
+const eprosima::micrortps::ObjectKind OBJK_SUBSCRIBER  = 0x8;
+const eprosima::micrortps::ObjectKind OBJK_PUBLISHER   = 0x9;
+const eprosima::micrortps::ObjectKind OBJK_TYPE        = 0x10;
+const eprosima::micrortps::ObjectKind OBJK_QOSPROFILE  = 0x11;
+const eprosima::micrortps::ObjectKind OBJK_APPLICATION = 0x20;
+const eprosima::micrortps::ObjectKind OBJK_CLIENT      = 0x21;
 
 typedef std::array<uint8_t, 2> ObjectId;
 // There are three predefined values ObjectId
