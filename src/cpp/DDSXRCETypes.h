@@ -4483,6 +4483,7 @@ class BaseRequest
 
   private:
     eprosima::micrortps::RequestId m_request_id;
+    // TODO(borja) duplicated on ObjectRequest. It is really necessary here?
     eprosima::micrortps::ObjectId m_object_id;
 };
 /*!
