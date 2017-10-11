@@ -45,19 +45,19 @@ eprosima::micrortps::Time_t::~Time_t()
 {
 }
 
-eprosima::micrortps::Time_t::Time_t(const Time_t &x)
+eprosima::micrortps::Time_t::Time_t(const Time_t& x)
 {
     m_seconds     = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
 }
 
-eprosima::micrortps::Time_t::Time_t(Time_t &&x)
+eprosima::micrortps::Time_t::Time_t(Time_t&& x)
 {
     m_seconds     = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
 }
 
-eprosima::micrortps::Time_t &eprosima::micrortps::Time_t::operator=(const Time_t &x)
+eprosima::micrortps::Time_t& eprosima::micrortps::Time_t::operator=(const Time_t& x)
 {
     m_seconds     = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
@@ -65,7 +65,7 @@ eprosima::micrortps::Time_t &eprosima::micrortps::Time_t::operator=(const Time_t
     return *this;
 }
 
-eprosima::micrortps::Time_t &eprosima::micrortps::Time_t::operator=(Time_t &&x)
+eprosima::micrortps::Time_t& eprosima::micrortps::Time_t::operator=(Time_t&& x)
 {
     m_seconds     = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
@@ -95,13 +95,13 @@ size_t eprosima::micrortps::Time_t::getCdrSerializedSize(size_t current_alignmen
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::Time_t::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::Time_t::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_seconds;
     scdr << m_nanoseconds;
 }
 
-void eprosima::micrortps::Time_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::Time_t::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_seconds;
     dcdr >> m_nanoseconds;
@@ -116,7 +116,7 @@ eprosima::micrortps::OBJK_CLIENT_Representation::~OBJK_CLIENT_Representation()
 {
 }
 
-eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(const OBJK_CLIENT_Representation &x)
+eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(const OBJK_CLIENT_Representation& x)
 {
     m_xrce_cookie      = x.m_xrce_cookie;
     m_xrce_version     = x.m_xrce_version;
@@ -126,7 +126,7 @@ eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(cons
     m_session_id       = x.m_session_id;
 }
 
-eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(OBJK_CLIENT_Representation &&x)
+eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(OBJK_CLIENT_Representation&& x)
 {
     m_xrce_cookie      = std::move(x.m_xrce_cookie);
     m_xrce_version     = std::move(x.m_xrce_version);
@@ -136,8 +136,8 @@ eprosima::micrortps::OBJK_CLIENT_Representation::OBJK_CLIENT_Representation(OBJK
     m_session_id       = x.m_session_id;
 }
 
-eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::OBJK_CLIENT_Representation::
-operator=(const OBJK_CLIENT_Representation &x)
+eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::OBJK_CLIENT_Representation::
+operator=(const OBJK_CLIENT_Representation& x)
 {
     m_xrce_cookie      = x.m_xrce_cookie;
     m_xrce_version     = x.m_xrce_version;
@@ -149,8 +149,8 @@ operator=(const OBJK_CLIENT_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::OBJK_CLIENT_Representation::
-operator=(OBJK_CLIENT_Representation &&x)
+eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::OBJK_CLIENT_Representation::
+operator=(OBJK_CLIENT_Representation&& x)
 {
     m_xrce_cookie      = std::move(x.m_xrce_cookie);
     m_xrce_version     = std::move(x.m_xrce_version);
@@ -194,7 +194,7 @@ size_t eprosima::micrortps::OBJK_CLIENT_Representation::getCdrSerializedSize(siz
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_CLIENT_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_xrce_cookie;
     scdr << m_xrce_version;
@@ -204,7 +204,7 @@ void eprosima::micrortps::OBJK_CLIENT_Representation::serialize(eprosima::fastcd
     scdr << m_session_id;
 }
 
-void eprosima::micrortps::OBJK_CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_xrce_cookie;
     dcdr >> m_xrce_version;
@@ -223,7 +223,7 @@ eprosima::micrortps::OBJK_Representation3Formats::~OBJK_Representation3Formats()
 {
 }
 
-eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(const OBJK_Representation3Formats &x)
+eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(const OBJK_Representation3Formats& x)
 {
     m__d = x.m__d;
 
@@ -243,7 +243,7 @@ eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(co
     }
 }
 
-eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(OBJK_Representation3Formats &&x)
+eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(OBJK_Representation3Formats&& x)
 {
     m__d = x.m__d;
 
@@ -263,8 +263,8 @@ eprosima::micrortps::OBJK_Representation3Formats::OBJK_Representation3Formats(OB
     }
 }
 
-eprosima::micrortps::OBJK_Representation3Formats &eprosima::micrortps::OBJK_Representation3Formats::
-operator=(const OBJK_Representation3Formats &x)
+eprosima::micrortps::OBJK_Representation3Formats& eprosima::micrortps::OBJK_Representation3Formats::
+operator=(const OBJK_Representation3Formats& x)
 {
     m__d = x.m__d;
 
@@ -286,8 +286,8 @@ operator=(const OBJK_Representation3Formats &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_Representation3Formats &eprosima::micrortps::OBJK_Representation3Formats::
-operator=(OBJK_Representation3Formats &&x)
+eprosima::micrortps::OBJK_Representation3Formats& eprosima::micrortps::OBJK_Representation3Formats::
+operator=(OBJK_Representation3Formats&& x)
 {
     m__d = x.m__d;
 
@@ -358,24 +358,24 @@ eprosima::micrortps::RepresentationFormat eprosima::micrortps::OBJK_Representati
     return m__d;
 }
 
-eprosima::micrortps::RepresentationFormat &eprosima::micrortps::OBJK_Representation3Formats::_d()
+eprosima::micrortps::RepresentationFormat& eprosima::micrortps::OBJK_Representation3Formats::_d()
 {
     return m__d;
 }
 
-void eprosima::micrortps::OBJK_Representation3Formats::object_reference(const std::string &_object_reference)
+void eprosima::micrortps::OBJK_Representation3Formats::object_reference(const std::string& _object_reference)
 {
     m_object_reference = _object_reference;
     m__d               = REPRESENTATION_BY_REFERENCE;
 }
 
-void eprosima::micrortps::OBJK_Representation3Formats::object_reference(std::string &&_object_reference)
+void eprosima::micrortps::OBJK_Representation3Formats::object_reference(std::string&& _object_reference)
 {
     m_object_reference = std::move(_object_reference);
     m__d               = REPRESENTATION_BY_REFERENCE;
 }
 
-const std::string &eprosima::micrortps::OBJK_Representation3Formats::object_reference() const
+const std::string& eprosima::micrortps::OBJK_Representation3Formats::object_reference() const
 {
     bool b = false;
 
@@ -393,7 +393,7 @@ const std::string &eprosima::micrortps::OBJK_Representation3Formats::object_refe
     return m_object_reference;
 }
 
-std::string &eprosima::micrortps::OBJK_Representation3Formats::object_reference()
+std::string& eprosima::micrortps::OBJK_Representation3Formats::object_reference()
 {
     bool b = false;
 
@@ -411,20 +411,20 @@ std::string &eprosima::micrortps::OBJK_Representation3Formats::object_reference(
     return m_object_reference;
 }
 void eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation(
-    const std::string &_xml_string_representation)
+    const std::string& _xml_string_representation)
 {
     m_xml_string_representation = _xml_string_representation;
     m__d                        = REPRESENTATION_AS_XML_STRING;
 }
 
 void eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation(
-    std::string &&_xml_string_representation)
+    std::string&& _xml_string_representation)
 {
     m_xml_string_representation = std::move(_xml_string_representation);
     m__d                        = REPRESENTATION_AS_XML_STRING;
 }
 
-const std::string &eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation() const
+const std::string& eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation() const
 {
     bool b = false;
 
@@ -442,7 +442,7 @@ const std::string &eprosima::micrortps::OBJK_Representation3Formats::xml_string_
     return m_xml_string_representation;
 }
 
-std::string &eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation()
+std::string& eprosima::micrortps::OBJK_Representation3Formats::xml_string_representation()
 {
     bool b = false;
 
@@ -460,20 +460,20 @@ std::string &eprosima::micrortps::OBJK_Representation3Formats::xml_string_repres
     return m_xml_string_representation;
 }
 void eprosima::micrortps::OBJK_Representation3Formats::binary_representation(
-    const std::vector<uint8_t> &_binary_representation)
+    const std::vector<uint8_t>& _binary_representation)
 {
     m_binary_representation = _binary_representation;
     m__d                    = REPRESENTATION_IN_BINARY;
 }
 
 void eprosima::micrortps::OBJK_Representation3Formats::binary_representation(
-    std::vector<uint8_t> &&_binary_representation)
+    std::vector<uint8_t>&& _binary_representation)
 {
     m_binary_representation = std::move(_binary_representation);
     m__d                    = REPRESENTATION_IN_BINARY;
 }
 
-const std::vector<uint8_t> &eprosima::micrortps::OBJK_Representation3Formats::binary_representation() const
+const std::vector<uint8_t>& eprosima::micrortps::OBJK_Representation3Formats::binary_representation() const
 {
     bool b = false;
 
@@ -491,7 +491,7 @@ const std::vector<uint8_t> &eprosima::micrortps::OBJK_Representation3Formats::bi
     return m_binary_representation;
 }
 
-std::vector<uint8_t> &eprosima::micrortps::OBJK_Representation3Formats::binary_representation()
+std::vector<uint8_t>& eprosima::micrortps::OBJK_Representation3Formats::binary_representation()
 {
     bool b = false;
 
@@ -556,8 +556,8 @@ size_t eprosima::micrortps::OBJK_Representation3Formats::getCdrSerializedSize(si
                 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_object_reference.size() + 1;
             break;
         case REPRESENTATION_AS_XML_STRING:
-            current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) +
-                                 m_xml_string_representation.size() + 1;
+            current_alignment +=
+                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_xml_string_representation.size() + 1;
             break;
         case REPRESENTATION_IN_BINARY:
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -572,7 +572,7 @@ size_t eprosima::micrortps::OBJK_Representation3Formats::getCdrSerializedSize(si
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Representation3Formats::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Representation3Formats::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -592,7 +592,7 @@ void eprosima::micrortps::OBJK_Representation3Formats::serialize(eprosima::fastc
     }
 }
 
-void eprosima::micrortps::OBJK_Representation3Formats::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Representation3Formats::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
@@ -621,7 +621,7 @@ eprosima::micrortps::OBJK_Representation2Formats::~OBJK_Representation2Formats()
 {
 }
 
-eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(const OBJK_Representation2Formats &x)
+eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(const OBJK_Representation2Formats& x)
 {
     m__d = x.m__d;
 
@@ -638,7 +638,7 @@ eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(co
     }
 }
 
-eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(OBJK_Representation2Formats &&x)
+eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(OBJK_Representation2Formats&& x)
 {
     m__d = x.m__d;
 
@@ -655,8 +655,8 @@ eprosima::micrortps::OBJK_Representation2Formats::OBJK_Representation2Formats(OB
     }
 }
 
-eprosima::micrortps::OBJK_Representation2Formats &eprosima::micrortps::OBJK_Representation2Formats::
-operator=(const OBJK_Representation2Formats &x)
+eprosima::micrortps::OBJK_Representation2Formats& eprosima::micrortps::OBJK_Representation2Formats::
+operator=(const OBJK_Representation2Formats& x)
 {
     m__d = x.m__d;
 
@@ -675,8 +675,8 @@ operator=(const OBJK_Representation2Formats &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_Representation2Formats &eprosima::micrortps::OBJK_Representation2Formats::
-operator=(OBJK_Representation2Formats &&x)
+eprosima::micrortps::OBJK_Representation2Formats& eprosima::micrortps::OBJK_Representation2Formats::
+operator=(OBJK_Representation2Formats&& x)
 {
     m__d = x.m__d;
 
@@ -734,24 +734,24 @@ eprosima::micrortps::RepresentationFormat eprosima::micrortps::OBJK_Representati
     return m__d;
 }
 
-eprosima::micrortps::RepresentationFormat &eprosima::micrortps::OBJK_Representation2Formats::_d()
+eprosima::micrortps::RepresentationFormat& eprosima::micrortps::OBJK_Representation2Formats::_d()
 {
     return m__d;
 }
 
-void eprosima::micrortps::OBJK_Representation2Formats::object_name(const std::string &_object_name)
+void eprosima::micrortps::OBJK_Representation2Formats::object_name(const std::string& _object_name)
 {
     m_object_name = _object_name;
     m__d          = REPRESENTATION_BY_REFERENCE;
 }
 
-void eprosima::micrortps::OBJK_Representation2Formats::object_name(std::string &&_object_name)
+void eprosima::micrortps::OBJK_Representation2Formats::object_name(std::string&& _object_name)
 {
     m_object_name = std::move(_object_name);
     m__d          = REPRESENTATION_BY_REFERENCE;
 }
 
-const std::string &eprosima::micrortps::OBJK_Representation2Formats::object_name() const
+const std::string& eprosima::micrortps::OBJK_Representation2Formats::object_name() const
 {
     bool b = false;
 
@@ -769,7 +769,7 @@ const std::string &eprosima::micrortps::OBJK_Representation2Formats::object_name
     return m_object_name;
 }
 
-std::string &eprosima::micrortps::OBJK_Representation2Formats::object_name()
+std::string& eprosima::micrortps::OBJK_Representation2Formats::object_name()
 {
     bool b = false;
 
@@ -786,19 +786,19 @@ std::string &eprosima::micrortps::OBJK_Representation2Formats::object_name()
 
     return m_object_name;
 }
-void eprosima::micrortps::OBJK_Representation2Formats::string_representation(const std::string &_string_representation)
+void eprosima::micrortps::OBJK_Representation2Formats::string_representation(const std::string& _string_representation)
 {
     m_string_representation = _string_representation;
     m__d                    = REPRESENTATION_AS_XML_STRING;
 }
 
-void eprosima::micrortps::OBJK_Representation2Formats::string_representation(std::string &&_string_representation)
+void eprosima::micrortps::OBJK_Representation2Formats::string_representation(std::string&& _string_representation)
 {
     m_string_representation = std::move(_string_representation);
     m__d                    = REPRESENTATION_AS_XML_STRING;
 }
 
-const std::string &eprosima::micrortps::OBJK_Representation2Formats::string_representation() const
+const std::string& eprosima::micrortps::OBJK_Representation2Formats::string_representation() const
 {
     bool b = false;
 
@@ -816,7 +816,7 @@ const std::string &eprosima::micrortps::OBJK_Representation2Formats::string_repr
     return m_string_representation;
 }
 
-std::string &eprosima::micrortps::OBJK_Representation2Formats::string_representation()
+std::string& eprosima::micrortps::OBJK_Representation2Formats::string_representation()
 {
     bool b = false;
 
@@ -869,8 +869,7 @@ size_t eprosima::micrortps::OBJK_Representation2Formats::getCdrSerializedSize(si
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
-            current_alignment +=
-                4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_object_name.size() + 1;
+            current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_object_name.size() + 1;
             break;
         case REPRESENTATION_AS_XML_STRING:
             current_alignment +=
@@ -883,7 +882,7 @@ size_t eprosima::micrortps::OBJK_Representation2Formats::getCdrSerializedSize(si
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Representation2Formats::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Representation2Formats::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -900,7 +899,7 @@ void eprosima::micrortps::OBJK_Representation2Formats::serialize(eprosima::fastc
     }
 }
 
-void eprosima::micrortps::OBJK_Representation2Formats::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Representation2Formats::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
@@ -925,26 +924,26 @@ eprosima::micrortps::OBJK_Representation2_Base::~OBJK_Representation2_Base()
 {
 }
 
-eprosima::micrortps::OBJK_Representation2_Base::OBJK_Representation2_Base(const OBJK_Representation2_Base &x)
+eprosima::micrortps::OBJK_Representation2_Base::OBJK_Representation2_Base(const OBJK_Representation2_Base& x)
 {
     m_representation = x.m_representation;
 }
 
-eprosima::micrortps::OBJK_Representation2_Base::OBJK_Representation2_Base(OBJK_Representation2_Base &&x)
+eprosima::micrortps::OBJK_Representation2_Base::OBJK_Representation2_Base(OBJK_Representation2_Base&& x)
 {
     m_representation = std::move(x.m_representation);
 }
 
-eprosima::micrortps::OBJK_Representation2_Base &eprosima::micrortps::OBJK_Representation2_Base::
-operator=(const OBJK_Representation2_Base &x)
+eprosima::micrortps::OBJK_Representation2_Base& eprosima::micrortps::OBJK_Representation2_Base::
+operator=(const OBJK_Representation2_Base& x)
 {
     m_representation = x.m_representation;
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_Representation2_Base &eprosima::micrortps::OBJK_Representation2_Base::
-operator=(OBJK_Representation2_Base &&x)
+eprosima::micrortps::OBJK_Representation2_Base& eprosima::micrortps::OBJK_Representation2_Base::
+operator=(OBJK_Representation2_Base&& x)
 {
     m_representation = std::move(x.m_representation);
 
@@ -969,12 +968,12 @@ size_t eprosima::micrortps::OBJK_Representation2_Base::getCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Representation2_Base::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Representation2_Base::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_representation;
 }
 
-void eprosima::micrortps::OBJK_Representation2_Base::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Representation2_Base::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_representation;
 }
@@ -987,26 +986,26 @@ eprosima::micrortps::OBJK_Representation3_Base::~OBJK_Representation3_Base()
 {
 }
 
-eprosima::micrortps::OBJK_Representation3_Base::OBJK_Representation3_Base(const OBJK_Representation3_Base &x)
+eprosima::micrortps::OBJK_Representation3_Base::OBJK_Representation3_Base(const OBJK_Representation3_Base& x)
 {
     m_representation = x.m_representation;
 }
 
-eprosima::micrortps::OBJK_Representation3_Base::OBJK_Representation3_Base(OBJK_Representation3_Base &&x)
+eprosima::micrortps::OBJK_Representation3_Base::OBJK_Representation3_Base(OBJK_Representation3_Base&& x)
 {
     m_representation = std::move(x.m_representation);
 }
 
-eprosima::micrortps::OBJK_Representation3_Base &eprosima::micrortps::OBJK_Representation3_Base::
-operator=(const OBJK_Representation3_Base &x)
+eprosima::micrortps::OBJK_Representation3_Base& eprosima::micrortps::OBJK_Representation3_Base::
+operator=(const OBJK_Representation3_Base& x)
 {
     m_representation = x.m_representation;
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_Representation3_Base &eprosima::micrortps::OBJK_Representation3_Base::
-operator=(OBJK_Representation3_Base &&x)
+eprosima::micrortps::OBJK_Representation3_Base& eprosima::micrortps::OBJK_Representation3_Base::
+operator=(OBJK_Representation3_Base&& x)
 {
     m_representation = std::move(x.m_representation);
 
@@ -1031,12 +1030,12 @@ size_t eprosima::micrortps::OBJK_Representation3_Base::getCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Representation3_Base::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Representation3_Base::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_representation;
 }
 
-void eprosima::micrortps::OBJK_Representation3_Base::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Representation3_Base::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_representation;
 }
@@ -1050,25 +1049,25 @@ eprosima::micrortps::OBJK_QOSPROFILE_Representation::~OBJK_QOSPROFILE_Representa
 }
 
 eprosima::micrortps::OBJK_QOSPROFILE_Representation::OBJK_QOSPROFILE_Representation(
-    const OBJK_QOSPROFILE_Representation &x)
+    const OBJK_QOSPROFILE_Representation& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
-eprosima::micrortps::OBJK_QOSPROFILE_Representation::OBJK_QOSPROFILE_Representation(OBJK_QOSPROFILE_Representation &&x)
+eprosima::micrortps::OBJK_QOSPROFILE_Representation::OBJK_QOSPROFILE_Representation(OBJK_QOSPROFILE_Representation&& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
-eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::OBJK_QOSPROFILE_Representation::
-operator=(const OBJK_QOSPROFILE_Representation &x)
+eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::OBJK_QOSPROFILE_Representation::
+operator=(const OBJK_QOSPROFILE_Representation& x)
 {
     OBJK_Representation2_Base::operator=(x);
     return *this;
 }
 
-eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::OBJK_QOSPROFILE_Representation::
-operator=(OBJK_QOSPROFILE_Representation &&x)
+eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::OBJK_QOSPROFILE_Representation::
+operator=(OBJK_QOSPROFILE_Representation&& x)
 {
     OBJK_Representation2_Base::operator=(x);
     return *this;
@@ -1092,12 +1091,12 @@ size_t eprosima::micrortps::OBJK_QOSPROFILE_Representation::getCdrSerializedSize
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_QOSPROFILE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_QOSPROFILE_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     eprosima::micrortps::OBJK_Representation2_Base::serialize(scdr);
 }
 
-void eprosima::micrortps::OBJK_QOSPROFILE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_QOSPROFILE_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     eprosima::micrortps::OBJK_Representation2_Base::deserialize(dcdr);
 }
@@ -1112,27 +1111,27 @@ eprosima::micrortps::OBJK_APPLICATION_Representation::~OBJK_APPLICATION_Represen
 }
 
 eprosima::micrortps::OBJK_APPLICATION_Representation::OBJK_APPLICATION_Representation(
-    const OBJK_APPLICATION_Representation &x)
+    const OBJK_APPLICATION_Representation& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
 eprosima::micrortps::OBJK_APPLICATION_Representation::OBJK_APPLICATION_Representation(
-    OBJK_APPLICATION_Representation &&x)
+    OBJK_APPLICATION_Representation&& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
-eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps::OBJK_APPLICATION_Representation::
-operator=(const OBJK_APPLICATION_Representation &x)
+eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::OBJK_APPLICATION_Representation::
+operator=(const OBJK_APPLICATION_Representation& x)
 {
     OBJK_Representation2_Base::operator=(x);
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps::OBJK_APPLICATION_Representation::
-operator=(OBJK_APPLICATION_Representation &&x)
+eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::OBJK_APPLICATION_Representation::
+operator=(OBJK_APPLICATION_Representation&& x)
 {
     OBJK_Representation2_Base::operator=(x);
 
@@ -1157,12 +1156,12 @@ size_t eprosima::micrortps::OBJK_APPLICATION_Representation::getCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     eprosima::micrortps::OBJK_Representation2_Base::serialize(scdr);
 }
 
-void eprosima::micrortps::OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     eprosima::micrortps::OBJK_Representation2_Base::deserialize(dcdr);
 }
@@ -1176,27 +1175,27 @@ eprosima::micrortps::OBJK_PARTICIPANT_Representation::~OBJK_PARTICIPANT_Represen
 }
 
 eprosima::micrortps::OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation(
-    const OBJK_PARTICIPANT_Representation &x)
+    const OBJK_PARTICIPANT_Representation& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
 eprosima::micrortps::OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation(
-    OBJK_PARTICIPANT_Representation &&x)
+    OBJK_PARTICIPANT_Representation&& x)
     : OBJK_Representation2_Base(x)
 {
 }
 
-eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps::OBJK_PARTICIPANT_Representation::
-operator=(const OBJK_PARTICIPANT_Representation &x)
+eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::OBJK_PARTICIPANT_Representation::
+operator=(const OBJK_PARTICIPANT_Representation& x)
 {
     OBJK_Representation2_Base::operator=(x);
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps::OBJK_PARTICIPANT_Representation::
-operator=(OBJK_PARTICIPANT_Representation &&x)
+eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::OBJK_PARTICIPANT_Representation::
+operator=(OBJK_PARTICIPANT_Representation&& x)
 {
     OBJK_Representation2_Base::operator=(x);
 
@@ -1221,12 +1220,12 @@ size_t eprosima::micrortps::OBJK_PARTICIPANT_Representation::getCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_PARTICIPANT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_PARTICIPANT_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation2_Base::serialize(scdr);
 }
 
-void eprosima::micrortps::OBJK_PARTICIPANT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_PARTICIPANT_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation2_Base::deserialize(dcdr);
 }
@@ -1239,22 +1238,22 @@ eprosima::micrortps::OBJK_TYPE_Representation::~OBJK_TYPE_Representation()
 {
 }
 
-eprosima::micrortps::OBJK_TYPE_Representation::OBJK_TYPE_Representation(const OBJK_TYPE_Representation &x)
+eprosima::micrortps::OBJK_TYPE_Representation::OBJK_TYPE_Representation(const OBJK_TYPE_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id       = x.m_participant_id;
     m_registered_type_name = x.m_registered_type_name;
 }
 
-eprosima::micrortps::OBJK_TYPE_Representation::OBJK_TYPE_Representation(OBJK_TYPE_Representation &&x)
+eprosima::micrortps::OBJK_TYPE_Representation::OBJK_TYPE_Representation(OBJK_TYPE_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id       = std::move(x.m_participant_id);
     m_registered_type_name = std::move(x.m_registered_type_name);
 }
 
-eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::OBJK_TYPE_Representation::
-operator=(const OBJK_TYPE_Representation &x)
+eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::OBJK_TYPE_Representation::
+operator=(const OBJK_TYPE_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1263,8 +1262,8 @@ operator=(const OBJK_TYPE_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::OBJK_TYPE_Representation::
-operator=(OBJK_TYPE_Representation &&x)
+eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::OBJK_TYPE_Representation::
+operator=(OBJK_TYPE_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1297,14 +1296,14 @@ size_t eprosima::micrortps::OBJK_TYPE_Representation::getCdrSerializedSize(size_
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_TYPE_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_TYPE_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     eprosima::micrortps::OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
     scdr << m_registered_type_name;
 }
 
-void eprosima::micrortps::OBJK_TYPE_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_TYPE_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     eprosima::micrortps::OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1318,20 +1317,20 @@ eprosima::micrortps::OBJK_TOPIC_Representation::~OBJK_TOPIC_Representation()
 {
 }
 
-eprosima::micrortps::OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(const OBJK_TOPIC_Representation &x)
+eprosima::micrortps::OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(const OBJK_TOPIC_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = x.m_participant_id;
 }
 
-eprosima::micrortps::OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(OBJK_TOPIC_Representation &&x)
+eprosima::micrortps::OBJK_TOPIC_Representation::OBJK_TOPIC_Representation(OBJK_TOPIC_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = std::move(x.m_participant_id);
 }
 
-eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::OBJK_TOPIC_Representation::
-operator=(const OBJK_TOPIC_Representation &x)
+eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::OBJK_TOPIC_Representation::
+operator=(const OBJK_TOPIC_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1339,8 +1338,8 @@ operator=(const OBJK_TOPIC_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::OBJK_TOPIC_Representation::
-operator=(OBJK_TOPIC_Representation &&x)
+eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::OBJK_TOPIC_Representation::
+operator=(OBJK_TOPIC_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1368,13 +1367,13 @@ size_t eprosima::micrortps::OBJK_TOPIC_Representation::getCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_TOPIC_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_TOPIC_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
 }
 
-void eprosima::micrortps::OBJK_TOPIC_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_TOPIC_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1388,20 +1387,21 @@ eprosima::micrortps::OBJK_PUBLISHER_Representation::~OBJK_PUBLISHER_Representati
 {
 }
 
-eprosima::micrortps::OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(const OBJK_PUBLISHER_Representation &x)
+eprosima::micrortps::OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(
+    const OBJK_PUBLISHER_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = x.m_participant_id;
 }
 
-eprosima::micrortps::OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(OBJK_PUBLISHER_Representation &&x)
+eprosima::micrortps::OBJK_PUBLISHER_Representation::OBJK_PUBLISHER_Representation(OBJK_PUBLISHER_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = std::move(x.m_participant_id);
 }
 
-eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::OBJK_PUBLISHER_Representation::
-operator=(const OBJK_PUBLISHER_Representation &x)
+eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::OBJK_PUBLISHER_Representation::
+operator=(const OBJK_PUBLISHER_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1409,8 +1409,8 @@ operator=(const OBJK_PUBLISHER_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::OBJK_PUBLISHER_Representation::
-operator=(OBJK_PUBLISHER_Representation &&x)
+eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::OBJK_PUBLISHER_Representation::
+operator=(OBJK_PUBLISHER_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1438,13 +1438,13 @@ size_t eprosima::micrortps::OBJK_PUBLISHER_Representation::getCdrSerializedSize(
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_PUBLISHER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_PUBLISHER_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
 }
 
-void eprosima::micrortps::OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_PUBLISHER_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1458,20 +1458,21 @@ eprosima::micrortps::OBJK_SUBSCRIBER_Representation::~OBJK_SUBSCRIBER_Representa
 {
 }
 
-eprosima::micrortps::OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(const OBJK_SUBSCRIBER_Representation &x)
+eprosima::micrortps::OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(
+    const OBJK_SUBSCRIBER_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = x.m_participant_id;
 }
 
-eprosima::micrortps::OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(OBJK_SUBSCRIBER_Representation &&x)
+eprosima::micrortps::OBJK_SUBSCRIBER_Representation::OBJK_SUBSCRIBER_Representation(OBJK_SUBSCRIBER_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = std::move(x.m_participant_id);
 }
 
-eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::OBJK_SUBSCRIBER_Representation::
-operator=(const OBJK_SUBSCRIBER_Representation &x)
+eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::OBJK_SUBSCRIBER_Representation::
+operator=(const OBJK_SUBSCRIBER_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1479,8 +1480,8 @@ operator=(const OBJK_SUBSCRIBER_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::OBJK_SUBSCRIBER_Representation::
-operator=(OBJK_SUBSCRIBER_Representation &&x)
+eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::OBJK_SUBSCRIBER_Representation::
+operator=(OBJK_SUBSCRIBER_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1508,13 +1509,13 @@ size_t eprosima::micrortps::OBJK_SUBSCRIBER_Representation::getCdrSerializedSize
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_SUBSCRIBER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_SUBSCRIBER_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
 }
 
-void eprosima::micrortps::OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_SUBSCRIBER_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1528,22 +1529,24 @@ eprosima::micrortps::OBJK_DATA_WRITER_Representation::~OBJK_DATA_WRITER_Represen
 {
 }
 
-eprosima::micrortps::OBJK_DATA_WRITER_Representation::OBJK_DATA_WRITER_Representation(const OBJK_DATA_WRITER_Representation &x)
+eprosima::micrortps::OBJK_DATA_WRITER_Representation::OBJK_DATA_WRITER_Representation(
+    const OBJK_DATA_WRITER_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = x.m_participant_id;
     m_publisher_id   = x.m_publisher_id;
 }
 
-eprosima::micrortps::OBJK_DATA_WRITER_Representation::OBJK_DATA_WRITER_Representation(OBJK_DATA_WRITER_Representation &&x)
+eprosima::micrortps::OBJK_DATA_WRITER_Representation::OBJK_DATA_WRITER_Representation(
+    OBJK_DATA_WRITER_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = std::move(x.m_participant_id);
     m_publisher_id   = std::move(x.m_publisher_id);
 }
 
-eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps::OBJK_DATA_WRITER_Representation::
-operator=(const OBJK_DATA_WRITER_Representation &x)
+eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::OBJK_DATA_WRITER_Representation::
+operator=(const OBJK_DATA_WRITER_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1552,8 +1555,8 @@ operator=(const OBJK_DATA_WRITER_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps::OBJK_DATA_WRITER_Representation::
-operator=(OBJK_DATA_WRITER_Representation &&x)
+eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::OBJK_DATA_WRITER_Representation::
+operator=(OBJK_DATA_WRITER_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1585,14 +1588,14 @@ size_t eprosima::micrortps::OBJK_DATA_WRITER_Representation::getCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DATA_WRITER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DATA_WRITER_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
     scdr << m_publisher_id;
 }
 
-void eprosima::micrortps::OBJK_DATA_WRITER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DATA_WRITER_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1607,22 +1610,24 @@ eprosima::micrortps::OBJK_DATA_READER_Representation::~OBJK_DATA_READER_Represen
 {
 }
 
-eprosima::micrortps::OBJK_DATA_READER_Representation::OBJK_DATA_READER_Representation(const OBJK_DATA_READER_Representation &x)
+eprosima::micrortps::OBJK_DATA_READER_Representation::OBJK_DATA_READER_Representation(
+    const OBJK_DATA_READER_Representation& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = x.m_participant_id;
     m_subscriber_id  = x.m_subscriber_id;
 }
 
-eprosima::micrortps::OBJK_DATA_READER_Representation::OBJK_DATA_READER_Representation(OBJK_DATA_READER_Representation &&x)
+eprosima::micrortps::OBJK_DATA_READER_Representation::OBJK_DATA_READER_Representation(
+    OBJK_DATA_READER_Representation&& x)
     : OBJK_Representation3_Base(x)
 {
     m_participant_id = std::move(x.m_participant_id);
     m_subscriber_id  = std::move(x.m_subscriber_id);
 }
 
-eprosima::micrortps::OBJK_DATA_READER_Representation &eprosima::micrortps::OBJK_DATA_READER_Representation::
-operator=(const OBJK_DATA_READER_Representation &x)
+eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::OBJK_DATA_READER_Representation::
+operator=(const OBJK_DATA_READER_Representation& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = x.m_participant_id;
@@ -1631,8 +1636,8 @@ operator=(const OBJK_DATA_READER_Representation &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_DATA_READER_Representation &eprosima::micrortps::OBJK_DATA_READER_Representation::
-operator=(OBJK_DATA_READER_Representation &&x)
+eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::OBJK_DATA_READER_Representation::
+operator=(OBJK_DATA_READER_Representation&& x)
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id                   = std::move(x.m_participant_id);
@@ -1664,14 +1669,14 @@ size_t eprosima::micrortps::OBJK_DATA_READER_Representation::getCdrSerializedSiz
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DATA_READER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DATA_READER_Representation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     OBJK_Representation3_Base::serialize(scdr);
     scdr << m_participant_id;
     scdr << m_subscriber_id;
 }
 
-void eprosima::micrortps::OBJK_DATA_READER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DATA_READER_Representation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_participant_id;
@@ -1686,24 +1691,24 @@ eprosima::micrortps::OBJK_Type_Binary::~OBJK_Type_Binary()
 {
 }
 
-eprosima::micrortps::OBJK_Type_Binary::OBJK_Type_Binary(const OBJK_Type_Binary &x)
+eprosima::micrortps::OBJK_Type_Binary::OBJK_Type_Binary(const OBJK_Type_Binary& x)
 {
     m_type_name = x.m_type_name;
 }
 
-eprosima::micrortps::OBJK_Type_Binary::OBJK_Type_Binary(OBJK_Type_Binary &&x)
+eprosima::micrortps::OBJK_Type_Binary::OBJK_Type_Binary(OBJK_Type_Binary&& x)
 {
     m_type_name = std::move(x.m_type_name);
 }
 
-eprosima::micrortps::OBJK_Type_Binary &eprosima::micrortps::OBJK_Type_Binary::operator=(const OBJK_Type_Binary &x)
+eprosima::micrortps::OBJK_Type_Binary& eprosima::micrortps::OBJK_Type_Binary::operator=(const OBJK_Type_Binary& x)
 {
     m_type_name = x.m_type_name;
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_Type_Binary &eprosima::micrortps::OBJK_Type_Binary::operator=(OBJK_Type_Binary &&x)
+eprosima::micrortps::OBJK_Type_Binary& eprosima::micrortps::OBJK_Type_Binary::operator=(OBJK_Type_Binary&& x)
 {
     m_type_name = std::move(x.m_type_name);
 
@@ -1728,12 +1733,12 @@ size_t eprosima::micrortps::OBJK_Type_Binary::getCdrSerializedSize(size_t curren
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Type_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Type_Binary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_type_name;
 }
 
-void eprosima::micrortps::OBJK_Type_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Type_Binary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_type_name;
 }
@@ -1746,20 +1751,20 @@ eprosima::micrortps::OBJK_Topic_QosBinary::~OBJK_Topic_QosBinary()
 {
 }
 
-eprosima::micrortps::OBJK_Topic_QosBinary::OBJK_Topic_QosBinary(const OBJK_Topic_QosBinary &x)
+eprosima::micrortps::OBJK_Topic_QosBinary::OBJK_Topic_QosBinary(const OBJK_Topic_QosBinary& x)
 {
     m_topic_name = x.m_topic_name;
     m_type_name  = x.m_type_name;
 }
 
-eprosima::micrortps::OBJK_Topic_QosBinary::OBJK_Topic_QosBinary(OBJK_Topic_QosBinary &&x)
+eprosima::micrortps::OBJK_Topic_QosBinary::OBJK_Topic_QosBinary(OBJK_Topic_QosBinary&& x)
 {
     m_topic_name = std::move(x.m_topic_name);
     m_type_name  = std::move(x.m_type_name);
 }
 
-eprosima::micrortps::OBJK_Topic_QosBinary &eprosima::micrortps::OBJK_Topic_QosBinary::
-operator=(const OBJK_Topic_QosBinary &x)
+eprosima::micrortps::OBJK_Topic_QosBinary& eprosima::micrortps::OBJK_Topic_QosBinary::
+operator=(const OBJK_Topic_QosBinary& x)
 {
     m_topic_name = x.m_topic_name;
     m_type_name  = x.m_type_name;
@@ -1767,8 +1772,8 @@ operator=(const OBJK_Topic_QosBinary &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_Topic_QosBinary &eprosima::micrortps::OBJK_Topic_QosBinary::
-operator=(OBJK_Topic_QosBinary &&x)
+eprosima::micrortps::OBJK_Topic_QosBinary& eprosima::micrortps::OBJK_Topic_QosBinary::
+operator=(OBJK_Topic_QosBinary&& x)
 {
     m_topic_name = std::move(x.m_topic_name);
     m_type_name  = std::move(x.m_type_name);
@@ -1787,8 +1792,7 @@ size_t eprosima::micrortps::OBJK_Topic_QosBinary::getMaxCdrSerializedSize(size_t
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::OBJK_Topic_QosBinary::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::OBJK_Topic_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -1799,13 +1803,13 @@ eprosima::micrortps::OBJK_Topic_QosBinary::getCdrSerializedSize(size_t current_a
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Topic_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Topic_QosBinary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_topic_name;
     scdr << m_type_name;
 }
 
-void eprosima::micrortps::OBJK_Topic_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Topic_QosBinary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_topic_name;
     dcdr >> m_type_name;
@@ -1819,19 +1823,19 @@ eprosima::micrortps::OBJK_PUB_QosBinary::~OBJK_PUB_QosBinary()
 {
 }
 
-eprosima::micrortps::OBJK_PUB_QosBinary::OBJK_PUB_QosBinary(const OBJK_PUB_QosBinary &x)
+eprosima::micrortps::OBJK_PUB_QosBinary::OBJK_PUB_QosBinary(const OBJK_PUB_QosBinary& x)
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
 }
 
-eprosima::micrortps::OBJK_PUB_QosBinary::OBJK_PUB_QosBinary(OBJK_PUB_QosBinary &&x)
+eprosima::micrortps::OBJK_PUB_QosBinary::OBJK_PUB_QosBinary(OBJK_PUB_QosBinary&& x)
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
 }
 
-eprosima::micrortps::OBJK_PUB_QosBinary &eprosima::micrortps::OBJK_PUB_QosBinary::operator=(const OBJK_PUB_QosBinary &x)
+eprosima::micrortps::OBJK_PUB_QosBinary& eprosima::micrortps::OBJK_PUB_QosBinary::operator=(const OBJK_PUB_QosBinary& x)
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
@@ -1839,7 +1843,7 @@ eprosima::micrortps::OBJK_PUB_QosBinary &eprosima::micrortps::OBJK_PUB_QosBinary
     return *this;
 }
 
-eprosima::micrortps::OBJK_PUB_QosBinary &eprosima::micrortps::OBJK_PUB_QosBinary::operator=(OBJK_PUB_QosBinary &&x)
+eprosima::micrortps::OBJK_PUB_QosBinary& eprosima::micrortps::OBJK_PUB_QosBinary::operator=(OBJK_PUB_QosBinary&& x)
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
@@ -1862,8 +1866,7 @@ size_t eprosima::micrortps::OBJK_PUB_QosBinary::getMaxCdrSerializedSize(size_t c
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::OBJK_PUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::OBJK_PUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -1879,13 +1882,13 @@ eprosima::micrortps::OBJK_PUB_QosBinary::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_PUB_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_PUB_QosBinary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_partitions;
     scdr << m_group_data;
 }
 
-void eprosima::micrortps::OBJK_PUB_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_PUB_QosBinary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_partitions;
     dcdr >> m_group_data;
@@ -1899,19 +1902,19 @@ eprosima::micrortps::OBJK_SUB_QosBinary::~OBJK_SUB_QosBinary()
 {
 }
 
-eprosima::micrortps::OBJK_SUB_QosBinary::OBJK_SUB_QosBinary(const OBJK_SUB_QosBinary &x)
+eprosima::micrortps::OBJK_SUB_QosBinary::OBJK_SUB_QosBinary(const OBJK_SUB_QosBinary& x)
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
 }
 
-eprosima::micrortps::OBJK_SUB_QosBinary::OBJK_SUB_QosBinary(OBJK_SUB_QosBinary &&x)
+eprosima::micrortps::OBJK_SUB_QosBinary::OBJK_SUB_QosBinary(OBJK_SUB_QosBinary&& x)
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
 }
 
-eprosima::micrortps::OBJK_SUB_QosBinary &eprosima::micrortps::OBJK_SUB_QosBinary::operator=(const OBJK_SUB_QosBinary &x)
+eprosima::micrortps::OBJK_SUB_QosBinary& eprosima::micrortps::OBJK_SUB_QosBinary::operator=(const OBJK_SUB_QosBinary& x)
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
@@ -1919,7 +1922,7 @@ eprosima::micrortps::OBJK_SUB_QosBinary &eprosima::micrortps::OBJK_SUB_QosBinary
     return *this;
 }
 
-eprosima::micrortps::OBJK_SUB_QosBinary &eprosima::micrortps::OBJK_SUB_QosBinary::operator=(OBJK_SUB_QosBinary &&x)
+eprosima::micrortps::OBJK_SUB_QosBinary& eprosima::micrortps::OBJK_SUB_QosBinary::operator=(OBJK_SUB_QosBinary&& x)
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
@@ -1942,8 +1945,7 @@ size_t eprosima::micrortps::OBJK_SUB_QosBinary::getMaxCdrSerializedSize(size_t c
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::OBJK_SUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::OBJK_SUB_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -1959,13 +1961,13 @@ eprosima::micrortps::OBJK_SUB_QosBinary::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_SUB_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_SUB_QosBinary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_partitions;
     scdr << m_group_data;
 }
 
-void eprosima::micrortps::OBJK_SUB_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_SUB_QosBinary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_partitions;
     dcdr >> m_group_data;
@@ -1983,7 +1985,7 @@ eprosima::micrortps::OBJK_Endpoint_QosBinary::~OBJK_Endpoint_QosBinary()
 {
 }
 
-eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(const OBJK_Endpoint_QosBinary &x)
+eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(const OBJK_Endpoint_QosBinary& x)
 {
     m_qos_flags     = x.m_qos_flags;
     m_history_depth = x.m_history_depth;
@@ -1992,7 +1994,7 @@ eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(const OBJK
     m_user_data     = x.m_user_data;
 }
 
-eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(OBJK_Endpoint_QosBinary &&x)
+eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(OBJK_Endpoint_QosBinary&& x)
 {
     m_qos_flags     = x.m_qos_flags;
     m_history_depth = x.m_history_depth;
@@ -2001,8 +2003,8 @@ eprosima::micrortps::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary(OBJK_Endpo
     m_user_data     = std::move(x.m_user_data);
 }
 
-eprosima::micrortps::OBJK_Endpoint_QosBinary &eprosima::micrortps::OBJK_Endpoint_QosBinary::
-operator=(const OBJK_Endpoint_QosBinary &x)
+eprosima::micrortps::OBJK_Endpoint_QosBinary& eprosima::micrortps::OBJK_Endpoint_QosBinary::
+operator=(const OBJK_Endpoint_QosBinary& x)
 {
     m_qos_flags     = x.m_qos_flags;
     m_history_depth = x.m_history_depth;
@@ -2013,8 +2015,8 @@ operator=(const OBJK_Endpoint_QosBinary &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_Endpoint_QosBinary &eprosima::micrortps::OBJK_Endpoint_QosBinary::
-operator=(OBJK_Endpoint_QosBinary &&x)
+eprosima::micrortps::OBJK_Endpoint_QosBinary& eprosima::micrortps::OBJK_Endpoint_QosBinary::
+operator=(OBJK_Endpoint_QosBinary&& x)
 {
     m_qos_flags     = x.m_qos_flags;
     m_history_depth = x.m_history_depth;
@@ -2061,7 +2063,7 @@ size_t eprosima::micrortps::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << (uint32_t)m_qos_flags;
     scdr << m_history_depth;
@@ -2070,9 +2072,9 @@ void eprosima::micrortps::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::
     scdr << m_user_data;
 }
 
-void eprosima::micrortps::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> (uint32_t &)m_qos_flags;
+    dcdr >> (uint32_t&)m_qos_flags;
     dcdr >> m_history_depth;
     dcdr >> m_deadline_msec;
     dcdr >> m_lifespan_msec;
@@ -2089,7 +2091,7 @@ eprosima::micrortps::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
 {
 }
 
-eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(const OBJK_DataReader_Binary &x)
+eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(const OBJK_DataReader_Binary& x)
 {
     m_topic_name           = x.m_topic_name;
     m_endpoint_qos         = x.m_endpoint_qos;
@@ -2097,7 +2099,7 @@ eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(const OBJK_D
     m_contentbased_filter  = x.m_contentbased_filter;
 }
 
-eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(OBJK_DataReader_Binary &&x)
+eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(OBJK_DataReader_Binary&& x)
 {
     m_topic_name           = std::move(x.m_topic_name);
     m_endpoint_qos         = std::move(x.m_endpoint_qos);
@@ -2105,8 +2107,8 @@ eprosima::micrortps::OBJK_DataReader_Binary::OBJK_DataReader_Binary(OBJK_DataRea
     m_contentbased_filter  = std::move(x.m_contentbased_filter);
 }
 
-eprosima::micrortps::OBJK_DataReader_Binary &eprosima::micrortps::OBJK_DataReader_Binary::
-operator=(const OBJK_DataReader_Binary &x)
+eprosima::micrortps::OBJK_DataReader_Binary& eprosima::micrortps::OBJK_DataReader_Binary::
+operator=(const OBJK_DataReader_Binary& x)
 {
     m_topic_name           = x.m_topic_name;
     m_endpoint_qos         = x.m_endpoint_qos;
@@ -2116,8 +2118,8 @@ operator=(const OBJK_DataReader_Binary &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_DataReader_Binary &eprosima::micrortps::OBJK_DataReader_Binary::
-operator=(OBJK_DataReader_Binary &&x)
+eprosima::micrortps::OBJK_DataReader_Binary& eprosima::micrortps::OBJK_DataReader_Binary::
+operator=(OBJK_DataReader_Binary&& x)
 {
     m_topic_name           = std::move(x.m_topic_name);
     m_endpoint_qos         = std::move(x.m_endpoint_qos);
@@ -2150,13 +2152,12 @@ size_t eprosima::micrortps::OBJK_DataReader_Binary::getCdrSerializedSize(size_t 
     current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
-    current_alignment +=
-        4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_contentbased_filter.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_contentbased_filter.size() + 1;
 
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DataReader_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DataReader_Binary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_topic_name;
     scdr << m_endpoint_qos;
@@ -2164,7 +2165,7 @@ void eprosima::micrortps::OBJK_DataReader_Binary::serialize(eprosima::fastcdr::C
     scdr << m_contentbased_filter;
 }
 
-void eprosima::micrortps::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_topic_name;
     dcdr >> m_endpoint_qos;
@@ -2182,22 +2183,22 @@ eprosima::micrortps::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
 {
 }
 
-eprosima::micrortps::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary &x)
+eprosima::micrortps::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary& x)
 {
     m_topic_name         = x.m_topic_name;
     m_endpoint_qos       = x.m_endpoint_qos;
     m_ownership_strength = x.m_ownership_strength;
 }
 
-eprosima::micrortps::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(OBJK_DataWriter_Binary &&x)
+eprosima::micrortps::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(OBJK_DataWriter_Binary&& x)
 {
     m_topic_name         = std::move(x.m_topic_name);
     m_endpoint_qos       = std::move(x.m_endpoint_qos);
     m_ownership_strength = x.m_ownership_strength;
 }
 
-eprosima::micrortps::OBJK_DataWriter_Binary &eprosima::micrortps::OBJK_DataWriter_Binary::
-operator=(const OBJK_DataWriter_Binary &x)
+eprosima::micrortps::OBJK_DataWriter_Binary& eprosima::micrortps::OBJK_DataWriter_Binary::
+operator=(const OBJK_DataWriter_Binary& x)
 {
     m_topic_name         = x.m_topic_name;
     m_endpoint_qos       = x.m_endpoint_qos;
@@ -2206,8 +2207,8 @@ operator=(const OBJK_DataWriter_Binary &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_DataWriter_Binary &eprosima::micrortps::OBJK_DataWriter_Binary::
-operator=(OBJK_DataWriter_Binary &&x)
+eprosima::micrortps::OBJK_DataWriter_Binary& eprosima::micrortps::OBJK_DataWriter_Binary::
+operator=(OBJK_DataWriter_Binary&& x)
 {
     m_topic_name         = std::move(x.m_topic_name);
     m_endpoint_qos       = std::move(x.m_endpoint_qos);
@@ -2240,14 +2241,14 @@ size_t eprosima::micrortps::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t 
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_topic_name;
     scdr << m_endpoint_qos;
     scdr << m_ownership_strength;
 }
 
-void eprosima::micrortps::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_topic_name;
     dcdr >> m_endpoint_qos;
@@ -2263,7 +2264,7 @@ eprosima::micrortps::ObjectVariant::~ObjectVariant()
 {
 }
 
-eprosima::micrortps::ObjectVariant::ObjectVariant(const ObjectVariant &x)
+eprosima::micrortps::ObjectVariant::ObjectVariant(const ObjectVariant& x)
 {
     m__d = x.m__d;
 
@@ -2304,7 +2305,7 @@ eprosima::micrortps::ObjectVariant::ObjectVariant(const ObjectVariant &x)
     }
 }
 
-eprosima::micrortps::ObjectVariant::ObjectVariant(ObjectVariant &&x)
+eprosima::micrortps::ObjectVariant::ObjectVariant(ObjectVariant&& x)
 {
     m__d = x.m__d;
 
@@ -2345,7 +2346,7 @@ eprosima::micrortps::ObjectVariant::ObjectVariant(ObjectVariant &&x)
     }
 }
 
-eprosima::micrortps::ObjectVariant &eprosima::micrortps::ObjectVariant::operator=(const ObjectVariant &x)
+eprosima::micrortps::ObjectVariant& eprosima::micrortps::ObjectVariant::operator=(const ObjectVariant& x)
 {
     m__d = x.m__d;
 
@@ -2388,7 +2389,7 @@ eprosima::micrortps::ObjectVariant &eprosima::micrortps::ObjectVariant::operator
     return *this;
 }
 
-eprosima::micrortps::ObjectVariant &eprosima::micrortps::ObjectVariant::operator=(ObjectVariant &&x)
+eprosima::micrortps::ObjectVariant& eprosima::micrortps::ObjectVariant::operator=(ObjectVariant&& x)
 {
     m__d = x.m__d;
 
@@ -2559,24 +2560,24 @@ eprosima::micrortps::ObjectKind eprosima::micrortps::ObjectVariant::_d() const
     return m__d;
 }
 
-eprosima::micrortps::ObjectKind &eprosima::micrortps::ObjectVariant::_d()
+eprosima::micrortps::ObjectKind& eprosima::micrortps::ObjectVariant::_d()
 {
     return m__d;
 }
 
-void eprosima::micrortps::ObjectVariant::client(const eprosima::micrortps::OBJK_CLIENT_Representation &_client)
+void eprosima::micrortps::ObjectVariant::client(const eprosima::micrortps::OBJK_CLIENT_Representation& _client)
 {
     m_client = _client;
     m__d     = OBJK_CLIENT;
 }
 
-void eprosima::micrortps::ObjectVariant::client(eprosima::micrortps::OBJK_CLIENT_Representation &&_client)
+void eprosima::micrortps::ObjectVariant::client(eprosima::micrortps::OBJK_CLIENT_Representation&& _client)
 {
     m_client = std::move(_client);
     m__d     = OBJK_CLIENT;
 }
 
-const eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::ObjectVariant::client() const
+const eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::ObjectVariant::client() const
 {
     bool b = false;
 
@@ -2594,7 +2595,7 @@ const eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::Obje
     return m_client;
 }
 
-eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::ObjectVariant::client()
+eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::ObjectVariant::client()
 {
     bool b = false;
 
@@ -2612,20 +2613,20 @@ eprosima::micrortps::OBJK_CLIENT_Representation &eprosima::micrortps::ObjectVari
     return m_client;
 }
 void eprosima::micrortps::ObjectVariant::application(
-    const eprosima::micrortps::OBJK_APPLICATION_Representation &_application)
+    const eprosima::micrortps::OBJK_APPLICATION_Representation& _application)
 {
     m_application = _application;
     m__d          = OBJK_APPLICATION;
 }
 
 void eprosima::micrortps::ObjectVariant::application(
-    eprosima::micrortps::OBJK_APPLICATION_Representation &&_application)
+    eprosima::micrortps::OBJK_APPLICATION_Representation&& _application)
 {
     m_application = std::move(_application);
     m__d          = OBJK_APPLICATION;
 }
 
-const eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps::ObjectVariant::application() const
+const eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::ObjectVariant::application() const
 {
     bool b = false;
 
@@ -2643,7 +2644,7 @@ const eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps:
     return m_application;
 }
 
-eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps::ObjectVariant::application()
+eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::ObjectVariant::application()
 {
     bool b = false;
 
@@ -2661,20 +2662,20 @@ eprosima::micrortps::OBJK_APPLICATION_Representation &eprosima::micrortps::Objec
     return m_application;
 }
 void eprosima::micrortps::ObjectVariant::participant(
-    const eprosima::micrortps::OBJK_PARTICIPANT_Representation &_participant)
+    const eprosima::micrortps::OBJK_PARTICIPANT_Representation& _participant)
 {
     m_participant = _participant;
     m__d          = OBJK_PARTICIPANT;
 }
 
 void eprosima::micrortps::ObjectVariant::participant(
-    eprosima::micrortps::OBJK_PARTICIPANT_Representation &&_participant)
+    eprosima::micrortps::OBJK_PARTICIPANT_Representation&& _participant)
 {
     m_participant = std::move(_participant);
     m__d          = OBJK_PARTICIPANT;
 }
 
-const eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps::ObjectVariant::participant() const
+const eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::ObjectVariant::participant() const
 {
     bool b = false;
 
@@ -2692,7 +2693,7 @@ const eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps:
     return m_participant;
 }
 
-eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps::ObjectVariant::participant()
+eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::ObjectVariant::participant()
 {
     bool b = false;
 
@@ -2710,19 +2711,19 @@ eprosima::micrortps::OBJK_PARTICIPANT_Representation &eprosima::micrortps::Objec
     return m_participant;
 }
 void eprosima::micrortps::ObjectVariant::qos_profile(
-    const eprosima::micrortps::OBJK_QOSPROFILE_Representation &_qos_profile)
+    const eprosima::micrortps::OBJK_QOSPROFILE_Representation& _qos_profile)
 {
     m_qos_profile = _qos_profile;
     m__d          = OBJK_QOSPROFILE;
 }
 
-void eprosima::micrortps::ObjectVariant::qos_profile(eprosima::micrortps::OBJK_QOSPROFILE_Representation &&_qos_profile)
+void eprosima::micrortps::ObjectVariant::qos_profile(eprosima::micrortps::OBJK_QOSPROFILE_Representation&& _qos_profile)
 {
     m_qos_profile = std::move(_qos_profile);
     m__d          = OBJK_QOSPROFILE;
 }
 
-const eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::ObjectVariant::qos_profile() const
+const eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::ObjectVariant::qos_profile() const
 {
     bool b = false;
 
@@ -2740,7 +2741,7 @@ const eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::
     return m_qos_profile;
 }
 
-eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::ObjectVariant::qos_profile()
+eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::ObjectVariant::qos_profile()
 {
     bool b = false;
 
@@ -2757,19 +2758,19 @@ eprosima::micrortps::OBJK_QOSPROFILE_Representation &eprosima::micrortps::Object
 
     return m_qos_profile;
 }
-void eprosima::micrortps::ObjectVariant::type(const eprosima::micrortps::OBJK_TYPE_Representation &_type)
+void eprosima::micrortps::ObjectVariant::type(const eprosima::micrortps::OBJK_TYPE_Representation& _type)
 {
     m_type = _type;
     m__d   = OBJK_TYPE;
 }
 
-void eprosima::micrortps::ObjectVariant::type(eprosima::micrortps::OBJK_TYPE_Representation &&_type)
+void eprosima::micrortps::ObjectVariant::type(eprosima::micrortps::OBJK_TYPE_Representation&& _type)
 {
     m_type = std::move(_type);
     m__d   = OBJK_TYPE;
 }
 
-const eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::ObjectVariant::type() const
+const eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::ObjectVariant::type() const
 {
     bool b = false;
 
@@ -2787,7 +2788,7 @@ const eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::Object
     return m_type;
 }
 
-eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::ObjectVariant::type()
+eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::ObjectVariant::type()
 {
     bool b = false;
 
@@ -2804,19 +2805,19 @@ eprosima::micrortps::OBJK_TYPE_Representation &eprosima::micrortps::ObjectVarian
 
     return m_type;
 }
-void eprosima::micrortps::ObjectVariant::topic(const eprosima::micrortps::OBJK_TOPIC_Representation &_topic)
+void eprosima::micrortps::ObjectVariant::topic(const eprosima::micrortps::OBJK_TOPIC_Representation& _topic)
 {
     m_topic = _topic;
     m__d    = OBJK_TOPIC;
 }
 
-void eprosima::micrortps::ObjectVariant::topic(eprosima::micrortps::OBJK_TOPIC_Representation &&_topic)
+void eprosima::micrortps::ObjectVariant::topic(eprosima::micrortps::OBJK_TOPIC_Representation&& _topic)
 {
     m_topic = std::move(_topic);
     m__d    = OBJK_TOPIC;
 }
 
-const eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::ObjectVariant::topic() const
+const eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::ObjectVariant::topic() const
 {
     bool b = false;
 
@@ -2834,7 +2835,7 @@ const eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::Objec
     return m_topic;
 }
 
-eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::ObjectVariant::topic()
+eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::ObjectVariant::topic()
 {
     bool b = false;
 
@@ -2851,19 +2852,19 @@ eprosima::micrortps::OBJK_TOPIC_Representation &eprosima::micrortps::ObjectVaria
 
     return m_topic;
 }
-void eprosima::micrortps::ObjectVariant::publisher(const eprosima::micrortps::OBJK_PUBLISHER_Representation &_publisher)
+void eprosima::micrortps::ObjectVariant::publisher(const eprosima::micrortps::OBJK_PUBLISHER_Representation& _publisher)
 {
     m_publisher = _publisher;
     m__d        = OBJK_PUBLISHER;
 }
 
-void eprosima::micrortps::ObjectVariant::publisher(eprosima::micrortps::OBJK_PUBLISHER_Representation &&_publisher)
+void eprosima::micrortps::ObjectVariant::publisher(eprosima::micrortps::OBJK_PUBLISHER_Representation&& _publisher)
 {
     m_publisher = std::move(_publisher);
     m__d        = OBJK_PUBLISHER;
 }
 
-const eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::ObjectVariant::publisher() const
+const eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::ObjectVariant::publisher() const
 {
     bool b = false;
 
@@ -2881,7 +2882,7 @@ const eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::O
     return m_publisher;
 }
 
-eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::ObjectVariant::publisher()
+eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::ObjectVariant::publisher()
 {
     bool b = false;
 
@@ -2898,19 +2899,20 @@ eprosima::micrortps::OBJK_PUBLISHER_Representation &eprosima::micrortps::ObjectV
 
     return m_publisher;
 }
-void eprosima::micrortps::ObjectVariant::subscriber(const eprosima::micrortps::OBJK_SUBSCRIBER_Representation &_subscriber)
+void eprosima::micrortps::ObjectVariant::subscriber(
+    const eprosima::micrortps::OBJK_SUBSCRIBER_Representation& _subscriber)
 {
     m_subscriber = _subscriber;
     m__d         = OBJK_SUBSCRIBER;
 }
 
-void eprosima::micrortps::ObjectVariant::subscriber(eprosima::micrortps::OBJK_SUBSCRIBER_Representation &&_subscriber)
+void eprosima::micrortps::ObjectVariant::subscriber(eprosima::micrortps::OBJK_SUBSCRIBER_Representation&& _subscriber)
 {
     m_subscriber = std::move(_subscriber);
     m__d         = OBJK_SUBSCRIBER;
 }
 
-const eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::ObjectVariant::subscriber() const
+const eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::ObjectVariant::subscriber() const
 {
     bool b = false;
 
@@ -2928,7 +2930,7 @@ const eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::
     return m_subscriber;
 }
 
-eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::ObjectVariant::subscriber()
+eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::ObjectVariant::subscriber()
 {
     bool b = false;
 
@@ -2945,19 +2947,21 @@ eprosima::micrortps::OBJK_SUBSCRIBER_Representation &eprosima::micrortps::Object
 
     return m_subscriber;
 }
-void eprosima::micrortps::ObjectVariant::data_writer(const eprosima::micrortps::OBJK_DATA_WRITER_Representation &_data_writer)
+void eprosima::micrortps::ObjectVariant::data_writer(
+    const eprosima::micrortps::OBJK_DATA_WRITER_Representation& _data_writer)
 {
     m_data_writer = _data_writer;
     m__d          = OBJK_DATAWRITER;
 }
 
-void eprosima::micrortps::ObjectVariant::data_writer(eprosima::micrortps::OBJK_DATA_WRITER_Representation &&_data_writer)
+void eprosima::micrortps::ObjectVariant::data_writer(
+    eprosima::micrortps::OBJK_DATA_WRITER_Representation&& _data_writer)
 {
     m_data_writer = std::move(_data_writer);
     m__d          = OBJK_DATAWRITER;
 }
 
-const eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps::ObjectVariant::data_writer() const
+const eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::ObjectVariant::data_writer() const
 {
     bool b = false;
 
@@ -2975,7 +2979,7 @@ const eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps:
     return m_data_writer;
 }
 
-eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps::ObjectVariant::data_writer()
+eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::ObjectVariant::data_writer()
 {
     bool b = false;
 
@@ -2992,19 +2996,21 @@ eprosima::micrortps::OBJK_DATA_WRITER_Representation &eprosima::micrortps::Objec
 
     return m_data_writer;
 }
-void eprosima::micrortps::ObjectVariant::data_reader(const eprosima::micrortps::OBJK_DATA_READER_Representation &_data_reader)
+void eprosima::micrortps::ObjectVariant::data_reader(
+    const eprosima::micrortps::OBJK_DATA_READER_Representation& _data_reader)
 {
     m_data_reader = _data_reader;
     m__d          = OBJK_DATAREADER;
 }
 
-void eprosima::micrortps::ObjectVariant::data_reader(eprosima::micrortps::OBJK_DATA_READER_Representation &&_data_reader)
+void eprosima::micrortps::ObjectVariant::data_reader(
+    eprosima::micrortps::OBJK_DATA_READER_Representation&& _data_reader)
 {
     m_data_reader = std::move(_data_reader);
     m__d          = OBJK_DATAREADER;
 }
 
-const eprosima::micrortps::OBJK_DATA_READER_Representation &eprosima::micrortps::ObjectVariant::data_reader() const
+const eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::ObjectVariant::data_reader() const
 {
     bool b = false;
 
@@ -3022,7 +3028,7 @@ const eprosima::micrortps::OBJK_DATA_READER_Representation &eprosima::micrortps:
     return m_data_reader;
 }
 
-eprosima::micrortps::OBJK_DATA_READER_Representation &eprosima::micrortps::ObjectVariant::data_reader()
+eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::ObjectVariant::data_reader()
 {
     bool b = false;
 
@@ -3167,7 +3173,7 @@ size_t eprosima::micrortps::ObjectVariant::getCdrSerializedSize(size_t current_a
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::ObjectVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::ObjectVariant::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -3208,7 +3214,7 @@ void eprosima::micrortps::ObjectVariant::serialize(eprosima::fastcdr::Cdr &scdr)
     }
 }
 
-void eprosima::micrortps::ObjectVariant::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::ObjectVariant::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
@@ -3259,19 +3265,19 @@ eprosima::micrortps::CreationMode::~CreationMode()
 {
 }
 
-eprosima::micrortps::CreationMode::CreationMode(const CreationMode &x)
+eprosima::micrortps::CreationMode::CreationMode(const CreationMode& x)
 {
     m_reuse   = x.m_reuse;
     m_replace = x.m_replace;
 }
 
-eprosima::micrortps::CreationMode::CreationMode(CreationMode &&x)
+eprosima::micrortps::CreationMode::CreationMode(CreationMode&& x)
 {
     m_reuse   = x.m_reuse;
     m_replace = x.m_replace;
 }
 
-eprosima::micrortps::CreationMode &eprosima::micrortps::CreationMode::operator=(const CreationMode &x)
+eprosima::micrortps::CreationMode& eprosima::micrortps::CreationMode::operator=(const CreationMode& x)
 {
     m_reuse   = x.m_reuse;
     m_replace = x.m_replace;
@@ -3279,7 +3285,7 @@ eprosima::micrortps::CreationMode &eprosima::micrortps::CreationMode::operator=(
     return *this;
 }
 
-eprosima::micrortps::CreationMode &eprosima::micrortps::CreationMode::operator=(CreationMode &&x)
+eprosima::micrortps::CreationMode& eprosima::micrortps::CreationMode::operator=(CreationMode&& x)
 {
     m_reuse   = x.m_reuse;
     m_replace = x.m_replace;
@@ -3309,13 +3315,13 @@ size_t eprosima::micrortps::CreationMode::getCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::CreationMode::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::CreationMode::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_reuse;
     scdr << m_replace;
 }
 
-void eprosima::micrortps::CreationMode::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::CreationMode::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_reuse;
     dcdr >> m_replace;
@@ -3332,21 +3338,21 @@ eprosima::micrortps::ResultStatus::~ResultStatus()
 {
 }
 
-eprosima::micrortps::ResultStatus::ResultStatus(const ResultStatus &x)
+eprosima::micrortps::ResultStatus::ResultStatus(const ResultStatus& x)
 {
     m_request_id            = x.m_request_id;
     m_status                = x.m_status;
     m_implementation_status = x.m_implementation_status;
 }
 
-eprosima::micrortps::ResultStatus::ResultStatus(ResultStatus &&x)
+eprosima::micrortps::ResultStatus::ResultStatus(ResultStatus&& x)
 {
     m_request_id            = std::move(x.m_request_id);
     m_status                = x.m_status;
     m_implementation_status = x.m_implementation_status;
 }
 
-eprosima::micrortps::ResultStatus &eprosima::micrortps::ResultStatus::operator=(const ResultStatus &x)
+eprosima::micrortps::ResultStatus& eprosima::micrortps::ResultStatus::operator=(const ResultStatus& x)
 {
     m_request_id            = x.m_request_id;
     m_status                = x.m_status;
@@ -3355,7 +3361,7 @@ eprosima::micrortps::ResultStatus &eprosima::micrortps::ResultStatus::operator=(
     return *this;
 }
 
-eprosima::micrortps::ResultStatus &eprosima::micrortps::ResultStatus::operator=(ResultStatus &&x)
+eprosima::micrortps::ResultStatus& eprosima::micrortps::ResultStatus::operator=(ResultStatus&& x)
 {
     m_request_id            = std::move(x.m_request_id);
     m_status                = x.m_status;
@@ -3389,14 +3395,14 @@ size_t eprosima::micrortps::ResultStatus::getCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::ResultStatus::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::ResultStatus::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_request_id;
     scdr << m_status;
     scdr << m_implementation_status;
 }
 
-void eprosima::micrortps::ResultStatus::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::ResultStatus::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_request_id;
     dcdr >> m_status;
@@ -3412,26 +3418,26 @@ eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::~OBJK_DATAREADER_ActivityInfo
 {
 }
 
-eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::OBJK_DATAREADER_ActivityInfo(const OBJK_DATAREADER_ActivityInfo &x)
+eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::OBJK_DATAREADER_ActivityInfo(const OBJK_DATAREADER_ActivityInfo& x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
 }
 
-eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::OBJK_DATAREADER_ActivityInfo(OBJK_DATAREADER_ActivityInfo &&x)
+eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::OBJK_DATAREADER_ActivityInfo(OBJK_DATAREADER_ActivityInfo&& x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
 }
 
-eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::
-operator=(const OBJK_DATAREADER_ActivityInfo &x)
+eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::
+operator=(const OBJK_DATAREADER_ActivityInfo& x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
 
     return *this;
 }
 
-eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::
-operator=(OBJK_DATAREADER_ActivityInfo &&x)
+eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::
+operator=(OBJK_DATAREADER_ActivityInfo&& x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
 
@@ -3456,12 +3462,12 @@ size_t eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::getCdrSerializedSize(s
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_highest_acked_num;
 }
 
-void eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DATAREADER_ActivityInfo::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_highest_acked_num;
 }
@@ -3476,20 +3482,20 @@ eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::~OBJK_DATAWRITER_ActivityInfo
 {
 }
 
-eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::OBJK_DATAWRITER_ActivityInfo(const OBJK_DATAWRITER_ActivityInfo &x)
+eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::OBJK_DATAWRITER_ActivityInfo(const OBJK_DATAWRITER_ActivityInfo& x)
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
 }
 
-eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::OBJK_DATAWRITER_ActivityInfo(OBJK_DATAWRITER_ActivityInfo &&x)
+eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::OBJK_DATAWRITER_ActivityInfo(OBJK_DATAWRITER_ActivityInfo&& x)
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
 }
 
-eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::
-operator=(const OBJK_DATAWRITER_ActivityInfo &x)
+eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::
+operator=(const OBJK_DATAWRITER_ActivityInfo& x)
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
@@ -3497,8 +3503,8 @@ operator=(const OBJK_DATAWRITER_ActivityInfo &x)
     return *this;
 }
 
-eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::
-operator=(OBJK_DATAWRITER_ActivityInfo &&x)
+eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::
+operator=(OBJK_DATAWRITER_ActivityInfo&& x)
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
@@ -3528,13 +3534,13 @@ size_t eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::getCdrSerializedSize(s
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_stream_seq_num;
     scdr << m_sample_seq_num;
 }
 
-void eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_stream_seq_num;
     dcdr >> m_sample_seq_num;
@@ -3549,7 +3555,7 @@ eprosima::micrortps::ActivityInfoVariant::~ActivityInfoVariant()
 {
 }
 
-eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfoVariant &x)
+eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfoVariant& x)
 {
     m__d = x.m__d;
 
@@ -3566,7 +3572,7 @@ eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfo
     }
 }
 
-eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVariant &&x)
+eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVariant&& x)
 {
     m__d = x.m__d;
 
@@ -3583,8 +3589,8 @@ eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVarian
     }
 }
 
-eprosima::micrortps::ActivityInfoVariant &eprosima::micrortps::ActivityInfoVariant::
-operator=(const ActivityInfoVariant &x)
+eprosima::micrortps::ActivityInfoVariant& eprosima::micrortps::ActivityInfoVariant::
+operator=(const ActivityInfoVariant& x)
 {
     m__d = x.m__d;
 
@@ -3603,7 +3609,7 @@ operator=(const ActivityInfoVariant &x)
     return *this;
 }
 
-eprosima::micrortps::ActivityInfoVariant &eprosima::micrortps::ActivityInfoVariant::operator=(ActivityInfoVariant &&x)
+eprosima::micrortps::ActivityInfoVariant& eprosima::micrortps::ActivityInfoVariant::operator=(ActivityInfoVariant&& x)
 {
     m__d = x.m__d;
 
@@ -3661,26 +3667,26 @@ eprosima::micrortps::ObjectKind eprosima::micrortps::ActivityInfoVariant::_d() c
     return m__d;
 }
 
-eprosima::micrortps::ObjectKind &eprosima::micrortps::ActivityInfoVariant::_d()
+eprosima::micrortps::ObjectKind& eprosima::micrortps::ActivityInfoVariant::_d()
 {
     return m__d;
 }
 
 void eprosima::micrortps::ActivityInfoVariant::data_writer(
-    const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &_data_writer)
+    const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& _data_writer)
 {
     m_data_writer = _data_writer;
     m__d          = OBJK_DATAWRITER;
 }
 
 void eprosima::micrortps::ActivityInfoVariant::data_writer(
-    eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &&_data_writer)
+    eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo&& _data_writer)
 {
     m_data_writer = std::move(_data_writer);
     m__d          = OBJK_DATAWRITER;
 }
 
-const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::ActivityInfoVariant::data_writer() const
+const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_writer() const
 {
     bool b = false;
 
@@ -3698,7 +3704,7 @@ const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::Ac
     return m_data_writer;
 }
 
-eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::ActivityInfoVariant::data_writer()
+eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_writer()
 {
     bool b = false;
 
@@ -3716,20 +3722,20 @@ eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo &eprosima::micrortps::Activity
     return m_data_writer;
 }
 void eprosima::micrortps::ActivityInfoVariant::data_reader(
-    const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &_data_reader)
+    const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& _data_reader)
 {
     m_data_reader = _data_reader;
     m__d          = OBJK_DATAREADER;
 }
 
 void eprosima::micrortps::ActivityInfoVariant::data_reader(
-    eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &&_data_reader)
+    eprosima::micrortps::OBJK_DATAREADER_ActivityInfo&& _data_reader)
 {
     m_data_reader = std::move(_data_reader);
     m__d          = OBJK_DATAREADER;
 }
 
-const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &eprosima::micrortps::ActivityInfoVariant::data_reader() const
+const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_reader() const
 {
     bool b = false;
 
@@ -3747,7 +3753,7 @@ const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &eprosima::micrortps::Ac
     return m_data_reader;
 }
 
-eprosima::micrortps::OBJK_DATAREADER_ActivityInfo &eprosima::micrortps::ActivityInfoVariant::data_reader()
+eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_reader()
 {
     bool b = false;
 
@@ -3791,8 +3797,7 @@ size_t eprosima::micrortps::ActivityInfoVariant::getMaxCdrSerializedSize(size_t 
 }
 
 // TODO(Ricardo) Review
-size_t
-eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -3813,7 +3818,7 @@ eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::ActivityInfoVariant::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::ActivityInfoVariant::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -3830,7 +3835,7 @@ void eprosima::micrortps::ActivityInfoVariant::serialize(eprosima::fastcdr::Cdr 
     }
 }
 
-void eprosima::micrortps::ActivityInfoVariant::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::ActivityInfoVariant::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
@@ -3855,19 +3860,19 @@ eprosima::micrortps::Info::~Info()
 {
 }
 
-eprosima::micrortps::Info::Info(const Info &x)
+eprosima::micrortps::Info::Info(const Info& x)
 {
     m_config   = x.m_config;
     m_activity = x.m_activity;
 }
 
-eprosima::micrortps::Info::Info(Info &&x)
+eprosima::micrortps::Info::Info(Info&& x)
 {
     m_config   = std::move(x.m_config);
     m_activity = std::move(x.m_activity);
 }
 
-eprosima::micrortps::Info &eprosima::micrortps::Info::operator=(const Info &x)
+eprosima::micrortps::Info& eprosima::micrortps::Info::operator=(const Info& x)
 {
     m_config   = x.m_config;
     m_activity = x.m_activity;
@@ -3875,7 +3880,7 @@ eprosima::micrortps::Info &eprosima::micrortps::Info::operator=(const Info &x)
     return *this;
 }
 
-eprosima::micrortps::Info &eprosima::micrortps::Info::operator=(Info &&x)
+eprosima::micrortps::Info& eprosima::micrortps::Info::operator=(Info&& x)
 {
     m_config   = std::move(x.m_config);
     m_activity = std::move(x.m_activity);
@@ -3903,13 +3908,13 @@ size_t eprosima::micrortps::Info::getCdrSerializedSize(size_t current_alignment)
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::Info::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::Info::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_config;
     scdr << m_activity;
 }
 
-void eprosima::micrortps::Info::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::Info::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_config;
     dcdr >> m_activity;
@@ -3923,19 +3928,19 @@ eprosima::micrortps::BaseRequest::~BaseRequest()
 {
 }
 
-eprosima::micrortps::BaseRequest::BaseRequest(const BaseRequest &x)
+eprosima::micrortps::BaseRequest::BaseRequest(const BaseRequest& x)
 {
     m_request_id = x.m_request_id;
     m_object_id  = x.m_object_id;
 }
 
-eprosima::micrortps::BaseRequest::BaseRequest(BaseRequest &&x)
+eprosima::micrortps::BaseRequest::BaseRequest(BaseRequest&& x)
 {
     m_request_id = std::move(x.m_request_id);
     m_object_id  = std::move(x.m_object_id);
 }
 
-eprosima::micrortps::BaseRequest &eprosima::micrortps::BaseRequest::operator=(const BaseRequest &x)
+eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(const BaseRequest& x)
 {
     m_request_id = x.m_request_id;
     m_object_id  = x.m_object_id;
@@ -3943,7 +3948,7 @@ eprosima::micrortps::BaseRequest &eprosima::micrortps::BaseRequest::operator=(co
     return *this;
 }
 
-eprosima::micrortps::BaseRequest &eprosima::micrortps::BaseRequest::operator=(BaseRequest &&x)
+eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(BaseRequest&& x)
 {
     m_request_id = std::move(x.m_request_id);
     m_object_id  = std::move(x.m_object_id);
@@ -3972,13 +3977,13 @@ size_t eprosima::micrortps::BaseRequest::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::BaseRequest::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::BaseRequest::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_request_id;
     scdr << m_object_id;
 }
 
-void eprosima::micrortps::BaseRequest::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::BaseRequest::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_request_id;
     dcdr >> m_object_id;
@@ -3992,17 +3997,17 @@ eprosima::micrortps::BaseObjectRequest::~BaseObjectRequest()
 {
 }
 
-eprosima::micrortps::BaseObjectRequest::BaseObjectRequest(const BaseObjectRequest &x) : BaseRequest(x)
+eprosima::micrortps::BaseObjectRequest::BaseObjectRequest(const BaseObjectRequest& x) : BaseRequest(x)
 {
     m_object_id = x.m_object_id;
 }
 
-eprosima::micrortps::BaseObjectRequest::BaseObjectRequest(BaseObjectRequest &&x) : BaseRequest(x)
+eprosima::micrortps::BaseObjectRequest::BaseObjectRequest(BaseObjectRequest&& x) : BaseRequest(x)
 {
     m_object_id = std::move(x.m_object_id);
 }
 
-eprosima::micrortps::BaseObjectRequest &eprosima::micrortps::BaseObjectRequest::operator=(const BaseObjectRequest &x)
+eprosima::micrortps::BaseObjectRequest& eprosima::micrortps::BaseObjectRequest::operator=(const BaseObjectRequest& x)
 {
     BaseRequest::operator=(x);
     m_object_id          = x.m_object_id;
@@ -4010,7 +4015,7 @@ eprosima::micrortps::BaseObjectRequest &eprosima::micrortps::BaseObjectRequest::
     return *this;
 }
 
-eprosima::micrortps::BaseObjectRequest &eprosima::micrortps::BaseObjectRequest::operator=(BaseObjectRequest &&x)
+eprosima::micrortps::BaseObjectRequest& eprosima::micrortps::BaseObjectRequest::operator=(BaseObjectRequest&& x)
 {
     BaseRequest::operator=(x);
     m_object_id          = std::move(x.m_object_id);
@@ -4038,13 +4043,13 @@ size_t eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(size_t curre
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::BaseObjectRequest::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::BaseObjectRequest::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     BaseRequest::serialize(scdr);
     scdr << m_object_id;
 }
 
-void eprosima::micrortps::BaseObjectRequest::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::BaseObjectRequest::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     BaseRequest::deserialize(dcdr);
     dcdr >> m_object_id;
@@ -4058,19 +4063,19 @@ eprosima::micrortps::BaseReply::~BaseReply()
 {
 }
 
-eprosima::micrortps::BaseReply::BaseReply(const BaseReply &x)
+eprosima::micrortps::BaseReply::BaseReply(const BaseReply& x)
 {
     m_result     = x.m_result;
     m_request_id = x.m_request_id;
 }
 
-eprosima::micrortps::BaseReply::BaseReply(BaseReply &&x)
+eprosima::micrortps::BaseReply::BaseReply(BaseReply&& x)
 {
     m_result     = std::move(x.m_result);
     m_request_id = std::move(x.m_request_id);
 }
 
-eprosima::micrortps::BaseReply &eprosima::micrortps::BaseReply::operator=(const BaseReply &x)
+eprosima::micrortps::BaseReply& eprosima::micrortps::BaseReply::operator=(const BaseReply& x)
 {
     m_result     = x.m_result;
     m_request_id = x.m_request_id;
@@ -4078,7 +4083,7 @@ eprosima::micrortps::BaseReply &eprosima::micrortps::BaseReply::operator=(const 
     return *this;
 }
 
-eprosima::micrortps::BaseReply &eprosima::micrortps::BaseReply::operator=(BaseReply &&x)
+eprosima::micrortps::BaseReply& eprosima::micrortps::BaseReply::operator=(BaseReply&& x)
 {
     m_result     = std::move(x.m_result);
     m_request_id = std::move(x.m_request_id);
@@ -4106,13 +4111,13 @@ size_t eprosima::micrortps::BaseReply::getCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::BaseReply::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::BaseReply::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_result;
     scdr << m_request_id;
 }
 
-void eprosima::micrortps::BaseReply::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::BaseReply::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_result;
     dcdr >> m_request_id;
@@ -4126,17 +4131,17 @@ eprosima::micrortps::BaseObjectReply::~BaseObjectReply()
 {
 }
 
-eprosima::micrortps::BaseObjectReply::BaseObjectReply(const BaseObjectReply &x) : BaseReply(x)
+eprosima::micrortps::BaseObjectReply::BaseObjectReply(const BaseObjectReply& x) : BaseReply(x)
 {
     m_object_id = x.m_object_id;
 }
 
-eprosima::micrortps::BaseObjectReply::BaseObjectReply(BaseObjectReply &&x) : BaseReply(x)
+eprosima::micrortps::BaseObjectReply::BaseObjectReply(BaseObjectReply&& x) : BaseReply(x)
 {
     m_object_id = std::move(x.m_object_id);
 }
 
-eprosima::micrortps::BaseObjectReply &eprosima::micrortps::BaseObjectReply::operator=(const BaseObjectReply &x)
+eprosima::micrortps::BaseObjectReply& eprosima::micrortps::BaseObjectReply::operator=(const BaseObjectReply& x)
 {
     BaseReply::operator=(x);
     m_object_id        = x.m_object_id;
@@ -4144,7 +4149,7 @@ eprosima::micrortps::BaseObjectReply &eprosima::micrortps::BaseObjectReply::oper
     return *this;
 }
 
-eprosima::micrortps::BaseObjectReply &eprosima::micrortps::BaseObjectReply::operator=(BaseObjectReply &&x)
+eprosima::micrortps::BaseObjectReply& eprosima::micrortps::BaseObjectReply::operator=(BaseObjectReply&& x)
 {
     BaseReply::operator=(x);
     m_object_id        = std::move(x.m_object_id);
@@ -4172,13 +4177,13 @@ size_t eprosima::micrortps::BaseObjectReply::getCdrSerializedSize(size_t current
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::BaseObjectReply::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::BaseObjectReply::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     BaseReply::serialize(scdr);
     scdr << m_object_id;
 }
 
-void eprosima::micrortps::BaseObjectReply::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::BaseObjectReply::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     BaseReply::deserialize(dcdr);
     dcdr >> m_object_id;
@@ -4192,17 +4197,17 @@ eprosima::micrortps::InfoReply::~InfoReply()
 {
 }
 
-eprosima::micrortps::InfoReply::InfoReply(const InfoReply &x) : BaseObjectReply(x)
+eprosima::micrortps::InfoReply::InfoReply(const InfoReply& x) : BaseObjectReply(x)
 {
     m_info = x.m_info;
 }
 
-eprosima::micrortps::InfoReply::InfoReply(InfoReply &&x) : BaseObjectReply(x)
+eprosima::micrortps::InfoReply::InfoReply(InfoReply&& x) : BaseObjectReply(x)
 {
     m_info = std::move(x.m_info);
 }
 
-eprosima::micrortps::InfoReply &eprosima::micrortps::InfoReply::operator=(const InfoReply &x)
+eprosima::micrortps::InfoReply& eprosima::micrortps::InfoReply::operator=(const InfoReply& x)
 {
     BaseObjectReply::operator=(x);
     m_info                   = x.m_info;
@@ -4210,7 +4215,7 @@ eprosima::micrortps::InfoReply &eprosima::micrortps::InfoReply::operator=(const 
     return *this;
 }
 
-eprosima::micrortps::InfoReply &eprosima::micrortps::InfoReply::operator=(InfoReply &&x)
+eprosima::micrortps::InfoReply& eprosima::micrortps::InfoReply::operator=(InfoReply&& x)
 {
     BaseObjectReply::operator=(x);
     m_info                   = std::move(x.m_info);
@@ -4238,13 +4243,13 @@ size_t eprosima::micrortps::InfoReply::getCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::InfoReply::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::InfoReply::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     BaseObjectReply::serialize(scdr);
     scdr << m_info;
 }
 
-void eprosima::micrortps::InfoReply::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::InfoReply::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     BaseObjectReply::deserialize(dcdr);
     dcdr >> m_info;
@@ -4261,22 +4266,22 @@ eprosima::micrortps::DataDeliveryControl::~DataDeliveryControl()
 {
 }
 
-eprosima::micrortps::DataDeliveryControl::DataDeliveryControl(const DataDeliveryControl &x)
+eprosima::micrortps::DataDeliveryControl::DataDeliveryControl(const DataDeliveryControl& x)
 {
     m_max_samples      = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_rate         = x.m_max_rate;
 }
 
-eprosima::micrortps::DataDeliveryControl::DataDeliveryControl(DataDeliveryControl &&x)
+eprosima::micrortps::DataDeliveryControl::DataDeliveryControl(DataDeliveryControl&& x)
 {
     m_max_samples      = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_rate         = x.m_max_rate;
 }
 
-eprosima::micrortps::DataDeliveryControl &eprosima::micrortps::DataDeliveryControl::
-operator=(const DataDeliveryControl &x)
+eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryControl::
+operator=(const DataDeliveryControl& x)
 {
     m_max_samples      = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
@@ -4285,7 +4290,7 @@ operator=(const DataDeliveryControl &x)
     return *this;
 }
 
-eprosima::micrortps::DataDeliveryControl &eprosima::micrortps::DataDeliveryControl::operator=(DataDeliveryControl &&x)
+eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryControl::operator=(DataDeliveryControl&& x)
 {
     m_max_samples      = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
@@ -4307,8 +4312,7 @@ size_t eprosima::micrortps::DataDeliveryControl::getMaxCdrSerializedSize(size_t 
     return current_alignment - initial_alignment;
 }
 
-size_t
-eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4321,14 +4325,14 @@ eprosima::micrortps::DataDeliveryControl::getCdrSerializedSize(size_t current_al
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::DataDeliveryControl::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::DataDeliveryControl::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_max_samples;
     scdr << m_max_elapsed_time;
     scdr << m_max_rate;
 }
 
-void eprosima::micrortps::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_max_samples;
     dcdr >> m_max_elapsed_time;
@@ -4344,7 +4348,7 @@ eprosima::micrortps::DataDeliveryConfig::~DataDeliveryConfig()
 {
 }
 
-eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(const DataDeliveryConfig &x)
+eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(const DataDeliveryConfig& x)
 {
     m__d = x.m__d;
 
@@ -4362,7 +4366,7 @@ eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(const DataDeliveryCo
     }
 }
 
-eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(DataDeliveryConfig &&x)
+eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(DataDeliveryConfig&& x)
 {
     m__d = x.m__d;
 
@@ -4380,7 +4384,7 @@ eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(DataDeliveryConfig &
     }
 }
 
-eprosima::micrortps::DataDeliveryConfig &eprosima::micrortps::DataDeliveryConfig::operator=(const DataDeliveryConfig &x)
+eprosima::micrortps::DataDeliveryConfig& eprosima::micrortps::DataDeliveryConfig::operator=(const DataDeliveryConfig& x)
 {
     m__d = x.m__d;
 
@@ -4400,7 +4404,7 @@ eprosima::micrortps::DataDeliveryConfig &eprosima::micrortps::DataDeliveryConfig
     return *this;
 }
 
-eprosima::micrortps::DataDeliveryConfig &eprosima::micrortps::DataDeliveryConfig::operator=(DataDeliveryConfig &&x)
+eprosima::micrortps::DataDeliveryConfig& eprosima::micrortps::DataDeliveryConfig::operator=(DataDeliveryConfig&& x)
 {
     m__d = x.m__d;
 
@@ -4489,26 +4493,26 @@ eprosima::micrortps::DataFormat eprosima::micrortps::DataDeliveryConfig::_d() co
     return m__d;
 }
 
-eprosima::micrortps::DataFormat &eprosima::micrortps::DataDeliveryConfig::_d()
+eprosima::micrortps::DataFormat& eprosima::micrortps::DataDeliveryConfig::_d()
 {
     return m__d;
 }
 
 void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    const eprosima::micrortps::DataDeliveryControl &_delivey_control)
+    const eprosima::micrortps::DataDeliveryControl& _delivey_control)
 {
     m_delivey_control = _delivey_control;
     m__d              = FORMAT_DATA_SEQ;
 }
 
 void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    eprosima::micrortps::DataDeliveryControl &&_delivey_control)
+    eprosima::micrortps::DataDeliveryControl&& _delivey_control)
 {
     m_delivey_control = std::move(_delivey_control);
     m__d              = FORMAT_DATA_SEQ;
 }
 
-const eprosima::micrortps::DataDeliveryControl &eprosima::micrortps::DataDeliveryConfig::delivey_control() const
+const eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivey_control() const
 {
     bool b = false;
 
@@ -4528,7 +4532,7 @@ const eprosima::micrortps::DataDeliveryControl &eprosima::micrortps::DataDeliver
     return m_delivey_control;
 }
 
-eprosima::micrortps::DataDeliveryControl &eprosima::micrortps::DataDeliveryConfig::delivey_control()
+eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivey_control()
 {
     bool b = false;
 
@@ -4574,8 +4578,7 @@ size_t eprosima::micrortps::DataDeliveryConfig::getMaxCdrSerializedSize(size_t c
 }
 
 // TODO(Ricardo) Review
-size_t
-eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -4597,7 +4600,7 @@ eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::DataDeliveryConfig::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::DataDeliveryConfig::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -4615,7 +4618,7 @@ void eprosima::micrortps::DataDeliveryConfig::serialize(eprosima::fastcdr::Cdr &
     }
 }
 
-void eprosima::micrortps::DataDeliveryConfig::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::DataDeliveryConfig::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
@@ -4641,19 +4644,19 @@ eprosima::micrortps::ReadSpecification::~ReadSpecification()
 {
 }
 
-eprosima::micrortps::ReadSpecification::ReadSpecification(const ReadSpecification &x)
+eprosima::micrortps::ReadSpecification::ReadSpecification(const ReadSpecification& x)
 {
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_config           = x.m_delivery_config;
 }
 
-eprosima::micrortps::ReadSpecification::ReadSpecification(ReadSpecification &&x)
+eprosima::micrortps::ReadSpecification::ReadSpecification(ReadSpecification&& x)
 {
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_config           = std::move(x.m_delivery_config);
 }
 
-eprosima::micrortps::ReadSpecification &eprosima::micrortps::ReadSpecification::operator=(const ReadSpecification &x)
+eprosima::micrortps::ReadSpecification& eprosima::micrortps::ReadSpecification::operator=(const ReadSpecification& x)
 {
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_config           = x.m_delivery_config;
@@ -4661,7 +4664,7 @@ eprosima::micrortps::ReadSpecification &eprosima::micrortps::ReadSpecification::
     return *this;
 }
 
-eprosima::micrortps::ReadSpecification &eprosima::micrortps::ReadSpecification::operator=(ReadSpecification &&x)
+eprosima::micrortps::ReadSpecification& eprosima::micrortps::ReadSpecification::operator=(ReadSpecification&& x)
 {
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_config           = std::move(x.m_delivery_config);
@@ -4669,18 +4672,18 @@ eprosima::micrortps::ReadSpecification &eprosima::micrortps::ReadSpecification::
     return *this;
 }
 
-const std::string &eprosima::micrortps::ReadSpecification::content_filter_expression() const
+const std::string& eprosima::micrortps::ReadSpecification::content_filter_expression() const
 {
-    if (!m_content_filter_expression)
+    if(!m_content_filter_expression)
     {
         throw BadParamException("Optional member is not been selected");
     }
     return *m_content_filter_expression;
 }
-    
-std::string &eprosima::micrortps::ReadSpecification::content_filter_expression()
+
+std::string& eprosima::micrortps::ReadSpecification::content_filter_expression()
 {
-    if (!m_content_filter_expression)
+    if(!m_content_filter_expression)
     {
         throw BadParamException("Optional member is not been selected");
     }
@@ -4703,7 +4706,7 @@ size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(size_t curre
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    if (m_content_filter_expression)
+    if(m_content_filter_expression)
     {
         current_alignment +=
             4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_content_filter_expression->size() + 1;
@@ -4714,10 +4717,10 @@ size_t eprosima::micrortps::ReadSpecification::getCdrSerializedSize(size_t curre
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::ReadSpecification::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << static_cast<bool>(m_content_filter_expression);
-    if (m_content_filter_expression)
+    if(m_content_filter_expression)
     {
         scdr << *m_content_filter_expression;
     }
@@ -4725,16 +4728,18 @@ void eprosima::micrortps::ReadSpecification::serialize(eprosima::fastcdr::Cdr &s
     scdr << m_delivery_config;
 }
 
-void eprosima::micrortps::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::ReadSpecification::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     bool optional_present = false;
     dcdr >> optional_present;
-    if (optional_present)
+    if(optional_present)
     {
+        // Workaround Optional interface flaw with operator*. Using operator* to set a value does not change the
+        // presence flag.
         std::string temp_content_filter;
         dcdr >> temp_content_filter;
         m_content_filter_expression = temp_content_filter;
-    }    
+    }
     dcdr >> m_delivery_config;
 }
 
@@ -4749,21 +4754,21 @@ eprosima::micrortps::SampleInfo::~SampleInfo()
 {
 }
 
-eprosima::micrortps::SampleInfo::SampleInfo(const SampleInfo &x)
+eprosima::micrortps::SampleInfo::SampleInfo(const SampleInfo& x)
 {
     m_state               = x.m_state;
     m_sequence_number     = x.m_sequence_number;
     m_session_time_offset = x.m_session_time_offset;
 }
 
-eprosima::micrortps::SampleInfo::SampleInfo(SampleInfo &&x)
+eprosima::micrortps::SampleInfo::SampleInfo(SampleInfo&& x)
 {
     m_state               = x.m_state;
     m_sequence_number     = x.m_sequence_number;
     m_session_time_offset = x.m_session_time_offset;
 }
 
-eprosima::micrortps::SampleInfo &eprosima::micrortps::SampleInfo::operator=(const SampleInfo &x)
+eprosima::micrortps::SampleInfo& eprosima::micrortps::SampleInfo::operator=(const SampleInfo& x)
 {
     m_state               = x.m_state;
     m_sequence_number     = x.m_sequence_number;
@@ -4772,7 +4777,7 @@ eprosima::micrortps::SampleInfo &eprosima::micrortps::SampleInfo::operator=(cons
     return *this;
 }
 
-eprosima::micrortps::SampleInfo &eprosima::micrortps::SampleInfo::operator=(SampleInfo &&x)
+eprosima::micrortps::SampleInfo& eprosima::micrortps::SampleInfo::operator=(SampleInfo&& x)
 {
     m_state               = x.m_state;
     m_sequence_number     = x.m_sequence_number;
@@ -4807,14 +4812,14 @@ size_t eprosima::micrortps::SampleInfo::getCdrSerializedSize(size_t current_alig
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::SampleInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::SampleInfo::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_state;
     scdr << m_sequence_number;
     scdr << m_session_time_offset;
 }
 
-void eprosima::micrortps::SampleInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::SampleInfo::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_state;
     dcdr >> m_sequence_number;
@@ -4832,21 +4837,21 @@ eprosima::micrortps::SampleInfoDelta::~SampleInfoDelta()
 {
 }
 
-eprosima::micrortps::SampleInfoDelta::SampleInfoDelta(const SampleInfoDelta &x)
+eprosima::micrortps::SampleInfoDelta::SampleInfoDelta(const SampleInfoDelta& x)
 {
     m_state            = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
     m_timestamp_delta  = x.m_timestamp_delta;
 }
 
-eprosima::micrortps::SampleInfoDelta::SampleInfoDelta(SampleInfoDelta &&x)
+eprosima::micrortps::SampleInfoDelta::SampleInfoDelta(SampleInfoDelta&& x)
 {
     m_state            = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
     m_timestamp_delta  = x.m_timestamp_delta;
 }
 
-eprosima::micrortps::SampleInfoDelta &eprosima::micrortps::SampleInfoDelta::operator=(const SampleInfoDelta &x)
+eprosima::micrortps::SampleInfoDelta& eprosima::micrortps::SampleInfoDelta::operator=(const SampleInfoDelta& x)
 {
     m_state            = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
@@ -4855,7 +4860,7 @@ eprosima::micrortps::SampleInfoDelta &eprosima::micrortps::SampleInfoDelta::oper
     return *this;
 }
 
-eprosima::micrortps::SampleInfoDelta &eprosima::micrortps::SampleInfoDelta::operator=(SampleInfoDelta &&x)
+eprosima::micrortps::SampleInfoDelta& eprosima::micrortps::SampleInfoDelta::operator=(SampleInfoDelta&& x)
 {
     m_state            = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
@@ -4890,14 +4895,14 @@ size_t eprosima::micrortps::SampleInfoDelta::getCdrSerializedSize(size_t current
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::SampleInfoDelta::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::SampleInfoDelta::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_state;
     scdr << m_seq_number_delta;
     scdr << m_timestamp_delta;
 }
 
-void eprosima::micrortps::SampleInfoDelta::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::SampleInfoDelta::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_state;
     dcdr >> m_seq_number_delta;
@@ -4912,24 +4917,24 @@ eprosima::micrortps::SampleData::~SampleData()
 {
 }
 
-eprosima::micrortps::SampleData::SampleData(const SampleData &x)
+eprosima::micrortps::SampleData::SampleData(const SampleData& x)
 {
     m_serialized_data = x.m_serialized_data;
 }
 
-eprosima::micrortps::SampleData::SampleData(SampleData &&x)
+eprosima::micrortps::SampleData::SampleData(SampleData&& x)
 {
     m_serialized_data = std::move(x.m_serialized_data);
 }
 
-eprosima::micrortps::SampleData &eprosima::micrortps::SampleData::operator=(const SampleData &x)
+eprosima::micrortps::SampleData& eprosima::micrortps::SampleData::operator=(const SampleData& x)
 {
     m_serialized_data = x.m_serialized_data;
 
     return *this;
 }
 
-eprosima::micrortps::SampleData &eprosima::micrortps::SampleData::operator=(SampleData &&x)
+eprosima::micrortps::SampleData& eprosima::micrortps::SampleData::operator=(SampleData&& x)
 {
     m_serialized_data = std::move(x.m_serialized_data);
 
@@ -4956,12 +4961,12 @@ size_t eprosima::micrortps::SampleData::getCdrSerializedSize(size_t current_alig
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::SampleData::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::SampleData::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_serialized_data;
 }
 
-void eprosima::micrortps::SampleData::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::SampleData::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_serialized_data;
 }
@@ -4974,19 +4979,19 @@ eprosima::micrortps::Sample::~Sample()
 {
 }
 
-eprosima::micrortps::Sample::Sample(const Sample &x)
+eprosima::micrortps::Sample::Sample(const Sample& x)
 {
     m_info = x.m_info;
     m_data = x.m_data;
 }
 
-eprosima::micrortps::Sample::Sample(Sample &&x)
+eprosima::micrortps::Sample::Sample(Sample&& x)
 {
     m_info = std::move(x.m_info);
     m_data = std::move(x.m_data);
 }
 
-eprosima::micrortps::Sample &eprosima::micrortps::Sample::operator=(const Sample &x)
+eprosima::micrortps::Sample& eprosima::micrortps::Sample::operator=(const Sample& x)
 {
     m_info = x.m_info;
     m_data = x.m_data;
@@ -4994,7 +4999,7 @@ eprosima::micrortps::Sample &eprosima::micrortps::Sample::operator=(const Sample
     return *this;
 }
 
-eprosima::micrortps::Sample &eprosima::micrortps::Sample::operator=(Sample &&x)
+eprosima::micrortps::Sample& eprosima::micrortps::Sample::operator=(Sample&& x)
 {
     m_info = std::move(x.m_info);
     m_data = std::move(x.m_data);
@@ -5022,13 +5027,13 @@ size_t eprosima::micrortps::Sample::getCdrSerializedSize(size_t current_alignmen
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::Sample::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::Sample::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_info;
     scdr << m_data;
 }
 
-void eprosima::micrortps::Sample::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::Sample::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_info;
     dcdr >> m_data;
@@ -5042,19 +5047,19 @@ eprosima::micrortps::SampleDelta::~SampleDelta()
 {
 }
 
-eprosima::micrortps::SampleDelta::SampleDelta(const SampleDelta &x)
+eprosima::micrortps::SampleDelta::SampleDelta(const SampleDelta& x)
 {
     m_info_delta = x.m_info_delta;
     m_data       = x.m_data;
 }
 
-eprosima::micrortps::SampleDelta::SampleDelta(SampleDelta &&x)
+eprosima::micrortps::SampleDelta::SampleDelta(SampleDelta&& x)
 {
     m_info_delta = std::move(x.m_info_delta);
     m_data       = std::move(x.m_data);
 }
 
-eprosima::micrortps::SampleDelta &eprosima::micrortps::SampleDelta::operator=(const SampleDelta &x)
+eprosima::micrortps::SampleDelta& eprosima::micrortps::SampleDelta::operator=(const SampleDelta& x)
 {
     m_info_delta = x.m_info_delta;
     m_data       = x.m_data;
@@ -5062,7 +5067,7 @@ eprosima::micrortps::SampleDelta &eprosima::micrortps::SampleDelta::operator=(co
     return *this;
 }
 
-eprosima::micrortps::SampleDelta &eprosima::micrortps::SampleDelta::operator=(SampleDelta &&x)
+eprosima::micrortps::SampleDelta& eprosima::micrortps::SampleDelta::operator=(SampleDelta&& x)
 {
     m_info_delta = std::move(x.m_info_delta);
     m_data       = std::move(x.m_data);
@@ -5090,13 +5095,13 @@ size_t eprosima::micrortps::SampleDelta::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::SampleDelta::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::SampleDelta::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_info_delta;
     scdr << m_data;
 }
 
-void eprosima::micrortps::SampleDelta::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::SampleDelta::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_info_delta;
     dcdr >> m_data;
@@ -5110,19 +5115,19 @@ eprosima::micrortps::PackedSamples::~PackedSamples()
 {
 }
 
-eprosima::micrortps::PackedSamples::PackedSamples(const PackedSamples &x)
+eprosima::micrortps::PackedSamples::PackedSamples(const PackedSamples& x)
 {
     m_info_base        = x.m_info_base;
     m_sample_delta_seq = x.m_sample_delta_seq;
 }
 
-eprosima::micrortps::PackedSamples::PackedSamples(PackedSamples &&x)
+eprosima::micrortps::PackedSamples::PackedSamples(PackedSamples&& x)
 {
     m_info_base        = std::move(x.m_info_base);
     m_sample_delta_seq = std::move(x.m_sample_delta_seq);
 }
 
-eprosima::micrortps::PackedSamples &eprosima::micrortps::PackedSamples::operator=(const PackedSamples &x)
+eprosima::micrortps::PackedSamples& eprosima::micrortps::PackedSamples::operator=(const PackedSamples& x)
 {
     m_info_base        = x.m_info_base;
     m_sample_delta_seq = x.m_sample_delta_seq;
@@ -5130,7 +5135,7 @@ eprosima::micrortps::PackedSamples &eprosima::micrortps::PackedSamples::operator
     return *this;
 }
 
-eprosima::micrortps::PackedSamples &eprosima::micrortps::PackedSamples::operator=(PackedSamples &&x)
+eprosima::micrortps::PackedSamples& eprosima::micrortps::PackedSamples::operator=(PackedSamples&& x)
 {
     m_info_base        = std::move(x.m_info_base);
     m_sample_delta_seq = std::move(x.m_sample_delta_seq);
@@ -5166,13 +5171,13 @@ size_t eprosima::micrortps::PackedSamples::getCdrSerializedSize(size_t current_a
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::PackedSamples::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::PackedSamples::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_info_base;
     scdr << m_sample_delta_seq;
 }
 
-void eprosima::micrortps::PackedSamples::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::PackedSamples::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_info_base;
     dcdr >> m_sample_delta_seq;
@@ -5187,7 +5192,7 @@ eprosima::micrortps::DataRepresentation::~DataRepresentation()
 {
 }
 
-eprosima::micrortps::DataRepresentation::DataRepresentation(const DataRepresentation &x)
+eprosima::micrortps::DataRepresentation::DataRepresentation(const DataRepresentation& x)
 {
     m__d = x.m__d;
 
@@ -5213,7 +5218,7 @@ eprosima::micrortps::DataRepresentation::DataRepresentation(const DataRepresenta
     }
 }
 
-eprosima::micrortps::DataRepresentation::DataRepresentation(DataRepresentation &&x)
+eprosima::micrortps::DataRepresentation::DataRepresentation(DataRepresentation&& x)
 {
     m__d = x.m__d;
 
@@ -5239,7 +5244,7 @@ eprosima::micrortps::DataRepresentation::DataRepresentation(DataRepresentation &
     }
 }
 
-eprosima::micrortps::DataRepresentation &eprosima::micrortps::DataRepresentation::operator=(const DataRepresentation &x)
+eprosima::micrortps::DataRepresentation& eprosima::micrortps::DataRepresentation::operator=(const DataRepresentation& x)
 {
     m__d = x.m__d;
 
@@ -5267,7 +5272,7 @@ eprosima::micrortps::DataRepresentation &eprosima::micrortps::DataRepresentation
     return *this;
 }
 
-eprosima::micrortps::DataRepresentation &eprosima::micrortps::DataRepresentation::operator=(DataRepresentation &&x)
+eprosima::micrortps::DataRepresentation& eprosima::micrortps::DataRepresentation::operator=(DataRepresentation&& x)
 {
     m__d = x.m__d;
 
@@ -5364,24 +5369,24 @@ eprosima::micrortps::DataFormat eprosima::micrortps::DataRepresentation::_d() co
     return m__d;
 }
 
-eprosima::micrortps::DataFormat &eprosima::micrortps::DataRepresentation::_d()
+eprosima::micrortps::DataFormat& eprosima::micrortps::DataRepresentation::_d()
 {
     return m__d;
 }
 
-void eprosima::micrortps::DataRepresentation::data(const eprosima::micrortps::SampleData &_data)
+void eprosima::micrortps::DataRepresentation::data(const eprosima::micrortps::SampleData& _data)
 {
     m_data = _data;
     m__d   = FORMAT_DATA;
 }
 
-void eprosima::micrortps::DataRepresentation::data(eprosima::micrortps::SampleData &&_data)
+void eprosima::micrortps::DataRepresentation::data(eprosima::micrortps::SampleData&& _data)
 {
     m_data = std::move(_data);
     m__d   = FORMAT_DATA;
 }
 
-const eprosima::micrortps::SampleData &eprosima::micrortps::DataRepresentation::data() const
+const eprosima::micrortps::SampleData& eprosima::micrortps::DataRepresentation::data() const
 {
     bool b = false;
 
@@ -5399,7 +5404,7 @@ const eprosima::micrortps::SampleData &eprosima::micrortps::DataRepresentation::
     return m_data;
 }
 
-eprosima::micrortps::SampleData &eprosima::micrortps::DataRepresentation::data()
+eprosima::micrortps::SampleData& eprosima::micrortps::DataRepresentation::data()
 {
     bool b = false;
 
@@ -5416,19 +5421,19 @@ eprosima::micrortps::SampleData &eprosima::micrortps::DataRepresentation::data()
 
     return m_data;
 }
-void eprosima::micrortps::DataRepresentation::data_seq(const eprosima::micrortps::SampleDataSeq &_data_seq)
+void eprosima::micrortps::DataRepresentation::data_seq(const eprosima::micrortps::SampleDataSeq& _data_seq)
 {
     m_data_seq = _data_seq;
     m__d       = FORMAT_DATA_SEQ;
 }
 
-void eprosima::micrortps::DataRepresentation::data_seq(eprosima::micrortps::SampleDataSeq &&_data_seq)
+void eprosima::micrortps::DataRepresentation::data_seq(eprosima::micrortps::SampleDataSeq&& _data_seq)
 {
     m_data_seq = std::move(_data_seq);
     m__d       = FORMAT_DATA_SEQ;
 }
 
-const eprosima::micrortps::SampleDataSeq &eprosima::micrortps::DataRepresentation::data_seq() const
+const eprosima::micrortps::SampleDataSeq& eprosima::micrortps::DataRepresentation::data_seq() const
 {
     bool b = false;
 
@@ -5446,7 +5451,7 @@ const eprosima::micrortps::SampleDataSeq &eprosima::micrortps::DataRepresentatio
     return m_data_seq;
 }
 
-eprosima::micrortps::SampleDataSeq &eprosima::micrortps::DataRepresentation::data_seq()
+eprosima::micrortps::SampleDataSeq& eprosima::micrortps::DataRepresentation::data_seq()
 {
     bool b = false;
 
@@ -5463,19 +5468,19 @@ eprosima::micrortps::SampleDataSeq &eprosima::micrortps::DataRepresentation::dat
 
     return m_data_seq;
 }
-void eprosima::micrortps::DataRepresentation::sample(const eprosima::micrortps::Sample &_sample)
+void eprosima::micrortps::DataRepresentation::sample(const eprosima::micrortps::Sample& _sample)
 {
     m_sample = _sample;
     m__d     = FORMAT_SAMPLE;
 }
 
-void eprosima::micrortps::DataRepresentation::sample(eprosima::micrortps::Sample &&_sample)
+void eprosima::micrortps::DataRepresentation::sample(eprosima::micrortps::Sample&& _sample)
 {
     m_sample = std::move(_sample);
     m__d     = FORMAT_SAMPLE;
 }
 
-const eprosima::micrortps::Sample &eprosima::micrortps::DataRepresentation::sample() const
+const eprosima::micrortps::Sample& eprosima::micrortps::DataRepresentation::sample() const
 {
     bool b = false;
 
@@ -5493,7 +5498,7 @@ const eprosima::micrortps::Sample &eprosima::micrortps::DataRepresentation::samp
     return m_sample;
 }
 
-eprosima::micrortps::Sample &eprosima::micrortps::DataRepresentation::sample()
+eprosima::micrortps::Sample& eprosima::micrortps::DataRepresentation::sample()
 {
     bool b = false;
 
@@ -5510,19 +5515,19 @@ eprosima::micrortps::Sample &eprosima::micrortps::DataRepresentation::sample()
 
     return m_sample;
 }
-void eprosima::micrortps::DataRepresentation::sample_seq(const eprosima::micrortps::SampleSeq &_sample_seq)
+void eprosima::micrortps::DataRepresentation::sample_seq(const eprosima::micrortps::SampleSeq& _sample_seq)
 {
     m_sample_seq = _sample_seq;
     m__d         = FORMAT_SAMPLE_SEQ;
 }
 
-void eprosima::micrortps::DataRepresentation::sample_seq(eprosima::micrortps::SampleSeq &&_sample_seq)
+void eprosima::micrortps::DataRepresentation::sample_seq(eprosima::micrortps::SampleSeq&& _sample_seq)
 {
     m_sample_seq = std::move(_sample_seq);
     m__d         = FORMAT_SAMPLE_SEQ;
 }
 
-const eprosima::micrortps::SampleSeq &eprosima::micrortps::DataRepresentation::sample_seq() const
+const eprosima::micrortps::SampleSeq& eprosima::micrortps::DataRepresentation::sample_seq() const
 {
     bool b = false;
 
@@ -5540,7 +5545,7 @@ const eprosima::micrortps::SampleSeq &eprosima::micrortps::DataRepresentation::s
     return m_sample_seq;
 }
 
-eprosima::micrortps::SampleSeq &eprosima::micrortps::DataRepresentation::sample_seq()
+eprosima::micrortps::SampleSeq& eprosima::micrortps::DataRepresentation::sample_seq()
 {
     bool b = false;
 
@@ -5557,19 +5562,19 @@ eprosima::micrortps::SampleSeq &eprosima::micrortps::DataRepresentation::sample_
 
     return m_sample_seq;
 }
-void eprosima::micrortps::DataRepresentation::packed_samples(const eprosima::micrortps::PackedSamples &_packed_samples)
+void eprosima::micrortps::DataRepresentation::packed_samples(const eprosima::micrortps::PackedSamples& _packed_samples)
 {
     m_packed_samples = _packed_samples;
     m__d             = FORMAT_PACKED_SAMPLES;
 }
 
-void eprosima::micrortps::DataRepresentation::packed_samples(eprosima::micrortps::PackedSamples &&_packed_samples)
+void eprosima::micrortps::DataRepresentation::packed_samples(eprosima::micrortps::PackedSamples&& _packed_samples)
 {
     m_packed_samples = std::move(_packed_samples);
     m__d             = FORMAT_PACKED_SAMPLES;
 }
 
-const eprosima::micrortps::PackedSamples &eprosima::micrortps::DataRepresentation::packed_samples() const
+const eprosima::micrortps::PackedSamples& eprosima::micrortps::DataRepresentation::packed_samples() const
 {
     bool b = false;
 
@@ -5587,7 +5592,7 @@ const eprosima::micrortps::PackedSamples &eprosima::micrortps::DataRepresentatio
     return m_packed_samples;
 }
 
-eprosima::micrortps::PackedSamples &eprosima::micrortps::DataRepresentation::packed_samples()
+eprosima::micrortps::PackedSamples& eprosima::micrortps::DataRepresentation::packed_samples()
 {
     bool b = false;
 
@@ -5660,8 +5665,7 @@ size_t eprosima::micrortps::DataRepresentation::getMaxCdrSerializedSize(size_t c
 }
 
 // TODO(Ricardo) Review
-size_t
-eprosima::micrortps::DataRepresentation::getCdrSerializedSize(size_t current_alignment) const
+size_t eprosima::micrortps::DataRepresentation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -5686,13 +5690,11 @@ eprosima::micrortps::DataRepresentation::getCdrSerializedSize(size_t current_ali
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
             for(size_t a = 0; a < m_sample_seq.size(); ++a)
             {
-                current_alignment +=
-                    m_sample_seq.at(a).getCdrSerializedSize(current_alignment);
+                current_alignment += m_sample_seq.at(a).getCdrSerializedSize(current_alignment);
             }
             break;
         case FORMAT_PACKED_SAMPLES:
-            current_alignment +=
-                m_packed_samples.getCdrSerializedSize(current_alignment);
+            current_alignment += m_packed_samples.getCdrSerializedSize(current_alignment);
             break;
         default:
             break;
@@ -5701,7 +5703,7 @@ eprosima::micrortps::DataRepresentation::getCdrSerializedSize(size_t current_ali
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::DataRepresentation::serialize(eprosima::fastcdr::Cdr &scdr) const
+void eprosima::micrortps::DataRepresentation::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m__d;
 
@@ -5727,7 +5729,7 @@ void eprosima::micrortps::DataRepresentation::serialize(eprosima::fastcdr::Cdr &
     }
 }
 
-void eprosima::micrortps::DataRepresentation::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void eprosima::micrortps::DataRepresentation::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m__d;
 
