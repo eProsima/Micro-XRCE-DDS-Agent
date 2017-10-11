@@ -35,37 +35,37 @@ class Optional
         return *this;
     }
 
-    constexpr const T* operator->() const
+    const T* operator->() const
     {
         return present_ ? &data_ : nullptr;
     }
 
-    constexpr T* operator->()
+    T* operator->()
     {
         return present_ ? &data_ : nullptr;
     }
 
-    constexpr const T& operator*() const &
+    const T& operator*() const &
     {
         return data_;
     }
 
-    constexpr T& operator*() &
+    T& operator*() &
     {
         return data_;
     }
 
-    constexpr const T&& operator*() const &&
+    const T&& operator*() const &&
     {
         return std::move(data_);
     }
 
-    constexpr T&& operator*() &&
+    T&& operator*() &&
     {
         return std::move(data_);
     }
 
-    constexpr explicit operator bool() const noexcept
+    explicit operator bool() const noexcept
     {
         return present_;
     }
