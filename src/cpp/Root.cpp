@@ -128,7 +128,7 @@ ResultStatus Agent::delete_client(ClientKey client_key, const DELETE_RESOURCE_Pa
     ResultStatus status;
     status.request_id(delete_info.request_id());
     status.status(STATUS_LAST_OP_DELETE);
-    if ((0 == clients_.erase(client_key)) && (0 == client_ids_.erase(delete_info.object_id())))
+    if ((0 ==clients_.erase(client_key)) || (0 == client_ids_.erase(delete_info.object_id())))
     {
         status.implementation_status(STATUS_ERR_INVALID_DATA);
     }
