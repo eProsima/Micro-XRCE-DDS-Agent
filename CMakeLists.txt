@@ -76,13 +76,13 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     src/cpp
                     include
                     include/agent
-                    /home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
-                    #/home/borja/dev/rtps/thirdparty/asio/asio/include
+                    #/home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
+                    /home/borja/dev/rtps/thirdparty/asio/asio/include
                     #/home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
                     )
 
 # libagent.so
-file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
+file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*.cxx" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
 install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent transport fastcdr)
@@ -119,7 +119,8 @@ if(EPROSIMA_EXTRA_CMAKE_CXX_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EPROSIMA_EXTRA_CMAKE_CXX_FLAGS}")
 endif()
 else()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wno-unknown-pragmas -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wno-unknown-pragmas -std=c++11")
+    # -fprofile-arcs -ftest-coverage")
 endif()
 
 ###############################################################################
