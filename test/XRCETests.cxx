@@ -382,6 +382,8 @@ class XRCEParserTests : public CommonData, public ::testing::Test
     Serializer deserializer_;
 };
 
+// TODO(borja) Create DELETE tests
+
 TEST_F(XRCEParserTests, EmptyMessage)
 {
     ::testing::internal::CaptureStderr();
