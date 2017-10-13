@@ -3793,7 +3793,7 @@ class ResultStatus
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    eprosima::micrortps::RequestId m_request_id;
+    eprosima::micrortps::RequestId m_request_id; // TODO(borja) Redundant request_id?
     uint8_t m_status;
     uint8_t m_implementation_status;
 };

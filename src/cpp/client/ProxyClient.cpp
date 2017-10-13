@@ -141,7 +141,6 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
     }
 }
 
-
 ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE_Payload& create_payload)
 {
     ResultStatus status;
@@ -160,6 +159,7 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
     }
     else
     {
+        lock.unlock();
         if (!creation_mode.reuse()) // reuse = false
         {
             if (!creation_mode.replace()) // replace = false

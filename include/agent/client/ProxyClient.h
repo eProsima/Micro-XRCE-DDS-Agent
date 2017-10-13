@@ -15,26 +15,26 @@
 #ifndef _PROXY_CLIENT_H
 #define _PROXY_CLIENT_H
 
-
-#include <agent/datareader/DataReader.h>
 #include <MessageHeader.h>
+#include <agent/datareader/DataReader.h>
 
+#include <array>
 #include <map>
 
-namespace eprosima{
-namespace micrortps{
+namespace eprosima {
+namespace micrortps {
 
-class ProxyClient: public ReaderListener
+class ProxyClient : public ReaderListener
 {
-public:
+  public:
     ProxyClient() = default;
-    ProxyClient(OBJK_CLIENT_Representation  client, const MessageHeader& header);
+    ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header);
     ~ProxyClient();
 
-    ProxyClient(const ProxyClient &x) = delete;
-    ProxyClient(ProxyClient &&x) noexcept;
-    ProxyClient& operator=(const ProxyClient &x) = delete;
-    ProxyClient& operator=(ProxyClient &&x) noexcept;
+    ProxyClient(const ProxyClient& x) = delete;
+    ProxyClient(ProxyClient&& x) noexcept;
+    ProxyClient& operator=(const ProxyClient& x) = delete;
+    ProxyClient& operator=(ProxyClient&& x) noexcept;
 
     ResultStatus create(const CreationMode& creation_mode, const CREATE_Payload& create_payload);
     ResultStatus delete_object(const DELETE_RESOURCE_Payload& delete_payload);
@@ -42,18 +42,17 @@ public:
     ResultStatus read(const ObjectId& object_id, const READ_DATA_Payload& data_payload);
     ResultStatus write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload);
     Info get_info(const ObjectId& object_id);
-        
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id,
-            const std::vector<unsigned char>& buffer);
 
-private:
-    using InternalObjectId = std::array<uint8_t, 4>;
-    
+    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const std::vector<unsigned char>& buffer);
+
+  private:
+    using InternalObjectId = std::array<uint8_t, std::tuple_size<ObjectId>::value + 1>;
+
     OBJK_CLIENT_Representation representation_;
-    
+
     std::mutex objects_mutex_;
     std::map<InternalObjectId, XRCEObject*> objects_;
-        
+
     ClientKey client_key;
     SessionId session_id;
     uint8_t stream_id;
@@ -62,7 +61,7 @@ private:
     bool delete_object(const InternalObjectId& internal_object_id);
     InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
 };
-} // eprosima
-} // micrortps
+} // namespace micrortps
+} // namespace eprosima
 
 #endif //_PROXY_CLIENT_H
