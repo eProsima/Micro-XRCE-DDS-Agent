@@ -21,18 +21,24 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     endif()
 
     ###############################################################################
+    # Testing libraries
+    ###############################################################################
+    add_library(testcommon SHARED Common.cpp)
+
+
+    ###############################################################################
     # Unit tests
     ###############################################################################
     set(XRCETESTS_SOURCE XRCETests.cxx)
     add_executable(XRCETest ${XRCETESTS_SOURCE})
     add_gtest(XRCETest ${XRCETESTS_SOURCE})
     target_include_directories(XRCETest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(XRCETest agent transport fastcdr fastrtps ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(XRCETest agent transport fastcdr fastrtps testcommon ${GTEST_BOTH_LIBRARIES})
 
     set(AGENTTESTS_SOURCE AgentTests.cpp)
     add_executable(AgentTest ${AGENTTESTS_SOURCE})
     add_gtest(AgentTest ${AGENTTESTS_SOURCE})
     target_include_directories(AgentTest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(AgentTest agent transport fastcdr fastrtps ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(AgentTest agent transport fastcdr fastrtps testcommon ${GTEST_BOTH_LIBRARIES})
 
 endif()
