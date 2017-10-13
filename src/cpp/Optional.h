@@ -9,13 +9,13 @@ class Optional
   public:
     Optional() = default;
 
-    explicit Optional(const T& value)
+    Optional(const T& value)
     {
         present_ = true;
         data_    = value;
     }
 
-    explicit Optional(T&& value)
+    Optional(T&& value)
     {
         present_ = true;
         data_    = std::move(value);
