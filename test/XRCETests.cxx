@@ -335,26 +335,26 @@ class XRCEParserTests : public CommonData, public ::testing::Test
     class CountListener : public XRCEListener
     {
       public:
-        void on_message(const MessageHeader& header, const SubmessageHeader& sub_header,
-                        const CREATE_Payload& create_payload) override
+        void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+                        const CREATE_Payload& /*create_payload*/) override
         {
             ++creates;
         }
 
-        virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header,
-                                const DELETE_RESOURCE_Payload& create_payload)
+        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+                                const DELETE_RESOURCE_Payload& /*create_payload*/)
         {
             // TODO write tests on this
         }
 
-        virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header,
-                                const WRITE_DATA_Payload& write_payload)
+        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+                                const WRITE_DATA_Payload& /*write_payload*/)
         {
             ++writes;
         }
 
-        virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header,
-                                const READ_DATA_Payload& read_payload)
+        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+                                const READ_DATA_Payload& /*read_payload*/)
         {
             ++reads;
         }
