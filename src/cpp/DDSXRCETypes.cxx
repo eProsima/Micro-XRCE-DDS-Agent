@@ -4499,17 +4499,17 @@ eprosima::micrortps::DataFormat& eprosima::micrortps::DataDeliveryConfig::_d()
 }
 
 void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    const eprosima::micrortps::DataDeliveryControl& _delivey_control)
+    const eprosima::micrortps::DataDeliveryControl& _delivey_control, const DataFormat& format)
 {
     m_delivey_control = _delivey_control;
-    m__d              = FORMAT_DATA_SEQ;
+    m__d              = format;
 }
 
 void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    eprosima::micrortps::DataDeliveryControl&& _delivey_control)
+    eprosima::micrortps::DataDeliveryControl&& _delivey_control, const DataFormat& format)
 {
     m_delivey_control = std::move(_delivey_control);
-    m__d              = FORMAT_DATA_SEQ;
+    m__d              = format;
 }
 
 const eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivey_control() const

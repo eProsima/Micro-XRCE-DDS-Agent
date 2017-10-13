@@ -5173,14 +5173,16 @@ class DataDeliveryConfig
     /*!
      * @brief This function copies the value in member delivey_control
      * @param _delivey_control New value to be copied in member delivey_control
+     * @param format Format used
      */
-    void delivey_control(const eprosima::micrortps::DataDeliveryControl &_delivey_control);
+    void delivey_control(const eprosima::micrortps::DataDeliveryControl &_delivey_control, const DataFormat& format);
 
     /*!
      * @brief This function moves the value in member delivey_control
      * @param _delivey_control New value to be moved in member delivey_control
+     * @param format Format used
      */
-    void delivey_control(eprosima::micrortps::DataDeliveryControl &&_delivey_control);
+    void delivey_control(eprosima::micrortps::DataDeliveryControl &&_delivey_control, const DataFormat& format);
 
     /*!
      * @brief This function returns a constant reference to member delivey_control

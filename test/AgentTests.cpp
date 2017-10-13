@@ -6,9 +6,9 @@
 
 #include <gtest/gtest.h>
 
-namespace eprosima{
-namespace micrortps{
-namespace testing{
+namespace eprosima {
+namespace micrortps {
+namespace testing {
 
 using namespace eprosima::micrortps;
 
@@ -275,9 +275,9 @@ TEST_F(ProxyClientTests, DeleteOK)
     ASSERT_EQ(STATUS_LAST_OP_DELETE, result.status());
     ASSERT_EQ(STATUS_OK, result.implementation_status());
 }
-}
-}
-}
+} // namespace testing
+} // namespace micrortps
+} // namespace eprosima
 
 int main(int args, char** argv)
 {
