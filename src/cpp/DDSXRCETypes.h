@@ -5171,34 +5171,34 @@ class DataDeliveryConfig
     eprosima::micrortps::DataFormat &_d();
 
     /*!
-     * @brief This function copies the value in member delivey_control
-     * @param _delivey_control New value to be copied in member delivey_control
+     * @brief This function copies the value in member delivery_control
+     * @param _delivery_control New value to be copied in member delivery_control
      * @param format Format used
      */
-    void delivey_control(const eprosima::micrortps::DataDeliveryControl &_delivey_control, const DataFormat& format);
+    void delivery_control(const eprosima::micrortps::DataDeliveryControl &_delivery_control, const DataFormat& format);
 
     /*!
-     * @brief This function moves the value in member delivey_control
-     * @param _delivey_control New value to be moved in member delivey_control
+     * @brief This function moves the value in member delivery_control
+     * @param _delivery_control New value to be moved in member delivery_control
      * @param format Format used
      */
-    void delivey_control(eprosima::micrortps::DataDeliveryControl &&_delivey_control, const DataFormat& format);
+    void delivery_control(eprosima::micrortps::DataDeliveryControl &&_delivery_control, const DataFormat& format);
 
     /*!
-     * @brief This function returns a constant reference to member delivey_control
-     * @return Constant reference to member delivey_control
+     * @brief This function returns a constant reference to member delivery_control
+     * @return Constant reference to member delivery_control
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    const eprosima::micrortps::DataDeliveryControl &delivey_control() const;
+    const eprosima::micrortps::DataDeliveryControl &delivery_control() const;
 
     /*!
-     * @brief This function returns a reference to member delivey_control
-     * @return Reference to member delivey_control
+     * @brief This function returns a reference to member delivery_control
+     * @return Reference to member delivery_control
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the
      * current selection.
      */
-    eprosima::micrortps::DataDeliveryControl &delivey_control();
+    eprosima::micrortps::DataDeliveryControl &delivery_control();
 
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -5230,7 +5230,7 @@ class DataDeliveryConfig
   private:
     eprosima::micrortps::DataFormat m__d;
 
-    eprosima::micrortps::DataDeliveryControl m_delivey_control;
+    eprosima::micrortps::DataDeliveryControl m_delivery_control;
 };
 /*!
  * @brief This class represents the structure ReadSpecification defined by the user in the IDL file.

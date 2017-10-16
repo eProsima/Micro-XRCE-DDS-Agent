@@ -151,12 +151,12 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageNoFilter)
     ASSERT_EQ(read_data.request_id(), deserialized_read_data.request_id());
     ASSERT_EQ(read_data.read_specification().delivery_config()._d(),
               deserialized_read_data.read_specification().delivery_config()._d());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_samples(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_samples());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_elapsed_time(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_elapsed_time());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_rate(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_rate());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_samples(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_samples());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_elapsed_time(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_elapsed_time());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_rate(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_rate());
 }
 
 TEST_F(SerializerDeserializerTests, ReadDataSubmessageFilter)
@@ -174,12 +174,12 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageFilter)
               deserialized_read_data.read_specification().content_filter_expression());
     ASSERT_EQ(read_data.read_specification().delivery_config()._d(),
               deserialized_read_data.read_specification().delivery_config()._d());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_samples(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_samples());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_elapsed_time(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_elapsed_time());
-    ASSERT_EQ(read_data.read_specification().delivery_config().delivey_control().max_rate(),
-              deserialized_read_data.read_specification().delivery_config().delivey_control().max_rate());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_samples(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_samples());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_elapsed_time(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_elapsed_time());
+    ASSERT_EQ(read_data.read_specification().delivery_config().delivery_control().max_rate(),
+              deserialized_read_data.read_specification().delivery_config().delivery_control().max_rate());
 }
 
 TEST_F(SerializerDeserializerTests, WriteDataSubmessage)

@@ -376,7 +376,7 @@ module eprosima { module micrortps {
 			case FORMAT_DATA_SEQ:
 			case FORMAT_SAMPLE_SEQ:
 			case FORMAT_PACKED_SAMPLES:
-				DataDeliveryControl delivey_control;
+				DataDeliveryControl delivery_control;
 			case FORMAT_DATA:
 			case FORMAT_SAMPLE:
 				octet dummy;

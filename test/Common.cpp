@@ -126,7 +126,7 @@ READ_DATA_Payload CommonData::generate_read_data_payload(const Optional<std::str
     data_control.max_samples(max_samples);
     data_control.max_elapsed_time(max_elapsed_time);
     data_control.max_rate(max_rate);
-    read_data.read_specification().delivery_config().delivey_control(data_control, format);
+    read_data.read_specification().delivery_config().delivery_control(data_control, format);
     return read_data;
 }
 

@@ -4357,7 +4357,7 @@ eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(const DataDeliveryCo
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            m_delivey_control = x.m_delivey_control;
+            m_delivery_control = x.m_delivery_control;
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4375,7 +4375,7 @@ eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig(DataDeliveryConfig&&
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            m_delivey_control = std::move(x.m_delivey_control);
+            m_delivery_control = std::move(x.m_delivery_control);
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4393,7 +4393,7 @@ eprosima::micrortps::DataDeliveryConfig& eprosima::micrortps::DataDeliveryConfig
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            m_delivey_control = x.m_delivey_control;
+            m_delivery_control = x.m_delivery_control;
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4413,7 +4413,7 @@ eprosima::micrortps::DataDeliveryConfig& eprosima::micrortps::DataDeliveryConfig
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            m_delivey_control = std::move(x.m_delivey_control);
+            m_delivery_control = std::move(x.m_delivery_control);
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4498,21 +4498,21 @@ eprosima::micrortps::DataFormat& eprosima::micrortps::DataDeliveryConfig::_d()
     return m__d;
 }
 
-void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    const eprosima::micrortps::DataDeliveryControl& _delivey_control, const DataFormat& format)
+void eprosima::micrortps::DataDeliveryConfig::delivery_control(
+    const eprosima::micrortps::DataDeliveryControl& _delivery_control, const DataFormat& format)
 {
-    m_delivey_control = _delivey_control;
+    m_delivery_control = _delivery_control;
     m__d              = format;
 }
 
-void eprosima::micrortps::DataDeliveryConfig::delivey_control(
-    eprosima::micrortps::DataDeliveryControl&& _delivey_control, const DataFormat& format)
+void eprosima::micrortps::DataDeliveryConfig::delivery_control(
+    eprosima::micrortps::DataDeliveryControl&& _delivery_control, const DataFormat& format)
 {
-    m_delivey_control = std::move(_delivey_control);
+    m_delivery_control = std::move(_delivery_control);
     m__d              = format;
 }
 
-const eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivey_control() const
+const eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivery_control() const
 {
     bool b = false;
 
@@ -4529,10 +4529,10 @@ const eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliver
     if(!b)
         throw BadParamException("This member is not been selected");
 
-    return m_delivey_control;
+    return m_delivery_control;
 }
 
-eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivey_control()
+eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfig::delivery_control()
 {
     bool b = false;
 
@@ -4549,7 +4549,7 @@ eprosima::micrortps::DataDeliveryControl& eprosima::micrortps::DataDeliveryConfi
     if(!b)
         throw BadParamException("This member is not been selected");
 
-    return m_delivey_control;
+    return m_delivery_control;
 }
 
 size_t eprosima::micrortps::DataDeliveryConfig::getMaxCdrSerializedSize(size_t current_alignment)
@@ -4589,7 +4589,7 @@ size_t eprosima::micrortps::DataDeliveryConfig::getCdrSerializedSize(size_t curr
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            current_alignment += m_delivey_control.getCdrSerializedSize(current_alignment);
+            current_alignment += m_delivery_control.getCdrSerializedSize(current_alignment);
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4609,7 +4609,7 @@ void eprosima::micrortps::DataDeliveryConfig::serialize(eprosima::fastcdr::Cdr& 
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            scdr << m_delivey_control;
+            scdr << m_delivery_control;
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
@@ -4627,7 +4627,7 @@ void eprosima::micrortps::DataDeliveryConfig::deserialize(eprosima::fastcdr::Cdr
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            dcdr >> m_delivey_control;
+            dcdr >> m_delivery_control;
             break;
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
