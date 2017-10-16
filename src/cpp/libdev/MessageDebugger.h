@@ -12,20 +12,16 @@ namespace micrortps{
 
 class MessageHeader;
 class SubmessageHeader;
-class Status;
-class ResultStatus;
-class CREATE_PAYLOAD;
+class RESOURCE_STATUS_Payload;
+class CREATE_Payload;
+class DELETE_RESOURCE_Payload;
+class WRITE_DATA_Payload;
+class READ_DATA_Payload;
 class OBJK_PUBLISHER_Representation;
 class OBJK_SUBSCRIBER_Representation;
+class ResultStatus;
 class OBJK_DATAWRITER_Representation;
-class OBJK_DATAREADER_Representation;
-class ObjectVariant;
-class DELETE_PAYLOAD;
-class WRITE_DATA_PAYLOAD;
-class RT_Data;
-class SampleData;
-class READ_DATA_PAYLOAD;
-class DATA_PAYLOAD;
+class OBJK_DATAWRITER_Representation;
 
 namespace debug{
 
@@ -146,7 +142,7 @@ std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessag
 /*
 * Inserts Status on the stream.
 */
-std::ostream& operator<<(std::ostream& stream, const Status& status);
+std::ostream& operator<<(std::ostream& stream, const RESOURCE_STATUS_Payload& status);
 
 /*
  * Inserts ResultStatus on the stream.
@@ -157,7 +153,7 @@ std::ostream& operator<<(std::ostream& stream, const ResultStatus& status);
 /*
 * Inserts Status short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const Status& status, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const RESOURCE_STATUS_Payload& status, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts ResultStatus short representation on the stream.
@@ -172,12 +168,12 @@ std::ostream& short_print(std::ostream& stream, const std::string& text, const S
 /*
  * Inserts create payload on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const CREATE_PAYLOAD& create_payload);
+std::ostream& operator<<(std::ostream& stream, const CREATE_Payload& create_payload);
 
 /*
 * Inserts create short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const CREATE_PAYLOAD& create_payload, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const CREATE_Payload& create_payload, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts OBJK_PUBLISHER_Representation on the stream.
@@ -207,12 +203,12 @@ std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_repre
 /*
  * Inserts Delete info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const DELETE_PAYLOAD& delete_data);
+std::ostream& operator<<(std::ostream& stream, const CREATE_Payload& delete_data);
 
 /*
 * Inserts delete short representation on the stream.
 */
-std::ostream& short_print(std::ostream& stream, const DELETE_PAYLOAD& delete_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const CREATE_Payload& delete_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts SampleData data info on the stream.
@@ -227,17 +223,17 @@ std::ostream& operator<<(std::ostream& stream, const RT_Data& data);
 /*
  * Inserts Write data info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data);
+std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_Payload& write_data);
 
 /*
  * Inserts Write data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const WRITE_DATA_PAYLOAD& write_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts Read data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const READ_DATA_PAYLOAD& read_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_data, const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts DATA_PAYLOAD short representation on the stream.
