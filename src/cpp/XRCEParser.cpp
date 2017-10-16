@@ -41,31 +41,27 @@ bool XRCEParser::parse()
                 case CREATE:
                     if (!process_create(message_header, submessage_header))
                     {
-                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing create" << std::endl;
                     }
                     break;
                 case WRITE_DATA:
                     if (!process_write_data(message_header, submessage_header))
                     {
-                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing write" << std::endl;
                     }
                     break;
                 case READ_DATA:
                     if (!process_read_data(message_header, submessage_header))
                     {
-                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                         std::cerr << "Error processing read" << std::endl;
                     }
                     break;
                case DELETE:
-                    if (!process_delete(message_header, submessage_header))
-                     {
-                        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
-                        std::cerr << "Error processing delete" << std::endl;
-                     }
-                     break;
+                   if(!process_delete(message_header, submessage_header))
+                   {
+                       std::cerr << "Error processing delete" << std::endl;
+                   }
+                   break;
                 case GET_INFO:
                 case STATUS:
                 case INFO:
@@ -75,7 +71,6 @@ bool XRCEParser::parse()
                 case FRAGMENT:
                 case FRAGMENT_END:
                 default:
-                    //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                     std::cerr << "Error submessage ID not recognized" << std::endl;
                     return false;
                     break;
@@ -83,7 +78,6 @@ bool XRCEParser::parse()
             }
             else
             {
-                //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
                 std::cerr << "Error reading submessage header" << std::endl;
                 return false;
             }
@@ -91,7 +85,6 @@ bool XRCEParser::parse()
     }
     else
     {
-        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Error reading message header" << std::endl;
         return false;
     }

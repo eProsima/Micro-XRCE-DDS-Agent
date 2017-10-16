@@ -16,7 +16,8 @@
 
 #include <MessageHeader.h>
 #include <SubMessageHeader.h>
-// #include <libdev/MessageDebugger.h>
+#include <libdev/MessageDebugger.h>
+#include <libdev/MessageOutput.h>
 #include <types/Shape.h>
 
 #include <fastcdr/Cdr.h>
@@ -25,8 +26,7 @@
 
 using eprosima::micrortps::Agent;
 using eprosima::micrortps::ResultStatus;
-//using eprosima::micrortps::debug::operator<<;
-
+using eprosima::micrortps::debug::operator<<;
 
 Agent* eprosima::micrortps::root()
 {
@@ -80,10 +80,6 @@ void Agent::demo_create_client()
     message_header.sequence_nr(0);
 
     ResultStatus st = create_client(message_header, create_data);
-    if (st.implementation_status() == STATUS_OK)
-    {
-        //debug::short_print(std::cout, "    INTERNAL [Create | id: 0xF1F2F3F4 | 0001 OK | CREATE_CLIENT]\n");
-    }
 }
 
 ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_Payload& create_info)
@@ -379,22 +375,20 @@ void Agent::demo_process_response(Message& message)
         {
             RESOURCE_STATUS_Payload deserialized_status;
             deserializer.deserialize(deserialized_status);
+#ifdef VERBOSE_OUTPUT
             std::cout << "<== ";
-            //debug::short_print(std::cout, deserialized_status, debug::STREAM_COLOR::YELLOW) << std::endl;
+            eprosima::micrortps::debug::printl_status_submessage(deserialized_status);
+#endif
             break;
         }
         case DATA:
         {
             DATA_Payload_Data deserialized_data;
             deserializer.deserialize(deserialized_data);
+#ifdef VERBOSE_OUTPUT
             std::cout << "<== ";
-            //debug::short_print(std::cout, deserialized_data, debug::STREAM_COLOR::YELLOW) << std::endl;
-            // printf("%X\n", deserialized_data.data_reader().data().serialized_data().data());
-            // ShapeType* shape = (ShapeType*)deserialized_data.data_reader().data().serialized_data().data();
-            // std::cout << "<SHAPE TYPE>" << std::endl;
-            // std::cout << " - color: " << shape->color().data() << std::endl;
-            // std::cout << " - x: " << shape->x() << std::endl;
-            // std::cout << " - y: " << shape->y() << std::endl;
+            eprosima::micrortps::debug::printl_data_submessage(deserialized_data);
+#endif
             break;
         }
     }
@@ -542,8 +536,10 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub_header, const CREATE_Payload& create_payload)
 {
+#ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
-    //debug::short_print(std::cout, create_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    eprosima::micrortps::debug::printl_create_submessage(create_payload);
+#endif
     if (create_payload.object_representation()._d() != OBJK_CLIENT)
     {
         if (ProxyClient* client = get_client(header.client_key()))
@@ -563,8 +559,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
             add_reply(header, status);
         }
         else
-        {
-            //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
+        {        
             std::cerr << "Create message rejected" << std::endl;
         }
     }
@@ -580,8 +575,10 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const DELETE_RESOURCE_Payload& delete_payload)
 {
+#ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
-    //debug::short_print(std::cout, delete_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    eprosima::micrortps::debug::printl_delete_submessage(delete_payload);
+#endif
     auto client_id = client_ids_.find(delete_payload.object_id());
     if (client_id != client_ids_.end())
     {
@@ -601,15 +598,16 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
     }
     else
     {
-        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*sub_header*/, const WRITE_DATA_Payload&  write_payload)
 {
+#ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
-    //debug::short_print(std::cout, write_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    eprosima::micrortps::debug::printl_write_data_submessage(write_payload);
+#endif
     if (ProxyClient* client = get_client(header.client_key()))
     {
         RESOURCE_STATUS_Payload status;
@@ -621,7 +619,6 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
     }
     else
     {
-        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Write message rejected" << std::endl;
     }
 }
@@ -629,8 +626,10 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
 void Agent::on_message(const MessageHeader &header, const SubmessageHeader & /*sub_header*/,
                        const READ_DATA_Payload &read_payload)
 {
+#ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
-    // debug::short_print(std::cout, read_payload, debug::STREAM_COLOR::GREEN) << std::endl;
+    eprosima::micrortps::debug::printl_read_data_submessage(read_payload);
+#endif
     if(ProxyClient *client = get_client(header.client_key()))
     {
         RESOURCE_STATUS_Payload status;
@@ -642,7 +641,6 @@ void Agent::on_message(const MessageHeader &header, const SubmessageHeader & /*s
     }
     else
     {
-        //debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
         std::cerr << "Read message rejected" << std::endl;
     }
 }
@@ -653,9 +651,9 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
     {
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
-    {
-        // debug::ColorStream cs(std::cerr, debug::STREAM_COLOR::RED);
-        // std::cerr << "Client " << client_key << "not found" << std::endl;
+    {        
+        std::cout << client_key;
+        std::cerr << "Client " << client_key << "not found" << std::endl;
         return nullptr;
     }
 }

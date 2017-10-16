@@ -459,12 +459,14 @@ void printl_write_data_submessage(const WRITE_DATA_Payload& payload)
             sprintf(content, "DATA | data size: %u", payload.data_to_write().data().serialized_data().size());
             break;
         case FORMAT_DATA_SEQ:
+        {
             int seq_counter = 0;
             for(auto data : payload.data_to_write().data_seq())
             {
                 sprintf(content, "DATA | sq_nr: %u | data size: %u", seq_counter++, data.serialized_data().size());
             }
             break;
+        }
         case FORMAT_SAMPLE:
             break;
         case FORMAT_SAMPLE_SEQ:
