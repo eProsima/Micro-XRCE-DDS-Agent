@@ -341,19 +341,19 @@ class XRCEParserTests : public CommonData, public ::testing::Test
             ++creates;
         }
 
-        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+        void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
                                 const DELETE_RESOURCE_Payload& /*create_payload*/) override
         {
             // TODO write tests on this
         }
 
-        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+        void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
                                 const WRITE_DATA_Payload& /*write_payload*/) override
         {
             ++writes;
         }
 
-        virtual void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
+        void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
                                 const READ_DATA_Payload& /*read_payload*/) override
         {
             ++reads;
