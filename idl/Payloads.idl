@@ -2,6 +2,11 @@
 
 module eprosima { module micrortps {
 
+struct CREATE_CLIENT_Payload {
+  BaseObjectRequest todo;
+  OBJK_CLIENT_Representation object_representation;
+};
+
 struct CREATE_Payload {
   BaseObjectRequest todo;
   ObjectVariant object_representation;
