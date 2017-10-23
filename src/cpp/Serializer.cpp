@@ -55,6 +55,7 @@ template bool Serializer::serialize(const ResultStatus &data);
 template bool Serializer::serialize(const READ_DATA_Payload &data);
 template bool Serializer::serialize(const WRITE_DATA_Payload &data);
 template bool Serializer::serialize(const CREATE_Payload &data);
+template bool Serializer::serialize(const DELETE_RESOURCE_Payload &data);
 
 template <class T> bool Serializer::deserialize(T &data)
 {

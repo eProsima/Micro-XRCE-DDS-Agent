@@ -210,6 +210,17 @@ TEST_F(SerializerDeserializerTests, DataSubmessage)
     ASSERT_EQ(data_payload.data().serialized_data(), deserialized_data.data().serialized_data());
 }
 
+TEST_F(SerializerDeserializerTests, DeleteSubmessage)
+{
+    DELETE_RESOURCE_Payload delete_payload = generate_delete_resource_payload(object_id);
+    serializer_.serialize(delete_payload);
+
+    DELETE_RESOURCE_Payload deserialized_data;
+    deserializer_.deserialize(deserialized_data);
+    ASSERT_EQ(delete_payload.object_id(), deserialized_data.object_id());
+    ASSERT_EQ(delete_payload.request_id(), deserialized_data.request_id());
+}
+
 class XRCEFactoryTests : public CommonData, public ::testing::Test
 {
   protected:
@@ -342,19 +353,19 @@ class XRCEParserTests : public CommonData, public ::testing::Test
         }
 
         void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
-                                const DELETE_RESOURCE_Payload& /*create_payload*/) override
+                        const DELETE_RESOURCE_Payload& /*create_payload*/) override
         {
-            // TODO write tests on this
+            ++deletes;
         }
 
         void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
-                                const WRITE_DATA_Payload& /*write_payload*/) override
+                        const WRITE_DATA_Payload& /*write_payload*/) override
         {
             ++writes;
         }
 
         void on_message(const MessageHeader& /*header*/, const SubmessageHeader& /*sub_header*/,
-                                const READ_DATA_Payload& /*read_payload*/) override
+                        const READ_DATA_Payload& /*read_payload*/) override
         {
             ++reads;
         }
@@ -362,6 +373,7 @@ class XRCEParserTests : public CommonData, public ::testing::Test
         int creates = 0;
         int writes  = 0;
         int reads   = 0;
+        int deletes = 0;
     };
 
   protected:
@@ -381,8 +393,6 @@ class XRCEParserTests : public CommonData, public ::testing::Test
     Serializer serializer_;
     Serializer deserializer_;
 };
-
-// TODO(borja) Create DELETE tests
 
 TEST_F(XRCEParserTests, EmptyMessage)
 {
@@ -440,6 +450,23 @@ TEST_F(XRCEParserTests, CreateMessage)
     ASSERT_EQ(count_listener_.creates, 0);
     ASSERT_TRUE(myParser.parse());
     ASSERT_EQ(count_listener_.creates, 1);
+}
+
+TEST_F(XRCEParserTests, DeleteMessage)
+{
+    MessageHeader message_header = generate_message_header();
+    serializer_.serialize(message_header);
+    DELETE_RESOURCE_Payload delete_data = generate_delete_resource_payload(object_id);
+    SubmessageHeader submessage_header =
+        generate_submessage_header(DELETE, static_cast<uint16_t>(delete_data.getCdrSerializedSize()));
+
+    serializer_.serialize(submessage_header);
+    serializer_.serialize(delete_data);
+
+    XRCEParser myParser{test_buffer_, serializer_.get_serialized_size(), &count_listener_};
+    ASSERT_EQ(count_listener_.deletes, 0);
+    ASSERT_TRUE(myParser.parse());
+    ASSERT_EQ(count_listener_.deletes, 1);
 }
 
 TEST_F(XRCEParserTests, MultiCreateMessage)
@@ -540,6 +567,7 @@ TEST_F(XRCEParserTests, MultiSubMessage)
     const int num_creates = 3;
     const int num_reads   = 3;
     const int num_writes  = 3;
+    const int num_deletes  = 3;
 
     MessageHeader message_header = generate_message_header();
     serializer_.serialize(message_header);
@@ -570,14 +598,24 @@ TEST_F(XRCEParserTests, MultiSubMessage)
         serializer_.serialize(write_payload);
     }
 
+    DELETE_RESOURCE_Payload delete_data = generate_delete_resource_payload(object_id);
+    submessage_header = generate_submessage_header(DELETE, static_cast<uint16_t>(delete_data.getCdrSerializedSize()));
+    for(int i = 0; i < num_deletes; ++i)
+    {
+        serializer_.serialize(submessage_header);
+        serializer_.serialize(delete_data);
+    }
+
     XRCEParser myParser{test_buffer_, serializer_.get_serialized_size(), &count_listener_};
     ASSERT_EQ(count_listener_.creates, 0);
     ASSERT_EQ(count_listener_.writes, 0);
     ASSERT_EQ(count_listener_.reads, 0);
+    ASSERT_EQ(count_listener_.deletes, 0);
     ASSERT_TRUE(myParser.parse());
     ASSERT_EQ(count_listener_.creates, num_creates);
     ASSERT_EQ(count_listener_.reads, num_reads);
     ASSERT_EQ(count_listener_.writes, num_writes);
+    ASSERT_EQ(count_listener_.deletes, num_deletes);
 }
 
 class XRCEFileTests : public CommonData, public ::testing::Test

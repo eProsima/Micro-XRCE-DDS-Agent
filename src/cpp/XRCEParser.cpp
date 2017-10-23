@@ -104,7 +104,7 @@ bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHea
 
 bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHeader& sub_header)
 {
-    CREATE_Payload delete_payload;
+    DELETE_RESOURCE_Payload delete_payload;
     if (deserializer_.deserialize(delete_payload))
     {
         listener_->on_message(header, sub_header, delete_payload);
