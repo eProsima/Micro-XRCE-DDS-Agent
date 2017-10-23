@@ -35,7 +35,6 @@ Agent* eprosima::micrortps::root()
 }
 
 Agent::Agent() :
-    ch_id_{},
     out_buffer_{},
     in_buffer_{},
     loc_{},    
@@ -50,8 +49,8 @@ void Agent::init()
 {
     std::cout << "Agent initialization..." << std::endl;
     // Init transport
-    loc_ = locator_t{LOC_SERIAL, "/dev/ttyACM0"};
-    ch_id_ = add_locator(&loc_);
+
+    loc_ = add_serial_locator("/dev/ttyACM0");
 }
 
 void Agent::demo_create_client()
@@ -400,7 +399,7 @@ void Agent::run()
     int ret = 0;
     do
     {
-        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_.kind, ch_id_)))
+        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_)))
         {
             //printf("RECV: %d bytes\n", ret);
             /*for (int i = 0; i < ret; ++i)
@@ -517,7 +516,7 @@ void Agent::reply()
         {
             demo_process_response(message);
             int ret = 0;
-            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_.kind, ch_id_)))
+            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_)))
             {
                 printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
                 for (int i = 0; i < ret; ++i)

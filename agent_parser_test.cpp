@@ -147,19 +147,13 @@ int main(int args, char** argv)
     PoC_Listener my_xrce_listener;
 
     // Init transport
-    locator_t loc =
-    {
-      LOC_SERIAL,
-      "/dev/ttyACM0"
-    };
+    locator_id_t loc = add_serial_locator("/dev/ttyACM0");
 
     int ret = 0;
-    channel_id_t ch_id = add_locator(&loc);
-
     int loops = 1000;
     while (loops--)
     {
-        if (0 < (ret = send_data(out_buffer, message_size, loc.kind, ch_id)))
+        if (0 < (ret = send_data(out_buffer, message_size, loc)))
         {
             printf("SEND: %d bytes\n", ret);
         }
@@ -170,7 +164,7 @@ int main(int args, char** argv)
 
         usleep(2000000);
 
-        if (0 < (ret = receive_data(in_buffer, buffer_len, loc.kind, ch_id)))
+        if (0 < (ret = receive_data(in_buffer, buffer_len, loc)))
         {
             printf("RECV: %d bytes\n", ret);
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer), ret, &my_xrce_listener};

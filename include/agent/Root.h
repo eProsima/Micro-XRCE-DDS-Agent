@@ -114,11 +114,11 @@ public:
     void add_reply(const MessageHeader& header, const DATA_Payload_PackedSamples& payload);
 
 private:
-    channel_id_t ch_id_;
+    // channel_id_t ch_id_;
     static const size_t buffer_len_ = 1024;
     octet out_buffer_[buffer_len_];
     octet in_buffer_[buffer_len_];
-    locator_t loc_;
+    locator_id_t loc_;
     std::map<ClientKey, ProxyClient> clients_;
     std::map<ObjectId, ClientKey> client_ids_;
 
