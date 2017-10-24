@@ -38,11 +38,11 @@ DataWriter::DataWriter(fastrtps::Participant* rtps_participant)
     init();
 }
 
-DataWriter::DataWriter(const char* xmlrep, size_t size, fastrtps::Participant* rtps_participant)
+DataWriter::DataWriter(const std::string& xmlrep, fastrtps::Participant* rtps_participant)
     : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
 
 {
-    init(xmlrep, size);
+    init(xmlrep);
 }
 
 DataWriter::~DataWriter()
@@ -89,7 +89,7 @@ bool DataWriter::init()
     return true;
 }
 
-bool DataWriter::init(const char* xmlrep, size_t size)
+bool DataWriter::init(const std::string& xmlrep)
 {
     if (nullptr == mp_rtps_participant &&
         nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
@@ -100,7 +100,7 @@ bool DataWriter::init(const char* xmlrep, size_t size)
     fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
 
     PublisherAttributes attributes;
-    if (xmlobjects::parse_publisher(xmlrep, size, attributes))
+    if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
     {
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
     }

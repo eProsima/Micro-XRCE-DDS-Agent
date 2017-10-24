@@ -91,11 +91,11 @@ class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
 
   public:
     DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
-    DataReader(const char* xmlrep, size_t size, fastrtps::Participant* rtps_participant, ReaderListener* read_list);
+    DataReader(const std::string& xmlrep, fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     virtual ~DataReader();
 
     bool init();
-    bool init(const char* xmlrep, size_t size);
+    bool init(const std::string& xmlrep);
     int read(const READ_DATA_Payload& read_data);
 
     void on_timeout(const asio::error_code& error);

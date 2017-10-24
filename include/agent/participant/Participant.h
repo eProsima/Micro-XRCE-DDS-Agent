@@ -54,10 +54,10 @@ class XRCEParticipant : public XRCEObject
     {
         return nullptr;
     }
-    XRCEObject* create_writer();
-    XRCEObject* create_writer(const char* xmlrep, size_t size);
-    XRCEObject* create_reader(ReaderListener* message_listener);
-    XRCEObject* create_reader(const char* xmlrep, size_t size, ReaderListener* message_listener);
+    // XRCEObject* create_writer();
+    XRCEObject* create_writer(const std::string& xmlrep);
+    // XRCEObject* create_reader(ReaderListener* message_listener);
+    XRCEObject* create_reader(const std::string& xmlrep, ReaderListener* message_listener);
 
     XRCEObject* get_writer();
     XRCEObject* get_reader();

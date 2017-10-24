@@ -38,12 +38,12 @@ DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, Reader
     init();
 }
 
-DataReader::DataReader(const char* xmlrep, size_t size, eprosima::fastrtps::Participant* rtps_participant,
+DataReader::DataReader(const std::string& xmlrep, eprosima::fastrtps::Participant* rtps_participant,
                        ReaderListener* read_list)
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
-    init(xmlrep, size);
+    init(xmlrep);
 }
 
 DataReader::~DataReader()
@@ -101,7 +101,7 @@ bool DataReader::init()
     return true;
 }
 
-bool DataReader::init(const char* xmlrep, size_t size)
+bool DataReader::init(const std::string& xmlrep)
 {
     if (nullptr == mp_rtps_participant &&
         nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
@@ -113,7 +113,7 @@ bool DataReader::init(const char* xmlrep, size_t size)
     fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
 
     SubscriberAttributes attributes;
-    if (xmlobjects::parse_subscriber(xmlrep, size, attributes))
+    if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
     {
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
     }

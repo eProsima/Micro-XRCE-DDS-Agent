@@ -43,24 +43,24 @@ bool XRCEParticipant::init()
              nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
 }
 
-XRCEObject* XRCEParticipant::create_writer()
+// XRCEObject* XRCEParticipant::create_writer()
+// {
+//     return new DataWriter(mp_rtps_participant);
+// }
+
+XRCEObject* XRCEParticipant::create_writer(const std::string& xmlrep)
 {
-    return new DataWriter(mp_rtps_participant);
+    return new DataWriter(xmlrep, mp_rtps_participant);
 }
 
-XRCEObject* XRCEParticipant::create_writer(const char* xmlrep, size_t size)
-{
-    return new DataWriter(xmlrep, size, mp_rtps_participant);
-}
+// XRCEObject* XRCEParticipant::create_reader(ReaderListener* message_listener)
+// {
+//     return new DataReader(mp_rtps_participant, message_listener);
+// }
 
-XRCEObject* XRCEParticipant::create_reader(ReaderListener* message_listener)
+XRCEObject* XRCEParticipant::create_reader(const std::string& xmlrep, ReaderListener* message_listener)
 {
-    return new DataReader(mp_rtps_participant, message_listener);
-}
-
-XRCEObject* XRCEParticipant::create_reader(const char* xmlrep, size_t size, ReaderListener* message_listener)
-{
-    return new DataReader(xmlrep, size, mp_rtps_participant, message_listener);
+    return new DataReader(xmlrep, mp_rtps_participant, message_listener);
 }
 
 } /* namespace micrortps */
