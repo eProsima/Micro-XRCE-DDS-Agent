@@ -29,7 +29,7 @@ class CommonData
 
     SubmessageHeader generate_submessage_header(const SubmessageId& submessage_id, uint16_t length) const;
 
-    CREATE_Payload generate_create_payload(const ObjectKind& object_kind) const;
+    CREATE_Payload generate_create_payload(const OBJECTKIND& object_kind) const;
 
     DELETE_RESOURCE_Payload generate_delete_resource_payload(const ObjectId& obj_id) const;
 
@@ -39,7 +39,7 @@ class CommonData
 
     OBJK_SUBSCRIBER_Representation generate_subscriber_representation() const;
 
-    ObjectVariant generate_object_variant(const ObjectKind& object_kind) const;
+    ObjectVariant generate_object_variant(const OBJECTKIND& object_kind) const;
 
     RESOURCE_STATUS_Payload generate_resource_status_payload(uint8_t status, uint8_t implementation_status) const;
 

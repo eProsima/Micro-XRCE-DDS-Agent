@@ -62,7 +62,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
 {
     switch (representation._d())
     {
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);
             auto object_it      = objects_.find(internal_object_id);
@@ -74,7 +74,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             return insertion_done;
             break;
         }
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);
             auto object_it      = objects_.find(internal_object_id);
@@ -86,14 +86,14 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             return insertion_done;
             break;
         }
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant()))
                 .second;
             break;
         }
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);
 
@@ -127,7 +127,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             return insertion_done;
             break;
         }
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
         {
             std::unique_lock<std::mutex> lock(objects_mutex_);
             auto participant_it =
@@ -161,10 +161,10 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             return insertion_done;
             break;
         }
-        case OBJK_APPLICATION:
-        case OBJK_QOSPROFILE:
-        case OBJK_TYPE:
-        case OBJK_TOPIC:
+        case OBJECTKIND::APPLICATION:
+        case OBJECTKIND::QOSPROFILE:
+        case OBJECTKIND::TYPE:
+        case OBJECTKIND::TOPIC:
         default:
             return false;
             break;

@@ -39,19 +39,21 @@ namespace eprosima {
 namespace micrortps {
 
 typedef std::array<uint8_t, 4> ClientKey;
-typedef uint8_t ObjectKind;
-// TODO(borja) Change to enum?
-const eprosima::micrortps::ObjectKind OBJK_INVALID     = 0x0;
-const eprosima::micrortps::ObjectKind OBJK_PARTICIPANT = 0x1;
-const eprosima::micrortps::ObjectKind OBJK_TOPIC       = 0x4;
-const eprosima::micrortps::ObjectKind OBJK_DATAWRITER  = 0x3;
-const eprosima::micrortps::ObjectKind OBJK_DATAREADER  = 0x7;
-const eprosima::micrortps::ObjectKind OBJK_SUBSCRIBER  = 0x8;
-const eprosima::micrortps::ObjectKind OBJK_PUBLISHER   = 0x9;
-const eprosima::micrortps::ObjectKind OBJK_TYPE        = 0x10;
-const eprosima::micrortps::ObjectKind OBJK_QOSPROFILE  = 0x11;
-const eprosima::micrortps::ObjectKind OBJK_APPLICATION = 0x20;
-const eprosima::micrortps::ObjectKind OBJK_CLIENT      = 0x21;
+
+enum class OBJECTKIND : uint8_t
+{
+    INVALID     = 0x0,
+    PARTICIPANT = 0x1,
+    TOPIC       = 0x4,
+    DATAWRITER  = 0x3,
+    DATAREADER  = 0x7,
+    SUBSCRIBER  = 0x8,
+    PUBLISHER   = 0x9,
+    TYPE        = 0x10,
+    QOSPROFILE  = 0x11,
+    APPLICATION = 0x20,
+    CLIENT      = 0x21
+};
 
 typedef std::array<uint8_t, 2> ObjectId;
 // There are three predefined values ObjectId
@@ -3182,19 +3184,19 @@ class ObjectVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to
      * the selected union member.
      */
-    void _d(eprosima::micrortps::ObjectKind __d);
+    void _d(eprosima::micrortps::OBJECTKIND __d);
 
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
-    eprosima::micrortps::ObjectKind _d() const;
+    eprosima::micrortps::OBJECTKIND _d() const;
 
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
-    eprosima::micrortps::ObjectKind &_d();
+    eprosima::micrortps::OBJECTKIND &_d();
 
     /*!
      * @brief This function copies the value in member client
@@ -3495,7 +3497,7 @@ class ObjectVariant
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    eprosima::micrortps::ObjectKind m__d;
+    eprosima::micrortps::OBJECTKIND m__d;
 
     eprosima::micrortps::OBJK_CLIENT_Representation m_client;
     eprosima::micrortps::OBJK_APPLICATION_Representation m_application;
@@ -4097,19 +4099,19 @@ class ActivityInfoVariant
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to
      * the selected union member.
      */
-    void _d(eprosima::micrortps::ObjectKind __d);
+    void _d(eprosima::micrortps::OBJECTKIND __d);
 
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
-    eprosima::micrortps::ObjectKind _d() const;
+    eprosima::micrortps::OBJECTKIND _d() const;
 
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
-    eprosima::micrortps::ObjectKind &_d();
+    eprosima::micrortps::OBJECTKIND &_d();
 
     /*!
      * @brief This function copies the value in member data_writer
@@ -4194,7 +4196,7 @@ class ActivityInfoVariant
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    eprosima::micrortps::ObjectKind m__d;
+    eprosima::micrortps::OBJECTKIND m__d;
 
     eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo m_data_writer;
     eprosima::micrortps::OBJK_DATAREADER_ActivityInfo m_data_reader;

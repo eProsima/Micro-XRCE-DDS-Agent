@@ -109,7 +109,7 @@ TEST_F(SerializerDeserializerTests, SubmessageHeader)
 
 TEST_F(SerializerDeserializerTests, CreateSubMessage)
 {
-    CREATE_Payload create_data = generate_create_payload(OBJK_PUBLISHER);
+    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::PUBLISHER);
     serializer_.serialize(create_data);
 
     CREATE_Payload deserialized_create_data;
@@ -439,7 +439,7 @@ TEST_F(XRCEParserTests, CreateMessage)
 {
     MessageHeader message_header = generate_message_header();
     serializer_.serialize(message_header);
-    CREATE_Payload create_data = generate_create_payload(OBJK_PUBLISHER);
+    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::PUBLISHER);
     SubmessageHeader submessage_header =
         generate_submessage_header(CREATE, static_cast<uint16_t>(create_data.getCdrSerializedSize()));
 
@@ -475,7 +475,7 @@ TEST_F(XRCEParserTests, MultiCreateMessage)
     MessageHeader message_header = generate_message_header();
     serializer_.serialize(message_header);
 
-    CREATE_Payload create_data = generate_create_payload(OBJK_PUBLISHER);
+    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::PUBLISHER);
     SubmessageHeader submessage_header =
         generate_submessage_header(CREATE, static_cast<uint16_t>(create_data.getCdrSerializedSize()));
     for(int i = 0; i < num_creates; ++i)
@@ -572,7 +572,7 @@ TEST_F(XRCEParserTests, MultiSubMessage)
     MessageHeader message_header = generate_message_header();
     serializer_.serialize(message_header);
 
-    CREATE_Payload create_data = generate_create_payload(OBJK_PUBLISHER);
+    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::PUBLISHER);
     SubmessageHeader submessage_header =
         generate_submessage_header(CREATE, static_cast<uint16_t>(create_data.getCdrSerializedSize()));
     for(int i = 0; i < num_creates; ++i)

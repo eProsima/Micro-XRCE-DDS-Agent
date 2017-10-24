@@ -69,7 +69,7 @@ void print_create_submessage(const CREATE_Payload& payload)
 
     switch(payload.object_representation()._d())
     {
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             printf("    <Participant>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().participant().representation()._d());
@@ -90,7 +90,7 @@ void print_create_submessage(const CREATE_Payload& payload)
                     break;
             }
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             printf("    <Data writer>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().data_writer().representation()._d());
@@ -123,7 +123,7 @@ void print_create_submessage(const CREATE_Payload& payload)
             printf("    - publisher_id: 0x%06X\n", payload.object_representation().data_writer().publisher_id());
             break;
 
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             printf("    <Data reader>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().data_reader().representation()._d());
@@ -156,7 +156,7 @@ void print_create_submessage(const CREATE_Payload& payload)
             printf("    - subscriber_id: 0x%06X\n", payload.object_representation().data_reader().subscriber_id());
             break;
 
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             printf("    <Data subscriber>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().subscriber().representation()._d());
@@ -188,7 +188,7 @@ void print_create_submessage(const CREATE_Payload& payload)
             printf("    - participan_id: 0x%06X\n", payload.object_representation().subscriber().participant_id());
             break;
 
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             printf("    <Data publisher>\n");
             printf("    - representation: 0x%02X\n", payload.object_representation().publisher().representation()._d());
             switch(payload.object_representation().publisher().representation()._d())
@@ -331,36 +331,36 @@ void printl_create_submessage(const CREATE_Payload& payload)
     char content[128];
     switch(payload.object_representation()._d())
     {
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             sprintf(content, "PARTICIPANT");
             break;
 
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             sprintf(content, "CLIENT | cookie: 0x%08X | v%u | vendor: %u | session: %u",
                     payload.object_representation().client().xrce_cookie(),
                     payload.object_representation().client().xrce_version(),
                     payload.object_representation().client().xrce_vendor_id(),
                     payload.object_representation().client().session_id());
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             sprintf(content, "DATA_WRITER | id: %u | id: %u | topic: %s",
                     payload.object_representation().data_writer().participant_id(),
                     payload.object_representation().data_writer().publisher_id(),
                     payload.object_representation().data_writer().representation().object_reference());
             break;
 
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             sprintf(content, "DATA_READER | id: %u | id: %u | topic: %s",
                     payload.object_representation().data_writer().participant_id(),
                     payload.object_representation().data_reader().subscriber_id(),
                     payload.object_representation().data_reader().representation().object_reference());
             break;
 
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             sprintf(content, "SUBSCRIBER | id: %u", payload.object_representation().subscriber().participant_id());
             break;
 
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             sprintf(content, "PUBLISHER | id: %u", payload.object_representation().publisher().participant_id());
             break;
         default:

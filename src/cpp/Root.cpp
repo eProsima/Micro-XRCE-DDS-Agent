@@ -87,7 +87,7 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_Payl
     status.request_id(create_info.request_id());
     status.status(STATUS_LAST_OP_CREATE);
 
-    if ((create_info.object_representation()._d() == OBJK_CLIENT) && 
+    if ((create_info.object_representation()._d() == OBJECTKIND::CLIENT) && 
         (create_info.object_representation().client().xrce_cookie() == XRCE_COOKIE))
     {
         if (create_info.object_representation().client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
@@ -539,7 +539,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
     std::cout << "==> ";
     eprosima::micrortps::debug::printl_create_submessage(create_payload);
 #endif
-    if (create_payload.object_representation()._d() != OBJK_CLIENT)
+    if (create_payload.object_representation()._d() != OBJECTKIND::CLIENT)
     {
         if (ProxyClient* client = get_client(header.client_key()))
         {
@@ -562,7 +562,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
             std::cerr << "Create message rejected" << std::endl;
         }
     }
-    else if (create_payload.object_representation()._d() == OBJK_CLIENT)
+    else if (create_payload.object_representation()._d() == OBJECTKIND::CLIENT)
     {
         RESOURCE_STATUS_Payload status;
         status.object_id(create_payload.object_id());

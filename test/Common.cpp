@@ -23,7 +23,7 @@ SubmessageHeader CommonData::generate_submessage_header(const SubmessageId& subm
     return submessage_header;
 }
 
-CREATE_Payload CommonData::generate_create_payload(const ObjectKind& object_kind) const
+CREATE_Payload CommonData::generate_create_payload(const OBJECTKIND& object_kind) const
 {
     CREATE_Payload create_data;
     create_data.request_id(request_id);
@@ -67,34 +67,34 @@ OBJK_SUBSCRIBER_Representation CommonData::generate_subscriber_representation() 
     return subscriber_rep;
 }
 
-ObjectVariant CommonData::generate_object_variant(const ObjectKind& object_kind) const
+ObjectVariant CommonData::generate_object_variant(const OBJECTKIND& object_kind) const
 {
     ObjectVariant variant;
     switch(object_kind)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
         {
             variant.client(generate_client_representation());
             break;
         }
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
         {
             variant.publisher(generate_publisher_representation());
             break;
         }
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
         {
             variant.subscriber(generate_subscriber_representation());
             break;
         }
-        case OBJK_INVALID:
-        case OBJK_PARTICIPANT:
-        case OBJK_TOPIC:
-        case OBJK_DATAWRITER:
-        case OBJK_DATAREADER:
-        case OBJK_TYPE:
-        case OBJK_QOSPROFILE:
-        case OBJK_APPLICATION:
+        case OBJECTKIND::INVALID:
+        case OBJECTKIND::PARTICIPANT:
+        case OBJECTKIND::TOPIC:
+        case OBJECTKIND::DATAWRITER:
+        case OBJECTKIND::DATAREADER:
+        case OBJECTKIND::TYPE:
+        case OBJECTKIND::QOSPROFILE:
+        case OBJECTKIND::APPLICATION:
         default:
             break;
     }

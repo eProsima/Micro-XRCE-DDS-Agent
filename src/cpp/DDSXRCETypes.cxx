@@ -2257,7 +2257,7 @@ void eprosima::micrortps::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr:
 
 eprosima::micrortps::ObjectVariant::ObjectVariant()
 {
-    m__d = OBJK_INVALID;
+    m__d = OBJECTKIND::INVALID;
 }
 
 eprosima::micrortps::ObjectVariant::~ObjectVariant()
@@ -2270,34 +2270,34 @@ eprosima::micrortps::ObjectVariant::ObjectVariant(const ObjectVariant& x)
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             m_client = x.m_client;
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             m_application = x.m_application;
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             m_participant = x.m_participant;
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             m_qos_profile = x.m_qos_profile;
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             m_type = x.m_type;
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             m_topic = x.m_topic;
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             m_publisher = x.m_publisher;
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             m_subscriber = x.m_subscriber;
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = x.m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = x.m_data_reader;
             break;
         default:
@@ -2311,34 +2311,34 @@ eprosima::micrortps::ObjectVariant::ObjectVariant(ObjectVariant&& x)
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             m_client = std::move(x.m_client);
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             m_application = std::move(x.m_application);
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             m_participant = std::move(x.m_participant);
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             m_qos_profile = std::move(x.m_qos_profile);
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             m_type = std::move(x.m_type);
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             m_topic = std::move(x.m_topic);
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             m_publisher = std::move(x.m_publisher);
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             m_subscriber = std::move(x.m_subscriber);
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = std::move(x.m_data_writer);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = std::move(x.m_data_reader);
             break;
         default:
@@ -2352,34 +2352,34 @@ eprosima::micrortps::ObjectVariant& eprosima::micrortps::ObjectVariant::operator
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             m_client = x.m_client;
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             m_application = x.m_application;
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             m_participant = x.m_participant;
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             m_qos_profile = x.m_qos_profile;
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             m_type = x.m_type;
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             m_topic = x.m_topic;
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             m_publisher = x.m_publisher;
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             m_subscriber = x.m_subscriber;
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = x.m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = x.m_data_reader;
             break;
         default:
@@ -2395,34 +2395,34 @@ eprosima::micrortps::ObjectVariant& eprosima::micrortps::ObjectVariant::operator
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             m_client = std::move(x.m_client);
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             m_application = std::move(x.m_application);
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             m_participant = std::move(x.m_participant);
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             m_qos_profile = std::move(x.m_qos_profile);
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             m_type = std::move(x.m_type);
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             m_topic = std::move(x.m_topic);
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             m_publisher = std::move(x.m_publisher);
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             m_subscriber = std::move(x.m_subscriber);
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = std::move(x.m_data_writer);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = std::move(x.m_data_reader);
             break;
         default:
@@ -2432,115 +2432,115 @@ eprosima::micrortps::ObjectVariant& eprosima::micrortps::ObjectVariant::operator
     return *this;
 }
 
-void eprosima::micrortps::ObjectVariant::_d(eprosima::micrortps::ObjectKind __d)
+void eprosima::micrortps::ObjectVariant::_d(eprosima::micrortps::OBJECTKIND __d)
 {
     bool b = false;
 
     switch(m__d)
     {
-        case OBJK_INVALID:
+        case OBJECTKIND::INVALID:
             switch(__d)
             {
-                case OBJK_INVALID:
+                case OBJECTKIND::INVALID:
                     b = true;
                     break;
                 default:
                     break;
             }
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             switch(__d)
             {
-                case OBJK_CLIENT:
-                    b = true;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case OBJK_APPLICATION:
-            switch(__d)
-            {
-                case OBJK_APPLICATION:
+                case OBJECTKIND::CLIENT:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::APPLICATION:
             switch(__d)
             {
-                case OBJK_PARTICIPANT:
+                case OBJECTKIND::APPLICATION:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::PARTICIPANT:
             switch(__d)
             {
-                case OBJK_QOSPROFILE:
+                case OBJECTKIND::PARTICIPANT:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::QOSPROFILE:
             switch(__d)
             {
-                case OBJK_TYPE:
+                case OBJECTKIND::QOSPROFILE:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TYPE:
             switch(__d)
             {
-                case OBJK_TOPIC:
+                case OBJECTKIND::TYPE:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::TOPIC:
             switch(__d)
             {
-                case OBJK_PUBLISHER:
+                case OBJECTKIND::TOPIC:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::PUBLISHER:
             switch(__d)
             {
-                case OBJK_SUBSCRIBER:
+                case OBJECTKIND::PUBLISHER:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::SUBSCRIBER:
             switch(__d)
             {
-                case OBJK_DATAWRITER:
+                case OBJECTKIND::SUBSCRIBER:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAWRITER:
             switch(__d)
             {
-                case OBJK_DATAREADER:
+                case OBJECTKIND::DATAWRITER:
+                    b = true;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case OBJECTKIND::DATAREADER:
+            switch(__d)
+            {
+                case OBJECTKIND::DATAREADER:
                     b = true;
                     break;
                 default:
@@ -2555,12 +2555,12 @@ void eprosima::micrortps::ObjectVariant::_d(eprosima::micrortps::ObjectKind __d)
     m__d = __d;
 }
 
-eprosima::micrortps::ObjectKind eprosima::micrortps::ObjectVariant::_d() const
+eprosima::micrortps::OBJECTKIND eprosima::micrortps::ObjectVariant::_d() const
 {
     return m__d;
 }
 
-eprosima::micrortps::ObjectKind& eprosima::micrortps::ObjectVariant::_d()
+eprosima::micrortps::OBJECTKIND& eprosima::micrortps::ObjectVariant::_d()
 {
     return m__d;
 }
@@ -2568,13 +2568,13 @@ eprosima::micrortps::ObjectKind& eprosima::micrortps::ObjectVariant::_d()
 void eprosima::micrortps::ObjectVariant::client(const eprosima::micrortps::OBJK_CLIENT_Representation& _client)
 {
     m_client = _client;
-    m__d     = OBJK_CLIENT;
+    m__d     = OBJECTKIND::CLIENT;
 }
 
 void eprosima::micrortps::ObjectVariant::client(eprosima::micrortps::OBJK_CLIENT_Representation&& _client)
 {
     m_client = std::move(_client);
-    m__d     = OBJK_CLIENT;
+    m__d     = OBJECTKIND::CLIENT;
 }
 
 const eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::ObjectVariant::client() const
@@ -2583,7 +2583,7 @@ const eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::Obje
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             b = true;
             break;
         default:
@@ -2601,7 +2601,7 @@ eprosima::micrortps::OBJK_CLIENT_Representation& eprosima::micrortps::ObjectVari
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             b = true;
             break;
         default:
@@ -2616,14 +2616,14 @@ void eprosima::micrortps::ObjectVariant::application(
     const eprosima::micrortps::OBJK_APPLICATION_Representation& _application)
 {
     m_application = _application;
-    m__d          = OBJK_APPLICATION;
+    m__d          = OBJECTKIND::APPLICATION;
 }
 
 void eprosima::micrortps::ObjectVariant::application(
     eprosima::micrortps::OBJK_APPLICATION_Representation&& _application)
 {
     m_application = std::move(_application);
-    m__d          = OBJK_APPLICATION;
+    m__d          = OBJECTKIND::APPLICATION;
 }
 
 const eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::ObjectVariant::application() const
@@ -2632,7 +2632,7 @@ const eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps:
 
     switch(m__d)
     {
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             b = true;
             break;
         default:
@@ -2650,7 +2650,7 @@ eprosima::micrortps::OBJK_APPLICATION_Representation& eprosima::micrortps::Objec
 
     switch(m__d)
     {
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             b = true;
             break;
         default:
@@ -2665,14 +2665,14 @@ void eprosima::micrortps::ObjectVariant::participant(
     const eprosima::micrortps::OBJK_PARTICIPANT_Representation& _participant)
 {
     m_participant = _participant;
-    m__d          = OBJK_PARTICIPANT;
+    m__d          = OBJECTKIND::PARTICIPANT;
 }
 
 void eprosima::micrortps::ObjectVariant::participant(
     eprosima::micrortps::OBJK_PARTICIPANT_Representation&& _participant)
 {
     m_participant = std::move(_participant);
-    m__d          = OBJK_PARTICIPANT;
+    m__d          = OBJECTKIND::PARTICIPANT;
 }
 
 const eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::ObjectVariant::participant() const
@@ -2681,7 +2681,7 @@ const eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps:
 
     switch(m__d)
     {
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             b = true;
             break;
         default:
@@ -2699,7 +2699,7 @@ eprosima::micrortps::OBJK_PARTICIPANT_Representation& eprosima::micrortps::Objec
 
     switch(m__d)
     {
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             b = true;
             break;
         default:
@@ -2714,13 +2714,13 @@ void eprosima::micrortps::ObjectVariant::qos_profile(
     const eprosima::micrortps::OBJK_QOSPROFILE_Representation& _qos_profile)
 {
     m_qos_profile = _qos_profile;
-    m__d          = OBJK_QOSPROFILE;
+    m__d          = OBJECTKIND::QOSPROFILE;
 }
 
 void eprosima::micrortps::ObjectVariant::qos_profile(eprosima::micrortps::OBJK_QOSPROFILE_Representation&& _qos_profile)
 {
     m_qos_profile = std::move(_qos_profile);
-    m__d          = OBJK_QOSPROFILE;
+    m__d          = OBJECTKIND::QOSPROFILE;
 }
 
 const eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::ObjectVariant::qos_profile() const
@@ -2729,7 +2729,7 @@ const eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::
 
     switch(m__d)
     {
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             b = true;
             break;
         default:
@@ -2747,7 +2747,7 @@ eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::Object
 
     switch(m__d)
     {
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             b = true;
             break;
         default:
@@ -2761,13 +2761,13 @@ eprosima::micrortps::OBJK_QOSPROFILE_Representation& eprosima::micrortps::Object
 void eprosima::micrortps::ObjectVariant::type(const eprosima::micrortps::OBJK_TYPE_Representation& _type)
 {
     m_type = _type;
-    m__d   = OBJK_TYPE;
+    m__d   = OBJECTKIND::TYPE;
 }
 
 void eprosima::micrortps::ObjectVariant::type(eprosima::micrortps::OBJK_TYPE_Representation&& _type)
 {
     m_type = std::move(_type);
-    m__d   = OBJK_TYPE;
+    m__d   = OBJECTKIND::TYPE;
 }
 
 const eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::ObjectVariant::type() const
@@ -2776,7 +2776,7 @@ const eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::Object
 
     switch(m__d)
     {
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             b = true;
             break;
         default:
@@ -2794,7 +2794,7 @@ eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::ObjectVarian
 
     switch(m__d)
     {
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             b = true;
             break;
         default:
@@ -2808,13 +2808,13 @@ eprosima::micrortps::OBJK_TYPE_Representation& eprosima::micrortps::ObjectVarian
 void eprosima::micrortps::ObjectVariant::topic(const eprosima::micrortps::OBJK_TOPIC_Representation& _topic)
 {
     m_topic = _topic;
-    m__d    = OBJK_TOPIC;
+    m__d    = OBJECTKIND::TOPIC;
 }
 
 void eprosima::micrortps::ObjectVariant::topic(eprosima::micrortps::OBJK_TOPIC_Representation&& _topic)
 {
     m_topic = std::move(_topic);
-    m__d    = OBJK_TOPIC;
+    m__d    = OBJECTKIND::TOPIC;
 }
 
 const eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::ObjectVariant::topic() const
@@ -2823,7 +2823,7 @@ const eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::Objec
 
     switch(m__d)
     {
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             b = true;
             break;
         default:
@@ -2841,7 +2841,7 @@ eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::ObjectVaria
 
     switch(m__d)
     {
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             b = true;
             break;
         default:
@@ -2855,13 +2855,13 @@ eprosima::micrortps::OBJK_TOPIC_Representation& eprosima::micrortps::ObjectVaria
 void eprosima::micrortps::ObjectVariant::publisher(const eprosima::micrortps::OBJK_PUBLISHER_Representation& _publisher)
 {
     m_publisher = _publisher;
-    m__d        = OBJK_PUBLISHER;
+    m__d        = OBJECTKIND::PUBLISHER;
 }
 
 void eprosima::micrortps::ObjectVariant::publisher(eprosima::micrortps::OBJK_PUBLISHER_Representation&& _publisher)
 {
     m_publisher = std::move(_publisher);
-    m__d        = OBJK_PUBLISHER;
+    m__d        = OBJECTKIND::PUBLISHER;
 }
 
 const eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::ObjectVariant::publisher() const
@@ -2870,7 +2870,7 @@ const eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::O
 
     switch(m__d)
     {
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             b = true;
             break;
         default:
@@ -2888,7 +2888,7 @@ eprosima::micrortps::OBJK_PUBLISHER_Representation& eprosima::micrortps::ObjectV
 
     switch(m__d)
     {
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             b = true;
             break;
         default:
@@ -2903,13 +2903,13 @@ void eprosima::micrortps::ObjectVariant::subscriber(
     const eprosima::micrortps::OBJK_SUBSCRIBER_Representation& _subscriber)
 {
     m_subscriber = _subscriber;
-    m__d         = OBJK_SUBSCRIBER;
+    m__d         = OBJECTKIND::SUBSCRIBER;
 }
 
 void eprosima::micrortps::ObjectVariant::subscriber(eprosima::micrortps::OBJK_SUBSCRIBER_Representation&& _subscriber)
 {
     m_subscriber = std::move(_subscriber);
-    m__d         = OBJK_SUBSCRIBER;
+    m__d         = OBJECTKIND::SUBSCRIBER;
 }
 
 const eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::ObjectVariant::subscriber() const
@@ -2918,7 +2918,7 @@ const eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::
 
     switch(m__d)
     {
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             b = true;
             break;
         default:
@@ -2936,7 +2936,7 @@ eprosima::micrortps::OBJK_SUBSCRIBER_Representation& eprosima::micrortps::Object
 
     switch(m__d)
     {
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             b = true;
             break;
         default:
@@ -2951,14 +2951,14 @@ void eprosima::micrortps::ObjectVariant::data_writer(
     const eprosima::micrortps::OBJK_DATA_WRITER_Representation& _data_writer)
 {
     m_data_writer = _data_writer;
-    m__d          = OBJK_DATAWRITER;
+    m__d          = OBJECTKIND::DATAWRITER;
 }
 
 void eprosima::micrortps::ObjectVariant::data_writer(
     eprosima::micrortps::OBJK_DATA_WRITER_Representation&& _data_writer)
 {
     m_data_writer = std::move(_data_writer);
-    m__d          = OBJK_DATAWRITER;
+    m__d          = OBJECTKIND::DATAWRITER;
 }
 
 const eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::ObjectVariant::data_writer() const
@@ -2967,7 +2967,7 @@ const eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps:
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             b = true;
             break;
         default:
@@ -2985,7 +2985,7 @@ eprosima::micrortps::OBJK_DATA_WRITER_Representation& eprosima::micrortps::Objec
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             b = true;
             break;
         default:
@@ -3000,14 +3000,14 @@ void eprosima::micrortps::ObjectVariant::data_reader(
     const eprosima::micrortps::OBJK_DATA_READER_Representation& _data_reader)
 {
     m_data_reader = _data_reader;
-    m__d          = OBJK_DATAREADER;
+    m__d          = OBJECTKIND::DATAREADER;
 }
 
 void eprosima::micrortps::ObjectVariant::data_reader(
     eprosima::micrortps::OBJK_DATA_READER_Representation&& _data_reader)
 {
     m_data_reader = std::move(_data_reader);
-    m__d          = OBJK_DATAREADER;
+    m__d          = OBJECTKIND::DATAREADER;
 }
 
 const eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::ObjectVariant::data_reader() const
@@ -3016,7 +3016,7 @@ const eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps:
 
     switch(m__d)
     {
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             b = true;
             break;
         default:
@@ -3034,7 +3034,7 @@ eprosima::micrortps::OBJK_DATA_READER_Representation& eprosima::micrortps::Objec
 
     switch(m__d)
     {
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             b = true;
             break;
         default:
@@ -3136,34 +3136,34 @@ size_t eprosima::micrortps::ObjectVariant::getCdrSerializedSize(size_t current_a
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             current_alignment += m_client.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             current_alignment += m_application.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             current_alignment += m_participant.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             current_alignment += m_qos_profile.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             current_alignment += m_type.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             current_alignment += m_topic.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             current_alignment += m_publisher.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             current_alignment += m_subscriber.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             current_alignment += m_data_writer.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             current_alignment += m_data_reader.getCdrSerializedSize(current_alignment);
             break;
         default:
@@ -3175,38 +3175,38 @@ size_t eprosima::micrortps::ObjectVariant::getCdrSerializedSize(size_t current_a
 
 void eprosima::micrortps::ObjectVariant::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
-    scdr << m__d;
+    scdr << static_cast<std::underlying_type<eprosima::micrortps::OBJECTKIND>::type>(m__d);
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             scdr << m_client;
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             scdr << m_application;
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             scdr << m_participant;
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             scdr << m_qos_profile;
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             scdr << m_type;
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             scdr << m_topic;
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             scdr << m_publisher;
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             scdr << m_subscriber;
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             scdr << m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             scdr << m_data_reader;
             break;
         default:
@@ -3216,38 +3216,40 @@ void eprosima::micrortps::ObjectVariant::serialize(eprosima::fastcdr::Cdr& scdr)
 
 void eprosima::micrortps::ObjectVariant::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> m__d;
+    std::underlying_type<eprosima::micrortps::OBJECTKIND>::type temp_underlying_value;    
+    dcdr >> temp_underlying_value;
+    m__d = static_cast<eprosima::micrortps::OBJECTKIND>(temp_underlying_value);
 
     switch(m__d)
     {
-        case OBJK_CLIENT:
+        case OBJECTKIND::CLIENT:
             dcdr >> m_client;
             break;
-        case OBJK_APPLICATION:
+        case OBJECTKIND::APPLICATION:
             dcdr >> m_application;
             break;
-        case OBJK_PARTICIPANT:
+        case OBJECTKIND::PARTICIPANT:
             dcdr >> m_participant;
             break;
-        case OBJK_QOSPROFILE:
+        case OBJECTKIND::QOSPROFILE:
             dcdr >> m_qos_profile;
             break;
-        case OBJK_TYPE:
+        case OBJECTKIND::TYPE:
             dcdr >> m_type;
             break;
-        case OBJK_TOPIC:
+        case OBJECTKIND::TOPIC:
             dcdr >> m_topic;
             break;
-        case OBJK_PUBLISHER:
+        case OBJECTKIND::PUBLISHER:
             dcdr >> m_publisher;
             break;
-        case OBJK_SUBSCRIBER:
+        case OBJECTKIND::SUBSCRIBER:
             dcdr >> m_subscriber;
             break;
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             dcdr >> m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             dcdr >> m_data_reader;
             break;
         default:
@@ -3548,7 +3550,7 @@ void eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo::deserialize(eprosima::fa
 
 eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant()
 {
-    m__d = OBJK_DATAWRITER;
+    m__d = OBJECTKIND::DATAWRITER;
 }
 
 eprosima::micrortps::ActivityInfoVariant::~ActivityInfoVariant()
@@ -3561,10 +3563,10 @@ eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfo
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = x.m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = x.m_data_reader;
             break;
         default:
@@ -3578,10 +3580,10 @@ eprosima::micrortps::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVarian
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = std::move(x.m_data_writer);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = std::move(x.m_data_reader);
             break;
         default:
@@ -3596,10 +3598,10 @@ operator=(const ActivityInfoVariant& x)
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = x.m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = x.m_data_reader;
             break;
         default:
@@ -3615,10 +3617,10 @@ eprosima::micrortps::ActivityInfoVariant& eprosima::micrortps::ActivityInfoVaria
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             m_data_writer = std::move(x.m_data_writer);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             m_data_reader = std::move(x.m_data_reader);
             break;
         default:
@@ -3628,26 +3630,26 @@ eprosima::micrortps::ActivityInfoVariant& eprosima::micrortps::ActivityInfoVaria
     return *this;
 }
 
-void eprosima::micrortps::ActivityInfoVariant::_d(eprosima::micrortps::ObjectKind __d)
+void eprosima::micrortps::ActivityInfoVariant::_d(eprosima::micrortps::OBJECTKIND __d)
 {
     bool b = false;
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             switch(__d)
             {
-                case OBJK_DATAWRITER:
+                case OBJECTKIND::DATAWRITER:
                     b = true;
                     break;
                 default:
                     break;
             }
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             switch(__d)
             {
-                case OBJK_DATAREADER:
+                case OBJECTKIND::DATAREADER:
                     b = true;
                     break;
                 default:
@@ -3662,12 +3664,12 @@ void eprosima::micrortps::ActivityInfoVariant::_d(eprosima::micrortps::ObjectKin
     m__d = __d;
 }
 
-eprosima::micrortps::ObjectKind eprosima::micrortps::ActivityInfoVariant::_d() const
+eprosima::micrortps::OBJECTKIND eprosima::micrortps::ActivityInfoVariant::_d() const
 {
     return m__d;
 }
 
-eprosima::micrortps::ObjectKind& eprosima::micrortps::ActivityInfoVariant::_d()
+eprosima::micrortps::OBJECTKIND& eprosima::micrortps::ActivityInfoVariant::_d()
 {
     return m__d;
 }
@@ -3676,14 +3678,14 @@ void eprosima::micrortps::ActivityInfoVariant::data_writer(
     const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& _data_writer)
 {
     m_data_writer = _data_writer;
-    m__d          = OBJK_DATAWRITER;
+    m__d          = OBJECTKIND::DATAWRITER;
 }
 
 void eprosima::micrortps::ActivityInfoVariant::data_writer(
     eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo&& _data_writer)
 {
     m_data_writer = std::move(_data_writer);
-    m__d          = OBJK_DATAWRITER;
+    m__d          = OBJECTKIND::DATAWRITER;
 }
 
 const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_writer() const
@@ -3692,7 +3694,7 @@ const eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::Ac
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             b = true;
             break;
         default:
@@ -3710,7 +3712,7 @@ eprosima::micrortps::OBJK_DATAWRITER_ActivityInfo& eprosima::micrortps::Activity
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             b = true;
             break;
         default:
@@ -3725,14 +3727,14 @@ void eprosima::micrortps::ActivityInfoVariant::data_reader(
     const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& _data_reader)
 {
     m_data_reader = _data_reader;
-    m__d          = OBJK_DATAREADER;
+    m__d          = OBJECTKIND::DATAREADER;
 }
 
 void eprosima::micrortps::ActivityInfoVariant::data_reader(
     eprosima::micrortps::OBJK_DATAREADER_ActivityInfo&& _data_reader)
 {
     m_data_reader = std::move(_data_reader);
-    m__d          = OBJK_DATAREADER;
+    m__d          = OBJECTKIND::DATAREADER;
 }
 
 const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::ActivityInfoVariant::data_reader() const
@@ -3741,7 +3743,7 @@ const eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::Ac
 
     switch(m__d)
     {
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             b = true;
             break;
         default:
@@ -3759,7 +3761,7 @@ eprosima::micrortps::OBJK_DATAREADER_ActivityInfo& eprosima::micrortps::Activity
 
     switch(m__d)
     {
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             b = true;
             break;
         default:
@@ -3805,10 +3807,10 @@ size_t eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t cur
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             current_alignment += m_data_writer.getCdrSerializedSize(current_alignment);
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             current_alignment += m_data_reader.getCdrSerializedSize(current_alignment);
             break;
         default:
@@ -3820,14 +3822,14 @@ size_t eprosima::micrortps::ActivityInfoVariant::getCdrSerializedSize(size_t cur
 
 void eprosima::micrortps::ActivityInfoVariant::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
-    scdr << m__d;
+    scdr << static_cast<std::underlying_type<eprosima::micrortps::OBJECTKIND>::type>(m__d);;
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             scdr << m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             scdr << m_data_reader;
             break;
         default:
@@ -3837,14 +3839,16 @@ void eprosima::micrortps::ActivityInfoVariant::serialize(eprosima::fastcdr::Cdr&
 
 void eprosima::micrortps::ActivityInfoVariant::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> m__d;
+    std::underlying_type<eprosima::micrortps::OBJECTKIND>::type temp_underlying_value;    
+    dcdr >> temp_underlying_value;
+    m__d = static_cast<eprosima::micrortps::OBJECTKIND>(temp_underlying_value);
 
     switch(m__d)
     {
-        case OBJK_DATAWRITER:
+        case OBJECTKIND::DATAWRITER:
             dcdr >> m_data_writer;
             break;
-        case OBJK_DATAREADER:
+        case OBJECTKIND::DATAREADER:
             dcdr >> m_data_reader;
             break;
         default:
