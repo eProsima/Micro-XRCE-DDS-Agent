@@ -80,6 +80,8 @@ class RTPSSubListener : public fastrtps::SubscriberListener
     int n_matched;
     int n_msg;
     bool m_new_message;
+  private:
+    using fastrtps::SubscriberListener::onSubscriptionMatched;
 };
 
 /**
