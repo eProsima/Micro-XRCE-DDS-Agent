@@ -16,47 +16,46 @@
  * @file DataReader.h
  */
 
-
 #ifndef DATAREADER_H_
 #define DATAREADER_H_
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
-#include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
 #include <fastrtps/rtps/common/MatchingInfo.h>
 
-#include <agent/types/ShapePubSubTypes.h>
 #include <DDSXRCETypes.h>
 #include <Payloads.h>
 #include <agent/Common.h>
+#include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
 
 namespace fastrtps {
-    class Participant;
-    class Subscriber;
-}
+class Participant;
+class Subscriber;
+} // namespace fastrtps
 
 namespace micrortps {
 
 class ReaderListener
 {
-public:
-    ReaderListener() = default;
+  public:
+    ReaderListener()          = default;
     virtual ~ReaderListener() = default;
 
     virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id,
-            const std::vector<unsigned char>& buffer) = 0;
+                              const std::vector<unsigned char>& buffer) = 0;
 };
 
 class TimerEvent
 {
-public:
+  public:
     TimerEvent();
     virtual ~TimerEvent() = default;
     void run_timer();
@@ -64,20 +63,19 @@ public:
 
     virtual void on_timeout(const asio::error_code& error) = 0;
 
-protected:
+  protected:
     asio::io_service m_io_service;
     asio::steady_timer m_timer;
     bool m_time_expired = false;
-
 };
 
-class RTPSSubListener: public fastrtps::SubscriberListener
+class RTPSSubListener : public fastrtps::SubscriberListener
 {
-public:
+  public:
     RTPSSubListener() : n_matched(0), n_msg(0), m_new_message(false){};
     ~RTPSSubListener(){};
     virtual void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
-    virtual void onNewDataMessage(fastrtps::Subscriber* sub) = 0;
+    virtual void onNewDataMessage(fastrtps::Subscriber* sub)                         = 0;
     fastrtps::SampleInfo_t m_info;
     int n_matched;
     int n_msg;
@@ -88,23 +86,23 @@ public:
  * Class DataReader, contains the public API that allows the user to control the reception of messages.
  * @ingroup MICRORTPS_MODULE
  */
-class DataReader: public XRCEObject, public TimerEvent, public RTPSSubListener
+class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
 {
 
-public:
+  public:
     DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
+    DataReader(const char* xmlrep, size_t size, fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     virtual ~DataReader();
 
     bool init();
+    bool init(const char* xmlrep, size_t size);
     int read(const READ_DATA_Payload& read_data);
-
 
     void on_timeout(const asio::error_code& error);
     void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 
-
-private:
+  private:
     int start_read(const READ_DATA_Payload& read_data);
     int stop_read();
     void read_task(READ_DATA_Payload read_data);
@@ -121,8 +119,6 @@ private:
     eprosima::fastrtps::Subscriber* mp_rtps_subscriber;
     ShapeTypePubSubType m_shape_type;
 };
-
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */

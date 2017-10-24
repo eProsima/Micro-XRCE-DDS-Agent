@@ -18,13 +18,13 @@
 #include <string>
 
 #include <agent/Common.h>
-#include <agent/types/ShapePubSubTypes.h>
 #include <agent/datareader/DataReader.h>
+#include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
 
 namespace fastrtps {
-    class Participant;
+class Participant;
 }
 
 namespace micrortps {
@@ -35,28 +35,38 @@ namespace micrortps {
  */
 class XRCEParticipant : public XRCEObject
 {
-public:
+  public:
     XRCEParticipant();
     virtual ~XRCEParticipant();
 
     bool init();
 
-    fastrtps::Participant* get_participant() { return mp_rtps_participant;};
+    fastrtps::Participant* get_participant()
+    {
+        return mp_rtps_participant;
+    };
 
-    XRCEObject* create_publisher() { return nullptr;}
-    XRCEObject* create_subscriber() { return nullptr;}
+    XRCEObject* create_publisher()
+    {
+        return nullptr;
+    }
+    XRCEObject* create_subscriber()
+    {
+        return nullptr;
+    }
     XRCEObject* create_writer();
+    XRCEObject* create_writer(const char* xmlrep, size_t size);
     XRCEObject* create_reader(ReaderListener* message_listener);
+    XRCEObject* create_reader(const char* xmlrep, size_t size, ReaderListener* message_listener);
 
     XRCEObject* get_writer();
     XRCEObject* get_reader();
 
-private:
-
+  private:
     eprosima::fastrtps::Participant* mp_rtps_participant;
 };
 
-} /* namespace micrortps */
-} /* namespace eprosima */
+} // namespace micrortps
+} // namespace eprosima
 
 #endif /* PARTICIPANT_H_ */

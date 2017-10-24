@@ -18,11 +18,10 @@
  */
 #include <agent/datareader/DataReader.h>
 
-#include <agent/datareader/DataReader.h>
-
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
+#include <xmlobjects/xmlobjects.h>
 
 #include <atomic>
 
@@ -32,14 +31,19 @@
 namespace eprosima {
 namespace micrortps {
 
-DataReader::DataReader(eprosima::fastrtps::Participant*  rtps_participant, ReaderListener* read_list)
-    : m_running(false)
-    , mp_reader_listener(read_list)
-    , m_rtps_subscriber_prof("")
-    , mp_rtps_participant(rtps_participant)
-    , mp_rtps_subscriber(nullptr)
+DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
+    : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
+      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
     init();
+}
+
+DataReader::DataReader(const char* xmlrep, size_t size, eprosima::fastrtps::Participant* rtps_participant,
+                       ReaderListener* read_list)
+    : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
+      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
+{
+    init(xmlrep, size);
 }
 
 DataReader::~DataReader()
@@ -79,16 +83,47 @@ bool DataReader::init()
 
     if (!m_rtps_subscriber_prof.empty())
     {
-        //std::cout << "init DataReader RTPS subscriber" << std::endl;
+        // std::cout << "init DataReader RTPS subscriber" << std::endl;
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
     }
     else
     {
-        //std::cout << "init DataReader RTPS default subscriber" << std::endl;
-        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+        // std::cout << "init DataReader RTPS default subscriber" << std::endl;
+        mp_rtps_subscriber =
+            fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
 
-    if(mp_rtps_subscriber == nullptr)
+    if (mp_rtps_subscriber == nullptr)
+    {
+        std::cout << "init subscriber error" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool DataReader::init(const char* xmlrep, size_t size)
+{
+    if (nullptr == mp_rtps_participant &&
+        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    {
+        std::cout << "init participant error" << std::endl;
+        return false;
+    }
+
+    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
+
+    SubscriberAttributes attributes;
+    if (xmlobjects::parse_subscriber(xmlrep, size, attributes))
+    {
+        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
+    }
+    else
+    {
+        // std::cout << "init DataReader RTPS default subscriber" << std::endl;
+        mp_rtps_subscriber =
+            fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+    }
+    if (mp_rtps_subscriber == nullptr)
     {
         std::cout << "init subscriber error" << std::endl;
         return false;
@@ -98,7 +133,7 @@ bool DataReader::init()
 
 int DataReader::read(const READ_DATA_Payload& read_data)
 {
-    switch(read_data.read_specification().delivery_config()._d())
+    switch (read_data.read_specification().delivery_config()._d())
     {
         case FORMAT_DATA:
         case FORMAT_DATA_SEQ:
@@ -115,7 +150,7 @@ int DataReader::read(const READ_DATA_Payload& read_data)
     }
     else
     {
-        //std::cout << "DataReader m_read_thread busy" << std::endl;
+        // std::cout << "DataReader m_read_thread busy" << std::endl;
         stop_read();
         start_read(read_data);
     }
@@ -125,16 +160,16 @@ int DataReader::read(const READ_DATA_Payload& read_data)
 
 int DataReader::start_read(const READ_DATA_Payload& read_data)
 {
-    //std::cout << "START READ" << std::endl;
-    m_running = true;
+    // std::cout << "START READ" << std::endl;
+    m_running      = true;
     m_timer_thread = std::thread(&DataReader::run_timer, this);
-    m_read_thread = std::thread(&DataReader::read_task, this, read_data);
+    m_read_thread  = std::thread(&DataReader::read_task, this, read_data);
     return 0;
 }
 
 int DataReader::stop_read()
 {
-    //std::cout << "STOP READ" << std::endl;
+    // std::cout << "STOP READ" << std::endl;
     m_running = false;
     m_cond_var.notify_one();
     m_timer_thread.join();
@@ -142,7 +177,7 @@ int DataReader::stop_read()
     return 0;
 }
 
-//int DataReader::cancel_read(READ_DATA_Payload &read_data)
+// int DataReader::cancel_read(READ_DATA_Payload &read_data)
 //{
 //    if (m_read_thread.joinable())
 //    {
@@ -154,12 +189,12 @@ int DataReader::stop_read()
 
 void DataReader::read_task(READ_DATA_Payload read_data)
 {
-    //std::cout << "Starting read_task..." << std::endl;
+    // std::cout << "Starting read_task..." << std::endl;
     std::unique_lock<std::mutex> lock(m_mutex);
     uint16_t message_count = 0;
-    while(m_running)
+    while (m_running)
     {
-        m_cond_var.wait(lock, [&]{return !m_running || (m_time_expired && m_new_message);});
+        m_cond_var.wait(lock, [&] { return !m_running || (m_time_expired && m_new_message); });
 
         std::cout << "Read " << message_count + 1 << std::endl;
 
@@ -173,19 +208,19 @@ void DataReader::read_task(READ_DATA_Payload read_data)
         m_time_expired = m_new_message = false;
     }
     m_running = false;
-    //std::cout << "exiting read_task..." << std::endl;
+    // std::cout << "exiting read_task..." << std::endl;
 }
 
 void DataReader::on_timeout(const asio::error_code& error)
 {
-    //std::cout << "on_timeout" << std::endl;
+    // std::cout << "on_timeout" << std::endl;
     if (error)
     {
         std::cout << "error" << std::endl;
     }
     else
     {
-        std::lock_guard < std::mutex > lock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_time_expired = true;
         m_cond_var.notify_one();
 
@@ -195,7 +230,6 @@ void DataReader::on_timeout(const asio::error_code& error)
             init_timer(2000);
         }
     }
-
 }
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
@@ -208,7 +242,7 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
         {
             // Print your structure data here.
             ++n_msg;
-            //std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
+            // std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
 
             std::lock_guard<std::mutex> lock(m_mutex);
             m_new_message = true;
@@ -217,7 +251,7 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
     }
 }
 
-TimerEvent::TimerEvent(): m_timer(m_io_service)
+TimerEvent::TimerEvent() : m_timer(m_io_service)
 {
 }
 
@@ -231,10 +265,10 @@ int TimerEvent::init_timer(int milliseconds)
 
 void TimerEvent::run_timer()
 {
-    //std::cout << "Starting run_timer..." << std::endl;
+    // std::cout << "Starting run_timer..." << std::endl;
     init_timer(2000);
     m_io_service.run();
-    //std::cout << "exiting run_timer..." << std::endl;
+    // std::cout << "exiting run_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -245,9 +279,9 @@ bool DataReader::takeNextData(void* data)
     }
     fastrtps::SampleInfo_t info;
     bool ret = mp_rtps_subscriber->takeNextData(data, &info);
-    if(ret)
+    if (ret)
     {
-        //std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
+        // std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
     }
     else
     {
@@ -261,18 +295,14 @@ void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)
     if (info.status == MATCHED_MATCHING)
     {
         n_matched++;
-        //std::cout << "RTPS Publisher matched" << std::endl;
+        // std::cout << "RTPS Publisher matched" << std::endl;
     }
     else
     {
         n_matched--;
-        //std::cout << "RTPS Publisher unmatched" << std::endl;
+        // std::cout << "RTPS Publisher unmatched" << std::endl;
     }
 }
 
-
-
 } /* namespace micrortps */
 } /* namespace eprosima */
-
-

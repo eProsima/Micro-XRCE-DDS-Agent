@@ -89,8 +89,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJK_PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant()))
-                .second;
+            return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant())).second;
             break;
         }
         case OBJK_DATAWRITER:

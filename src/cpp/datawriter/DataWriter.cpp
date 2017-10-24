@@ -16,12 +16,11 @@
  * @file DataWriter.cpp
  *
  */
-
+#include <agent/datawriter/DataWriter.h>
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
-
-#include <agent/datawriter/DataWriter.h>
+#include <xmlobjects/xmlobjects.h>
 
 #include <DDSXRCETypes.h>
 #include <Payloads.h>
@@ -29,17 +28,21 @@
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_PUBLISHER_PROFILE "default_xrce_publisher_profile"
 
-
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(fastrtps::Participant* rtps_participant):
-        mp_rtps_participant(rtps_participant),
-        mp_rtps_publisher(nullptr),
-        m_rtps_publisher_prof("")
+DataWriter::DataWriter(fastrtps::Participant* rtps_participant)
+    : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
 
 {
     init();
+}
+
+DataWriter::DataWriter(const char* xmlrep, size_t size, fastrtps::Participant* rtps_participant)
+    : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
+
+{
+    init(xmlrep, size);
 }
 
 DataWriter::~DataWriter()
@@ -68,16 +71,47 @@ bool DataWriter::init()
 
     if (!m_rtps_publisher_prof.empty())
     {
-        //std::cout << "init DataWriter RTPS publisher" << std::endl;
+        // std::cout << "init DataWriter RTPS publisher" << std::endl;
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
     }
     else
     {
-        //std::cout << "init DataWriter RTPS default publisher" << std::endl;
-        mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+        // std::cout << "init DataWriter RTPS default publisher" << std::endl;
+        mp_rtps_publisher =
+            fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
     }
 
-    if(mp_rtps_publisher == nullptr)
+    if (mp_rtps_publisher == nullptr)
+    {
+        std::cout << "init publisher error" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool DataWriter::init(const char* xmlrep, size_t size)
+{
+    if (nullptr == mp_rtps_participant &&
+        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    {
+        return false;
+    }
+
+    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
+
+    PublisherAttributes attributes;
+    if (xmlobjects::parse_publisher(xmlrep, size, attributes))
+    {
+        mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
+    }
+    else
+    {
+        // std::cout << "init DataWriter RTPS default publisher" << std::endl;
+        mp_rtps_publisher =
+            fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+    }
+
+    if (mp_rtps_publisher == nullptr)
     {
         std::cout << "init publisher error" << std::endl;
         return false;
@@ -87,14 +121,15 @@ bool DataWriter::init()
 
 bool DataWriter::write(const WRITE_DATA_Payload& write_data)
 {
-    switch(write_data.data_to_write()._d())
+    switch (write_data.data_to_write()._d())
     {
         case FORMAT_DATA:
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-        default: break;
+        default:
+            break;
     }
 
     if (nullptr == mp_rtps_publisher)
@@ -105,7 +140,6 @@ bool DataWriter::write(const WRITE_DATA_Payload& write_data)
     std::vector<uint8_t> serialized_data = write_data.data_to_write().data().serialized_data();
     return mp_rtps_publisher->write(&serialized_data);
 }
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */
