@@ -73,7 +73,7 @@ class RTPSSubListener : public fastrtps::SubscriberListener
 {
   public:
     RTPSSubListener() : n_matched(0), n_msg(0), m_new_message(false){};
-    ~RTPSSubListener(){};
+    virtual ~RTPSSubListener() = default;
     virtual void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
     virtual void onNewDataMessage(fastrtps::Subscriber* sub)                         = 0;
     fastrtps::SampleInfo_t m_info;
@@ -92,7 +92,7 @@ class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
   public:
     DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     DataReader(const std::string& xmlrep, fastrtps::Participant* rtps_participant, ReaderListener* read_list);
-    virtual ~DataReader();
+    ~DataReader() noexcept override;
 
     bool init();
     bool init(const std::string& xmlrep);

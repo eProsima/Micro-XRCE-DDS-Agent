@@ -46,7 +46,7 @@ DataReader::DataReader(const std::string& xmlrep, eprosima::fastrtps::Participan
     init(xmlrep);
 }
 
-DataReader::~DataReader()
+DataReader::~DataReader() noexcept
 {
     if (m_read_thread.joinable())
     {
