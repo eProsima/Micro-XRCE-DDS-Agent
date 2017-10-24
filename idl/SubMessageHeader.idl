@@ -5,7 +5,7 @@ module micrortps {
 
 struct SubmessageHeader
 {
-    octet submessage_id;
+    SubmessageId submessage_id;
     octet flags;
     unsigned short submessage_length;
 };

@@ -62,7 +62,7 @@ void XRCEFactory::data(const DATA_Payload_PackedSamples& payload)
     reply(DATA, payload);
 }
 
-void XRCEFactory::submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length)
+void XRCEFactory::submessage_header(eprosima::micrortps::SubmessageId submessage_id, uint8_t flags, uint16_t submessage_length)
 {
     SubmessageHeader subMessage = SubmessageHeader();
     subMessage.submessage_id(submessage_id);
@@ -71,7 +71,7 @@ void XRCEFactory::submessage_header(uint8_t submessage_id, uint8_t flags, uint16
     serializer_.serialize(subMessage); // Add submessage
 }
 
-void XRCEFactory::reply(uint8_t m_submessage_id, const BaseObjectReply& object_reply)
+void XRCEFactory::reply(eprosima::micrortps::SubmessageId m_submessage_id, const BaseObjectReply& object_reply)
 {
     submessage_header(m_submessage_id, 0x07, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
     serializer_.serialize(object_reply);

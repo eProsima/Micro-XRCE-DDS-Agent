@@ -17,6 +17,8 @@
 
 #include <stdint.h>
 
+#include "DDSXRCETypes.h"
+
 #include "Serializer.h"
 
 namespace eprosima {
@@ -47,8 +49,8 @@ public:
     size_t get_total_size();
 private:
 
-    void submessage_header(uint8_t submessage_id, uint8_t flags, uint16_t submessage_length);
-    void reply(uint8_t m_submessage_id, const BaseObjectReply& object_reply);
+    void submessage_header(eprosima::micrortps::SubmessageId submessage_id, uint8_t flags, uint16_t submessage_length);
+    void reply(eprosima::micrortps::SubmessageId m_submessage_id, const BaseObjectReply& object_reply);
     Serializer serializer_;
 };
 

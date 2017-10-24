@@ -87,7 +87,7 @@ class SubmessageHeader
      * @brief This function sets a value in member submessage_id
      * @param _submessage_id New value for member submessage_id
      */
-    inline void submessage_id(uint8_t _submessage_id)
+    inline void submessage_id(eprosima::micrortps::SubmessageId _submessage_id)
     {
         m_submessage_id = _submessage_id;
     }
@@ -96,7 +96,7 @@ class SubmessageHeader
      * @brief This function returns the value of member submessage_id
      * @return Value of member submessage_id
      */
-    inline uint8_t submessage_id() const
+    inline eprosima::micrortps::SubmessageId submessage_id() const
     {
         return m_submessage_id;
     }
@@ -105,7 +105,7 @@ class SubmessageHeader
      * @brief This function returns a reference to member submessage_id
      * @return Reference to member submessage_id
      */
-    inline uint8_t &submessage_id()
+    inline eprosima::micrortps::SubmessageId &submessage_id()
     {
         return m_submessage_id;
     }
@@ -192,7 +192,7 @@ class SubmessageHeader
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    uint8_t m_submessage_id;
+    eprosima::micrortps::SubmessageId m_submessage_id;
     uint8_t m_flags;
     uint16_t m_submessage_length;
 };

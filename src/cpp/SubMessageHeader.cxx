@@ -32,10 +32,11 @@ namespace { char dummy; }
 using namespace eprosima::fastcdr::exception;
 
 #include <utility>
+#include <type_traits>
 
 eprosima::micrortps::SubmessageHeader::SubmessageHeader()
 {
-    m_submessage_id = 0;
+    m_submessage_id = CREATE_CLIENT;
     m_flags = 0;
     m_submessage_length = 0;
 }
@@ -106,14 +107,17 @@ size_t eprosima::micrortps::SubmessageHeader::getCdrSerializedSize(const eprosim
 
 void eprosima::micrortps::SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_submessage_id;
+    scdr << static_cast<std::underlying_type<eprosima::micrortps::SubmessageId>::type const&>(m_submessage_id);
     scdr << m_flags;
     scdr << m_submessage_length;
 }
 
 void eprosima::micrortps::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_submessage_id;
+    std::underlying_type<eprosima::micrortps::SubmessageId>::type temp_underlying_value;    
+    dcdr >> temp_underlying_value;
+    m_submessage_id = static_cast<eprosima::micrortps::SubmessageId>(temp_underlying_value);
+    
     dcdr >> m_flags;
     dcdr >> m_submessage_length;
 }
