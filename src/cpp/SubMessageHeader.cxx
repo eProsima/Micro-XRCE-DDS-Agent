@@ -109,7 +109,7 @@ void eprosima::micrortps::SubmessageHeader::serialize(eprosima::fastcdr::Cdr &sc
 {
     scdr << static_cast<std::underlying_type<eprosima::micrortps::SubmessageId>::type const&>(m_submessage_id);
     scdr << m_flags;
-    scdr << m_submessage_length;
+    scdr.serialize(m_submessage_length, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
 }
 
 void eprosima::micrortps::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -119,5 +119,6 @@ void eprosima::micrortps::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &
     m_submessage_id = static_cast<eprosima::micrortps::SubmessageId>(temp_underlying_value);
     
     dcdr >> m_flags;
-    dcdr >> m_submessage_length;
+
+    dcdr.deserialize(m_submessage_length, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
 }

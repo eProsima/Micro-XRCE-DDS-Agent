@@ -3935,19 +3935,16 @@ eprosima::micrortps::BaseRequest::~BaseRequest()
 eprosima::micrortps::BaseRequest::BaseRequest(const BaseRequest& x)
 {
     m_request_id = x.m_request_id;
-    m_object_id  = x.m_object_id;
 }
 
 eprosima::micrortps::BaseRequest::BaseRequest(BaseRequest&& x)
 {
     m_request_id = std::move(x.m_request_id);
-    m_object_id  = std::move(x.m_object_id);
 }
 
 eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(const BaseRequest& x)
 {
     m_request_id = x.m_request_id;
-    m_object_id  = x.m_object_id;
 
     return *this;
 }
@@ -3955,7 +3952,6 @@ eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(co
 eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(BaseRequest&& x)
 {
     m_request_id = std::move(x.m_request_id);
-    m_object_id  = std::move(x.m_object_id);
 
     return *this;
 }
@@ -3963,8 +3959,6 @@ eprosima::micrortps::BaseRequest& eprosima::micrortps::BaseRequest::operator=(Ba
 size_t eprosima::micrortps::BaseRequest::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -3976,7 +3970,6 @@ size_t eprosima::micrortps::BaseRequest::getCdrSerializedSize(size_t current_ali
     size_t initial_alignment = current_alignment;
 
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -3984,13 +3977,11 @@ size_t eprosima::micrortps::BaseRequest::getCdrSerializedSize(size_t current_ali
 void eprosima::micrortps::BaseRequest::serialize(eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_request_id;
-    scdr << m_object_id;
 }
 
 void eprosima::micrortps::BaseRequest::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_request_id;
-    dcdr >> m_object_id;
 }
 
 eprosima::micrortps::BaseObjectRequest::BaseObjectRequest()
