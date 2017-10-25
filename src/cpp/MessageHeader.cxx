@@ -118,7 +118,7 @@ void eprosima::micrortps::MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr)
 {
     scdr << m_session_id;
     scdr << m_stream_id;
-    scdr << m_sequence_nr;
+    scdr.serialize(m_sequence_nr, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
     scdr << m_client_key;
 }
 
@@ -126,6 +126,6 @@ void eprosima::micrortps::MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcd
 {
     dcdr >> m_session_id;
     dcdr >> m_stream_id;
-    dcdr >> m_sequence_nr;
+    dcdr.deserialize(m_sequence_nr, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
     dcdr >> m_client_key;
 }
