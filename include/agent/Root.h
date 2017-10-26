@@ -47,8 +47,10 @@ public:
 
     /*
      * Initialize the Agent.
-     */
-    void init();
+     */   
+    void init(const std::string& device);
+    
+    void init(uint16_t in_port, uint16_t out_port);
 
     /*
      * Creates and stores a ProxyClient

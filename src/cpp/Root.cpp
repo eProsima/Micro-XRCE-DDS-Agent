@@ -46,12 +46,20 @@ Agent::Agent() :
     response_control_.run_scheduled_ = false;
 }
 
-void Agent::init()
+void Agent::init(const std::string& device)
 {
-    std::cout << "Agent initialization..." << std::endl;
+    std::cout << "Serial agent initialization..." << std::endl;
     // Init transport
-    loc_id_ = add_serial_locator("/dev/ttyACM0");
+    loc_id_ = add_serial_locator(device.data());
 }
+
+void Agent::init(uint16_t in_port, uint16_t out_port)
+{
+    std::cout << "UDP agent initialization..." << std::endl;
+    // Init transport
+    loc_id_ = add_udp_locator(in_port, out_port);
+}
+
 
 void Agent::demo_create_client()
 {
