@@ -4420,41 +4420,6 @@ class BaseRequest
     {
         return m_request_id;
     }
-    /*!
-     * @brief This function copies the value in member object_id
-     * @param _object_id New value to be copied in member object_id
-     */
-    inline void object_id(const eprosima::micrortps::ObjectId &_object_id)
-    {
-        m_object_id = _object_id;
-    }
-
-    /*!
-     * @brief This function moves the value in member object_id
-     * @param _object_id New value to be moved in member object_id
-     */
-    inline void object_id(eprosima::micrortps::ObjectId &&_object_id)
-    {
-        m_object_id = std::move(_object_id);
-    }
-
-    /*!
-     * @brief This function returns a constant reference to member object_id
-     * @return Constant reference to member object_id
-     */
-    inline const eprosima::micrortps::ObjectId &object_id() const
-    {
-        return m_object_id;
-    }
-
-    /*!
-     * @brief This function returns a reference to member object_id
-     * @return Reference to member object_id
-     */
-    inline eprosima::micrortps::ObjectId &object_id()
-    {
-        return m_object_id;
-    }
 
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -4485,8 +4450,6 @@ class BaseRequest
 
   private:
     eprosima::micrortps::RequestId m_request_id;
-    // TODO(borja) duplicated on ObjectRequest. It is really necessary here?
-    eprosima::micrortps::ObjectId m_object_id;
 };
 /*!
  * @brief This class represents the structure BaseObjectRequest defined by the user in the IDL file.
