@@ -114,6 +114,11 @@ public:
     PoC_Listener() {};
     ~PoC_Listener() {};
 
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_payload)
+    {
+
+    }
+
     virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload)
     {
 

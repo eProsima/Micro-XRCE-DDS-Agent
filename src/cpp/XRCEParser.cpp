@@ -38,6 +38,12 @@ bool XRCEParser::parse()
             {
                 switch (submessage_header.submessage_id())
                 {
+                case CREATE_CLIENT:
+                    if (!process_create_client(message_header, submessage_header))
+                    {
+                        std::cerr << "Error processing create client" << std::endl;
+                    }
+                    break;
                 case CREATE:
                     if (!process_create(message_header, submessage_header))
                     {
@@ -89,6 +95,17 @@ bool XRCEParser::parse()
         return false;
     }
     return true;
+}
+
+bool XRCEParser::process_create_client(const MessageHeader& header, const SubmessageHeader& sub_header)
+{
+    CREATE_CLIENT_Payload create_payload;
+    if (deserializer_.deserialize(create_payload))
+    {
+        listener_->on_message(header, sub_header, create_payload);
+        return true;
+    }
+    return false;
 }
 
 bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHeader& sub_header)

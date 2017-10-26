@@ -26,22 +26,15 @@ class AgentTests : public CommonData, public ::testing::Test
 
 TEST_F(AgentTests, CreateClientOk)
 {
-    ResultStatus response = agent_.create_client(generate_message_header(), generate_create_payload(OBJECTKIND::CLIENT));
+    ResultStatus response = agent_.create_client(generate_message_header(), generate_create_client_payload());
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_OK, response.implementation_status());
 }
 
-TEST_F(AgentTests, CreateClientNoClient)
-{
-    ResultStatus response = agent_.create_client(generate_message_header(), generate_create_payload(OBJECTKIND::PUBLISHER));
-    ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
-    ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.implementation_status());
-}
-
 TEST_F(AgentTests, CreateClientBadCookie)
 {
-    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::CLIENT);
-    create_data.object_representation().client().xrce_cookie({0x00, 0x00});
+    CREATE_CLIENT_Payload create_data = generate_create_client_payload();
+    create_data.object_representation().xrce_cookie({0x00, 0x00});
     ResultStatus response = agent_.create_client(generate_message_header(), create_data);
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_ERR_INVALID_DATA, response.implementation_status());
@@ -49,8 +42,8 @@ TEST_F(AgentTests, CreateClientBadCookie)
 
 TEST_F(AgentTests, CreateClientCompatibleVersion)
 {
-    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::CLIENT);
-    create_data.object_representation().client().xrce_version({{XRCE_VERSION_MAJOR, 0x20}});
+    CREATE_CLIENT_Payload create_data = generate_create_client_payload();
+    create_data.object_representation().xrce_version({{XRCE_VERSION_MAJOR, 0x20}});
     ResultStatus response = agent_.create_client(generate_message_header(), create_data);
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_OK, response.implementation_status());
@@ -58,8 +51,8 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
 
 TEST_F(AgentTests, CreateClientIncompatibleVersion)
 {
-    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::CLIENT);
-    create_data.object_representation().client().xrce_version({{0x02, XRCE_VERSION_MINOR}});
+    CREATE_CLIENT_Payload create_data = generate_create_client_payload();
+    create_data.object_representation().xrce_version({{0x02, XRCE_VERSION_MINOR}});
     ResultStatus response = agent_.create_client(generate_message_header(), create_data);
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_ERR_INCOMPATIBLE, response.implementation_status());
@@ -67,7 +60,7 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
 
 TEST_F(AgentTests, DeleteExistingClient)
 {
-    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::CLIENT);
+    CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     ResultStatus response      = agent_.create_client(generate_message_header(), create_data);
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_OK, response.implementation_status());
@@ -88,7 +81,7 @@ TEST_F(AgentTests, DeleteNoExistingClient)
 {
     const ClientKey fake_client_key = {{0xFA, 0xFB, 0xFC, 0xFD}};
 
-    CREATE_Payload create_data = generate_create_payload(OBJECTKIND::CLIENT);
+    CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     ResultStatus response      = agent_.create_client(generate_message_header(), create_data);
     ASSERT_EQ(STATUS_LAST_OP_CREATE, response.status());
     ASSERT_EQ(STATUS_OK, response.implementation_status());

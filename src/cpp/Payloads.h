@@ -38,6 +38,115 @@ class Cdr;
 
 namespace eprosima {
 namespace micrortps {
+
+/*!
+ * @brief This class represents the structure CREATE_CLIENT_Payload defined by the user in the IDL file.
+ * @ingroup PAYLOADS
+ */
+class CREATE_CLIENT_Payload : public eprosima::micrortps::BaseObjectRequest
+{
+  public:
+    /*!
+     * @brief Default constructor.
+     */
+    CREATE_CLIENT_Payload();
+
+    /*!
+     * @brief Default destructor.
+     */
+    virtual ~CREATE_CLIENT_Payload();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object eprosima::micrortps::CREATE_CLIENT_Payload that will be copied.
+     */
+    CREATE_CLIENT_Payload(const CREATE_CLIENT_Payload& x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object eprosima::micrortps::CREATE_CLIENT_Payload that will be copied.
+     */
+    CREATE_CLIENT_Payload(CREATE_CLIENT_Payload&& x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object eprosima::micrortps::CREATE_CLIENT_Payload that will be copied.
+     */
+    CREATE_CLIENT_Payload& operator=(const CREATE_CLIENT_Payload& x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object eprosima::micrortps::CREATE_CLIENT_Payload that will be copied.
+     */
+    CREATE_CLIENT_Payload& operator=(CREATE_CLIENT_Payload&& x);
+
+    /*!
+     * @brief This function copies the value in member object_representation
+     * @param _object_representation New value to be copied in member object_representation
+     */
+    inline void object_representation(const eprosima::micrortps::OBJK_CLIENT_Representation& _object_representation)
+    {
+        m_object_representation = _object_representation;
+    }
+
+    /*!
+     * @brief This function moves the value in member object_representation
+     * @param _object_representation New value to be moved in member object_representation
+     */
+    inline void object_representation(eprosima::micrortps::OBJK_CLIENT_Representation&& _object_representation)
+    {
+        m_object_representation = std::move(_object_representation);
+    }
+
+    /*!
+     * @brief This function returns a constant reference to member object_representation
+     * @return Constant reference to member object_representation
+     */
+    inline const eprosima::micrortps::OBJK_CLIENT_Representation& object_representation() const
+    {
+        return m_object_representation;
+    }
+
+    /*!
+     * @brief This function returns a reference to member object_representation
+     * @return Reference to member object_representation
+     */
+    inline eprosima::micrortps::OBJK_CLIENT_Representation& object_representation()
+    {
+        return m_object_representation;
+    }
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+   /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void serialize(eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void deserialize(eprosima::fastcdr::Cdr& cdr);
+
+  private:
+    eprosima::micrortps::OBJK_CLIENT_Representation m_object_representation;
+};
+
 /*!
  * @brief This class represents the structure CREATE_Payload defined by the user in the IDL file.
  * @ingroup PAYLOADS
@@ -59,31 +168,31 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::CREATE_Payload that will be copied.
      */
-    CREATE_Payload(const CREATE_Payload &x);
+    CREATE_Payload(const CREATE_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::CREATE_Payload that will be copied.
      */
-    CREATE_Payload(CREATE_Payload &&x);
+    CREATE_Payload(CREATE_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::CREATE_Payload that will be copied.
      */
-    CREATE_Payload &operator=(const CREATE_Payload &x);
+    CREATE_Payload& operator=(const CREATE_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::CREATE_Payload that will be copied.
      */
-    CREATE_Payload &operator=(CREATE_Payload &&x);
+    CREATE_Payload& operator=(CREATE_Payload&& x);
 
     /*!
      * @brief This function copies the value in member object_representation
      * @param _object_representation New value to be copied in member object_representation
      */
-    inline void object_representation(const eprosima::micrortps::ObjectVariant &_object_representation)
+    inline void object_representation(const eprosima::micrortps::ObjectVariant& _object_representation)
     {
         m_object_representation = _object_representation;
     }
@@ -92,7 +201,7 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function moves the value in member object_representation
      * @param _object_representation New value to be moved in member object_representation
      */
-    inline void object_representation(eprosima::micrortps::ObjectVariant &&_object_representation)
+    inline void object_representation(eprosima::micrortps::ObjectVariant&& _object_representation)
     {
         m_object_representation = std::move(_object_representation);
     }
@@ -101,7 +210,7 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a constant reference to member object_representation
      * @return Constant reference to member object_representation
      */
-    inline const eprosima::micrortps::ObjectVariant &object_representation() const
+    inline const eprosima::micrortps::ObjectVariant& object_representation() const
     {
         return m_object_representation;
     }
@@ -110,7 +219,7 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a reference to member object_representation
      * @return Reference to member object_representation
      */
-    inline eprosima::micrortps::ObjectVariant &object_representation()
+    inline eprosima::micrortps::ObjectVariant& object_representation()
     {
         return m_object_representation;
     }
@@ -134,13 +243,13 @@ class CREATE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::ObjectVariant m_object_representation;
@@ -166,25 +275,25 @@ class DELETE_RESOURCE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DELETE_RESOURCE_Payload that will be copied.
      */
-    DELETE_RESOURCE_Payload(const DELETE_RESOURCE_Payload &x);
+    DELETE_RESOURCE_Payload(const DELETE_RESOURCE_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DELETE_RESOURCE_Payload that will be copied.
      */
-    DELETE_RESOURCE_Payload(DELETE_RESOURCE_Payload &&x);
+    DELETE_RESOURCE_Payload(DELETE_RESOURCE_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DELETE_RESOURCE_Payload that will be copied.
      */
-    DELETE_RESOURCE_Payload &operator=(const DELETE_RESOURCE_Payload &x);
+    DELETE_RESOURCE_Payload& operator=(const DELETE_RESOURCE_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DELETE_RESOURCE_Payload that will be copied.
      */
-    DELETE_RESOURCE_Payload &operator=(DELETE_RESOURCE_Payload &&x);
+    DELETE_RESOURCE_Payload& operator=(DELETE_RESOURCE_Payload&& x);
 
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -205,13 +314,13 @@ class DELETE_RESOURCE_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 };
 /*!
  * @brief This class represents the structure RESOURCE_STATUS_Payload defined by the user in the IDL file.
@@ -234,25 +343,25 @@ class RESOURCE_STATUS_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::RESOURCE_STATUS_Payload that will be copied.
      */
-    RESOURCE_STATUS_Payload(const RESOURCE_STATUS_Payload &x);
+    RESOURCE_STATUS_Payload(const RESOURCE_STATUS_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::RESOURCE_STATUS_Payload that will be copied.
      */
-    RESOURCE_STATUS_Payload(RESOURCE_STATUS_Payload &&x);
+    RESOURCE_STATUS_Payload(RESOURCE_STATUS_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::RESOURCE_STATUS_Payload that will be copied.
      */
-    RESOURCE_STATUS_Payload &operator=(const RESOURCE_STATUS_Payload &x);
+    RESOURCE_STATUS_Payload& operator=(const RESOURCE_STATUS_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::RESOURCE_STATUS_Payload that will be copied.
      */
-    RESOURCE_STATUS_Payload &operator=(RESOURCE_STATUS_Payload &&x);
+    RESOURCE_STATUS_Payload& operator=(RESOURCE_STATUS_Payload&& x);
 
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -273,13 +382,13 @@ class RESOURCE_STATUS_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 };
 /*!
  * @brief This class represents the structure GET_INFO_Payload defined by the user in the IDL file.
@@ -302,25 +411,25 @@ class GET_INFO_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload(const GET_INFO_Payload &x);
+    GET_INFO_Payload(const GET_INFO_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload(GET_INFO_Payload &&x);
+    GET_INFO_Payload(GET_INFO_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload &operator=(const GET_INFO_Payload &x);
+    GET_INFO_Payload& operator=(const GET_INFO_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload &operator=(GET_INFO_Payload &&x);
+    GET_INFO_Payload& operator=(GET_INFO_Payload&& x);
 
     /*!
      * @brief This function sets a value in member info_mask
@@ -344,7 +453,7 @@ class GET_INFO_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a reference to member info_mask
      * @return Reference to member info_mask
      */
-    inline eprosima::micrortps::InfoMask &info_mask()
+    inline eprosima::micrortps::InfoMask& info_mask()
     {
         return m_info_mask;
     }
@@ -368,13 +477,13 @@ class GET_INFO_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::InfoMask m_info_mask;
@@ -400,31 +509,31 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::INFO_Payload that will be copied.
      */
-    INFO_Payload(const INFO_Payload &x);
+    INFO_Payload(const INFO_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::INFO_Payload that will be copied.
      */
-    INFO_Payload(INFO_Payload &&x);
+    INFO_Payload(INFO_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::INFO_Payload that will be copied.
      */
-    INFO_Payload &operator=(const INFO_Payload &x);
+    INFO_Payload& operator=(const INFO_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::INFO_Payload that will be copied.
      */
-    INFO_Payload &operator=(INFO_Payload &&x);
+    INFO_Payload& operator=(INFO_Payload&& x);
 
     /*!
      * @brief This function copies the value in member info
      * @param _info New value to be copied in member info
      */
-    inline void info(const eprosima::micrortps::Info &_info)
+    inline void info(const eprosima::micrortps::Info& _info)
     {
         m_info = _info;
     }
@@ -433,7 +542,7 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member info
      * @param _info New value to be moved in member info
      */
-    inline void info(eprosima::micrortps::Info &&_info)
+    inline void info(eprosima::micrortps::Info&& _info)
     {
         m_info = std::move(_info);
     }
@@ -442,7 +551,7 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member info
      * @return Constant reference to member info
      */
-    inline const eprosima::micrortps::Info &info() const
+    inline const eprosima::micrortps::Info& info() const
     {
         return m_info;
     }
@@ -451,7 +560,7 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member info
      * @return Reference to member info
      */
-    inline eprosima::micrortps::Info &info()
+    inline eprosima::micrortps::Info& info()
     {
         return m_info;
     }
@@ -475,13 +584,13 @@ class INFO_Payload : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::Info m_info;
@@ -507,31 +616,31 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload(const READ_DATA_Payload &x);
+    READ_DATA_Payload(const READ_DATA_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload(READ_DATA_Payload &&x);
+    READ_DATA_Payload(READ_DATA_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload &operator=(const READ_DATA_Payload &x);
+    READ_DATA_Payload& operator=(const READ_DATA_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload &operator=(READ_DATA_Payload &&x);
+    READ_DATA_Payload& operator=(READ_DATA_Payload&& x);
 
     /*!
      * @brief This function copies the value in member read_specification
      * @param _read_specification New value to be copied in member read_specification
      */
-    inline void read_specification(const eprosima::micrortps::ReadSpecification &_read_specification)
+    inline void read_specification(const eprosima::micrortps::ReadSpecification& _read_specification)
     {
         m_read_specification = _read_specification;
     }
@@ -540,7 +649,7 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function moves the value in member read_specification
      * @param _read_specification New value to be moved in member read_specification
      */
-    inline void read_specification(eprosima::micrortps::ReadSpecification &&_read_specification)
+    inline void read_specification(eprosima::micrortps::ReadSpecification&& _read_specification)
     {
         m_read_specification = std::move(_read_specification);
     }
@@ -549,7 +658,7 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a constant reference to member read_specification
      * @return Constant reference to member read_specification
      */
-    inline const eprosima::micrortps::ReadSpecification &read_specification() const
+    inline const eprosima::micrortps::ReadSpecification& read_specification() const
     {
         return m_read_specification;
     }
@@ -558,7 +667,7 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a reference to member read_specification
      * @return Reference to member read_specification
      */
-    inline eprosima::micrortps::ReadSpecification &read_specification()
+    inline eprosima::micrortps::ReadSpecification& read_specification()
     {
         return m_read_specification;
     }
@@ -582,13 +691,13 @@ class READ_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::ReadSpecification m_read_specification;
@@ -614,31 +723,31 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data(const DATA_Payload_Data &x);
+    DATA_Payload_Data(const DATA_Payload_Data& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data(DATA_Payload_Data &&x);
+    DATA_Payload_Data(DATA_Payload_Data&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data &operator=(const DATA_Payload_Data &x);
+    DATA_Payload_Data& operator=(const DATA_Payload_Data& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data &operator=(DATA_Payload_Data &&x);
+    DATA_Payload_Data& operator=(DATA_Payload_Data&& x);
 
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    inline void data(const eprosima::micrortps::SampleData &_data)
+    inline void data(const eprosima::micrortps::SampleData& _data)
     {
         m_data = _data;
     }
@@ -647,7 +756,7 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    inline void data(eprosima::micrortps::SampleData &&_data)
+    inline void data(eprosima::micrortps::SampleData&& _data)
     {
         m_data = std::move(_data);
     }
@@ -656,7 +765,7 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member data
      * @return Constant reference to member data
      */
-    inline const eprosima::micrortps::SampleData &data() const
+    inline const eprosima::micrortps::SampleData& data() const
     {
         return m_data;
     }
@@ -665,7 +774,7 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member data
      * @return Reference to member data
      */
-    inline eprosima::micrortps::SampleData &data()
+    inline eprosima::micrortps::SampleData& data()
     {
         return m_data;
     }
@@ -689,13 +798,13 @@ class DATA_Payload_Data : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::SampleData m_data;
@@ -721,31 +830,31 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample(const DATA_Payload_Sample &x);
+    DATA_Payload_Sample(const DATA_Payload_Sample& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample(DATA_Payload_Sample &&x);
+    DATA_Payload_Sample(DATA_Payload_Sample&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample &operator=(const DATA_Payload_Sample &x);
+    DATA_Payload_Sample& operator=(const DATA_Payload_Sample& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample &operator=(DATA_Payload_Sample &&x);
+    DATA_Payload_Sample& operator=(DATA_Payload_Sample&& x);
 
     /*!
      * @brief This function copies the value in member sample
      * @param _sample New value to be copied in member sample
      */
-    inline void sample(const eprosima::micrortps::Sample &_sample)
+    inline void sample(const eprosima::micrortps::Sample& _sample)
     {
         m_sample = _sample;
     }
@@ -754,7 +863,7 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member sample
      * @param _sample New value to be moved in member sample
      */
-    inline void sample(eprosima::micrortps::Sample &&_sample)
+    inline void sample(eprosima::micrortps::Sample&& _sample)
     {
         m_sample = std::move(_sample);
     }
@@ -763,7 +872,7 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member sample
      * @return Constant reference to member sample
      */
-    inline const eprosima::micrortps::Sample &sample() const
+    inline const eprosima::micrortps::Sample& sample() const
     {
         return m_sample;
     }
@@ -772,7 +881,7 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member sample
      * @return Reference to member sample
      */
-    inline eprosima::micrortps::Sample &sample()
+    inline eprosima::micrortps::Sample& sample()
     {
         return m_sample;
     }
@@ -796,13 +905,13 @@ class DATA_Payload_Sample : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::Sample m_sample;
@@ -828,31 +937,31 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq(const DATA_Payload_DataSeq &x);
+    DATA_Payload_DataSeq(const DATA_Payload_DataSeq& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq(DATA_Payload_DataSeq &&x);
+    DATA_Payload_DataSeq(DATA_Payload_DataSeq&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq &operator=(const DATA_Payload_DataSeq &x);
+    DATA_Payload_DataSeq& operator=(const DATA_Payload_DataSeq& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq &operator=(DATA_Payload_DataSeq &&x);
+    DATA_Payload_DataSeq& operator=(DATA_Payload_DataSeq&& x);
 
     /*!
      * @brief This function copies the value in member data_seq
      * @param _data_seq New value to be copied in member data_seq
      */
-    inline void data_seq(const std::vector<eprosima::micrortps::SampleData> &_data_seq)
+    inline void data_seq(const std::vector<eprosima::micrortps::SampleData>& _data_seq)
     {
         m_data_seq = _data_seq;
     }
@@ -861,7 +970,7 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member data_seq
      * @param _data_seq New value to be moved in member data_seq
      */
-    inline void data_seq(std::vector<eprosima::micrortps::SampleData> &&_data_seq)
+    inline void data_seq(std::vector<eprosima::micrortps::SampleData>&& _data_seq)
     {
         m_data_seq = std::move(_data_seq);
     }
@@ -870,7 +979,7 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member data_seq
      * @return Constant reference to member data_seq
      */
-    inline const std::vector<eprosima::micrortps::SampleData> &data_seq() const
+    inline const std::vector<eprosima::micrortps::SampleData>& data_seq() const
     {
         return m_data_seq;
     }
@@ -879,7 +988,7 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member data_seq
      * @return Reference to member data_seq
      */
-    inline std::vector<eprosima::micrortps::SampleData> &data_seq()
+    inline std::vector<eprosima::micrortps::SampleData>& data_seq()
     {
         return m_data_seq;
     }
@@ -903,13 +1012,13 @@ class DATA_Payload_DataSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     std::vector<eprosima::micrortps::SampleData> m_data_seq;
@@ -935,31 +1044,31 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq(const DATA_Payload_SampleSeq &x);
+    DATA_Payload_SampleSeq(const DATA_Payload_SampleSeq& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq(DATA_Payload_SampleSeq &&x);
+    DATA_Payload_SampleSeq(DATA_Payload_SampleSeq&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq &operator=(const DATA_Payload_SampleSeq &x);
+    DATA_Payload_SampleSeq& operator=(const DATA_Payload_SampleSeq& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq &operator=(DATA_Payload_SampleSeq &&x);
+    DATA_Payload_SampleSeq& operator=(DATA_Payload_SampleSeq&& x);
 
     /*!
      * @brief This function copies the value in member sample_seq
      * @param _sample_seq New value to be copied in member sample_seq
      */
-    inline void sample_seq(const std::vector<eprosima::micrortps::Sample> &_sample_seq)
+    inline void sample_seq(const std::vector<eprosima::micrortps::Sample>& _sample_seq)
     {
         m_sample_seq = _sample_seq;
     }
@@ -968,7 +1077,7 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member sample_seq
      * @param _sample_seq New value to be moved in member sample_seq
      */
-    inline void sample_seq(std::vector<eprosima::micrortps::Sample> &&_sample_seq)
+    inline void sample_seq(std::vector<eprosima::micrortps::Sample>&& _sample_seq)
     {
         m_sample_seq = std::move(_sample_seq);
     }
@@ -977,7 +1086,7 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member sample_seq
      * @return Constant reference to member sample_seq
      */
-    inline const std::vector<eprosima::micrortps::Sample> &sample_seq() const
+    inline const std::vector<eprosima::micrortps::Sample>& sample_seq() const
     {
         return m_sample_seq;
     }
@@ -986,7 +1095,7 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member sample_seq
      * @return Reference to member sample_seq
      */
-    inline std::vector<eprosima::micrortps::Sample> &sample_seq()
+    inline std::vector<eprosima::micrortps::Sample>& sample_seq()
     {
         return m_sample_seq;
     }
@@ -1010,13 +1119,13 @@ class DATA_Payload_SampleSeq : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     std::vector<eprosima::micrortps::Sample> m_sample_seq;
@@ -1042,31 +1151,31 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples(const DATA_Payload_PackedSamples &x);
+    DATA_Payload_PackedSamples(const DATA_Payload_PackedSamples& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples(DATA_Payload_PackedSamples &&x);
+    DATA_Payload_PackedSamples(DATA_Payload_PackedSamples&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples &operator=(const DATA_Payload_PackedSamples &x);
+    DATA_Payload_PackedSamples& operator=(const DATA_Payload_PackedSamples& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples &operator=(DATA_Payload_PackedSamples &&x);
+    DATA_Payload_PackedSamples& operator=(DATA_Payload_PackedSamples&& x);
 
     /*!
      * @brief This function copies the value in member packed_samples
      * @param _packed_samples New value to be copied in member packed_samples
      */
-    inline void packed_samples(const eprosima::micrortps::PackedSamples &_packed_samples)
+    inline void packed_samples(const eprosima::micrortps::PackedSamples& _packed_samples)
     {
         m_packed_samples = _packed_samples;
     }
@@ -1075,7 +1184,7 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
      * @brief This function moves the value in member packed_samples
      * @param _packed_samples New value to be moved in member packed_samples
      */
-    inline void packed_samples(eprosima::micrortps::PackedSamples &&_packed_samples)
+    inline void packed_samples(eprosima::micrortps::PackedSamples&& _packed_samples)
     {
         m_packed_samples = std::move(_packed_samples);
     }
@@ -1084,7 +1193,7 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a constant reference to member packed_samples
      * @return Constant reference to member packed_samples
      */
-    inline const eprosima::micrortps::PackedSamples &packed_samples() const
+    inline const eprosima::micrortps::PackedSamples& packed_samples() const
     {
         return m_packed_samples;
     }
@@ -1093,7 +1202,7 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
      * @brief This function returns a reference to member packed_samples
      * @return Reference to member packed_samples
      */
-    inline eprosima::micrortps::PackedSamples &packed_samples()
+    inline eprosima::micrortps::PackedSamples& packed_samples()
     {
         return m_packed_samples;
     }
@@ -1117,13 +1226,13 @@ class DATA_Payload_PackedSamples : public eprosima::micrortps::BaseObjectReply
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::PackedSamples m_packed_samples;
@@ -1149,31 +1258,31 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief Copy constructor.
      * @param x Reference to the object eprosima::micrortps::WRITE_DATA_Payload that will be copied.
      */
-    WRITE_DATA_Payload(const WRITE_DATA_Payload &x);
+    WRITE_DATA_Payload(const WRITE_DATA_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object eprosima::micrortps::WRITE_DATA_Payload that will be copied.
      */
-    WRITE_DATA_Payload(WRITE_DATA_Payload &&x);
+    WRITE_DATA_Payload(WRITE_DATA_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object eprosima::micrortps::WRITE_DATA_Payload that will be copied.
      */
-    WRITE_DATA_Payload &operator=(const WRITE_DATA_Payload &x);
+    WRITE_DATA_Payload& operator=(const WRITE_DATA_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object eprosima::micrortps::WRITE_DATA_Payload that will be copied.
      */
-    WRITE_DATA_Payload &operator=(WRITE_DATA_Payload &&x);
+    WRITE_DATA_Payload& operator=(WRITE_DATA_Payload&& x);
 
     /*!
      * @brief This function copies the value in member data_to_write
      * @param _data_to_write New value to be copied in member data_to_write
      */
-    inline void data_to_write(const eprosima::micrortps::DataRepresentation &_data_to_write)
+    inline void data_to_write(const eprosima::micrortps::DataRepresentation& _data_to_write)
     {
         m_data_to_write = _data_to_write;
     }
@@ -1182,7 +1291,7 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function moves the value in member data_to_write
      * @param _data_to_write New value to be moved in member data_to_write
      */
-    inline void data_to_write(eprosima::micrortps::DataRepresentation &&_data_to_write)
+    inline void data_to_write(eprosima::micrortps::DataRepresentation&& _data_to_write)
     {
         m_data_to_write = std::move(_data_to_write);
     }
@@ -1191,7 +1300,7 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a constant reference to member data_to_write
      * @return Constant reference to member data_to_write
      */
-    inline const eprosima::micrortps::DataRepresentation &data_to_write() const
+    inline const eprosima::micrortps::DataRepresentation& data_to_write() const
     {
         return m_data_to_write;
     }
@@ -1200,7 +1309,7 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function returns a reference to member data_to_write
      * @return Reference to member data_to_write
      */
-    inline eprosima::micrortps::DataRepresentation &data_to_write()
+    inline eprosima::micrortps::DataRepresentation& data_to_write()
     {
         return m_data_to_write;
     }
@@ -1224,13 +1333,13 @@ class WRITE_DATA_Payload : public eprosima::micrortps::BaseObjectRequest
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr& cdr);
 
   private:
     eprosima::micrortps::DataRepresentation m_data_to_write;

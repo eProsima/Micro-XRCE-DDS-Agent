@@ -35,6 +35,74 @@ using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 
+eprosima::micrortps::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload()
+{
+
+
+}
+
+eprosima::micrortps::CREATE_CLIENT_Payload::~CREATE_CLIENT_Payload()
+{
+}
+
+eprosima::micrortps::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload(const CREATE_CLIENT_Payload &x) : BaseObjectRequest(x)
+{
+    m_object_representation = x.m_object_representation;
+}
+
+eprosima::micrortps::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload(CREATE_CLIENT_Payload &&x) : BaseObjectRequest(x)
+{
+    m_object_representation = std::move(x.m_object_representation);
+}
+
+eprosima::micrortps::CREATE_CLIENT_Payload& eprosima::micrortps::CREATE_CLIENT_Payload::operator=(const CREATE_CLIENT_Payload &x)
+{
+    BaseObjectRequest::operator=(x);
+    m_object_representation = x.m_object_representation;
+    
+    return *this;
+}
+
+eprosima::micrortps::CREATE_CLIENT_Payload& eprosima::micrortps::CREATE_CLIENT_Payload::operator=(CREATE_CLIENT_Payload &&x)
+{
+    BaseObjectRequest::operator=(x);
+    m_object_representation = std::move(x.m_object_representation);
+    
+    return *this;
+}
+
+size_t eprosima::micrortps::CREATE_CLIENT_Payload::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+            
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += eprosima::micrortps::OBJK_CLIENT_Representation::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t eprosima::micrortps::CREATE_CLIENT_Payload::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_alignment = current_alignment;
+                
+    current_alignment += eprosima::micrortps::BaseObjectRequest::getCdrSerializedSize(current_alignment);
+    current_alignment += m_object_representation.getCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+void eprosima::micrortps::CREATE_CLIENT_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    BaseObjectRequest::serialize(scdr);
+    scdr << m_object_representation;
+}
+
+void eprosima::micrortps::CREATE_CLIENT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    BaseObjectRequest::deserialize(dcdr);
+    dcdr >> m_object_representation;
+}
+
 eprosima::micrortps::CREATE_Payload::CREATE_Payload()
 {
 }

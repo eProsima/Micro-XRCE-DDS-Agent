@@ -29,6 +29,7 @@ class CommonData
 
     SubmessageHeader generate_submessage_header(const SubmessageId& submessage_id, uint16_t length) const;
 
+    CREATE_CLIENT_Payload generate_create_client_payload() const;
     CREATE_Payload generate_create_payload(const OBJECTKIND& object_kind) const;
 
     DELETE_RESOURCE_Payload generate_delete_resource_payload(const ObjectId& obj_id) const;

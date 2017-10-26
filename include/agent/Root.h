@@ -53,10 +53,10 @@ public:
     /*
      * Creates and stores a ProxyClient
      * @param client_key: ProxyClient unique key.
-     * @param create_info: Create payload containing all the creation information.
+     * @param create_info: Create client payload containing all the creation information.
      * @return ResultStatus struct with the operation result info.
      */
-    ResultStatus create_client(const MessageHeader& header, const CREATE_Payload& create_info);
+    ResultStatus create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info);
 
     /*
      * Removes a previously stored ProxyClient
@@ -70,6 +70,15 @@ public:
      * Starts Agent loop to listen messages. It parses and dispaches those XRCE messages to its owner.
      */
     void run();
+
+
+    /*
+     * Receives a creation message.
+     * @param header: Message header.
+     * @param sub_header: Submessage header.
+     * @param create_client_payload: Creation information.
+     */
+    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload) override;
 
     /*
      * Receives a creation message.

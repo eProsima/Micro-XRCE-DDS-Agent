@@ -51,10 +51,12 @@ template bool Serializer::serialize(const DATA_Payload_SampleSeq &data);
 template bool Serializer::serialize(const DATA_Payload_PackedSamples &data);
 template bool Serializer::serialize(const BaseObjectReply &data);
 template bool Serializer::serialize(const ResultStatus &data);
+
 // TODO(borja) No deberia poder serializar. Estan instanciados para tests.
 template bool Serializer::serialize(const READ_DATA_Payload &data);
 template bool Serializer::serialize(const WRITE_DATA_Payload &data);
 template bool Serializer::serialize(const CREATE_Payload &data);
+template bool Serializer::serialize(const CREATE_CLIENT_Payload &data);
 template bool Serializer::serialize(const DELETE_RESOURCE_Payload &data);
 
 template <class T> bool Serializer::deserialize(T &data)
@@ -74,6 +76,7 @@ template <class T> bool Serializer::deserialize(T &data)
 template bool Serializer::deserialize(MessageHeader &data);
 template bool Serializer::deserialize(SubmessageHeader &data);
 template bool Serializer::deserialize(CREATE_Payload &data);
+template bool Serializer::deserialize(CREATE_CLIENT_Payload &data);
 template bool Serializer::deserialize(DELETE_RESOURCE_Payload &data);
 template bool Serializer::deserialize(RESOURCE_STATUS_Payload &data);
 template bool Serializer::deserialize(READ_DATA_Payload &data);

@@ -22,6 +22,7 @@ namespace micrortps {
 
 class MessageHeader;
 class SubmessageHeader;
+class CREATE_CLIENT_Payload;
 class CREATE_Payload;
 class DELETE_RESOURCE_Payload;
 class WRITE_DATA_Payload;
@@ -32,6 +33,7 @@ public:
     XRCEListener() = default;
     virtual ~XRCEListener() = default;
 
+    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload) = 0;
     virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload) = 0;
     virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& create_payload) = 0;
     virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload&  write_payload) = 0;
@@ -50,6 +52,7 @@ public:
     bool parse();
 private:
 
+    bool process_create_client(const MessageHeader& header, const SubmessageHeader& sub_header);
     bool process_create(const MessageHeader& header, const SubmessageHeader& sub_header);
     bool process_delete(const MessageHeader& header, const SubmessageHeader& sub_header);
     bool process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header);

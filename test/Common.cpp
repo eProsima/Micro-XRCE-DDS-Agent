@@ -23,6 +23,15 @@ SubmessageHeader CommonData::generate_submessage_header(const SubmessageId& subm
     return submessage_header;
 }
 
+CREATE_CLIENT_Payload CommonData::generate_create_client_payload() const
+{
+    CREATE_CLIENT_Payload create_data;
+    create_data.request_id(request_id);
+    create_data.object_id(object_id);
+    create_data.object_representation(generate_client_representation());
+    return create_data;
+}
+
 CREATE_Payload CommonData::generate_create_payload(const OBJECTKIND& object_kind) const
 {
     CREATE_Payload create_data;
@@ -72,11 +81,6 @@ ObjectVariant CommonData::generate_object_variant(const OBJECTKIND& object_kind)
     ObjectVariant variant;
     switch(object_kind)
     {
-        case OBJECTKIND::CLIENT:
-        {
-            variant.client(generate_client_representation());
-            break;
-        }
         case OBJECTKIND::PUBLISHER:
         {
             variant.publisher(generate_publisher_representation());

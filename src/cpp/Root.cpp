@@ -68,9 +68,9 @@ void Agent::demo_create_client()
     
     const RequestId request_id{ {1,2} };
     const ObjectId object_id{ {10,20} };
-    CREATE_Payload create_data;
+    CREATE_CLIENT_Payload create_data;
     create_data.object_id(object_id);
-    create_data.object_representation().client(client_representation);
+    create_data.object_representation(client_representation);
 
     MessageHeader message_header;
     message_header.client_key(client_key);
@@ -81,16 +81,15 @@ void Agent::demo_create_client()
     ResultStatus st = create_client(message_header, create_data);
 }
 
-ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_Payload& create_info)
+ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info)
 {
     ResultStatus status;
     status.request_id(create_info.request_id());
     status.status(STATUS_LAST_OP_CREATE);
 
-    if ((create_info.object_representation()._d() == OBJECTKIND::CLIENT) && 
-        (create_info.object_representation().client().xrce_cookie() == XRCE_COOKIE))
+    if (create_info.object_representation().xrce_cookie() == XRCE_COOKIE)
     {
-        if (create_info.object_representation().client().xrce_version()[0] <= XRCE_VERSION_MAJOR)
+        if (create_info.object_representation().xrce_version()[0] <= XRCE_VERSION_MAJOR)
         {
             // TODO(borja): The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
             // If this check fails the operation shall fail and returnValue is set to {STATUS_LAST_OP_CREATE,STATUS_ERR_DENIED}.
@@ -102,7 +101,7 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_Payl
             // DdsXrce::ProxyClient object and shall proceed as if the ProxyClient did not exist.
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
-            clients_[header.client_key()] = ProxyClient{create_info.object_representation().client(), header};
+            clients_[header.client_key()] = ProxyClient{create_info.object_representation(), header};
             client_ids_[create_info.object_id()] = header.client_key();
             //std::cout << "ProxyClient created " << std::endl;
             status.implementation_status(STATUS_OK);
@@ -531,7 +530,18 @@ void Agent::reply()
     //std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
 
-
+void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload)
+{
+#ifdef VERBOSE_OUTPUT
+    std::cout << "==> ";
+    eprosima::micrortps::debug::printl_create_submessage(create_client_payload);
+#endif
+    RESOURCE_STATUS_Payload status;
+    status.object_id(create_client_payload.object_id());
+    status.request_id(create_client_payload.request_id());
+    ResultStatus result_status = create_client(header, create_client_payload);
+    add_reply(header, status);
+}
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub_header, const CREATE_Payload& create_payload)
 {
@@ -564,11 +574,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
     }
     else if (create_payload.object_representation()._d() == OBJECTKIND::CLIENT)
     {
-        RESOURCE_STATUS_Payload status;
-        status.object_id(create_payload.object_id());
-        status.request_id(create_payload.request_id());
-        ResultStatus result_status = create_client(header, create_payload);
-        add_reply(header, status);
+
     }
 }
 
