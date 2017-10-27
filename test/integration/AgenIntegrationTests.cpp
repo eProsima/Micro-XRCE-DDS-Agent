@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <thread>
+#include <chrono>
 
 namespace eprosima {
 namespace micrortps {
@@ -26,12 +27,18 @@ class AgentTests : public ::testing::Test
 
 TEST_F(AgentTests, CreateClient)
 {
-    ASSERT_EQ(agent_.get_client(client_key), nullptr);    
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
     agent_thread = std::thread(&Agent::run, &agent_);
-    ProxyClient* client = agent_.get_client(client_key);
-    EXPECT_NE(client, nullptr);
+    ProxyClient* client = nullptr;
+    int count = 0;
+    do
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        client = agent_.get_client(client_key);
+    } while (client == nullptr && count++ < 5 );    
     agent_.stop();
-    agent_thread.join();
+    agent_thread.join();    
+    EXPECT_NE(client, nullptr);
 }
 
 } // namespace testing

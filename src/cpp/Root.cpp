@@ -108,6 +108,7 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
             // DdsXrce::ProxyClient object and shall proceed as if the ProxyClient did not exist.
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
+            std::lock_guard<std::mutex> lock(clientsmtx_);
             clients_[header.client_key()] = ProxyClient{create_info.object_representation(), header};
             client_ids_[create_info.object_id()] = header.client_key();
             //std::cout << "ProxyClient created " << std::endl;
@@ -129,6 +130,7 @@ ResultStatus Agent::delete_client(ClientKey client_key, const DELETE_RESOURCE_Pa
     ResultStatus status;
     status.request_id(delete_info.request_id());
     status.status(STATUS_LAST_OP_DELETE);
+    std::lock_guard<std::mutex> lock(clientsmtx_);
     if ((0 ==clients_.erase(client_key)) || (0 == client_ids_.erase(delete_info.object_id())))
     {
         status.implementation_status(STATUS_ERR_INVALID_DATA);
@@ -667,6 +669,7 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
 {
     try
     {
+        std::lock_guard<std::mutex> lock(clientsmtx_);
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
     {        

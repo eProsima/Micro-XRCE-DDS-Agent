@@ -64,7 +64,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
     {
         case OBJECTKIND::PUBLISHER:
         {
-            std::unique_lock<std::mutex> lock(objects_mutex_);
+            std::lock_guard<std::mutex> lock(objects_mutex_);
             auto object_it      = objects_.find(internal_object_id);
             bool insertion_done = false;
             if (object_it == objects_.end())
@@ -76,7 +76,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         }
         case OBJECTKIND::SUBSCRIBER:
         {
-            std::unique_lock<std::mutex> lock(objects_mutex_);
+            std::lock_guard<std::mutex> lock(objects_mutex_);
             auto object_it      = objects_.find(internal_object_id);
             bool insertion_done = false;
             if (object_it == objects_.end())
@@ -95,7 +95,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         }
         case OBJECTKIND::DATAWRITER:
         {
-            std::unique_lock<std::mutex> lock(objects_mutex_);
+            std::lock_guard<std::mutex> lock(objects_mutex_);
 
             auto participant_it =
                 objects_.find(generate_object_id(representation.data_writer().participant_id(), 0x00));
@@ -129,7 +129,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         }
         case OBJECTKIND::DATAREADER:
         {
-            std::unique_lock<std::mutex> lock(objects_mutex_);
+            std::lock_guard<std::mutex> lock(objects_mutex_);
             auto participant_it =
                 objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             auto subscriber_it  = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));

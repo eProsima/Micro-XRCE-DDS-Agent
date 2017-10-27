@@ -133,6 +133,7 @@ private:
     octet out_buffer_[buffer_len_];
     octet in_buffer_[buffer_len_];
     locator_id_t loc_;
+    std::mutex clientsmtx_;
     std::map<ClientKey, ProxyClient> clients_;
     std::map<ObjectId, ClientKey> client_ids_;
 
