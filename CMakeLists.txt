@@ -40,7 +40,7 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
-option(UPDATE_SUBMODULES "Update to the latest" ON)
+option(UPDATE_SUBMODULES "Update to the latest" OFF)
 option(VERBOSE_OUTPUT "Use verbose output" OFF)
 
 if(VERBOSE_OUTPUT)
@@ -71,11 +71,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-if(THIRDPARTY)
-    # Required libs for examples
-    include_directories(thirdparty/micrortps_transport/include)
-    add_subdirectory(thirdparty/micrortps_transport)
-endif()
+# Required libs for examples
+include_directories(thirdparty/micrortps_transport/include)
+add_subdirectory(thirdparty/micrortps_transport)
 
 include_directories(${CMAKE_PREFIX_PATH}/include
                     src/cpp
