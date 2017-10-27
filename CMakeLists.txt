@@ -73,7 +73,9 @@ endif()
 
 # Required libs for examples
 include_directories(thirdparty/micrortps_transport/include)
-add_subdirectory(thirdparty/micrortps_transport)
+if(NOT TARGET transport)
+     add_subdirectory(thirdparty/micrortps_transport)
+endif()
 
 include_directories(${CMAKE_PREFIX_PATH}/include
                     src/cpp
