@@ -40,10 +40,10 @@ Agent::Agent() :
     in_buffer_{},
     loc_{},    
     response_thread_{},
-    response_control_{}    
+    response_control_{} 
 {
+    running_ = false;
     response_control_.running_ = false;
-    response_control_.run_scheduled_ = false;
 }
 
 void Agent::init(const std::string& device)
@@ -59,7 +59,6 @@ void Agent::init(uint16_t in_port, uint16_t out_port)
     // Init transport
     loc_id_ = add_udp_locator(in_port, out_port);
 }
-
 
 void Agent::demo_create_client()
 {
@@ -404,6 +403,7 @@ void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
     int ret = 0;
+    running_ = true;
     do
     {
         if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_id_)))
@@ -419,8 +419,13 @@ void Agent::run()
         }
         usleep(1000000);
 
-    }while(true);
+    }while(running_);
     std::cout << "Execution stopped" << std::endl;
+}
+
+void Agent::stop()
+{
+    running_ = false;
 }
 
 void Agent::abort_execution()

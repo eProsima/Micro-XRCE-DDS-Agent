@@ -73,6 +73,8 @@ public:
      */
     void run();
 
+    void stop();
+
 
     /*
      * Receives a creation message.
@@ -135,10 +137,11 @@ private:
     std::map<ObjectId, ClientKey> client_ids_;
 
     std::unique_ptr<std::thread> response_thread_;
+    std::atomic<bool> running_;
+
     struct ResponseControl
     {
         std::atomic<bool> running_;
-        std::atomic<bool> run_scheduled_;
         std::condition_variable condition_;
         std::mutex data_structure_mutex_;
         std::mutex condition_variable_mutex_;
