@@ -531,7 +531,6 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!message.get_buffer().empty())
         {
-            demo_process_response(message);
             int ret = 0;
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_id_)))
             {
