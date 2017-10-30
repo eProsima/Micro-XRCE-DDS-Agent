@@ -110,7 +110,6 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             std::lock_guard<std::mutex> lock(clientsmtx_);
             clients_[header.client_key()] = ProxyClient{create_info.object_representation(), header};
-            client_ids_[create_info.object_id()] = header.client_key();
             //std::cout << "ProxyClient created " << std::endl;
             status.implementation_status(STATUS_OK);
         }
@@ -131,7 +130,7 @@ ResultStatus Agent::delete_client(ClientKey client_key, const DELETE_RESOURCE_Pa
     status.request_id(delete_info.request_id());
     status.status(STATUS_LAST_OP_DELETE);
     std::lock_guard<std::mutex> lock(clientsmtx_);
-    if ((0 ==clients_.erase(client_key)) || (0 == client_ids_.erase(delete_info.object_id())))
+    if (0 ==clients_.erase(client_key))
     {
         status.implementation_status(STATUS_ERR_INVALID_DATA);
     }
@@ -602,13 +601,12 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
     std::cout << "==> ";
     eprosima::micrortps::debug::printl_delete_submessage(delete_payload);
 #endif
-    auto client_id = client_ids_.find(delete_payload.object_id());
-    if (client_id != client_ids_.end())
+    if (delete_payload.object_id() == OBJECTID_CLIENT)
     {
         RESOURCE_STATUS_Payload status;
         status.request_id(delete_payload.request_id());
         status.object_id(delete_payload.object_id());
-        status.result(delete_client(client_ids_.at(delete_payload.object_id()), delete_payload));
+        status.result(delete_client(header.client_key(), delete_payload));
         add_reply(header, status);
     }
     else if (ProxyClient* client = get_client(header.client_key()))
@@ -621,7 +619,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
     }
     else
     {
-        std::cerr << "Write message rejected" << std::endl;
+        std::cerr << "Delete message rejected" << std::endl;
     }
 }
 

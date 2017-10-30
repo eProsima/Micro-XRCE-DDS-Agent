@@ -27,32 +27,35 @@ class AgentTests : public ::testing::Test
 
 TEST_F(AgentTests, CreateClient)
 {
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
     ASSERT_EQ(agent_.get_client(client_key), nullptr);
     agent_thread = std::thread(&Agent::run, &agent_);
     ProxyClient* client = nullptr;
     int count = 0;
     do
     {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(trie_time));
         client = agent_.get_client(client_key);
-    } while (client == nullptr && count++ < 5000 );
-    
+    } while (client == nullptr && ++count < max_tries );        
+    EXPECT_LT (count, max_tries);
     ProxyClient* delete_client = nullptr;
     count = 0;
     if (client != nullptr)
     {
         do
         {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::seconds(trie_time));
             delete_client = agent_.get_client(client_key);
-        } while (delete_client != nullptr && count++ < 5000 );
+        } while (delete_client != nullptr && ++count < max_tries );
+        EXPECT_LT (count, max_tries);
     }
     
     agent_.stop();
     agent_thread.join();  
     agent_.abort_execution();
-    EXPECT_NE(client, nullptr);
-    EXPECT_EQ(delete_client, nullptr);
+    ASSERT_NE(client, nullptr);
+    ASSERT_EQ(delete_client, nullptr);    
 }
 
 // TEST_F(AgentTests, CreateClient)
