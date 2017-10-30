@@ -175,6 +175,7 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_CREATE);
+    status.request_id(create_payload.request_id());
     auto internal_id = generate_object_id(create_payload.object_id(), 0x00);
 
     std::unique_lock<std::mutex> lock(objects_mutex_);
@@ -233,6 +234,7 @@ ResultStatus ProxyClient::delete_object(const DELETE_RESOURCE_Payload& delete_pa
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_DELETE);
+    status.request_id(delete_payload.request_id());
     // TODO(borja): comprobar permisos
     if (delete_object(generate_object_id(delete_payload.object_id(), 0x00)))
     {
@@ -275,6 +277,7 @@ ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payl
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_WRITE);
+    status.request_id(data_payload.request_id());
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(generate_object_id(object_id, 0x00));
     if (object_it == objects_.end())
@@ -292,6 +295,7 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_READ);
+    status.request_id(data_payload.request_id());
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(generate_object_id(object_id, 0x00));
     if (object_it == objects_.end())
