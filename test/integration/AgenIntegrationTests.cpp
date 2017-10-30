@@ -4,6 +4,8 @@
 #include <agent/participant/Participant.h>
 #include <agent/publisher/Publisher.h>
 #include <agent/subscriber/Subscriber.h>
+#include <agent/datawriter/DataWriter.h>
+#include <agent/datareader/DataReader.h>
 
 #include <gtest/gtest.h>
 
@@ -82,6 +84,15 @@ class AgentTests : public ::testing::Test
         } while (object != nullptr && ++count < max_tries );       
         EXPECT_LT (count, max_tries);  
         return object; 
+    }
+
+    void wait_action(int trie_time, int max_tries)
+    {
+        int count = 0;
+        do
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(trie_time));
+        } while (++count < max_tries );  
     }
 
     eprosima::micrortps::Agent agent_;
@@ -174,6 +185,104 @@ TEST_F(AgentTests, CreateDeleteSubscriber)
     ASSERT_NE(participant, nullptr);
     ASSERT_NE(subscriber, nullptr);
     ASSERT_EQ(delete_subscriber, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
+TEST_F(AgentTests, CreateDeleteDataWriter)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId publisher_id = {{0x00,0x02}};
+    const ObjectId datawriter_id = {{0x00,0x03}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Publisher* publisher = dynamic_cast<Publisher*>(wait_object(client, publisher_id, trie_time, max_tries));
+    DataWriter* data_writer = dynamic_cast<DataWriter*>(wait_object(client, datawriter_id, trie_time, max_tries));
+
+    DataWriter* delete_data_writer = dynamic_cast<DataWriter*>(wait_delete_object(client, datawriter_id, trie_time, max_tries));
+    Publisher* delete_publisher = dynamic_cast<Publisher*>(wait_delete_object(client, publisher_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(publisher, nullptr);
+    ASSERT_NE(data_writer, nullptr);
+    ASSERT_EQ(delete_data_writer, nullptr);
+    ASSERT_EQ(delete_publisher, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
+TEST_F(AgentTests, CreateDeleteDataReader)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId subscriber_id = {{0x00,0x02}};
+    const ObjectId datareader_id = {{0x00,0x03}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Subscriber* subscriber = dynamic_cast<Subscriber*>(wait_object(client, subscriber_id, trie_time, max_tries));
+    DataReader* data_reader = dynamic_cast<DataReader*>(wait_object(client, datareader_id, trie_time, max_tries));
+
+    DataReader* delete_data_reader = dynamic_cast<DataReader*>(wait_delete_object(client, datareader_id, trie_time, max_tries));
+    Subscriber* delete_subscriber = dynamic_cast<Subscriber*>(wait_delete_object(client, subscriber_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(subscriber, nullptr);
+    ASSERT_NE(data_reader, nullptr);
+    ASSERT_EQ(delete_data_reader, nullptr);
+    ASSERT_EQ(delete_subscriber, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
+TEST_F(AgentTests, WriteData)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId publisher_id = {{0x00,0x02}};
+    const ObjectId datawriter_id = {{0x00,0x03}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Publisher* publisher = dynamic_cast<Publisher*>(wait_object(client, publisher_id, trie_time, max_tries));
+    DataWriter* data_writer = dynamic_cast<DataWriter*>(wait_object(client, datawriter_id, trie_time, max_tries));
+
+    DataWriter* delete_data_writer = dynamic_cast<DataWriter*>(wait_delete_object(client, datawriter_id, trie_time, max_tries));
+    Publisher* delete_publisher = dynamic_cast<Publisher*>(wait_delete_object(client, publisher_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+    wait_action(trie_time, max_tries);
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(publisher, nullptr);
+    ASSERT_NE(data_writer, nullptr);
+    ASSERT_EQ(delete_data_writer, nullptr);
+    ASSERT_EQ(delete_publisher, nullptr);
     ASSERT_EQ(delete_participant, nullptr);
     ASSERT_EQ(delete_client, nullptr);
 }
