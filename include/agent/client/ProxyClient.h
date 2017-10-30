@@ -45,6 +45,8 @@ class ProxyClient : public ReaderListener
 
     void on_read_data(const ObjectId& object_id, const RequestId& req_id, const std::vector<unsigned char>& buffer);
 
+    XRCEObject* get_object(const ObjectId& object_id);
+
   private:
     using InternalObjectId = std::array<uint8_t, std::tuple_size<ObjectId>::value + 1>;
 

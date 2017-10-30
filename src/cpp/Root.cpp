@@ -433,9 +433,8 @@ void Agent::abort_execution()
 {
     response_control_.running_ = false;
     messages_.abort();
-    response_thread_->join();
-
-
+    if (response_thread_ && response_thread_->joinable())
+        response_thread_->join();
 }
 
 void Agent::add_reply(const Message& message)

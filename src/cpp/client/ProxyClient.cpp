@@ -259,13 +259,24 @@ bool ProxyClient::delete_object(const InternalObjectId& internal_object_id)
     return false;
 }
 
+XRCEObject* ProxyClient::get_object(const ObjectId& object_id)
+{
+    XRCEObject* object = nullptr;
+    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    auto object_it = objects_.find(generate_object_id(object_id, 0x00));
+    if (object_it != objects_.end())
+    {
+        object = object_it->second;
+    }
+    return object;
+}
+
 ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload)
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_WRITE);
-    auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-    auto object_it = objects_.find(internal_id);
+    auto object_it = objects_.find(generate_object_id(object_id, 0x00));
     if (object_it == objects_.end())
     {
         status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
@@ -281,9 +292,8 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
 {
     ResultStatus status;
     status.status(STATUS_LAST_OP_READ);
-    auto internal_id = generate_object_id(object_id, 0x00);
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-    auto object_it = objects_.find(internal_id);
+    auto object_it = objects_.find(generate_object_id(object_id, 0x00));
     if (object_it == objects_.end())
     {
         status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
