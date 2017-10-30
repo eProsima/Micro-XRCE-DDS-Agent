@@ -126,6 +126,8 @@ public:
     void add_reply(const MessageHeader& header, const DATA_Payload_SampleSeq& payload);
     void add_reply(const MessageHeader& header, const DATA_Payload_PackedSamples& payload);
 
+    void abort_execution();
+
 private:
 
     locator_id_t loc_id_;
@@ -151,7 +153,7 @@ private:
     MessageQueue messages_;
     
     void reply();
-    void abort_execution();
+    
     void demo_create_client();
     void demo_delete_subscriber(char* test_buffer, size_t buffer_size);
     void demo_message_create(char* test_buffer, size_t buffer_size);

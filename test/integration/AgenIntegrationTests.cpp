@@ -33,13 +33,31 @@ TEST_F(AgentTests, CreateClient)
     int count = 0;
     do
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         client = agent_.get_client(client_key);
-    } while (client == nullptr && count++ < 5 );    
+    } while (client == nullptr && count++ < 5000000 );    
     agent_.stop();
-    agent_thread.join();    
+    agent_thread.join();  
+    agent_.abort_execution();
     EXPECT_NE(client, nullptr);
 }
+
+// TEST_F(AgentTests, CreateClient)
+// {
+//     ASSERT_EQ(agent_.get_client(client_key), nullptr);
+//     agent_thread = std::thread(&Agent::run, &agent_);
+//     ProxyClient* client = nullptr;
+//     int count = 0;
+//     do
+//     {
+//         std::this_thread::sleep_for(std::chrono::seconds(2));
+//         client = agent_.get_client(client_key);
+//     } while (client == nullptr && count++ < 5000000 );    
+//     agent_.stop();
+//     agent_thread.join();  
+//     agent_.abort_execution();
+//     EXPECT_NE(client, nullptr);
+// }
 
 } // namespace testing
 } // namespace micrortps

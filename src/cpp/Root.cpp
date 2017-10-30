@@ -434,6 +434,9 @@ void Agent::abort_execution()
 {
     response_control_.running_ = false;
     messages_.abort();
+    response_thread_->join();
+
+
 }
 
 void Agent::add_reply(const Message& message)
@@ -555,6 +558,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
     status.object_id(create_client_payload.object_id());
     status.request_id(create_client_payload.request_id());
     ResultStatus result_status = create_client(header, create_client_payload);
+    status.result(result_status);
     add_reply(header, status);
 }
 
@@ -673,8 +677,7 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
     {        
-        std::cout << client_key;
-        std::cerr << "Client " << client_key << "not found" << std::endl;
+        std::cerr << "Client " << client_key << " not found" << std::endl;
         return nullptr;
     }
 }
