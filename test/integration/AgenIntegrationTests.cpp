@@ -2,6 +2,8 @@
 
 #include <agent/Root.h>
 #include <agent/participant/Participant.h>
+#include <agent/publisher/Publisher.h>
+#include <agent/subscriber/Subscriber.h>
 
 #include <gtest/gtest.h>
 
@@ -68,6 +70,10 @@ class AgentTests : public ::testing::Test
     XRCEObject* wait_delete_object(ProxyClient* client, const ObjectId& object_id, int trie_time, int max_tries)
     {
         XRCEObject* object = nullptr;
+        if (client == nullptr)
+        {
+            return object;
+        }
         int count = 0;
         do
         {
@@ -91,7 +97,7 @@ TEST_F(AgentTests, CreateDeleteClient)
     agent_thread = std::thread(&Agent::run, &agent_);
     ProxyClient* client = wait_client(client_key, trie_time, max_tries);
     ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
-    
+
     agent_.stop();
     agent_thread.join();  
     agent_.abort_execution();
@@ -116,6 +122,58 @@ TEST_F(AgentTests, CreateDeleteParticipant)
     agent_.abort_execution();
     ASSERT_NE(client, nullptr);
     ASSERT_NE(participant, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
+TEST_F(AgentTests, CreateDeletePublisher)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId publisher_id = {{0x00,0x02}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Publisher* publisher = dynamic_cast<Publisher*>(wait_object(client, publisher_id, trie_time, max_tries));
+    Publisher* delete_publisher = dynamic_cast<Publisher*>(wait_delete_object(client, publisher_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(publisher, nullptr);
+    ASSERT_EQ(delete_publisher, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
+TEST_F(AgentTests, CreateDeleteSubscriber)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId subscriber_id = {{0x00,0x02}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Subscriber* subscriber = dynamic_cast<Subscriber*>(wait_object(client, subscriber_id, trie_time, max_tries));
+    Subscriber* delete_subscriber = dynamic_cast<Subscriber*>(wait_delete_object(client, subscriber_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(subscriber, nullptr);
+    ASSERT_EQ(delete_subscriber, nullptr);
     ASSERT_EQ(delete_participant, nullptr);
     ASSERT_EQ(delete_client, nullptr);
 }
