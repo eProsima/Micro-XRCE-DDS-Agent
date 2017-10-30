@@ -35,11 +35,24 @@ TEST_F(AgentTests, CreateClient)
     {
         std::this_thread::sleep_for(std::chrono::seconds(2));
         client = agent_.get_client(client_key);
-    } while (client == nullptr && count++ < 5000000 );    
+    } while (client == nullptr && count++ < 5000 );
+    
+    ProxyClient* delete_client = nullptr;
+    count = 0;
+    if (client != nullptr)
+    {
+        do
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            delete_client = agent_.get_client(client_key);
+        } while (delete_client != nullptr && count++ < 5000 );
+    }
+    
     agent_.stop();
     agent_thread.join();  
     agent_.abort_execution();
     EXPECT_NE(client, nullptr);
+    EXPECT_EQ(delete_client, nullptr);
 }
 
 // TEST_F(AgentTests, CreateClient)
