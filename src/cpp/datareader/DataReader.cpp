@@ -170,6 +170,7 @@ int DataReader::start_read(const READ_DATA_Payload& read_data)
 int DataReader::stop_read()
 {
     // std::cout << "STOP READ" << std::endl;
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_running = false;
     m_cond_var.notify_one();
     m_timer_thread.join();
