@@ -196,6 +196,10 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         {
             status.implementation_status(STATUS_OK);
         }
+        else 
+        {
+            status.implementation_status(STATUS_ERR_DDS_ERROR);
+        }
     }
     else
     {
@@ -209,7 +213,15 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
             else // replace = true
             {
                 delete_object(internal_id);
-                create(internal_id, create_payload.object_representation());
+                if (create(internal_id, create_payload.object_representation()))
+                {
+                    status.implementation_status(STATUS_OK);
+                }
+                else
+                {
+                    // TODO(borja): Change bool create with something handling different errors.
+                    status.implementation_status(STATUS_ERR_DDS_ERROR);
+                }
             }
         }
         else // reuse = true
