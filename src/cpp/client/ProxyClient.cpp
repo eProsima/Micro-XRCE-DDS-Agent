@@ -133,20 +133,20 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto participant_it =
                 objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             auto subscriber_it  = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));
-            auto data_writer_it = objects_.find(internal_object_id);
+            auto data_reader_it = objects_.find(internal_object_id);
             bool insertion_done = false;
             if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) &&
-                (data_writer_it == objects_.end()))
+                (data_reader_it == objects_.end()))
             {
                 XRCEObject* data_r = nullptr;
-                switch (representation.data_writer().representation()._d())
+                switch (representation.data_reader().representation()._d())
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
                         data_r =
                             dynamic_cast<XRCEParticipant*>(participant_it->second)
                                 ->create_reader(
-                                    representation.data_writer().representation().xml_string_representation(), this);
+                                    representation.data_reader().representation().xml_string_representation(), this);
                         break;
                     }
                     case REPRESENTATION_BY_REFERENCE:
