@@ -51,6 +51,9 @@ if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
 endif()
 
+set(FASTRTPS_PATH ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}/install)
+
 ###############################################################################
 # Compile
 ###############################################################################
@@ -81,9 +84,7 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     src/cpp
                     include
                     include/agent
-                    #/home/vmonge/Workspace/Fast-RTPS/thirdparty/asio/asio/include
-                    /home/borja/dev/rtps/thirdparty/asio/asio/include
-                    #/home/luis/eProsima/Fast-RTPS/thirdparty/asio/asio/include
+                    ${FASTRTPS_PATH}/thirdparty/asio/asio/include
                     )
 
 # libagent.so
