@@ -44,7 +44,6 @@ class DataWriter: public XRCEObject
 public:
 
     DataWriter(fastrtps::Participant* rtps_participant);
-    DataWriter(const std::string& xmlrep, fastrtps::Participant* rtps_participant);
     virtual ~DataWriter();
 
     bool init();
