@@ -36,7 +36,7 @@ namespace micrortps {
 class XRCEParticipant : public XRCEObject
 {
   public:
-    XRCEParticipant();
+    XRCEParticipant() = default;
     virtual ~XRCEParticipant();
 
     bool init();

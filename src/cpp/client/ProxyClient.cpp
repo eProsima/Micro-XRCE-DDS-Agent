@@ -89,8 +89,17 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJECTKIND::PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant()))
-                .second;
+            auto participant = new eprosima::micrortps::XRCEParticipant();
+            if (participant->init())
+            {
+                return objects_.insert(std::make_pair(internal_object_id, participant))
+                    .second;
+            }
+            else
+            {
+                delete participant;
+                return false;
+            }
             break;
         }
         case OBJECTKIND::DATAWRITER:
@@ -286,7 +295,14 @@ ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payl
     }
     else
     {
-        dynamic_cast<DataWriter*>(dynamic_cast<Publisher*>(object_it->second)->get_writer())->write(data_payload);
+        if (dynamic_cast<DataWriter*>(object_it->second)->write(data_payload))
+        {
+            status.implementation_status(STATUS_OK);
+        }
+        else
+        {
+            status.implementation_status(STATUS_ERR_DDS_ERROR);
+        }
     }
     return status;
 }
