@@ -78,14 +78,13 @@ class ReadTimeEvent
 class RTPSSubListener : public fastrtps::SubscriberListener
 {
   public:
-    RTPSSubListener() : n_matched(0), n_msg(0), m_new_message(false){};
+    RTPSSubListener(): n_matched(0), n_msg(0) {};
     virtual ~RTPSSubListener() = default;
     virtual void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
     virtual void onNewDataMessage(fastrtps::Subscriber* sub)                         = 0;
     fastrtps::SampleInfo_t m_info;
     int n_matched;
     int n_msg;
-    bool m_new_message;
   private:
     using fastrtps::SubscriberListener::onSubscriptionMatched;
 };

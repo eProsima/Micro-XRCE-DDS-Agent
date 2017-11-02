@@ -53,9 +53,14 @@ DataReader::~DataReader() noexcept
         m_read_thread.detach();
     }
 
-    if (m_timer_thread.joinable())
+    if (m_max_timer_thread.joinable())
     {
-        m_timer_thread.detach();
+        m_max_timer_thread.detach();
+    }
+
+    if (m_rate_timer_thread.joinable())
+    {
+        m_rate_timer_thread.detach();
     }
 
     if (nullptr != mp_rtps_subscriber)
@@ -145,9 +150,6 @@ int DataReader::read(const READ_DATA_Payload& read_data)
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-            m_read_config.delivery_control().max_elapsed_time();
-            m_read_config.delivery_control().max_rate();
-            m_read_config.delivery_control().max_samples();
         break;
         default:
             std::cout << "Error: read format unexpected" << std::endl;
@@ -172,9 +174,8 @@ int DataReader::start_read(const READ_DATA_Payload& read_data)
 {
     std::cout << "START READ" << std::endl;
     m_running = true;
-    // +V+ Not ever all
-    m_max_timer_thread = std::thread(&DataReader::run_max_timer, this);
-    m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this);
+    m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, m_read_config.delivery_control().max_elapsed_time());
+    // TODO +V+ Calculate time for each read: m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this, m_read_config.delivery_control().max_rate());
     m_read_thread  = std::thread(&DataReader::read_task, this, read_data);
     return 0;
 }
@@ -214,26 +215,30 @@ void DataReader::read_task(READ_DATA_Payload read_data)
         std::vector<unsigned char> buffer;
         if (takeNextData(&buffer))
         {
-            // +V+ gestionar multiples lecturas
+            // TODO: gestionar multiples lecturas?
             mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
+
+            // TODO: size_sended += buffer.size(); con esto calculamis rate_time => readsize/maxrate = segundos hasta la proxima lectura permitida
             ++message_count;
         }
 
-        // +V+ check contitions
-        m_time_expired = m_new_message = false;
+        // TODO +V+ check contitions
+        m_rate_time_expired = false;
 
-        m_cond_var.wait(lock, [&] { return !m_running || (m_time_expired && m_new_message); });
+        // chequear si hay mas mensajes para setear o no la variable m_has_messages = true;
+        // hequear si hemos alcanzado el maximo de mensajes y si no
+        if (message_count)
+        {
+
+        }
+        m_cond_var.wait(lock, [&] { return !m_running || m_max_time_expired || m_rate_time_expired;});
+        if (m_max_time_expired) break;
     }
     m_running = false;
-    // std::cout << "exiting read_task..." << std::endl;
+    std::cout << "exiting read_task..." << std::endl;
 }
 
-void DataReader::read_task(READ_DATA_Payload read_data)
-{
-
-}
-
-void DataReader::on_timeout(const asio::error_code& error)
+void DataReader::on_max_timeout(const asio::error_code& error)
 {
     std::cout << "on_timeout" << std::endl;
     if (error)
@@ -243,16 +248,32 @@ void DataReader::on_timeout(const asio::error_code& error)
     else
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_time_expired = true;
+        m_rate_time_expired = true;
+        m_cond_var.notify_one();
+    }
+}
+
+void DataReader::on_rate_timeout(const asio::error_code& error)
+{
+    std::cout << "on_timeout" << std::endl;
+    if (error)
+    {
+        std::cout << "error" << std::endl;
+    }
+    else
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_max_time_expired = true;
         m_cond_var.notify_one();
 
         // Relaunch timer
         if (m_running)
         {
-            init_timer(2000);
+            // +V+ TODO init_rate_timer(milliseconds -> m_read_config.delivery_control()...);
         }
     }
 }
+
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
@@ -265,15 +286,13 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
             // Print your structure data here.
             ++n_msg;
             std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
-
             std::lock_guard<std::mutex> lock(m_mutex);
-            m_new_message = true;
             m_cond_var.notify_one();
         }
     }
 }
 
-ReadTimeEvent::ReadTimeEvent() : m_timer(m_io_service)
+ReadTimeEvent::ReadTimeEvent(): m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate)
 {
 }
 
@@ -293,18 +312,18 @@ int ReadTimeEvent::init_rate_timer(int milliseconds)
     return 0;
 }
 
-void ReadTimeEvent::run_max_timer(int milliseconds)
+void ReadTimeEvent::run_max_timer(int millisecond)
 {
     std::cout << "Starting run_max_timer..." << std::endl;
-    init_max_timer(milliseconds);
+    init_max_timer(millisecond);
     m_io_service_max.run();
     std::cout << "exiting run_max_timer..." << std::endl;
 }
 
-void ReadTimeEvent::run_rate_timer(int milliseconds)
+void ReadTimeEvent::run_rate_timer(int millisecond)
 {
     std::cout << "Starting run_rate_timer..." << std::endl;
-    init_rate_timer(milliseconds);
+    init_rate_timer(millisecond);
     m_io_service_rate.run();
     std::cout << "exiting run_rate_timer..." << std::endl;
 }
