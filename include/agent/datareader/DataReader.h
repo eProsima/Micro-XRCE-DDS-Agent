@@ -98,7 +98,6 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 
   public:
     DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
-    DataReader(const std::string& xmlrep, fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     ~DataReader() noexcept override;
 
     bool init();

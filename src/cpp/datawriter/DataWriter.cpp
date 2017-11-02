@@ -35,14 +35,6 @@ DataWriter::DataWriter(fastrtps::Participant* rtps_participant)
     : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
 
 {
-    init();
-}
-
-DataWriter::DataWriter(const std::string& xmlrep, fastrtps::Participant* rtps_participant)
-    : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
-
-{
-    init(xmlrep);
 }
 
 DataWriter::~DataWriter()

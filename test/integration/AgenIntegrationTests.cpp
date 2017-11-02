@@ -266,13 +266,12 @@ TEST_F(AgentTests, WriteData)
     XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
     Publisher* publisher = dynamic_cast<Publisher*>(wait_object(client, publisher_id, trie_time, max_tries));
     DataWriter* data_writer = dynamic_cast<DataWriter*>(wait_object(client, datawriter_id, trie_time, max_tries));
-
+    wait_action(trie_time, max_tries);
     DataWriter* delete_data_writer = dynamic_cast<DataWriter*>(wait_delete_object(client, datawriter_id, trie_time, max_tries));
     Publisher* delete_publisher = dynamic_cast<Publisher*>(wait_delete_object(client, publisher_id, trie_time, max_tries));
     XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
     ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
 
-    wait_action(trie_time, max_tries);
 
     agent_.stop();
     agent_thread.join();  

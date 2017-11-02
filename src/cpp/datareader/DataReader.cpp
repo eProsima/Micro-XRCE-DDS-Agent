@@ -35,15 +35,7 @@ DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, Reader
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
-    init();
-}
 
-DataReader::DataReader(const std::string& xmlrep, eprosima::fastrtps::Participant* rtps_participant,
-                       ReaderListener* read_list)
-    : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
-      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
-{
-    init(xmlrep);
 }
 
 DataReader::~DataReader() noexcept

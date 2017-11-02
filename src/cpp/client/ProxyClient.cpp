@@ -89,8 +89,17 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
         case OBJECTKIND::PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            return objects_.insert(std::make_pair(internal_object_id, new eprosima::micrortps::XRCEParticipant()))
-                .second;
+            auto participant = new eprosima::micrortps::XRCEParticipant();
+            if (participant->init())
+            {
+                return objects_.insert(std::make_pair(internal_object_id, participant))
+                    .second;
+            }
+            else
+            {
+                delete participant;
+                return false;
+            }
             break;
         }
         case OBJECTKIND::DATAWRITER:
@@ -133,20 +142,20 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto participant_it =
                 objects_.find(generate_object_id(representation.data_reader().participant_id(), 0x00));
             auto subscriber_it  = objects_.find(generate_object_id(representation.data_reader().subscriber_id(), 0x00));
-            auto data_writer_it = objects_.find(internal_object_id);
+            auto data_reader_it = objects_.find(internal_object_id);
             bool insertion_done = false;
             if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) &&
-                (data_writer_it == objects_.end()))
+                (data_reader_it == objects_.end()))
             {
                 XRCEObject* data_r = nullptr;
-                switch (representation.data_writer().representation()._d())
+                switch (representation.data_reader().representation()._d())
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
                         data_r =
                             dynamic_cast<XRCEParticipant*>(participant_it->second)
                                 ->create_reader(
-                                    representation.data_writer().representation().xml_string_representation(), this);
+                                    representation.data_reader().representation().xml_string_representation(), this);
                         break;
                     }
                     case REPRESENTATION_BY_REFERENCE:
@@ -187,6 +196,10 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         {
             status.implementation_status(STATUS_OK);
         }
+        else 
+        {
+            status.implementation_status(STATUS_ERR_DDS_ERROR);
+        }
     }
     else
     {
@@ -200,7 +213,15 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
             else // replace = true
             {
                 delete_object(internal_id);
-                create(internal_id, create_payload.object_representation());
+                if (create(internal_id, create_payload.object_representation()))
+                {
+                    status.implementation_status(STATUS_OK);
+                }
+                else
+                {
+                    // TODO(borja): Change bool create with something handling different errors.
+                    status.implementation_status(STATUS_ERR_DDS_ERROR);
+                }
             }
         }
         else // reuse = true
@@ -286,7 +307,14 @@ ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payl
     }
     else
     {
-        dynamic_cast<DataWriter*>(dynamic_cast<Publisher*>(object_it->second)->get_writer())->write(data_payload);
+        if (dynamic_cast<DataWriter*>(object_it->second)->write(data_payload))
+        {
+            status.implementation_status(STATUS_OK);
+        }
+        else
+        {
+            status.implementation_status(STATUS_ERR_DDS_ERROR);
+        }
     }
     return status;
 }
