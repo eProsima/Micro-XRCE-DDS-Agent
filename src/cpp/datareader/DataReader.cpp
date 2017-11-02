@@ -133,15 +133,25 @@ bool DataReader::init(const std::string& xmlrep)
 
 int DataReader::read(const READ_DATA_Payload& read_data)
 {
-    switch (read_data.read_specification().delivery_config()._d())
+    m_read_config = read_data.read_specification().delivery_config();
+
+    switch (m_read_config._d())
     {
         case FORMAT_DATA:
-        case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE:
+            m_read_config.delivery_control().max_elapsed_time(0);
+            m_read_config.delivery_control().max_rate(0);
+            m_read_config.delivery_control().max_samples(1);
+        case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
+            m_read_config.delivery_control().max_elapsed_time();
+            m_read_config.delivery_control().max_rate();
+            m_read_config.delivery_control().max_samples();
+        break;
         default:
-            break;
+            std::cout << "Error: read format unexpected" << std::endl;
+        break;
     }
 
     if (!m_read_thread.joinable())
@@ -150,7 +160,7 @@ int DataReader::read(const READ_DATA_Payload& read_data)
     }
     else
     {
-        // std::cout << "DataReader m_read_thread busy" << std::endl;
+        std::cout << "DataReader m_read_thread busy" << std::endl;
         stop_read();
         start_read(read_data);
     }
@@ -160,20 +170,24 @@ int DataReader::read(const READ_DATA_Payload& read_data)
 
 int DataReader::start_read(const READ_DATA_Payload& read_data)
 {
-    // std::cout << "START READ" << std::endl;
-    m_running      = true;
-    m_timer_thread = std::thread(&DataReader::run_timer, this);
+    std::cout << "START READ" << std::endl;
+    m_running = true;
+    // +V+ Not ever all
+    m_max_timer_thread = std::thread(&DataReader::run_max_timer, this);
+    m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this);
     m_read_thread  = std::thread(&DataReader::read_task, this, read_data);
     return 0;
 }
 
 int DataReader::stop_read()
 {
-    // std::cout << "STOP READ" << std::endl;
+    std::cout << "STOP READ" << std::endl;
     std::lock_guard<std::mutex> lock(m_mutex);
     m_running = false;
     m_cond_var.notify_one();
-    m_timer_thread.join();
+    // +V+ Not ever all
+    m_max_timer_thread.join();
+    m_rate_timer_thread.join();
     m_read_thread.join();
     return 0;
 }
@@ -190,31 +204,38 @@ int DataReader::stop_read()
 
 void DataReader::read_task(READ_DATA_Payload read_data)
 {
-    // std::cout << "Starting read_task..." << std::endl;
+    std::cout << "Starting read_task..." << std::endl;
     std::unique_lock<std::mutex> lock(m_mutex);
     uint16_t message_count = 0;
     while (m_running)
     {
-        m_cond_var.wait(lock, [&] { return !m_running || (m_time_expired && m_new_message); });
-
         std::cout << "Read " << message_count + 1 << std::endl;
 
         std::vector<unsigned char> buffer;
         if (takeNextData(&buffer))
         {
+            // +V+ gestionar multiples lecturas
             mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
             ++message_count;
         }
 
+        // +V+ check contitions
         m_time_expired = m_new_message = false;
+
+        m_cond_var.wait(lock, [&] { return !m_running || (m_time_expired && m_new_message); });
     }
     m_running = false;
     // std::cout << "exiting read_task..." << std::endl;
 }
 
+void DataReader::read_task(READ_DATA_Payload read_data)
+{
+
+}
+
 void DataReader::on_timeout(const asio::error_code& error)
 {
-    // std::cout << "on_timeout" << std::endl;
+    std::cout << "on_timeout" << std::endl;
     if (error)
     {
         std::cout << "error" << std::endl;
@@ -243,7 +264,7 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
         {
             // Print your structure data here.
             ++n_msg;
-            // std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
+            std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
 
             std::lock_guard<std::mutex> lock(m_mutex);
             m_new_message = true;
@@ -252,24 +273,40 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
     }
 }
 
-TimerEvent::TimerEvent() : m_timer(m_io_service)
+ReadTimeEvent::ReadTimeEvent() : m_timer(m_io_service)
 {
 }
 
-int TimerEvent::init_timer(int milliseconds)
+int ReadTimeEvent::init_max_timer(int milliseconds)
 {
-    m_io_service.reset();
-    m_timer.expires_from_now(std::chrono::milliseconds(milliseconds));
-    m_timer.async_wait(std::bind(&TimerEvent::on_timeout, this, std::placeholders::_1));
+    m_io_service_max.reset();
+    m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
+    m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
     return 0;
 }
 
-void TimerEvent::run_timer()
+int ReadTimeEvent::init_rate_timer(int milliseconds)
 {
-    // std::cout << "Starting run_timer..." << std::endl;
-    init_timer(2000);
-    m_io_service.run();
-    // std::cout << "exiting run_timer..." << std::endl;
+    m_io_service_rate.reset();
+    m_timer_rate.expires_from_now(std::chrono::milliseconds(milliseconds));
+    m_timer_rate.async_wait(std::bind(&ReadTimeEvent::on_rate_timeout, this, std::placeholders::_1));
+    return 0;
+}
+
+void ReadTimeEvent::run_max_timer(int milliseconds)
+{
+    std::cout << "Starting run_max_timer..." << std::endl;
+    init_max_timer(milliseconds);
+    m_io_service_max.run();
+    std::cout << "exiting run_max_timer..." << std::endl;
+}
+
+void ReadTimeEvent::run_rate_timer(int milliseconds)
+{
+    std::cout << "Starting run_rate_timer..." << std::endl;
+    init_rate_timer(milliseconds);
+    m_io_service_rate.run();
+    std::cout << "exiting run_rate_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -282,7 +319,7 @@ bool DataReader::takeNextData(void* data)
     bool ret = mp_rtps_subscriber->takeNextData(data, &info);
     if (ret)
     {
-        // std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
+        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
     }
     else
     {
@@ -296,12 +333,12 @@ void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)
     if (info.status == MATCHED_MATCHING)
     {
         n_matched++;
-        // std::cout << "RTPS Publisher matched" << std::endl;
+        std::cout << "RTPS Publisher matched" << std::endl;
     }
     else
     {
         n_matched--;
-        // std::cout << "RTPS Publisher unmatched" << std::endl;
+        std::cout << "RTPS Publisher unmatched" << std::endl;
     }
 }
 

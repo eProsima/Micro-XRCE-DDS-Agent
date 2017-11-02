@@ -53,20 +53,26 @@ class ReaderListener
                               const std::vector<unsigned char>& buffer) = 0;
 };
 
-class TimerEvent
+class ReadTimeEvent
 {
   public:
-    TimerEvent();
-    virtual ~TimerEvent() = default;
-    void run_timer();
-    int init_timer(int milliseconds);
+    ReadTimeEvent();
+    virtual ~ReadTimeEvent() = default;
+    int init_max_timer(int milliseconds);
+    int init_rate_timer(int milliseconds);
+    void run_max_timer(int milliseconds);
+    void run_rate_timer(int milliseconds);
 
-    virtual void on_timeout(const asio::error_code& error) = 0;
+    virtual void on_max_timeout(const asio::error_code& error) = 0;
+    virtual void on_rate_timeout(const asio::error_code& error) = 0;
 
   protected:
-    asio::io_service m_io_service;
-    asio::steady_timer m_timer;
-    bool m_time_expired = false;
+    asio::io_service m_io_service_max;
+    asio::io_service m_io_service_rate;
+    asio::steady_timer m_timer_max;
+    asio::steady_timer m_timer_rate;
+    bool m_max_time_expired = false;
+    bool m_rate_time_expired = false;
 };
 
 class RTPSSubListener : public fastrtps::SubscriberListener
@@ -88,7 +94,7 @@ class RTPSSubListener : public fastrtps::SubscriberListener
  * Class DataReader, contains the public API that allows the user to control the reception of messages.
  * @ingroup MICRORTPS_MODULE
  */
-class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
+class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
 {
 
   public:
@@ -100,7 +106,8 @@ class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
     bool init(const std::string& xmlrep);
     int read(const READ_DATA_Payload& read_data);
 
-    void on_timeout(const asio::error_code& error);
+    void on_max_timeout(const asio::error_code& error);
+    void on_rate_timeout(const asio::error_code& error);
     void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 
@@ -110,15 +117,18 @@ class DataReader : public XRCEObject, public TimerEvent, public RTPSSubListener
     void read_task(READ_DATA_Payload read_data);
     bool takeNextData(void* data);
 
-    std::thread m_read_thread, m_timer_thread;
+    std::thread m_read_thread;
+    std::thread m_max_timer_thread;
+    std::thread m_rate_timer_thread;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
     std::atomic_bool m_running;
+    DataDeliveryConfig m_read_config;
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;
-    eprosima::fastrtps::Participant* mp_rtps_participant;
-    eprosima::fastrtps::Subscriber* mp_rtps_subscriber;
+    fastrtps::Participant* mp_rtps_participant;
+    fastrtps::Subscriber* mp_rtps_subscriber;
     ShapeTypePubSubType m_shape_type;
 };
 
