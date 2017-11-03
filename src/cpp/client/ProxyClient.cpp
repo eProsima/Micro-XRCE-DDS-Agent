@@ -92,8 +92,7 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
             auto participant = new eprosima::micrortps::XRCEParticipant();
             if (participant->init())
             {
-                return objects_.insert(std::make_pair(internal_object_id, participant))
-                    .second;
+                return objects_.insert(std::make_pair(internal_object_id, participant)).second;
             }
             else
             {
@@ -196,7 +195,7 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         {
             status.implementation_status(STATUS_OK);
         }
-        else 
+        else
         {
             status.implementation_status(STATUS_ERR_DDS_ERROR);
         }
@@ -332,10 +331,13 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
     }
     else
     {
-        if (!(dynamic_cast<DataReader*>(dynamic_cast<Subscriber*>(object_it->second)->get_reader())
-                  ->read(data_payload) == 0))
+        if (!(dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0))
         {
             status.implementation_status(STATUS_OK);
+        }
+        else
+        {
+            status.implementation_status(STATUS_ERR_DDS_ERROR);
         }
     }
     return status;

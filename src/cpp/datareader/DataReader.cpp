@@ -35,7 +35,6 @@ DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, Reader
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
-
 }
 
 DataReader::~DataReader() noexcept
@@ -130,45 +129,56 @@ bool DataReader::init(const std::string& xmlrep)
 
 int DataReader::read(const READ_DATA_Payload& read_data)
 {
-    m_read_config = read_data.read_specification().delivery_config();
-
-    switch (m_read_config._d())
+    DataDeliveryConfig delivery_config = read_data.read_specification().delivery_config();
+    ReadTaskInfo read_info;
+    read_info.object_ID_  = read_data.object_id();
+    read_info.request_ID_ = read_data.request_id();
+    switch (delivery_config._d())
     {
         case FORMAT_DATA:
         case FORMAT_SAMPLE:
-            m_read_config.delivery_control().max_elapsed_time(0);
-            m_read_config.delivery_control().max_rate(0);
-            m_read_config.delivery_control().max_samples(1);
+            read_info.max_elapsed_time_ = 0;
+            read_info.max_rate_         = 0;
+            read_info.max_samples_      = 1;
+            break;
         case FORMAT_DATA_SEQ:
         case FORMAT_SAMPLE_SEQ:
         case FORMAT_PACKED_SAMPLES:
-        break;
+            read_info.max_elapsed_time_ = delivery_config.delivery_control().max_elapsed_time();
+            read_info.max_rate_         = delivery_config.delivery_control().max_rate();
+            read_info.max_samples_      = delivery_config.delivery_control().max_samples();
+            break;
         default:
             std::cout << "Error: read format unexpected" << std::endl;
-        break;
+            break;
     }
 
     if (!m_read_thread.joinable())
     {
-        start_read(read_data);
+        start_read(read_info);
     }
     else
     {
         std::cout << "DataReader m_read_thread busy" << std::endl;
         stop_read();
-        start_read(read_data);
+        start_read(read_info);
     }
 
     return 0;
 }
 
-int DataReader::start_read(const READ_DATA_Payload& read_data)
+int DataReader::start_read(const ReadTaskInfo& read_info)
 {
     std::cout << "START READ" << std::endl;
     m_running = true;
-    m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, m_read_config.delivery_control().max_elapsed_time());
-    // TODO +V+ Calculate time for each read: m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this, m_read_config.delivery_control().max_rate());
-    m_read_thread  = std::thread(&DataReader::read_task, this, read_data);
+    if (read_info.max_elapsed_time_ > 0)
+    {
+        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time_);
+    }
+
+    // TODO +V+ Calculate time for each read: m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this,
+    // m_read_config.delivery_control().max_rate());
+    m_read_thread = std::thread(&DataReader::read_task, this, read_info);
     return 0;
 }
 
@@ -195,7 +205,7 @@ int DataReader::stop_read()
 //    return 0;
 //}
 
-void DataReader::read_task(READ_DATA_Payload read_data)
+void DataReader::read_task(const ReadTaskInfo& read_info)
 {
     std::cout << "Starting read_task..." << std::endl;
     std::unique_lock<std::mutex> lock(m_mutex);
@@ -208,25 +218,27 @@ void DataReader::read_task(READ_DATA_Payload read_data)
         if (takeNextData(&buffer))
         {
             // TODO: gestionar multiples lecturas?
-            mp_reader_listener->on_read_data(read_data.object_id(), read_data.request_id(), buffer);
+            mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
 
-            // TODO: size_sended += buffer.size(); con esto calculamis rate_time => readsize/maxrate = segundos hasta la proxima lectura permitida
+            // TODO: size_sended += buffer.size(); con esto calculamis rate_time => readsize/maxrate = segundos hasta la
+            // proxima lectura permitida
             ++message_count;
         }
 
         // TODO +V+ check contitions
-        m_rate_time_expired = false;
+        //m_rate_time_expired = false;
 
         // chequear si hay mas mensajes para setear o no la variable m_has_messages = true;
         // hequear si hemos alcanzado el maximo de mensajes y si no
-        if (message_count)
+        while(m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) && !m_rate_time_expired && message_count < read_info.max_samples_ )
         {
-
+            m_cond_var.wait(lock);
         }
-        m_cond_var.wait(lock, [&] { return !m_running || m_max_time_expired || m_rate_time_expired;});
-        if (m_max_time_expired) break;
+
+        if (message_count == read_info.max_samples_ || m_max_time_expired || read_info.max_elapsed_time_ == 0)
+            m_running = false;
     }
-    m_running = false;
+    
     std::cout << "exiting read_task..." << std::endl;
 }
 
@@ -266,7 +278,6 @@ void DataReader::on_rate_timeout(const asio::error_code& error)
     }
 }
 
-
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
     // Take data
@@ -284,7 +295,7 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
     }
 }
 
-ReadTimeEvent::ReadTimeEvent(): m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate)
+ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate)
 {
 }
 
@@ -334,7 +345,7 @@ bool DataReader::takeNextData(void* data)
     }
     else
     {
-        std::cout << "Error taken sample" << std::endl;
+        std::cout << "Error taking sample" << std::endl;
     }
     return ret;
 }
