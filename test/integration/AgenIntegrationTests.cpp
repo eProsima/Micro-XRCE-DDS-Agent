@@ -286,6 +286,39 @@ TEST_F(AgentTests, WriteData)
     ASSERT_EQ(delete_client, nullptr);
 }
 
+TEST_F(AgentTests, ReadData)
+{
+    const int trie_time = 1; // In seconds
+    const int max_tries = 10;
+    const ObjectId participant_id = {{0x00,0x01}};
+    const ObjectId subscriber_id = {{0x00,0x02}};
+    const ObjectId datareader_id = {{0x00,0x03}};
+    ASSERT_EQ(agent_.get_client(client_key), nullptr);
+    agent_thread = std::thread(&Agent::run, &agent_);
+    ProxyClient* client = wait_client(client_key, trie_time, max_tries);
+    XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
+    Subscriber* subscriber = dynamic_cast<Subscriber*>(wait_object(client, subscriber_id, trie_time, max_tries));
+    DataReader* data_reader = dynamic_cast<DataReader*>(wait_object(client, datareader_id, trie_time, max_tries));
+    wait_action(trie_time, max_tries);
+    DataReader* delete_data_reader = dynamic_cast<DataReader*>(wait_delete_object(client, datareader_id, trie_time, max_tries));
+    Subscriber* delete_publisher = dynamic_cast<Subscriber*>(wait_delete_object(client, subscriber_id, trie_time, max_tries));
+    XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
+    ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
+
+
+    agent_.stop();
+    agent_thread.join();  
+    agent_.abort_execution();
+    ASSERT_NE(client, nullptr);
+    ASSERT_NE(participant, nullptr);
+    ASSERT_NE(subscriber, nullptr);
+    ASSERT_NE(data_reader, nullptr);
+    ASSERT_EQ(delete_data_reader, nullptr);
+    ASSERT_EQ(delete_publisher, nullptr);
+    ASSERT_EQ(delete_participant, nullptr);
+    ASSERT_EQ(delete_client, nullptr);
+}
+
 } // namespace testing
 } // namespace micrortps
 } // namespace eprosima
