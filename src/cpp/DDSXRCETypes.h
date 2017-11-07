@@ -5136,6 +5136,12 @@ class DataDeliveryConfig
     eprosima::micrortps::DataFormat &_d();
 
     /*!
+     * @brief This function copies the value in member data_format
+     * @param format New value to be copied in member data_format
+     */
+    void data_format(const DataFormat& format);
+
+    /*!
      * @brief This function copies the value in member delivery_control
      * @param _delivery_control New value to be copied in member delivery_control
      * @param format Format used

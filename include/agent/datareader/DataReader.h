@@ -77,13 +77,13 @@ class ReadTimeEvent
 class RTPSSubListener : public fastrtps::SubscriberListener
 {
   public:
-    RTPSSubListener() : n_matched(0), n_msg(0){};
+    RTPSSubListener() : matched_(0), msg_(false){};
     virtual ~RTPSSubListener()                                                       = default;
     virtual void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
     virtual void onNewDataMessage(fastrtps::Subscriber* sub)                         = 0;
-    fastrtps::SampleInfo_t m_info;
-    int n_matched;
-    int n_msg;
+    fastrtps::SampleInfo_t info_;
+    int matched_;
+    std::atomic_bool msg_;
 
   private:
     using fastrtps::SubscriberListener::onSubscriptionMatched;
@@ -103,9 +103,11 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     bool init();
     bool init(const std::string& xmlrep);
     int read(const READ_DATA_Payload& read_data);
+    bool has_message() const;
 
     void on_max_timeout(const asio::error_code& error);
     void on_rate_timeout(const asio::error_code& error);
+    
     void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 

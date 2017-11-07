@@ -4336,7 +4336,7 @@ void eprosima::micrortps::DataDeliveryControl::deserialize(eprosima::fastcdr::Cd
 
 eprosima::micrortps::DataDeliveryConfig::DataDeliveryConfig()
 {
-    m__d = FORMAT_DATA_SEQ;
+    m__d = FORMAT_DATA;
 }
 
 eprosima::micrortps::DataDeliveryConfig::~DataDeliveryConfig()
@@ -4492,6 +4492,29 @@ eprosima::micrortps::DataFormat& eprosima::micrortps::DataDeliveryConfig::_d()
 {
     return m__d;
 }
+
+void eprosima::micrortps::DataDeliveryConfig::data_format(const DataFormat& format)
+{
+    bool b = false;
+
+    switch (format)
+    {
+        case FORMAT_DATA_SEQ:
+        case FORMAT_SAMPLE_SEQ:
+        case FORMAT_PACKED_SAMPLES:
+            break;
+        case FORMAT_SAMPLE:
+        case FORMAT_DATA:
+            b = true;
+            break;
+    }
+
+    if (!b)
+        throw BadParamException("Discriminator does not allow empty delivery_control.");
+
+    m__d = format;
+}
+
 
 void eprosima::micrortps::DataDeliveryConfig::delivery_control(
     const eprosima::micrortps::DataDeliveryControl& _delivery_control, const DataFormat& format)

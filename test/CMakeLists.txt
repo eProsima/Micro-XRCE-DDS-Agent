@@ -35,7 +35,7 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     target_include_directories(XRCETest PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(XRCETest agent transport fastcdr fastrtps testcommon ${GTEST_BOTH_LIBRARIES})
 
-    set(AGENTTESTS_SOURCE AgentTests.cpp)
+    set(AGENTTESTS_SOURCE AgentTests.cpp DataReaderTests.cpp)
     add_executable(AgentTest ${AGENTTESTS_SOURCE})
     add_gtest(AgentTest ${AGENTTESTS_SOURCE})
     target_include_directories(AgentTest PRIVATE ${GTEST_INCLUDE_DIRS})

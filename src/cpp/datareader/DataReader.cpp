@@ -11,11 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/*
- * Subscriber.cpp
- *
- */
 #include <agent/datareader/DataReader.h>
 
 #include <fastrtps/Domain.h>
@@ -35,7 +30,6 @@ DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, Reader
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
-
 }
 
 DataReader::~DataReader() noexcept
@@ -168,6 +162,11 @@ int DataReader::read(const READ_DATA_Payload& read_data)
     return 0;
 }
 
+bool DataReader::has_message() const
+{
+    return msg_;
+}
+
 int DataReader::start_read(const ReadTaskInfo& read_info)
 {
     std::cout << "START READ" << std::endl;
@@ -206,7 +205,7 @@ int DataReader::stop_read()
 
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
-    std::cout << "Starting read_task..." << std::endl;    
+    std::cout << "Starting read_task..." << std::endl;
     uint16_t message_count = 0;
     while (m_running)
     {
@@ -224,11 +223,12 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
         }
 
         // TODO +V+ check contitions
-        //m_rate_time_expired = false;
+        // m_rate_time_expired = false;
 
         // chequear si hay mas mensajes para setear o no la variable m_has_messages = true;
         // hequear si hemos alcanzado el maximo de mensajes y si no
-        while(m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) && message_count < read_info.max_samples_ )
+        while (m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) &&
+               message_count < read_info.max_samples_)
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_cond_var.wait(lock);
@@ -237,7 +237,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
         if (message_count == read_info.max_samples_ || m_max_time_expired || read_info.max_elapsed_time_ == 0)
             m_running = false;
     }
-    
+
     std::cout << "exiting read_task..." << std::endl;
 }
 
@@ -264,7 +264,7 @@ void DataReader::on_rate_timeout(const asio::error_code& error)
     // }
     // else
     // {
-        
+
     //     m_cond_var.notify_one();
 
     //     // Relaunch timer
@@ -279,19 +279,20 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
     // Take data
     std::vector<unsigned char> buffer;
-    if (sub->readNextData(&buffer, &m_info))
+    if (sub->readNextData(&buffer, &info_))
     {
-        if (m_info.sampleKind == ALIVE)
+        if (info_.sampleKind == ALIVE)
         {
-            // Print your structure data here.
-            ++n_msg;
-            std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
+            if (!msg_)
+                msg_ = true;
+            std::cout << "Sample received " << info_.sample_identity.sequence_number() << std::endl;
             m_cond_var.notify_one();
         }
     }
 }
 
-ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate), m_max_time_expired(false)
+ReadTimeEvent::ReadTimeEvent()
+    : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate), m_max_time_expired(false)
 {
 }
 
@@ -350,12 +351,12 @@ void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)
 {
     if (info.status == MATCHED_MATCHING)
     {
-        n_matched++;
+        matched_++;
         std::cout << "RTPS Publisher matched" << std::endl;
     }
     else
     {
-        n_matched--;
+        matched_--;
         std::cout << "RTPS Publisher unmatched" << std::endl;
     }
 }
