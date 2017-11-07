@@ -23,10 +23,6 @@
 #include "agent/publisher/Publisher.h"
 #include "agent/subscriber/Subscriber.h"
 
-// #include "libdev/MessageDebugger.h"
-
-#include "agent/Root.h"
-
 using eprosima::micrortps::Info;
 using eprosima::micrortps::ProxyClient;
 using eprosima::micrortps::ResultStatus;
@@ -55,6 +51,9 @@ ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
 {
     representation_ = std::move(x.representation_);
     objects_        = std::move(x.objects_);
+    client_key      = std::move(x.client_key);
+    session_id      = std::move(x.session_id);
+    stream_id       = std::move(x.stream_id);
     return *this;
 }
 
@@ -331,7 +330,7 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
     }
     else
     {
-        if (!(dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0))
+        if (dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0)
         {
             status.implementation_status(STATUS_OK);
         }
@@ -362,7 +361,6 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
                                const std::vector<unsigned char>& buffer)
 {
     // printf("on_read_data\n");
-
     MessageHeader message_header;
     message_header.client_key(client_key);
     message_header.session_id(session_id);
@@ -370,8 +368,10 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
 
     DATA_Payload_Data payload;
     payload.request_id(req_id);
+    payload.result().request_id(req_id);
     payload.object_id(object_id);
     payload.data().serialized_data(buffer);
 
+    // TODO(borja) May cause issues. Tests created their own instance but read data will create a static one.
     root()->add_reply(message_header, payload);
 }

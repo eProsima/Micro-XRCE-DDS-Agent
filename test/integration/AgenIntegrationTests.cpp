@@ -16,6 +16,7 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
+
 class AgentTests : public ::testing::Test
 {
   protected:
@@ -54,6 +55,7 @@ class AgentTests : public ::testing::Test
 
     XRCEObject* wait_object(ProxyClient* client, const ObjectId& object_id, int trie_time, int max_tries)
     {        
+
         XRCEObject* object = nullptr;
         if (client == nullptr)
         {
@@ -95,7 +97,7 @@ class AgentTests : public ::testing::Test
         } while (++count < max_tries );  
     }
 
-    eprosima::micrortps::Agent agent_;
+    eprosima::micrortps::Agent& agent_ = *root();
     const ClientKey client_key = {{0xAA,0xBB,0xCC,0xDD}};
     std::thread agent_thread;
 };
@@ -266,7 +268,7 @@ TEST_F(AgentTests, WriteData)
     XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
     Publisher* publisher = dynamic_cast<Publisher*>(wait_object(client, publisher_id, trie_time, max_tries));
     DataWriter* data_writer = dynamic_cast<DataWriter*>(wait_object(client, datawriter_id, trie_time, max_tries));
-    wait_action(trie_time, max_tries);
+
     DataWriter* delete_data_writer = dynamic_cast<DataWriter*>(wait_delete_object(client, datawriter_id, trie_time, max_tries));
     Publisher* delete_publisher = dynamic_cast<Publisher*>(wait_delete_object(client, publisher_id, trie_time, max_tries));
     XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
@@ -299,22 +301,22 @@ TEST_F(AgentTests, ReadData)
     XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(wait_object(client, participant_id, trie_time, max_tries));
     Subscriber* subscriber = dynamic_cast<Subscriber*>(wait_object(client, subscriber_id, trie_time, max_tries));
     DataReader* data_reader = dynamic_cast<DataReader*>(wait_object(client, datareader_id, trie_time, max_tries));
-    wait_action(trie_time, max_tries);
+    wait_action(trie_time, 5);
     DataReader* delete_data_reader = dynamic_cast<DataReader*>(wait_delete_object(client, datareader_id, trie_time, max_tries));
-    Subscriber* delete_publisher = dynamic_cast<Subscriber*>(wait_delete_object(client, subscriber_id, trie_time, max_tries));
+    Subscriber* delete_reader = dynamic_cast<Subscriber*>(wait_delete_object(client, subscriber_id, trie_time, max_tries));
     XRCEParticipant* delete_participant = dynamic_cast<XRCEParticipant*>(wait_delete_object(client, participant_id, trie_time, max_tries));
     ProxyClient* delete_client = wait_delete_client(client_key, trie_time, max_tries);
 
 
     agent_.stop();
-    agent_thread.join();  
     agent_.abort_execution();
+    agent_thread.join();  
     ASSERT_NE(client, nullptr);
     ASSERT_NE(participant, nullptr);
     ASSERT_NE(subscriber, nullptr);
     ASSERT_NE(data_reader, nullptr);
     ASSERT_EQ(delete_data_reader, nullptr);
-    ASSERT_EQ(delete_publisher, nullptr);
+    ASSERT_EQ(delete_reader, nullptr);
     ASSERT_EQ(delete_participant, nullptr);
     ASSERT_EQ(delete_client, nullptr);
 }

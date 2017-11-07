@@ -35,23 +35,24 @@ DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, Reader
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
+
 }
 
 DataReader::~DataReader() noexcept
 {
     if (m_read_thread.joinable())
     {
-        m_read_thread.detach();
+        m_read_thread.join();
     }
 
     if (m_max_timer_thread.joinable())
     {
-        m_max_timer_thread.detach();
+        m_max_timer_thread.join();
     }
 
     if (m_rate_timer_thread.joinable())
     {
-        m_rate_timer_thread.detach();
+        m_rate_timer_thread.join();
     }
 
     if (nullptr != mp_rtps_subscriber)
@@ -185,10 +186,8 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
 int DataReader::stop_read()
 {
     std::cout << "STOP READ" << std::endl;
-    std::lock_guard<std::mutex> lock(m_mutex);
     m_running = false;
     m_cond_var.notify_one();
-    // +V+ Not ever all
     m_max_timer_thread.join();
     m_rate_timer_thread.join();
     m_read_thread.join();
@@ -207,8 +206,7 @@ int DataReader::stop_read()
 
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
-    std::cout << "Starting read_task..." << std::endl;
-    std::unique_lock<std::mutex> lock(m_mutex);
+    std::cout << "Starting read_task..." << std::endl;    
     uint16_t message_count = 0;
     while (m_running)
     {
@@ -230,8 +228,9 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
 
         // chequear si hay mas mensajes para setear o no la variable m_has_messages = true;
         // hequear si hemos alcanzado el maximo de mensajes y si no
-        while(m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) && !m_rate_time_expired && message_count < read_info.max_samples_ )
+        while(m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) && message_count < read_info.max_samples_ )
         {
+            std::unique_lock<std::mutex> lock(m_mutex);
             m_cond_var.wait(lock);
         }
 
@@ -251,31 +250,29 @@ void DataReader::on_max_timeout(const asio::error_code& error)
     }
     else
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_rate_time_expired = true;
+        m_max_time_expired = true;
         m_cond_var.notify_one();
     }
 }
 
 void DataReader::on_rate_timeout(const asio::error_code& error)
 {
-    std::cout << "on_timeout" << std::endl;
-    if (error)
-    {
-        std::cout << "error" << std::endl;
-    }
-    else
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_max_time_expired = true;
-        m_cond_var.notify_one();
+    // std::cout << "on_timeout" << std::endl;
+    // if (error)
+    // {
+    //     std::cout << "error" << std::endl;
+    // }
+    // else
+    // {
+        
+    //     m_cond_var.notify_one();
 
-        // Relaunch timer
-        if (m_running)
-        {
-            // +V+ TODO init_rate_timer(milliseconds -> m_read_config.delivery_control()...);
-        }
-    }
+    //     // Relaunch timer
+    //     if (m_running)
+    //     {
+    //         // +V+ TODO init_rate_timer(milliseconds -> m_read_config.delivery_control()...);
+    //     }
+    // }
 }
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
@@ -289,13 +286,12 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
             // Print your structure data here.
             ++n_msg;
             std::cout << "Sample received " << m_info.sample_identity.sequence_number() << std::endl;
-            std::lock_guard<std::mutex> lock(m_mutex);
             m_cond_var.notify_one();
         }
     }
 }
 
-ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate)
+ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate), m_max_time_expired(false)
 {
 }
 

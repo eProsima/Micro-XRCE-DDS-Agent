@@ -71,9 +71,8 @@ class ReadTimeEvent
     asio::io_service m_io_service_rate;
     asio::steady_timer m_timer_max;
     asio::steady_timer m_timer_rate;
-    bool m_max_time_expired  = false;
-    bool m_rate_time_expired = false;
-};
+    std::atomic<bool> m_max_time_expired;
+  };
 
 class RTPSSubListener : public fastrtps::SubscriberListener
 {
@@ -130,7 +129,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     std::thread m_rate_timer_thread;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
-    std::atomic_bool m_running;
+    std::atomic<bool> m_running;
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;
