@@ -13,6 +13,7 @@
 // limitations under the License.
 #include <agent/datareader/DataReader.h>
 
+#include "TokenBucket.h"
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>

@@ -31,7 +31,7 @@ void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& r
     ++read_count_;
 }
 
-TEST_F(DataReaderTests, ReadOnce)
+TEST_F(DataReaderTests, ReadFormatData)
 {
     READ_DATA_Payload read_conf;
     read_conf.object_id(fixed_object_id);
@@ -46,6 +46,29 @@ TEST_F(DataReaderTests, ReadOnce)
     data_reader_.read(read_conf);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     ASSERT_EQ(read_count_, 1);
+    ASSERT_EQ(req_id_, fixed_request_id);
+    ASSERT_EQ(object_id_, fixed_object_id);
+}
+
+TEST_F(DataReaderTests, ReadFormatDataSeq)
+{
+    READ_DATA_Payload read_conf;
+    read_conf.object_id(fixed_object_id);
+    read_conf.request_id(fixed_request_id);
+    eprosima::micrortps::DataDeliveryControl control;
+    control.max_elapsed_time(1000);
+    control.max_samples(10);
+    control.max_rate(100);
+    read_conf.read_specification().delivery_config().delivery_control(control, FORMAT_DATA_SEQ);
+    int tries = 300;
+    while (!data_reader_.has_message() && tries > 0)
+    {
+        --tries;
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
+    data_reader_.read(read_conf);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    ASSERT_EQ(read_count_, 10);
     ASSERT_EQ(req_id_, fixed_request_id);
     ASSERT_EQ(object_id_, fixed_object_id);
 }

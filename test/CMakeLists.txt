@@ -29,6 +29,12 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     ###############################################################################
     # Unit tests
     ###############################################################################
+    set(UTILS_SOURCE UtilsTests.cpp)
+    add_executable(UtilsTest ${UTILS_SOURCE})
+    add_gtest(UtilsTest ${UTILS_SOURCE})
+    target_include_directories(UtilsTest PRIVATE ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(UtilsTest agent transport fastcdr fastrtps ${GTEST_BOTH_LIBRARIES})
+
     set(XRCETESTS_SOURCE XRCETests.cxx)
     add_executable(XRCETest ${XRCETESTS_SOURCE})
     add_gtest(XRCETest ${XRCETESTS_SOURCE})
