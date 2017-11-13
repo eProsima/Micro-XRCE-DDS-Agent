@@ -25,7 +25,6 @@
 #include <mutex>
 #include <thread>
 
-#include <fastrtps/rtps/common/MatchingInfo.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 
@@ -39,6 +38,9 @@ namespace eprosima {
 namespace fastrtps {
 class Participant;
 class Subscriber;
+namespace rtps {
+class MatchingInfo;
+} // namespace rtps
 } // namespace fastrtps
 
 namespace micrortps {
@@ -62,24 +64,25 @@ class ReadTimeEvent
     void stop_max_timer();
     void run_max_timer(int milliseconds);
 
-    virtual void on_max_timeout(const asio::error_code& error)  = 0;
+    virtual void on_max_timeout(const asio::error_code& error) = 0;
 
   protected:
     asio::io_service m_io_service_max;
     asio::steady_timer m_timer_max;
     std::atomic<bool> m_max_time_expired;
-  };
+};
 
 class RTPSSubListener : public fastrtps::SubscriberListener
 {
   public:
-    RTPSSubListener() : matched_(0), msg_(false){};
-    virtual ~RTPSSubListener()                                                       = default;
-    virtual void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info) = 0;
-    virtual void onNewDataMessage(fastrtps::Subscriber* sub)                         = 0;
+    RTPSSubListener()           = default;
+    ~RTPSSubListener() override = default;
+
+    void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override = 0;
+    void onNewDataMessage(fastrtps::Subscriber* sub) override                                          = 0;
     fastrtps::SampleInfo_t info_;
-    int matched_;
-    std::atomic_bool msg_;
+    int matched_{0};
+    std::atomic_bool msg_{false};
 
   private:
     using fastrtps::SubscriberListener::onSubscriptionMatched;
@@ -101,10 +104,11 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     int read(const READ_DATA_Payload& read_data);
     bool has_message() const;
 
-    void on_max_timeout(const asio::error_code& error);
+    void on_max_timeout(const asio::error_code& error) override;
 
-    void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
-    void onNewDataMessage(fastrtps::Subscriber* sub);
+    void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub,
+                               eprosima::fastrtps::rtps::MatchingInfo& info) override;
+    void onNewDataMessage(fastrtps::Subscriber* sub) override;
 
   private:
     struct ReadTaskInfo

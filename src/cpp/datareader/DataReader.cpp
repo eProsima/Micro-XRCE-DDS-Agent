@@ -123,7 +123,7 @@ bool DataReader::init(const std::string& xmlrep)
 int DataReader::read(const READ_DATA_Payload& read_data)
 {
     DataDeliveryConfig delivery_config = read_data.read_specification().delivery_config();
-    ReadTaskInfo read_info;
+    ReadTaskInfo read_info{};
     read_info.object_ID_  = read_data.object_id();
     read_info.request_ID_ = read_data.request_id();
     switch (delivery_config._d())
@@ -207,7 +207,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
     while (m_running)
     {
         size_t next_data_size = nextDataSize();
-        if (next_data_size && rate_manager.get_tokens(next_data_size))
+        if ((next_data_size != 0u) && rate_manager.get_tokens(next_data_size))
         {
             std::cout << "Read " << message_count + 1 << std::endl;
             std::vector<unsigned char> buffer;
@@ -215,7 +215,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
             {
                 std::cout << "Read " << next_data_size << " " << "in " << std::chrono::duration<double>(std::chrono::steady_clock::now()-last_read).count() << std::endl;
                 last_read = std::chrono::steady_clock::now();
-                // TODO: Handle multiple reads.
+                // TODO(borja): Handle multiple reads.
                 mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
                 ++message_count;
             }
@@ -223,7 +223,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
 
         if (m_running && !m_max_time_expired && message_count < read_info.max_samples_)
         {
-            // TODO: add some kind of timeout?
+            // TODO(borja): add some kind of timeout?
             std::unique_lock<std::mutex> lock(m_mutex);
             m_cond_var.wait(lock);
         }
@@ -251,7 +251,7 @@ void DataReader::on_max_timeout(const asio::error_code& error)
     }
 }
 
-void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
+void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
 {
     m_cond_var.notify_one();
 }
@@ -275,10 +275,10 @@ void ReadTimeEvent::stop_max_timer()
     m_io_service_max.stop();
 }
 
-void ReadTimeEvent::run_max_timer(int millisecond)
+void ReadTimeEvent::run_max_timer(int milliseconds)
 {
     std::cout << "Starting run_max_timer..." << std::endl;
-    init_max_timer(millisecond);
+    init_max_timer(milliseconds);
     m_io_service_max.run();
     std::cout << "exiting run_max_timer..." << std::endl;
 }
@@ -312,14 +312,16 @@ size_t DataReader::nextDataSize()
         if (info_.sampleKind == ALIVE)
         {
             if (!msg_)
+            {
                 msg_ = true;
+            }
             return buffer.size();
         }
     }
     return 0;
 }
 
-void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)
+void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::MatchingInfo& info)
 {
     if (info.status == MATCHED_MATCHING)
     {
