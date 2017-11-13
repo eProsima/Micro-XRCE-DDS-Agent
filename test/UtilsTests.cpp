@@ -17,13 +17,14 @@ class TokenBucketTests : public ::testing::Test
   protected:
     TokenBucketTests() = default;
 
-    virtual ~TokenBucketTests() = default;
+    ~TokenBucketTests() override = default;
 };
 
-TEST_F(TokenBucketTests, RateSizeBucket)
+TEST_F(TokenBucketTests, RateNoBurst)
 {
+    // Rate and capacity should be automatically adjusted to be equal.
     const int rate = 70;
-    TokenBucket bucket{rate};
+    TokenBucket bucket{rate,0};
     ASSERT_TRUE(bucket.get_tokens(rate));
     ASSERT_FALSE(bucket.get_tokens(10));
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -36,43 +37,41 @@ TEST_F(TokenBucketTests, RateSizeBucket)
     ASSERT_FALSE(bucket.get_tokens(rate));
 }
 
-TEST_F(TokenBucketTests, SmallSizeBucket)
+TEST_F(TokenBucketTests, NoRateNoBurst)
 {
-    const int size = 65;
-    const int rate = 70;
-    TokenBucket bucket{rate, size};
-    ASSERT_FALSE(bucket.get_tokens(rate));
-    ASSERT_TRUE(bucket.get_tokens(size));
+    const int min_rate = 64000;
+    TokenBucket bucket{0};
+    ASSERT_TRUE(bucket.get_tokens(min_rate));
+    ASSERT_FALSE(bucket.get_tokens(10));
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    ASSERT_FALSE(bucket.get_tokens(rate));
-    ASSERT_TRUE(bucket.get_tokens(size));
-    ASSERT_FALSE(bucket.get_tokens(1));
+    ASSERT_FALSE(bucket.get_tokens(min_rate * 2));
+    ASSERT_TRUE(bucket.get_tokens(63000));
+    ASSERT_TRUE(bucket.get_tokens(1));
+    ASSERT_FALSE(bucket.get_tokens(1000));
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_TRUE(bucket.get_tokens(1));
-    ASSERT_FALSE(bucket.get_tokens(size));
+    ASSERT_FALSE(bucket.get_tokens(min_rate));
 }
 
-TEST_F(TokenBucketTests, BurstBucket)
+TEST_F(TokenBucketTests, AdjustedBurst)
 {
-    const int size = 70;
-    const int rate = 66;
-    TokenBucket bucket{rate, size};
-    ASSERT_TRUE(bucket.get_tokens(rate / 2));
-    ASSERT_TRUE(bucket.get_tokens(rate / 2));
-    ASSERT_FALSE(bucket.get_tokens(2));
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    ASSERT_FALSE(bucket.get_tokens(size + 1));
-    ASSERT_TRUE(bucket.get_tokens(size));
+    const int min_rate = 64000;
+    const int rate     = min_rate * 0.5;
+    TokenBucket bucket{rate, 10};
+    ASSERT_TRUE(bucket.get_tokens(rate));
+    ASSERT_FALSE(bucket.get_tokens(10));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    ASSERT_TRUE(bucket.get_tokens(rate * 2));
     ASSERT_FALSE(bucket.get_tokens(1));
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    ASSERT_TRUE(bucket.get_tokens(rate));
-    ASSERT_FALSE(bucket.get_tokens(1));
+    ASSERT_TRUE(bucket.get_tokens(rate * 0.5));
+    ASSERT_FALSE(bucket.get_tokens(rate));
 }
 
 TEST_F(TokenBucketTests, LimitToUDPBucket)
 {
-    const int udp_size = 64;
-    TokenBucket bucket{1};
+    const int udp_size = 64000;
+    TokenBucket bucket{0, 1};
     ASSERT_FALSE(bucket.get_tokens(udp_size + 1));
     ASSERT_TRUE(bucket.get_tokens(udp_size));
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -89,7 +88,7 @@ TEST_F(TokenBucketTests, RateMeassure)
     const size_t test_package = 300;
     const int bucket_size     = 100;
     const size_t tokens       = 50;
-    TokenBucket bucket{bucket_size};
+    TokenBucket bucket{bucket_size,0};
 
     std::cout << "Testing package size: " << test_package << " Rate: " << bucket_size << " Token: " << tokens
               << std::endl;
