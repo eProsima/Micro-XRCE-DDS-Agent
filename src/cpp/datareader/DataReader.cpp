@@ -229,6 +229,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
         }
         else if (m_max_time_expired || message_count == read_info.max_samples_)
         {
+            stop_max_timer();
             m_running = false;
         }
     }
@@ -266,6 +267,12 @@ int ReadTimeEvent::init_max_timer(int milliseconds)
     m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
     m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
     return 0;
+}
+
+void ReadTimeEvent::stop_max_timer()
+{
+    m_timer_max.cancel();
+    m_io_service_max.stop();
 }
 
 void ReadTimeEvent::run_max_timer(int millisecond)

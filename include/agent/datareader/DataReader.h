@@ -59,6 +59,7 @@ class ReadTimeEvent
     ReadTimeEvent();
     virtual ~ReadTimeEvent() = default;
     int init_max_timer(int milliseconds);
+    void stop_max_timer();
     void run_max_timer(int milliseconds);
 
     virtual void on_max_timeout(const asio::error_code& error)  = 0;
