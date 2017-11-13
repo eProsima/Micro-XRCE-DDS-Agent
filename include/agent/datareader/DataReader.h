@@ -59,18 +59,13 @@ class ReadTimeEvent
     ReadTimeEvent();
     virtual ~ReadTimeEvent() = default;
     int init_max_timer(int milliseconds);
-    int init_rate_timer(int milliseconds);
     void run_max_timer(int milliseconds);
-    void run_rate_timer(int milliseconds);
 
     virtual void on_max_timeout(const asio::error_code& error)  = 0;
-    virtual void on_rate_timeout(const asio::error_code& error) = 0;
 
   protected:
     asio::io_service m_io_service_max;
-    asio::io_service m_io_service_rate;
     asio::steady_timer m_timer_max;
-    asio::steady_timer m_timer_rate;
     std::atomic<bool> m_max_time_expired;
   };
 
@@ -106,8 +101,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     bool has_message() const;
 
     void on_max_timeout(const asio::error_code& error);
-    void on_rate_timeout(const asio::error_code& error);
-    
+
     void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
     void onNewDataMessage(fastrtps::Subscriber* sub);
 
@@ -125,10 +119,10 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     int stop_read();
     void read_task(const ReadTaskInfo& read_info);
     bool takeNextData(void* data);
+    size_t nextDataSize();
 
     std::thread m_read_thread;
     std::thread m_max_timer_thread;
-    std::thread m_rate_timer_thread;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
     std::atomic<bool> m_running;

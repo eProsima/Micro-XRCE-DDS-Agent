@@ -27,6 +27,8 @@
 namespace eprosima {
 namespace micrortps {
 
+using utils::TokenBucket;
+
 DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
     : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
@@ -43,11 +45,6 @@ DataReader::~DataReader() noexcept
     if (m_max_timer_thread.joinable())
     {
         m_max_timer_thread.join();
-    }
-
-    if (m_rate_timer_thread.joinable())
-    {
-        m_rate_timer_thread.join();
     }
 
     if (nullptr != mp_rtps_subscriber)
@@ -177,8 +174,6 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
         m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time_);
     }
 
-    // TODO +V+ Calculate time for each read: m_rate_timer_thread = std::thread(&DataReader::run_rate_timer, this,
-    // m_read_config.delivery_control().max_rate());
     m_read_thread = std::thread(&DataReader::read_task, this, read_info);
     return 0;
 }
@@ -189,7 +184,6 @@ int DataReader::stop_read()
     m_running = false;
     m_cond_var.notify_one();
     m_max_timer_thread.join();
-    m_rate_timer_thread.join();
     m_read_thread.join();
     return 0;
 }
@@ -206,37 +200,37 @@ int DataReader::stop_read()
 
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
+    TokenBucket rate_manager{read_info.max_rate_};
     std::cout << "Starting read_task..." << std::endl;
     uint16_t message_count = 0;
+    std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (m_running)
     {
-        std::cout << "Read " << message_count + 1 << std::endl;
-
-        std::vector<unsigned char> buffer;
-        if (takeNextData(&buffer))
+        size_t next_data_size = nextDataSize();
+        if (next_data_size && rate_manager.get_tokens(next_data_size))
         {
-            // TODO: gestionar multiples lecturas?
-            mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
-
-            // TODO: size_sended += buffer.size(); con esto calculamis rate_time => readsize/maxrate = segundos hasta la
-            // proxima lectura permitida
-            ++message_count;
+            std::cout << "Read " << message_count + 1 << std::endl;
+            std::vector<unsigned char> buffer;
+            if (takeNextData(&buffer))
+            {
+                std::cout << "Read " << next_data_size << " " << "in " << std::chrono::duration<double>(std::chrono::steady_clock::now()-last_read).count() << std::endl;
+                last_read = std::chrono::steady_clock::now();
+                // TODO: Handle multiple reads.
+                mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
+                ++message_count;
+            }
         }
 
-        // TODO +V+ check contitions
-        // m_rate_time_expired = false;
-
-        // chequear si hay mas mensajes para setear o no la variable m_has_messages = true;
-        // hequear si hemos alcanzado el maximo de mensajes y si no
-        while (m_running && (!m_max_time_expired && read_info.max_elapsed_time_ > 0) &&
-               message_count < read_info.max_samples_)
+        if (m_running && !m_max_time_expired && message_count < read_info.max_samples_)
         {
+            // TODO: add some kind of timeout?
             std::unique_lock<std::mutex> lock(m_mutex);
             m_cond_var.wait(lock);
         }
-
-        if (message_count == read_info.max_samples_ || m_max_time_expired || read_info.max_elapsed_time_ == 0)
+        else if (m_max_time_expired || message_count == read_info.max_samples_)
+        {
             m_running = false;
+        }
     }
 
     std::cout << "exiting read_task..." << std::endl;
@@ -256,44 +250,13 @@ void DataReader::on_max_timeout(const asio::error_code& error)
     }
 }
 
-void DataReader::on_rate_timeout(const asio::error_code& error)
-{
-    // std::cout << "on_timeout" << std::endl;
-    // if (error)
-    // {
-    //     std::cout << "error" << std::endl;
-    // }
-    // else
-    // {
-
-    //     m_cond_var.notify_one();
-
-    //     // Relaunch timer
-    //     if (m_running)
-    //     {
-    //         // +V+ TODO init_rate_timer(milliseconds -> m_read_config.delivery_control()...);
-    //     }
-    // }
-}
-
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
 {
-    // Take data
-    std::vector<unsigned char> buffer;
-    if (sub->readNextData(&buffer, &info_))
-    {
-        if (info_.sampleKind == ALIVE)
-        {
-            if (!msg_)
-                msg_ = true;
-            std::cout << "Sample received " << info_.sample_identity.sequence_number() << std::endl;
-            m_cond_var.notify_one();
-        }
-    }
+    m_cond_var.notify_one();
 }
 
 ReadTimeEvent::ReadTimeEvent()
-    : m_timer_max(m_io_service_max), m_timer_rate(m_io_service_rate), m_max_time_expired(false)
+    : m_timer_max(m_io_service_max), m_max_time_expired(false)
 {
 }
 
@@ -305,28 +268,12 @@ int ReadTimeEvent::init_max_timer(int milliseconds)
     return 0;
 }
 
-int ReadTimeEvent::init_rate_timer(int milliseconds)
-{
-    m_io_service_rate.reset();
-    m_timer_rate.expires_from_now(std::chrono::milliseconds(milliseconds));
-    m_timer_rate.async_wait(std::bind(&ReadTimeEvent::on_rate_timeout, this, std::placeholders::_1));
-    return 0;
-}
-
 void ReadTimeEvent::run_max_timer(int millisecond)
 {
     std::cout << "Starting run_max_timer..." << std::endl;
     init_max_timer(millisecond);
     m_io_service_max.run();
     std::cout << "exiting run_max_timer..." << std::endl;
-}
-
-void ReadTimeEvent::run_rate_timer(int millisecond)
-{
-    std::cout << "Starting run_rate_timer..." << std::endl;
-    init_rate_timer(millisecond);
-    m_io_service_rate.run();
-    std::cout << "exiting run_rate_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -346,6 +293,23 @@ bool DataReader::takeNextData(void* data)
         std::cout << "Error taking sample" << std::endl;
     }
     return ret;
+}
+
+size_t DataReader::nextDataSize()
+{
+    std::vector<unsigned char> buffer;
+    fastrtps::SampleInfo_t info;
+    // TODO Cuidado con las configuraciones KEEPALL
+    if (mp_rtps_subscriber->readNextData(&buffer, &info))
+    {
+        if (info_.sampleKind == ALIVE)
+        {
+            if (!msg_)
+                msg_ = true;
+            return buffer.size();
+        }
+    }
+    return 0;
 }
 
 void DataReader::onSubscriptionMatched(fastrtps::MatchingInfo& info)

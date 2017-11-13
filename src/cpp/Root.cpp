@@ -38,9 +38,9 @@ Agent::Agent() :
     loc_id_{},
     out_buffer_{},
     in_buffer_{},
-    loc_{},    
+    loc_{},
     response_thread_{},
-    response_control_{} 
+    response_control_{}
 {
     running_ = false;
     response_control_.running_ = false;
@@ -63,7 +63,7 @@ void Agent::init(uint16_t in_port, uint16_t out_port)
 void Agent::demo_create_client()
 {
     ClientKey client_key = {{0xF1, 0xF2, 0xF3, 0xF4}};
-    
+
     OBJK_CLIENT_Representation client_representation;
     client_representation.xrce_cookie({XRCE_COOKIE});
     client_representation.xrce_version({XRCE_VERSION});
@@ -72,7 +72,7 @@ void Agent::demo_create_client()
     client_representation.session_id();
     ObjectVariant variant;
     variant.client(client_representation);
-    
+
     const RequestId request_id{ {1,2} };
     const ObjectId object_id{ {10,20} };
     CREATE_CLIENT_Payload create_data;
@@ -118,7 +118,7 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
         }
     }
     else
-    {        
+    {
         status.implementation_status(STATUS_ERR_INVALID_DATA);
     }
     return status;
@@ -161,7 +161,7 @@ void Agent::demo_message_create(char* test_buffer, size_t buffer_size)
     client_representation.client_timestamp();
     client_representation.session_id();
     ObjectVariant variant;
-    variant.client(client_representation);                    
+    variant.client(client_representation);
     const RequestId request_id{ {0x01,0x02} };
     const ObjectId object_id{ {0xC0,0xB0} };
     CREATE_Payload create_data;
@@ -540,7 +540,7 @@ void Agent::reply()
                 printf("\n");
             }
         }
-        usleep(1000000);
+        //usleep(1000000);
     }
     //std::cout << "Stoping Reply thread Id: " << std::this_thread::get_id() << std::endl;
 }
@@ -584,7 +584,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub
             add_reply(header, status);
         }
         else
-        {        
+        {
             std::cerr << "Create message rejected" << std::endl;
         }
     }
@@ -612,7 +612,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  /*s
     {
         RESOURCE_STATUS_Payload status;
         status.request_id(delete_payload.request_id());
-        status.object_id(delete_payload.object_id());        
+        status.object_id(delete_payload.object_id());
         status.result(client->delete_object(delete_payload));
         add_reply(header, status);
     }
@@ -672,7 +672,7 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
         std::lock_guard<std::mutex> lock(clientsmtx_);
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
-    {        
+    {
         std::cerr << "Client " << client_key << " not found" << std::endl;
         return nullptr;
     }

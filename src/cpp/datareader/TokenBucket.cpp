@@ -8,18 +8,25 @@ using eprosima::micrortps::utils::TokenBucket;
 
 TokenBucket::TokenBucket(size_t rate, size_t burst) : capacity_(burst), rate_(rate)
 {
-    if (rate_ < min_rate_)
+    // Adjust to min rate
+    if (rate_ == 0)
     {
         rate_ = min_rate_;
     }
 
-    if (burst == 0)
+    // Adjust capacity to rate
+    if (rate_ > capacity_)
     {
         capacity_ = rate_;
     }
 
-    tokens_ = std::min(capacity_, static_cast<double>(rate_));
+    // Adjust capacity to min rate if we use any kind of burst
+    if ((burst != 0) && (capacity_ < min_rate_))
+    {
+        capacity_ = min_rate_;
+    }
 
+    tokens_    = std::min(capacity_, static_cast<double>(rate_));
     timestamp_ = std::chrono::system_clock::now();
 }
 

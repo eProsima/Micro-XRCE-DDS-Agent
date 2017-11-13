@@ -11,7 +11,7 @@ namespace utils {
 class TokenBucket
 {
   public:
-    TokenBucket(size_t rate, size_t burst = 0);
+    explicit TokenBucket(size_t rate, size_t burst = min_rate_);
     TokenBucket(TokenBucket&& other) noexcept;
     TokenBucket(const TokenBucket& other);
     TokenBucket& operator=(TokenBucket&& other) noexcept;
@@ -23,7 +23,7 @@ class TokenBucket
   private:
     void update_tokens();
 
-    static constexpr size_t min_rate_ = 64;
+    static constexpr size_t min_rate_ = 64000; // 64KB
     double capacity_;
     double tokens_;
     size_t rate_;
