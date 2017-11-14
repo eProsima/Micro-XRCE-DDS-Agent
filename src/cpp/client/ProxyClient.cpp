@@ -128,8 +128,11 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
                         return insertion_done;
                         break;
                 }
-                dynamic_cast<Publisher*>(publisher_it->second)->add_writer(data_w);
-                insertion_done = objects_.insert(std::make_pair(internal_object_id, data_w)).second;
+                if (data_w != nullptr)
+                {
+                    dynamic_cast<Publisher*>(publisher_it->second)->add_writer(data_w);
+                    insertion_done = objects_.insert(std::make_pair(internal_object_id, data_w)).second;
+                }
             }
             return insertion_done;
             break;
@@ -162,8 +165,11 @@ bool ProxyClient::create(const InternalObjectId& internal_object_id, const Objec
                         return insertion_done;
                         break;
                 }
-                dynamic_cast<Subscriber*>(subscriber_it->second)->add_reader(data_r);
-                insertion_done = objects_.insert(std::make_pair(internal_object_id, data_r)).second;
+                if (data_r != nullptr)
+                {
+                    dynamic_cast<Subscriber*>(subscriber_it->second)->add_reader(data_r);
+                    insertion_done = objects_.insert(std::make_pair(internal_object_id, data_r)).second;
+                }
             }
             return insertion_done;
             break;
