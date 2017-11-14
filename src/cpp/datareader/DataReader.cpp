@@ -15,9 +15,11 @@
 
 #include "TokenBucket.h"
 #include <fastrtps/Domain.h>
+#include <xmlobjects/xmlobjects.h>
+
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
-#include <xmlobjects/xmlobjects.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <atomic>
 
@@ -68,7 +70,15 @@ bool DataReader::init()
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
+    SubscriberAttributes attributes;
+    if (m_rtps_subscriber_prof.empty() ||
+        (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
+         fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(m_rtps_subscriber_prof, attributes)))
+    {
+        fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
+    }
+    topic_type_.setName(attributes.topic.getTopicDataType().data());
+    fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_subscriber_prof.empty())
     {
@@ -99,16 +109,19 @@ bool DataReader::init(const std::string& xmlrep)
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
-
     SubscriberAttributes attributes;
     if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
     {
+        topic_type_.setName(attributes.topic.getTopicDataType().data());
+        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
     }
     else
     {
-        // std::cout << "init DataReader RTPS default subscriber" << std::endl;
+        fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
+        topic_type_.setName(attributes.topic.getTopicDataType().data());
+        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+
         mp_rtps_subscriber =
             fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
     }
@@ -202,7 +215,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
 {
     TokenBucket rate_manager{read_info.max_rate_};
     std::cout << "Starting read_task..." << std::endl;
-    uint16_t message_count = 0;
+    uint16_t message_count                          = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (m_running)
     {
@@ -213,7 +226,10 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
             std::vector<unsigned char> buffer;
             if (takeNextData(&buffer))
             {
-                std::cout << "Read " << next_data_size << " " << "in " << std::chrono::duration<double>(std::chrono::steady_clock::now()-last_read).count() << std::endl;
+                std::cout << "Read " << next_data_size << " "
+                          << "in "
+                          << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
+                          << std::endl;
                 last_read = std::chrono::steady_clock::now();
                 // TODO(borja): Handle multiple reads.
                 mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
@@ -256,8 +272,7 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
     m_cond_var.notify_one();
 }
 
-ReadTimeEvent::ReadTimeEvent()
-    : m_timer_max(m_io_service_max), m_max_time_expired(false)
+ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_max_time_expired(false)
 {
 }
 

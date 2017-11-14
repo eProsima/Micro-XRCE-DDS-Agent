@@ -19,19 +19,19 @@
 #ifndef DATAREADER_H_
 #define DATAREADER_H_
 
+#include <DDSXRCETypes.h>
+#include <Payloads.h>
+#include <agent/Common.h>
+#include <agent/types/TopicPubSubType.h>
+
+#include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/subscriber/SubscriberListener.h>
+
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
-
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
-
-#include <DDSXRCETypes.h>
-#include <Payloads.h>
-#include <agent/Common.h>
-#include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
 
@@ -51,6 +51,11 @@ class ReaderListener
     ReaderListener()          = default;
     virtual ~ReaderListener() = default;
 
+    ReaderListener(ReaderListener&&)      = default;
+    ReaderListener(const ReaderListener&) = default;
+    ReaderListener& operator=(ReaderListener&&) = default;
+    ReaderListener& operator=(const ReaderListener&) = default;
+
     virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id,
                               const std::vector<unsigned char>& buffer) = 0;
 };
@@ -59,7 +64,12 @@ class ReadTimeEvent
 {
   public:
     ReadTimeEvent();
-    virtual ~ReadTimeEvent() = default;
+    virtual ~ReadTimeEvent()            = default;
+    ReadTimeEvent(ReadTimeEvent&&)      = delete;
+    ReadTimeEvent(const ReadTimeEvent&) = delete;
+    ReadTimeEvent& operator=(ReadTimeEvent&&) = delete;
+    ReadTimeEvent& operator=(const ReadTimeEvent&) = delete;
+
     int init_max_timer(int milliseconds);
     void stop_max_timer();
     void run_max_timer(int milliseconds);
@@ -77,6 +87,11 @@ class RTPSSubListener : public fastrtps::SubscriberListener
   public:
     RTPSSubListener()           = default;
     ~RTPSSubListener() override = default;
+
+    RTPSSubListener(RTPSSubListener&&)      = delete;
+    RTPSSubListener(const RTPSSubListener&) = delete;
+    RTPSSubListener& operator=(RTPSSubListener&&) = delete;
+    RTPSSubListener& operator=(const RTPSSubListener&) = delete;
 
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override = 0;
     void onNewDataMessage(fastrtps::Subscriber* sub) override                                          = 0;
@@ -98,6 +113,11 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
   public:
     DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     ~DataReader() noexcept override;
+
+    DataReader(DataReader&&)      = delete;
+    DataReader(const DataReader&) = delete;
+    DataReader& operator=(DataReader&&) = delete;
+    DataReader& operator=(const DataReader&) = delete;
 
     bool init();
     bool init(const std::string& xmlrep);
@@ -136,7 +156,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     std::string m_rtps_subscriber_prof;
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
-    ShapeTypePubSubType m_shape_type;
+    TopicPubSubType topic_type_;
 };
 
 } /* namespace micrortps */

@@ -18,12 +18,13 @@
  */
 #include <agent/datawriter/DataWriter.h>
 
-#include <fastrtps/Domain.h>
-#include <fastrtps/publisher/Publisher.h>
-#include <xmlobjects/xmlobjects.h>
-
 #include <DDSXRCETypes.h>
 #include <Payloads.h>
+#include <xmlobjects/xmlobjects.h>
+
+#include <fastrtps/Domain.h>
+#include <fastrtps/publisher/Publisher.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_PUBLISHER_PROFILE "default_xrce_publisher_profile"
@@ -59,11 +60,18 @@ bool DataWriter::init()
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
+    PublisherAttributes attributes;
+    if (m_rtps_publisher_prof.empty() ||
+        (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
+         fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(m_rtps_publisher_prof, attributes)))
+    {
+        fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
+    }
+    topic_type_.setName(attributes.topic.getTopicDataType().data());
+    fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_publisher_prof.empty())
     {
-        // std::cout << "init DataWriter RTPS publisher" << std::endl;
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
     }
     else
@@ -89,16 +97,19 @@ bool DataWriter::init(const std::string& xmlrep)
         return false;
     }
 
-    fastrtps::Domain::registerType(mp_rtps_participant, &m_shape_type);
-
     PublisherAttributes attributes;
     if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
     {
+        topic_type_.setName(attributes.topic.getTopicDataType().data());
+        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
     }
     else
     {
-        // std::cout << "init DataWriter RTPS default publisher" << std::endl;
+        fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
+        topic_type_.setName(attributes.topic.getTopicDataType().data());
+        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+
         mp_rtps_publisher =
             fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
     }

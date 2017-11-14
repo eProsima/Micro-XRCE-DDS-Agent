@@ -23,14 +23,14 @@
 #include <string>
 
 #include <agent/Common.h>
-#include <agent/types/ShapePubSubTypes.h>
+#include <agent/types/TopicPubSubType.h>
 
 namespace eprosima {
 
 namespace fastrtps {
-    class Participant;
-    class Publisher;
-}
+class Participant;
+class Publisher;
+} // namespace fastrtps
 
 namespace micrortps {
 
@@ -39,23 +39,26 @@ class WRITE_DATA_Payload;
  * Class DataWriter, used to send data to associated datareaders.
  * @ingroup MICRORTPS_MODULE
  */
-class DataWriter: public XRCEObject
+class DataWriter : public XRCEObject
 {
-public:
+  public:
+    explicit DataWriter(fastrtps::Participant* rtps_participant);
+    ~DataWriter() override;
 
-    DataWriter(fastrtps::Participant* rtps_participant);
-    virtual ~DataWriter();
+    DataWriter(DataWriter&&)      = delete;
+    DataWriter(const DataWriter&) = delete;
+    DataWriter& operator=(DataWriter&&) = delete;
+    DataWriter& operator=(const DataWriter&) = delete;
 
     bool init();
     bool init(const std::string& xmlrep);
     bool write(const WRITE_DATA_Payload& write_data);
 
-private:
-
+  private:
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Publisher* mp_rtps_publisher;
     std::string m_rtps_publisher_prof;
-    ShapeTypePubSubType m_shape_type;
+    TopicPubSubType topic_type_;
 };
 
 } /* namespace micrortps */

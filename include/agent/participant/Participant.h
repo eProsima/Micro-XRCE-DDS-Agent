@@ -19,7 +19,6 @@
 
 #include <agent/Common.h>
 #include <agent/datareader/DataReader.h>
-#include <agent/types/ShapePubSubTypes.h>
 
 namespace eprosima {
 
