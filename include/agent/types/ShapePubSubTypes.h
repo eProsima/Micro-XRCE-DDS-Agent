@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*! 
+/*!
  * @file ShapePubSubTypes.h
  * This header file contains the declaration of the serialization functions.
  *
@@ -27,16 +27,6 @@
 
 using namespace eprosima::fastrtps;
 
-#include <agent/types/Shape.h>
-
-typedef unsigned char octet;
-struct ShapeTypePlus
-{
-    uint32_t length;
-    ShapeType shape;
-    octet* ser_data;
-};
-
 /*!
  * @brief This class represents the TopicDataType of the type ShapeType defined by the user in the IDL file.
  * @ingroup SHAPE
@@ -44,7 +34,7 @@ struct ShapeTypePlus
 class ShapeTypePubSubType: public TopicDataType
 {
 public:
-    typedef ShapeType type;
+    typedef char* type;
 
     ShapeTypePubSubType();
     virtual ~ShapeTypePubSubType();
