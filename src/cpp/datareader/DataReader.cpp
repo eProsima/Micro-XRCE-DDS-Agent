@@ -31,8 +31,8 @@ namespace micrortps {
 
 using utils::TokenBucket;
 
-DataReader::DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
-    : m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
+DataReader::DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
+    : XRCEObject(id), m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
       mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
 {
 }

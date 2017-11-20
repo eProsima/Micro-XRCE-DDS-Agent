@@ -17,14 +17,14 @@
 namespace eprosima {
 namespace micrortps {
 
-Publisher::Publisher()
-    : writer_(nullptr)
+Publisher::Publisher(ObjectId id)
+    : XRCEObject {id}, writer_(nullptr)
 {
 }
 
 void Publisher::add_writer(XRCEObject* writer)
 {
-    writer_ = writer; 
+    writer_ = writer;
 }
 
 XRCEObject* Publisher::get_writer()

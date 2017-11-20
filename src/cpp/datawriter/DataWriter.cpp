@@ -32,8 +32,8 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(fastrtps::Participant* rtps_participant)
-    : mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
+DataWriter::DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant)
+    : XRCEObject{id}, mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
 
 {
 }

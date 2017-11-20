@@ -18,7 +18,7 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
-DataReaderTests::DataReaderTests() : data_reader_(nullptr, this)
+DataReaderTests::DataReaderTests() : data_reader_(fixed_object_id, nullptr, this)
 {
     data_reader_.init();
 }

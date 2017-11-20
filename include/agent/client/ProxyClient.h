@@ -48,20 +48,17 @@ class ProxyClient : public ReaderListener
     XRCEObject* get_object(const ObjectId& object_id);
 
   private:
-    using InternalObjectId = std::array<uint8_t, std::tuple_size<ObjectId>::value + 1>;
-
     OBJK_CLIENT_Representation representation_;
 
     std::mutex objects_mutex_;
-    std::map<InternalObjectId, XRCEObject*> objects_;
+    std::map<ObjectId, XRCEObject*> objects_;
 
     ClientKey client_key;
     SessionId session_id;
     uint8_t stream_id;
 
-    bool create(const InternalObjectId& internal_object_id, const ObjectVariant& representation);
-    bool delete_object(const InternalObjectId& internal_object_id);
-    InternalObjectId generate_object_id(const ObjectId& id, uint8_t suffix) const;
+    bool create(const ObjectId& id, const ObjectVariant& representation);
+    bool delete_object(const ObjectId& id);
 };
 } // namespace micrortps
 } // namespace eprosima

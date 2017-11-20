@@ -15,6 +15,7 @@
 #include <agent/datareader/DataReader.h>
 #include <agent/datawriter/DataWriter.h>
 #include <agent/participant/Participant.h>
+#include <agent/topic/Topic.hpp>
 #include <xmlobjects/xmlobjects.h>
 
 #include <fastrtps/Domain.h>
@@ -23,7 +24,9 @@
 
 namespace eprosima {
 namespace micrortps {
-    
+
+XRCEParticipant::XRCEParticipant(const ObjectId& id) : XRCEObject{id} {}
+
 XRCEParticipant::~XRCEParticipant()
 {
     if (nullptr != mp_rtps_participant)
@@ -38,14 +41,29 @@ bool XRCEParticipant::init()
              nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
 }
 
+
+XRCEObject* XRCEParticipant::create_topic(const ObjectId& id, const std::string& xmlrep)
+{
+    auto topic = new Topic(id, mp_rtps_participant);
+    if (topic->init(xmlrep))
+    {
+        return topic;
+    }
+    else
+    {
+        delete topic;
+        return nullptr;
+    }
+}
+
 // XRCEObject* XRCEParticipant::create_writer()
 // {
 //     return new DataWriter(mp_rtps_participant);
 // }
 
-XRCEObject* XRCEParticipant::create_writer(const std::string& xmlrep)
+XRCEObject* XRCEParticipant::create_writer(const ObjectId& id, const std::string& xmlrep)
 {
-    auto data_writer = new DataWriter(mp_rtps_participant);
+    auto data_writer = new DataWriter(id, mp_rtps_participant);
     if (data_writer->init(xmlrep))
     {
         return data_writer;
@@ -62,9 +80,9 @@ XRCEObject* XRCEParticipant::create_writer(const std::string& xmlrep)
 //     return new DataReader(mp_rtps_participant, message_listener);
 // }
 
-XRCEObject* XRCEParticipant::create_reader(const std::string& xmlrep, ReaderListener* message_listener)
+XRCEObject* XRCEParticipant::create_reader(const ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener)
 {
-    auto data_reader = new DataReader(mp_rtps_participant, message_listener);
+    auto data_reader = new DataReader(id, mp_rtps_participant, message_listener);
     if (data_reader->init(xmlrep))
     {
         return data_reader;

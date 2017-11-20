@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <agent/Common.h>
+#include <agent/XRCEObject.hpp>
 #include <agent/types/TopicPubSubType.h>
 
 namespace eprosima {
@@ -42,7 +42,7 @@ class WRITE_DATA_Payload;
 class DataWriter : public XRCEObject
 {
   public:
-    explicit DataWriter(fastrtps::Participant* rtps_participant);
+    DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant);
     ~DataWriter() override;
 
     DataWriter(DataWriter&&)      = delete;

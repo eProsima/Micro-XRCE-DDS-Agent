@@ -21,7 +21,7 @@
 
 #include <DDSXRCETypes.h>
 #include <Payloads.h>
-#include <agent/Common.h>
+#include <agent/XRCEObject.hpp>
 #include <agent/types/TopicPubSubType.h>
 
 #include <fastrtps/subscriber/SampleInfo.h>
@@ -111,7 +111,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 {
 
   public:
-    DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
+    DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
     ~DataReader() noexcept override;
 
     DataReader(DataReader&&)      = delete;

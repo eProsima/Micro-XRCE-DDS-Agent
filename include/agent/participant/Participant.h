@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include <agent/Common.h>
+#include <agent/XRCEObject.hpp>
 #include <agent/datareader/DataReader.h>
 
 namespace eprosima {
@@ -35,7 +35,7 @@ namespace micrortps {
 class XRCEParticipant : public XRCEObject
 {
   public:
-    XRCEParticipant() = default;
+    XRCEParticipant(const ObjectId& id);
     virtual ~XRCEParticipant();
 
     bool init();
@@ -53,10 +53,12 @@ class XRCEParticipant : public XRCEObject
     {
         return nullptr;
     }
+    // XRCEObject* create_topic();
+    XRCEObject* create_topic(const ObjectId& id, const std::string& xmlrep);
     // XRCEObject* create_writer();
-    XRCEObject* create_writer(const std::string& xmlrep);
+    XRCEObject* create_writer(const ObjectId& id, const std::string& xmlrep);
     // XRCEObject* create_reader(ReaderListener* message_listener);
-    XRCEObject* create_reader(const std::string& xmlrep, ReaderListener* message_listener);
+    XRCEObject* create_reader(const ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
 
     XRCEObject* get_writer();
     XRCEObject* get_reader();

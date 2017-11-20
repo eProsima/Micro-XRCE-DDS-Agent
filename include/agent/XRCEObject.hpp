@@ -12,13 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _XRCE_OBJECT_H_
+#define _XRCE_OBJECT_H_
+
+#include <DDSXRCETypes.h>
+
+namespace eprosima {
+namespace micrortps {
 
 class XRCEObject
 {
-public:
-    virtual ~XRCEObject() = default;
+  public:
+    explicit XRCEObject(ObjectId object_id) : id_{object_id} {};
+    XRCEObject(XRCEObject &&) = default;
+    XRCEObject(const XRCEObject &) = default;
+    XRCEObject &operator=(XRCEObject &&) = default;
+    XRCEObject &operator=(const XRCEObject &) = default;
+    virtual ~XRCEObject() = 0;
+
+    ObjectId getID() const;
+
+  private:
+    ObjectId id_;
 };
 
-#endif //_COMMON_H_
+} // namespace micrortps
+} // namespace eprosima
+
+#endif //_XRCE_OBJECT_H_

@@ -15,7 +15,7 @@
 #ifndef SUBSCRIBER_H_
 #define SUBSCRIBER_H_
 
-#include <agent/Common.h>
+#include <agent/XRCEObject.hpp>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,16 +23,16 @@ namespace micrortps {
 class Subscriber : public XRCEObject
 {
 public:
-    Subscriber();
+    Subscriber(ObjectId id);
     virtual ~Subscriber() = default;
 
-   
+
     void add_reader(XRCEObject*);
     XRCEObject* get_reader();
 
 private:
     XRCEObject* reader_;
-    
+
 };
 
 } /* namespace micrortps */
