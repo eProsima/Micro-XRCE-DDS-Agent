@@ -100,6 +100,9 @@ install(TARGETS agent_parser_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent_parser_test transport agent fastcdr fastrtps)
 
 # micrortps_agent
+file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+DESTINATION ${PROJECT_BINARY_DIR})
+
 file(GLOB MICRORTPS_AGENT_SOURCES "micrortps_agent.cpp")
 add_executable(micrortps_agent ${MICRORTPS_AGENT_SOURCES})
 install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
