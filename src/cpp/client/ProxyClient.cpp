@@ -90,16 +90,17 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
         case OBJECTKIND::PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            auto participant = new XRCEParticipant(id);
+            auto participant    = new XRCEParticipant(id);
+            bool insertion_done = false;
             if (participant->init())
             {
-                return objects_.insert(std::make_pair(id, participant)).second;
+                insertion_done = objects_.insert(std::make_pair(id, participant)).second;
             }
             else
             {
                 delete participant;
-                return false;
             }
+            return insertion_done;
             break;
         }
         case OBJECTKIND::DATAWRITER:
@@ -118,9 +119,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        data_w = dynamic_cast<XRCEParticipant*>(participant_it->second)
-                                     ->create_writer(
-                                         id, representation.data_writer().representation().xml_string_representation());
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        if (participant != nullptr)
+                        {
+                            data_w = participant->create_writer(
+                                id, representation.data_writer().representation().xml_string_representation());
+                        }
                         break;
                     }
                     case REPRESENTATION_BY_REFERENCE:
@@ -131,8 +135,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 }
                 if (data_w != nullptr)
                 {
-                    dynamic_cast<Publisher*>(publisher_it->second)->add_writer(data_w);
-                    insertion_done = objects_.insert(std::make_pair(id, data_w)).second;
+                    auto publisher = dynamic_cast<Publisher*>(publisher_it->second);
+                    if (publisher != nullptr)
+                    {
+                        publisher->add_writer(data_w);
+                        insertion_done = objects_.insert(std::make_pair(id, data_w)).second;
+                    }
                 }
             }
             return insertion_done;
@@ -153,10 +161,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        data_r = dynamic_cast<XRCEParticipant*>(participant_it->second)
-                                     ->create_reader(
-                                         id, representation.data_reader().representation().xml_string_representation(),
-                                         this);
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        if (participant != nullptr)
+                        {
+                            data_r = participant->create_reader(
+                                id, representation.data_reader().representation().xml_string_representation(), this);
+                        }
                         break;
                     }
                     case REPRESENTATION_BY_REFERENCE:
@@ -167,8 +177,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 }
                 if (data_r != nullptr)
                 {
-                    dynamic_cast<Subscriber*>(subscriber_it->second)->add_reader(data_r);
-                    insertion_done = objects_.insert(std::make_pair(id, data_r)).second;
+                    auto subscriber = dynamic_cast<Subscriber*>(subscriber_it->second);
+                    if (subscriber != nullptr)
+                    {
+                        subscriber->add_reader(data_r);
+                        insertion_done = objects_.insert(std::make_pair(id, data_r)).second;
+                    }
                 }
             }
             return insertion_done;
@@ -188,8 +202,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        topic = dynamic_cast<XRCEParticipant*>(participant_it->second)
-                                    ->create_topic(id, representation.topic().representation().xml_string_representation());
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        if (participant != nullptr)
+                        {
+                            topic = participant->create_topic(
+                                id, representation.topic().representation().xml_string_representation());
+                        }
                         break;
                     }
                     case REPRESENTATION_BY_REFERENCE:
@@ -213,6 +231,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             return false;
             break;
     }
+    return false;
 }
 
 ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE_Payload& create_payload)
@@ -341,7 +360,8 @@ ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payl
     }
     else
     {
-        if (dynamic_cast<DataWriter*>(object_it->second)->write(data_payload))
+        auto writer = dynamic_cast<DataWriter*>(object_it->second);
+        if (writer != nullptr && writer->write(data_payload))
         {
             status.implementation_status(STATUS_OK);
         }
@@ -366,7 +386,8 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
     }
     else
     {
-        if (dynamic_cast<DataReader*>(object_it->second)->read(data_payload) == 0)
+        auto reader = dynamic_cast<DataReader*>(object_it->second);
+        if (reader != nullptr && reader->read(data_payload) == 0)
         {
             status.implementation_status(STATUS_OK);
         }
