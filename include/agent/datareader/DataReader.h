@@ -111,7 +111,8 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 {
 
   public:
-    DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
+    DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list,
+               const std::string& profile_name = "");
     ~DataReader() noexcept override;
 
     DataReader(DataReader&&)      = delete;

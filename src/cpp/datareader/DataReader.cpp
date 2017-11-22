@@ -31,14 +31,16 @@ namespace micrortps {
 
 using utils::TokenBucket;
 
-DataReader::DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list)
-    : XRCEObject(id), m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(""),
-      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr)
+DataReader::DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list,
+                       const std::string& profile_name)
+    : XRCEObject(id), m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(profile_name),
+      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr), topic_type_(false)
 {
 }
 
 DataReader::~DataReader() noexcept
 {
+    stop_read();
     if (m_read_thread.joinable())
     {
         m_read_thread.join();
@@ -78,6 +80,7 @@ bool DataReader::init()
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
     }
     topic_type_.setName(attributes.topic.getTopicDataType().data());
+    topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
     fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_subscriber_prof.empty())
@@ -196,8 +199,16 @@ int DataReader::stop_read()
     std::cout << "STOP READ" << std::endl;
     m_running = false;
     m_cond_var.notify_one();
-    m_max_timer_thread.join();
-    m_read_thread.join();
+    if (m_read_thread.joinable())
+    {
+        m_read_thread.join();
+    }
+
+    stop_max_timer();
+    if (m_max_timer_thread.joinable())
+    {
+        m_max_timer_thread.join();
+    }
     return 0;
 }
 

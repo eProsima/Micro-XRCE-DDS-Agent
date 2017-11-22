@@ -20,6 +20,7 @@ class DataReaderTests : public ::testing::Test, public ReaderListener
                       const std::vector<unsigned char>& buffer) override;
 
     eprosima::micrortps::DataReader data_reader_;
+    bool data_reader_init_ = false;
     unsigned int read_count_ = 0;
     ObjectId object_id_;
     RequestId req_id_;

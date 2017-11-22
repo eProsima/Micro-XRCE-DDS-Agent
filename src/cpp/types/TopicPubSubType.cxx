@@ -25,9 +25,9 @@
 
 #include <agent/types/TopicPubSubType.h>
 
-TopicPubSubType::TopicPubSubType() {
+TopicPubSubType::TopicPubSubType(bool with_key) {
     m_typeSize = 1024 + 4 /*encapsulation*/;
-    m_isGetKeyDefined = false;
+    m_isGetKeyDefined = with_key;
 }
 
 bool TopicPubSubType::serialize(void *data, SerializedPayload_t *payload)
@@ -67,5 +67,5 @@ void TopicPubSubType::deleteData(void* data) {
 
 bool TopicPubSubType::getKey(void *data, InstanceHandle_t* handle)
 {
-    return false;
+    return m_isGetKeyDefined;
 }

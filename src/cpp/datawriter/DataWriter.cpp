@@ -32,8 +32,9 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant)
-    : XRCEObject{id}, mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr), m_rtps_publisher_prof("")
+DataWriter::DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant, const std::string& profile_name)
+    : XRCEObject{id}, mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr),
+      m_rtps_publisher_prof(profile_name), topic_type_(false)
 
 {
 }
@@ -68,6 +69,7 @@ bool DataWriter::init()
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
     }
     topic_type_.setName(attributes.topic.getTopicDataType().data());
+    topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
     fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_publisher_prof.empty())

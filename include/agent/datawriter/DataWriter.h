@@ -42,7 +42,8 @@ class WRITE_DATA_Payload;
 class DataWriter : public XRCEObject
 {
   public:
-    DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant);
+    DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant,
+               const std::string& profile_name = "");
     ~DataWriter() override;
 
     DataWriter(DataWriter&&)      = delete;

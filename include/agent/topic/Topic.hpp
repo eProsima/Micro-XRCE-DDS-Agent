@@ -24,7 +24,6 @@ class Topic : public XRCEObject
     Topic& operator=(const Topic&) = default;
     ~Topic() override;
 
-    bool init();
     bool init(const std::string& xmlrep);
 
   private:

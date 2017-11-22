@@ -30,7 +30,7 @@ class TopicPubSubType: public TopicDataType
 public:
     typedef std::vector<unsigned char> type;
 
-    TopicPubSubType();
+    explicit TopicPubSubType(bool with_key);
     virtual ~TopicPubSubType() override = default;
     bool serialize(void *data, SerializedPayload_t *payload);
     bool deserialize(SerializedPayload_t *payload, void *data);

@@ -18,9 +18,9 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
-DataReaderTests::DataReaderTests() : data_reader_(fixed_object_id, nullptr, this)
+DataReaderTests::DataReaderTests() : data_reader_(fixed_object_id, nullptr, this, "default_xrce_subscriber_profile")
 {
-    data_reader_.init();
+    data_reader_init_ = data_reader_.init();
 }
 
 void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& req_id,
@@ -33,6 +33,7 @@ void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& r
 
 TEST_F(DataReaderTests, ReadFormatData)
 {
+    ASSERT_TRUE(data_reader_init_);
     READ_DATA_Payload read_conf;
     read_conf.object_id(fixed_object_id);
     read_conf.request_id(fixed_request_id);
@@ -51,11 +52,12 @@ TEST_F(DataReaderTests, ReadFormatData)
 
 TEST_F(DataReaderTests, ReadFormatDataSeq)
 {
+    ASSERT_TRUE(data_reader_init_);
     READ_DATA_Payload read_conf;
     read_conf.object_id(fixed_object_id);
     read_conf.request_id(fixed_request_id);
     eprosima::micrortps::DataDeliveryControl control;
-    control.max_elapsed_time(30000);
+    control.max_elapsed_time(20000);
     control.max_samples(10);
     control.max_rate(100);
     read_conf.read_specification().delivery_config().delivery_control(control, FORMAT_DATA_SEQ);
