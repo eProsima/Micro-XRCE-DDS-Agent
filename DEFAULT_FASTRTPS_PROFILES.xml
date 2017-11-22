@@ -5,7 +5,7 @@
         <leaseDuration>
           <durationbyname>INFINITE</durationbyname>
         </leaseDuration>
-        <domainId>80</domainId>
+        <domainId>0</domainId>
       </builtin>
       <name>DataReader_participant_subscriber</name>
     </rtps>
