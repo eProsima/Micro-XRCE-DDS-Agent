@@ -60,6 +60,11 @@ endif()
 set(FASTRTPS_PATH ${CMAKE_PREFIX_PATH})
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}/install)
 
+add_definitions(
+    -DBOOST_ASIO_STANDALONE
+    -DASIO_STANDALONE
+  )
+
 ###############################################################################
 # Compile
 ###############################################################################
