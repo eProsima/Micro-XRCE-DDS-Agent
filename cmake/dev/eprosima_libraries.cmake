@@ -157,6 +157,26 @@ macro(find_eprosima_package package)
     endif()
 endmacro()
 
+macro(find_eprosima_thirdparty package thirdparty_name)
+    if(NOT (EPROSIMA_INSTALLER AND (MSVC OR MSVC_IDE)))
+        if(THIRDPARTY)
+            execute_process(
+                COMMAND git submodule update --recursive --init "thirdparty/${thirdparty_name}"
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                RESULT_VARIABLE EXECUTE_RESULT
+                )
+
+            if(NOT EXECUTE_RESULT EQUAL 0)
+                message(FATAL_ERROR "Cannot configure Git submodule ${package}")
+            endif()
+        endif()
+        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/${thirdparty_name})
+        set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/${thirdparty_name}/${thirdparty_name})
+
+        find_package(${package} REQUIRED)
+    endif()
+endmacro()
+
 macro(install_eprosima_libraries)
     if((MSVC OR MSVC_IDE) AND EPROSIMA_BUILD AND NOT MINION)
         if(EPROSIMA_INSTALLER)

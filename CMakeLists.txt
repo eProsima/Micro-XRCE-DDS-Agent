@@ -30,10 +30,16 @@ endif()
 
 project(micrortps_agent)
 
+
 ###############################################################################
 # eProsima build options
 ###############################################################################
 option(EPROSIMA_BUILD "Activate internal building" OFF)
+
+###############################################################################
+# Load CMake modules
+###############################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 ###############################################################################
 # Load external eProsima projects.
@@ -60,6 +66,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}/install)
 # Find requirements
 find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
+find_eprosima_thirdparty(Asio asio)
 find_eprosima_package(micrortps_transport)
 
 # Set C++11
@@ -84,7 +91,7 @@ include_directories(${CMAKE_PREFIX_PATH}/include
                     src/cpp
                     include
                     include/agent
-                    ${FASTRTPS_PATH}/thirdparty/asio/asio/include
+                    ${ASIO_INCLUDE_DIR}
                     )
 
 # libagent.so
