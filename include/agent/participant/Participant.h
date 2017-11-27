@@ -64,7 +64,7 @@ class XRCEParticipant : public XRCEObject
     XRCEObject* get_reader();
 
   private:
-    eprosima::fastrtps::Participant* mp_rtps_participant;
+    eprosima::fastrtps::Participant* mp_rtps_participant = nullptr;
 };
 
 } // namespace micrortps

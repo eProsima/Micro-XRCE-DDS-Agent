@@ -9,6 +9,7 @@ namespace micrortps {
 class MessageHeader;
 class SubmessageHeader;
 class CREATE_Payload;
+class CREATE_CLIENT_Payload;
 class DELETE_RESOURCE_Payload;
 class RESOURCE_STATUS_Payload;
 class WRITE_DATA_Payload;
@@ -36,6 +37,7 @@ void print_data_submessage(const DATA_Payload_SampleSeq& payload);
 void print_data_submessage(const DATA_Payload_PackedSamples& payload);
 
 void printl_create_submessage(const CREATE_Payload& payload);
+void printl_create_client_submessage(const CREATE_CLIENT_Payload& payload);
 void printl_delete_submessage(const DELETE_RESOURCE_Payload& payload);
 void printl_status_submessage(const RESOURCE_STATUS_Payload& payload);
 void printl_write_data_submessage(const WRITE_DATA_Payload& payload);

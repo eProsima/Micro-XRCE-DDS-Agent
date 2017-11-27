@@ -80,6 +80,11 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
             // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
             // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             std::lock_guard<std::mutex> lock(clientsmtx_);
+            // auto client_it      = clients_.find(header.client_key());
+            // if (client_it != clients_.end())
+            // {
+            //     clients_.erase(header.client_key());
+            // }
             clients_[header.client_key()] = ProxyClient{create_info.object_representation(), header};
             //std::cout << "ProxyClient created " << std::endl;
             status.implementation_status(STATUS_OK);
@@ -130,7 +135,7 @@ void Agent::run()
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
             myParser.parse();
         }
-        usleep(1000000);
+        usleep(10);
 
     }while(running_);
     std::cout << "Execution stopped" << std::endl;
@@ -261,7 +266,7 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 {
 #ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
-    eprosima::micrortps::debug::printl_create_submessage(create_client_payload);
+    eprosima::micrortps::debug::printl_create_client_submessage(create_client_payload);
 #endif
     RESOURCE_STATUS_Payload status;
     status.object_id(create_client_payload.object_id());

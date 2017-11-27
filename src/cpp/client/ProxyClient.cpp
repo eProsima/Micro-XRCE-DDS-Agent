@@ -37,16 +37,13 @@ ProxyClient::ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader&
 
 ProxyClient::~ProxyClient()
 {
-    for (auto& xrce_object : objects_)
-    {
-        delete xrce_object.second;
-    }
 }
 
 ProxyClient::ProxyClient(ProxyClient&& x) noexcept
     : representation_(std::move(x.representation_)), objects_(std::move(x.objects_)), client_key(x.client_key),
       session_id(x.session_id), stream_id(x.stream_id)
 {
+    int a;
 }
 
 ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
@@ -70,7 +67,9 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             bool insertion_done = false;
             if (object_it == objects_.end())
             {
-                insertion_done = objects_.insert(std::make_pair(id, new Publisher(id))).second;
+                insertion_done =
+                    objects_.insert(std::make_pair(id, std::move(std::unique_ptr<Publisher>(new Publisher(id)))))
+                        .second;
             }
             return insertion_done;
             break;
@@ -82,7 +81,9 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             bool insertion_done = false;
             if (object_it == objects_.end())
             {
-                insertion_done = objects_.insert(std::make_pair(id, new Subscriber(id))).second;
+                insertion_done =
+                    objects_.insert(std::make_pair(id, std::move(std::unique_ptr<Subscriber>(new Subscriber(id)))))
+                        .second;
             }
             return insertion_done;
             break;
@@ -90,15 +91,11 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
         case OBJECTKIND::PARTICIPANT:
         {
             std::lock_guard<std::mutex> lockGuard(objects_mutex_);
-            auto participant    = new XRCEParticipant(id);
+            auto participant    = std::unique_ptr<XRCEParticipant>(new XRCEParticipant(id));
             bool insertion_done = false;
             if (participant->init())
             {
-                insertion_done = objects_.insert(std::make_pair(id, participant)).second;
-            }
-            else
-            {
-                delete participant;
+                insertion_done = objects_.insert(std::make_pair(id, std::move(participant))).second;
             }
             return insertion_done;
             break;
@@ -119,7 +116,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                         if (participant != nullptr)
                         {
                             data_w = participant->create_writer(
@@ -135,11 +132,14 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 }
                 if (data_w != nullptr)
                 {
-                    auto publisher = dynamic_cast<Publisher*>(publisher_it->second);
+                    auto publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
                     if (publisher != nullptr)
                     {
                         publisher->add_writer(data_w);
-                        insertion_done = objects_.insert(std::make_pair(id, data_w)).second;
+                        if (!(insertion_done = objects_.insert(std::make_pair(id, data_w)).second))
+                        {
+                            delete data_w;
+                        }
                     }
                 }
             }
@@ -161,7 +161,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                         if (participant != nullptr)
                         {
                             data_r = participant->create_reader(
@@ -177,7 +177,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 }
                 if (data_r != nullptr)
                 {
-                    auto subscriber = dynamic_cast<Subscriber*>(subscriber_it->second);
+                    auto subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
                     if (subscriber != nullptr)
                     {
                         subscriber->add_reader(data_r);
@@ -197,16 +197,16 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             bool insertion_done = false;
             if ((participant_it != objects_.end()) && (topic_it == objects_.end()))
             {
-                XRCEObject* topic = nullptr;
+                std::unique_ptr<XRCEObject> topic;
                 switch (representation.topic().representation()._d())
                 {
                     case REPRESENTATION_AS_XML_STRING:
                     {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second);
+                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                         if (participant != nullptr)
                         {
-                            topic = participant->create_topic(
-                                id, representation.topic().representation().xml_string_representation());
+                            topic.reset(participant->create_topic(
+                                id, representation.topic().representation().xml_string_representation()));
                         }
                         break;
                     }
@@ -216,9 +216,9 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                         return insertion_done;
                         break;
                 }
-                if (topic != nullptr)
+                if (topic)
                 {
-                    insertion_done = objects_.insert(std::make_pair(id, topic)).second;
+                    insertion_done = objects_.insert(std::make_pair(id, std::move(topic))).second;
                 }
             }
             return insertion_done;
@@ -328,7 +328,6 @@ bool ProxyClient::delete_object(const ObjectId& id)
     auto find_it = objects_.find(id);
     if (find_it != objects_.end())
     {
-        delete find_it->second;
         objects_.erase(find_it);
         return true;
     }
@@ -342,7 +341,7 @@ XRCEObject* ProxyClient::get_object(const ObjectId& object_id)
     auto object_it = objects_.find(object_id);
     if (object_it != objects_.end())
     {
-        object = object_it->second;
+        object = object_it->second.get();
     }
     return object;
 }
@@ -360,7 +359,7 @@ ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payl
     }
     else
     {
-        auto writer = dynamic_cast<DataWriter*>(object_it->second);
+        auto writer = dynamic_cast<DataWriter*>(object_it->second.get());
         if (writer != nullptr && writer->write(data_payload))
         {
             status.implementation_status(STATUS_OK);
@@ -386,7 +385,7 @@ ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payloa
     }
     else
     {
-        auto reader = dynamic_cast<DataReader*>(object_it->second);
+        auto reader = dynamic_cast<DataReader*>(object_it->second.get());
         if (reader != nullptr && reader->read(data_payload) == 0)
         {
             status.implementation_status(STATUS_OK);

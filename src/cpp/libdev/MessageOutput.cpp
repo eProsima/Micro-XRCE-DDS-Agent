@@ -326,6 +326,15 @@ void print_data_submessage(const DATA_Payload_PackedSamples& payload)
 {
 }
 
+void printl_create_client_submessage(const CREATE_CLIENT_Payload& payload)
+{
+    char content[128];
+    printf("%s[Create client | session: 0x%02X]%s\n",
+            YELLOW.data(),
+            payload.object_representation().session_id(),
+            RESTORE_COLOR.data());
+}
+
 void printl_create_submessage(const CREATE_Payload& payload)
 {
     char content[128];
@@ -346,14 +355,14 @@ void printl_create_submessage(const CREATE_Payload& payload)
             sprintf(content, "DATA_WRITER | id: %u | id: %u | topic: %s",
                     payload.object_representation().data_writer().participant_id(),
                     payload.object_representation().data_writer().publisher_id(),
-                    payload.object_representation().data_writer().representation().object_reference());
+                    payload.object_representation().data_writer().representation().xml_string_representation());
             break;
 
         case OBJECTKIND::DATAREADER:
             sprintf(content, "DATA_READER | id: %u | id: %u | topic: %s",
                     payload.object_representation().data_writer().participant_id(),
                     payload.object_representation().data_reader().subscriber_id(),
-                    payload.object_representation().data_reader().representation().object_reference());
+                    payload.object_representation().data_reader().representation().xml_string_representation());
             break;
 
         case OBJECTKIND::SUBSCRIBER:
@@ -366,13 +375,13 @@ void printl_create_submessage(const CREATE_Payload& payload)
         default:
             sprintf(content, "UNKNOWN");
     }
-    printf("%s[Create | #%08X | id: %u | %s]%s\n", YELLOW, payload.request_id(), payload.object_id(), content,
-           RESTORE_COLOR);
+    printf("%s[Create | #%08X | id: %u | %s]%s\n", YELLOW.data(), payload.request_id(), payload.object_id(), content,
+           RESTORE_COLOR.data());
 }
 
 void printl_delete_submessage(const DELETE_RESOURCE_Payload& payload)
 {
-    printf("%s[Delete | #%08X | id: %u]%s\n", YELLOW, payload.request_id(), payload.object_id(), RESTORE_COLOR);
+    printf("%s[Delete | #%08X | id: %u]%s\n", YELLOW.data(), payload.request_id(), payload.object_id(), RESTORE_COLOR.data());
 }
 
 void printl_status_submessage(const RESOURCE_STATUS_Payload& payload)
@@ -442,8 +451,8 @@ void printl_status_submessage(const RESOURCE_STATUS_Payload& payload)
             sprintf(implementation, "UNKNOWN");
     }
 
-    printf("%s[Status | #%08X | id: %u | %s | %s]%s\n", GREEN, payload.result().request_id(), payload.object_id(), kind,
-           implementation, RESTORE_COLOR);
+    printf("%s[Status | #%08X | id: %u | %s | %s]%s\n", GREEN.data(), payload.result().request_id(), payload.object_id(), kind,
+           implementation, RESTORE_COLOR.data());
 }
 
 void printl_write_data_submessage(const WRITE_DATA_Payload& payload)
@@ -474,22 +483,22 @@ void printl_write_data_submessage(const WRITE_DATA_Payload& payload)
         case FORMAT_PACKED_SAMPLES:
             break;
     }
-    printf("%s[Write data | #%08X | id: %u | %s]%s\n", YELLOW, payload.request_id(), payload.object_id(), content,
-           RESTORE_COLOR);
+    printf("%s[Write data | #%08X | id: %u | %s]%s\n", YELLOW.data(), payload.request_id(), payload.object_id(), content,
+           RESTORE_COLOR.data());
 }
 
 void printl_read_data_submessage(const READ_DATA_Payload& payload)
 {
-    printf("%s[Read data | #%08X | id: %u | max samples: %u]%s\n", YELLOW, payload.request_id(), payload.object_id(),
-           payload.read_specification().delivery_config().delivery_control().max_samples(), RESTORE_COLOR);
+    printf("%s[Read data | #%08X | id: %u | max samples: %u]%s\n", YELLOW.data(), payload.request_id(), payload.object_id(),
+           payload.read_specification().delivery_config().delivery_control().max_samples(), RESTORE_COLOR.data());
 }
 
 void printl_data_submessage(const DATA_Payload_Data& payload)
 {
     char content[64];
     sprintf(content, "DATA | data size: %u", payload.data().serialized_data().size());
-    printf("%s[Data | #%08X | id: %u | %s]%s\n", GREEN, payload.request_id(), payload.object_id(), content,
-           RESTORE_COLOR);
+    printf("%s[Data | #%08X | id: %u | %s]%s\n", GREEN.data(), payload.request_id(), payload.object_id(), content,
+           RESTORE_COLOR.data());
 }
 
 void printl_data_submessage(const DATA_Payload_DataSeq& payload)
@@ -500,8 +509,8 @@ void printl_data_submessage(const DATA_Payload_DataSeq& payload)
     {
         sprintf(content, "DATA | sq_nr: %u | data size: %u", seq_counter++, data.serialized_data().size());
     }
-    printf("%s[Data | #%08X | id: %u | %s]%s\n", GREEN, payload.request_id(), payload.object_id(), content,
-           RESTORE_COLOR);
+    printf("%s[Data | #%08X | id: %u | %s]%s\n", GREEN.data(), payload.request_id(), payload.object_id(), content,
+           RESTORE_COLOR.data());
 }
 
 } // namespace debug

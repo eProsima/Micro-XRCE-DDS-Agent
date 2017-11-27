@@ -34,6 +34,8 @@ bool XRCEParser::parse()
         bool valid_submessage = false;
         do
         {
+            deserializer_.force_new_submessage_align();
+
             if ((valid_submessage = deserializer_.deserialize(submessage_header)))
             {
                 switch (submessage_header.submessage_id())
@@ -77,7 +79,7 @@ bool XRCEParser::parse()
                 case FRAGMENT:
                 case FRAGMENT_END:
                 default:
-                    std::cerr << "Error submessage ID not recognized" << std::endl;
+                    std::cerr << "Error submessage ID not recognized " << submessage_header.submessage_id() << std::endl;
                     return false;
                     break;
                 }

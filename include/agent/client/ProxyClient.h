@@ -51,7 +51,7 @@ class ProxyClient : public ReaderListener
     OBJK_CLIENT_Representation representation_;
 
     std::mutex objects_mutex_;
-    std::map<ObjectId, XRCEObject*> objects_;
+    std::map<ObjectId, std::unique_ptr<XRCEObject>> objects_;
 
     ClientKey client_key;
     SessionId session_id;
