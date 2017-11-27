@@ -98,8 +98,10 @@ bool Serializer::bufferEnd()
     return fastbuffer_.getBufferSize() == serializer_.getSerializedDataLength();
 }
 
-void Serializer::align()
+void Serializer::force_new_submessage_align()
 {
+    size_t align = (4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) % 4)) & 3;
+    serializer_.jump(align);
 }
 
 } /* namespace micrortps */
