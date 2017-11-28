@@ -30,6 +30,24 @@ endif()
 
 project(micrortps_agent)
 
+###############################################################################
+# Installation paths
+###############################################################################
+set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
+set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
+if(WIN32)
+    set(DOC_DIR "doc")
+else()
+    set(DOC_DIR "${DATA_INSTALL_DIR}/doc")
+endif()
+set(DOC_INSTALL_DIR ${DOC_DIR} CACHE PATH "Installation directory for documentation")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
 
 ###############################################################################
 # eProsima build options
@@ -46,7 +64,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
-option(UPDATE_SUBMODULES "Update to the latest" OFF)
+option(UPDATE_SUBMODULES "Update to the latest" ON)
 option(VERBOSE_OUTPUT "Use verbose output" OFF)
 
 if(VERBOSE_OUTPUT)
@@ -102,14 +120,7 @@ include_directories(${CMAKE_PREFIX_PATH}/include
 # libagent.so
 file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*.cxx" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
 add_library(agent SHARED ${AGENT_LIB_SRCS})
-install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(agent transport fastcdr)
-
-# agent_parser_test
-file(GLOB AGENT_PARSER_TEST_SOURCES "agent_parser_test.cpp")
-add_executable(agent_parser_test ${AGENT_PARSER_TEST_SOURCES})
-install(TARGETS agent_parser_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(agent_parser_test transport agent fastcdr fastrtps)
 
 # micrortps_agent
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
@@ -117,14 +128,7 @@ DESTINATION ${PROJECT_BINARY_DIR})
 
 file(GLOB MICRORTPS_AGENT_SOURCES "micrortps_agent.cpp")
 add_executable(micrortps_agent ${MICRORTPS_AGENT_SOURCES})
-install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
 target_link_libraries(micrortps_agent transport agent fastcdr fastrtps)
-
-# shape_subs_test
-file(GLOB SHAPE_TEST_SOURCES "shape_subs_test.cpp")
-add_executable(shape_subs_test ${SHAPE_TEST_SOURCES})
-install(TARGETS shape_subs_test DESTINATION ${CMAKE_SOURCE_DIR}/install)
-target_link_libraries(shape_subs_test agent fastcdr fastrtps)
 
 ###############################################################################
 # Warning level
@@ -157,3 +161,34 @@ if(EPROSIMA_BUILD_TESTS)
         add_subdirectory(test)
     endif()
 endif()
+
+###############################################################################
+# Installing
+###############################################################################
+# Install external eprosima libraries
+install_eprosima_libraries()
+
+install(TARGETS ${PROJECT_NAME}
+EXPORT ${PROJECT_NAME}Targets
+RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+COMPONENT libraries
+)
+
+install(TARGETS agent
+RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+COMPONENT libraries
+)
+
+
+export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Targets.cmake)
+install(EXPORT ${PROJECT_NAME}Targets
+DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
+COMPONENT cmake
+)
+
+# install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
+# install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
