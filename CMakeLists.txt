@@ -64,7 +64,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
-option(UPDATE_SUBMODULES "Update to the latest" ON)
+option(UPDATE_SUBMODULES "Update to the latest" OFF)
 option(VERBOSE_OUTPUT "Use verbose output" OFF)
 
 if(VERBOSE_OUTPUT)
