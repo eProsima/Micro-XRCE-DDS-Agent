@@ -43,7 +43,7 @@ ProxyClient::ProxyClient(ProxyClient&& x) noexcept
     : representation_(std::move(x.representation_)), objects_(std::move(x.objects_)), client_key(x.client_key),
       session_id(x.session_id), stream_id(x.stream_id)
 {
-    int a;
+
 }
 
 ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
@@ -136,7 +136,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                     if (publisher != nullptr)
                     {
                         publisher->add_writer(data_w);
-                        if (!(insertion_done = objects_.insert(std::make_pair(id, data_w)).second))
+                        if (!(insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_w)))).second))
                         {
                             delete data_w;
                         }
@@ -181,7 +181,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                     if (subscriber != nullptr)
                     {
                         subscriber->add_reader(data_r);
-                        insertion_done = objects_.insert(std::make_pair(id, data_r)).second;
+                        insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_r)))).second;
                     }
                 }
             }
