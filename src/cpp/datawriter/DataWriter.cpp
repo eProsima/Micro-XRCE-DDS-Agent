@@ -68,9 +68,9 @@ bool DataWriter::init()
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
     }
-    topic_type_.setName(attributes.topic.getTopicDataType().data());
-    topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+    // topic_type_.setName(attributes.topic.getTopicDataType().data());
+    // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_publisher_prof.empty())
     {
@@ -102,15 +102,17 @@ bool DataWriter::init(const std::string& xmlrep)
     PublisherAttributes attributes;
     if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
     {
-        topic_type_.setName(attributes.topic.getTopicDataType().data());
-        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+        // topic_type_.setName(attributes.topic.getTopicDataType().data());
+        // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
         mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
     }
     else
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
-        topic_type_.setName(attributes.topic.getTopicDataType().data());
-        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+        // topic_type_.setName(attributes.topic.getTopicDataType().data());
+        // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
         mp_rtps_publisher =
             fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);

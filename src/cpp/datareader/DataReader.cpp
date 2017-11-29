@@ -79,9 +79,9 @@ bool DataReader::init()
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
     }
-    topic_type_.setName(attributes.topic.getTopicDataType().data());
-    topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+    // topic_type_.setName(attributes.topic.getTopicDataType().data());
+    // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
     if (!m_rtps_subscriber_prof.empty())
     {
@@ -115,15 +115,15 @@ bool DataReader::init(const std::string& xmlrep)
     SubscriberAttributes attributes;
     if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
     {
-        topic_type_.setName(attributes.topic.getTopicDataType().data());
-        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+        // topic_type_.setName(attributes.topic.getTopicDataType().data());
+        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
         mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
     }
     else
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
-        topic_type_.setName(attributes.topic.getTopicDataType().data());
-        fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
+        // topic_type_.setName(attributes.topic.getTopicDataType().data());
+        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
         mp_rtps_subscriber =
             fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
