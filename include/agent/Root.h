@@ -1,16 +1,4 @@
-// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+
 
 #ifndef _ROOT_H
 #define _ROOT_H
@@ -47,10 +35,10 @@ public:
 
     /*
      * Initialize the Agent.
-     */   
+     */
     void init(const std::string& device);
-    
-    void init(uint16_t in_port, uint16_t out_port);
+
+    void init(const char* server_ip, uint16_t in_port, uint16_t out_port);
 
     /*
      * Creates and stores a ProxyClient
@@ -148,11 +136,11 @@ private:
         std::mutex data_structure_mutex_;
         std::mutex condition_variable_mutex_;
     } response_control_;
-    
+
     MessageQueue messages_;
-    
+
     void reply();
-    
+
     void demo_create_client();
     void demo_delete_subscriber(char* test_buffer, size_t buffer_size);
     void demo_message_create(char* test_buffer, size_t buffer_size);
@@ -161,8 +149,8 @@ private:
     void demo_message_subscriber(char* test_buffer, size_t buffer_size);
     void demo_message_publisher(char* test_buffer, size_t buffer_size);
     void demo_message_write(char * test_buffer, size_t buffer_size);
-    
-    
+
+
     void update_header(MessageHeader& header);
 };
 
