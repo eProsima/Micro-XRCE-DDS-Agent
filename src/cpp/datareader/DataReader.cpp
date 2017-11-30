@@ -55,18 +55,11 @@ DataReader::~DataReader() noexcept
     {
         fastrtps::Domain::removeSubscriber(mp_rtps_subscriber);
     }
-
-    // TODO(borja): remove participant?
-    if (nullptr != mp_rtps_participant)
-    {
-        fastrtps::Domain::removeParticipant(mp_rtps_participant);
-    }
 }
 
 bool DataReader::init()
 {
-    if (nullptr == mp_rtps_participant &&
-        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    if (nullptr == mp_rtps_participant)
     {
         std::cout << "init participant error" << std::endl;
         return false;
@@ -79,22 +72,21 @@ bool DataReader::init()
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
     }
-    // topic_type_.setName(attributes.topic.getTopicDataType().data());
-    // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
-
-    if (!m_rtps_subscriber_prof.empty())
+    if (check_registered_topic(attributes.topic.getTopicDataType()))
     {
-        // std::cout << "init DataReader RTPS subscriber" << std::endl;
-        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
-    }
-    else
-    {
-        // std::cout << "init DataReader RTPS default subscriber" << std::endl;
-        mp_rtps_subscriber =
-            fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
-    }
 
+        if (!m_rtps_subscriber_prof.empty())
+        {
+            // std::cout << "init DataReader RTPS subscriber" << std::endl;
+            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
+        }
+        else
+        {
+            // std::cout << "init DataReader RTPS default subscriber" << std::endl;
+            mp_rtps_subscriber =
+                fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+        }
+    }
     if (mp_rtps_subscriber == nullptr)
     {
         std::cout << "init subscriber error" << std::endl;
@@ -105,8 +97,7 @@ bool DataReader::init()
 
 bool DataReader::init(const std::string& xmlrep)
 {
-    if (nullptr == mp_rtps_participant &&
-        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    if (nullptr == mp_rtps_participant)
     {
         std::cout << "init participant error" << std::endl;
         return false;
@@ -115,18 +106,19 @@ bool DataReader::init(const std::string& xmlrep)
     SubscriberAttributes attributes;
     if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
     {
-        // topic_type_.setName(attributes.topic.getTopicDataType().data());
-        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
-        mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
+        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        {
+            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
+        }
     }
     else
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
-        // topic_type_.setName(attributes.topic.getTopicDataType().data());
-        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
-
-        mp_rtps_subscriber =
-            fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        {
+            mp_rtps_subscriber =
+                fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+        }
     }
     if (mp_rtps_subscriber == nullptr)
     {
@@ -359,6 +351,18 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
         matched_--;
         std::cout << "RTPS Publisher unmatched" << std::endl;
     }
+}
+
+bool DataReader::check_registered_topic(const std::string& topic_data_type) const
+{
+    // TODO(borja) Take this method out to Topic type.
+    TopicDataType* p_type = nullptr;
+    if (!fastrtps::Domain::getRegisteredType(mp_rtps_participant, topic_data_type.data(), &p_type))
+    {
+        std::cout << "DDS ERROR: No registered type" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 } /* namespace micrortps */

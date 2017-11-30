@@ -146,6 +146,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     void read_task(const ReadTaskInfo& read_info);
     bool takeNextData(void* data);
     size_t nextDataSize();
+    bool check_registered_topic(const std::string& topic_data_type) const;
 
     std::thread m_read_thread;
     std::thread m_max_timer_thread;
@@ -158,6 +159,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     fastrtps::Participant* mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
     TopicPubSubType topic_type_;
+
 };
 
 } /* namespace micrortps */

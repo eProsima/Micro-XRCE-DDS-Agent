@@ -60,6 +60,8 @@ class DataWriter : public XRCEObject
     fastrtps::Publisher* mp_rtps_publisher;
     std::string m_rtps_publisher_prof;
     TopicPubSubType topic_type_;
+
+    bool check_registered_topic(const std::string& topic_data_type) const;
 };
 
 } /* namespace micrortps */

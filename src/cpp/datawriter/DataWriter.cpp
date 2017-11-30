@@ -45,18 +45,11 @@ DataWriter::~DataWriter()
     {
         fastrtps::Domain::removePublisher(mp_rtps_publisher);
     }
-
-    // TODO(borja): remove participant?
-    if (nullptr != mp_rtps_participant)
-    {
-        fastrtps::Domain::removeParticipant(mp_rtps_participant);
-    }
 }
 
 bool DataWriter::init()
 {
-    if (nullptr == mp_rtps_participant &&
-        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    if (nullptr == mp_rtps_participant)
     {
         return false;
     }
@@ -68,24 +61,23 @@ bool DataWriter::init()
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
     }
-    // topic_type_.setName(attributes.topic.getTopicDataType().data());
-    // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
 
-    if (!m_rtps_publisher_prof.empty())
+    if (check_registered_topic(attributes.topic.getTopicDataType()))
     {
-        mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
-    }
-    else
-    {
-        // std::cout << "init DataWriter RTPS default publisher" << std::endl;
-        mp_rtps_publisher =
-            fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+        if (!m_rtps_publisher_prof.empty())
+        {
+            mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
+        }
+        else
+        {
+            mp_rtps_publisher =
+                fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+        }
     }
 
     if (mp_rtps_publisher == nullptr)
     {
-        std::cout << "init publisher error" << std::endl;
+        std::cout << "DDS ERROR: init publisher error" << std::endl;
         return false;
     }
     return true;
@@ -93,8 +85,7 @@ bool DataWriter::init()
 
 bool DataWriter::init(const std::string& xmlrep)
 {
-    if (nullptr == mp_rtps_participant &&
-        nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)))
+    if (nullptr == mp_rtps_participant)
     {
         return false;
     }
@@ -102,20 +93,19 @@ bool DataWriter::init(const std::string& xmlrep)
     PublisherAttributes attributes;
     if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
     {
-        // topic_type_.setName(attributes.topic.getTopicDataType().data());
-        // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
-        mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
+        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        {
+            mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
+        }
     }
     else
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
-        // topic_type_.setName(attributes.topic.getTopicDataType().data());
-        // topic_type_.m_isGetKeyDefined = (attributes.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-        // fastrtps::Domain::registerType(mp_rtps_participant, &topic_type_);
-
-        mp_rtps_publisher =
-            fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        {
+            mp_rtps_publisher =
+                fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+        }
     }
 
     if (mp_rtps_publisher == nullptr)
@@ -146,6 +136,18 @@ bool DataWriter::write(const WRITE_DATA_Payload& write_data)
 
     std::vector<uint8_t> serialized_data = write_data.data_to_write().data().serialized_data();
     return mp_rtps_publisher->write(&serialized_data);
+}
+
+bool DataWriter::check_registered_topic(const std::string& topic_data_type) const
+{
+    // TODO(borja) Take this method out to Topic type.
+    TopicDataType* p_type = nullptr;
+    if (!fastrtps::Domain::getRegisteredType(mp_rtps_participant, topic_data_type.data(), &p_type))
+    {
+        std::cout << "DDS ERROR: No registered type" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 } /* namespace micrortps */

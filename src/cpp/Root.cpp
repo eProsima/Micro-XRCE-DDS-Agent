@@ -161,13 +161,17 @@ void Agent::add_reply(const Message& message)
     {
         response_control_.running_ = true;
         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-        // = std::make_unique<std::thread>(std::bind(&Agent::reply, this));
     }
 }
 
 
 void Agent::add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload& status_reply)
 {
+#ifdef VERBOSE_OUTPUT
+    std::cout << "<== ";
+    eprosima::micrortps::debug::printl_status_submessage(status_reply);
+#endif
+
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -180,6 +184,10 @@ void Agent::add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload
 
 void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Data &payload)
 {
+#ifdef VERBOSE_OUTPUT
+    std::cout << "<== ";
+    eprosima::micrortps::debug::printl_data_submessage(payload);
+#endif
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -192,6 +200,10 @@ void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Data &payl
 
 void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Sample &payload)
 {
+// #ifdef VERBOSE_OUTPUT
+//     std::cout << "<== ";
+//     eprosima::micrortps::debug::printl_data_submessage(payload);
+// #endif
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -204,6 +216,10 @@ void Agent::add_reply(const MessageHeader &header, const DATA_Payload_Sample &pa
 
 void Agent::add_reply(const MessageHeader &header, const DATA_Payload_DataSeq &payload)
 {
+// #ifdef VERBOSE_OUTPUT
+//     std::cout << "<== ";
+//     eprosima::micrortps::debug::printl_data_submessage(payload);
+// #endif
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -216,6 +232,10 @@ void Agent::add_reply(const MessageHeader &header, const DATA_Payload_DataSeq &p
 
 void Agent::add_reply(const MessageHeader &header, const DATA_Payload_SampleSeq &payload)
 {
+// #ifdef VERBOSE_OUTPUT
+//     std::cout << "<== ";
+//     eprosima::micrortps::debug::printl_data_submessage(payload);
+// #endif
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -228,6 +248,10 @@ void Agent::add_reply(const MessageHeader &header, const DATA_Payload_SampleSeq 
 
 void Agent::add_reply(const MessageHeader &header, const DATA_Payload_PackedSamples &payload)
 {
+// #ifdef VERBOSE_OUTPUT
+//     std::cout << "<== ";
+//     eprosima::micrortps::debug::printl_data_submessage(payload);
+// #endif
     MessageHeader updated_header{header};
     update_header(updated_header);
     Message message{};
@@ -249,12 +273,7 @@ void Agent::reply()
             int ret = 0;
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_id_)))
             {
-                printf("SEND: %d bytes of %d\n", ret, message.get_buffer().size());
-                for (int i = 0; i < ret; ++i)
-                {
-                    printf("%02X ", (unsigned char)message.get_buffer()[i]);
-                }
-                printf("\n");
+                printf("%d bytes response sent\n", ret);
             }
         }
         //usleep(1000000);

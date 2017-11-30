@@ -60,12 +60,23 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 ###############################################################################
+# Test system configuration
+###############################################################################
+include(${PROJECT_SOURCE_DIR}/cmake/dev/check_configuration.cmake)
+option(CHECK_ENDIANNESS "Enable/disable endiannes checking" ON)
+if(CHECK_ENDIANNESS)
+    check_endianness()
+else()
+    message(STATUS "WARNING!! micrortps-client without check endianness")
+endif()
+
+###############################################################################
 # Load external eProsima projects.
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(UPDATE_SUBMODULES "Update to the latest" OFF)
-option(VERBOSE_OUTPUT "Use verbose output" OFF)
+option(VERBOSE_OUTPUT "Use verbose output" ON)
 
 if(VERBOSE_OUTPUT)
     add_definitions(-DVERBOSE_OUTPUT)

@@ -60,6 +60,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
 {
     switch (representation._d())
     {
+        // TODO Check for participant ID existence
         case OBJECTKIND::PUBLISHER:
         {
             std::lock_guard<std::mutex> lock(objects_mutex_);
@@ -74,6 +75,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             return insertion_done;
             break;
         }
+        // TODO Check for participant ID existence
         case OBJECTKIND::SUBSCRIBER:
         {
             std::lock_guard<std::mutex> lock(objects_mutex_);
