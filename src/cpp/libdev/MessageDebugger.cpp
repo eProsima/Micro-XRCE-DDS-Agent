@@ -1,3 +1,17 @@
+// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "MessageDebugger.h"
 
 #include <DDSXRCETypes.h>
@@ -355,7 +369,7 @@ std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data)
     stream << "  - data format: " << data.read_specification().delivery_config()._d() << std::endl;
     stream << "  - max_elapsed_time: " << data.read_specification().delivery_config().delivery_control().max_elapsed_time() << std::endl;
     stream << "  - max_rate: " << data.read_specification().delivery_config().delivery_control().max_rate() << std::endl;
-    stream << "  - max_samples: " << data.read_specification().delivery_config().delivery_control().max_samples() << std::endl; 
+    stream << "  - max_samples: " << data.read_specification().delivery_config().delivery_control().max_samples() << std::endl;
 }
 
 std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_data, const STREAM_COLOR color)

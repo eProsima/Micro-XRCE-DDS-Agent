@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,8 +60,8 @@ Function VariablesEntornoPage
     ${If} $Dialog == error
         Abort
     ${EndIf}
-       
-    ### Creación de los elementos gráficos    
+
+    ### Creaciï¿½n de los elementos grï¿½ficos
     ${NSD_CreateLabel} 0 0 100% 20u "Check the environment variables you want to set and uncheck the environment variables you don't want to set. Click Next to continue."
     Pop $Label
 
@@ -70,12 +70,12 @@ Function VariablesEntornoPage
     ${If} $CheckboxHOME_State == ${BST_CHECKED}
         ${NSD_Check} $CheckboxHOME
     ${EndIf}
-        
+
 	${NSD_CreateCheckbox} 10 32u 100% 12u "&Add to the PATH the location of eProsima @PROJECT_NAME_LARGE@ libraries."
     Pop $CheckboxRadioButtons
 
     ### La primera vez que lanzamos el instalador, el checkbox de HOME
-    ### y el de SCRIPTS deben estar marcados. 
+    ### y el de SCRIPTS deben estar marcados.
     StrCmp $FirstTime "FirstTime" jumpfirsttime 0 ### Si son iguales las cadenas, GOTO +5, si no, GOTO 0
         ${NSD_Check} $CheckboxHOME
 		${NSD_Check} $CheckboxRadioButtons
@@ -96,26 +96,26 @@ Function VariablesEntornoPage
 	!define lib_radio_y_4 112u
 	!define lib_radio_y_5 127u
 
-	; GroupBox 1     
-	${NSD_CreateGroupBox} 20 44u 90% 97u "Select the configuration:" 
-	Pop $GroupBoxRadioButton   
-	#Pop $GB_Ar1 
+	; GroupBox 1
+	${NSD_CreateGroupBox} 20 44u 90% 97u "Select the configuration:"
+	Pop $GroupBoxRadioButton
+	#Pop $GB_Ar1
 
     ${If} ${RunningX64}
 		 ${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_0} 50% ${lib_radio_height} "&x64 VS2015 platforms."
-        Pop $RadioButtonX64_VS2015  
+        Pop $RadioButtonX64_VS2015
         ### Fijamos los callbacks para cuando se haga click en los RadioButtones
-		${NSD_OnClick} $RadioButtonX64_VS2015 ClickX64_VS2015  
+		${NSD_OnClick} $RadioButtonX64_VS2015 ClickX64_VS2015
 
 		 ${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_1} 50% ${lib_radio_height} "&x64 VS2013 platforms."
-        Pop $RadioButtonX64_VS2013  
+        Pop $RadioButtonX64_VS2013
         ### Fijamos los callbacks para cuando se haga click en los RadioButtones
-		${NSD_OnClick} $RadioButtonX64_VS2013 ClickX64_VS2013  
-	
+		${NSD_OnClick} $RadioButtonX64_VS2013 ClickX64_VS2013
+
         ${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_2} 50% ${lib_radio_height} "&x64 VS2010 platforms."
-        Pop $RadioButtonX64_VS2010  
+        Pop $RadioButtonX64_VS2010
         ### Fijamos los callbacks para cuando se haga click en los RadioButtones
-		${NSD_OnClick} $RadioButtonX64_VS2010 ClickX64_VS2010  
+		${NSD_OnClick} $RadioButtonX64_VS2010 ClickX64_VS2010
 
 		${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_3} 50% ${lib_radio_height} "&i86 VS2015 platforms."
         Pop $RadioButtonI86_VS2015
@@ -123,9 +123,9 @@ Function VariablesEntornoPage
         Pop $RadioButtonI86_VS2013
         ${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_5} 50% ${lib_radio_height} "&i86 VS2010 platforms."
         Pop $RadioButtonI86_VS2010
-		
+
 		Call EnableRadioX64
-		Call EnableRadioI86	
+		Call EnableRadioI86
     ${Else}
 		${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_0} 50% ${lib_radio_height} "&i86 VS2015 platforms."
 		Pop $RadioButtonI86_VS2015
@@ -133,17 +133,17 @@ Function VariablesEntornoPage
 		Pop $RadioButtonI86_VS2013
         ${NSD_CreateRadioButton} ${lib_radio_x} ${lib_radio_y_2} 50% ${lib_radio_height} "&i86 VS2010 platforms."
         Pop $RadioButtonI86_VS2010
-		
-		Call EnableRadioI86	
+
+		Call EnableRadioI86
     ${EndIf}
-        
+
     ### Fijamos los callbacks para cuando se haga click en los CheckBoxes
-    ${NSD_OnClick} $CheckboxHOME ClickHOME 
+    ${NSD_OnClick} $CheckboxHOME ClickHOME
 	${NSD_OnClick} $CheckboxRadioButtons ClickCheckboxRadioButtons
-	${NSD_OnClick} $RadioButtonI86_VS2015 ClickI86_VS2015 
-	${NSD_OnClick} $RadioButtonI86_VS2013 ClickI86_VS2013 
-    ${NSD_OnClick} $RadioButtonI86_VS2010 ClickI86_VS2010  
-	
+	${NSD_OnClick} $RadioButtonI86_VS2015 ClickI86_VS2015
+	${NSD_OnClick} $RadioButtonI86_VS2013 ClickI86_VS2013
+    ${NSD_OnClick} $RadioButtonI86_VS2010 ClickI86_VS2010
+
 	Call SelectDefaultBestConfiguration
 
     nsDialogs::Show
@@ -164,7 +164,7 @@ Function ClickCheckboxRadioButtons
 		 EnableWindow $RadioButtonI86_VS2013 0
 		 EnableWindow $RadioButtonX64_VS2015 0
 		 EnableWindow $RadioButtonI86_VS2015 0
-		 
+
 		 ${NSD_SetState} $RadioButtonX64_VS2010 0
 		 ${NSD_SetState} $RadioButtonI86_VS2010 0
 		 ${NSD_SetState} $RadioButtonX64_VS2013 0
@@ -262,18 +262,18 @@ Function SelectDefaultBestConfiguration
 		${ElseIf} ${SectionIsSelected} ${libraries_x64Win64VS2013}
 			${NSD_SetState} $RadioButtonX64_VS2013 1
 			${NSD_GetState} $RadioButtonX64_VS2013 $RadioButtonX64_VS2013_State
-		${ElseIf} ${SectionIsSelected} ${libraries_x64Win64VS2010}	
+		${ElseIf} ${SectionIsSelected} ${libraries_x64Win64VS2010}
 			${NSD_SetState} $RadioButtonX64_VS2010 1
 			${NSD_GetState} $RadioButtonX64_VS2010 $RadioButtonX64_VS2010_State
-		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2015}	
+		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2015}
 			${NSD_SetState} $RadioButtonI86_VS2015 1
-			${NSD_GetState} $RadioButtonI86_VS2015 $RadioButtonI86_VS2015_State		
-		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2013}	
+			${NSD_GetState} $RadioButtonI86_VS2015 $RadioButtonI86_VS2015_State
+		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2013}
 			${NSD_SetState} $RadioButtonI86_VS2013 1
 			${NSD_GetState} $RadioButtonI86_VS2013 $RadioButtonI86_VS2013_State
-		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2010}	
+		${ElseIf} ${SectionIsSelected} ${libraries_i86Win32VS2010}
 			${NSD_SetState} $RadioButtonI86_VS2010 1
-			${NSD_GetState} $RadioButtonI86_VS2010 $RadioButtonI86_VS2010_State		
+			${NSD_GetState} $RadioButtonI86_VS2010 $RadioButtonI86_VS2010_State
 		${EndIf}
 	${EndIf}
 FunctionEnd
@@ -289,24 +289,24 @@ Function CheckRadioButtons
         EnableWindow $CheckboxRadioButtons 0
 		${NSD_SetState} $CheckboxRadioButtons 0
     ${EndIf}
-       
+
 FunctionEnd
 
 Function EnableRadioX64
 	${If} ${RunningX64}
 		${If} $CheckboxRadioButtons_State == 1
 			${If} ${SectionIsSelected} ${libraries_x64Win64VS2015}
-				EnableWindow $RadioButtonX64_VS2015 1	
+				EnableWindow $RadioButtonX64_VS2015 1
 			${Else}
 				EnableWindow $RadioButtonX64_VS2015 0
 			${EndIf}
 			${If} ${SectionIsSelected} ${libraries_x64Win64VS2013}
-				EnableWindow $RadioButtonX64_VS2013 1	
+				EnableWindow $RadioButtonX64_VS2013 1
 			${Else}
 				EnableWindow $RadioButtonX64_VS2013 0
 			${EndIf}
 			${If} ${SectionIsSelected} ${libraries_x64Win64VS2010}
-				EnableWindow $RadioButtonX64_VS2010 1	
+				EnableWindow $RadioButtonX64_VS2010 1
 			${Else}
 				EnableWindow $RadioButtonX64_VS2010 0
 			${EndIf}
@@ -326,12 +326,12 @@ Function EnableRadioI86
 			EnableWindow $RadioButtonI86_VS2015 0
 		${EndIf}
 		${If} ${SectionIsSelected} ${libraries_i86Win32VS2013}
-			EnableWindow $RadioButtonI86_VS2013 1	
+			EnableWindow $RadioButtonI86_VS2013 1
 		${Else}
 			EnableWindow $RadioButtonI86_VS2013 0
 		${EndIf}
 		${If} ${SectionIsSelected} ${libraries_i86Win32VS2010}
-			EnableWindow $RadioButtonI86_VS2010 1	
+			EnableWindow $RadioButtonI86_VS2010 1
 		${Else}
 			EnableWindow $RadioButtonI86_VS2010 0
 		${EndIf}

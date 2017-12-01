@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #ifndef _MESSAGE_QUEUE_
 #define _MESSAGE_QUEUE_
 
@@ -42,11 +43,11 @@ public:
     MessageQueue();
     MessageQueue(const MessageQueue& other) = delete;
     MessageQueue& operator=(const MessageQueue& other) = delete;
-    
+
     Message pop();
     void push(const Message& new_message);
     void abort();
-  
+
  private:
     std::queue<Message> internal_queue_;
     std::mutex data_mutex_;

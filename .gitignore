@@ -139,10 +139,10 @@ local.properties
 .worksheet
 
 ### Eclipse Patch ###
-# Eclipse Core		
+# Eclipse Core
 .project
 
-# JDT-specific (Eclipse Java Development Tools)		
+# JDT-specific (Eclipse Java Development Tools)
 .classpath
 
 ### Linux ###
@@ -522,6 +522,9 @@ __pycache__/
 
 # YCM config files
 .ycm_extra_conf.py
+
+# Clang format
+.clang-format
 
 ### VisualStudio Patch ###
 # By default, sensitive information, such as encrypted password

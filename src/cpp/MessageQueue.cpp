@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include "MessageQueue.h"
 
 using eprosima::micrortps::MessageQueue;
@@ -26,7 +27,7 @@ void MessageQueue::abort()
     condition_.notify_one();
 }
 
-Message MessageQueue::pop() 
+Message MessageQueue::pop()
 {
     std::unique_lock<std::mutex> queuelock(data_mutex_);
     condition_.wait(queuelock, [this]{
@@ -48,4 +49,3 @@ void MessageQueue::push(const Message& new_message)
     queuelock.unlock();
     condition_.notify_one();
   }
-  

@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,4 +35,3 @@ macro(generate_public_headers_for_autotools)
         set(@PROJECT_NAME@_PUBLIC_HEADERS_AUTOTOOLS "${@PROJECT_NAME@_PUBLIC_HEADERS_AUTOTOOLS} ${file}")
     endforeach()
 endmacro()
-

@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ if(${CPACK_GENERATOR} STREQUAL "TGZ" )
         set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 
         # Include to prepare Makefiles
-        include(@PROJECT_BINARY_DIR@/cmake/packaging/linux/autotools_generator.cmake) 
+        include(@PROJECT_BINARY_DIR@/cmake/packaging/linux/autotools_generator.cmake)
 
         # Prepare Makefile.am for autotools
         configure_file(@PROJECT_SOURCE_DIR@/Makefile.am.in @PROJECT_BINARY_DIR@/autotools/Makefile.am)

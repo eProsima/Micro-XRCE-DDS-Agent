@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,14 +35,14 @@ Function VariablesEntornoPage
     !insertmacro MUI_HEADER_TEXT $(PAGE_TITLE) $(PAGE_SUBTITLE)
 
     nsDialogs::Create 1018
-    
+
     Pop $Dialog
 
     ${If} $Dialog == error
         Abort
     ${EndIf}
-       
-    ### Creación de los elementos gráficos    
+
+    ### Creación de los elementos gráficos
     ${NSD_CreateLabel} 0 0 100% 20u "Check the environment variables you want to set and uncheck the environment variables you don't want to set. Click Next to continue."
     Pop $Label
 
@@ -51,7 +51,7 @@ Function VariablesEntornoPage
     ${If} $CheckboxHOME_State == ${BST_CHECKED}
         ${NSD_Check} $CheckboxHOME
     ${EndIf}
-        
+
 	${NSD_CreateCheckbox} 10 40u 100% 15u "&Add to the PATH the location of eProsima @PROJECT_NAME_LARGE@ libraries for platform @MSVC_ARCH@."
     Pop $CheckboxRadioButtons
     ${If} $CheckboxRadioButtons_State == ${BST_CHECKED}
@@ -59,7 +59,7 @@ Function VariablesEntornoPage
     ${EndIf}
 
     ### La primera vez que lanzamos el instalador, el checkbox de HOME
-    ### y el de SCRIPTS deben estar marcados. 
+    ### y el de SCRIPTS deben estar marcados.
     StrCmp $FirstTime "FirstTime" jumpfirsttime 0 ### Si son iguales las cadenas, GOTO +5, si no, GOTO 0
         ${NSD_Check} $CheckboxHOME
 		${NSD_Check} $CheckboxRadioButtons
@@ -70,15 +70,15 @@ Function VariablesEntornoPage
     jumpfirsttime:
 
     ${If} ${SectionIsSelected} ${libraries_@MSVC_ARCH@}
-      EnableWindow $CheckboxRadioButtons 1	
+      EnableWindow $CheckboxRadioButtons 1
     ${Else}
       EnableWindow $CheckboxRadioButtons 0
       ${EndIf}
 
     ### Fijamos los callbacks para cuando se haga click en los CheckBoxes
-    ${NSD_OnClick} $CheckboxHOME ClickHOME 
+    ${NSD_OnClick} $CheckboxHOME ClickHOME
 	${NSD_OnClick} $CheckboxRadioButtons ClickCheckboxRadioButtons
-	
+
     nsDialogs::Show
 FunctionEnd
 
@@ -120,4 +120,3 @@ Var RegKeyCheck
     ${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\lib@MSVC_ARCH_DIR@"
   ${EndIf}
 !macroend
-
