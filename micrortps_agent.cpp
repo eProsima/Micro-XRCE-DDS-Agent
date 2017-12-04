@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "Help: program [serial | udp IP recv_port send_port]" << std::endl;
+        std::cout << "Help: program [serial | udp local_ip recv_port send_port]" << std::endl;
     }
     return 0;
 }
