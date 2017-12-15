@@ -155,16 +155,8 @@ int DataReader::read(const READ_DATA_Payload& read_data)
             break;
     }
 
-    if (!m_read_thread.joinable())
-    {
-        start_read(read_info);
-    }
-    else
-    {
-        std::cout << "DataReader m_read_thread busy" << std::endl;
-        stop_read();
-        start_read(read_info);
-    }
+    stop_read();
+    start_read(read_info);
 
     return 0;
 }
@@ -189,7 +181,7 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
 
 int DataReader::stop_read()
 {
-    std::cout << "STOP READ" << std::endl;
+    std::cout << "SETUP NEW READING..." << std::endl;
     m_running = false;
     m_cond_var.notify_one();
     if (m_read_thread.joinable())
@@ -204,16 +196,6 @@ int DataReader::stop_read()
     }
     return 0;
 }
-
-// int DataReader::cancel_read(READ_DATA_Payload &read_data)
-//{
-//    if (m_read_thread.joinable())
-//    {
-//        m_read_thread = std::thread(read_task, this);
-//    }
-//
-//    return 0;
-//}
 
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
