@@ -1,4 +1,4 @@
-# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@ get_filename_component(FILE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../" ABSOLU
 
 if(MSVC12)
     if(CMAKE_CL_64)
-        include("${FILE_PREFIX_DIR}/x64Win64VS2013/fastcdr/cmake/fastcdrConfig.cmake")
+        include("${FILE_PREFIX_DIR}/x64Win64VS2013/fastrtps/cmake/fastrtpsConfig.cmake")
     else()
-        include("${FILE_PREFIX_DIR}/i86Win32VS2013/fastcdr/cmake/fastcdrConfig.cmake")
+        include("${FILE_PREFIX_DIR}/i86Win32VS2013/fastrtps/cmake/fastrtpsConfig.cmake")
     endif()
 elseif(MSVC14)
     if(CMAKE_CL_64)
-        include("${FILE_PREFIX_DIR}/x64Win64VS2015/fastcdr/cmake/fastcdrConfig.cmake")
+        include("${FILE_PREFIX_DIR}/x64Win64VS2015/fastrtps/cmake/fastrtpsConfig.cmake")
     else()
-        include("${FILE_PREFIX_DIR}/i86Win32VS2015/fastcdr/cmake/fastcdrConfig.cmake")
+        include("${FILE_PREFIX_DIR}/i86Win32VS2015/fastrtps/cmake/fastrtpsConfig.cmake")
     endif()
 else()
     message(FATAL_ERROR "Not supported version of Visual Studio")

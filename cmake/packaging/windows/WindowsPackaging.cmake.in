@@ -1,4 +1,4 @@
-# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,9 @@ if(${CPACK_GENERATOR} STREQUAL "NSIS" )
     set(CPACK_NSIS_MUI_ICON "@PROJECT_SOURCE_DIR@\\utils\\images\\icon\\eprosima_icon.ico")
     set(CPACK_PACKAGE_ICON "@PROJECT_SOURCE_DIR@\\utils\\images\\icon\\eprosima_icon.bmp")
     set(CPACK_NSIS_INSTALL_ROOT "$VARPROGRAMFILES\\eProsima")
-
+    set(CPACK_RESOURCE_FILE_README "@PROJECT_BINARY_DIR@/README.html")
+    
     # Define cmake script to copy images files and prepare auxiliary NSIS scripts.
     set(CPACK_INSTALL_SCRIPT "@PROJECT_BINARY_DIR@/cmake/packaging/windows/NSISPackaging.cmake")
 endif()
+

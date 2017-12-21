@@ -19,16 +19,33 @@ cmake_minimum_required(VERSION 2.8.12)
 
 # Set CMAKE_BUILD_TYPE to Release by default.
 if(DEFINED CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING
-        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-        )
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+    )
 else()
     set(CMAKE_BUILD_TYPE Release CACHE STRING
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
         )
 endif()
 
-project(micrortps_agent)
+# TODO remove C language will crash transport
+project(micrortps_agent CXX C)
+
+# Set product name
+if(DEFINED PRODUCT_NAME)
+    set(PRODUCT_NAME ${PRODUCT_NAME} CACHE STRING "Choose the product name in which this project is included")
+else()
+    set(PRODUCT_NAME micrortps CACHE STRING "Choose the product name in which this project is included")
+endif()
+
+###############################################################################
+# Version information                                                         #
+###############################################################################
+set(PROJECT_MAJOR_VERSION 0)
+set(PROJECT_MINOR_VERSION 3)
+set(PROJECT_MICRO_VERSION 0)
+set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_MICRO_VERSION})
+message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 ###############################################################################
 # Installation paths
@@ -98,10 +115,14 @@ add_definitions(
 # Compile
 ###############################################################################
 # Find requirements
+###############################################################################
+# Load external eProsima projects.
+###############################################################################
+include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
 find_eprosima_thirdparty(Asio asio)
-find_eprosima_package(micrortps_transport)
+find_eprosima_package(micrortps_transport NAME transport)
 
 # Set C++11
 include(CheckCXXCompilerFlag)
@@ -113,12 +134,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     else()
         message(FATAL_ERROR "Compiler doesn't support C++11")
     endif()
-endif()
-
-# Required libs for examples
-include_directories(thirdparty/micrortps_transport/include)
-if(NOT TARGET transport)
-     add_subdirectory(thirdparty/micrortps_transport)
 endif()
 
 include_directories(${CMAKE_PREFIX_PATH}/include
@@ -174,35 +189,28 @@ if(EPROSIMA_BUILD_TESTS)
 endif()
 
 ###############################################################################
-# Installing
+# Packaging
 ###############################################################################
-# Install external eprosima libraries
-install_eprosima_libraries()
+# Install public headers
+include(${PROJECT_SOURCE_DIR}/cmake/dev/set_sources.cmake)
+set_public_headers_directory(${PROJECT_SOURCE_DIR}/include ${PRODUCT_NAME}
+    DESTINATION ${INCLUDE_INSTALL_DIR}
+    COMPONENT headers
+    )
 
 install(TARGETS ${PROJECT_NAME}
-EXPORT ${PROJECT_NAME}Targets
-RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-COMPONENT libraries
-)
-
-install(TARGETS agent
-RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-COMPONENT libraries
-)
-
-install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
-        DESTINATION ${BIN_INSTALL_DIR}
+        EXPORT ${PROJECT_NAME}Targets
+        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+        COMPONENT libraries
 )
 
 export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Targets.cmake)
+
 install(EXPORT ${PROJECT_NAME}Targets
 DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
 COMPONENT cmake
 )
 
-# install(TARGETS agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
-# install(TARGETS micrortps_agent DESTINATION ${CMAKE_SOURCE_DIR}/install)
+include(${PROJECT_SOURCE_DIR}/cmake/packaging/eProsimaPackaging.cmake)
