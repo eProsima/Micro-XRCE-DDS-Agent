@@ -20,7 +20,7 @@
 #include <agent/XRCEParser.h>
 #include "MessageQueue.h"
 
-#include <transport/ddsxrce_transport.h>
+#include <transport/micrortps_transport.h>
 
 #include <thread>
 #include <memory>
@@ -50,7 +50,7 @@ public:
      */
     void init(const std::string& device);
 
-    void init(const char* server_ip, uint16_t in_port, uint16_t out_port);
+    void init(uint16_t in_port, uint16_t out_port, uint16_t remote_port, const char* server_ip);
 
     /*
      * Creates and stores a ProxyClient

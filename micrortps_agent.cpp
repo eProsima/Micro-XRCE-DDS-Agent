@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[1], "udp") == 0 && argc == 5)
         {
-            micrortps_agent->init(argv[2], atoi(argv[3]), atoi(argv[4]));
+            micrortps_agent->init(4001, atoi(argv[3]), atoi(argv[4]), argv[2]);
         }
         micrortps_agent->run();
     }

@@ -29,7 +29,7 @@ else()
 endif()
 
 # TODO remove C language will crash transport
-project(micrortps_agent CXX C)
+project(micrortps_agent)
 
 # Set product name
 if(DEFINED PRODUCT_NAME)

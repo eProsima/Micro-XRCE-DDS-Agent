@@ -52,11 +52,11 @@ void Agent::init(const std::string& device)
     loc_id_ = add_serial_locator(device.data());
 }
 
-void Agent::init(const char* server_ip, uint16_t in_port, uint16_t out_port)
+void Agent::init(uint16_t in_port, uint16_t out_port, uint16_t remote_port, const char* server_ip)
 {
     std::cout << "UDP agent initialization..." << std::endl;
     // Init transport
-    loc_id_ = add_udp_locator(server_ip, in_port, out_port);
+    loc_id_ = add_udp_locator(in_port, out_port, remote_port, server_ip);
 }
 
 ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info)
