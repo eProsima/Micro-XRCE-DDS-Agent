@@ -119,7 +119,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
 find_package(fastrtps REQUIRED)
 find_package(fastcdr REQUIRED)
 find_eprosima_thirdparty(Asio asio)
-find_eprosima_package(micrortps_transport NAME transport)
+add_subdirectory(thirdparty/micrortps_transport)
 
 # Set C++11
 include(CheckCXXCompilerFlag)
