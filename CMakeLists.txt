@@ -150,8 +150,8 @@ file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
 DESTINATION ${PROJECT_BINARY_DIR})
 
 file(GLOB MICRORTPS_AGENT_SOURCES "micrortps_agent.cpp")
-add_executable(micrortps_agent ${MICRORTPS_AGENT_SOURCES})
-target_link_libraries(micrortps_agent transport agent fastcdr fastrtps)
+add_executable(${PROJECT_NAME} ${MICRORTPS_AGENT_SOURCES})
+target_link_libraries(${PROJECT_NAME} transport agent fastcdr fastrtps)
 
 ###############################################################################
 # Warning level
@@ -188,13 +188,6 @@ endif()
 ###############################################################################
 # Packaging
 ###############################################################################
-# Install public headers
-include(${PROJECT_SOURCE_DIR}/cmake/dev/set_sources.cmake)
-set_public_headers_directory(${PROJECT_SOURCE_DIR}/include ${PRODUCT_NAME}
-    DESTINATION ${INCLUDE_INSTALL_DIR}
-    COMPONENT headers
-    )
-
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Targets
         RUNTIME DESTINATION ${BIN_INSTALL_DIR}
@@ -209,5 +202,4 @@ install(EXPORT ${PROJECT_NAME}Targets
 DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
 COMPONENT cmake
 )
-
 include(${PROJECT_SOURCE_DIR}/cmake/packaging/eProsimaPackaging.cmake)
