@@ -355,7 +355,9 @@ void eprosima::micrortps::GET_INFO_Payload::serialize(eprosima::fastcdr::Cdr &sc
 void eprosima::micrortps::GET_INFO_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     BaseObjectRequest::deserialize(dcdr);
-    dcdr >> (uint32_t &)m_info_mask;
+    uint32_t n;
+    memcpy(&n, &m_info_mask, 4);
+    dcdr >> n;
 }
 
 eprosima::micrortps::INFO_Payload::INFO_Payload()

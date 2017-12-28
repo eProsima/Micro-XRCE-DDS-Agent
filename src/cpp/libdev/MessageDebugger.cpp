@@ -68,6 +68,8 @@ std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessag
         case STATUS:
             stream << "<Submessage> [STATUS]" << std::endl;
             break;
+        default:
+            break;
     }
     stream << "  <Submessage header> " << std::endl;
     stream << "  - id: " << std::setw(4) << +submessage_header.submessage_id() << std::endl;
@@ -249,6 +251,9 @@ std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representat
 
 std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representation& data)
 {
+    // TODO.
+    (void) data;
+
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "  <Data writer>" << std::endl;
@@ -273,6 +278,9 @@ std::ostream& operator<<(std::ostream& stream, const OBJK_DATA_READER_Representa
 
 std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_representation)
 {
+    // TODO.
+    (void) object_representation;
+
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     // stream << "  - Kind " << std::setw(4) << +object_representation.discriminator() << std::endl;
@@ -354,7 +362,7 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data)
+void operator<<(std::ostream& stream, const READ_DATA_Payload& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -387,12 +395,15 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_da
 std::ostream& operator<<(std::ostream& stream, const DATA_Payload_Data& data)
 {
     // TODO(borja)
+    (void) data;
     return stream;
 }
 
 std::ostream& short_print(std::ostream& stream, const DATA_Payload_Data& data, const STREAM_COLOR color)
 {
     // TODO(borja)
+    (void) data;
+    (void) color;
     return stream;
 }
 

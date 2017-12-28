@@ -16,6 +16,7 @@
 #define _MESSAGE_OUTPUT_H_
 
 #include <cstdint>
+#include <DDSXRCETypes.h>
 
 namespace eprosima {
 namespace micrortps {
@@ -64,6 +65,9 @@ void printl_data_submessage(const DATA_Payload_PackedSamples& payload);
 
 // UTIL
 const char* data_to_string(const uint8_t* data, uint32_t size);
+unsigned int clientkey_to_uint(const ClientKey& key);
+unsigned int requestid_to_uint(const RequestId& id);
+unsigned int objectid_to_uint(const ObjectId& id);
 
 } // namespace debug
 } // namespace micrortps

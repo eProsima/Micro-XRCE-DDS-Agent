@@ -40,6 +40,8 @@ DataReaderTests::DataReaderTests() : data_reader_(fixed_object_id, nullptr, this
 void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& req_id,
                                    const std::vector<unsigned char>& buffer)
 {
+    // TODO.
+    (void) buffer;
     object_id_ = object_id;
     req_id_    = req_id;
     ++read_count_;

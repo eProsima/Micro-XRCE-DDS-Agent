@@ -283,6 +283,8 @@ void Agent::reply()
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload)
 {
+    // TODO.
+    (void) sub_header;
 #ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
     eprosima::micrortps::debug::printl_create_client_submessage(create_client_payload);
@@ -297,6 +299,8 @@ void Agent::on_message(const MessageHeader& header, const SubmessageHeader& sub_
 
 void Agent::on_message(const MessageHeader& header, const SubmessageHeader&  sub_header, const CREATE_Payload& create_payload)
 {
+    // TODO.
+    (void) sub_header;
 #ifdef VERBOSE_OUTPUT
     std::cout << "==> ";
     eprosima::micrortps::debug::printl_create_submessage(create_payload);

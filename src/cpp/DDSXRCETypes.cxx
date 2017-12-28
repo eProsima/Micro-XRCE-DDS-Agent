@@ -2074,7 +2074,9 @@ void eprosima::micrortps::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::
 
 void eprosima::micrortps::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> (uint32_t&)m_qos_flags;
+    uint32_t n;
+    memcpy(&n, &m_qos_flags, 4);
+    dcdr >> n;
     dcdr >> m_history_depth;
     dcdr >> m_deadline_msec;
     dcdr >> m_lifespan_msec;
@@ -3655,6 +3657,8 @@ void eprosima::micrortps::ActivityInfoVariant::_d(eprosima::micrortps::OBJECTKIN
                 default:
                     break;
             }
+            break;
+        default:
             break;
     }
 
