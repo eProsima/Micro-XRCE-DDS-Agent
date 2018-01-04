@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <string>
 
 namespace eprosima {
 namespace micrortps {

@@ -37,10 +37,8 @@
 #include <agent/subscriber/Subscriber.h>
 #include <agent/topic/Topic.hpp>
 
-using eprosima::micrortps::Info;
-using eprosima::micrortps::ProxyClient;
-using eprosima::micrortps::ResultStatus;
-using eprosima::micrortps::XRCEObject;
+namespace eprosima {
+namespace micrortps {
 
 ProxyClient::ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header)
     : representation_(std::move(client)), client_key(header.client_key()), session_id(header.session_id()),
@@ -431,3 +429,6 @@ void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_i
     // TODO(borja) May cause issues. Tests created their own instance but read data will create a static one.
     root()->add_reply(message_header, payload);
 }
+
+} // namespace micrortps
+} // namespace eprosima

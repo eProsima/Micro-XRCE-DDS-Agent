@@ -20,6 +20,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <array>
 
 namespace eprosima {
 namespace micrortps {

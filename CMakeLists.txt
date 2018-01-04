@@ -144,8 +144,8 @@ include_directories(${CMAKE_PREFIX_PATH}/include
 
 # libagent.so
 file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*.cxx" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
-add_library(agent SHARED ${AGENT_LIB_SRCS})
-target_link_libraries(agent transport fastcdr)
+add_library(agent STATIC ${AGENT_LIB_SRCS})
+target_link_libraries(agent transport fastcdr fastrtps)
 
 # micrortps_agent
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml

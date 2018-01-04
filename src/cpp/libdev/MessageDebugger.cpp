@@ -370,6 +370,7 @@ std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data)
     stream << "  - max_elapsed_time: " << data.read_specification().delivery_config().delivery_control().max_elapsed_time() << std::endl;
     stream << "  - max_rate: " << data.read_specification().delivery_config().delivery_control().max_rate() << std::endl;
     stream << "  - max_samples: " << data.read_specification().delivery_config().delivery_control().max_samples() << std::endl;
+    return stream;
 }
 
 std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_data, const STREAM_COLOR color)

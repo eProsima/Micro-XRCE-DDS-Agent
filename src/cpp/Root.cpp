@@ -14,18 +14,19 @@
 
 #include <agent/Root.h>
 
-#include <MessageHeader.h>
-#include <SubMessageHeader.h>
 #include <libdev/MessageDebugger.h>
 #include <libdev/MessageOutput.h>
-
 #include <fastcdr/Cdr.h>
-
 #include <memory>
 
-using eprosima::micrortps::Agent;
-using eprosima::micrortps::ResultStatus;
-using eprosima::micrortps::debug::operator<<;
+#ifdef WIN32
+    #include <windows.h>
+#else
+    #include <unistd.h>
+#endif
+
+namespace eprosima {
+namespace micrortps {
 
 Agent* eprosima::micrortps::root()
 {
@@ -33,13 +34,14 @@ Agent* eprosima::micrortps::root()
     return &xrce_agent;
 }
 
+// TODO: review response_control_ initialization.
 Agent::Agent() :
     loc_id_{},
     out_buffer_{},
     in_buffer_{},
     loc_{},
     response_thread_{},
-    response_control_{}
+    response_control_()
 {
     running_ = false;
     response_control_.running_ = false;
@@ -135,7 +137,11 @@ void Agent::run()
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
             myParser.parse();
         }
-        usleep(10);
+        #ifdef WIN32
+            Sleep(10);
+        #else 
+            usleep(10);
+        #endif
 
     }while(running_);
     std::cout << "Execution stopped" << std::endl;
@@ -409,7 +415,8 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
         return &clients_.at(client_key);
     } catch (const std::out_of_range& e)
     {
-        std::cerr << "Client " << client_key << " not found" << std::endl;
+        unsigned int key = client_key[0] + (client_key[1] << 8) + (client_key[2] << 16) + (client_key[3] << 24);
+        std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;
         return nullptr;
     }
 }
@@ -420,3 +427,6 @@ void Agent::update_header(MessageHeader& header)
     static uint8_t sequence = 0;
     header.sequence_nr(sequence++);
 }
+
+} // namespace micrortps
+} // namespace eprosima
