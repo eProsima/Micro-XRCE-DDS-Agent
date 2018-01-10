@@ -93,6 +93,9 @@ size_t eprosima::micrortps::SubmessageHeader::getMaxCdrSerializedSize(size_t cur
 
 size_t eprosima::micrortps::SubmessageHeader::getCdrSerializedSize(const eprosima::micrortps::SubmessageHeader& data, size_t current_alignment)
 {
+    // TODO.
+    (void) data;
+
     size_t initial_alignment = current_alignment;
             
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);

@@ -253,7 +253,7 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_
 /*
  * Inserts READ_DATA_Payload info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data);
+void operator<<(std::ostream& stream, const READ_DATA_Payload& data);
 
 /*
  * Inserts Read data short representation on the stream.

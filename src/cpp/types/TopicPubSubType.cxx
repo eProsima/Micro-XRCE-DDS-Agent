@@ -67,5 +67,8 @@ void TopicPubSubType::deleteData(void* data) {
 
 bool TopicPubSubType::getKey(void *data, InstanceHandle_t* handle)
 {
+    // TODO.
+    (void) data;
+    (void) handle;
     return m_isGetKeyDefined;
 }
