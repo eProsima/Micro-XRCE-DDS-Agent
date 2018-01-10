@@ -155,12 +155,6 @@ macro(add_blackbox_gtest test memorymode)
                 add_test(NAME ${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME}
                     COMMAND ${test}
                     --gtest_filter=${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME})
-                # Add environment
-                if(WIN32)
-                    string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-                    set_tests_properties(${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME} PROPERTIES ENVIRONMENT
-                        "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${BOOST_LIBRARYDIR}\\;${WIN_PATH}")
-                endif()
                 foreach(property ${GTEST_ENVIRONMENTS})
                     set_property(TEST ${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME} APPEND PROPERTY ENVIRONMENT "${property}")
                 endforeach()
@@ -168,12 +162,6 @@ macro(add_blackbox_gtest test memorymode)
         endforeach()
     else()
         add_test(NAME ${test} COMMAND ${test})
-        # Add environment
-        if(WIN32)
-            string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-            set_tests_properties(${test} PROPERTIES ENVIRONMENT
-                "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${BOOST_LIBRARYDIR}\\;${WIN_PATH}")
-        endif()
         foreach(property ${GTEST_ENVIRONMENTS})
             set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "${property}")
         endforeach()

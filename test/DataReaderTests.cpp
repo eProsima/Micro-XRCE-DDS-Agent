@@ -45,7 +45,7 @@ void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& r
     ++read_count_;
 }
 
-TEST_F(DataReaderTests, ReadFormatData)
+TEST_F(DataReaderTests, DISABLED_ReadFormatData)
 {
     ASSERT_TRUE(data_reader_init_);
     READ_DATA_Payload read_conf;
@@ -64,7 +64,7 @@ TEST_F(DataReaderTests, ReadFormatData)
     ASSERT_EQ(object_id_, fixed_object_id);
 }
 
-TEST_F(DataReaderTests, ReadFormatDataSeq)
+TEST_F(DataReaderTests, DISABLED_ReadFormatDataSeq)
 {
     ASSERT_TRUE(data_reader_init_);
     READ_DATA_Payload read_conf;

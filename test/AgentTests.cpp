@@ -26,8 +26,6 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
-using namespace eprosima::micrortps;
-
 class AgentTests : public CommonData, public ::testing::Test
 {
   protected:
