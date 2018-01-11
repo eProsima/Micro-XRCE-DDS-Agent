@@ -362,7 +362,7 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_
     return stream;
 }
 
-void operator<<(std::ostream& stream, const READ_DATA_Payload& data)
+std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;

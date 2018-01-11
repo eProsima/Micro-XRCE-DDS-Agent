@@ -46,7 +46,7 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     target_link_libraries(XRCETest testcommon ${GTEST_BOTH_LIBRARIES})
 
     file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
-        DESTINATION ${PROJECT_BINARY_DIR}/test/Release
+        DESTINATION ${PROJECT_BINARY_DIR}/test
     )
 
     # Agent test.
@@ -64,19 +64,4 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
 	          $<TARGET_FILE_DIR:fastcdr>>\\;${WIN_PATH}"
         )
     endif()
-
-    set(AGENTINTEGRATIONTESTS_SOURCE integration/AgenIntegrationTests.cpp)
-    add_executable(AgentIntegrationTest ${AGENTINTEGRATIONTESTS_SOURCE})
-    add_gtest(AgentIntegrationTest ${AGENTINTEGRATIONTESTS_SOURCE})
-    target_include_directories(AgentIntegrationTest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(AgentIntegrationTest agent transport fastcdr fastrtps ${GTEST_BOTH_LIBRARIES})
-
-    install(TARGETS AgentIntegrationTest
-        EXPORT ${PROJECT_NAME}Targets
-        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-        COMPONENT libraries
-    )
-
 endif()
