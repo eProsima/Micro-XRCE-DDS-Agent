@@ -28,7 +28,7 @@
 namespace eprosima {
 namespace micrortps {
 
-Agent* eprosima::micrortps::root()
+Agent* root()
 {
     static Agent xrce_agent;
     return &xrce_agent;
