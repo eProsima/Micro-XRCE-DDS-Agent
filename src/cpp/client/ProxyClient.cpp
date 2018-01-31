@@ -41,7 +41,9 @@ namespace eprosima {
 namespace micrortps {
 
 ProxyClient::ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header)
-    : representation_(std::move(client)), client_key(header.client_key()), session_id(header.session_id()),
+    : representation_(std::move(client)),
+      client_key(header.client_key()),
+      session_id(header.session_id()),
       stream_id(header.stream_id())
 {
 }
@@ -51,10 +53,12 @@ ProxyClient::~ProxyClient()
 }
 
 ProxyClient::ProxyClient(ProxyClient&& x) noexcept
-    : representation_(std::move(x.representation_)), objects_(std::move(x.objects_)), client_key(x.client_key),
-      session_id(x.session_id), stream_id(x.stream_id)
+    : representation_(std::move(x.representation_)),
+      objects_(std::move(x.objects_)),
+      client_key(x.client_key),
+      session_id(x.session_id),
+      stream_id(x.stream_id)
 {
-
 }
 
 ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept

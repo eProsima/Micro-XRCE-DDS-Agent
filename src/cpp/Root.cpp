@@ -54,11 +54,11 @@ void Agent::init(const std::string& device)
     loc_id_ = add_serial_locator(device.data());
 }
 
-void Agent::init(uint16_t in_port, uint16_t out_port, uint16_t remote_port, const char* server_ip)
+void Agent::init(uint16_t out_port, uint16_t in_port, uint16_t remote_port, const char* server_ip)
 {
     std::cout << "UDP agent initialization..." << std::endl;
     // Init transport
-    loc_id_ = add_udp_locator(in_port, out_port, remote_port, server_ip);
+    loc_id_ = add_udp_locator(out_port, in_port, remote_port, server_ip);
 }
 
 ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info)
@@ -69,10 +69,11 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
 
     if (create_info.object_representation().xrce_cookie() == XRCE_COOKIE)
     {
-        if (create_info.object_representation().xrce_version()[0] <= XRCE_VERSION_MAJOR)
+        if (create_info.object_representation().xrce_version()[0] == XRCE_VERSION_MAJOR)
         {
             // TODO(borja): The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
             // If this check fails the operation shall fail and returnValue is set to {STATUS_LAST_OP_CREATE,STATUS_ERR_DENIED}.
+
             // TODO(borja): Check if there is an existing DdsXrce::ProxyClient object associated with the same ClientKey and if
             // so compare the session_id of the existing ProxyClient with the one in the object_representation:
             // o If a ProxyClient exists and has the same session_id then the operation shall not perform any action
@@ -91,7 +92,8 @@ ResultStatus Agent::create_client(const MessageHeader& header, const CREATE_CLIE
             //std::cout << "ProxyClient created " << std::endl;
             status.implementation_status(STATUS_OK);
         }
-        else{
+        else
+        {
             status.implementation_status(STATUS_ERR_INCOMPATIBLE);
         }
     }
@@ -417,7 +419,8 @@ eprosima::micrortps::ProxyClient* Agent::get_client(ClientKey client_key)
     {
         std::lock_guard<std::mutex> lock(clientsmtx_);
         return &clients_.at(client_key);
-    } catch (const std::out_of_range& e)
+    }
+    catch (const std::out_of_range& e)
     {
         unsigned int key = client_key[0] + (client_key[1] << 8) + (client_key[2] << 16) + (client_key[3] << 24);
         std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;

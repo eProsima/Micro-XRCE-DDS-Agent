@@ -26,16 +26,49 @@ namespace micrortps {
 
 class ProxyClient : public ReaderListener
 {
-  public:
+public:
     ProxyClient() = default;
+
+    /*!
+     * \brief Creates a ProxyClient from a given object representation.
+     * \param client
+     * \param header
+     */
     ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header);
+
     ~ProxyClient();
 
-    ProxyClient(const ProxyClient& x) = delete;
+    /*!
+     * \brief Deletes the copy constructor.
+     */
+    ProxyClient(const ProxyClient&) = delete;
+
+    /*!
+     * \brief Default move constructor.
+     * \param x Object to move.
+     */
     ProxyClient(ProxyClient&& x) noexcept;
-    ProxyClient& operator=(const ProxyClient& x) = delete;
+
+    /*!
+     * \brief Deletes the assignment operator.
+     */
+    ProxyClient& operator=(const ProxyClient&) = delete;
+
+    /*!
+     * \brief Default move assignment operator.
+     * \param x Object to move.
+     * \return New reference where the object is moved.
+     */
     ProxyClient& operator=(ProxyClient&& x) noexcept;
 
+    /*!
+     * \brief Creates a DdsXrce object from a given CREATE submessage payload.
+     * \param creation_mode 	Controls the behavior of the operation when there is an existing
+     * 							object that partially matches the description of the object that
+     * 							the client  wants to create (see Table 4 in DDS-XRCE manual).
+     * \param create_payload	The CREATE submessage payload.
+     * \return If the creation succeeds the Agent shall return {STATUS_LAST_OP_CREATE, STATUS_OK}.
+     */
     ResultStatus create(const CreationMode& creation_mode, const CREATE_Payload& create_payload);
     ResultStatus delete_object(const DELETE_RESOURCE_Payload& delete_payload);
     ResultStatus update(const ObjectId& object_id, const ObjectVariant& representation);
@@ -47,7 +80,7 @@ class ProxyClient : public ReaderListener
 
     XRCEObject* get_object(const ObjectId& object_id);
 
-  private:
+private:
     OBJK_CLIENT_Representation representation_;
 
     std::mutex objects_mutex_;

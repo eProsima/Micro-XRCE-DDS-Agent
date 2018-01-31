@@ -35,9 +35,9 @@ class DELETE_RESOURCE_Payload;
 
 Agent* root();
 
-/**
- * Class XRCE Agent. Handle XRCE messages and distribute them to different ProxyClients. It implements XRCEListener interface
- * for receibe messages from a XRCEParser.
+/*!
+ * \brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
+ * 		  It implement the XRCEListener interface for receive messages from a XRCEParser.
  */
 class Agent : public XRCEListener
 {
@@ -45,85 +45,146 @@ public:
     Agent();
     ~Agent() = default;
 
-    /*
-     * Initialize the Agent.
+    /*!
+     * \brief Initializes the Agent using serial communication.
+     * \param  device Name of the device, for example, in Linux one could be "/dev/ttyACM0".
      */
     void init(const std::string& device);
 
-    void init(uint16_t in_port, uint16_t out_port, uint16_t remote_port, const char* server_ip);
+    /*!
+     * \brief Initializes the Agent using UDP communication.
+     * \param out_port 		The output port.
+     * \param in_port		The input port.
+     * \param remote_port   The client input port.
+     * \param server_ip 	The client source address.
+     */
+    void init(uint16_t out_port, uint16_t in_port, uint16_t remote_port, const char* server_ip);
 
-    /*
-     * Creates and stores a ProxyClient
-     * @param client_key: ProxyClient unique key.
-     * @param create_info: Create client payload containing all the creation information.
-     * @return ResultStatus struct with the operation result info.
+    /*!
+     * \brief Creates and stores a ProxyClient in a ClientKey map.
+     * \param header		The Incoming message header.
+     * \param create_info	The CLIENT_CREATE submessage payload.
+     * \return If create_info's xrce_cookie does not match XRCE_COOKIE return {STATUS_LAST_OP_CREATE, STATUS_ERR_INVALID_DATA}.
+     * \return If relase mayor version (xrce_version[0]) does not match XRCE_VERSION_MAJOR return {STATUS_LAST_OP_CREATE, STATUS_ERR_INCOMPATIBLE}.
+     * \return In other cases return {STATUS_LAST_OP_CREATE, STATUS_OK}.
      */
     ResultStatus create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info);
 
-    /*
-     * Removes a previously stored ProxyClient
-     * @param client_key: ProxyClient unique key.
-     * @param delete_info: Delete payload containing all the deletion information.
-     * @return ResultStatus struct with the operation result info.
+    /*!
+     * \brief Removes a previously stored ProxyClient.
+     * \param client_key	Client's key.
+     * \param delete_info	DELETE submessage payload.
+     * \return If the object is not found return {STATUS_LAST_OP_DELETE, STATUS_ERR_INVALID_DATA}.
+     * \return In other cases return {STATUS_LAST_OP_DELETE, STATUS_OK}.
      */
     ResultStatus delete_client(ClientKey client_key, const DELETE_RESOURCE_Payload& delete_info);
 
-    /*
-     * Starts Agent loop to listen messages. It parses and dispaches those XRCE messages to its owner.
+    /*!
+     * \brief Starts a event loop in order to receive messages from Clients.
      */
     void run();
 
+    /*!
+     * \brief Stops the messages receiver event loop.
+     */
     void stop();
 
-
-    /*
-     * Receives a creation message.
-     * @param header: Message header.
-     * @param sub_header: Submessage header.
-     * @param create_client_payload: Creation information.
+    /*!
+     * \brief Receiver of CREATE_CLIENT submessages.
+     * \param header 				The message header.
+     * \param sub_header 			The submessage header.
+     * \param create_client_payload	The submessage payload.
      */
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload) override;
 
-    /*
-     * Receives a creation message.
-     * @param header: Message header.
-     * @param sub_header: Submessage header.
-     * @param create_payload: Creation information.
+    /*!
+     * \brief Receiver of CREATE submessages.
+     * \param header			The message header.
+     * \param sub_header		The submessage header.
+     * \param create_payload	The submessage payload.
      */
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload) override;
 
-    /*
-     * Receives a deletion message.
-     * @param header: Message header.
-     * @param sub_header: Submessage header.
-     * @param delete_payload: Deletion information.
+    /*!
+     * \brief Receiver of DELETE submessages.
+     * \param header			The message header.
+     * \param sub_header		The submessage header.
+     * \param delete_payload	The submessage payload.
      */
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& delete_payload) override;
 
-    /*
-     * Receives a Write message.
-     * @param header: Message header.
-     * @param sub_header: Submessage header.
-     * @param write_payload: Write information.
+    /*!
+     * \brief Receiver of WRITE_DATA submessages.
+     * \param header		The message header.
+     * \param sub_header	The submessage header.
+     * \param write_payload The submessage payload.
      */
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload& write_payload)  override;
 
-    /*
-     * Receives a Read message.
-     * @param header: Message header.
-     * @param sub_header: Submessage header.
-     * @param read_payload: Read information.
+    /*!
+     * \brief Receiver of READ_DATA submessage.
+     * \param header		The message header.
+     * \param sub_header	The submessage header.
+     * \param read_payload 	The submessage payload.
      */
     void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_Payload& read_payload)   override;
 
+    /*!
+     * \brief Gets a Client based its key.
+     * \param  The client's key.
+     * \return If the Client does not exit return a nullptr.
+     * \return In other cases return a pointer to the Client.
+     */
     ProxyClient* get_client(ClientKey client_key);
 
+    /*!
+     * \brief Pushs messages in a output queue. These messages are delivered to Clients in a event
+     *        loop that is running in a separate thread. This methods launch the thread at the
+     *        first output message.
+     * \param message The output message.
+     */
     void add_reply(const Message& message);
+
+    /*!
+     * \brief Adds STATUS submessages to the given message header and pushs it in the output queue.
+     * \param header 	   The message header.
+     * \param status_reply The STATUS submessage payload.
+     */
     void add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload& status_reply);
+
+    /*!
+     * \brief Adds DATA submessages with FORMAT_DATA format to the given message header and pushs it in the output queue.
+     * \param header 	The message header.
+     * \param payload 	The DATA submessage payload.
+     */
     void add_reply(const MessageHeader& header, const DATA_Payload_Data& payload);
+
+    /*!
+     * \brief Adds DATA submessages with FORMAT_DATA format to the given message header and pushs it in the output queue.
+     * \param header 	The message header.
+     * \param payload 	The DATA submessage payload.
+     */
     void add_reply(const MessageHeader& header, const DATA_Payload_Sample& payload);
+
+    /*!
+     * \brief Adds DATA submessages with FORMAT_DATA_SEQ format to the given message header and pushs it in the output queue.
+     * \param header 	The message header.
+     * \param payload 	The DATA submessage payload.
+     */
     void add_reply(const MessageHeader& header, const DATA_Payload_DataSeq& payload);
+
+    /*!
+     * \brief Adds DATA submessages with FORMAT_SAMPLE_SEQ format to the given message header and pushs it in the output queue.
+     * \param header 	The message header.
+     * \param payload 	The DATA submessage payload.
+     */
     void add_reply(const MessageHeader& header, const DATA_Payload_SampleSeq& payload);
+
+    /*!
+     * \brief Adds DATA submessages with FORMAT_PACKED_SAMPLES format to the given message header and pushs it in the output queue.
+     * \param header 	The message header.
+     * \param payload 	The DATA submessage payload.
+     */
     void add_reply(const MessageHeader& header, const DATA_Payload_PackedSamples& payload);
 
     void abort_execution();
