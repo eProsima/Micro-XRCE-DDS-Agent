@@ -49,7 +49,7 @@ Agent::Agent() :
 void Agent::init(const std::string& device)
 {
     std::cout << "Serial agent initialization..." << std::endl;
-    // Init transport
+    /* Init SERIAL transport */
     loc_id_ = add_serial_locator(device.data());
 }
 
@@ -131,12 +131,13 @@ void Agent::run()
         }
         #ifdef WIN32
             Sleep(10);
-        #else 
+        #else
             usleep(10000);
         #endif
 
     };
     std::cout << "Execution stopped" << std::endl;
+
 }
 
 void Agent::stop()
@@ -254,7 +255,8 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header,
     add_reply(message);
 }
 
-void Agent::add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_PackedSamples& payload)
+void Agent::add_reply(const dds::xrce::MessageHeader& header,
+                      const dds::xrce::DATA_Payload_PackedSamples& payload)
 {
 // #ifdef VERBOSE_OUTPUT
 //     std::cout << "<== ";
@@ -267,6 +269,19 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::D
     XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
     message_creator.header(updated_header);
     message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    add_reply(message);
+}
+
+void Agent::add_reply(const dds::xrce::MessageHeader &header,
+                      const dds::xrce::ACKNACK_Payload &payload)
+{
+    dds::xrce::MessageHeader updated_header{header};
+    update_header(updated_header);
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(updated_header);
+    message_creator.acknack(payload);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
 }
@@ -317,6 +332,7 @@ void Agent::on_message(const dds::xrce::MessageHeader& header,
     {
         if (ProxyClient* client = get_client(header.client_key()))
         {
+            /* TODO (julian): check creation mode flags according to standard. */
             dds::xrce::CreationMode creation_mode;
             creation_mode.reuse(false);
             creation_mode.replace(true);
@@ -389,7 +405,6 @@ void Agent::on_message(const dds::xrce::MessageHeader& header,
         status.related_request().object_id(write_payload.object_id());
         dds::xrce::ResultStatus result_status = client->write(write_payload.object_id(), write_payload);
         status.result(result_status);
-        add_reply(header, status);
     }
     else
     {
@@ -413,11 +428,39 @@ void Agent::on_message(const dds::xrce::MessageHeader &header,
         status.related_request().object_id(read_payload.object_id());
         dds::xrce::ResultStatus result_status = client->read(read_payload.object_id(), read_payload);
         status.result(result_status);
-        add_reply(header, status);
     }
     else
     {
         std::cerr << "Read message rejected" << std::endl;
+    }
+}
+
+void Agent::on_message(const dds::xrce::MessageHeader &header,
+                       const dds::xrce::SubmessageHeader &sub_header,
+                       const dds::xrce::ACKNACK_Payload &acknack_payload)
+{
+    (void) sub_header;
+    (void) acknack_payload;
+    if (ProxyClient *client = get_client(header.client_key()))
+    {
+        // TODO (julian): implement state machine for acknack messages.
+        (void) client;
+    }
+}
+
+void Agent::on_message(const dds::xrce::MessageHeader &header,
+                       const dds::xrce::SubmessageHeader &sub_header,
+                       const dds::xrce::HEARTBEAT_Payload &heartbeat_payload)
+{
+    (void) sub_header;
+    (void) heartbeat_payload;
+    if (ProxyClient *client = get_client(header.client_key()))
+    {
+        // TODO (julian): implement state machine for heartbeat message.
+        dds::xrce::ACKNACK_Payload acknack;
+        acknack.first_unacked_seq_num(heartbeat_payload.last_unacked_seq_nr());
+        add_reply(header, acknack);
+        (void) client;
     }
 }
 

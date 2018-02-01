@@ -31,13 +31,15 @@ public:
     XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {}
     void header(const dds::xrce::MessageHeader& header);
     void status(const dds::xrce::STATUS_Payload& result);
-    
+    void acknack(const dds::xrce::ACKNACK_Payload& payload);
+    void heartbeat(const dds::xrce::HEARTBEAT_Payload& payload);
+
     void data(const dds::xrce::DATA_Payload_Data& payload);
     void data(const dds::xrce::DATA_Payload_Sample& payload);
     void data(const dds::xrce::DATA_Payload_DataSeq& payload);
     void data(const dds::xrce::DATA_Payload_SampleSeq& payload);
     void data(const dds::xrce::DATA_Payload_PackedSamples& payload);
-    
+
     size_t get_total_size();
 private:
 

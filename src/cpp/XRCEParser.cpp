@@ -74,6 +74,11 @@ bool XRCEParser::parse()
                 case dds::xrce::DATA:
                 case dds::xrce::ACKNACK:
                 case dds::xrce::HEARTBEAT:
+                    if (!process_heartbeat(message_header, submessage_header))
+                    {
+                        std::cerr << "Error procession heartbeat";
+                    }
+                    break;
                 case dds::xrce::FRAGMENT:
                 case dds::xrce::FRAGMENT_END:
                 default:
@@ -152,6 +157,30 @@ bool XRCEParser::process_write_data(const dds::xrce::MessageHeader& header,
     if (deserializer_.deserialize(write_data_payload))
     {
         listener_->on_message(header, sub_header, write_data_payload);
+        return true;
+    }
+    return false;
+}
+
+bool XRCEParser::process_heartbeat(const dds::xrce::MessageHeader &header,
+                                   const dds::xrce::SubmessageHeader &sub_header)
+{
+    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+    if (deserializer_.deserialize(heartbeat_payload))
+    {
+        listener_->on_message(header, sub_header, heartbeat_payload);
+        return true;
+    }
+    return false;
+}
+
+bool XRCEParser::process_acknack(const dds::xrce::MessageHeader &header,
+                                 const dds::xrce::SubmessageHeader &sub_header)
+{
+    dds::xrce::ACKNACK_Payload acknack_payload;
+    if (deserializer_.deserialize(acknack_payload))
+    {
+        listener_->on_message(header, sub_header, acknack_payload);
         return true;
     }
     return false;

@@ -26,6 +26,8 @@ class CREATE_Payload;
 class DELETE_Payload;
 class WRITE_DATA_Payload_Data;
 class READ_DATA_Payload;
+class ACKNACK_Payload;
+class HEARTBEAT_Payload;
 
 } } //namespace dds::xrce
 
@@ -53,6 +55,12 @@ public:
     virtual void on_message(const dds::xrce::MessageHeader& header,
                             const dds::xrce::SubmessageHeader& sub_header,
                             const dds::xrce::READ_DATA_Payload&   read_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::ACKNACK_Payload&   acknack_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::HEARTBEAT_Payload& heartbeat_payload) = 0;
 };
 
 class XRCEParser
@@ -72,6 +80,8 @@ private:
     bool process_delete(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
     bool process_write_data(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
     bool process_read_data(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_heartbeat(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_acknack(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
 
     XRCEListener* listener_ = nullptr;
     Serializer deserializer_;

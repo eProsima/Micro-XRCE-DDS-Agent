@@ -138,6 +138,26 @@ public:
                     const dds::xrce::READ_DATA_Payload& read_payload)   override;
 
     /*!
+     * \brief Function call when a ACKNACK message arrives.
+     * \param header 			The message header.
+     * \param sub_header 		The submessage header.
+     * \param acknack_payload 	The submessage payload.
+     */
+    void on_message(const dds::xrce::MessageHeader &header,
+                    const dds::xrce::SubmessageHeader &sub_header,
+                    const dds::xrce::ACKNACK_Payload &acknack_payload) override;
+
+    /*!
+     * \brief Function call when a HEARTBEAT message arrives.
+     * \param header 			The message header.
+     * \param sub_header 		The submessage header.
+     * \param heartbeat_payload	The submessage payload.
+     */
+    void on_message(const dds::xrce::MessageHeader &header,
+                    const dds::xrce::SubmessageHeader &sub_header,
+                    const dds::xrce::HEARTBEAT_Payload &heartbeat_payload) override;
+
+    /*!
      * \brief Gets a Client based its key.
      * \param  The client's key.
      * \return If the Client does not exit return a nullptr.
@@ -194,6 +214,8 @@ public:
      * \param payload 	The DATA submessage payload.
      */
     void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_PackedSamples& payload);
+
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::ACKNACK_Payload& payload);
 
     void abort_execution();
 

@@ -388,11 +388,27 @@ class XRCEParserTests : public CommonData, public ::testing::Test
             ++reads;
         }
 
-        int clients = 0;
-        int creates = 0;
-        int writes  = 0;
-        int reads   = 0;
-        int deletes = 0;
+        void on_message(const dds::xrce::MessageHeader& /*header*/,
+                        const dds::xrce::SubmessageHeader& /*sub_header*/,
+                        const dds::xrce::ACKNACK_Payload& /*read_payload*/) override
+        {
+            ++acknack;
+        }
+
+        void on_message(const dds::xrce::MessageHeader& /*header*/,
+                        const dds::xrce::SubmessageHeader& /*sub_header*/,
+                        const dds::xrce::HEARTBEAT_Payload& /*read_payload*/) override
+        {
+            ++heartbeat;
+        }
+
+        int clients 	= 0;
+        int creates 	= 0;
+        int writes  	= 0;
+        int reads   	= 0;
+        int deletes 	= 0;
+        int acknack 	= 0;
+        int heartbeat 	= 0;
     };
 
   protected:

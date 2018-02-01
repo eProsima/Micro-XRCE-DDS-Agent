@@ -59,6 +59,8 @@ template bool Serializer::serialize(const dds::xrce::WRITE_DATA_Payload_Data &da
 template bool Serializer::serialize(const dds::xrce::CREATE_Payload &data);
 template bool Serializer::serialize(const dds::xrce::CREATE_CLIENT_Payload &data);
 template bool Serializer::serialize(const dds::xrce::DELETE_Payload &data);
+template bool Serializer::serialize(const dds::xrce::HEARTBEAT_Payload &data);
+template bool Serializer::serialize(const dds::xrce::ACKNACK_Payload &data);
 
 template <class T> bool Serializer::deserialize(T &data)
 {
@@ -82,6 +84,8 @@ template bool Serializer::deserialize(dds::xrce::DELETE_Payload &data);
 template bool Serializer::deserialize(dds::xrce::STATUS_Payload &data);
 template bool Serializer::deserialize(dds::xrce::READ_DATA_Payload &data);
 template bool Serializer::deserialize(dds::xrce::WRITE_DATA_Payload_Data &data);
+template bool Serializer::deserialize(dds::xrce::HEARTBEAT_Payload &data);
+template bool Serializer::deserialize(dds::xrce::ACKNACK_Payload &data);
 
 /* TODO (Borja): externalize templates, they are only useful for testing. */
 template bool Serializer::deserialize(dds::xrce::DATA_Payload_Data &data);

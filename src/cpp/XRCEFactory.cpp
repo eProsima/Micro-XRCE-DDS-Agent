@@ -37,6 +37,18 @@ void XRCEFactory::status(const dds::xrce::STATUS_Payload& payload)
     serializer_.serialize(payload);
 }
 
+void XRCEFactory::acknack(const dds::xrce::ACKNACK_Payload& payload)
+{
+    submessage_header(dds::xrce::ACKNACK, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    serializer_.serialize(payload);
+}
+
+void XRCEFactory::heartbeat(const dds::xrce::HEARTBEAT_Payload& payload)
+{
+    submessage_header(dds::xrce::HEARTBEAT, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    serializer_.serialize(payload);
+}
+
 void XRCEFactory::data(const dds::xrce::DATA_Payload_Data& payload)
 {
     reply(dds::xrce::DATA, payload);

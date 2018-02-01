@@ -124,7 +124,10 @@ void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
     scdr << m_session_id;
     scdr << m_stream_id;
     scdr.serialize(m_sequence_nr, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
-    scdr << m_client_key;
+    if (m_session_id < 128)
+    {
+        scdr << m_client_key;
+    }
 }
 
 void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -132,7 +135,10 @@ void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_session_id;
     dcdr >> m_stream_id;
     dcdr.deserialize(m_sequence_nr, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
-    dcdr >> m_client_key;
+    if (m_session_id < 128)
+    {
+        dcdr >> m_client_key;
+    }
 }
 
 } } //namespace dds::xrce
