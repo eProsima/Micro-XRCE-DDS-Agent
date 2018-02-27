@@ -1585,7 +1585,7 @@ private:
 typedef uint8_t RepresentationFormat;
 
 const RepresentationFormat REPRESENTATION_BY_REFERENCE  = 0x01;
-const RepresentationFormat REPRESENTATION_AS_STRING     = 0x02;
+const RepresentationFormat REPRESENTATION_AS_XML_STRING = 0x02;
 const RepresentationFormat REPRESENTATION_IN_BINARY     = 0x03;
 const int32_t REFERENCE_MAX_LEN = 128;
 

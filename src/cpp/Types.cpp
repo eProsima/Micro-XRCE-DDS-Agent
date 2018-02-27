@@ -83,7 +83,7 @@ size_t dds::xrce::Time_t::getMaxCdrSerializedSize(size_t current_alignment)
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::Time_t::getCdrSerializedSize(size_t current_alignment)
+size_t dds::xrce::Time_t::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
             
@@ -913,9 +913,9 @@ size_t dds::xrce::Property::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_name.size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.value().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_value.size() + 1;
 
 
     return current_alignment - initial_alignment;
@@ -1411,7 +1411,7 @@ std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representat
 
 size_t dds::xrce::OBJK_Representation3Formats::getMaxCdrSerializedSize(size_t current_alignment)
 {
-    size_t enitial_alignment            = current_alignment;
+    size_t initial_alignment            = current_alignment;
     size_t reset_alignment              = 0;
     size_t union_max_size_serialized    = 0;
 
@@ -2015,7 +2015,7 @@ dds::xrce::OBJK_TYPE_Representation::OBJK_TYPE_Representation(OBJK_TYPE_Represen
 
 dds::xrce::OBJK_TYPE_Representation& dds::xrce::OBJK_TYPE_Representation::operator=(const OBJK_TYPE_Representation &x)
 {
-    OBJK_Representation2_Base::operator(x);
+    OBJK_Representation2_Base::operator=(x);
     return *this;
 }
 
@@ -2161,12 +2161,12 @@ size_t dds::xrce::OBJK_APPLICATION_Representation::getCdrSerializedSize(size_t c
 
 void dds::xrce::OBJK_APPLICATION_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    OBJK_Representation2_Base::serialize(x);
+    OBJK_Representation2_Base::serialize(scdr);
 }
 
 void dds::xrce::OBJK_APPLICATION_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    OBJK_Representation2_Base::deserialize(x);
+    OBJK_Representation2_Base::deserialize(dcdr);
 }
 
 dds::xrce::OBJK_PARTICIPANT_Representation::OBJK_PARTICIPANT_Representation()
@@ -6437,11 +6437,11 @@ size_t dds::xrce::DataRepresentation::getCdrSerializedSize(size_t current_alignm
             current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
             for(size_t a = 0; a < m_sample_seq.size(); ++a)
             {
-                current_alignment += sample_seq.at(a).getCdrSerializedSize(current_alignment);
+                current_alignment += m_sample_seq.at(a).getCdrSerializedSize(current_alignment);
             }
             break;
         case FORMAT_PACKED_SAMPLES:
-            current_alignment += packed_samples.getCdrSerializedSize(current_alignment);
+            current_alignment += m_packed_samples.getCdrSerializedSize(current_alignment);
             break;
         default:
             break;
@@ -6946,7 +6946,7 @@ size_t dds::xrce::INFO_Payload::getCdrSerializedSize(size_t current_alignment) c
     size_t initial_alignment = current_alignment;
             
     current_alignment += dds::xrce::BaseObjectReply::getCdrSerializedSize(current_alignment);
-    current_alignment += m_object_id.getCdrSerializedSize(current_alignment);
+    current_alignment += m_object_info.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -7085,7 +7085,7 @@ size_t dds::xrce::WRITE_DATA_Payload_Data::getMaxCdrSerializedSize(size_t curren
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::WRITE_DATA_Payload_Data::getCdrSerializedSize(const dds::xrce::WRITE_DATA_Payload_Data& data, size_t current_alignment)
+size_t dds::xrce::WRITE_DATA_Payload_Data::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
             
@@ -7184,7 +7184,7 @@ dds::xrce::WRITE_DATA_Payload_DataSeq::~WRITE_DATA_Payload_DataSeq()
 }
 
 dds::xrce::WRITE_DATA_Payload_DataSeq::WRITE_DATA_Payload_DataSeq(const WRITE_DATA_Payload_DataSeq &x)
-    : BaseObjectRequest(X)
+    : BaseObjectRequest(x)
 {
     m_data_seq = x.m_data_seq;
 }
@@ -7324,7 +7324,7 @@ void dds::xrce::WRITE_DATA_Payload_SampleSeq::serialize(eprosima::fastcdr::Cdr &
 
 void dds::xrce::WRITE_DATA_Payload_SampleSeq::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectRequest(dcdr);
+    BaseObjectRequest::deserialize(dcdr);
     dcdr >> m_sample_seq;
 }
 
@@ -7374,7 +7374,7 @@ size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getMaxCdrSerializedSize(size
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getCdrSerializedSize(const dds::xrce::WRITE_DATA_Payload_PackedSamples& data, size_t current_alignment)
+size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
             
@@ -7604,7 +7604,7 @@ void dds::xrce::DATA_Payload_DataSeq::serialize(eprosima::fastcdr::Cdr &scdr) co
 
 void dds::xrce::DATA_Payload_DataSeq::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectRequest(dcdr);
+    BaseObjectRequest::deserialize(dcdr);
     dcdr >> m_data_seq;
 }
 
