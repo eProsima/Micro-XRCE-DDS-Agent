@@ -1,0 +1,684 @@
+module dds { module xrce {
+
+    typedef octet ClientKey[4];
+
+#define CLIENTKEY_INVALID {0x58, 0x52, 0x43, 0x45}
+
+    typedef octet ObjectKind;
+
+    const ObjectKind OBJK_INVALID       = 0x00;
+    const ObjectKind OBJK_PARTICIPANT   = 0x01;
+    const ObjectKind OBJK_TOPIC         = 0x02;
+    const ObjectKind OBJK_PUBLISHER     = 0x03;
+    const ObjectKind OBJK_SUBSCRIBER    = 0x04;
+    const ObjectKind OBJK_DATAWRITER    = 0x05;
+    const ObjectKind OBJK_DATAREADER    = 0x06;
+    const ObjectKind OBJK_TYPE          = 0x0A;
+    const ObjectKind OBJK_QOSPROFILE    = 0x0B;
+    const ObjectKind OBJK_APPLICATION   = 0x0C;
+    const ObjectKind OBJK_AGENT         = 0x0D;
+    const ObjectKind OBJK_CLIENT        = 0x0E;
+    const ObjectKind OBJK_OTHER         = 0x0F;
+    
+    typedef octet ObjectId [2];
+    typedef octet ObjectPrefix [2];
+
+#define OBJECTID_INVALID    {0x00,0x00}
+#define OBJECTID_AGENT      {0xFF,0xFD}
+#define OBJECTID_CLIENT     {0xFF,0xFE}
+#define OBJECTID_SESSION    {0xFF,0xFF}
+
+    typedef octet XrceCookie[4];
+#define XRCE_COOKIE { 0x58, 0x52, 0x43, 0x45 }
+
+    typedef octet XrceVersion[2];
+#define XRCE_VERSION_MAJOR  0x01
+#define XRCE_VERSION_MINOR  0x00
+#define XRCE_VERSION        { XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR }
+
+    typedef octet XrceVendorId[2];
+#define XRCE_VENDOR_INVALID1 0x00
+#define XRCE_VENDOR_INVALID1 0x00
+
+    struct Time_t {
+    long seconds;
+    unsigned long nanoseconds;
+    };
+    
+    typedef octet SessionId;
+    const SessionId SESSIONID_NONE_WITH_CLIENT_KEY      = 0x00;
+    const SessionId SESSIONID_NONE_WITHOUT_CLIENT_KEY   = 0x80;
+    
+    typedef octet StreamId;
+    const SessionId STREAMID_NONE                   = 0x00;
+    const SessionId STREAMID_BUILTIN_BEST_EFFORTS   = 0x01;
+    const SessionId STREAMID_BUILTIN_RELIABLE       = 0x80;
+    
+    //@bit_bound(8)
+    enum TransportAddressFormat {
+        ADDRESS_FORMAT_SMALL,
+        ADDRESS_FORMAT_MEDIUM,
+        ADDRESS_FORMAT_LARGE,
+        ADDRESS_FORMAT_STRING
+    };
+    
+    struct TransportAddressSmall {
+        octet address[2];
+        octet port;
+    };
+    struct TransportAddressMedium {
+        octet address[4];
+        unsigned short port;
+    };
+    struct TransportAddressLarge {
+        octet address[16];
+        unsigned long port;
+    };
+    struct TransportAddressString {
+        string value;
+    };
+
+    union TransportAddress switch (TransportAddressFormat) {
+        case ADDRESS_FORMAT_SMALL:
+        TransportAddressSmall small_locator;
+        case ADDRESS_FORMAT_MEDIUM:
+        TransportAddressMedium medium_locator;
+        case ADDRESS_FORMAT_LARGE:
+        TransportAddressLarge large_locator;
+        case ADDRESS_FORMAT_STRING:
+        TransportAddressString string_locator;
+    };
+    typedef sequence<TransportAddress> TransportAddressSeq;
+
+    struct Property {
+        string name;
+        string value;
+    };
+    typedef sequence<Property> PropertySeq;
+
+    //@extensibility(FINAL)
+    struct CLIENT_Representation {
+    XrceCookie      xrce_cookie;
+    XrceVersion     xrce_version;
+    XrceVendorId    xrce_vendor_id;
+    Time_t          client_timestamp;
+    ClientKey       client_key;
+    SessionId       session_id;
+    //@optional       PropertySeq properties;
+    };
+
+    //@extensibility(FINAL)
+    struct AGENT_Representation {
+        XrceCookie      xrce_cookie;
+        XrceVersion     xrce_version;
+        XrceVendorId    xrce_vendor_id;
+        Time_t          agent_timestamp;
+        //@optional       PropertySeq properties;
+    };
+
+    typedef octet RepresentationFormat;
+    const RepresentationFormat REPRESENTATION_BY_REFERENCE  = 0x01;
+    const RepresentationFormat REPRESENTATION_AS_STRING     = 0x02;
+    const RepresentationFormat REPRESENTATION_IN_BINARY     = 0x03;
+
+    const long REFERENCE_MAX_LEN = 128;
+    
+    //@extensibility(FINAL)
+    union OBJK_Representation3Formats switch(RepresentationFormat) {
+        case REPRESENTATION_BY_REFERENCE :
+            string<REFERENCE_MAX_LEN> object_reference;
+        case REPRESENTATION_AS_XML_STRING :
+            string xml_string_representation;
+        case REPRESENTATION_IN_BINARY :
+            sequence<octet> binary_representation;
+    };
+
+    //@extensibility(FINAL)
+    union OBJK_Representation2Formats switch(RepresentationFormat) {
+        case REPRESENTATION_BY_REFERENCE :
+            string<REFERENCE_MAX_LEN> object_reference;
+        case REPRESENTATION_AS_XML_STRING :
+            string xml_string_representation;
+    };
+    
+    //@extensibility(FINAL)
+    struct OBJK_Representation2_Base {
+        OBJK_Representation2Formats representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_Representation3_Base {
+        OBJK_Representation3Formats representation;
+    };
+    
+    //@extensibility(FINAL)
+    struct OBJK_QOSPROFILE_Representation { //: OBJK_Representation2_Base {
+        OBJK_Representation2_Base base_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_TYPE_Representation { //: OBJK_Representation2_Base {
+        OBJK_Representation2_Base base_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DOMAIN_Representation { //: OBJK_Representation2_Base {
+        OBJK_Representation2_Base base_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_APPLICATION_Representation { //: OBJK_Representation2_Base {
+        OBJK_Representation2_Base base_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_PARTICIPANT_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_TOPIC_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+        ObjectId participant_id;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_PUBLISHER_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+        ObjectId participant_id;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_SUBSCRIBER_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+        ObjectId participant_id;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DW_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+        ObjectId publisher_id;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DR_Representation { //: OBJK_Representation3_Base {
+        OBJK_Representation3_Base base_representation;
+        ObjectId subscriber_id;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DomainParticipant_Binary {
+        long domain_id;
+        //@optional string<128> domain_reference;
+        //@optional string<128> qos_profile;
+        string<128> domain_referente;
+        string<128> qos_profile;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_Topic_Binary {
+        string<256> topic_name;
+        //@optional string<256> type_name;
+        //@optional DDS:XTypes::TypeIdentifier type_identifier;
+        string<256> type_name;
+        string type_identifier;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_PUBLISHER_QosBinary {
+        //@optional sequence<string> partitions;
+        //@optional sequence<octet> group_data;
+        sequence<string> partitions;
+        sequence<string> group_data;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_Publisher_Binary {
+        //@optional string publisher_name;
+        //@optional OBJK_PUBLISHER_QosBinary qos;
+        string publisher_name;
+        OBJK_PUBLISHER_QosBinary qos;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_SUBSCRIBER_QosBinary {
+        //@optional sequence<string> partitions;
+        //@optional sequence<octet> group_data;
+        sequence<string> partitions;
+        sequence<octet> group_data;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_Subscriber_Binary {
+        //@optional string subscriber_name;
+        //@optional OBJK_SUBSCRIBER_QosBinary qos;
+        string subscriber_name;
+        OBJK_SUBSCRIBER_QosBinary qos;
+    };
+
+    //@bit_bound(16)
+    //bitmask EndpointQosFlags {
+    enum EndpointQosFlags {
+        //@position(0) is_reliable,
+        //@position(1) is_history_keep_last,
+        //@position(2) is_ownership_exclusive,
+        //@position(3) is_durability_transient_local,
+        //@position(4) is_durability_transient,
+        //@position(5) is_durability_persistent,
+        is_reliable,
+        is_history_keep_last,
+        is_ownership_exclusive,
+        is_durability_transient_local,
+        is_durability_transient,
+        is_durability_persistent
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_Endpoint_QosBinary {
+        EndpointQosFlags            qos_flags;
+        //@optional unsigned short    history_depth;
+        //@optional unsigned long     deadline_msec;
+        //@optional unsigned long     lifespan_msec;
+        //@optional sequence<octet>   user_data;
+        unsigned short history_depth;
+        unsigned long deadline_msec;
+        unsigned long lifespan_msec;
+        sequence<octet> user_data;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DataReader_Binary {
+        string                  topic_name;
+        OBJK_Endpoint_QosBinary endpoint_qos;
+        //@optional unsigned long timebasedfilter_msec;
+        //@optional string        contentbased_filter;
+        unsigned long timebasedfilter_msec;
+        string contentbased_filter;
+    };
+
+    //@extensibility(FINAL)
+    struct OBJK_DataWriter_Binary {
+        string                  topic_name;
+        OBJK_Endpoint_QosBinary endpoint_qos;
+        //@optional unsigned long ownership_strength;
+        unsigned long ownership_strength;
+    };
+
+    //@extensibility(FINAL)
+    union ObjectVariant switch(ObjectKind) {
+    // case OBJK_INVALID : indicates default or selected by Agent. No data.
+    case OBJK_AGENT :
+        AGENT_Representation agent;
+    case OBJK_CLIENT :
+        CLIENT_Representation client;
+    case OBJK_APPLICATION :
+        OBJK_APPLICATION_Representation application;
+    case OBJK_PARTICIPANT :
+        OBJK_PARTICIPANT_Representation participant;
+    case OBJK_QOSPROFILE :
+        OBJK_QOSPROFILE_Representation qos_profile;
+    case OBJK_TYPE :
+        OBJK_TYPE_Representation type;
+    case OBJK_TOPIC :
+        OBJK_TOPIC_Representation topic;
+    case OBJK_PUBLISHER :
+        OBJK_PUBLISHER_Representation publisher;
+    case OBJK_SUBSCRIBER :
+        OBJK_SUBSCRIBER_Representation subscriber;
+    case OBJK_DATAWRITER :
+        OBJK_DW_Representation data_writer;
+    case OBJK_DATAREADER :
+        OBJK_DR_Representation data_reader;
+    };
+
+    struct CreationMode {
+        boolean reuse;
+        boolean replace;
+    };
+
+    typedef octet RequestId[2];
+
+    //@bit_bound(8)
+    enum StatusValue {
+        //@value(0x00) STATUS_OK,
+        //@value(0x01) STATUS_OK_MATCHED,
+        //@value(0x80) STATUS_ERR_DDS_ERROR,
+        //@value(0x81) STATUS_ERR_MISMATCH,
+        //@value(0x82) STATUS_ERR_ALREADY_EXISTS,
+        //@value(0x83) STATUS_ERR_DENIED,
+        //@value(0x84) STATUS_ERR_UNKNOWN_REFERENCE,
+        //@value(0x85) STATUS_ERR_INVALID_DATA,
+        //@value(0x86) STATUS_ERR_INCOMPATIBLE,
+        //@value(0x87) STATUS_ERR_RESOURCES
+        STATUS_OK,
+        STATUS_OK_MATCHED,
+        STATUS_ERR_DDS_ERROR,
+        STATUS_ERR_MISMATCH,
+        STATUS_ERR_ALREADY_EXISTS,
+        STATUS_ERR_DENIED,
+        STATUS_ERR_UNKNOWN_REFERENCE,
+        STATUS_ERR_INVALID_DATA,
+        STATUS_ERR_INCOMPATIBLE,
+        STATUS_ERR_RESOURCES
+    };
+
+    struct ResultStatus {
+        StatusValue status;
+        octet       implementation_status;
+    };
+
+    const octet STATUS_LAST_OP_NONE     = 0;
+    const octet STATUS_LAST_OP_CREATE   = 1;
+    const octet STATUS_LAST_OP_UPDATE   = 2;
+    const octet STATUS_LAST_OP_DELETE   = 3;
+    const octet STATUS_LAST_OP_LOOKUP   = 4;
+    const octet STATUS_LAST_OP_READ     = 5;
+    const octet STATUS_LAST_OP_WRITE    = 6;
+
+    //bitmask InfoMask {
+    //    @position(0) INFO_CONFIGURATION,
+    //    @position(1) INFO_ACTIVITY
+    //};
+    enum InfoMask {
+        INFO_CONFIGURATION,
+        INFO_ACTIVITY
+    };
+
+    //@extensibility(APPENDABLE)
+    struct AGENT_ActivityInfo {
+        short availability;
+        TransportAddressSeq address_seq;
+    };
+
+    //@extensibility(APPENDABLE)
+    struct DATAREADER_ActivityInfo {
+        short highest_acked_num;
+    };
+
+    //@extensibility(APPENDABLE)
+    struct DATAWRITER_ActivityInfo {
+        short stream_seq_num;
+        unsigned long long sample_seq_num;
+    };
+
+    //@extensibility(FINAL)
+    union ActivityInfoVariant switch(ObjectKind) {
+        case OBJK_DATAWRITER :
+            DATAWRITER_ActivityInfo data_writer;
+        case OBJK_DATAREADER :
+            DATAREADER_ActivityInfo data_reader;
+    };
+
+    //@extensibility(FINAL)
+    struct ObjectInfo {
+        //@optional ObjectVariant config;
+        //@optional ActivityInfoVariant activity;
+        ObjectVariant config;
+        ActivityInfoVariant activity;
+    };
+
+    //@extensibility(FINAL)
+    struct BaseObjectRequest {
+        RequestId   request_id;
+        ObjectId    object_id;
+    };
+
+    typedef BaseObjectRequest RelatedObjectRequest;
+
+    //@extensibility(FINAL)
+    struct BaseObjectReply {
+        BaseObjectRequest   related_request;
+        ResultStatus        result;
+    };
+
+    typedef octet DataFormat;
+    const DataFormat FORMAT_DATA            = 0x00; // 0b0000 0000
+    const DataFormat FORMAT_SAMPLE          = 0x02; // 0b0000 0010
+    const DataFormat FORMAT_DATA_SEQ        = 0x08; // 0b0000 1000
+    const DataFormat FORMAT_SAMPLE_SEQ      = 0x0A; // 0b0000 1010
+    const DataFormat FORMAT_PACKED_SAMPLES  = 0x0E; // 0b0000 1110
+    const DataFormat FORMAT_MASK            = 0x0E; // 0b0000 1110
+
+    //@extensibility(APPENDABLE)
+    struct ContinuousReadOptions {
+        unsigned short pace_period;
+        unsigned short max_total_samples;
+        unsigned short max_total_elapsed_time;
+    };
+
+    //@extensibility(APPENDABLE)
+    struct DataDeliveryControl {
+        unsigned short max_samples;
+        unsigned short max_elapsed_time;
+        unsigned short max_bytes_per_second;
+        //@optional string content_filter_expression;
+    };
+
+    //@extensibility(FINAL)
+    struct ReadSpecification {
+        DataFormat data_format;
+        //@optional DataDeliveryControl delivery_control;
+        DataDeliveryControl delivery_control;
+    };
+
+    //@bit_bound(8)
+    //bitmask SampleInfoFlags {
+    enum SampleInfoFlags {
+        //@position(0) INSTANCE_STATE_UNREGISTERED,
+        //@position(1) INSTANCE_STATE DISPOSED,
+        //@position(2) VIEW_STATE_NEW,
+        //@position(3) SAMPLE_STATE_READ,
+        INSTANCE_STATE_UNREGISTERED,
+        INSTANCE_STATE_DISPOSED,
+        VIEW_STATE_NEW,
+        SAMPLE_STATE_READ
+    };
+
+    //@extensibility(FINAL)
+    struct SampleInfo {
+    SampleInfoFlags state;
+    unsigned long sequence_number;
+    unsigned long session_time_offset; 
+    };
+
+    typedef unsigned short DeciSecond; 
+    //@extensibility(FINAL)
+    struct SampleInfoDelta {
+        SampleInfoFlags state;
+        octet           seq_number_delta;
+        DeciSecond      timestamp_delta; 
+    };
+
+    //@extensibility(FINAL)
+    struct SampleData {
+        //XCDRSerializedBuffer serialized_data;
+        sequence<octet> serialized_data;
+    };
+
+    typedef sequence<SampleData> SampleDataSeq;
+
+    //@extensibility(FINAL)
+    struct Sample {
+        SampleInfo info;
+        SampleData data;
+    };
+    typedef sequence<Sample> SampleSeq;
+
+    //@extensibility(FINAL)
+    struct SampleDelta {
+        SampleInfoDelta info_delta;
+        SampleData      data;
+    };
+
+    //@extensibility(FINAL)
+    struct PackedSamples {
+        SampleInfo              info_base;
+        sequence<SampleDelta>   sample_delta_seq;
+    };
+    typedef sequence<PackedSamples> SamplePackedSeq;
+
+    //@extensibility(FINAL)
+    union DataRepresentation switch(DataFormat) {
+        case FORMAT_DATA:
+            SampleData data;
+        case FORMAT_SAMPLE:
+            Sample sample;
+        case FORMAT_DATA_SEQ:
+            SampleDataSeq data_seq;
+        case FORMAT_SAMPLE_SEQ:
+            SampleSeq sample_seq;
+        case FORMAT_PACKED_SAMPLES:
+            PackedSamples packed_samples;
+    };
+
+    //@extensibility(FINAL)
+    struct CREATE_CLIENT_Payload { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        ObjectVariant object_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct CREATE_Payload { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        CLIENT_Representation client_representation;
+    };
+
+    //@extensibility(FINAL)
+    struct GET_INFO_Payload { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        InfoMask info_mask;
+    };
+
+    //@extensibility(FINAL)
+    struct DELETE_Payload { //: BaseObjectRequest {
+        BaseObjectRequest base;
+    };
+
+    //@extensibility(FINAL)
+    struct STATUS_AGENT_Payload { //: BaseObjectReply {
+        BaseObjectReply base;
+        AGENT_Representation agent_info;
+    };
+
+    //@extensibility(FINAL)
+    struct STATUS_Payload { //: BaseObjectReply {
+        BaseObjectReply base;
+    };
+
+    //@extensibility(FINAL)
+    struct INFO_Payload { //: BaseObjectReply {
+        BaseObjectReply base;
+        ObjectInfo object_info;
+    };
+
+    //@extensibility(FINAL)
+    struct READ_DATA_Payload { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        ReadSpecification read_specification;
+        //@optional ContinuousReadOptions continuous_read_options;
+        ContinuousReadOptions continuous_read_options;
+    };
+
+    //@extensibility(FINAL)
+    struct WRITE_DATA_Payload_Data { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        SampleData data;
+    };
+
+    //@extensibility(FINAL)
+    struct WRITE_DATA_Payload_Sample { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        Sample sample;
+    };
+
+    //@extensibility(FINAL)
+    struct WRITE_DATA_Payload_DataSeq { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        sequence<SampleData> data_seq;
+    };
+
+    //@extensibility(FINAL)
+    struct WRITE_DATA_Payload_SampleSeq { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        sequence<Sample> sample_seq;
+    };
+
+    //@extensibility(FINAL)
+    struct WRITE_DATA_Payload_PackedSamples { //: BaseObjectRequest {
+        BaseObjectRequest base;
+        PackedSamples packed_samples;
+    };
+
+    //@extensibility(FINAL)
+    struct DATA_Payload_Data { //: RelatedObjectRequest {
+        BaseObjectRequest base;
+        SampleData data;
+    };
+
+    //@extensibility(FINAL)
+    struct DATA_Payload_Sample { //: RelatedObjectRequest {
+        BaseObjectRequest base;
+        Sample sample;
+    };
+
+    //@extensibility(FINAL)
+    struct DATA_Payload_DataSeq { //: RelatedObjectRequest {
+        BaseObjectRequest base;
+        sequence<SampleData> data_seq;
+    };
+
+    //@extensibility(FINAL)
+    struct DATA_Payload_SampleSeq { //: RelatedObjectRequest {
+        BaseObjectRequest base;
+        sequence<Sample> sample_seq;
+    };
+
+    //@extensibility(FINAL)
+    struct DATA_Payload_PackedSamples { //: RelatedObjectRequest {
+        BaseObjectRequest base;
+        PackedSamples packed_samples;
+    };
+
+    //@extensibility(FINAL)
+    struct ACKNACK_Payload {
+        short first_unacked_seq_num;
+        octet nack_bitmap[2];
+    };
+
+    //@extensibility(FINAL)
+    struct HEARTBEAT_Payload {
+        short first_unacked_seq_nr;
+        short last_unacked_seq_nr;
+    };
+
+    //@bit_bound(8)
+    enum SubmessageId {
+        //@value(0)  CREATE_CLIENT,
+        //@value(1)  CREATE,
+        //@value(2)  GET_INFO,
+        //@value(3)  DELETE,
+        //@value(4)  STATUS,
+        //@value(5)  INFO,
+        //@value(6)  WRITE_DATA,
+        //@value(7)  READ_DATA,
+        //@value(8)  DATA,
+        //@value(9)  ACKNACK,
+        //@value(10) HEARTBEAT,
+        //@value(12) FRAGMENT,
+        //@value(13) FRAGMENT_END
+        CREATE_CLIENT,
+        CREATE,
+        GET_INFO,
+        DELETE,
+        STATUS,
+        INFO,
+        WRITE_DATA,
+        READ_DATA,
+        DATA,
+        ACKNACK,
+        HEARTBEAT,
+        FRAGMENT,
+        FRAGMENT_END
+    };
+
+}; };
