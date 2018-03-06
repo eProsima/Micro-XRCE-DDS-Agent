@@ -1,6 +1,6 @@
 [submodule "thirdparty/micrortps_transport"]
-	path = thirdparty/micrortps_transport
-	url = git@git.sambaserver.eprosima.com:nanortps/micrortps_transport.git
+    path = thirdparty/micrortps_transport
+    url = git@gitlab.sambaserver.eprosima.com:eProsima/micrortps-transports.git
 [submodule "thirdparty/asio"]
-	path = thirdparty/asio
-	url = https://github.com/chriskohlhoff/asio.git
+    path = thirdparty/asio
+    url = https://github.com/chriskohlhoff/asio.git
