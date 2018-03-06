@@ -32,10 +32,18 @@ namespace micrortps {
 
 using utils::TokenBucket;
 
-DataReader::DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list,
+DataReader::DataReader(const dds::xrce::ObjectId& id,
+                       eprosima::fastrtps::Participant& rtps_participant,
+                       ReaderListener* read_list,
                        const std::string& profile_name)
-    : XRCEObject(id), m_running(false), mp_reader_listener(read_list), m_rtps_subscriber_prof(profile_name),
-      mp_rtps_participant(rtps_participant), mp_rtps_subscriber(nullptr), topic_type_(false)
+    : XRCEObject(id),
+      m_running(false),
+      unread_msgs_(0),
+      mp_reader_listener(read_list),
+      m_rtps_subscriber_prof(profile_name),
+      mp_rtps_participant(rtps_participant),
+      mp_rtps_subscriber(nullptr),
+      topic_type_(false)
 {
 }
 
@@ -60,12 +68,6 @@ DataReader::~DataReader() noexcept
 
 bool DataReader::init()
 {
-    if (nullptr == mp_rtps_participant)
-    {
-        std::cout << "init participant error" << std::endl;
-        return false;
-    }
-
     SubscriberAttributes attributes;
     if (m_rtps_subscriber_prof.empty() ||
         (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
@@ -78,14 +80,12 @@ bool DataReader::init()
 
         if (!m_rtps_subscriber_prof.empty())
         {
-            // std::cout << "init DataReader RTPS subscriber" << std::endl;
-            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, m_rtps_subscriber_prof, this);
+            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(&mp_rtps_participant, m_rtps_subscriber_prof, this);
         }
         else
         {
-            // std::cout << "init DataReader RTPS default subscriber" << std::endl;
             mp_rtps_subscriber =
-                fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+                fastrtps::Domain::createSubscriber(&mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
     if (mp_rtps_subscriber == nullptr)
@@ -98,18 +98,12 @@ bool DataReader::init()
 
 bool DataReader::init(const std::string& xmlrep)
 {
-    if (nullptr == mp_rtps_participant)
-    {
-        std::cout << "init participant error" << std::endl;
-        return false;
-    }
-
     SubscriberAttributes attributes;
     if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
     {
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
-            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(mp_rtps_participant, attributes, this);
+            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(&mp_rtps_participant, attributes, this);
         }
     }
     else
@@ -118,7 +112,7 @@ bool DataReader::init(const std::string& xmlrep)
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
             mp_rtps_subscriber =
-                fastrtps::Domain::createSubscriber(mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+                fastrtps::Domain::createSubscriber(&mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
     if (mp_rtps_subscriber == nullptr)
@@ -129,26 +123,29 @@ bool DataReader::init(const std::string& xmlrep)
     return true;
 }
 
-int DataReader::read(const READ_DATA_Payload& read_data)
+int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data)
 {
-    DataDeliveryConfig delivery_config = read_data.read_specification().delivery_config();
+    dds::xrce::DataDeliveryControl delivery_control = read_data.read_specification().delivery_control();
     ReadTaskInfo read_info{};
     read_info.object_ID_  = read_data.object_id();
     read_info.request_ID_ = read_data.request_id();
-    switch (delivery_config._d())
+    switch (read_data.read_specification().data_format())
     {
-        case FORMAT_DATA:
-        case FORMAT_SAMPLE:
+        case dds::xrce::FORMAT_DATA:
+            break;
+        case dds::xrce::FORMAT_SAMPLE:
             read_info.max_elapsed_time_ = 0;
             read_info.max_rate_         = 0;
             read_info.max_samples_      = 1;
             break;
-        case FORMAT_DATA_SEQ:
-        case FORMAT_SAMPLE_SEQ:
-        case FORMAT_PACKED_SAMPLES:
-            read_info.max_elapsed_time_ = delivery_config.delivery_control().max_elapsed_time();
-            read_info.max_rate_         = delivery_config.delivery_control().max_rate();
-            read_info.max_samples_      = delivery_config.delivery_control().max_samples();
+        case dds::xrce::FORMAT_DATA_SEQ:
+            break;
+        case dds::xrce::FORMAT_SAMPLE_SEQ:
+            break;
+        case dds::xrce::FORMAT_PACKED_SAMPLES:
+            read_info.max_elapsed_time_ = delivery_control.max_elapsed_time();
+            read_info.max_rate_         = delivery_control.max_bytes_per_second();
+            read_info.max_samples_      = delivery_control.max_samples();
             break;
         default:
             std::cout << "Error: read format unexpected" << std::endl;
@@ -169,21 +166,30 @@ bool DataReader::has_message() const
 int DataReader::start_read(const ReadTaskInfo& read_info)
 {
     std::cout << "START READ" << std::endl;
+
+    std::unique_lock<std::mutex> lock(m_mutex);
     m_running = true;
+    unread_msgs_ = 0;
+    lock.unlock();
+
     if (read_info.max_elapsed_time_ > 0)
     {
         m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time_);
     }
-
     m_read_thread = std::thread(&DataReader::read_task, this, read_info);
+
     return 0;
 }
 
 int DataReader::stop_read()
 {
     std::cout << "SETUP NEW READING..." << std::endl;
+
+    std::unique_lock<std::mutex> lock(m_mutex);
     m_running = false;
+    lock.unlock();
     m_cond_var.notify_one();
+
     if (m_read_thread.joinable())
     {
         m_read_thread.join();
@@ -201,38 +207,47 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
 {
     TokenBucket rate_manager{read_info.max_rate_};
     std::cout << "Starting read_task..." << std::endl;
-    uint16_t message_count                          = 0;
+    uint16_t message_count = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
-    while (m_running)
+    while (true)
     {
-        size_t next_data_size = nextDataSize();
-        if ((next_data_size != 0u) && rate_manager.get_tokens(next_data_size))
+        std::unique_lock<std::mutex> lock(m_mutex);
+        if (m_running && (message_count < read_info.max_samples_))
         {
-            std::cout << "Read " << message_count + 1 << std::endl;
-            std::vector<unsigned char> buffer;
-            if (takeNextData(&buffer))
+            if (unread_msgs_ != 0)
             {
-                std::cout << "Read " << next_data_size << " "
-                          << "in "
-                          << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
-                          << std::endl;
-                last_read = std::chrono::steady_clock::now();
-                // TODO(borja): Handle multiple reads.
-                mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
-                ++message_count;
+                lock.unlock();
+                /* Read operation. */
+                size_t next_data_size = nextDataSize();
+                if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
+                {
+                    std::cout << "Read " << message_count + 1 << std::endl;
+                    std::vector<unsigned char> buffer;
+                    if (takeNextData(&buffer))
+                    {
+                        std::cout << "Read " << next_data_size << " "
+                                  << "in "
+                                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
+                                  << std::endl;
+                        last_read = std::chrono::steady_clock::now();
+                        mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
+                        ++message_count;
+                    }
+                }
+            }
+            else
+            {
+                /* Wait for new message or terminate signal. */
+                m_cond_var.wait(lock);
+                lock.unlock();
             }
         }
-
-        if (m_running && !m_max_time_expired && message_count < read_info.max_samples_)
+        else
         {
-            // TODO(borja): add some kind of timeout?
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_cond_var.wait(lock);
-        }
-        else if (m_max_time_expired || message_count == read_info.max_samples_)
-        {
-            stop_max_timer();
             m_running = false;
+            lock.unlock();
+            stop_max_timer();
+            break;
         }
     }
 
@@ -248,17 +263,21 @@ void DataReader::on_max_timeout(const asio::error_code& error)
     }
     else
     {
-        m_max_time_expired = true;
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_running = false;
         m_cond_var.notify_one();
     }
 }
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
 {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    unread_msgs_ = mp_rtps_subscriber->getUnreadCount();
     m_cond_var.notify_one();
 }
 
-ReadTimeEvent::ReadTimeEvent() : m_timer_max(m_io_service_max), m_max_time_expired(false)
+ReadTimeEvent::ReadTimeEvent()
+    : m_timer_max(m_io_service_max)
 {
 }
 
@@ -310,7 +329,7 @@ size_t DataReader::nextDataSize()
     // TODO Cuidado con las configuraciones KEEPALL
     if (mp_rtps_subscriber->readNextData(&buffer, &info))
     {
-        if (info_.sampleKind == ALIVE)
+        if (info_.sampleKind == rtps::ALIVE)
         {
             if (!msg_)
             {
@@ -322,9 +341,9 @@ size_t DataReader::nextDataSize()
     return 0;
 }
 
-void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::MatchingInfo& info)
+void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::rtps::MatchingInfo& info)
 {
-    if (info.status == MATCHED_MATCHING)
+    if (info.status == rtps::MATCHED_MATCHING)
     {
         matched_++;
         std::cout << "RTPS Publisher matched" << std::endl;
@@ -338,9 +357,9 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
 
 bool DataReader::check_registered_topic(const std::string& topic_data_type) const
 {
-    // TODO(borja) Take this method out to Topic type.
+    // TODO(Borja) Take this method out to Topic type.
     TopicDataType* p_type = nullptr;
-    if (!fastrtps::Domain::getRegisteredType(mp_rtps_participant, topic_data_type.data(), &p_type))
+    if (!fastrtps::Domain::getRegisteredType(&mp_rtps_participant, topic_data_type.data(), &p_type))
     {
         std::cout << "DDS ERROR: No registered type" << std::endl;
         return false;

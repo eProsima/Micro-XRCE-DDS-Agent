@@ -42,7 +42,8 @@ class WRITE_DATA_Payload;
 class DataWriter : public XRCEObject
 {
   public:
-    DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant,
+    DataWriter(const dds::xrce::ObjectId& id,
+               Participant& rtps_participant,
                const std::string& profile_name = "");
     ~DataWriter() override;
 
@@ -53,10 +54,10 @@ class DataWriter : public XRCEObject
 
     bool init();
     bool init(const std::string& xmlrep);
-    bool write(const WRITE_DATA_Payload& write_data);
+    bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
   private:
-    fastrtps::Participant* mp_rtps_participant;
+    fastrtps::Participant& mp_rtps_participant;
     fastrtps::Publisher* mp_rtps_publisher;
     std::string m_rtps_publisher_prof;
     TopicPubSubType topic_type_;

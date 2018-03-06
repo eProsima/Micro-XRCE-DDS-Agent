@@ -15,7 +15,7 @@
 #ifndef _XRCE_OBJECT_H_
 #define _XRCE_OBJECT_H_
 
-#include <DDSXRCETypes.h>
+#include <XRCETypes.h>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,17 +23,17 @@ namespace micrortps {
 class XRCEObject
 {
   public:
-    explicit XRCEObject(ObjectId object_id) : id_{object_id} {};
+    explicit XRCEObject(const dds::xrce::ObjectId& object_id) : id_{object_id} {}
     XRCEObject(XRCEObject &&) = default;
     XRCEObject(const XRCEObject &) = default;
     XRCEObject &operator=(XRCEObject &&) = default;
     XRCEObject &operator=(const XRCEObject &) = default;
     virtual ~XRCEObject() = 0;
 
-    ObjectId getID() const;
+    dds::xrce::ObjectId getID() const;
 
   private:
-    ObjectId id_;
+    dds::xrce::ObjectId id_;
 };
 
 } // namespace micrortps

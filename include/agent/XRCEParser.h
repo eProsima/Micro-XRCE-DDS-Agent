@@ -17,27 +17,42 @@
 
 #include "Serializer.h"
 
-namespace eprosima {
-namespace micrortps {
+namespace dds { namespace xrce {
 
 class MessageHeader;
 class SubmessageHeader;
 class CREATE_CLIENT_Payload;
 class CREATE_Payload;
-class DELETE_RESOURCE_Payload;
-class WRITE_DATA_Payload;
+class DELETE_Payload;
+class WRITE_DATA_Payload_Data;
 class READ_DATA_Payload;
+
+} } //namespace dds::xrce
+
+namespace eprosima {
+namespace micrortps {
+
 
 class XRCEListener {
 public:
     XRCEListener() = default;
     virtual ~XRCEListener() = default;
 
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload) = 0;
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload) = 0;
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& create_payload) = 0;
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload&  write_payload) = 0;
-    virtual void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_Payload&   read_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::CREATE_CLIENT_Payload& create_client_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::CREATE_Payload& create_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::DELETE_Payload& create_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            dds::xrce::WRITE_DATA_Payload_Data&  write_payload) = 0;
+    virtual void on_message(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::READ_DATA_Payload&   read_payload) = 0;
 };
 
 class XRCEParser
@@ -52,11 +67,11 @@ public:
     bool parse();
 private:
 
-    bool process_create_client(const MessageHeader& header, const SubmessageHeader& sub_header);
-    bool process_create(const MessageHeader& header, const SubmessageHeader& sub_header);
-    bool process_delete(const MessageHeader& header, const SubmessageHeader& sub_header);
-    bool process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header);
-    bool process_read_data(const MessageHeader& header, const SubmessageHeader& sub_header);
+    bool process_create_client(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_create(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_delete(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_write_data(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
+    bool process_read_data(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header);
 
     XRCEListener* listener_ = nullptr;
     Serializer deserializer_;

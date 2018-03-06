@@ -32,12 +32,13 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
-DataReaderTests::DataReaderTests() : data_reader_(fixed_object_id, nullptr, this, "default_xrce_subscriber_profile")
+DataReaderTests::DataReaderTests()
+    : data_reader_()
 {
-    data_reader_init_ = data_reader_.init();
+//    data_reader_init_ = data_reader_.init();
 }
 
-void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& req_id,
+void DataReaderTests::on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
                                    const std::vector<unsigned char>& buffer)
 {
     // TODO.
@@ -50,13 +51,13 @@ void DataReaderTests::on_read_data(const ObjectId& object_id, const RequestId& r
 TEST_F(DataReaderTests, DISABLED_ReadFormatData)
 {
     ASSERT_TRUE(data_reader_init_);
-    READ_DATA_Payload read_conf;
+    dds::xrce::READ_DATA_Payload read_conf;
     read_conf.object_id(fixed_object_id);
     read_conf.request_id(fixed_request_id);
-    read_conf.read_specification().delivery_config().data_format(FORMAT_DATA);
+    read_conf.read_specification().data_format(dds::xrce::FORMAT_DATA);
     int tries = 300;
-    data_reader_.read(read_conf);
-    while (!data_reader_.has_message() && tries > 0)
+    data_reader_->read(read_conf);
+    while (!data_reader_->has_message() && tries > 0)
     {
         --tries;
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -69,18 +70,19 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatData)
 TEST_F(DataReaderTests, DISABLED_ReadFormatDataSeq)
 {
     ASSERT_TRUE(data_reader_init_);
-    READ_DATA_Payload read_conf;
+    dds::xrce::READ_DATA_Payload read_conf;
     read_conf.object_id(fixed_object_id);
     read_conf.request_id(fixed_request_id);
-    eprosima::micrortps::DataDeliveryControl control;
+    dds::xrce::DataDeliveryControl control;
     control.max_elapsed_time(20000);
     control.max_samples(10);
-    control.max_rate(100);
-    read_conf.read_specification().delivery_config().delivery_control(control, FORMAT_DATA_SEQ);
+    control.max_bytes_per_second(100);
+    read_conf.read_specification().data_format(dds::xrce::FORMAT_DATA_SEQ);
+    read_conf.read_specification().delivery_control(control);
     int tries = 300;
-    data_reader_.read(read_conf);
+    data_reader_->read(read_conf);
     // Waits for the first message.
-    while (!data_reader_.has_message() && tries > 0)
+    while (!data_reader_->has_message() && tries > 0)
     {
         --tries;
         std::this_thread::sleep_for(std::chrono::milliseconds(2));

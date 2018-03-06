@@ -14,13 +14,15 @@
 
 #include <agent/XRCEObject.hpp>
 
-using eprosima::micrortps::XRCEObject;
-using eprosima::micrortps::ObjectId;
+namespace eprosima {
+namespace micrortps {
 
-XRCEObject::~XRCEObject()
-{ }
+XRCEObject::~XRCEObject() {}
 
-ObjectId XRCEObject::getID() const
+dds::xrce::ObjectId XRCEObject::getID() const
 {
     return id_;
 }
+
+} } // namespace eprosima::micrortps
+

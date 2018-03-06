@@ -35,30 +35,14 @@ namespace micrortps {
 class XRCEParticipant : public XRCEObject
 {
   public:
-    XRCEParticipant(const ObjectId& id);
+    XRCEParticipant(const dds::xrce::ObjectId& id);
     virtual ~XRCEParticipant();
 
     bool init();
 
-    fastrtps::Participant* get_participant()
-    {
-        return mp_rtps_participant;
-    };
-
-    XRCEObject* create_publisher()
-    {
-        return nullptr;
-    }
-    XRCEObject* create_subscriber()
-    {
-        return nullptr;
-    }
-    // XRCEObject* create_topic();
-    XRCEObject* create_topic(const ObjectId& id, const std::string& xmlrep);
-    // XRCEObject* create_writer();
-    XRCEObject* create_writer(const ObjectId& id, const std::string& xmlrep);
-    // XRCEObject* create_reader(ReaderListener* message_listener);
-    XRCEObject* create_reader(const ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
+    XRCEObject* create_topic(const dds::xrce::ObjectId& id, const std::string& xmlrep);
+    XRCEObject* create_writer(const dds::xrce::ObjectId& id, const std::string& xmlrep);
+    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
 
     XRCEObject* get_writer();
     XRCEObject* get_reader();

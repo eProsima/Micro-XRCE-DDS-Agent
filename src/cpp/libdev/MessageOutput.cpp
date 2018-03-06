@@ -16,8 +16,8 @@
 
 #include <stdio.h>
 
+#include <XRCETypes.h>
 #include <MessageHeader.h>
-#include <Payloads.h>
 #include <SubMessageHeader.h>
 
 namespace eprosima {
@@ -37,7 +37,7 @@ uint16_t platform_array_to_num(const std::array<uint8_t, 2>& array)
 #endif
 }
 
-void print_message_header(const MessageHeader& header)
+void print_message_header(const dds::xrce::MessageHeader& header)
 {
     printf("<Header> \n");
     printf("  - client_key: 0x%08X\n", clientkey_to_uint(header.client_key()));
@@ -47,29 +47,29 @@ void print_message_header(const MessageHeader& header)
     printf("\n\n");
 }
 
-void print_submessage_header(const SubmessageHeader& header)
+void print_submessage_header(const dds::xrce::SubmessageHeader& header)
 {
     switch (header.submessage_id())
     {
-        case CREATE_CLIENT:
+        case dds::xrce::CREATE_CLIENT:
             printf("<Submessage> [CREATE_CLIENT] \n");
             break;
-        case CREATE:
+        case dds::xrce::CREATE:
             printf("<Submessage> [CREATE] \n");
             break;
-        case DELETE:
+        case dds::xrce::DELETE:
             printf("<Submessage> [DELETE]\n");
             break;
-        case STATUS:
+        case dds::xrce::STATUS:
             printf("<Submessage> [STATUS]\n");
             break;
-        case WRITE_DATA:
+        case dds::xrce::WRITE_DATA:
             printf("<Submessage> [WRITE_DATA]\n");
             break;
-        case READ_DATA:
+        case dds::xrce::READ_DATA:
             printf("<Submessage> [READ_DATA]\n");
             break;
-        case DATA:
+        case dds::xrce::DATA:
             printf("<Submessage> [DATA]\n");
             break;
         default:
@@ -83,7 +83,7 @@ void print_submessage_header(const SubmessageHeader& header)
     printf("\n");
 }
 
-void print_create_submessage(const CREATE_Payload& payload)
+void print_create_submessage(const dds::xrce::CREATE_Payload& payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
@@ -94,49 +94,43 @@ void print_create_submessage(const CREATE_Payload& payload)
 
     switch (payload.object_representation()._d())
     {
-        case OBJECTKIND::PARTICIPANT:
+        case dds::xrce::OBJK_PARTICIPANT:
             printf("    <Participant>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().participant().representation()._d());
             switch (payload.object_representation().participant().representation()._d())
             {
-                case REPRESENTATION_BY_REFERENCE:
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
                     printf("    - string_size: 0x%08lX\n",
-                           payload.object_representation().participant().representation().object_name().size());
+                           payload.object_representation().participant().representation().object_reference().size());
                     printf("    - string: %s\n",
-                           payload.object_representation().participant().representation().object_name().c_str());
+                           payload.object_representation().participant().representation().object_reference().c_str());
                     break;
-                case REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     printf(
                         "    - string_size: 0x%08lX\n",
-                        payload.object_representation().participant().representation().string_representation().size());
+                        payload.object_representation().participant().representation().xml_string_representation().size());
                     printf("    - string: %s\n",
-                           payload.object_representation().participant().representation().string_representation().c_str());
+                           payload.object_representation().participant().representation().xml_string_representation().c_str());
                     break;
             }
             break;
-        case OBJECTKIND::DATAWRITER:
+        case dds::xrce::OBJK_DATAWRITER:
             printf("    <Data writer>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().data_writer().representation()._d());
             switch (payload.object_representation().data_writer().representation()._d())
             {
-                case REPRESENTATION_BY_REFERENCE:
-                    printf("    - string_size: 0x%08lX\n",
-                           payload.object_representation().data_writer().representation().object_reference().size());
-                    printf("    - string: %s\n",
-                           payload.object_representation().data_writer().representation().object_reference().c_str());
-                    break;
-                case REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     printf("    - string_size: 0x%08lX\n", payload.object_representation()
-                                                              .data_writer()
-                                                              .representation()
-                                                              .xml_string_representation()
-                                                              .size());
+                                                                  .data_writer()
+                                                                  .representation()
+                                                                  .string_representation()
+                                                                  .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_writer().representation().xml_string_representation().c_str());
+                           payload.object_representation().data_writer().representation().string_representation().c_str());
                     break;
-                case REPRESENTATION_IN_BINARY:
+                case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
                         "    - binary_size: 0x%08lX\n",
                         payload.object_representation().data_writer().representation().binary_representation().size());
@@ -146,32 +140,25 @@ void print_create_submessage(const CREATE_Payload& payload)
                     printf("    - string: %s\n", str_data.c_str());
                     break;
             }
-            printf("    - participan_id: 0x%06X\n", objectid_to_uint(payload.object_representation().data_writer().participant_id()));
             printf("    - publisher_id: 0x%06X\n", objectid_to_uint(payload.object_representation().data_writer().publisher_id()));
             break;
 
-        case OBJECTKIND::DATAREADER:
+        case dds::xrce::OBJK_DATAREADER:
             printf("    <Data reader>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().data_reader().representation()._d());
             switch (payload.object_representation().data_reader().representation()._d())
             {
-                case REPRESENTATION_BY_REFERENCE:
-                    printf("    - string_size: 0x%08lX\n",
-                           payload.object_representation().data_reader().representation().object_reference().size());
-                    printf("    - string: %s\n",
-                           payload.object_representation().data_reader().representation().object_reference().c_str());
-                    break;
-                case REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     printf("    - string_size: 0x%08lX\n", payload.object_representation()
                                                               .data_reader()
                                                               .representation()
-                                                              .xml_string_representation()
+                                                              .string_representation()
                                                               .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_reader().representation().xml_string_representation().c_str());
+                           payload.object_representation().data_reader().representation().string_representation().c_str());
                     break;
-                case REPRESENTATION_IN_BINARY:
+                case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
                         "    - binary_size: 0x%08lX\n",
                         payload.object_representation().data_reader().representation().binary_representation().size());
@@ -182,32 +169,25 @@ void print_create_submessage(const CREATE_Payload& payload)
                     std::string str;
                     break;
             }
-            printf("    - participan_id: 0x%06X\n", objectid_to_uint(payload.object_representation().data_reader().participant_id()));
             printf("    - subscriber_id: 0x%06X\n", objectid_to_uint(payload.object_representation().data_reader().subscriber_id()));
             break;
 
-        case OBJECTKIND::SUBSCRIBER:
+        case dds::xrce::OBJK_SUBSCRIBER:
             printf("    <Data subscriber>\n");
             printf("    - representation: 0x%02X\n",
                    payload.object_representation().subscriber().representation()._d());
             switch (payload.object_representation().subscriber().representation()._d())
             {
-                case REPRESENTATION_BY_REFERENCE:
-                    printf("    - string_size: 0x%08lX\n",
-                           payload.object_representation().subscriber().representation().object_reference().size());
-                    printf("    - string: %s\n",
-                           payload.object_representation().subscriber().representation().object_reference().c_str());
-                    break;
-                case REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     printf("    - string_size: 0x%08lX\n", payload.object_representation()
                                                               .subscriber()
                                                               .representation()
-                                                              .xml_string_representation()
+                                                              .string_representation()
                                                               .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().subscriber().representation().xml_string_representation().c_str());
+                           payload.object_representation().subscriber().representation().string_representation().c_str());
                     break;
-                case REPRESENTATION_IN_BINARY:
+                case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
                         "    - binary_size: 0x%08lX\n",
                         payload.object_representation().subscriber().representation().binary_representation().size());
@@ -220,27 +200,21 @@ void print_create_submessage(const CREATE_Payload& payload)
             printf("    - participan_id: 0x%06X\n", objectid_to_uint(payload.object_representation().subscriber().participant_id()));
             break;
 
-        case OBJECTKIND::PUBLISHER:
+        case dds::xrce::OBJK_PUBLISHER:
             printf("    <Data publisher>\n");
             printf("    - representation: 0x%02X\n", payload.object_representation().publisher().representation()._d());
             switch (payload.object_representation().publisher().representation()._d())
             {
-                case REPRESENTATION_BY_REFERENCE:
-                    printf("    - string_size: 0x%08lX\n",
-                           payload.object_representation().publisher().representation().object_reference().size());
-                    printf("    - string: %s\n",
-                           payload.object_representation().publisher().representation().object_reference().c_str());
-                    break;
-                case REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     printf("    - string_size: 0x%08lX\n", payload.object_representation()
                                                               .publisher()
                                                               .representation()
-                                                              .xml_string_representation()
+                                                              .string_representation()
                                                               .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().publisher().representation().xml_string_representation().c_str());
+                           payload.object_representation().publisher().representation().string_representation().c_str());
                     break;
-                case REPRESENTATION_IN_BINARY:
+                case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf("    - binary_size: 0x%08lX\n",
                            payload.object_representation().publisher().representation().binary_representation().size());
                     str_data = std::string(
@@ -258,7 +232,7 @@ void print_create_submessage(const CREATE_Payload& payload)
     printf("\n\n");
 }
 
-void print_delete_submessage(const DELETE_RESOURCE_Payload& payload)
+void print_delete_submessage(const dds::xrce::DELETE_Payload& payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
@@ -266,86 +240,55 @@ void print_delete_submessage(const DELETE_RESOURCE_Payload& payload)
     printf("\n\n");
 }
 
-void print_status_submessage(const RESOURCE_STATUS_Payload& payload)
+void print_status_submessage(const dds::xrce::STATUS_Payload& payload)
 {
     printf("  <Payload>\n");
-    printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
+    printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.related_request().request_id()));
     printf("  - status: 0x%02X\n", payload.result().status());
-    printf("  - implementation: 0x%02X\n", payload.result().implementation_status());
-    printf("  - object_id: 0x%06X\n", objectid_to_uint(payload.object_id()));
+    printf("  - status: 0x%02X\n", payload.result().implementation_status());
+    printf("  - object_id: 0x%06X\n", objectid_to_uint(payload.related_request().object_id()));
 
     printf("\n\n");
 }
 
-void print_write_data_submessage(const WRITE_DATA_Payload& payload)
+void print_write_data_submessage(const dds::xrce::WRITE_DATA_Payload_Data& payload)
 {
-
-    payload.request_id();
-    payload.object_id();
-    payload.data_to_write()._d();
-
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
     printf("  - object_id: 0x%06X\n", objectid_to_uint(payload.object_id()));
-    printf("  - data format: 0x%02X\n", payload.data_to_write()._d());
+    printf("  - data format: 0x%02X\n", dds::xrce::FORMAT_DATA);
 
     std::string str_data;
-
-    switch (payload.data_to_write()._d())
-    {
-        case FORMAT_DATA:
-            printf("    <Data>\n");
-            printf("    - serialized_data_size: 0x%08lX\n", payload.data_to_write().data().serialized_data().size());
-            str_data = std::string(payload.data_to_write().data().serialized_data().begin(),
-                                   payload.data_to_write().data().serialized_data().end());
-            printf("    - serialized_data: %s\n", str_data.c_str());
-            break;
-        case FORMAT_DATA_SEQ:
-            printf("    <Data>\n");
-            printf("    - num datas: 0x%08lX\n", payload.data_to_write().data_seq().size());
-            for (auto data : payload.data_to_write().data_seq())
-            {
-                printf("    - serialized_data_size: 0x%08lX\n", data.serialized_data().size());
-                str_data = std::string(data.serialized_data().begin(), 
-                                       data.serialized_data().end());
-                //printf("    - serialized_data: %s\n", data.serialized_data());
-                printf("    - serialized_data: %s\n", str_data.c_str());
-            }
-            break;
-        case FORMAT_SAMPLE:
-            break;
-        case FORMAT_SAMPLE_SEQ:
-            break;
-        case FORMAT_PACKED_SAMPLES:
-            break;
-    }
+    printf("    <Data>\n");
+    printf("    - serialized_data_size: 0x%08lX\n", payload.data().serialized_data().size());
+    str_data = std::string(payload.data().serialized_data().begin(),
+                           payload.data().serialized_data().end());
+    printf("    - serialized_data: %s\n", str_data.c_str());
     printf("\n\n");
 }
 
-void print_read_data_submessage(const READ_DATA_Payload& payload)
+void print_read_data_submessage(const dds::xrce::READ_DATA_Payload& payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
     printf("  - object_id: 0x%06X\n", objectid_to_uint(payload.object_id()));
-    if (payload.read_specification().has_content_filter_expresion())
+    if (payload.read_specification().has_content_filter_expression())
     {
         printf("  - content filter size: 0x%08lX\n", payload.read_specification().content_filter_expression().size());
         printf("  - content filter: %s\n", payload.read_specification().content_filter_expression().c_str());
     }
-    printf("  - data format: 0x%02X\n", payload.read_specification().delivery_config()._d());
+    printf("  - data format: 0x%02X\n", payload.read_specification().data_format());
     printf("  - max_elapsed_time: %u\n",
-           payload.read_specification().delivery_config().delivery_control().max_elapsed_time());
-    printf("  - max_rate: %u\n", payload.read_specification().delivery_config().delivery_control().max_rate());
-    printf("  - max_samples: %hu\n", payload.read_specification().delivery_config().delivery_control().max_samples());
+           payload.read_specification().delivery_control().max_elapsed_time());
+    printf("  - max_rate: %u\n", payload.read_specification().delivery_control().max_bytes_per_second());
+    printf("  - max_samples: %hu\n", payload.read_specification().delivery_control().max_samples());
     printf("\n\n");
 }
 
-void print_data_submessage(const DATA_Payload_Data& payload)
+void print_data_submessage(const dds::xrce::DATA_Payload_Data& payload)
 {
     printf("  <Payload>\n");
     printf("  - request_id: 0x%08X\n", requestid_to_uint(payload.request_id()));
-    printf("  - status: 0x%02X\n", payload.result().status());
-    printf("  - implementation: 0x%02X\n", payload.result().implementation_status());
     printf("  - object_id: 0x%06X\n", objectid_to_uint(payload.object_id()));
     printf("    <Data>\n");
     printf("    - serialized_data_size: 0x%08lX\n", payload.data().serialized_data().size());
@@ -355,67 +298,65 @@ void print_data_submessage(const DATA_Payload_Data& payload)
     printf("\n\n");
 }
 
-void print_data_submessage(const DATA_Payload_Sample& payload)
+void print_data_submessage(const dds::xrce::DATA_Payload_Sample& payload)
 {
     // TODO.
     (void) payload;
 }
 
-void print_data_submessage(const DATA_Payload_DataSeq& payload)
+void print_data_submessage(const dds::xrce::DATA_Payload_DataSeq& payload)
 {
     // TODO.
     (void) payload;
 }
 
-void print_data_submessage(const DATA_Payload_SampleSeq& payload)
+void print_data_submessage(const dds::xrce::DATA_Payload_SampleSeq& payload)
 {
     // TODO.
     (void) payload;
 }
 
-void print_data_submessage(const DATA_Payload_PackedSamples& payload)
+void print_data_submessage(const dds::xrce::DATA_Payload_PackedSamples& payload)
 {
     // TODO.
     (void) payload;
 }
 
-void printl_create_client_submessage(const CREATE_CLIENT_Payload& payload)
+void printl_create_client_submessage(const dds::xrce::CREATE_CLIENT_Payload& payload)
 {
     printf("%s[Create client | id: 0x%04X | session: 0x%02X]%s\n", YELLOW.data(),
-           platform_array_to_num(payload.object_id()), payload.object_representation().session_id(),
+           platform_array_to_num(payload.object_id()), payload.client_representation().session_id(),
            RESTORE_COLOR.data());
 }
 
-void printl_create_submessage(const CREATE_Payload& payload)
+void printl_create_submessage(const dds::xrce::CREATE_Payload& payload)
 {
     char content[128];
     switch (payload.object_representation()._d())
     {
-        case OBJECTKIND::PARTICIPANT:
+        case dds::xrce::OBJK_PARTICIPANT:
             sprintf(content, "PARTICIPANT");
             break;
-        case OBJECTKIND::DATAWRITER:
-            sprintf(content, "DATA_WRITER | participant id: 0x%04X | publisher id: 0x%04X | xml: %lu",
-                    platform_array_to_num(payload.object_representation().data_writer().participant_id()),
+        case dds::xrce::OBJK_DATAWRITER:
+            sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: %lu",
                     platform_array_to_num(payload.object_representation().data_writer().publisher_id()),
-                    payload.object_representation().data_writer().representation().xml_string_representation().size());
+                    payload.object_representation().data_writer().representation().string_representation().size());
             break;
 
-        case OBJECTKIND::DATAREADER:
-            sprintf(content, "DATA_READER | participant id: 0x%04X | subscriber id: 0x%04X | xml: %lu",
-                    platform_array_to_num(payload.object_representation().data_reader().participant_id()),
+        case dds::xrce::OBJK_DATAREADER:
+            sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: %lu",
                     platform_array_to_num(payload.object_representation().data_reader().subscriber_id()),
-                    payload.object_representation().data_reader().representation().xml_string_representation().size());
+                    payload.object_representation().data_reader().representation().string_representation().size());
             break;
 
-        case OBJECTKIND::SUBSCRIBER:
+        case dds::xrce::OBJK_SUBSCRIBER:
             sprintf(content, "SUBSCRIBER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().subscriber().participant_id()));
             break;
 
-        case OBJECTKIND::PUBLISHER:
+        case dds::xrce::OBJK_PUBLISHER:
             sprintf(content, "PUBLISHER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().publisher().participant_id()));
             break;
-        case OBJECTKIND::TOPIC:
+        case dds::xrce::OBJK_TOPIC:
             sprintf(content, "TOPIC | participant id: 0x%04X", platform_array_to_num(payload.object_representation().topic().participant_id()));
             break;
         default:
@@ -425,112 +366,63 @@ void printl_create_submessage(const CREATE_Payload& payload)
            platform_array_to_num(payload.object_id()), content, RESTORE_COLOR.data());
 }
 
-void printl_delete_submessage(const DELETE_RESOURCE_Payload& payload)
+void printl_delete_submessage(const dds::xrce::DELETE_Payload& payload)
 {
     printf("%s[Delete | #0x%04X | id: 0x%04X]%s\n", YELLOW.data(), platform_array_to_num(payload.request_id()), platform_array_to_num(payload.object_id()),
            RESTORE_COLOR.data());
 }
 
-void printl_status_submessage(const RESOURCE_STATUS_Payload& payload)
+void printl_status_submessage(const dds::xrce::STATUS_Payload& payload)
 {
-    char kind[64];
+    char status[64];
     switch (payload.result().status())
     {
-        case STATUS_LAST_OP_NONE:
-            sprintf(kind, "NONE");
+        case dds::xrce::STATUS_OK:
+            sprintf(status, "OK");
             break;
-        case STATUS_LAST_OP_CREATE:
-            sprintf(kind, "CREATE");
+        case dds::xrce::STATUS_OK_MATCHED:
+            sprintf(status, "OK_MATCHED");
             break;
-        case STATUS_LAST_OP_UPDATE:
-            sprintf(kind, "UPDATE");
+        case dds::xrce::STATUS_ERR_DDS_ERROR:
+            sprintf(status, "ERR_DDS_ERROR");
             break;
-        case STATUS_LAST_OP_DELETE:
-            sprintf(kind, "DELETE");
+        case dds::xrce::STATUS_ERR_MISMATCH:
+            sprintf(status, "ERR_MISMATCH");
             break;
-        case STATUS_LAST_OP_LOOKUP:
-            sprintf(kind, "LOOKUP");
+        case dds::xrce::STATUS_ERR_ALREADY_EXISTS:
+            sprintf(status, "ERR_ALREADY_EXISTS");
             break;
-        case STATUS_LAST_OP_READ:
-            sprintf(kind, "READ");
+        case dds::xrce::STATUS_ERR_DENIED:
+            sprintf(status, "ERR_DENIED");
             break;
-        case STATUS_LAST_OP_WRITE:
-            sprintf(kind, "WRITE");
+        case dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE:
+            sprintf(status, "ERR_UNKNOWN_REFERENCE");
             break;
-        default:
-            sprintf(kind, "UNKNOWN");
-    }
-
-    char implementation[64];
-    switch (payload.result().implementation_status())
-    {
-        case STATUS_OK:
-            sprintf(implementation, "OK");
+        case dds::xrce::STATUS_ERR_INVALID_DATA:
+            sprintf(status, "ERR_INVALID_DATA");
             break;
-        case STATUS_OK_MATCHED:
-            sprintf(implementation, "OK_MATCHED");
+        case dds::xrce::STATUS_ERR_INCOMPATIBLE:
+            sprintf(status, "ERR_INCOMPATIBLE");
             break;
-        case STATUS_ERR_DDS_ERROR:
-            sprintf(implementation, "ERR_DDS_ERROR");
-            break;
-        case STATUS_ERR_MISMATCH:
-            sprintf(implementation, "ERR_MISMATCH");
-            break;
-        case STATUS_ERR_ALREADY_EXISTS:
-            sprintf(implementation, "ERR_ALREADY_EXISTS");
-            break;
-        case STATUS_ERR_DENIED:
-            sprintf(implementation, "ERR_DENIED");
-            break;
-        case STATUS_ERR_UNKNOWN_REFERENCE:
-            sprintf(implementation, "ERR_UNKNOWN_REFERENCE");
-            break;
-        case STATUS_ERR_INVALID_DATA:
-            sprintf(implementation, "ERR_INVALID_DATA");
-            break;
-        case STATUS_ERR_INCOMPATIBLE:
-            sprintf(implementation, "ERR_INCOMPATIBLE");
-            break;
-        case STATUS_ERR_RESOURCES:
-            sprintf(implementation, "ERR_RESOURCES");
+        case dds::xrce::STATUS_ERR_RESOURCES:
+            sprintf(status, "ERR_RESOURCES");
             break;
         default:
-            sprintf(implementation, "UNKNOWN");
+            sprintf(status, "UNKNOWN");
     }
 
-    printf("%s[Status | #0x%04X | id: 0x%04X | %s | %s]%s\n",
+    printf("%s[Status | #0x%04X | id: 0x%04X | %s]%s\n",
             GREEN.data(),
-                platform_array_to_num(payload.result().request_id()),
-                platform_array_to_num(payload.object_id()),
-                kind,
-                implementation,
+                platform_array_to_num(payload.related_request().request_id()),
+                platform_array_to_num(payload.related_request().object_id()),
+                status,
             RESTORE_COLOR.data());
 }
 
-void printl_write_data_submessage(const WRITE_DATA_Payload& payload)
+void printl_write_data_submessage(const dds::xrce::WRITE_DATA_Payload_Data& payload)
 {
     char content[1024];
-    switch (payload.data_to_write()._d())
-    {
-        case FORMAT_DATA:
-            sprintf(content, "DATA | data size: %lu", payload.data_to_write().data().serialized_data().size());
-            break;
-        case FORMAT_DATA_SEQ:
-        {
-            int seq_counter = 0;
-            for (auto data : payload.data_to_write().data_seq())
-            {
-                sprintf(content, "DATA | sq_nr: %u | data size: %lu", seq_counter++, data.serialized_data().size());
-            }
-            break;
-        }
-        case FORMAT_SAMPLE:
-            break;
-        case FORMAT_SAMPLE_SEQ:
-            break;
-        case FORMAT_PACKED_SAMPLES:
-            break;
-    }
+    sprintf(content, "DATA | data size: %lu", payload.data().serialized_data().size());
     printf("%s[Write data | #0x%04X | id: 0x%04X | %s]%s\n",
             YELLOW.data(),
             platform_array_to_num(payload.request_id()),
@@ -539,23 +431,26 @@ void printl_write_data_submessage(const WRITE_DATA_Payload& payload)
             RESTORE_COLOR.data());
 }
 
-void printl_read_data_submessage(const READ_DATA_Payload& payload)
+void printl_read_data_submessage(const dds::xrce::READ_DATA_Payload& payload)
 {
-    eprosima::micrortps::DataDeliveryControl read_control;
-    switch (payload.read_specification().delivery_config()._d())
+    dds::xrce::DataDeliveryControl read_control;
+    switch (payload.read_specification().data_format())
     {
-        case FORMAT_DATA:
-        case FORMAT_SAMPLE:
+        case dds::xrce::FORMAT_DATA:
+            break;
+        case dds::xrce::FORMAT_SAMPLE:
             read_control.max_elapsed_time(0);
-            read_control.max_rate(0);
+            read_control.max_bytes_per_second(0);
             read_control.max_samples(1);
             break;
-        case FORMAT_DATA_SEQ:
-        case FORMAT_SAMPLE_SEQ:
-        case FORMAT_PACKED_SAMPLES:
-            read_control.max_elapsed_time(payload.read_specification().delivery_config().delivery_control().max_elapsed_time());
-            read_control.max_rate(payload.read_specification().delivery_config().delivery_control().max_rate());
-            read_control.max_samples(payload.read_specification().delivery_config().delivery_control().max_samples());
+        case dds::xrce::FORMAT_DATA_SEQ:
+            break;
+        case dds::xrce::FORMAT_SAMPLE_SEQ:
+            break;
+        case dds::xrce::FORMAT_PACKED_SAMPLES:
+            read_control.max_elapsed_time(payload.read_specification().delivery_control().max_elapsed_time());
+            read_control.max_bytes_per_second(payload.read_specification().delivery_control().max_bytes_per_second());
+            read_control.max_samples(payload.read_specification().delivery_control().max_samples());
             break;
         default:
             break;
@@ -565,12 +460,12 @@ void printl_read_data_submessage(const READ_DATA_Payload& payload)
         platform_array_to_num(payload.request_id()),
         platform_array_to_num(payload.object_id()),
         read_control.max_elapsed_time(),
-        read_control.max_rate(),
+        read_control.max_bytes_per_second(),
         read_control.max_samples(),
         RESTORE_COLOR.data());
 }
 
-void printl_data_submessage(const DATA_Payload_Data& payload)
+void printl_data_submessage(const dds::xrce::DATA_Payload_Data& payload)
 {
     char content[64];
     sprintf(content, "DATA | data size: %lu", payload.data().serialized_data().size());
@@ -582,7 +477,7 @@ void printl_data_submessage(const DATA_Payload_Data& payload)
         RESTORE_COLOR.data());
 }
 
-void printl_data_submessage(const DATA_Payload_DataSeq& payload)
+void printl_data_submessage(const dds::xrce::DATA_Payload_DataSeq& payload)
 {
     char content[1024];
     int seq_counter = 0;
@@ -599,17 +494,17 @@ void printl_data_submessage(const DATA_Payload_DataSeq& payload)
     );
 }
 
-unsigned int clientkey_to_uint(const ClientKey& key)
+unsigned int clientkey_to_uint(const dds::xrce::ClientKey& key)
 {
     return key[0] + (key[1] << 8) + (key[2] << 16) + (key[3] << 24);
 }
 
-unsigned int requestid_to_uint(const RequestId& id)
+unsigned int requestid_to_uint(const dds::xrce::RequestId& id)
 {
     return id[0] + (id[1] << 8);
 }
 
-unsigned int objectid_to_uint(const ObjectId& id)
+unsigned int objectid_to_uint(const dds::xrce::ObjectId& id)
 {
     return id[0] + (id[1] << 8);
 }

@@ -30,7 +30,7 @@ TopicPubSubType::TopicPubSubType(bool with_key) {
     m_isGetKeyDefined = with_key;
 }
 
-bool TopicPubSubType::serialize(void *data, SerializedPayload_t *payload)
+bool TopicPubSubType::serialize(void *data, rtps::SerializedPayload_t *payload)
 {
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
     payload->data[0] = 0;
@@ -42,7 +42,7 @@ bool TopicPubSubType::serialize(void *data, SerializedPayload_t *payload)
     return true;
 }
 
-bool TopicPubSubType::deserialize(SerializedPayload_t* payload, void* data)
+bool TopicPubSubType::deserialize(rtps::SerializedPayload_t* payload, void* data)
 {
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
     buffer->assign(payload->data + 4, payload->data + payload->length);
@@ -65,7 +65,7 @@ void TopicPubSubType::deleteData(void* data) {
     delete((std::vector<unsigned char>*)data);
 }
 
-bool TopicPubSubType::getKey(void *data, InstanceHandle_t* handle)
+bool TopicPubSubType::getKey(void *data, rtps::InstanceHandle_t* handle)
 {
     // TODO.
     (void) data;

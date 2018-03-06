@@ -25,50 +25,39 @@ namespace { char dummy; }
 #endif
 
 #include "SubMessageHeader.h"
-
 #include <fastcdr/Cdr.h>
-
 #include <fastcdr/exceptions/BadParamException.h>
 using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 #include <type_traits>
 
-eprosima::micrortps::SubmessageHeader::SubmessageHeader()
+dds::xrce::SubmessageHeader::SubmessageHeader()
 {
     m_submessage_id = CREATE_CLIENT;
     m_flags = 0;
     m_submessage_length = 0;
 }
 
-eprosima::micrortps::SubmessageHeader::~SubmessageHeader()
+dds::xrce::SubmessageHeader::~SubmessageHeader()
 {
 }
 
-eprosima::micrortps::SubmessageHeader::SubmessageHeader(const SubmessageHeader &x)
-{
-    m_submessage_id = x.m_submessage_id;
-    m_flags = x.m_flags;
-    m_submessage_length = x.m_submessage_length;
-}
-
-eprosima::micrortps::SubmessageHeader::SubmessageHeader(SubmessageHeader &&x)
+dds::xrce::SubmessageHeader::SubmessageHeader(const SubmessageHeader &x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
 }
 
-eprosima::micrortps::SubmessageHeader& eprosima::micrortps::SubmessageHeader::operator=(const SubmessageHeader &x)
+dds::xrce::SubmessageHeader::SubmessageHeader(SubmessageHeader &&x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
-    
-    return *this;
 }
 
-eprosima::micrortps::SubmessageHeader& eprosima::micrortps::SubmessageHeader::operator=(SubmessageHeader &&x)
+dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator=(const SubmessageHeader &x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
@@ -77,7 +66,16 @@ eprosima::micrortps::SubmessageHeader& eprosima::micrortps::SubmessageHeader::op
     return *this;
 }
 
-size_t eprosima::micrortps::SubmessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
+dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator=(SubmessageHeader &&x)
+{
+    m_submessage_id = x.m_submessage_id;
+    m_flags = x.m_flags;
+    m_submessage_length = x.m_submessage_length;
+    
+    return *this;
+}
+
+size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
             
@@ -91,7 +89,7 @@ size_t eprosima::micrortps::SubmessageHeader::getMaxCdrSerializedSize(size_t cur
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::SubmessageHeader::getCdrSerializedSize(const eprosima::micrortps::SubmessageHeader& data, size_t current_alignment)
+size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(const dds::xrce::SubmessageHeader& data, size_t current_alignment)
 {
     // TODO.
     (void) data;
@@ -108,18 +106,18 @@ size_t eprosima::micrortps::SubmessageHeader::getCdrSerializedSize(const eprosim
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void dds::xrce::SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << static_cast<std::underlying_type<eprosima::micrortps::SubmessageId>::type const&>(m_submessage_id);
+    scdr << static_cast<std::underlying_type<dds::xrce::SubmessageId>::type const&>(m_submessage_id);
     scdr << m_flags;
     scdr.serialize(m_submessage_length, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
 }
 
-void eprosima::micrortps::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void dds::xrce::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    std::underlying_type<eprosima::micrortps::SubmessageId>::type temp_underlying_value;    
+    std::underlying_type<dds::xrce::SubmessageId>::type temp_underlying_value;
     dcdr >> temp_underlying_value;
-    m_submessage_id = static_cast<eprosima::micrortps::SubmessageId>(temp_underlying_value);
+    m_submessage_id = static_cast<dds::xrce::SubmessageId>(temp_underlying_value);
     
     dcdr >> m_flags;
 

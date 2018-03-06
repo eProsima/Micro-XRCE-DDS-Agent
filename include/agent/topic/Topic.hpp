@@ -31,7 +31,7 @@ namespace micrortps {
 class Topic : public XRCEObject
 {
   public:
-    Topic(ObjectId id, fastrtps::Participant* rtps_participant);
+    Topic(const dds::xrce::ObjectId& id, fastrtps::Participant& rtps_participant);
     Topic(Topic&&)      = default;
     Topic(const Topic&) = default;
     Topic& operator=(Topic&&) = default;
@@ -44,9 +44,10 @@ class Topic : public XRCEObject
     std::string name;
     std::string type_name;
 
-    fastrtps::Participant* rtps_participant_;
+    fastrtps::Participant& rtps_participant_;
     TopicPubSubType generic_type_;
 };
 } // namespace micrortps
 } // namespace eprosima
-#endif // !_TOPIC_H
+
+#endif // _TOPIC_H

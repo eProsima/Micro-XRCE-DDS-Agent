@@ -17,43 +17,38 @@
 
 #include <stdint.h>
 
-#include "DDSXRCETypes.h"
+#include "XRCETypes.h"
+#include "MessageHeader.h"
 
 #include "Serializer.h"
 
 namespace eprosima {
 namespace micrortps {
 
-class MessageHeader;
-class RESOURCE_STATUS_Payload;
-class DATA_Payload_Data;
-class DATA_Payload_Sample;
-class DATA_Payload_DataSeq;
-class DATA_Payload_SampleSeq;
-class DATA_Payload_PackedSamples;
-class BaseObjectReply;
-
 class XRCEFactory
 {
 public:
-    XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {};
-    void header(const MessageHeader& header);
-    void status(const RESOURCE_STATUS_Payload& result);
+    XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {}
+    void header(const dds::xrce::MessageHeader& header);
+    void status(const dds::xrce::STATUS_Payload& result);
     
-    void data(const DATA_Payload_Data& payload);
-    void data(const DATA_Payload_Sample& payload);
-    void data(const DATA_Payload_DataSeq& payload);
-    void data(const DATA_Payload_SampleSeq& payload);
-    void data(const DATA_Payload_PackedSamples& payload);
+    void data(const dds::xrce::DATA_Payload_Data& payload);
+    void data(const dds::xrce::DATA_Payload_Sample& payload);
+    void data(const dds::xrce::DATA_Payload_DataSeq& payload);
+    void data(const dds::xrce::DATA_Payload_SampleSeq& payload);
+    void data(const dds::xrce::DATA_Payload_PackedSamples& payload);
     
     size_t get_total_size();
 private:
 
-    void submessage_header(eprosima::micrortps::SubmessageId submessage_id, uint8_t flags, uint16_t submessage_length);
-    void reply(eprosima::micrortps::SubmessageId m_submessage_id, const BaseObjectReply& object_reply);
+    void submessage_header(dds::xrce::SubmessageId submessage_id,
+                           uint8_t flags,
+                           uint16_t submessage_length);
+    void reply(dds::xrce::SubmessageId submessage_id,
+               const dds::xrce::BaseObjectRequest& object_reply);
+
     Serializer serializer_;
 };
-
 
 } /* namespace micrortps */
 } /* namespace eprosima */

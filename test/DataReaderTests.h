@@ -30,16 +30,16 @@ class DataReaderTests : public ::testing::Test, public ReaderListener
 
     virtual ~DataReaderTests() = default;
 
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id,
+    void on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
                       const std::vector<unsigned char>& buffer) override;
 
-    eprosima::micrortps::DataReader data_reader_;
+    eprosima::micrortps::DataReader* data_reader_;
     bool data_reader_init_ = false;
     unsigned int read_count_ = 0;
-    ObjectId object_id_;
-    RequestId req_id_;
-    const RequestId fixed_request_id = {{1, 2}};
-    const ObjectId fixed_object_id   = {{10, 20}};
+    dds::xrce::ObjectId object_id_;
+    dds::xrce::RequestId req_id_;
+    const dds::xrce::RequestId fixed_request_id = {{1, 2}};
+    const dds::xrce::ObjectId fixed_object_id   = {{10, 20}};
 };
 } // namespace testing
 } // namespace micrortps

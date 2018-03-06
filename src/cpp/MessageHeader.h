@@ -22,8 +22,7 @@
 #ifndef _MessageHeader_H_
 #define _MessageHeader_H_
 
-// TODO Poner en el contexto.
-#include "DDSXRCETypes.h"
+#include "XRCETypes.h"
 
 #include <array>
 #include <stdint.h>
@@ -38,9 +37,9 @@ class Cdr;
 }
 }
 
-namespace eprosima
+namespace dds
 {
-namespace micrortps
+namespace xrce
 {
 /*!
  * @brief This class represents the structure MessageHeader defined by the user in the IDL file.
@@ -61,25 +60,25 @@ class MessageHeader
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::MessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::MessageHeader that will be copied.
      */
     MessageHeader(const MessageHeader &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::MessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::MessageHeader that will be copied.
      */
     MessageHeader(MessageHeader &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::MessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::MessageHeader that will be copied.
      */
     MessageHeader &operator=(const MessageHeader &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::MessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::MessageHeader that will be copied.
      */
     MessageHeader &operator=(MessageHeader &&x);
 
@@ -165,7 +164,7 @@ class MessageHeader
      * @brief This function copies the value in member client_key
      * @param _client_key New value to be copied in member client_key
      */
-    inline void client_key(const eprosima::micrortps::ClientKey &_client_key)
+    inline void client_key(const ClientKey &_client_key)
     {
         m_client_key = _client_key;
     }
@@ -174,7 +173,7 @@ class MessageHeader
      * @brief This function moves the value in member client_key
      * @param _client_key New value to be moved in member client_key
      */
-    inline void client_key(eprosima::micrortps::ClientKey &&_client_key)
+    inline void client_key(ClientKey &&_client_key)
     {
         m_client_key = std::move(_client_key);
     }
@@ -183,7 +182,7 @@ class MessageHeader
      * @brief This function returns a constant reference to member client_key
      * @return Constant reference to member client_key
      */
-    inline const eprosima::micrortps::ClientKey &client_key() const
+    inline const ClientKey &client_key() const
     {
         return m_client_key;
     }
@@ -192,7 +191,7 @@ class MessageHeader
      * @brief This function returns a reference to member client_key
      * @return Reference to member client_key
      */
-    inline eprosima::micrortps::ClientKey &client_key()
+    inline ClientKey &client_key()
     {
         return m_client_key;
     }
@@ -211,8 +210,7 @@ class MessageHeader
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::MessageHeader &data,
-                                                               size_t current_alignment = 0);
+    static size_t getCdrSerializedSize(const MessageHeader& data, size_t current_alignment = 0);
 
     /*!
      * @brief This function serializes an object using CDR serialization.
@@ -230,9 +228,9 @@ class MessageHeader
     uint8_t m_session_id;
     uint8_t m_stream_id;
     uint16_t m_sequence_nr;
-    eprosima::micrortps::ClientKey m_client_key;
+    ClientKey m_client_key;
 };
-}
-}
+
+} } // namespace dds::xrce
 
 #endif // _MessageHeader_H_

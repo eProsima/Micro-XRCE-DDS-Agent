@@ -14,8 +14,8 @@
 
 #include "agent/XRCEFactory.h"
 
+#include "XRCETypes.h"
 #include "MessageHeader.h"
-#include "Payloads.h"
 #include "SubMessageHeader.h"
 
 namespace eprosima {
@@ -26,54 +26,57 @@ size_t XRCEFactory::get_total_size()
     return serializer_.get_serialized_size();
 }
 
-void XRCEFactory::header(const MessageHeader& header)
+void XRCEFactory::header(const dds::xrce::MessageHeader& header)
 {
     serializer_.serialize(header);
 }
 
-void XRCEFactory::status(const RESOURCE_STATUS_Payload& payload)
+void XRCEFactory::status(const dds::xrce::STATUS_Payload& payload)
 {
-    submessage_header(STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    submessage_header(dds::xrce::STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
-void XRCEFactory::data(const DATA_Payload_Data& payload)
+void XRCEFactory::data(const dds::xrce::DATA_Payload_Data& payload)
 {
-    reply(DATA, payload);
+    reply(dds::xrce::DATA, payload);
 }
 
-void XRCEFactory::data(const DATA_Payload_Sample& payload)
+void XRCEFactory::data(const dds::xrce::DATA_Payload_Sample& payload)
 {
-    reply(DATA, payload);
+    reply(dds::xrce::DATA, payload);
 }
 
-void XRCEFactory::data(const DATA_Payload_DataSeq& payload)
+void XRCEFactory::data(const dds::xrce::DATA_Payload_DataSeq& payload)
 {
-    reply(DATA, payload);
+    reply(dds::xrce::DATA, payload);
 }
 
-void XRCEFactory::data(const DATA_Payload_SampleSeq& payload)
+void XRCEFactory::data(const dds::xrce::DATA_Payload_SampleSeq& payload)
 {
-    reply(DATA, payload);
+    reply(dds::xrce::DATA, payload);
 }
 
-void XRCEFactory::data(const DATA_Payload_PackedSamples& payload)
+void XRCEFactory::data(const dds::xrce::DATA_Payload_PackedSamples& payload)
 {
-    reply(DATA, payload);
+    reply(dds::xrce::DATA, payload);
 }
 
-void XRCEFactory::submessage_header(eprosima::micrortps::SubmessageId submessage_id, uint8_t flags, uint16_t submessage_length)
+void XRCEFactory::submessage_header(const dds::xrce::SubmessageId submessage_id,
+                                    const uint8_t flags,
+                                    const uint16_t submessage_length)
 {
-    SubmessageHeader subMessage = SubmessageHeader();
+    dds::xrce::SubmessageHeader subMessage = dds::xrce::SubmessageHeader();
     subMessage.submessage_id(submessage_id);
     subMessage.flags(flags);
     subMessage.submessage_length(submessage_length);
     serializer_.serialize(subMessage); // Add submessage
 }
 
-void XRCEFactory::reply(eprosima::micrortps::SubmessageId m_submessage_id, const BaseObjectReply& object_reply)
+void XRCEFactory::reply(const dds::xrce::SubmessageId submessage_id,
+                        const dds::xrce::BaseObjectRequest& object_reply)
 {
-    submessage_header(m_submessage_id, 0x07, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
+    submessage_header(submessage_id, 0x07, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
     serializer_.serialize(object_reply);
 }
 

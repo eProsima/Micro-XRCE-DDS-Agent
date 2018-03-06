@@ -14,11 +14,9 @@
 
 #include "agent/XRCEParser.h"
 
-// #include "libdev/MessageDebugger.h"
-
+#include "XRCETypes.h"
 #include "MessageHeader.h"
 #include "SubMessageHeader.h"
-#include "Payloads.h"
 
 #include <iostream>
 
@@ -27,10 +25,10 @@ namespace micrortps {
 
 bool XRCEParser::parse()
 {
-    MessageHeader message_header;
+    dds::xrce::MessageHeader message_header;
     if (deserializer_.deserialize(message_header))
     {
-        SubmessageHeader submessage_header;
+        dds::xrce::SubmessageHeader submessage_header;
         bool valid_submessage = false;
         do
         {
@@ -40,44 +38,44 @@ bool XRCEParser::parse()
             {
                 switch (submessage_header.submessage_id())
                 {
-                case CREATE_CLIENT:
+                case dds::xrce::CREATE_CLIENT:
                     if (!process_create_client(message_header, submessage_header))
                     {
                         std::cerr << "Error processing create client" << std::endl;
                     }
                     break;
-                case CREATE:
+                case dds::xrce::CREATE:
                     if (!process_create(message_header, submessage_header))
                     {
                         std::cerr << "Error processing create" << std::endl;
                     }
                     break;
-                case WRITE_DATA:
+                case dds::xrce::WRITE_DATA:
                     if (!process_write_data(message_header, submessage_header))
                     {
                         std::cerr << "Error processing write" << std::endl;
                     }
                     break;
-                case READ_DATA:
+                case dds::xrce::READ_DATA:
                     if (!process_read_data(message_header, submessage_header))
                     {
                         std::cerr << "Error processing read" << std::endl;
                     }
                     break;
-               case DELETE:
+               case dds::xrce::DELETE:
                    if(!process_delete(message_header, submessage_header))
                    {
                        std::cerr << "Error processing delete" << std::endl;
                    }
                    break;
-                case GET_INFO:
-                case STATUS:
-                case INFO:
-                case DATA:
-                case ACKNACK:
-                case HEARTBEAT:
-                case FRAGMENT:
-                case FRAGMENT_END:
+                /* TODO (Julian): add support for the rest of the messages. */
+                case dds::xrce::GET_INFO:
+                case dds::xrce::STATUS:
+                case dds::xrce::DATA:
+                case dds::xrce::ACKNACK:
+                case dds::xrce::HEARTBEAT:
+                case dds::xrce::FRAGMENT:
+                case dds::xrce::FRAGMENT_END:
                 default:
                     std::cerr << "Error submessage ID not recognized " << submessage_header.submessage_id() << std::endl;
                     return false;
@@ -99,9 +97,10 @@ bool XRCEParser::parse()
     return true;
 }
 
-bool XRCEParser::process_create_client(const MessageHeader& header, const SubmessageHeader& sub_header)
+bool XRCEParser::process_create_client(const dds::xrce::MessageHeader& header,
+                                       const dds::xrce::SubmessageHeader& sub_header)
 {
-    CREATE_CLIENT_Payload create_payload;
+    dds::xrce::CREATE_CLIENT_Payload create_payload;
     if (deserializer_.deserialize(create_payload))
     {
         listener_->on_message(header, sub_header, create_payload);
@@ -110,9 +109,10 @@ bool XRCEParser::process_create_client(const MessageHeader& header, const Submes
     return false;
 }
 
-bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHeader& sub_header)
+bool XRCEParser::process_create(const dds::xrce::MessageHeader& header,
+                                const dds::xrce::SubmessageHeader& sub_header)
 {
-    CREATE_Payload create_payload;
+    dds::xrce::CREATE_Payload create_payload;
     if (deserializer_.deserialize(create_payload))
     {
         listener_->on_message(header, sub_header, create_payload);
@@ -121,9 +121,10 @@ bool XRCEParser::process_create(const MessageHeader& header, const SubmessageHea
     return false;
 }
 
-bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHeader& sub_header)
+bool XRCEParser::process_delete(const dds::xrce::MessageHeader& header,
+                                const dds::xrce::SubmessageHeader& sub_header)
 {
-    DELETE_RESOURCE_Payload delete_payload;
+    dds::xrce::DELETE_Payload delete_payload;
     if (deserializer_.deserialize(delete_payload))
     {
         listener_->on_message(header, sub_header, delete_payload);
@@ -132,9 +133,10 @@ bool XRCEParser::process_delete(const MessageHeader& header, const SubmessageHea
     return false;
 }
 
-bool XRCEParser::process_read_data(const MessageHeader& header, const SubmessageHeader& sub_header)
+bool XRCEParser::process_read_data(const dds::xrce::MessageHeader& header,
+                                   const dds::xrce::SubmessageHeader& sub_header)
 {
-    READ_DATA_Payload read_data_payload;
+    dds::xrce::READ_DATA_Payload read_data_payload;
     if (deserializer_.deserialize(read_data_payload))
     {
         listener_->on_message(header, sub_header, read_data_payload);
@@ -143,9 +145,10 @@ bool XRCEParser::process_read_data(const MessageHeader& header, const Submessage
     return false;
 }
 
-bool XRCEParser::process_write_data(const MessageHeader& header, const SubmessageHeader& sub_header)
+bool XRCEParser::process_write_data(const dds::xrce::MessageHeader& header,
+                                    const dds::xrce::SubmessageHeader& sub_header)
 {
-    WRITE_DATA_Payload write_data_payload;
+    dds::xrce::WRITE_DATA_Payload_Data write_data_payload;
     if (deserializer_.deserialize(write_data_payload))
     {
         listener_->on_message(header, sub_header, write_data_payload);
@@ -154,5 +157,4 @@ bool XRCEParser::process_write_data(const MessageHeader& header, const Submessag
     return false;
 }
 
-} /* namespace micrortps */
-} /* namespace eprosima */
+} } // namespace eprosima::micrortps

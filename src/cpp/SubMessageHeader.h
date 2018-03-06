@@ -22,8 +22,7 @@
 #ifndef _SubMessageHeader_H_
 #define _SubMessageHeader_H_
 
-// TODO Poner en el contexto.
-#include "DDSXRCETypes.h"
+#include "XRCETypes.h"
 
 #include <array>
 #include <stdint.h>
@@ -38,10 +37,8 @@ class Cdr;
 }
 }
 
-namespace eprosima
-{
-namespace micrortps
-{
+namespace dds { namespace xrce {
+
 /*!
  * @brief This class represents the structure SubmessageHeader defined by the user in the IDL file.
  * @ingroup SUBMESSAGEHEADER
@@ -61,25 +58,25 @@ class SubmessageHeader
 
     /*!
      * @brief Copy constructor.
-     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::SubmessageHeader that will be copied.
      */
     SubmessageHeader(const SubmessageHeader &x);
 
     /*!
      * @brief Move constructor.
-     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::SubmessageHeader that will be copied.
      */
     SubmessageHeader(SubmessageHeader &&x);
 
     /*!
      * @brief Copy assignment.
-     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::SubmessageHeader that will be copied.
      */
     SubmessageHeader &operator=(const SubmessageHeader &x);
 
     /*!
      * @brief Move assignment.
-     * @param x Reference to the object eprosima::micrortps::SubmessageHeader that will be copied.
+     * @param x Reference to the object dds::xrce::SubmessageHeader that will be copied.
      */
     SubmessageHeader &operator=(SubmessageHeader &&x);
 
@@ -87,7 +84,7 @@ class SubmessageHeader
      * @brief This function sets a value in member submessage_id
      * @param _submessage_id New value for member submessage_id
      */
-    inline void submessage_id(eprosima::micrortps::SubmessageId _submessage_id)
+    inline void submessage_id(dds::xrce::SubmessageId _submessage_id)
     {
         m_submessage_id = _submessage_id;
     }
@@ -96,7 +93,7 @@ class SubmessageHeader
      * @brief This function returns the value of member submessage_id
      * @return Value of member submessage_id
      */
-    inline eprosima::micrortps::SubmessageId submessage_id() const
+    inline dds::xrce::SubmessageId submessage_id() const
     {
         return m_submessage_id;
     }
@@ -105,7 +102,7 @@ class SubmessageHeader
      * @brief This function returns a reference to member submessage_id
      * @return Reference to member submessage_id
      */
-    inline eprosima::micrortps::SubmessageId &submessage_id()
+    inline dds::xrce::SubmessageId &submessage_id()
     {
         return m_submessage_id;
     }
@@ -176,7 +173,7 @@ class SubmessageHeader
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const eprosima::micrortps::SubmessageHeader &data,
+    static size_t getCdrSerializedSize(const dds::xrce::SubmessageHeader &data,
                                                                size_t current_alignment = 0);
 
     /*!
@@ -192,11 +189,11 @@ class SubmessageHeader
     void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
-    eprosima::micrortps::SubmessageId m_submessage_id;
+    dds::xrce::SubmessageId m_submessage_id;
     uint8_t m_flags;
     uint16_t m_submessage_length;
 };
-}
-}
+
+} } // namespace dds::xrce
 
 #endif // _SubMessageHeader_H_

@@ -14,8 +14,8 @@
 
 #include "agent/Serializer.h"
 
+#include "XRCETypes.h"
 #include "MessageHeader.h"
-#include "Payloads.h"
 #include "SubMessageHeader.h"
 
 #include <iostream>
@@ -41,23 +41,24 @@ template <class T> bool Serializer::serialize(const T &data)
     return true;
 }
 
-template bool Serializer::serialize(const MessageHeader &data);
-template bool Serializer::serialize(const SubmessageHeader &data);
-template bool Serializer::serialize(const RESOURCE_STATUS_Payload &data);
-template bool Serializer::serialize(const DATA_Payload_Data &data);
-template bool Serializer::serialize(const DATA_Payload_DataSeq &data);
-template bool Serializer::serialize(const DATA_Payload_Sample &data);
-template bool Serializer::serialize(const DATA_Payload_SampleSeq &data);
-template bool Serializer::serialize(const DATA_Payload_PackedSamples &data);
-template bool Serializer::serialize(const BaseObjectReply &data);
-template bool Serializer::serialize(const ResultStatus &data);
+template bool Serializer::serialize(const dds::xrce::MessageHeader &data);
+template bool Serializer::serialize(const dds::xrce::SubmessageHeader &data);
+template bool Serializer::serialize(const dds::xrce::STATUS_Payload &data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_Data &data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_DataSeq &data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_Sample &data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_SampleSeq &data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_PackedSamples &data);
+template bool Serializer::serialize(const dds::xrce::BaseObjectReply &data);
+template bool Serializer::serialize(const dds::xrce::BaseObjectRequest &data);
+template bool Serializer::serialize(const dds::xrce::ResultStatus &data);
 
-// TODO(borja) No deberia poder serializar. Estan instanciados para tests.
-template bool Serializer::serialize(const READ_DATA_Payload &data);
-template bool Serializer::serialize(const WRITE_DATA_Payload &data);
-template bool Serializer::serialize(const CREATE_Payload &data);
-template bool Serializer::serialize(const CREATE_CLIENT_Payload &data);
-template bool Serializer::serialize(const DELETE_RESOURCE_Payload &data);
+// TODO(Borja) No deberia poder serializar. Estan instanciados para tests.
+template bool Serializer::serialize(const dds::xrce::READ_DATA_Payload &data);
+template bool Serializer::serialize(const dds::xrce::WRITE_DATA_Payload_Data &data);
+template bool Serializer::serialize(const dds::xrce::CREATE_Payload &data);
+template bool Serializer::serialize(const dds::xrce::CREATE_CLIENT_Payload &data);
+template bool Serializer::serialize(const dds::xrce::DELETE_Payload &data);
 
 template <class T> bool Serializer::deserialize(T &data)
 {
@@ -73,20 +74,21 @@ template <class T> bool Serializer::deserialize(T &data)
     return true;
 }
 
-template bool Serializer::deserialize(MessageHeader &data);
-template bool Serializer::deserialize(SubmessageHeader &data);
-template bool Serializer::deserialize(CREATE_Payload &data);
-template bool Serializer::deserialize(CREATE_CLIENT_Payload &data);
-template bool Serializer::deserialize(DELETE_RESOURCE_Payload &data);
-template bool Serializer::deserialize(RESOURCE_STATUS_Payload &data);
-template bool Serializer::deserialize(READ_DATA_Payload &data);
-template bool Serializer::deserialize(WRITE_DATA_Payload &data);
-// TODO(borja) No deberia poder serializar. Estan instanciados para tests.
-template bool Serializer::deserialize(DATA_Payload_Data &data);
-template bool Serializer::deserialize(DATA_Payload_DataSeq &data);
-template bool Serializer::deserialize(DATA_Payload_Sample &data);
-template bool Serializer::deserialize(DATA_Payload_SampleSeq &data);
-template bool Serializer::deserialize(DATA_Payload_PackedSamples &data);
+template bool Serializer::deserialize(dds::xrce::MessageHeader &data);
+template bool Serializer::deserialize(dds::xrce::SubmessageHeader &data);
+template bool Serializer::deserialize(dds::xrce::CREATE_Payload &data);
+template bool Serializer::deserialize(dds::xrce::CREATE_CLIENT_Payload &data);
+template bool Serializer::deserialize(dds::xrce::DELETE_Payload &data);
+template bool Serializer::deserialize(dds::xrce::STATUS_Payload &data);
+template bool Serializer::deserialize(dds::xrce::READ_DATA_Payload &data);
+template bool Serializer::deserialize(dds::xrce::WRITE_DATA_Payload_Data &data);
+
+/* TODO (Borja): externalize templates, they are only useful for testing. */
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_Data &data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_DataSeq &data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_Sample &data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_SampleSeq &data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_PackedSamples &data);
 
 size_t Serializer::get_serialized_size()
 {

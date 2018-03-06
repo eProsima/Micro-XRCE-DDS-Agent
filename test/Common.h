@@ -15,9 +15,8 @@
 #ifndef _TESTS_COMMON_H
 #define _TESTS_COMMON_H
 
-#include <DDSXRCETypes.h>
+#include <XRCETypes.h>
 #include <MessageHeader.h>
-#include <Payloads.h>
 #include <SubMessageHeader.h>
 
 namespace eprosima {
@@ -27,42 +26,34 @@ namespace testing {
 class CommonData
 {
   protected:
-    const ClientKey client_key      = {{0xF1, 0xF2, 0xF3, 0xF4}};
-    const XrceVendorId vendor_id    = {{0x00, 0x01}};
-    const RequestId request_id      = {{1, 2}};
-    const ObjectId object_id        = {{10, 20}};
-    const uint8_t session_id        = 0x01;
-    const uint8_t stream_id         = 0x04;
-    const uint16_t sequence_nr      = 0x0001;
-    const uint8_t flags             = 0x07;
-    const uint16_t max_samples      = 0x0001;
-    const uint32_t max_elapsed_time = 0x00000001;
-    const uint32_t max_rate         = 0x00000012;
+    const dds::xrce::ClientKey client_key      = {{0xF1, 0xF2, 0xF3, 0xF4}};
+    const dds::xrce::XrceVendorId vendor_id    = {{0x00, 0x01}};
+    const dds::xrce::RequestId request_id      = {{1, 2}};
+    const dds::xrce::ObjectId object_id        = {{10, 20}};
+    const uint8_t session_id                   = 0x01;
+    const uint8_t stream_id                    = 0x04;
+    const uint16_t sequence_nr                 = 0x0001;
+    const uint8_t flags                        = 0x07;
+    const uint16_t max_samples                 = 0x0001;
+    const uint32_t max_elapsed_time            = 0x00000001;
+    const uint32_t max_rate                    = 0x00000012;
 
-    MessageHeader generate_message_header() const;
+    dds::xrce::MessageHeader generate_message_header() const;
 
-    SubmessageHeader generate_submessage_header(const SubmessageId& submessage_id, uint16_t length) const;
+    dds::xrce::SubmessageHeader generate_submessage_header(const dds::xrce::SubmessageId& submessage_id, uint16_t length) const;
 
-    CREATE_CLIENT_Payload generate_create_client_payload() const;
-    CREATE_Payload generate_create_payload(const OBJECTKIND& object_kind) const;
-
-    DELETE_RESOURCE_Payload generate_delete_resource_payload(const ObjectId& obj_id) const;
-
-    OBJK_CLIENT_Representation generate_client_representation() const;
-
-    OBJK_PUBLISHER_Representation generate_publisher_representation() const;
-
-    OBJK_SUBSCRIBER_Representation generate_subscriber_representation() const;
-
-    ObjectVariant generate_object_variant(const OBJECTKIND& object_kind) const;
-
-    RESOURCE_STATUS_Payload generate_resource_status_payload(uint8_t status, uint8_t implementation_status) const;
-
-    READ_DATA_Payload generate_read_data_payload(const Optional<std::string>& filter, const DataFormat& format) const;
-
-    WRITE_DATA_Payload generate_write_data_payload() const;
-
-    DATA_Payload_Data generate_data_payload_data(uint8_t status, uint8_t implementation_status) const;
+    dds::xrce::CREATE_CLIENT_Payload generate_create_client_payload() const;
+    dds::xrce::CREATE_Payload generate_create_payload(const dds::xrce::ObjectKind& object_kind) const;
+    dds::xrce::DELETE_Payload generate_delete_resource_payload(const dds::xrce::ObjectId& obj_id) const;
+    dds::xrce::CLIENT_Representation generate_client_representation() const;
+    dds::xrce::OBJK_PUBLISHER_Representation generate_publisher_representation() const;
+    dds::xrce::OBJK_SUBSCRIBER_Representation generate_subscriber_representation() const;
+    dds::xrce::OBJK_PARTICIPANT_Representation generate_participant_representation() const;
+    dds::xrce::ObjectVariant generate_object_variant(const dds::xrce::ObjectKind& object_kind) const;
+    dds::xrce::STATUS_Payload generate_resource_status_payload(uint8_t status, uint8_t implementation_status) const;
+    dds::xrce::READ_DATA_Payload generate_read_data_payload(const Optional<std::string>& filter, const dds::xrce::DataFormat& format) const;
+    dds::xrce::WRITE_DATA_Payload_Data generate_write_data_payload() const;
+    dds::xrce::DATA_Payload_Data generate_data_payload_data() const;
 };
 } // namespace testing
 } // namespace micrortps

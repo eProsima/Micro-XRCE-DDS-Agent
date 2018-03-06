@@ -19,8 +19,7 @@
 #ifndef DATAREADER_H_
 #define DATAREADER_H_
 
-#include <DDSXRCETypes.h>
-#include <Payloads.h>
+#include <XRCETypes.h>
 #include <agent/XRCEObject.hpp>
 #include <agent/types/TopicPubSubType.h>
 
@@ -56,7 +55,7 @@ class ReaderListener
     ReaderListener& operator=(ReaderListener&&) = default;
     ReaderListener& operator=(const ReaderListener&) = default;
 
-    virtual void on_read_data(const ObjectId& object_id, const RequestId& req_id,
+    virtual void on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
                               const std::vector<unsigned char>& buffer) = 0;
 };
 
@@ -79,7 +78,6 @@ class ReadTimeEvent
   protected:
     asio::io_service m_io_service_max;
     asio::steady_timer m_timer_max;
-    std::atomic<bool> m_max_time_expired;
 };
 
 class RTPSSubListener : public fastrtps::SubscriberListener
@@ -111,7 +109,9 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 {
 
   public:
-    DataReader(const ObjectId& id, eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list,
+    DataReader(const dds::xrce::ObjectId& id,
+               eprosima::fastrtps::Participant& rtps_participant,
+               ReaderListener* read_list,
                const std::string& profile_name = "");
     ~DataReader() noexcept override;
 
@@ -122,20 +122,20 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 
     bool init();
     bool init(const std::string& xmlrep);
-    int read(const READ_DATA_Payload& read_data);
+    int read(const dds::xrce::READ_DATA_Payload& read_data);
     bool has_message() const;
 
     void on_max_timeout(const asio::error_code& error) override;
 
     void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub,
                                eprosima::fastrtps::rtps::MatchingInfo& info) override;
-    void onNewDataMessage(fastrtps::Subscriber* sub) override;
+    void onNewDataMessage(fastrtps::Subscriber*) override;
 
   private:
     struct ReadTaskInfo
     {
-        ObjectId object_ID_;
-        RequestId request_ID_;
+        dds::xrce::ObjectId object_ID_;
+        dds::xrce::RequestId request_ID_;
         uint16_t max_samples_;      // Maximum number of samples
         uint32_t max_elapsed_time_; // In milliseconds
         uint32_t max_rate_;         // Bytes per second
@@ -152,11 +152,12 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     std::thread m_max_timer_thread;
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
-    std::atomic<bool> m_running;
+    bool m_running;
+    size_t unread_msgs_;
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;
-    fastrtps::Participant* mp_rtps_participant;
+    fastrtps::Participant& mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
     TopicPubSubType topic_type_;
 

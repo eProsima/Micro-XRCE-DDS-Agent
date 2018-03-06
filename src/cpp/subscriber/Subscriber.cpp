@@ -17,19 +17,15 @@
 namespace eprosima {
 namespace micrortps {
 
-Subscriber::Subscriber(ObjectId id)
-    : XRCEObject{id}, reader_(nullptr)
+Subscriber::Subscriber(const dds::xrce::ObjectId& id, XRCEObject& participant)
+    : XRCEObject{id},
+      participant_(participant)
 {
 }
 
-void Subscriber::add_reader(XRCEObject* reader)
+XRCEObject& Subscriber::get_participant()
 {
-    reader_ = reader;
-}
-
-XRCEObject* Subscriber::get_reader()
-{
-    return reader_;
+    return participant_;
 }
 
 } /* namespace micrortps */

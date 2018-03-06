@@ -23,16 +23,13 @@ namespace micrortps {
 class Publisher : public XRCEObject
 {
 public:
-    Publisher(ObjectId id);
+    Publisher(const dds::xrce::ObjectId& id, XRCEObject& participant);
     virtual ~Publisher() = default;
 
-
-    void add_writer(XRCEObject*);
-    XRCEObject* get_writer();
+    XRCEObject& get_participant();
 
 private:
-    XRCEObject* writer_;
-
+    XRCEObject& participant_;
 };
 
 } /* namespace micrortps */

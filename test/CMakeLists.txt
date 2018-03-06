@@ -50,7 +50,7 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     )
 
     # Agent test.
-    # TODO (julian): fix DataReaderTests.
+    # TODO (Julian): fix DataReaderTests.
     set(AGENTTESTS_SOURCE AgentTests.cpp DataReaderTests.cpp)
     add_executable(AgentTest ${AGENTTESTS_SOURCE})
     add_gtest(AgentTest ${AGENTTESTS_SOURCE})

@@ -32,7 +32,7 @@ class Message
 public:
     void set_real_size(size_t size){size_ = size;}
     size_t get_real_size(void){return size_;}
-    std::array<char, max_message_size>& get_buffer() {return buffer_;};
+    std::array<char, max_message_size>& get_buffer() {return buffer_;}
 private:
     size_t size_;
     std::array<char, max_message_size> buffer_;

@@ -23,6 +23,7 @@ MessageQueue::MessageQueue() : aborted_(false)
 
 void MessageQueue::abort()
 {
+    std::lock_guard<std::mutex> queuelock(data_mutex_);
     aborted_ = true;
     condition_.notify_one();
 }
@@ -34,7 +35,7 @@ Message MessageQueue::pop()
         return (!internal_queue_.empty() || aborted_);
     });
     Message message{};
-    if (!aborted_ && !internal_queue_.empty())
+    if (!aborted_)
     {
         message = internal_queue_.front();
         internal_queue_.pop();
@@ -44,8 +45,7 @@ Message MessageQueue::pop()
 
 void MessageQueue::push(const Message& new_message)
   {
-    std::unique_lock<std::mutex> queuelock(data_mutex_);
+    std::lock_guard<std::mutex> queuelock(data_mutex_);
     internal_queue_.push(new_message);
-    queuelock.unlock();
     condition_.notify_one();
   }

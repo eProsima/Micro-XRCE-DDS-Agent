@@ -34,7 +34,7 @@ public:
      * \param client
      * \param header
      */
-    ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header);
+    ProxyClient(dds::xrce::CLIENT_Representation client, const dds::xrce::MessageHeader& header);
 
     ~ProxyClient();
 
@@ -69,29 +69,34 @@ public:
      * \param create_payload	The CREATE submessage payload.
      * \return If the creation succeeds the Agent shall return {STATUS_LAST_OP_CREATE, STATUS_OK}.
      */
-    ResultStatus create(const CreationMode& creation_mode, const CREATE_Payload& create_payload);
-    ResultStatus delete_object(const DELETE_RESOURCE_Payload& delete_payload);
-    ResultStatus update(const ObjectId& object_id, const ObjectVariant& representation);
-    ResultStatus read(const ObjectId& object_id, const READ_DATA_Payload& data_payload);
-    ResultStatus write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload);
-    Info get_info(const ObjectId& object_id);
-
-    void on_read_data(const ObjectId& object_id, const RequestId& req_id, const std::vector<unsigned char>& buffer);
-
-    XRCEObject* get_object(const ObjectId& object_id);
+    dds::xrce::ResultStatus create(const dds::xrce::CreationMode& creation_mode,
+                                   const dds::xrce::CREATE_Payload& create_payload);
+    /* TODO (Julian): add comments for API */
+    dds::xrce::ResultStatus delete_object(const dds::xrce::DELETE_Payload& delete_payload);
+    dds::xrce::ResultStatus update(const dds::xrce::ObjectId& object_id,
+                                   const dds::xrce::ObjectVariant& representation);
+    dds::xrce::ResultStatus read(const dds::xrce::ObjectId& object_id,
+                                 const dds::xrce::READ_DATA_Payload& data_payload);
+    dds::xrce::ResultStatus write(const dds::xrce::ObjectId& object_id,
+                                  dds::xrce::WRITE_DATA_Payload_Data& data_payload);
+    dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
+    void on_read_data(const dds::xrce::ObjectId& object_id,
+                      const dds::xrce::RequestId& req_id,
+                      const std::vector<unsigned char>& buffer);
+    XRCEObject* get_object(const dds::xrce::ObjectId& object_id);
 
 private:
-    OBJK_CLIENT_Representation representation_;
+    dds::xrce::CLIENT_Representation representation_;
 
     std::mutex objects_mutex_;
-    std::map<ObjectId, std::unique_ptr<XRCEObject>> objects_;
+    std::map<dds::xrce::ObjectId, std::unique_ptr<XRCEObject>> objects_;
 
-    ClientKey client_key;
-    SessionId session_id;
+    dds::xrce::ClientKey client_key;
+    dds::xrce::SessionId session_id;
     uint8_t stream_id;
 
-    bool create(const ObjectId& id, const ObjectVariant& representation);
-    bool delete_object(const ObjectId& id);
+    bool create(const dds::xrce::ObjectId& id, const dds::xrce::ObjectVariant& representation);
+    bool delete_object(const dds::xrce::ObjectId& id);
 };
 } // namespace micrortps
 } // namespace eprosima

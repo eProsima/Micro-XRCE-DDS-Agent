@@ -14,9 +14,8 @@
 
 #include "MessageDebugger.h"
 
-#include <DDSXRCETypes.h>
+#include <XRCETypes.h>
 #include <MessageHeader.h>
-#include <Payloads.h>
 #include <SubMessageHeader.h>
 
 #include <iomanip>
@@ -34,7 +33,7 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>&
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const MessageHeader& header)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::MessageHeader& header)
 {
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "<Header>" << std::endl;
@@ -45,27 +44,27 @@ std::ostream& operator<<(std::ostream& stream, const MessageHeader& header)
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessage_header)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::SubmessageHeader& submessage_header)
 {
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     switch(submessage_header.submessage_id())
     {
-        case CREATE:
+        case dds::xrce::CREATE:
             stream << "<Submessage> [CREATE]" << std::endl;
             break;
-        case DELETE:
+        case dds::xrce::DELETE:
             stream << "<Submessage> [DELETE]" << std::endl;
             break;
-        case WRITE_DATA:
+        case dds::xrce::WRITE_DATA:
             stream << "<Submessage> [WRITE_DATA]" << std::endl;
             break;
-        case READ_DATA:
+        case dds::xrce::READ_DATA:
             stream << "<Submessage> [READ_DATA]" << std::endl;
             break;
-        case DATA:
+        case dds::xrce::DATA:
             stream << "<Submessage> [DATA]" << std::endl;
             break;
-        case STATUS:
+        case dds::xrce::STATUS:
             stream << "<Submessage> [STATUS]" << std::endl;
             break;
         default:
@@ -78,101 +77,75 @@ std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessag
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const RESOURCE_STATUS_Payload& status)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::STATUS_Payload& status)
 {
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "  <Payload>" << std::endl;
-    stream << "  - result : " << status.result() << std::endl;
-    stream << "  - object_id: " << status.object_id();
+    stream << "  - result : " << status.result().status() << std::endl;
+    stream << "  - object_id: " << status.related_request().object_id();
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const RESOURCE_STATUS_Payload& status, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const dds::xrce::STATUS_Payload& status, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
     stream << "[Status" << SEPARATOR;
-    stream << "id: " << status.object_id() << SEPARATOR;
+    stream << "id: " << status.related_request().object_id() << SEPARATOR;
+    stream << "#" << std::setfill('0') << std::setw(8) << +status.related_request().request_id()[0] << SEPARATOR;
     short_print(stream, status.result()) << "]";
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const ResultStatus& status)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::ResultStatus& status)
 {
     stream << "  <ResultStatus>" << std::endl;
-    stream << "  - request_id : " << status.request_id() << std::endl;
     stream << "  - status: " << std::setw(4) << +status.status() << std::endl;
     stream << "  - implementation_status: " << std::setw(4) << +status.implementation_status();
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const ResultStatus& status, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const dds::xrce::ResultStatus& status, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
 
-    stream << "#" << std::setfill('0') << std::setw(8) << +status.request_id()[0] << SEPARATOR;
 
-    switch(status.implementation_status())
+    switch(status.status())
     {
-        case STATUS_OK:
+        case dds::xrce::STATUS_OK:
             stream << "OK";
             break;
-        case STATUS_OK_MATCHED:
+        case dds::xrce::STATUS_OK_MATCHED:
             stream << "OK_MATCHED";
             break;
-        case STATUS_ERR_DDS_ERROR:
+        case dds::xrce::STATUS_ERR_DDS_ERROR:
             stream << "ERR_DDS_ERROR";
             break;
-        case STATUS_ERR_MISMATCH:
+        case dds::xrce::STATUS_ERR_MISMATCH:
             stream << "ERR_MISMATCH";
             break;
-        case STATUS_ERR_ALREADY_EXISTS:
+        case dds::xrce::STATUS_ERR_ALREADY_EXISTS:
             stream << "ERR_ALREADY_EXISTS";
             break;
-        case STATUS_ERR_DENIED:
+        case dds::xrce::STATUS_ERR_DENIED:
             stream << "ERR_DENIED";
             break;
-        case STATUS_ERR_UNKNOWN_REFERENCE:
+        case dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE:
             stream << "ERR_UNKNOWN_REFERENCE";
             break;
-        case STATUS_ERR_INVALID_DATA:
+        case dds::xrce::STATUS_ERR_INVALID_DATA:
             stream << "ERR_INVALID_DATA";
             break;
-        case STATUS_ERR_INCOMPATIBLE:
+        case dds::xrce::STATUS_ERR_INCOMPATIBLE:
             stream << "ERR_INCOMPATIBLE";
             break;
-        case STATUS_ERR_RESOURCES:
+        case dds::xrce::STATUS_ERR_RESOURCES:
             stream << "ERR_RESOURCES";
             break;
         default:
             stream << "UNKNOWN";
     }
     stream << SEPARATOR;
-    switch(status.status())
-    {
-        case STATUS_LAST_OP_NONE:
-            stream << "NONE";
-            break;
-        case STATUS_LAST_OP_CREATE:
-            stream << "CREATE";
-            break;
-        case STATUS_LAST_OP_UPDATE:
-            stream << "UPDATE";
-            break;
-        case STATUS_LAST_OP_DELETE:
-            stream << "DELETE";
-            break;
-        case STATUS_LAST_OP_LOOKUP:
-            stream << "LOOKUP";
-            break;
-        case STATUS_LAST_OP_READ:
-            stream << "READ";
-            break;
-        case STATUS_LAST_OP_WRITE:
-            stream << "WRITE";
-            break;
-        default:
-            stream << "UNKNOWN";
-    }
+    stream << status.implementation_status();
     return stream;
 }
 
@@ -184,7 +157,7 @@ std::ostream& short_print(std::ostream& stream, const std::string& text, const S
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const CREATE_Payload& create_payload)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::CREATE_Payload& create_payload)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -195,7 +168,9 @@ std::ostream& operator<<(std::ostream& stream, const CREATE_Payload& create_payl
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const CREATE_Payload& create_payload, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::CREATE_Payload& create_payload,
+                          const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
     stream << "[Create" << SEPARATOR;
@@ -227,7 +202,7 @@ std::ostream& short_print(std::ostream& stream, const CREATE_Payload& create_pay
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const OBJK_PUBLISHER_Representation& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_PUBLISHER_Representation& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -238,7 +213,7 @@ std::ostream& operator<<(std::ostream& stream, const OBJK_PUBLISHER_Representati
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representation& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_SUBSCRIBER_Representation& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -249,7 +224,7 @@ std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representat
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representation& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_DATAWRITER_Representation& data)
 {
     // TODO.
     (void) data;
@@ -264,19 +239,18 @@ std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representat
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const OBJK_DATA_READER_Representation& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::DATAREADER_Representation& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "  <Data Reader>" << std::endl;
     // stream << "  - string_size: " << std::setw(8) << data.as_string().size() << std::endl;
     // stream << "  - string: " << data.as_string() << std::endl;
-    stream << "  - participan_id: " << data.participant_id() << std::endl;
     stream << "  - subscriber_id: " << data.subscriber_id();
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_representation)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::ObjectVariant& object_representation)
 {
     // TODO.
     (void) object_representation;
@@ -309,7 +283,7 @@ std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_repre
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const DELETE_RESOURCE_Payload& delete_data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::DELETE_Payload& delete_data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -319,7 +293,7 @@ std::ostream& operator<<(std::ostream& stream, const DELETE_RESOURCE_Payload& de
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const DELETE_RESOURCE_Payload& delete_data, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const dds::xrce::DELETE_Payload& delete_data, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
@@ -330,7 +304,7 @@ std::ostream& short_print(std::ostream& stream, const DELETE_RESOURCE_Payload& d
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_Payload& write_data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
@@ -341,7 +315,9 @@ std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_Payload& write_d
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_data, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::WRITE_DATA_Payload_Data& write_data,
+                          const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
@@ -362,26 +338,26 @@ std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::READ_DATA_Payload& data)
 {
     StreamScopedFlags flags_backup{stream};
     stream << std::showbase << std::internal << std::setfill('0') << std::hex;
     stream << "  <Payload>" << std::endl;
     stream << "  - request_id : " << data.request_id() << std::endl;
     stream << "  - object_id: " << data.object_id() << std::endl;
-    if(data.read_specification().has_content_filter_expresion())
+    if(data.read_specification().has_content_filter_expression())
     {
         stream << "  - content filter size: " << data.read_specification().content_filter_expression().size() << std::endl;
         stream << "  - content filter: " << data.read_specification().content_filter_expression() << std::endl;
     }
-    stream << "  - data format: " << data.read_specification().delivery_config()._d() << std::endl;
-    stream << "  - max_elapsed_time: " << data.read_specification().delivery_config().delivery_control().max_elapsed_time() << std::endl;
-    stream << "  - max_rate: " << data.read_specification().delivery_config().delivery_control().max_rate() << std::endl;
-    stream << "  - max_samples: " << data.read_specification().delivery_config().delivery_control().max_samples() << std::endl;
+    stream << "  - data format: " << data.read_specification().data_format() << std::endl;
+    stream << "  - max_elapsed_time: " << data.read_specification().delivery_control().max_elapsed_time() << std::endl;
+    stream << "  - max_rate: " << data.read_specification().delivery_control().max_bytes_per_second() << std::endl;
+    stream << "  - max_samples: " << data.read_specification().delivery_control().max_samples() << std::endl;
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_data, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const dds::xrce::READ_DATA_Payload& read_data, const STREAM_COLOR color)
 {
     ColorStream cs(stream, color);
     StreamScopedFlags flags_backup{stream};
@@ -393,16 +369,16 @@ std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_da
     return stream;
 }
 
-std::ostream& operator<<(std::ostream& stream, const DATA_Payload_Data& data)
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::DATA_Payload_Data& data)
 {
-    // TODO(borja)
+    // TODO (Borja)
     (void) data;
     return stream;
 }
 
-std::ostream& short_print(std::ostream& stream, const DATA_Payload_Data& data, const STREAM_COLOR color)
+std::ostream& short_print(std::ostream& stream, const dds::xrce::DATA_Payload_Data& data, const STREAM_COLOR color)
 {
-    // TODO(borja)
+    // TODO (Borja)
     (void) data;
     (void) color;
     return stream;

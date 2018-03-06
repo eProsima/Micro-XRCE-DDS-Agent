@@ -36,18 +36,20 @@ using namespace eprosima::fastcdr::exception;
 
 #include <utility>
 
-eprosima::micrortps::MessageHeader::MessageHeader()
+namespace dds { namespace xrce {
+
+MessageHeader::MessageHeader()
 {
     m_session_id  = 0;
     m_stream_id   = 0;
     m_sequence_nr = 0;
 }
 
-eprosima::micrortps::MessageHeader::~MessageHeader()
+MessageHeader::~MessageHeader()
 {
 }
 
-eprosima::micrortps::MessageHeader::MessageHeader(const MessageHeader &x)
+MessageHeader::MessageHeader(const MessageHeader &x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -55,7 +57,7 @@ eprosima::micrortps::MessageHeader::MessageHeader(const MessageHeader &x)
     m_client_key  = x.m_client_key;
 }
 
-eprosima::micrortps::MessageHeader::MessageHeader(MessageHeader &&x)
+MessageHeader::MessageHeader(MessageHeader &&x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -63,7 +65,7 @@ eprosima::micrortps::MessageHeader::MessageHeader(MessageHeader &&x)
     m_client_key  = std::move(x.m_client_key);
 }
 
-eprosima::micrortps::MessageHeader &eprosima::micrortps::MessageHeader::operator=(const MessageHeader &x)
+MessageHeader &MessageHeader::operator=(const MessageHeader &x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -73,7 +75,7 @@ eprosima::micrortps::MessageHeader &eprosima::micrortps::MessageHeader::operator
     return *this;
 }
 
-eprosima::micrortps::MessageHeader &eprosima::micrortps::MessageHeader::operator=(MessageHeader &&x)
+MessageHeader &MessageHeader::operator=(MessageHeader &&x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -83,7 +85,7 @@ eprosima::micrortps::MessageHeader &eprosima::micrortps::MessageHeader::operator
     return *this;
 }
 
-size_t eprosima::micrortps::MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
+size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
 
@@ -98,7 +100,7 @@ size_t eprosima::micrortps::MessageHeader::getMaxCdrSerializedSize(size_t curren
     return current_alignment - initial_alignment;
 }
 
-size_t eprosima::micrortps::MessageHeader::getCdrSerializedSize(const eprosima::micrortps::MessageHeader &data,
+size_t MessageHeader::getCdrSerializedSize(const MessageHeader &data,
                                                                 size_t current_alignment)
 {
     // TODO.
@@ -117,7 +119,7 @@ size_t eprosima::micrortps::MessageHeader::getCdrSerializedSize(const eprosima::
     return current_alignment - initial_alignment;
 }
 
-void eprosima::micrortps::MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_session_id;
     scdr << m_stream_id;
@@ -125,10 +127,12 @@ void eprosima::micrortps::MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr)
     scdr << m_client_key;
 }
 
-void eprosima::micrortps::MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_session_id;
     dcdr >> m_stream_id;
     dcdr.deserialize(m_sequence_nr, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
     dcdr >> m_client_key;
 }
+
+} } //namespace dds::xrce

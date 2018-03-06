@@ -23,16 +23,13 @@ namespace micrortps {
 class Subscriber : public XRCEObject
 {
 public:
-    Subscriber(ObjectId id);
+    Subscriber(const dds::xrce::ObjectId& id, XRCEObject& participant);
     virtual ~Subscriber() = default;
 
-
-    void add_reader(XRCEObject*);
-    XRCEObject* get_reader();
+    XRCEObject& get_participant();
 
 private:
-    XRCEObject* reader_;
-
+    XRCEObject& participant_;
 };
 
 } /* namespace micrortps */

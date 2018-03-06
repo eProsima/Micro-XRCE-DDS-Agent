@@ -40,7 +40,7 @@
 namespace eprosima {
 namespace micrortps {
 
-ProxyClient::ProxyClient(OBJK_CLIENT_Representation client, const MessageHeader& header)
+ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client, const dds::xrce::MessageHeader& header)
     : representation_(std::move(client)),
       client_key(header.client_key()),
       session_id(header.session_id()),
@@ -71,43 +71,61 @@ ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
     return *this;
 }
 
-bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation)
+bool ProxyClient::create(const dds::xrce::ObjectId& id, const dds::xrce::ObjectVariant& representation)
 {
+    /* Take ownership of the mutex. */
+    std::lock_guard<std::mutex> lock(objects_mutex_);
+
     switch (representation._d())
     {
-        // TODO Check for participant ID existence
-        case OBJECTKIND::PUBLISHER:
+        case dds::xrce::OBJK_PUBLISHER:
         {
-            std::lock_guard<std::mutex> lock(objects_mutex_);
-            auto object_it      = objects_.find(id);
-            bool insertion_done = false;
-            if (object_it == objects_.end())
+            bool result = false;
+
+            /* Check whether participant exists */
+            auto participant_it = objects_.find(representation.publisher().participant_id());
+            if (participant_it != objects_.end())
             {
-                insertion_done =
-                    objects_.insert(std::make_pair(id, std::move(std::unique_ptr<Publisher>(new Publisher(id)))))
-                        .second;
+                /* Check whether object exists */
+                auto object_it = objects_.find(id);
+                if (object_it == objects_.end())
+                {
+                    std::unique_ptr<Publisher> publisher(new Publisher(id, *participant_it->second.get()));
+                    result = objects_.insert(std::make_pair(id, std::move(publisher))).second;
+                }
+                else
+                {
+                    /* TODO (Julian): take into account replace and reuse flags in case of existence */
+                }
             }
-            return insertion_done;
+            return result;
             break;
         }
-        // TODO Check for participant ID existence
-        case OBJECTKIND::SUBSCRIBER:
+        case dds::xrce::OBJK_SUBSCRIBER:
         {
-            std::lock_guard<std::mutex> lock(objects_mutex_);
-            auto object_it      = objects_.find(id);
-            bool insertion_done = false;
-            if (object_it == objects_.end())
+            bool result = false;
+
+            /* Check whether participant exists */
+            auto participant_it = objects_.find(representation.subscriber().participant_id());
+            if (participant_it != objects_.end())
             {
-                insertion_done =
-                    objects_.insert(std::make_pair(id, std::move(std::unique_ptr<Subscriber>(new Subscriber(id)))))
-                        .second;
+                /* Check whether object exists */
+                auto object_it = objects_.find(id);
+                if (object_it == objects_.end())
+                {
+                    std::unique_ptr<Subscriber> subscriber(new Subscriber(id, *participant_it->second.get()));
+                    result = objects_.insert(std::make_pair(id, std::move(subscriber))).second;
+                }
+                else
+                {
+                    /* TODO (Julian): take into account replace and reuse flags in case of existence */
+                }
             }
-            return insertion_done;
+            return result;
             break;
         }
-        case OBJECTKIND::PARTICIPANT:
+        case dds::xrce::OBJK_PARTICIPANT:
         {
-            std::lock_guard<std::mutex> lockGuard(objects_mutex_);
             auto participant    = std::unique_ptr<XRCEParticipant>(new XRCEParticipant(id));
             bool insertion_done = false;
             if (participant->init())
@@ -117,45 +135,38 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             return insertion_done;
             break;
         }
-        case OBJECTKIND::DATAWRITER:
+        case dds::xrce::OBJK_DATAWRITER:
         {
-            std::lock_guard<std::mutex> lock(objects_mutex_);
-
-            auto participant_it = objects_.find(representation.data_writer().participant_id());
             auto publisher_it   = objects_.find(representation.data_writer().publisher_id());
             auto data_writer_it = objects_.find(id);
             bool insertion_done = false;
-            if ((participant_it != objects_.end()) && (publisher_it != objects_.end()) &&
-                (data_writer_it == objects_.end()))
+            if ((publisher_it != objects_.end()) && (data_writer_it == objects_.end()))
             {
-                XRCEObject* data_w = nullptr;
+                Publisher* publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
+                XRCEObject* data_writer = nullptr;
                 switch (representation.data_writer().representation()._d())
                 {
-                    case REPRESENTATION_AS_XML_STRING:
+                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
-                        if (participant != nullptr)
-                        {
-                            data_w = participant->create_writer(
-                                id, representation.data_writer().representation().xml_string_representation());
-                        }
+                        XRCEParticipant& participant = dynamic_cast<XRCEParticipant&>(publisher->get_participant());
+                        data_writer =
+                                participant.create_writer(id, representation.data_writer().representation().string_representation());
                         break;
                     }
-                    case REPRESENTATION_BY_REFERENCE:
-                    case REPRESENTATION_IN_BINARY:
+                    case dds::xrce::REPRESENTATION_IN_BINARY:
+                        break;
                     default:
                         return insertion_done;
                         break;
                 }
-                if (data_w != nullptr)
+                if (data_writer != nullptr)
                 {
                     auto publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
                     if (publisher != nullptr)
                     {
-                        publisher->add_writer(data_w);
-                        if (!(insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_w)))).second))
+                        if (!(insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_writer)))).second))
                         {
-                            delete data_w;
+                            delete data_writer;
                         }
                     }
                 }
@@ -163,52 +174,45 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             return insertion_done;
             break;
         }
-        case OBJECTKIND::DATAREADER:
+        case dds::xrce::OBJK_DATAREADER:
         {
-            std::lock_guard<std::mutex> lock(objects_mutex_);
-            auto participant_it = objects_.find(representation.data_reader().participant_id());
             auto subscriber_it  = objects_.find(representation.data_reader().subscriber_id());
             auto data_reader_it = objects_.find(id);
             bool insertion_done = false;
-            if ((participant_it != objects_.end()) && (subscriber_it != objects_.end()) &&
-                (data_reader_it == objects_.end()))
+            if ((subscriber_it != objects_.end()) && (data_reader_it == objects_.end()))
             {
-                XRCEObject* data_r = nullptr;
+                Subscriber* subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
+                XRCEObject* data_reader = nullptr;
                 switch (representation.data_reader().representation()._d())
                 {
-                    case REPRESENTATION_AS_XML_STRING:
+                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
-                        if (participant != nullptr)
-                        {
-                            data_r = participant->create_reader(
-                                id, representation.data_reader().representation().xml_string_representation(), this);
-                        }
+                        XRCEParticipant& participant = dynamic_cast<XRCEParticipant&>(subscriber->get_participant());
+                        data_reader =
+                                participant.create_reader(id, representation.data_reader().representation().string_representation(), this);
                         break;
                     }
-                    case REPRESENTATION_BY_REFERENCE:
-                    case REPRESENTATION_IN_BINARY:
+                    case dds::xrce::REPRESENTATION_IN_BINARY:
+                    /* TODO (Julian). */
+                        break;
                     default:
                         return insertion_done;
                         break;
                 }
-                if (data_r != nullptr)
+                if (data_reader != nullptr)
                 {
                     auto subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
                     if (subscriber != nullptr)
                     {
-                        subscriber->add_reader(data_r);
-                        insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_r)))).second;
+                        insertion_done = objects_.insert(std::make_pair(id, std::move(std::unique_ptr<XRCEObject>(data_reader)))).second;
                     }
                 }
             }
             return insertion_done;
             break;
         }
-        case OBJECTKIND::TOPIC:
+        case dds::xrce::OBJK_TOPIC:
         {
-            std::lock_guard<std::mutex> lock(objects_mutex_);
-
             auto participant_it = objects_.find(representation.topic().participant_id());
             auto topic_it       = objects_.find(id);
             bool insertion_done = false;
@@ -217,7 +221,7 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                 std::unique_ptr<XRCEObject> topic;
                 switch (representation.topic().representation()._d())
                 {
-                    case REPRESENTATION_AS_XML_STRING:
+                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     {
                         auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                         if (participant != nullptr)
@@ -227,8 +231,12 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
                         }
                         break;
                     }
-                    case REPRESENTATION_BY_REFERENCE:
-                    case REPRESENTATION_IN_BINARY:
+                    case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                    /* TODO (Julian). */
+                        break;
+                    case dds::xrce::REPRESENTATION_IN_BINARY:
+                    /* TODO (Julian). */
+                        break;
                     default:
                         return insertion_done;
                         break;
@@ -241,21 +249,24 @@ bool ProxyClient::create(const ObjectId& id, const ObjectVariant& representation
             return insertion_done;
             break;
         }
-        case OBJECTKIND::APPLICATION:
-        case OBJECTKIND::QOSPROFILE:
-        case OBJECTKIND::TYPE:
+        case dds::xrce::OBJK_APPLICATION:
+            /* TODO (Julian). */
+            break;
+        case dds::xrce::OBJK_QOSPROFILE:
+            /* TODO (Julian). */
+            break;
+        case dds::xrce::OBJK_TYPE:
+            /* TODO (Julian). */
+            break;
         default:
             return false;
-            break;
     }
     return false;
 }
 
-ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE_Payload& create_payload)
+dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode, const dds::xrce::CREATE_Payload& create_payload)
 {
-    ResultStatus status;
-    status.status(STATUS_LAST_OP_CREATE);
-    status.request_id(create_payload.request_id());
+    dds::xrce::ResultStatus result_status;
 
     std::unique_lock<std::mutex> lock(objects_mutex_);
     auto object_it = objects_.find(create_payload.object_id());
@@ -264,11 +275,11 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         lock.unlock();
         if (create(create_payload.object_id(), create_payload.object_representation()))
         {
-            status.implementation_status(STATUS_OK);
+            result_status.status(dds::xrce::STATUS_OK);
         }
         else
         {
-            status.implementation_status(STATUS_ERR_DDS_ERROR);
+            result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
         }
     }
     else
@@ -278,19 +289,19 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         {
             if (!creation_mode.replace()) // replace = false
             {
-                status.implementation_status(STATUS_ERR_ALREADY_EXISTS);
+                result_status.status(dds::xrce::STATUS_ERR_ALREADY_EXISTS);
             }
             else // replace = true
             {
                 delete_object(create_payload.object_id());
                 if (create(create_payload.object_id(), create_payload.object_representation()))
                 {
-                    status.implementation_status(STATUS_OK);
+                    result_status.status(dds::xrce::STATUS_OK);
                 }
                 else
                 {
-                    // TODO(borja): Change bool create with something handling different errors.
-                    status.implementation_status(STATUS_ERR_DDS_ERROR);
+                    // TODO(Borja): Change bool create with something handling different errors.
+                    result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                 }
             }
         }
@@ -298,48 +309,46 @@ ResultStatus ProxyClient::create(const CreationMode& creation_mode, const CREATE
         {
             if (!creation_mode.replace()) // replace = false
             {
-                // TODO(borja): Compara representaciones
+                // TODO (Borja): compare representations.
             }
             else // replace = true
             {
-                // TODO(borja): compara representaciones
+                // TODO (Borja): compare representations.
             }
         }
     }
-    return status;
+    return result_status;
 }
 
-ResultStatus ProxyClient::update(const ObjectId& /*object_id*/, const ObjectVariant& /*representation*/)
+dds::xrce::ResultStatus ProxyClient::update(const dds::xrce::ObjectId& /*object_id*/,
+                                            const dds::xrce::ObjectVariant& /*representation*/)
 {
-    // TODO(borja):
-    return ResultStatus{};
+    // TODO (Borja):
+    return dds::xrce::ResultStatus{};
 }
 
-Info ProxyClient::get_info(const ObjectId& /*object_id*/)
+dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_id*/)
 {
-    // TODO(borja):
-    return Info{};
+    // TODO (Borja):
+    return dds::xrce::ObjectInfo{};
 }
 
-ResultStatus ProxyClient::delete_object(const DELETE_RESOURCE_Payload& delete_payload)
+dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::DELETE_Payload& delete_payload)
 {
-    ResultStatus status;
-    status.status(STATUS_LAST_OP_DELETE);
-    status.request_id(delete_payload.request_id());
-    // TODO(borja): comprobar permisos
+    dds::xrce::ResultStatus result_status;
+    // TODO (Borja): check permissions.
     if (delete_object(delete_payload.object_id()))
     {
-        status.implementation_status(STATUS_OK);
+        result_status.status(dds::xrce::STATUS_OK);
     }
     else
     {
-        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
-        // TODO(borja): en el documento se menciona STATUS_ERR_INVALID pero no existe.
+        result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
-    return status;
+    return result_status;
 }
 
-bool ProxyClient::delete_object(const ObjectId& id)
+bool ProxyClient::delete_object(const dds::xrce::ObjectId& id)
 {
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto find_it = objects_.find(id);
@@ -351,7 +360,7 @@ bool ProxyClient::delete_object(const ObjectId& id)
     return false;
 }
 
-XRCEObject* ProxyClient::get_object(const ObjectId& object_id)
+XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 {
     XRCEObject* object = nullptr;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -363,74 +372,67 @@ XRCEObject* ProxyClient::get_object(const ObjectId& object_id)
     return object;
 }
 
-ResultStatus ProxyClient::write(const ObjectId& object_id, const WRITE_DATA_Payload& data_payload)
+dds::xrce::ResultStatus ProxyClient::write(const dds::xrce::ObjectId& object_id, dds::xrce::WRITE_DATA_Payload_Data& data_payload)
 {
-    ResultStatus status;
-    status.status(STATUS_LAST_OP_WRITE);
-    status.request_id(data_payload.request_id());
+    dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(object_id);
     if (object_it == objects_.end())
     {
-        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+        result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
     else
     {
         auto writer = dynamic_cast<DataWriter*>(object_it->second.get());
         if (writer != nullptr && writer->write(data_payload))
         {
-            status.implementation_status(STATUS_OK);
+            result_status.status(dds::xrce::STATUS_OK);
         }
         else
         {
-            status.implementation_status(STATUS_ERR_DDS_ERROR);
+            result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
         }
     }
-    return status;
+    return result_status;
 }
 
-ResultStatus ProxyClient::read(const ObjectId& object_id, const READ_DATA_Payload& data_payload)
+dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id, const dds::xrce::READ_DATA_Payload& data_payload)
 {
-    ResultStatus status;
-    status.status(STATUS_LAST_OP_READ);
-    status.request_id(data_payload.request_id());
+    dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
     auto object_it = objects_.find(object_id);
     if (object_it == objects_.end())
     {
-        status.implementation_status(STATUS_ERR_UNKNOWN_REFERENCE);
+        result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
     else
     {
         auto reader = dynamic_cast<DataReader*>(object_it->second.get());
         if (reader != nullptr && reader->read(data_payload) == 0)
         {
-            status.implementation_status(STATUS_OK);
+            result_status.status(dds::xrce::STATUS_OK);
         }
         else
         {
-            status.implementation_status(STATUS_ERR_DDS_ERROR);
+            result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
         }
     }
-    return status;
+    return result_status;
 }
 
-void ProxyClient::on_read_data(const ObjectId& object_id, const RequestId& req_id,
+void ProxyClient::on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
                                const std::vector<unsigned char>& buffer)
 {
-    // printf("on_read_data\n");
-    MessageHeader message_header;
+    dds::xrce::MessageHeader message_header;
     message_header.client_key(client_key);
     message_header.session_id(session_id);
     message_header.stream_id(stream_id);
 
-    DATA_Payload_Data payload;
+    dds::xrce::DATA_Payload_Data payload;
     payload.request_id(req_id);
-    payload.result().request_id(req_id);
     payload.object_id(object_id);
     payload.data().serialized_data(buffer);
 
-    // TODO(borja) May cause issues. Tests created their own instance but read data will create a static one.
     root()->add_reply(message_header, payload);
 }
 

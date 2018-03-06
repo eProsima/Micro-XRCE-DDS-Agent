@@ -25,7 +25,7 @@
 namespace eprosima {
 namespace micrortps {
 
-XRCEParticipant::XRCEParticipant(const ObjectId& id) : XRCEObject{id} {}
+XRCEParticipant::XRCEParticipant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
 
 XRCEParticipant::~XRCEParticipant()
 {
@@ -42,9 +42,9 @@ bool XRCEParticipant::init()
 }
 
 
-XRCEObject* XRCEParticipant::create_topic(const ObjectId& id, const std::string& xmlrep)
+XRCEObject* XRCEParticipant::create_topic(const dds::xrce::ObjectId& id, const std::string& xmlrep)
 {
-    auto topic = new Topic(id, mp_rtps_participant);
+    auto topic = new Topic(id, *mp_rtps_participant);
     if (topic->init(xmlrep))
     {
         return topic;
@@ -56,14 +56,9 @@ XRCEObject* XRCEParticipant::create_topic(const ObjectId& id, const std::string&
     }
 }
 
-// XRCEObject* XRCEParticipant::create_writer()
-// {
-//     return new DataWriter(mp_rtps_participant);
-// }
-
-XRCEObject* XRCEParticipant::create_writer(const ObjectId& id, const std::string& xmlrep)
+XRCEObject* XRCEParticipant::create_writer(const dds::xrce::ObjectId& id, const std::string& xmlrep)
 {
-    auto data_writer = new DataWriter(id, mp_rtps_participant);
+    auto data_writer = new DataWriter(id, *mp_rtps_participant);
     if (data_writer->init(xmlrep))
     {
         return data_writer;
@@ -75,14 +70,11 @@ XRCEObject* XRCEParticipant::create_writer(const ObjectId& id, const std::string
     }
 }
 
-// XRCEObject* XRCEParticipant::create_reader(ReaderListener* message_listener)
-// {
-//     return new DataReader(mp_rtps_participant, message_listener);
-// }
-
-XRCEObject* XRCEParticipant::create_reader(const ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener)
+XRCEObject* XRCEParticipant::create_reader(const dds::xrce::ObjectId& id,
+                                           const std::string& xmlrep,
+                                           ReaderListener* message_listener)
 {
-    auto data_reader = new DataReader(id, mp_rtps_participant, message_listener);
+    auto data_reader = new DataReader(id, *mp_rtps_participant, message_listener);
     if (data_reader->init(xmlrep))
     {
         return data_reader;

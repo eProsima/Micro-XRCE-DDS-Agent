@@ -22,15 +22,14 @@
 #include <vector>
 #include <string>
 
-namespace eprosima {
-namespace micrortps {
+namespace dds { namespace xrce {
 
 class MessageHeader;
 class SubmessageHeader;
-class RESOURCE_STATUS_Payload;
+class STATUS_Payload;
 class CREATE_Payload;
-class DELETE_RESOURCE_Payload;
-class WRITE_DATA_Payload;
+class DELETE_Payload;
+class WRITE_DATA_Payload_Data;
 class READ_DATA_Payload;
 class OBJK_PUBLISHER_Representation;
 class OBJK_SUBSCRIBER_Representation;
@@ -40,6 +39,10 @@ class OBJK_DATA_READER_Representation;
 class ObjectVariant;
 class DATA_Payload_Data;
 
+} } // namespace dds::xrce
+
+namespace eprosima {
+namespace micrortps {
 namespace debug {
 
 enum class STREAM_COLOR
@@ -158,33 +161,35 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<unsigned char>&
 /*
  * Inserts MessageHeader on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const MessageHeader& header);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::MessageHeader& header);
 
 /*
  * Inserts SubMessageHeader on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const SubmessageHeader& submessage_header);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::SubmessageHeader& submessage_header);
 
 /*
  * Inserts Status on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const RESOURCE_STATUS_Payload& status);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::STATUS_Payload& status);
 
 /*
  * Inserts Status short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const RESOURCE_STATUS_Payload& status,
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::STATUS_Payload& status,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts ResultStatus on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const ResultStatus& status);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::ResultStatus& status);
 
 /*
  * Inserts ResultStatus short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const ResultStatus& status,
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::ResultStatus& status,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
@@ -195,82 +200,86 @@ std::ostream& short_print(std::ostream& stream, const std::string& text, const S
 /*
  * Inserts create payload on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const CREATE_Payload& create_payload);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::CREATE_Payload& create_payload);
 
 /*
  * Inserts create short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const CREATE_Payload& create_payload,
+std::ostream& short_print(std::ostream& stream, const dds::xrce::CREATE_Payload& create_payload,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts OBJK_PUBLISHER_Representation on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const OBJK_PUBLISHER_Representation& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_PUBLISHER_Representation& data);
 
 /*
  * Inserts OBJK_SUBSCRIBER on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const OBJK_SUBSCRIBER_Representation& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_SUBSCRIBER_Representation& data);
 
 /*
  * Inserts OBJK_DATAWRITER_Representation on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const OBJK_DATAWRITER_Representation& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_DATAWRITER_Representation& data);
 
 /*
  * Inserts OBJK_DATA_READER_Representation on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const OBJK_DATA_READER_Representation& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::OBJK_DATA_READER_Representation& data);
 
 /*
  * Inserts ObjectVariant on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const ObjectVariant& object_representation);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::ObjectVariant& object_representation);
 
 /*
  * Inserts Delete info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const DELETE_RESOURCE_Payload& delete_data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::DELETE_Payload& delete_data);
 
 /*
  * Inserts delete short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const DELETE_RESOURCE_Payload& delete_data,
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::DELETE_Payload& delete_data,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts Write data info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const WRITE_DATA_Payload& write_data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
 /*
  * Inserts Write data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const WRITE_DATA_Payload& write_data,
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::WRITE_DATA_Payload_Data& write_data,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts READ_DATA_Payload info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const READ_DATA_Payload& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::READ_DATA_Payload& data);
 
 /*
  * Inserts Read data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const READ_DATA_Payload& read_data,
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::READ_DATA_Payload& read_data,
                           const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 /*
  * Inserts DATA_Payload_Data data info on the stream.
  */
-std::ostream& operator<<(std::ostream& stream, const DATA_Payload_Data& data);
+std::ostream& operator<<(std::ostream& stream, const dds::xrce::DATA_Payload_Data& data);
 
 /*
  * Inserts DATA_Payload_Data short representation on the stream.
  */
-std::ostream& short_print(std::ostream& stream, const DATA_Payload_Data& data, const STREAM_COLOR color =
-STREAM_COLOR::YELLOW);
+std::ostream& short_print(std::ostream& stream,
+                          const dds::xrce::DATA_Payload_Data& data,
+                          const STREAM_COLOR color = STREAM_COLOR::YELLOW);
 
 } // namespace debug
 } // namespace micrortps

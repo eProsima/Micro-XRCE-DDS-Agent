@@ -18,8 +18,7 @@
  */
 #include <agent/datawriter/DataWriter.h>
 
-#include <DDSXRCETypes.h>
-#include <Payloads.h>
+#include <XRCETypes.h>
 #include <xmlobjects/xmlobjects.h>
 
 #include <fastrtps/Domain.h>
@@ -32,9 +31,14 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(const ObjectId& id, fastrtps::Participant* rtps_participant, const std::string& profile_name)
-    : XRCEObject{id}, mp_rtps_participant(rtps_participant), mp_rtps_publisher(nullptr),
-      m_rtps_publisher_prof(profile_name), topic_type_(false)
+DataWriter::DataWriter(const dds::xrce::ObjectId& id,
+                       Participant& rtps_participant,
+                       const std::string& profile_name)
+    : XRCEObject{id},
+      mp_rtps_participant(rtps_participant),
+      mp_rtps_publisher(nullptr),
+      m_rtps_publisher_prof(profile_name),
+      topic_type_(false)
 
 {
 }
@@ -49,11 +53,6 @@ DataWriter::~DataWriter()
 
 bool DataWriter::init()
 {
-    if (nullptr == mp_rtps_participant)
-    {
-        return false;
-    }
-
     PublisherAttributes attributes;
     if (m_rtps_publisher_prof.empty() ||
         (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
@@ -66,12 +65,12 @@ bool DataWriter::init()
     {
         if (!m_rtps_publisher_prof.empty())
         {
-            mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, m_rtps_publisher_prof, nullptr);
+            mp_rtps_publisher = fastrtps::Domain::createPublisher(&mp_rtps_participant, m_rtps_publisher_prof, nullptr);
         }
         else
         {
             mp_rtps_publisher =
-                fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+                fastrtps::Domain::createPublisher(&mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
         }
     }
 
@@ -85,17 +84,12 @@ bool DataWriter::init()
 
 bool DataWriter::init(const std::string& xmlrep)
 {
-    if (nullptr == mp_rtps_participant)
-    {
-        return false;
-    }
-
     PublisherAttributes attributes;
     if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
     {
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
-            mp_rtps_publisher = fastrtps::Domain::createPublisher(mp_rtps_participant, attributes, nullptr);
+            mp_rtps_publisher = fastrtps::Domain::createPublisher(&mp_rtps_participant, attributes, nullptr);
         }
     }
     else
@@ -104,7 +98,7 @@ bool DataWriter::init(const std::string& xmlrep)
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
             mp_rtps_publisher =
-                fastrtps::Domain::createPublisher(mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+                fastrtps::Domain::createPublisher(&mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
         }
     }
 
@@ -116,33 +110,20 @@ bool DataWriter::init(const std::string& xmlrep)
     return true;
 }
 
-bool DataWriter::write(const WRITE_DATA_Payload& write_data)
+bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    switch (write_data.data_to_write()._d())
-    {
-        case FORMAT_DATA:
-        case FORMAT_DATA_SEQ:
-        case FORMAT_SAMPLE:
-        case FORMAT_SAMPLE_SEQ:
-        case FORMAT_PACKED_SAMPLES:
-        default:
-            break;
-    }
-
     if (nullptr == mp_rtps_publisher)
     {
         return false;
     }
-
-    std::vector<uint8_t> serialized_data = write_data.data_to_write().data().serialized_data();
-    return mp_rtps_publisher->write(&serialized_data);
+    return mp_rtps_publisher->write(&(write_data.data().serialized_data()));
 }
 
 bool DataWriter::check_registered_topic(const std::string& topic_data_type) const
 {
-    // TODO(borja) Take this method out to Topic type.
+    // TODO(Borja) Take this method out to Topic type.
     TopicDataType* p_type = nullptr;
-    if (!fastrtps::Domain::getRegisteredType(mp_rtps_participant, topic_data_type.data(), &p_type))
+    if (!fastrtps::Domain::getRegisteredType(&mp_rtps_participant, topic_data_type.data(), &p_type))
     {
         std::cout << "DDS ERROR: No registered type" << std::endl;
         return false;

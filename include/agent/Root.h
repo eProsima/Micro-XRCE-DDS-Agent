@@ -30,8 +30,6 @@ namespace eprosima{
 namespace micrortps{
 
 class Agent;
-class CREATE_Payload;
-class DELETE_RESOURCE_Payload;
 
 Agent* root();
 
@@ -68,7 +66,7 @@ public:
      * \return If relase mayor version (xrce_version[0]) does not match XRCE_VERSION_MAJOR return {STATUS_LAST_OP_CREATE, STATUS_ERR_INCOMPATIBLE}.
      * \return In other cases return {STATUS_LAST_OP_CREATE, STATUS_OK}.
      */
-    ResultStatus create_client(const MessageHeader& header, const CREATE_CLIENT_Payload& create_info);
+    dds::xrce::ResultStatus create_client(const dds::xrce::MessageHeader& header, const dds::xrce::CREATE_CLIENT_Payload& create_info);
 
     /*!
      * \brief Removes a previously stored ProxyClient.
@@ -77,7 +75,7 @@ public:
      * \return If the object is not found return {STATUS_LAST_OP_DELETE, STATUS_ERR_INVALID_DATA}.
      * \return In other cases return {STATUS_LAST_OP_DELETE, STATUS_OK}.
      */
-    ResultStatus delete_client(ClientKey client_key, const DELETE_RESOURCE_Payload& delete_info);
+    dds::xrce::ResultStatus delete_client(dds::xrce::ClientKey client_key);
 
     /*!
      * \brief Starts a event loop in order to receive messages from Clients.
@@ -95,7 +93,9 @@ public:
      * \param sub_header 			The submessage header.
      * \param create_client_payload	The submessage payload.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_CLIENT_Payload& create_client_payload) override;
+    void on_message(const dds::xrce::MessageHeader& header,
+                    const dds::xrce::SubmessageHeader&,
+                    const dds::xrce::CREATE_CLIENT_Payload& create_client_payload) override;
 
     /*!
      * \brief Receiver of CREATE submessages.
@@ -103,7 +103,9 @@ public:
      * \param sub_header		The submessage header.
      * \param create_payload	The submessage payload.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const CREATE_Payload& create_payload) override;
+    void on_message(const dds::xrce::MessageHeader& header,
+                    const dds::xrce::SubmessageHeader& sub_header,
+                    const dds::xrce::CREATE_Payload& create_payload) override;
 
     /*!
      * \brief Receiver of DELETE submessages.
@@ -111,7 +113,9 @@ public:
      * \param sub_header		The submessage header.
      * \param delete_payload	The submessage payload.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const DELETE_RESOURCE_Payload& delete_payload) override;
+    void on_message(const dds::xrce::MessageHeader& header,
+                    const dds::xrce::SubmessageHeader& sub_header,
+                    const dds::xrce::DELETE_Payload& delete_payload) override;
 
     /*!
      * \brief Receiver of WRITE_DATA submessages.
@@ -119,7 +123,9 @@ public:
      * \param sub_header	The submessage header.
      * \param write_payload The submessage payload.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const WRITE_DATA_Payload& write_payload)  override;
+    void on_message(const dds::xrce::MessageHeader& header,
+                    const dds::xrce::SubmessageHeader& sub_header,
+                    dds::xrce::WRITE_DATA_Payload_Data& write_payload)  override;
 
     /*!
      * \brief Receiver of READ_DATA submessage.
@@ -127,7 +133,9 @@ public:
      * \param sub_header	The submessage header.
      * \param read_payload 	The submessage payload.
      */
-    void on_message(const MessageHeader& header, const SubmessageHeader& sub_header, const READ_DATA_Payload& read_payload)   override;
+    void on_message(const dds::xrce::MessageHeader& header,
+                    const dds::xrce::SubmessageHeader& sub_header,
+                    const dds::xrce::READ_DATA_Payload& read_payload)   override;
 
     /*!
      * \brief Gets a Client based its key.
@@ -135,7 +143,7 @@ public:
      * \return If the Client does not exit return a nullptr.
      * \return In other cases return a pointer to the Client.
      */
-    ProxyClient* get_client(ClientKey client_key);
+    ProxyClient* get_client(dds::xrce::ClientKey client_key);
 
     /*!
      * \brief Pushs messages in a output queue. These messages are delivered to Clients in a event
@@ -150,42 +158,42 @@ public:
      * \param header 	   The message header.
      * \param status_reply The STATUS submessage payload.
      */
-    void add_reply(const MessageHeader& header, const RESOURCE_STATUS_Payload& status_reply);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::STATUS_Payload& status_reply);
 
     /*!
      * \brief Adds DATA submessages with FORMAT_DATA format to the given message header and pushs it in the output queue.
      * \param header 	The message header.
      * \param payload 	The DATA submessage payload.
      */
-    void add_reply(const MessageHeader& header, const DATA_Payload_Data& payload);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_Data& payload);
 
     /*!
      * \brief Adds DATA submessages with FORMAT_DATA format to the given message header and pushs it in the output queue.
      * \param header 	The message header.
      * \param payload 	The DATA submessage payload.
      */
-    void add_reply(const MessageHeader& header, const DATA_Payload_Sample& payload);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_Sample& payload);
 
     /*!
      * \brief Adds DATA submessages with FORMAT_DATA_SEQ format to the given message header and pushs it in the output queue.
      * \param header 	The message header.
      * \param payload 	The DATA submessage payload.
      */
-    void add_reply(const MessageHeader& header, const DATA_Payload_DataSeq& payload);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_DataSeq& payload);
 
     /*!
      * \brief Adds DATA submessages with FORMAT_SAMPLE_SEQ format to the given message header and pushs it in the output queue.
      * \param header 	The message header.
      * \param payload 	The DATA submessage payload.
      */
-    void add_reply(const MessageHeader& header, const DATA_Payload_SampleSeq& payload);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_SampleSeq& payload);
 
     /*!
      * \brief Adds DATA submessages with FORMAT_PACKED_SAMPLES format to the given message header and pushs it in the output queue.
      * \param header 	The message header.
      * \param payload 	The DATA submessage payload.
      */
-    void add_reply(const MessageHeader& header, const DATA_Payload_PackedSamples& payload);
+    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::DATA_Payload_PackedSamples& payload);
 
     void abort_execution();
 
@@ -197,18 +205,11 @@ private:
     octet in_buffer_[buffer_len_];
     locator_id_t loc_;
     std::mutex clientsmtx_;
-    std::map<ClientKey, ProxyClient> clients_;
+    std::map<dds::xrce::ClientKey, ProxyClient> clients_;
 
     std::unique_ptr<std::thread> response_thread_;
     std::atomic<bool> running_;
-
-    struct ResponseControl
-    {
-        std::atomic<bool> running_;
-        std::condition_variable condition_;
-        std::mutex data_structure_mutex_;
-        std::mutex condition_variable_mutex_;
-    } response_control_;
+    std::atomic<bool> reply_cond_;
 
     MessageQueue messages_;
 
@@ -224,7 +225,7 @@ private:
     void demo_message_write(char * test_buffer, size_t buffer_size);
 
 
-    void update_header(MessageHeader& header);
+    void update_header(dds::xrce::MessageHeader& header);
 };
 
 } // eprosima
