@@ -73,7 +73,7 @@ TEST_F(SerializerDeserializerTests, BufferEndOnBufferNoSize)
 TEST_F(SerializerDeserializerTests, BufferEndSerialization)
 {
     dds::xrce::MessageHeader message_header = generate_message_header();
-    char* buffer                 = new char[message_header.getCdrSerializedSize(message_header)];
+    char* buffer = new char[message_header.getCdrSerializedSize(message_header)];
     Serializer serializer(buffer, message_header.getCdrSerializedSize(message_header));
     ASSERT_FALSE(serializer.bufferEnd());
     serializer.serialize(message_header);
@@ -84,11 +84,16 @@ TEST_F(SerializerDeserializerTests, BufferEndSerialization)
 TEST_F(SerializerDeserializerTests, BufferEndDeserialization)
 {
     dds::xrce::MessageHeader message_header = generate_message_header();
-    char* buffer                 = new char[message_header.getCdrSerializedSize(message_header)];
+
+    char* buffer = new char[message_header.getCdrSerializedSize(message_header)];
     Serializer serializer(buffer, message_header.getCdrSerializedSize(message_header));
-    ASSERT_FALSE(serializer.bufferEnd());
-    serializer.deserialize(message_header);
-    ASSERT_TRUE(serializer.bufferEnd());
+    Serializer deserializer(buffer, message_header.getCdrSerializedSize(message_header));
+
+    serializer.serialize(message_header);
+    ASSERT_FALSE(deserializer.bufferEnd());
+    deserializer.deserialize(message_header);
+    ASSERT_TRUE(deserializer.bufferEnd());
+
     delete[] buffer;
 }
 
@@ -96,6 +101,7 @@ TEST_F(SerializerDeserializerTests, MessageHeader)
 {
     dds::xrce::MessageHeader message_header = generate_message_header();
     serializer_.serialize(message_header);
+
     dds::xrce::MessageHeader deserialized_header;
     deserializer_.deserialize(deserialized_header);
 

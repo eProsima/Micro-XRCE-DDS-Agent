@@ -101,7 +101,7 @@ size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
 }
 
 size_t MessageHeader::getCdrSerializedSize(const MessageHeader &data,
-                                                                size_t current_alignment)
+                                           size_t current_alignment)
 {
     // TODO.
     (void) data;
@@ -109,12 +109,13 @@ size_t MessageHeader::getCdrSerializedSize(const MessageHeader &data,
     size_t initial_alignment = current_alignment;
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
-    current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    if (128 > data.session_id())
+    {
+        current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    }
 
     return current_alignment - initial_alignment;
 }

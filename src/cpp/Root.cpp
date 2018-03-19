@@ -60,35 +60,48 @@ void Agent::init(uint16_t out_port, uint16_t in_port, uint16_t remote_port, cons
     loc_id_ = add_udp_locator(out_port, in_port, remote_port, server_ip);
 }
 
-dds::xrce::ResultStatus Agent::create_client(const dds::xrce::MessageHeader& header,
-                                             const dds::xrce::CREATE_CLIENT_Payload& create_info)
+dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CREATE_CLIENT_Payload& payload)
 {
     dds::xrce::ResultStatus result_status;
+    result_status.status(dds::xrce::STATUS_OK);
 
-    if (create_info.client_representation().xrce_cookie() == dds::xrce::XrceCookie{XRCE_COOKIE})
+    if (payload.client_representation().xrce_cookie() == dds::xrce::XrceCookie{XRCE_COOKIE})
     {
-        if (create_info.client_representation().xrce_version()[0] == XRCE_VERSION_MAJOR)
+        if (payload.client_representation().xrce_version()[0] == XRCE_VERSION_MAJOR)
         {
-            // TODO(Borja): The Agent shall check the ClientKey to ensure it is authorized to connect to the Agent
-            // If this check fails the operation shall fail and returnValue is set to {STATUS_LAST_OP_CREATE,STATUS_ERR_DENIED}.
-
-            // TODO(Borja): Check if there is an existing DdsXrce::ProxyClient object associated with the same ClientKey and if
-            // so compare the session_id of the existing ProxyClient with the one in the object_representation:
-            // o If a ProxyClient exists and has the same session_id then the operation shall not perform any action
-            // and shall set the returnValue to {STATUS_LAST_OP_CREATE,STATUS_OK}.
-            // o If a ProxyClient exist and has a different session_id then the operation shall delete the existing
-            // DdsXrce::ProxyClient object and shall proceed as if the ProxyClient did not exist.
-            // Check there are sufficient internal resources to complete the create operation. If there are not, then the operation
-            // shall fail and set the returnValue to {STATUS_LAST_OP_CREATE, STATUS_ERR_RESOURCES}.
             std::lock_guard<std::mutex> lock(clientsmtx_);
-            // auto client_it      = clients_.find(header.client_key());
-            // if (client_it != clients_.end())
-            // {
-            //     clients_.erase(header.client_key());
-            // }
-            clients_[header.client_key()] = ProxyClient{create_info.client_representation(), header};
-            //std::cout << "ProxyClient created " << std::endl;
-            result_status.status(dds::xrce::STATUS_OK);
+
+            bool create_result;
+            dds::xrce::ClientKey client_key = payload.client_representation().client_key();
+            dds::xrce::SessionId session_id = payload.client_representation().session_id();
+            auto it = clients_.find(client_key);
+            if (it == clients_.end())
+            {
+                create_result = clients_.emplace(std::piecewise_construct,
+                                                 std::forward_as_tuple(client_key),
+                                                 std::forward_as_tuple(payload.client_representation(),
+                                                                       client_key, session_id)).second;
+                if (!create_result)
+                {
+                    result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+                }
+            }
+            else
+            {
+                ProxyClient& client = clients_.at(client_key);
+                if (session_id != client.get_session_id())
+                {
+                    clients_.erase(it);
+                    create_result = clients_.emplace(std::piecewise_construct,
+                                                     std::forward_as_tuple(client_key),
+                                                     std::forward_as_tuple(payload.client_representation(),
+                                                                           client_key, session_id)).second;
+                    if (!create_result)
+                    {
+                        result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+                    }
+                }
+            }
         }
         else
         {
@@ -128,6 +141,7 @@ void Agent::run()
         {
             XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
             myParser.parse();
+//            process_message(reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret));
         }
         #ifdef WIN32
             Sleep(10);
@@ -314,7 +328,7 @@ void Agent::on_message(const dds::xrce::MessageHeader& header,
     dds::xrce::STATUS_Payload status;
     status.related_request().request_id(create_client_payload.request_id());
     status.related_request().object_id(create_client_payload.object_id());
-    dds::xrce::ResultStatus result_status = create_client(header, create_client_payload);
+    dds::xrce::ResultStatus result_status = create_client(create_client_payload);
     status.result(result_status);
     add_reply(header, status);
 }
@@ -484,6 +498,66 @@ void Agent::update_header(dds::xrce::MessageHeader& header)
     // TODO(Borja): sequence number is general and not independent for each client
     static uint8_t sequence = 0;
     header.sequence_nr(sequence++);
+}
+
+void Agent::process_message(char* buf, size_t len)
+{
+    Serializer deserializer(buf, len);
+
+    dds::xrce::MessageHeader header;
+    if (deserializer.deserialize(header))
+    {
+        dds::xrce::SubmessageHeader sub_header;
+        bool valid_submessage = deserializer.deserialize(sub_header);
+        if (!valid_submessage)
+        {
+            std::cerr << "Error reading submessage header." << std::endl;
+        }
+
+        /* Process submessages. */
+        while (valid_submessage)
+        {
+            if ((header.stream_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)
+                    | (header.stream_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY))
+            {
+                if (sub_header.submessage_id() == dds::xrce::CREATE_CLIENT)
+                {
+                    dds::xrce::CREATE_CLIENT_Payload payload;
+                    if (deserializer.deserialize(payload))
+                    {
+                        dds::xrce::STATUS_Payload status;
+                        status.related_request().request_id(payload.request_id());
+                        status.related_request().object_id(payload.object_id());
+                        dds::xrce::ResultStatus result = create_client(payload);
+                        status.result(result);
+                        add_reply(header, status);
+                    }
+                }
+            }
+            else
+            {
+
+            }
+
+            /* Get new submessage. */
+            if (!deserializer.bufferEnd())
+            {
+                valid_submessage = deserializer.deserialize(sub_header);
+                if (!valid_submessage)
+                {
+                    std::cerr << "Error reading submessage header." << std::endl;
+                }
+            }
+            else
+            {
+                valid_submessage = false;
+            }
+        }
+    }
+    else
+    {
+        std::cerr << "Error reading message header." << std::endl;
+    }
 }
 
 } // namespace micrortps

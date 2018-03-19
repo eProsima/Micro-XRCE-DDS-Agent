@@ -71,6 +71,7 @@ dds::xrce::CLIENT_Representation CommonData::generate_client_representation() co
     client_representation.xrce_version(XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id);
     client_representation.client_timestamp();
+    client_representation.client_key(client_key);
     client_representation.session_id();
     client_representation.properties();
     return client_representation;

@@ -40,10 +40,13 @@
 namespace eprosima {
 namespace micrortps {
 
-ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client, const dds::xrce::MessageHeader& header)
+ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
+                         const dds::xrce::ClientKey& client_key,
+                         const dds::xrce::SessionId& session_id)
     : representation_(std::move(client)),
-      client_key(header.client_key()),
-      session_id(header.session_id()),
+      objects_(),
+      client_key(client_key),
+      session_id(session_id),
       streams_manager_()
 {
 }
@@ -438,6 +441,11 @@ void ProxyClient::on_read_data(const dds::xrce::ObjectId& object_id,
     payload.data().serialized_data(buffer);
 
     root()->add_reply(message_header, payload);
+}
+
+StreamsManager& ProxyClient::get_stream_manager()
+{
+    return streams_manager_;
 }
 
 } // namespace micrortps

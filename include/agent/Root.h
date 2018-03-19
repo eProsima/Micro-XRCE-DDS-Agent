@@ -19,6 +19,8 @@
 #include <agent/XRCEFactory.h>
 #include <agent/XRCEParser.h>
 #include "MessageQueue.h"
+#include <MessageHeader.h>
+#include <SubMessageHeader.h>
 
 #include <transport/micrortps_transport.h>
 
@@ -66,7 +68,8 @@ public:
      * \return If relase mayor version (xrce_version[0]) does not match XRCE_VERSION_MAJOR return {STATUS_LAST_OP_CREATE, STATUS_ERR_INCOMPATIBLE}.
      * \return In other cases return {STATUS_LAST_OP_CREATE, STATUS_OK}.
      */
-    dds::xrce::ResultStatus create_client(const dds::xrce::MessageHeader& header, const dds::xrce::CREATE_CLIENT_Payload& create_info);
+//    dds::xrce::ResultStatus create_client(const dds::xrce::MessageHeader& header, const dds::xrce::CREATE_CLIENT_Payload& create_info);
+    dds::xrce::ResultStatus create_client(const dds::xrce::CREATE_CLIENT_Payload& payload);
 
     /*!
      * \brief Removes a previously stored ProxyClient.
@@ -218,6 +221,9 @@ public:
     void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::ACKNACK_Payload& payload);
 
     void abort_execution();
+
+private:
+    void process_message(char* buf, size_t len);
 
 private:
 

@@ -35,7 +35,9 @@ public:
      * \param client
      * \param header
      */
-    ProxyClient(dds::xrce::CLIENT_Representation client, const dds::xrce::MessageHeader& header);
+    ProxyClient(dds::xrce::CLIENT_Representation client,
+                const dds::xrce::ClientKey& client_key,
+                const dds::xrce::SessionId& session_id);
 
     ~ProxyClient();
 
@@ -85,6 +87,9 @@ public:
                       const dds::xrce::RequestId& req_id,
                       const std::vector<unsigned char>& buffer);
     XRCEObject* get_object(const dds::xrce::ObjectId& object_id);
+
+    dds::xrce::SessionId get_session_id() { return session_id; }
+    StreamsManager& get_stream_manager();
 
 private:
     dds::xrce::CLIENT_Representation representation_;
