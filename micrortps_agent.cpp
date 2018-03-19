@@ -27,13 +27,13 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[1], "udp") == 0 && argc == 5)
         {
-            micrortps_agent->init(4001, atoi(argv[3]), atoi(argv[4]), argv[2]);
+            micrortps_agent->init(atoi(argv[2]));
         }
         micrortps_agent->run();
     }
     else
     {
-        std::cout << "Help: program [serial | udp local_ip recv_port send_port]" << std::endl;
+        std::cout << "Help: program [serial | udp local_port]" << std::endl;
     }
     return 0;
 }

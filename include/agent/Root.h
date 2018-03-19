@@ -22,7 +22,7 @@
 #include <MessageHeader.h>
 #include <SubMessageHeader.h>
 
-#include <transport/micrortps_transport.h>
+#include <micrortps/transport/micrortps_transport.h>
 
 #include <thread>
 #include <memory>
@@ -53,12 +53,9 @@ public:
 
     /*!
      * \brief Initializes the Agent using UDP communication.
-     * \param out_port 		The output port.
-     * \param in_port		The input port.
-     * \param remote_port   The client input port.
-     * \param server_ip 	The client source address.
+     * \param local_port    The local port.
      */
-    void init(uint16_t out_port, uint16_t in_port, uint16_t remote_port, const char* server_ip);
+    void init(const uint16_t local_port);
 
     /*!
      * \brief Creates and stores a ProxyClient in a ClientKey map.
@@ -250,11 +247,10 @@ private:
 
 private:
 
-    locator_id_t loc_id_;
+    micrortps_locator_t locator_;
     static const size_t buffer_len_ = 1024;
     octet out_buffer_[buffer_len_];
     octet in_buffer_[buffer_len_];
-    locator_id_t loc_;
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
 

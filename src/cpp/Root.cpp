@@ -35,10 +35,9 @@ Agent* root()
 }
 
 Agent::Agent() :
-    loc_id_{},
+    locator_{},
     out_buffer_{},
     in_buffer_{},
-    loc_{},
     response_thread_{},
     reply_cond_()
 {
@@ -49,15 +48,23 @@ Agent::Agent() :
 void Agent::init(const std::string& device)
 {
     std::cout << "Serial agent initialization..." << std::endl;
-    /* Init SERIAL transport */
-    loc_id_ = add_serial_locator(device.data());
+    // Init transport
+    locator_id_t id = add_serial_locator(device.data(), &locator_);
+    if (id != MICRORTPS_TRANSPORT_OK)
+    {
+        std::cout << "Agent::init() -> error" << std::endl;
+    }
 }
 
-void Agent::init(uint16_t out_port, uint16_t in_port, uint16_t remote_port, const char* server_ip)
+void Agent::init(const uint16_t local_port)
 {
     std::cout << "UDP agent initialization..." << std::endl;
     // Init transport
-    loc_id_ = add_udp_locator(out_port, in_port, remote_port, server_ip);
+    locator_id_t id = add_udp_locator_agent(local_port, &locator_);
+    if (id != MICRORTPS_TRANSPORT_OK)
+    {
+        std::cout << "Agent::init() -> error" << std::endl;
+    }
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CREATE_CLIENT_Payload& payload)
@@ -137,7 +144,7 @@ void Agent::run()
     running_ = true;
     while(running_)
     {
-        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_id_)))
+        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, locator_.locator_id)))
         {
 //            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
 //            myParser.parse();
@@ -305,7 +312,8 @@ void Agent::reply()
         if (!message.get_buffer().empty())
         {
             int ret = 0;
-            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(), loc_id_)))
+            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(),
+                     locator_.locator_id)))
             {
                 printf("%d bytes response sent\n", ret);
             }
