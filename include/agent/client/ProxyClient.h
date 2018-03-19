@@ -17,6 +17,7 @@
 
 #include <MessageHeader.h>
 #include <agent/datareader/DataReader.h>
+#include <agent/client/StreamsManager.h>
 
 #include <array>
 #include <map>
@@ -93,7 +94,8 @@ private:
 
     dds::xrce::ClientKey client_key;
     dds::xrce::SessionId session_id;
-    uint8_t stream_id;
+
+    StreamsManager streams_manager_;
 
     bool create(const dds::xrce::ObjectId& id, const dds::xrce::ObjectVariant& representation);
     bool delete_object(const dds::xrce::ObjectId& id);

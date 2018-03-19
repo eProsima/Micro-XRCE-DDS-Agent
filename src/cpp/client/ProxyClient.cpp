@@ -44,7 +44,7 @@ ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client, const dds::xrc
     : representation_(std::move(client)),
       client_key(header.client_key()),
       session_id(header.session_id()),
-      stream_id(header.stream_id())
+      streams_manager_()
 {
 }
 
@@ -57,17 +57,17 @@ ProxyClient::ProxyClient(ProxyClient&& x) noexcept
       objects_(std::move(x.objects_)),
       client_key(x.client_key),
       session_id(x.session_id),
-      stream_id(x.stream_id)
+      streams_manager_(std::move(x.streams_manager_))
 {
 }
 
 ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
 {
-    representation_ = std::move(x.representation_);
-    objects_        = std::move(x.objects_);
-    client_key      = std::move(x.client_key);
-    session_id      = std::move(x.session_id);
-    stream_id       = std::move(x.stream_id);
+    representation_  = std::move(x.representation_);
+    objects_         = std::move(x.objects_);
+    client_key       = std::move(x.client_key);
+    session_id       = std::move(x.session_id);
+    streams_manager_ = std::move(x.streams_manager_);
     return *this;
 }
 
@@ -264,7 +264,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& id, const dds::xrce::ObjectV
     return false;
 }
 
-dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode, const dds::xrce::CREATE_Payload& create_payload)
+dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
+                                            const dds::xrce::CREATE_Payload& create_payload)
 {
     dds::xrce::ResultStatus result_status;
 
@@ -372,7 +373,8 @@ XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
     return object;
 }
 
-dds::xrce::ResultStatus ProxyClient::write(const dds::xrce::ObjectId& object_id, dds::xrce::WRITE_DATA_Payload_Data& data_payload)
+dds::xrce::ResultStatus ProxyClient::write(const dds::xrce::ObjectId& object_id,
+                                           dds::xrce::WRITE_DATA_Payload_Data& data_payload)
 {
     dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -396,7 +398,8 @@ dds::xrce::ResultStatus ProxyClient::write(const dds::xrce::ObjectId& object_id,
     return result_status;
 }
 
-dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id, const dds::xrce::READ_DATA_Payload& data_payload)
+dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id,
+                                          const dds::xrce::READ_DATA_Payload& data_payload)
 {
     dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -420,13 +423,14 @@ dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id, 
     return result_status;
 }
 
-void ProxyClient::on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
+void ProxyClient::on_read_data(const dds::xrce::ObjectId& object_id,
+                               const dds::xrce::RequestId& req_id,
                                const std::vector<unsigned char>& buffer)
 {
     dds::xrce::MessageHeader message_header;
     message_header.client_key(client_key);
     message_header.session_id(session_id);
-    message_header.stream_id(stream_id);
+//    message_header.stream_id(stream_id);
 
     dds::xrce::DATA_Payload_Data payload;
     payload.request_id(req_id);
