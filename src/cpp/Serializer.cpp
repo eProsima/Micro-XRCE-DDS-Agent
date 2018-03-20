@@ -27,7 +27,7 @@ Serializer::Serializer(char *buffer, size_t buffer_size) : fastbuffer_(buffer, b
 {
 }
 
-template <class T> bool Serializer::serialize(const T &data)
+template <class T> bool Serializer::serialize(const T& data)
 {
     try
     {
@@ -41,28 +41,28 @@ template <class T> bool Serializer::serialize(const T &data)
     return true;
 }
 
-template bool Serializer::serialize(const dds::xrce::MessageHeader &data);
-template bool Serializer::serialize(const dds::xrce::SubmessageHeader &data);
-template bool Serializer::serialize(const dds::xrce::STATUS_Payload &data);
-template bool Serializer::serialize(const dds::xrce::DATA_Payload_Data &data);
-template bool Serializer::serialize(const dds::xrce::DATA_Payload_DataSeq &data);
-template bool Serializer::serialize(const dds::xrce::DATA_Payload_Sample &data);
-template bool Serializer::serialize(const dds::xrce::DATA_Payload_SampleSeq &data);
-template bool Serializer::serialize(const dds::xrce::DATA_Payload_PackedSamples &data);
-template bool Serializer::serialize(const dds::xrce::BaseObjectReply &data);
-template bool Serializer::serialize(const dds::xrce::BaseObjectRequest &data);
-template bool Serializer::serialize(const dds::xrce::ResultStatus &data);
+template bool Serializer::serialize(const dds::xrce::MessageHeader& data);
+template bool Serializer::serialize(const dds::xrce::SubmessageHeader& data);
+template bool Serializer::serialize(const dds::xrce::STATUS_Payload& data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_Data& data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_DataSeq& data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_Sample& data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_SampleSeq& data);
+template bool Serializer::serialize(const dds::xrce::DATA_Payload_PackedSamples& data);
+template bool Serializer::serialize(const dds::xrce::BaseObjectReply& data);
+template bool Serializer::serialize(const dds::xrce::BaseObjectRequest& data);
+template bool Serializer::serialize(const dds::xrce::ResultStatus& data);
 
 // TODO(Borja) No deberia poder serializar. Estan instanciados para tests.
-template bool Serializer::serialize(const dds::xrce::READ_DATA_Payload &data);
-template bool Serializer::serialize(const dds::xrce::WRITE_DATA_Payload_Data &data);
-template bool Serializer::serialize(const dds::xrce::CREATE_Payload &data);
-template bool Serializer::serialize(const dds::xrce::CREATE_CLIENT_Payload &data);
-template bool Serializer::serialize(const dds::xrce::DELETE_Payload &data);
-template bool Serializer::serialize(const dds::xrce::HEARTBEAT_Payload &data);
-template bool Serializer::serialize(const dds::xrce::ACKNACK_Payload &data);
+template bool Serializer::serialize(const dds::xrce::READ_DATA_Payload& data);
+template bool Serializer::serialize(const dds::xrce::WRITE_DATA_Payload_Data& data);
+template bool Serializer::serialize(const dds::xrce::CREATE_Payload& data);
+template bool Serializer::serialize(const dds::xrce::CREATE_CLIENT_Payload& data);
+template bool Serializer::serialize(const dds::xrce::DELETE_Payload& data);
+template bool Serializer::serialize(const dds::xrce::HEARTBEAT_Payload& data);
+template bool Serializer::serialize(const dds::xrce::ACKNACK_Payload& data);
 
-template <class T> bool Serializer::deserialize(T &data)
+template <class T> bool Serializer::deserialize(T& data)
 {
     try
     {
@@ -76,23 +76,34 @@ template <class T> bool Serializer::deserialize(T &data)
     return true;
 }
 
-template bool Serializer::deserialize(dds::xrce::MessageHeader &data);
-template bool Serializer::deserialize(dds::xrce::SubmessageHeader &data);
-template bool Serializer::deserialize(dds::xrce::CREATE_Payload &data);
-template bool Serializer::deserialize(dds::xrce::CREATE_CLIENT_Payload &data);
-template bool Serializer::deserialize(dds::xrce::DELETE_Payload &data);
-template bool Serializer::deserialize(dds::xrce::STATUS_Payload &data);
-template bool Serializer::deserialize(dds::xrce::READ_DATA_Payload &data);
-template bool Serializer::deserialize(dds::xrce::WRITE_DATA_Payload_Data &data);
-template bool Serializer::deserialize(dds::xrce::HEARTBEAT_Payload &data);
-template bool Serializer::deserialize(dds::xrce::ACKNACK_Payload &data);
+template bool Serializer::deserialize(dds::xrce::MessageHeader& data);
+template bool Serializer::deserialize(dds::xrce::SubmessageHeader& data);
+template bool Serializer::deserialize(dds::xrce::CREATE_Payload& data);
+template bool Serializer::deserialize(dds::xrce::CREATE_CLIENT_Payload& data);
+template bool Serializer::deserialize(dds::xrce::DELETE_Payload& data);
+template bool Serializer::deserialize(dds::xrce::STATUS_Payload& data);
+template bool Serializer::deserialize(dds::xrce::READ_DATA_Payload& data);
+template bool Serializer::deserialize(dds::xrce::WRITE_DATA_Payload_Data& data);
+template bool Serializer::deserialize(dds::xrce::HEARTBEAT_Payload& data);
+template bool Serializer::deserialize(dds::xrce::ACKNACK_Payload& data);
+template bool Serializer::deserialize(dds::xrce::BaseObjectRequest& data);
 
 /* TODO (Borja): externalize templates, they are only useful for testing. */
-template bool Serializer::deserialize(dds::xrce::DATA_Payload_Data &data);
-template bool Serializer::deserialize(dds::xrce::DATA_Payload_DataSeq &data);
-template bool Serializer::deserialize(dds::xrce::DATA_Payload_Sample &data);
-template bool Serializer::deserialize(dds::xrce::DATA_Payload_SampleSeq &data);
-template bool Serializer::deserialize(dds::xrce::DATA_Payload_PackedSamples &data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_Data& data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_DataSeq& data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_Sample& data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_SampleSeq& data);
+template bool Serializer::deserialize(dds::xrce::DATA_Payload_PackedSamples& data);
+
+char* Serializer::get_current_position()
+{
+    serializer_.getCurrentPosition();
+}
+
+size_t Serializer::get_remainder_size()
+{
+    return fastbuffer_.getBufferSize() - serializer_.getSerializedDataLength();
+}
 
 size_t Serializer::get_serialized_size()
 {

@@ -17,6 +17,7 @@
 
 #include <MessageHeader.h>
 #include <agent/datareader/DataReader.h>
+#include <agent/datawriter/DataWriter.h>
 #include <agent/client/StreamsManager.h>
 
 #include <array>

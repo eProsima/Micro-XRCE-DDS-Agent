@@ -139,9 +139,10 @@ void Agent::run()
     {
         if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, loc_id_)))
         {
-            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
-            myParser.parse();
-//            process_message(reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret));
+//            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
+//            myParser.parse();
+            dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret)};
+            handle_input_message(input_message);
         }
         #ifdef WIN32
             Sleep(10);
@@ -500,63 +501,157 @@ void Agent::update_header(dds::xrce::MessageHeader& header)
     header.sequence_nr(sequence++);
 }
 
-void Agent::process_message(char* buf, size_t len)
+void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
 {
-    Serializer deserializer(buf, len);
+    Serializer deserializer(input_message.buf, input_message.len);
 
     dds::xrce::MessageHeader header;
     if (deserializer.deserialize(header))
     {
-        dds::xrce::SubmessageHeader sub_header;
-        bool valid_submessage = deserializer.deserialize(sub_header);
-        if (!valid_submessage)
+        /* Create client message. */
+        if ((header.stream_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)
+                || (header.stream_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY))
         {
-            std::cerr << "Error reading submessage header." << std::endl;
-        }
-
-        /* Process submessages. */
-        while (valid_submessage)
-        {
-            if ((header.stream_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)
-                    | (header.stream_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY))
+            dds::xrce::SubmessageHeader sub_header;
+            deserializer.force_new_submessage_align();
+            if (deserializer.deserialize(sub_header))
             {
                 if (sub_header.submessage_id() == dds::xrce::CREATE_CLIENT)
                 {
-                    dds::xrce::CREATE_CLIENT_Payload payload;
-                    if (deserializer.deserialize(payload))
+                    process_create_client(header, deserializer);
+                }
+            }
+        }
+        /* Process the rest of the messages. */
+        else if (ProxyClient* client = get_client(header.client_key()))
+        {
+            StreamsManager& stream_manager = client->get_stream_manager();
+            dds::xrce::StreamId stream_id = header.stream_id();
+            uint16_t seq_num = header.sequence_nr();
+            if (stream_manager.is_valid_message(stream_id, seq_num))
+            {
+                if (stream_manager.is_next_message(stream_id, seq_num))
+                {
+                    /* Process message. */
+                    process_message(header, deserializer, *client);
+
+                    /* Update sequence number. */
+                    stream_manager.promote_seq_num(stream_id, seq_num);
+
+                    /* Process next messages. */
+                    while (stream_manager.message_available(stream_id))
                     {
-                        dds::xrce::STATUS_Payload status;
-                        status.related_request().request_id(payload.request_id());
-                        status.related_request().object_id(payload.object_id());
-                        dds::xrce::ResultStatus result = create_client(payload);
-                        status.result(result);
-                        add_reply(header, status);
+                        /* Get and process next message. */
+                        dds::xrce::XrceMessage next_message = stream_manager.get_next_message(stream_id);
+                        Serializer temp_deserializer(next_message.buf, next_message.len);
+                        process_message(header, temp_deserializer, *client);
+
+                        /* Update sequence number. */
+                        seq_num++;
+                        stream_manager.promote_seq_num(stream_id, seq_num);
                     }
                 }
-            }
-            else
-            {
-
-            }
-
-            /* Get new submessage. */
-            if (!deserializer.bufferEnd())
-            {
-                valid_submessage = deserializer.deserialize(sub_header);
-                if (!valid_submessage)
+                else
                 {
-                    std::cerr << "Error reading submessage header." << std::endl;
+                    /* Store message. */
+                    stream_manager.store_message(stream_id, seq_num,
+                                                 deserializer.get_current_position(),
+                                                 deserializer.get_remainder_size());
                 }
             }
-            else
-            {
-                valid_submessage = false;
-            }
+        }
+        else
+        {
+            std::cerr << "Error client unknown." << std::endl;
         }
     }
     else
     {
         std::cerr << "Error reading message header." << std::endl;
+    }
+}
+
+void Agent::process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client)
+{
+
+    dds::xrce::SubmessageHeader sub_header;
+    deserializer.force_new_submessage_align();
+    bool valid_submessage = deserializer.deserialize(sub_header);
+    if (!valid_submessage)
+    {
+        std::cerr << "Error reading submessage header." << std::endl;
+    }
+
+    /* Process submessages. */
+    while (valid_submessage)
+    {
+        switch (sub_header.submessage_id()) {
+        case dds::xrce::CREATE:
+            process_create(header, sub_header, deserializer, client);
+            break;
+        default:
+            break;
+        }
+
+        /* Get next submessage. */
+        if (!deserializer.bufferEnd())
+        {
+            deserializer.force_new_submessage_align();
+            valid_submessage = deserializer.deserialize(sub_header);
+            if (!valid_submessage)
+            {
+                std::cerr << "Error reading submessage header." << std::endl;
+            }
+        }
+        else
+        {
+            valid_submessage = false;
+        }
+    }
+}
+
+void Agent::process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer)
+{
+    dds::xrce::CREATE_CLIENT_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        dds::xrce::STATUS_Payload status;
+        status.related_request().request_id(payload.request_id());
+        status.related_request().object_id(payload.object_id());
+        dds::xrce::ResultStatus result = create_client(payload);
+        status.result(result);
+        add_reply(header, status);
+    }
+    else
+    {
+        std::cerr << "Error processing CREATE_CLIENT submessage." << std::endl;
+    }
+}
+
+void Agent::process_create(const dds::xrce::MessageHeader& header,
+                           const dds::xrce::SubmessageHeader& sub_header,
+                           Serializer& deserializer,
+                           ProxyClient& client)
+{
+    dds::xrce::CreationMode creation_mode;
+    bool reuse = ((sub_header.flags() & dds::xrce::FLAG_REUSE) == dds::xrce::FLAG_REUSE);
+    bool replace = ((sub_header.flags() & dds::xrce::FLAG_REPLACE) == dds::xrce::FLAG_REPLACE);
+    creation_mode.reuse(reuse);
+    creation_mode.replace(replace);
+
+    dds::xrce::CREATE_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        dds::xrce::STATUS_Payload status;
+        status.related_request().request_id(payload.request_id());
+        status.related_request().object_id(payload.object_id());
+        dds::xrce::ResultStatus result =  client.create(creation_mode, payload);
+        status.result(result);
+        add_reply(header, status);
+    }
+    else
+    {
+        std::cerr << "Error processing CREATE submessage." << std::endl;
     }
 }
 

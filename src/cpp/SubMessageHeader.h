@@ -39,6 +39,19 @@ class Cdr;
 
 namespace dds { namespace xrce {
 
+enum SubmessageHeaderFlags : uint8_t
+{
+    FLAG_ENDIANNESS = 0x01 << 0,
+    FLAG_REUSE = 0x01 << 1,
+    FLAG_REPLACE = 0x01 << 2,
+    FLAG_LAST_FRAGMENT = 0x01 << 1,
+    FORMAT_DATA_F = 0x00,
+    FORMAT_SAMPLE_F = 0x02,
+    FORMAT_DATA_SEQ_F = 0x08,
+    FORMAT_SAMPLE_SEQ_F = 0x0A,
+    FORMAT_PACKED_SAMPLES_F = 0x0E
+};
+
 /*!
  * @brief This class represents the structure SubmessageHeader defined by the user in the IDL file.
  * @ingroup SUBMESSAGEHEADER

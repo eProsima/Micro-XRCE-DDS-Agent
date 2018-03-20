@@ -54,6 +54,13 @@ class Cdr;
 
 namespace dds { namespace xrce {
 
+typedef struct XrceMessage
+{
+    char* buf;
+    size_t len;
+
+} XrceMessage;
+
 typedef std::array<uint8_t, 4> ClientKey;
 
 typedef uint8_t ObjectKind;

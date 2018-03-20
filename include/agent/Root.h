@@ -223,7 +223,16 @@ public:
     void abort_execution();
 
 private:
-    void process_message(char* buf, size_t len);
+    /* Message processing functions. */
+    void handle_input_message(const dds::xrce::XrceMessage& input_message);
+    void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
+
+    /* Submessage procession functions. */
+    void process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer);
+    void process_create(const dds::xrce::MessageHeader& header,
+                        const dds::xrce::SubmessageHeader& sub_header,
+                        Serializer& deserializer,
+                        ProxyClient& client);
 
 private:
 

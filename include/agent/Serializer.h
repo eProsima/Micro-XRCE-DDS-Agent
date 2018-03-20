@@ -32,6 +32,10 @@ public:
 
     template<class T> bool deserialize(T& data);
 
+    char* get_current_position();
+
+    size_t get_remainder_size();
+
     size_t get_serialized_size();
 
     bool bufferEnd();
