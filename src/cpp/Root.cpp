@@ -585,12 +585,24 @@ void Agent::process_message(const dds::xrce::MessageHeader& header, Serializer& 
     /* Process submessages. */
     while (valid_submessage)
     {
-        switch (sub_header.submessage_id()) {
-        case dds::xrce::CREATE:
-            process_create(header, sub_header, deserializer, client);
-            break;
-        default:
-            break;
+        switch (sub_header.submessage_id())
+        {
+            case dds::xrce::CREATE:
+                process_create(header, sub_header, deserializer, client);
+                break;
+            case dds::xrce::GET_INFO:
+                /* TODO (Julian). */
+                break;
+            case dds::xrce::DELETE:
+                process_delete(header, sub_header, deserializer, client);
+                break;
+            case dds::xrce::WRITE_DATA:
+                process_write_data(header, sub_header, deserializer, client);
+                break;
+            case dds::xrce::READ_DATA:
+                process_read_data(header, sub_header, deserializer, client);
+            default:
+                break;
         }
 
         /* Get next submessage. */
@@ -652,6 +664,112 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
     else
     {
         std::cerr << "Error processing CREATE submessage." << std::endl;
+    }
+}
+
+void Agent::process_delete(const dds::xrce::MessageHeader& header,
+                           const dds::xrce::SubmessageHeader& sub_header,
+                           Serializer& deserializer, ProxyClient& client)
+{
+    dds::xrce::DELETE_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        if (payload.object_id() == dds::xrce::ObjectId{OBJECTID_CLIENT})
+        {
+            dds::xrce::STATUS_Payload status;
+            status.related_request().request_id(payload.request_id());
+            status.related_request().object_id(payload.object_id());
+            status.result(delete_client(header.client_key()));
+            add_reply(header, status);
+        }
+        else
+        {
+            dds::xrce::STATUS_Payload status;
+            status.related_request().request_id(payload.request_id());
+            status.related_request().object_id(payload.object_id());
+            status.result(client.delete_object(payload));
+            add_reply(header, status);
+        }
+    }
+    else
+    {
+        std::cerr << "Error processing DELETE submessage." << std::endl;
+    }
+}
+
+void Agent::process_write_data(const dds::xrce::MessageHeader& /*header*/,
+                               const dds::xrce::SubmessageHeader& sub_header,
+                               Serializer& deserializer, ProxyClient& client)
+{
+    uint8_t flags = sub_header.flags() & 0x0E;
+    switch (flags)
+    {
+        case dds::xrce::FORMAT_DATA_F:
+        {
+            dds::xrce::WRITE_DATA_Payload_Data payload;
+            if (deserializer.deserialize(payload))
+            {
+                dds::xrce::STATUS_Payload status;
+                status.related_request().request_id(payload.request_id());
+                status.related_request().object_id(payload.object_id());
+                status.result(client.write(payload.object_id(), payload));
+                status.result(result_status);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Agent::process_read_data(const dds::xrce::MessageHeader& header,
+                              const dds::xrce::SubmessageHeader& /*sub_header*/,
+                              Serializer& deserializer, ProxyClient& client)
+{
+    dds::xrce::READ_DATA_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        dds::xrce::STATUS_Payload status;
+        status.related_request().request_id(payload.request_id());
+        status.related_request().object_id(payload.object_id());
+        status.result(client.read(payload.object_id(), payload));
+        add_reply(header, status);
+    }
+    else
+    {
+        std::cerr << "Error processing READ_DATA submessage." << std::endl;
+    }
+}
+
+void Agent::process_acknack(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            Serializer& deserializer, ProxyClient& client)
+{
+    dds::xrce::ACKNACK_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        /* Send again missing messages. */
+    }
+    else
+    {
+        std::cerr << "Error processing ACKNACK submessage." << std::endl;
+    }
+}
+
+void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
+                              const dds::xrce::SubmessageHeader& sub_header,
+                              Serializer& deserializer, ProxyClient& client)
+{
+    dds::xrce::HEARTBEAT_Payload payload;
+    if (deserializer.deserialize(payload))
+    {
+        client.get_stream_manager().update_from_heartbeat(header.stream_id(),
+                                                          payload.first_unacked_seq_nr(),
+                                                          payload.last_unacked_seq_nr());
+    }
+    else
+    {
+        std::cerr << "Error procession HEARTBEAT submessage." << std::endl;
     }
 }
 

@@ -22,9 +22,10 @@ void ReliableStream::promote_seq_num(uint16_t seq_num)
 void ReliableStream::update_from_heartbeat(uint16_t first_unacked, uint16_t last_unacked)
 {
     /* Update sequence number. */
-    if (first_unacked > seq_num_)
+    while (seq_num_ < first_unacked)
     {
-        seq_num_ = first_unacked;
+        messages_.erase(seq_num_);
+        seq_num_++;
     }
 
     /* Update acknack number. */

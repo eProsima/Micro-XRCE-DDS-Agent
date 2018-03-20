@@ -231,8 +231,22 @@ private:
     void process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer);
     void process_create(const dds::xrce::MessageHeader& header,
                         const dds::xrce::SubmessageHeader& sub_header,
-                        Serializer& deserializer,
-                        ProxyClient& client);
+                        Serializer& deserializer, ProxyClient& client);
+    void process_delete(const dds::xrce::MessageHeader& header,
+                        const dds::xrce::SubmessageHeader& sub_header,
+                        Serializer& deserializer, ProxyClient& client);
+    void process_write_data(const dds::xrce::MessageHeader& header,
+                            const dds::xrce::SubmessageHeader& sub_header,
+                            Serializer& deserializer, ProxyClient& client);
+    void process_read_data(const dds::xrce::MessageHeader& header,
+                           const dds::xrce::SubmessageHeader& sub_header,
+                           Serializer& deserializer, ProxyClient& client);
+    void process_acknack(const dds::xrce::MessageHeader& header,
+                         const dds::xrce::SubmessageHeader& sub_header,
+                         Serializer& deserializer, ProxyClient& client);
+    void process_heartbeat(const dds::xrce::MessageHeader& header,
+                           const dds::xrce::SubmessageHeader& sub_header,
+                           Serializer& deserializer, ProxyClient& client);
 
 private:
 
