@@ -17,6 +17,14 @@
 using eprosima::micrortps::MessageQueue;
 using eprosima::micrortps::Message;
 
+Message::Message(char* buf, size_t len)
+{
+    if (len <= buffer_.size())
+    {
+        std::copy(buf, buf + len, &buffer_[0]);
+    }
+}
+
 MessageQueue::MessageQueue() : aborted_(false)
 {
 }

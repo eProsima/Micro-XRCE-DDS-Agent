@@ -123,29 +123,30 @@ bool DataReader::init(const std::string& xmlrep)
     return true;
 }
 
-int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data)
+int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id)
 {
     dds::xrce::DataDeliveryControl delivery_control = read_data.read_specification().delivery_control();
     ReadTaskInfo read_info{};
-    read_info.object_ID_  = read_data.object_id();
-    read_info.request_ID_ = read_data.request_id();
+    read_info.stream_id = stream_id;
+    read_info.object_id = read_data.object_id();
+    read_info.request_id = read_data.request_id();
     switch (read_data.read_specification().data_format())
     {
         case dds::xrce::FORMAT_DATA:
             break;
         case dds::xrce::FORMAT_SAMPLE:
-            read_info.max_elapsed_time_ = 0;
-            read_info.max_rate_         = 0;
-            read_info.max_samples_      = 1;
+            read_info.max_elapsed_time = 0;
+            read_info.max_rate         = 0;
+            read_info.max_samples      = 1;
             break;
         case dds::xrce::FORMAT_DATA_SEQ:
             break;
         case dds::xrce::FORMAT_SAMPLE_SEQ:
             break;
         case dds::xrce::FORMAT_PACKED_SAMPLES:
-            read_info.max_elapsed_time_ = delivery_control.max_elapsed_time();
-            read_info.max_rate_         = delivery_control.max_bytes_per_second();
-            read_info.max_samples_      = delivery_control.max_samples();
+            read_info.max_elapsed_time = delivery_control.max_elapsed_time();
+            read_info.max_rate         = delivery_control.max_bytes_per_second();
+            read_info.max_samples      = delivery_control.max_samples();
             break;
         default:
             std::cout << "Error: read format unexpected" << std::endl;
@@ -172,9 +173,9 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
     unread_msgs_ = 0;
     lock.unlock();
 
-    if (read_info.max_elapsed_time_ > 0)
+    if (read_info.max_elapsed_time > 0)
     {
-        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time_);
+        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time);
     }
     m_read_thread = std::thread(&DataReader::read_task, this, read_info);
 
@@ -205,14 +206,14 @@ int DataReader::stop_read()
 
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
-    TokenBucket rate_manager{read_info.max_rate_};
+    TokenBucket rate_manager{read_info.max_rate};
     std::cout << "Starting read_task..." << std::endl;
     uint16_t message_count = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        if (m_running && (message_count < read_info.max_samples_))
+        if (m_running && (message_count < read_info.max_samples))
         {
             if (unread_msgs_ != 0)
             {
@@ -230,7 +231,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
                                   << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
                                   << std::endl;
                         last_read = std::chrono::steady_clock::now();
-                        mp_reader_listener->on_read_data(read_info.object_ID_, read_info.request_ID_, buffer);
+                        mp_reader_listener->on_read_data(read_info.stream_id, read_info.object_id, read_info.request_id, buffer);
                         ++message_count;
                     }
                 }

@@ -187,11 +187,9 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header,
     eprosima::micrortps::debug::printl_status_submessage(status_reply);
 #endif
 
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
     Message message{};
-    XRCEFactory message_creator{ message.get_buffer().data(), message.get_buffer().max_size() };
-    message_creator.header(updated_header);
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size() };
+    message_creator.header(header);
     message_creator.status(status_reply);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
@@ -205,11 +203,9 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header,
     eprosima::micrortps::debug::printl_data_submessage(payload);
 #endif
 
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
     Message message{};
     XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
+    message_creator.header(header);
     message_creator.data(payload);
     message.set_real_size(message_creator.get_total_size());
     add_reply(message);
@@ -441,8 +437,7 @@ void Agent::on_message(const dds::xrce::MessageHeader &header,
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(read_payload.request_id());
         status.related_request().object_id(read_payload.object_id());
-        dds::xrce::ResultStatus result_status = client->read(read_payload.object_id(), read_payload);
-        status.result(result_status);
+        status.result(client->read(read_payload.object_id(), read_payload, header.stream_id()));
     }
     else
     {
@@ -554,9 +549,9 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
                 else
                 {
                     /* Store message. */
-                    stream_manager.store_message(stream_id, seq_num,
-                                                 deserializer.get_current_position(),
-                                                 deserializer.get_remainder_size());
+                    stream_manager.store_input_message(stream_id, seq_num,
+                                                       deserializer.get_current_position(),
+                                                       deserializer.get_remainder_size());
                 }
             }
         }
@@ -668,7 +663,7 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
 }
 
 void Agent::process_delete(const dds::xrce::MessageHeader& header,
-                           const dds::xrce::SubmessageHeader& sub_header,
+                           const dds::xrce::SubmessageHeader& /*sub_header*/,
                            Serializer& deserializer, ProxyClient& client)
 {
     dds::xrce::DELETE_Payload payload;
@@ -713,7 +708,6 @@ void Agent::process_write_data(const dds::xrce::MessageHeader& /*header*/,
                 status.related_request().request_id(payload.request_id());
                 status.related_request().object_id(payload.object_id());
                 status.result(client.write(payload.object_id(), payload));
-                status.result(result_status);
             }
             break;
         }
@@ -732,7 +726,7 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        status.result(client.read(payload.object_id(), payload));
+        status.result(client.read(payload.object_id(), payload, header.stream_id()));
         add_reply(header, status);
     }
     else
@@ -742,13 +736,38 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
 }
 
 void Agent::process_acknack(const dds::xrce::MessageHeader& header,
-                            const dds::xrce::SubmessageHeader& sub_header,
+                            const dds::xrce::SubmessageHeader& /*sub_header*/,
                             Serializer& deserializer, ProxyClient& client)
 {
     dds::xrce::ACKNACK_Payload payload;
     if (deserializer.deserialize(payload))
     {
-        /* Send again missing messages. */
+        /* Send missing messages again. */
+        uint16_t first_message = payload.first_unacked_seq_num();
+        std::array<uint8_t, 2> nack_bitmap = payload.nack_bitmap();
+        for (int i = 0; i < 8; ++i)
+        {
+            dds::xrce::XrceMessage message;
+            uint8_t mask = 0x01 << i;
+            if ((nack_bitmap.at(1) & mask) == mask)
+            {
+                message = client.get_stream_manager().get_output_message(header.stream_id(), first_message + i);
+                if (message.len != 0)
+                {
+                    Message output_message(message.buf, message.len);
+                    add_reply(output_message);
+                }
+            }
+            if ((nack_bitmap.at(0) & mask) == mask)
+            {
+                message = client.get_stream_manager().get_output_message(header.stream_id(), first_message + i + 8);
+                if (message.len != 0)
+                {
+                    Message output_message(message.buf, message.len);
+                    add_reply(output_message);
+                }
+            }
+        }
     }
     else
     {
@@ -757,15 +776,34 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
 }
 
 void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
-                              const dds::xrce::SubmessageHeader& sub_header,
+                              const dds::xrce::SubmessageHeader& /*sub_header*/,
                               Serializer& deserializer, ProxyClient& client)
 {
     dds::xrce::HEARTBEAT_Payload payload;
     if (deserializer.deserialize(payload))
     {
+        /* Update input stream. */
         client.get_stream_manager().update_from_heartbeat(header.stream_id(),
                                                           payload.first_unacked_seq_nr(),
                                                           payload.last_unacked_seq_nr());
+
+        /* Send ACKNACK message. */
+        dds::xrce::MessageHeader acknack_header;
+        acknack_header.session_id() = header.session_id();
+        acknack_header.stream_id() = 0x00;
+        acknack_header.sequence_nr() = header.stream_id();
+        acknack_header.client_key() = header.client_key();
+
+        dds::xrce::ACKNACK_Payload payload;
+        payload.first_unacked_seq_num(client.get_stream_manager().get_first_unacked_seq_num(header.stream_id()));
+        payload.nack_bitmap(client.get_stream_manager().get_nack_bitmap(header.stream_id()));
+
+        Message message{};
+        XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+        message_creator.header(acknack_header);
+        message_creator.acknack(payload);
+        message.set_real_size(message_creator.get_total_size());
+        add_reply(message);
     }
     else
     {

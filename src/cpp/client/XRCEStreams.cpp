@@ -35,7 +35,7 @@ void ReliableStream::update_from_heartbeat(uint16_t first_unacked, uint16_t last
     }
 }
 
-void ReliableStream::insert_message(uint16_t seq_num, const char* buf, size_t len)
+void ReliableStream::insert_input_message(uint16_t seq_num, const char* buf, size_t len)
 {
     if ((seq_num >= seq_num_) && (seq_num < seq_num_ + 16))
     {
@@ -56,9 +56,19 @@ void ReliableStream::insert_message(uint16_t seq_num, const char* buf, size_t le
     }
 }
 
-bool ReliableStream::message_available()
+void ReliableStream::append_output_message(const char* buf, size_t len)
 {
-    return (messages_.begin()->first == seq_num_);
+    /* Insert message. */
+    messages_.emplace(std::piecewise_construct,
+                      std::forward_as_tuple(ack_num_),
+                      std::forward_as_tuple(buf, buf + len));
+
+    /* Update acknack and sequence number. */
+    ack_num_++;
+    if (seq_num_ < (ack_num_ - 16))
+    {
+        seq_num_ = ack_num_ - 16;
+    }
 }
 
 } } // namespace eprosima::micrortps

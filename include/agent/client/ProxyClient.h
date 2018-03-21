@@ -80,16 +80,18 @@ public:
     dds::xrce::ResultStatus update(const dds::xrce::ObjectId& object_id,
                                    const dds::xrce::ObjectVariant& representation);
     dds::xrce::ResultStatus read(const dds::xrce::ObjectId& object_id,
-                                 const dds::xrce::READ_DATA_Payload& data_payload);
+                                 const dds::xrce::READ_DATA_Payload& data_payload,
+                                 const dds::xrce::StreamId& stream_id);
     dds::xrce::ResultStatus write(const dds::xrce::ObjectId& object_id,
                                   dds::xrce::WRITE_DATA_Payload_Data& data_payload);
     dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
-    void on_read_data(const dds::xrce::ObjectId& object_id,
-                      const dds::xrce::RequestId& req_id,
+    void on_read_data(const dds::xrce::StreamId& stream_id,
+                      const dds::xrce::ObjectId& object_id,
+                      const dds::xrce::RequestId& request_id,
                       const std::vector<unsigned char>& buffer);
     XRCEObject* get_object(const dds::xrce::ObjectId& object_id);
 
-    dds::xrce::SessionId get_session_id() { return session_id; }
+    dds::xrce::SessionId get_session_id() { return session_id_; }
     StreamsManager& get_stream_manager();
 
 private:
@@ -98,8 +100,8 @@ private:
     std::mutex objects_mutex_;
     std::map<dds::xrce::ObjectId, std::unique_ptr<XRCEObject>> objects_;
 
-    dds::xrce::ClientKey client_key;
-    dds::xrce::SessionId session_id;
+    dds::xrce::ClientKey client_key_;
+    dds::xrce::SessionId session_id_;
 
     StreamsManager streams_manager_;
 

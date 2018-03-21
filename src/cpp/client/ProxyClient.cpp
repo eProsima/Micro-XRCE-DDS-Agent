@@ -45,8 +45,8 @@ ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
                          const dds::xrce::SessionId& session_id)
     : representation_(std::move(client)),
       objects_(),
-      client_key(client_key),
-      session_id(session_id),
+      client_key_(client_key),
+      session_id_(session_id),
       streams_manager_()
 {
 }
@@ -58,8 +58,8 @@ ProxyClient::~ProxyClient()
 ProxyClient::ProxyClient(ProxyClient&& x) noexcept
     : representation_(std::move(x.representation_)),
       objects_(std::move(x.objects_)),
-      client_key(x.client_key),
-      session_id(x.session_id),
+      client_key_(x.client_key_),
+      session_id_(x.session_id_),
       streams_manager_(std::move(x.streams_manager_))
 {
 }
@@ -68,8 +68,8 @@ ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
 {
     representation_  = std::move(x.representation_);
     objects_         = std::move(x.objects_);
-    client_key       = std::move(x.client_key);
-    session_id       = std::move(x.session_id);
+    client_key_      = std::move(x.client_key_);
+    session_id_      = std::move(x.session_id_);
     streams_manager_ = std::move(x.streams_manager_);
     return *this;
 }
@@ -402,7 +402,8 @@ dds::xrce::ResultStatus ProxyClient::write(const dds::xrce::ObjectId& object_id,
 }
 
 dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id,
-                                          const dds::xrce::READ_DATA_Payload& data_payload)
+                                          const dds::xrce::READ_DATA_Payload& data_payload,
+                                          const dds::xrce::StreamId& stream_id)
 {
     dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lockGuard(objects_mutex_);
@@ -414,7 +415,7 @@ dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id,
     else
     {
         auto reader = dynamic_cast<DataReader*>(object_it->second.get());
-        if (reader != nullptr && reader->read(data_payload) == 0)
+        if (reader != nullptr && reader->read(data_payload, stream_id) == 0)
         {
             result_status.status(dds::xrce::STATUS_OK);
         }
@@ -426,21 +427,56 @@ dds::xrce::ResultStatus ProxyClient::read(const dds::xrce::ObjectId& object_id,
     return result_status;
 }
 
-void ProxyClient::on_read_data(const dds::xrce::ObjectId& object_id,
-                               const dds::xrce::RequestId& req_id,
+void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
+                               const dds::xrce::ObjectId& object_id,
+                               const dds::xrce::RequestId& request_id,
                                const std::vector<unsigned char>& buffer)
 {
+    /* Data message header. */
     dds::xrce::MessageHeader message_header;
-    message_header.client_key(client_key);
-    message_header.session_id(session_id);
-//    message_header.stream_id(stream_id);
+    message_header.client_key(client_key_);
+    message_header.session_id(session_id_);
+    message_header.stream_id(stream_id);
+    uint16_t seq_num = streams_manager_.get_ack_num(stream_id);
+    message_header.sequence_nr(seq_num);
 
-    dds::xrce::DATA_Payload_Data payload;
-    payload.request_id(req_id);
-    payload.object_id(object_id);
-    payload.data().serialized_data(buffer);
+    /* Data payload. */
+    dds::xrce::DATA_Payload_Data data_payload;
+    data_payload.request_id(request_id);
+    data_payload.object_id(object_id);
+    data_payload.data().serialized_data(buffer);
 
-    root()->add_reply(message_header, payload);
+    /* Serialize data message. */
+    Message data_message{};
+    XRCEFactory data_message_creator{data_message.get_buffer().data(), data_message.get_buffer().max_size()};
+    data_message_creator.header(message_header);
+    data_message_creator.data(data_payload);
+    data_message.set_real_size(data_message_creator.get_total_size());
+
+    /* Store message. */
+    streams_manager_.store_output_message(stream_id, data_message.get_buffer().data(), data_message.get_real_size());
+
+    /* Send message. */
+    root()->add_reply(data_message);
+
+    /* Heartbeat message header. */
+    message_header.stream_id(0x00);
+    message_header.sequence_nr(stream_id);
+
+    /* Heartbeat payload. */
+    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked(stream_id));
+    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked(stream_id));
+
+    /* Serialize data message. */
+    Message heartbeat_message{};
+    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
+    heartbeat_message_creator.header(message_header);
+    heartbeat_message_creator.heartbeat(heartbeat_payload);
+    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
+
+    /* Send message. */
+    root()->add_reply(heartbeat_message);
 }
 
 StreamsManager& ProxyClient::get_stream_manager()

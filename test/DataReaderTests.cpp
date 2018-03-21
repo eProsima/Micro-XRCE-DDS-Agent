@@ -38,11 +38,14 @@ DataReaderTests::DataReaderTests()
 //    data_reader_init_ = data_reader_.init();
 }
 
-void DataReaderTests::on_read_data(const dds::xrce::ObjectId& object_id, const dds::xrce::RequestId& req_id,
+void DataReaderTests::on_read_data(const dds::xrce::StreamId& stream_id,
+                                   const dds::xrce::ObjectId& object_id,
+                                   const dds::xrce::RequestId& req_id,
                                    const std::vector<unsigned char>& buffer)
 {
     // TODO.
     (void) buffer;
+    stream_id_ = stream_id;
     object_id_ = object_id;
     req_id_    = req_id;
     ++read_count_;
@@ -56,7 +59,7 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatData)
     read_conf.request_id(fixed_request_id);
     read_conf.read_specification().data_format(dds::xrce::FORMAT_DATA);
     int tries = 300;
-    data_reader_->read(read_conf);
+    data_reader_->read(read_conf, stream_id_);
     while (!data_reader_->has_message() && tries > 0)
     {
         --tries;
@@ -80,7 +83,7 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatDataSeq)
     read_conf.read_specification().data_format(dds::xrce::FORMAT_DATA_SEQ);
     read_conf.read_specification().delivery_control(control);
     int tries = 300;
-    data_reader_->read(read_conf);
+    data_reader_->read(read_conf, stream_id_);
     // Waits for the first message.
     while (!data_reader_->has_message() && tries > 0)
     {

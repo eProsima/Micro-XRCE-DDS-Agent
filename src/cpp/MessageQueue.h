@@ -30,6 +30,8 @@ const size_t max_message_size = 2048;
 class Message
 {
 public:
+    Message() = default;
+    Message(char* buf, size_t size);
     void set_real_size(size_t size){size_ = size;}
     size_t get_real_size(void){return size_;}
     std::array<char, max_message_size>& get_buffer() {return buffer_;}
