@@ -42,7 +42,7 @@ void ReliableStream::insert_input_message(uint16_t seq_num, const char* buf, siz
         /* Update acknack number. */
         if (ack_num_ <= seq_num)
         {
-            ack_num_ = seq_num;
+            ack_num_ = seq_num + 1;
         }
 
         /* Insert element. */

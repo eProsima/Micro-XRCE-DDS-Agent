@@ -61,7 +61,7 @@ void Agent::init(const uint16_t local_port)
     std::cout << "UDP agent initialization..." << std::endl;
     // Init transport
     locator_id_t id = add_udp_locator_agent(local_port, &locator_);
-    if (id != MICRORTPS_TRANSPORT_OK)
+    if (id == MICRORTPS_TRANSPORT_ERROR)
     {
         std::cout << "Agent::init() -> error" << std::endl;
     }
@@ -633,8 +633,7 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header, Serial
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        dds::xrce::ResultStatus result = create_client(payload);
-        status.result(result);
+        status.result(create_client(payload));
         add_reply(header, status);
     }
     else
@@ -660,8 +659,7 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        dds::xrce::ResultStatus result =  client.create(creation_mode, payload);
-        status.result(result);
+        status.result(client.create(creation_mode, payload));
         add_reply(header, status);
     }
     else

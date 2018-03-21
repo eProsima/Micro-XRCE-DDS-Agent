@@ -97,7 +97,7 @@ template bool Serializer::deserialize(dds::xrce::DATA_Payload_PackedSamples& dat
 
 char* Serializer::get_current_position()
 {
-    serializer_.getCurrentPosition();
+    return serializer_.getCurrentPosition();
 }
 
 size_t Serializer::get_remainder_size()

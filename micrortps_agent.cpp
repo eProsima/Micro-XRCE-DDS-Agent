@@ -25,7 +25,7 @@ int main(int argc, char** argv)
             // "/dev/ttyACM0"
             micrortps_agent->init(argv[2]);
         }
-        else if(strcmp(argv[1], "udp") == 0 && argc == 5)
+        else if(strcmp(argv[1], "udp") == 0 && argc == 3)
         {
             micrortps_agent->init(atoi(argv[2]));
         }

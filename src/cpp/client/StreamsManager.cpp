@@ -170,11 +170,11 @@ std::array<uint8_t, 2> StreamsManager::get_nack_bitmap(dds::xrce::StreamId strea
         uint16_t ack_num = stream.get_ack_num();
         for (int i = 0; i < 8; ++i)
         {
-            if (((seq_num + i) <= ack_num) && (stream.get_message_size(seq_num + i) > 0))
+            if (((seq_num + i) <= (ack_num - 1)) && (stream.get_message_size(seq_num + i) > 0))
             {
                 bitmap.at(1) = bitmap.at(1) | (0x01 << i);
             }
-            if ((((seq_num + i + 8) <= ack_num) && stream.get_message_size(seq_num + i + 8) > 0))
+            if (((seq_num + i + 8) <= (ack_num - 1)) && (stream.get_message_size(seq_num + i + 8) > 0))
             {
                 bitmap.at(0) = bitmap.at(0) | (0x01 << i);
             }
@@ -184,13 +184,13 @@ std::array<uint8_t, 2> StreamsManager::get_nack_bitmap(dds::xrce::StreamId strea
     return bitmap;
 }
 
-uint16_t StreamsManager::get_first_unacked(dds::xrce::StreamId stream_id)
+uint16_t StreamsManager::get_first_unacked_seq_nr(dds::xrce::StreamId stream_id)
 {
     uint16_t result = (127 < stream_id) ? output_relible_streams_[stream_id].get_seq_num() : 0;
     return result;
 }
 
-uint16_t StreamsManager::get_last_unacked(dds::xrce::StreamId stream_id)
+uint16_t StreamsManager::get_last_unacked_seq_nr(dds::xrce::StreamId stream_id)
 {
     uint16_t result = (127 < stream_id) ? output_relible_streams_[stream_id].get_ack_num() - 1 : 0;
     return result;

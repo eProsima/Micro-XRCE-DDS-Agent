@@ -30,8 +30,8 @@ public:
     void store_output_message(dds::xrce::StreamId stream_id, const char* buf, size_t len);
     dds::xrce::XrceMessage get_output_message(dds::xrce::StreamId stream_id, uint16_t index);
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
-    uint16_t get_first_unacked(dds::xrce::StreamId stream_id);
-    uint16_t get_last_unacked(dds::xrce::StreamId stream_id);
+    uint16_t get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
+    uint16_t get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
 
 private:
     std::map<dds::xrce::StreamId, BestEffortStream> input_best_effort_streams_;

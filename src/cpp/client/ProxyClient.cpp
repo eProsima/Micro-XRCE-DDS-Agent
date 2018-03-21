@@ -465,8 +465,8 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
 
     /* Heartbeat payload. */
     dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked(stream_id));
-    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked(stream_id));
+    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked_seq_nr(stream_id));
+    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked_seq_nr(stream_id));
 
     /* Serialize data message. */
     Message heartbeat_message{};
