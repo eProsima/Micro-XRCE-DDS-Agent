@@ -19,7 +19,7 @@ public:
     bool is_next_message(dds::xrce::StreamId stream_id, uint16_t seq_num);
     bool is_valid_message(dds::xrce::StreamId stream_id, uint16_t seq_num);
     void update_from_heartbeat(dds::xrce::StreamId stream_id, uint16_t first_unacked, uint16_t last_unacked);
-    void promote_seq_num(dds::xrce::StreamId stream_id, uint16_t seq_num);
+    void update_stream(dds::xrce::StreamId stream_id, uint16_t seq_num);
     bool message_available(dds::xrce::StreamId stream_id);
     dds::xrce::XrceMessage get_next_message(dds::xrce::StreamId stream_id);
     void store_input_message(dds::xrce::StreamId stream_id, uint16_t seq_num, const char* buf, size_t len);

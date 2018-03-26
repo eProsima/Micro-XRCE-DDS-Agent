@@ -512,8 +512,8 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
     if (deserializer.deserialize(header))
     {
         /* Create client message. */
-        if ((header.stream_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)
-                || (header.stream_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY))
+        if ((header.session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)
+                || (header.session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY))
         {
             dds::xrce::SubmessageHeader sub_header;
             deserializer.force_new_submessage_align();
@@ -539,7 +539,7 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
                     process_message(header, deserializer, *client);
 
                     /* Update sequence number. */
-                    stream_manager.promote_seq_num(stream_id, seq_num);
+                    stream_manager.update_stream(stream_id, seq_num);
 
                     /* Process next messages. */
                     while (stream_manager.message_available(stream_id))
@@ -551,7 +551,7 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
 
                         /* Update sequence number. */
                         seq_num++;
-                        stream_manager.promote_seq_num(stream_id, seq_num);
+                        stream_manager.update_stream(stream_id, seq_num);
                     }
                 }
                 else
@@ -604,6 +604,13 @@ void Agent::process_message(const dds::xrce::MessageHeader& header, Serializer& 
                 break;
             case dds::xrce::READ_DATA:
                 process_read_data(header, sub_header, deserializer, client);
+                break;
+            case dds::xrce::HEARTBEAT:
+                process_heartbeat(header, sub_header, deserializer, client);
+                break;
+            case dds::xrce::ACKNACK:
+                process_acknack(header, sub_header, deserializer, client);
+                break;
             default:
                 break;
         }
@@ -656,11 +663,16 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
     dds::xrce::CREATE_Payload payload;
     if (deserializer.deserialize(payload))
     {
+        dds::xrce::MessageHeader status_header;
+        status_header.session_id(header.session_id());
+        status_header.stream_id(0x00);
+        status_header.sequence_nr(0);
+        status_header.client_key(header.client_key());
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
         status.result(client.create(creation_mode, payload));
-        add_reply(header, status);
+        add_reply(status_header, status);
     }
     else
     {
@@ -788,8 +800,9 @@ void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
     dds::xrce::HEARTBEAT_Payload payload;
     if (deserializer.deserialize(payload))
     {
+        dds::xrce::StreamId stream_id = (dds::xrce::StreamId)(header.sequence_nr());
         /* Update input stream. */
-        client.get_stream_manager().update_from_heartbeat(header.stream_id(),
+        client.get_stream_manager().update_from_heartbeat((dds::xrce::StreamId)header.sequence_nr(),
                                                           payload.first_unacked_seq_nr(),
                                                           payload.last_unacked_seq_nr());
 
@@ -801,8 +814,8 @@ void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
         acknack_header.client_key() = header.client_key();
 
         dds::xrce::ACKNACK_Payload payload;
-        payload.first_unacked_seq_num(client.get_stream_manager().get_first_unacked_seq_num(header.stream_id()));
-        payload.nack_bitmap(client.get_stream_manager().get_nack_bitmap(header.stream_id()));
+        payload.first_unacked_seq_num(client.get_stream_manager().get_first_unacked_seq_num(stream_id));
+        payload.nack_bitmap(client.get_stream_manager().get_nack_bitmap(stream_id));
 
         Message message{};
         XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};

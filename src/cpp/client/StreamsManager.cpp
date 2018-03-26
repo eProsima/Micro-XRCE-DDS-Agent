@@ -63,15 +63,15 @@ bool StreamsManager::is_valid_message(dds::xrce::StreamId stream_id, uint16_t se
     return result;
 }
 
-void StreamsManager::promote_seq_num(dds::xrce::StreamId stream_id, uint16_t seq_num)
+void StreamsManager::update_stream(dds::xrce::StreamId stream_id, uint16_t seq_num)
 {
     if (128 > stream_id)
     {
-        input_best_effort_streams_[stream_id].promote_seq_num(seq_num);
+        input_best_effort_streams_[stream_id].update(seq_num);
     }
     else
     {
-        input_relible_streams_[stream_id].promote_seq_num(seq_num);
+        input_relible_streams_[stream_id].update(seq_num);
     }
 }
 
@@ -165,16 +165,16 @@ std::array<uint8_t, 2> StreamsManager::get_nack_bitmap(dds::xrce::StreamId strea
 
     if (127 < stream_id)
     {
-        ReliableStream stream = input_relible_streams_[stream_id];
+        ReliableStream& stream = input_relible_streams_[stream_id];
         uint16_t seq_num = stream.get_seq_num();
         uint16_t ack_num = stream.get_ack_num();
         for (int i = 0; i < 8; ++i)
         {
-            if (((seq_num + i) <= (ack_num - 1)) && (stream.get_message_size(seq_num + i) > 0))
+            if (((seq_num + i) <= ack_num) && stream.is_mesage(seq_num + i))
             {
                 bitmap.at(1) = bitmap.at(1) | (0x01 << i);
             }
-            if (((seq_num + i + 8) <= (ack_num - 1)) && (stream.get_message_size(seq_num + i + 8) > 0))
+            if (((seq_num + i + 8) <= ack_num) && stream.is_mesage(seq_num + i + 8))
             {
                 bitmap.at(0) = bitmap.at(0) | (0x01 << i);
             }
