@@ -39,11 +39,11 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     target_link_libraries(UtilsTest testcommon ${GTEST_BOTH_LIBRARIES})
 
     # XRCE test.
-    set(XRCETESTS_SOURCE XRCETests.cxx)
-    add_executable(XRCETest ${XRCETESTS_SOURCE})
-    add_gtest(XRCETest ${XRCETESTS_SOURCE})
-    target_include_directories(XRCETest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(XRCETest testcommon ${GTEST_BOTH_LIBRARIES})
+#    set(XRCETESTS_SOURCE XRCETests.cxx)
+#    add_executable(XRCETest ${XRCETESTS_SOURCE})
+#    add_gtest(XRCETest ${XRCETESTS_SOURCE})
+#    target_include_directories(XRCETest PRIVATE ${GTEST_INCLUDE_DIRS})
+#    target_link_libraries(XRCETest testcommon ${GTEST_BOTH_LIBRARIES})
 
     file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
         DESTINATION ${PROJECT_BINARY_DIR}/test

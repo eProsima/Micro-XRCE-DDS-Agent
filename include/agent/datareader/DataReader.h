@@ -124,7 +124,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 
     bool init();
     bool init(const std::string& xmlrep);
-    int read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id);
+    void read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id);
     bool has_message() const;
 
     void on_max_timeout(const asio::error_code& error) override;

@@ -123,7 +123,7 @@ bool DataReader::init(const std::string& xmlrep)
     return true;
 }
 
-int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id)
+void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id)
 {
     ReadTaskInfo read_info{};
     read_info.stream_id = stream_id;
@@ -161,8 +161,6 @@ int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::x
 
     stop_read();
     start_read(read_info);
-
-    return 0;
 }
 
 bool DataReader::has_message() const

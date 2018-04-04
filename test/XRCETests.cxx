@@ -19,7 +19,7 @@
 #include "Serializer.h"
 #include "SubMessageHeader.h"
 #include "XRCEFactory.h"
-#include "XRCEParser.h"
+//#include "XRCEParser.h"
 #include <fastcdr/exceptions/BadParamException.h>
 
 #include <gtest/gtest.h>

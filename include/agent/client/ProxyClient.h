@@ -65,25 +65,34 @@ public:
      */
     ProxyClient& operator=(ProxyClient&& x) noexcept;
 
-    /*!
-     * \brief Creates a DdsXrce object from a given CREATE submessage payload.
-     * \param creation_mode 	Controls the behavior of the operation when there is an existing
-     * 							object that partially matches the description of the object that
-     * 							the client  wants to create (see Table 4 in DDS-XRCE manual).
-     * \param create_payload	The CREATE submessage payload.
-     * \return If the creation succeeds the Agent shall return {STATUS_LAST_OP_CREATE, STATUS_OK}.
+    /**
+     * @brief This operation attempts to create a XRCE object according to the specification provided in the
+     *        object_representation paramenter.
+     *
+     * @param creation_mode          Controls the behavior of the operation when there is an existing object that
+     *                               partially matches the description of the object that the client wants to create.
+     * @param objectid_prefix        Configures the desired ObjectId for the created object.
+     * @param object_representation  A representation of the object that the client wants to create.
+     *
+     * @return
      */
     dds::xrce::ResultStatus create(const dds::xrce::CreationMode& creation_mode,
-                                   const dds::xrce::CREATE_Payload& create_payload);
-    /* TODO (Julian): add comments for API */
-    dds::xrce::ResultStatus delete_object(const dds::xrce::DELETE_Payload& delete_payload);
+                                   const dds::xrce::ObjectPrefix& objectid_prefix,
+                                   const dds::xrce::ObjectVariant& object_representation);
+
+    /**
+     * @brief This operation deletes an existing object.
+     *
+     * @param object_id
+     *
+     * @return The retunrn values are the following:
+     *         * Íf the object is successfully deleted STATUS_OK.
+     *         * If the object does not exist STATUS_ERR_UNKNOWN_REFERENCE.
+     */
+    dds::xrce::ResultStatus delete_object(const dds::xrce::ObjectId& object_id);
+
     dds::xrce::ResultStatus update(const dds::xrce::ObjectId& object_id,
                                    const dds::xrce::ObjectVariant& representation);
-    dds::xrce::ResultStatus read(const dds::xrce::ObjectId& object_id,
-                                 const dds::xrce::READ_DATA_Payload& data_payload,
-                                 const dds::xrce::StreamId& stream_id);
-    dds::xrce::ResultStatus write(const dds::xrce::ObjectId& object_id,
-                                  dds::xrce::WRITE_DATA_Payload_Data& data_payload);
     dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
     void on_read_data(const dds::xrce::StreamId& stream_id,
                       const dds::xrce::ObjectId& object_id,
@@ -105,8 +114,7 @@ private:
 
     StreamsManager streams_manager_;
 
-    bool create(const dds::xrce::ObjectId& id, const dds::xrce::ObjectVariant& representation);
-    bool delete_object(const dds::xrce::ObjectId& id);
+    bool create(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
 };
 } // namespace micrortps
 } // namespace eprosima

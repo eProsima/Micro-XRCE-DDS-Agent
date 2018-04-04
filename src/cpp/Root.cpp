@@ -64,26 +64,27 @@ void Agent::init(const uint16_t local_port)
     }
 }
 
-dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CREATE_CLIENT_Payload& payload)
+dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
+                                             dds::xrce::AGENT_Representation& /*agent_representation*/)
 {
     dds::xrce::ResultStatus result_status;
     result_status.status(dds::xrce::STATUS_OK);
 
-    if (payload.client_representation().xrce_cookie() == dds::xrce::XrceCookie{XRCE_COOKIE})
+    if (client_representation.xrce_cookie() == dds::xrce::XrceCookie{XRCE_COOKIE})
     {
-        if (payload.client_representation().xrce_version()[0] == XRCE_VERSION_MAJOR)
+        if (client_representation.xrce_version()[0] == XRCE_VERSION_MAJOR)
         {
             std::lock_guard<std::mutex> lock(clientsmtx_);
 
             bool create_result;
-            dds::xrce::ClientKey client_key = payload.client_representation().client_key();
-            dds::xrce::SessionId session_id = payload.client_representation().session_id();
+            dds::xrce::ClientKey client_key = client_representation.client_key();
+            dds::xrce::SessionId session_id = client_representation.session_id();
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
                 create_result = clients_.emplace(std::piecewise_construct,
                                                  std::forward_as_tuple(client_key),
-                                                 std::forward_as_tuple(payload.client_representation(),
+                                                 std::forward_as_tuple(client_representation,
                                                                        client_key, session_id)).second;
                 if (!create_result)
                 {
@@ -98,7 +99,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CREATE_CLIENT_Payl
                     clients_.erase(it);
                     create_result = clients_.emplace(std::piecewise_construct,
                                                      std::forward_as_tuple(client_key),
-                                                     std::forward_as_tuple(payload.client_representation(),
+                                                     std::forward_as_tuple(client_representation,
                                                                            client_key, session_id)).second;
                     if (!create_result)
                     {
@@ -365,7 +366,8 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header, Serial
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        status.result(create_client(payload));
+        dds::xrce::AGENT_Representation agent_representation;
+        status.result(create_client(payload.client_representation(), agent_representation));
         add_reply(header, status);
     }
     else
@@ -396,7 +398,7 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        status.result(client.create(creation_mode, payload));
+        status.result(client.create(creation_mode, payload.object_id(), payload.object_representation()));
         add_reply(status_header, status);
     }
     else
@@ -430,7 +432,7 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
             dds::xrce::STATUS_Payload status;
             status.related_request().request_id(payload.request_id());
             status.related_request().object_id(payload.object_id());
-            status.result(client.delete_object(payload));
+            status.result(client.delete_object(payload.object_id()));
             add_reply(status_header, status);
         }
     }
@@ -445,17 +447,19 @@ void Agent::process_write_data(const dds::xrce::MessageHeader& /*header*/,
                                Serializer& deserializer, ProxyClient& client)
 {
     uint8_t flags = sub_header.flags() & 0x0E;
+    dds::xrce::DataRepresentation data;
     switch (flags)
     {
-        case dds::xrce::FORMAT_DATA_F:
+        case dds::xrce::FORMAT_DATA_F: ;
         {
             dds::xrce::WRITE_DATA_Payload_Data payload;
             if (deserializer.deserialize(payload))
             {
-                dds::xrce::STATUS_Payload status;
-                status.related_request().request_id(payload.request_id());
-                status.related_request().object_id(payload.object_id());
-                status.result(client.write(payload.object_id(), payload));
+                DataWriter* data_writer = dynamic_cast<DataWriter*>(client.get_object(payload.object_id()));
+                if (nullptr != data_writer)
+                {
+                    data_writer->write(payload);
+                }
             }
             break;
         }
@@ -479,7 +483,19 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
-        status.result(client.read(payload.object_id(), payload, header.stream_id()));
+        dds::xrce::ResultStatus result;
+        result.implementation_status(0x00);
+        DataReader* data_reader = dynamic_cast<DataReader*>(client.get_object(payload.object_id()));
+        if (nullptr != data_reader)
+        {
+            data_reader->read(payload, header.stream_id());
+            result.status(dds::xrce::STATUS_OK);
+        }
+        else
+        {
+            result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        }
+        status.result(result);
         add_reply(status_header, status);
     }
     else

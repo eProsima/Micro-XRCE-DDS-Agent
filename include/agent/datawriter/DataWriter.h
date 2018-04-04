@@ -54,6 +54,7 @@ class DataWriter : public XRCEObject
 
     bool init();
     bool init(const std::string& xmlrep);
+    dds::xrce::ResultStatus write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
   private:

@@ -38,15 +38,19 @@ class AgentTests : public CommonData, public ::testing::Test
 
 TEST_F(AgentTests, CreateClientOk)
 {
-    dds::xrce::ResultStatus response = agent_.create_client(generate_create_client_payload());
+    dds::xrce::AGENT_Representation agent_representation;
+    dds::xrce::ResultStatus response = agent_.create_client(generate_create_client_payload().client_representation(),
+                                                            agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
 TEST_F(AgentTests, CreateClientBadCookie)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
+    dds::xrce::AGENT_Representation agent_representation;
     create_data.client_representation().xrce_cookie({0x00, 0x00});
-    dds::xrce::ResultStatus response = agent_.create_client(create_data);
+    dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
+                                                            agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
@@ -54,7 +58,9 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{XRCE_VERSION_MAJOR, 0x20}});
-    dds::xrce::ResultStatus response = agent_.create_client(create_data);
+    dds::xrce::AGENT_Representation agent_representation;
+    dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
+                                                            agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -62,14 +68,18 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{0x02, XRCE_VERSION_MINOR}});
-    dds::xrce::ResultStatus response = agent_.create_client(create_data);
+    dds::xrce::AGENT_Representation agent_representation;
+    dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
+                                                            agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
 TEST_F(AgentTests, DeleteExistingClient)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
-    dds::xrce::ResultStatus response      = agent_.create_client(create_data);
+    dds::xrce::AGENT_Representation agent_representation;
+    dds::xrce::ResultStatus response      = agent_.create_client(create_data.client_representation(),
+                                                                 agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = agent_.delete_client(client_key);
@@ -87,7 +97,9 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     const dds::xrce::ClientKey fake_client_key = {{0xFA, 0xFB, 0xFC, 0xFD}};
 
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
-    dds::xrce::ResultStatus response      = agent_.create_client(create_data);
+    dds::xrce::AGENT_Representation agent_representation;
+    dds::xrce::ResultStatus response      = agent_.create_client(create_data.client_representation(),
+                                                                 agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = agent_.delete_client(fake_client_key);
@@ -135,7 +147,7 @@ class ProxyClientTests : public CommonData, public ::testing::Test
 
 TEST_F(ProxyClientTests, DeleteOnEmpty)
 {
-    dds::xrce::ResultStatus result_status = client_.delete_object(generate_delete_resource_payload(object_id));
+    dds::xrce::ResultStatus result_status = client_.delete_object(object_id);
     ASSERT_EQ(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE, result_status.status());
 }
 

@@ -17,7 +17,6 @@
 
 #include <agent/client/ProxyClient.h>
 #include <agent/XRCEFactory.h>
-#include <agent/XRCEParser.h>
 #include "MessageQueue.h"
 #include <MessageHeader.h>
 #include <SubMessageHeader.h>
@@ -57,22 +56,23 @@ public:
      */
     void init(const uint16_t local_port);
 
-    /*!
-     * \brief Creates and stores a ProxyClient in a ClientKey map.
-     * \param header		The Incoming message header.
-     * \param create_info	The CLIENT_CREATE submessage payload.
-     * \return If create_info's xrce_cookie does not match XRCE_COOKIE return {STATUS_LAST_OP_CREATE, STATUS_ERR_INVALID_DATA}.
-     * \return If relase mayor version (xrce_version[0]) does not match XRCE_VERSION_MAJOR return {STATUS_LAST_OP_CREATE, STATUS_ERR_INCOMPATIBLE}.
-     * \return In other cases return {STATUS_LAST_OP_CREATE, STATUS_OK}.
+    /**
+     * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
+     *
+     * @param client_representation A representation of the Client.
+     * @param agent_info            A representation of the Agent.
+     *
+     * @return Indicates whether the operation suceeded and the current status of the XRCE.
      */
-    dds::xrce::ResultStatus create_client(const dds::xrce::CREATE_CLIENT_Payload& payload);
+    dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
+                                          dds::xrce::AGENT_Representation& agent_info);
 
-    /*!
-     * \brief Removes a previously stored ProxyClient.
-     * \param client_key	Client's key.
-     * \param delete_info	DELETE submessage payload.
-     * \return If the object is not found return {STATUS_LAST_OP_DELETE, STATUS_ERR_INVALID_DATA}.
-     * \return In other cases return {STATUS_LAST_OP_DELETE, STATUS_OK}.
+    /**
+     * @brief The XRCE Agent shall ckeck the ClientKey to locate an existing XRCE ProxyClient.
+     *
+     * @param client_key ProxyClient identifier.
+     *
+     * @return Indicates whether the operation succeeded and the current status of the object.
      */
     dds::xrce::ResultStatus delete_client(dds::xrce::ClientKey client_key);
 

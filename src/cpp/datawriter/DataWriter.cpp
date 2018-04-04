@@ -110,6 +110,36 @@ bool DataWriter::init(const std::string& xmlrep)
     return true;
 }
 
+dds::xrce::ResultStatus DataWriter::write(dds::xrce::DataRepresentation& data)
+{
+    dds::xrce::ResultStatus result;
+    result.status(dds::xrce::STATUS_OK);
+    result.implementation_status(0x00);
+
+    switch (data._d())
+    {
+        case dds::xrce::FORMAT_DATA:
+            if (mp_rtps_publisher->write(&(data.data().serialized_data())))
+            {
+                result.status(dds::xrce::STATUS_ERR_DDS_ERROR);
+            }
+            break;
+        case dds::xrce::FORMAT_SAMPLE:
+            break;
+        case dds::xrce::FORMAT_DATA_SEQ:
+            break;
+        case dds::xrce::FORMAT_SAMPLE_SEQ:
+            break;
+        case dds::xrce::FORMAT_PACKED_SAMPLES:
+            break;
+        default:
+            result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+            break;
+    }
+
+    return result;
+}
+
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     if (nullptr == mp_rtps_publisher)
