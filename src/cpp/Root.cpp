@@ -36,8 +36,7 @@ Agent* root()
 
 Agent::Agent() :
     locator_{},
-    out_buffer_{},
-    in_buffer_{},
+    input_buffer_{},
     response_thread_{},
     reply_cond_()
 {
@@ -48,7 +47,6 @@ Agent::Agent() :
 void Agent::init(const std::string& device)
 {
     std::cout << "Serial agent initialization..." << std::endl;
-    // Init transport
     locator_id_t id = add_serial_locator(device.data(), &locator_);
     if (id != MICRORTPS_TRANSPORT_OK)
     {
@@ -59,7 +57,6 @@ void Agent::init(const std::string& device)
 void Agent::init(const uint16_t local_port)
 {
     std::cout << "UDP agent initialization..." << std::endl;
-    // Init transport
     locator_id_t id = add_udp_locator_agent(local_port, &locator_);
     if (id == MICRORTPS_TRANSPORT_ERROR)
     {
@@ -144,11 +141,9 @@ void Agent::run()
     running_ = true;
     while(running_)
     {
-        if (0 < (ret = receive_data(static_cast<octet*>(in_buffer_), buffer_len_, locator_.locator_id)))
+        if (0 < (ret = receive_data(static_cast<octet*>(input_buffer_), buffer_len_, locator_.locator_id)))
         {
-//            XRCEParser myParser{reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret), this};
-//            myParser.parse();
-            dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(in_buffer_), static_cast<size_t>(ret)};
+            dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
             handle_input_message(input_message);
         }
         #ifdef WIN32
@@ -202,108 +197,6 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header,
     add_reply(message);
 }
 
-void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::DATA_Payload_Data& payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "<== ";
-    eprosima::micrortps::debug::printl_data_submessage(payload);
-#endif
-
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
-void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::DATA_Payload_Sample& payload)
-{
-/* TODO (Julian): implement verbose output functions. */
-// #ifdef VERBOSE_OUTPUT
-//     std::cout << "<== ";
-//     eprosima::micrortps::debug::printl_data_submessage(payload);
-// #endif
-
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
-void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::DATA_Payload_DataSeq& payload)
-{
-// #ifdef VERBOSE_OUTPUT
-//     std::cout << "<== ";
-//     eprosima::micrortps::debug::printl_data_submessage(payload);
-// #endif
-
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
-void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::DATA_Payload_SampleSeq& payload)
-{
-// #ifdef VERBOSE_OUTPUT
-//     std::cout << "<== ";
-//     eprosima::micrortps::debug::printl_data_submessage(payload);
-// #endif
-
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
-void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::DATA_Payload_PackedSamples& payload)
-{
-// #ifdef VERBOSE_OUTPUT
-//     std::cout << "<== ";
-//     eprosima::micrortps::debug::printl_data_submessage(payload);
-// #endif
-
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
-void Agent::add_reply(const dds::xrce::MessageHeader &header,
-                      const dds::xrce::ACKNACK_Payload &payload)
-{
-    dds::xrce::MessageHeader updated_header{header};
-    update_header(updated_header);
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(updated_header);
-    message_creator.acknack(payload);
-    message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
-}
-
 void Agent::reply()
 {
     while(reply_cond_)
@@ -321,167 +214,6 @@ void Agent::reply()
     }
 }
 
-void Agent::on_message(const dds::xrce::MessageHeader& header,
-                       const dds::xrce::SubmessageHeader& /*sub_header*/,
-                       const dds::xrce::CREATE_CLIENT_Payload& create_client_payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "==> ";
-    eprosima::micrortps::debug::printl_create_client_submessage(create_client_payload);
-#endif
-
-    dds::xrce::STATUS_Payload status;
-    status.related_request().request_id(create_client_payload.request_id());
-    status.related_request().object_id(create_client_payload.object_id());
-    dds::xrce::ResultStatus result_status = create_client(create_client_payload);
-    status.result(result_status);
-    add_reply(header, status);
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader& header,
-                       const dds::xrce::SubmessageHeader&  /*sub_header*/,
-                       const dds::xrce::CREATE_Payload& create_payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "==> ";
-    eprosima::micrortps::debug::printl_create_submessage(create_payload);
-#endif
-
-    if (create_payload.object_representation()._d() != dds::xrce::OBJK_CLIENT)
-    {
-        if (ProxyClient* client = get_client(header.client_key()))
-        {
-            /* TODO (julian): check creation mode flags according to standard. */
-            dds::xrce::CreationMode creation_mode;
-            creation_mode.reuse(false);
-            creation_mode.replace(true);
-
-            // TODO(Borja): get sub_header flags
-            // Bit 1, the ‘Reuse’ bit, encodes the value of the CreationMode reuse field.
-            // Bit 2, the ‘Replace’ bit, encodes the value of the CreationMode replace field.
-            dds::xrce::STATUS_Payload status;
-            status.related_request().request_id(create_payload.request_id());
-            status.related_request().object_id(create_payload.object_id());
-            dds::xrce::ResultStatus result_status = client->create(creation_mode, create_payload);
-            status.result(result_status);
-            add_reply(header, status);
-        }
-        else
-        {
-            std::cerr << "Create message rejected" << std::endl;
-        }
-    }
-    else if (create_payload.object_representation()._d() == dds::xrce::OBJK_CLIENT)
-    {
-
-    }
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader& header,
-                       const dds::xrce::SubmessageHeader&  /*sub_header*/,
-                       const dds::xrce::DELETE_Payload& delete_payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "==> ";
-    eprosima::micrortps::debug::printl_delete_submessage(delete_payload);
-#endif
-
-    if (delete_payload.object_id() == dds::xrce::ObjectId{OBJECTID_CLIENT})
-    {
-        dds::xrce::STATUS_Payload status;
-        status.related_request().request_id(delete_payload.request_id());
-        status.related_request().object_id(delete_payload.object_id());
-        status.result(delete_client(header.client_key()));
-        add_reply(header, status);
-    }
-    else if (ProxyClient* client = get_client(header.client_key()))
-    {
-        dds::xrce::STATUS_Payload status;
-        status.related_request().request_id(delete_payload.request_id());
-        status.related_request().object_id(delete_payload.object_id());
-        status.result(client->delete_object(delete_payload));
-        add_reply(header, status);
-    }
-    else
-    {
-        std::cerr << "Delete message rejected" << std::endl;
-    }
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader& header,
-                       const dds::xrce::SubmessageHeader&  /*sub_header*/,
-                       dds::xrce::WRITE_DATA_Payload_Data& write_payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "==> ";
-    eprosima::micrortps::debug::printl_write_data_submessage(write_payload);
-#endif
-
-    if (ProxyClient* client = get_client(header.client_key()))
-    {
-        dds::xrce::STATUS_Payload status;
-        status.related_request().request_id(write_payload.request_id());
-        status.related_request().object_id(write_payload.object_id());
-        dds::xrce::ResultStatus result_status = client->write(write_payload.object_id(), write_payload);
-        status.result(result_status);
-    }
-    else
-    {
-        std::cerr << "Write message rejected" << std::endl;
-    }
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader &header,
-                       const dds::xrce::SubmessageHeader& /*sub_header*/,
-                       const dds::xrce::READ_DATA_Payload &read_payload)
-{
-#ifdef VERBOSE_OUTPUT
-    std::cout << "==> ";
-    eprosima::micrortps::debug::printl_read_data_submessage(read_payload);
-#endif
-
-    if(ProxyClient *client = get_client(header.client_key()))
-    {
-        dds::xrce::STATUS_Payload status;
-        status.related_request().request_id(read_payload.request_id());
-        status.related_request().object_id(read_payload.object_id());
-        status.result(client->read(read_payload.object_id(), read_payload, header.stream_id()));
-    }
-    else
-    {
-        std::cerr << "Read message rejected" << std::endl;
-    }
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader &header,
-                       const dds::xrce::SubmessageHeader &sub_header,
-                       const dds::xrce::ACKNACK_Payload &acknack_payload)
-{
-    (void) sub_header;
-    (void) acknack_payload;
-    if (ProxyClient *client = get_client(header.client_key()))
-    {
-        // TODO (julian): implement state machine for acknack messages.
-        (void) client;
-    }
-}
-
-void Agent::on_message(const dds::xrce::MessageHeader &header,
-                       const dds::xrce::SubmessageHeader &sub_header,
-                       const dds::xrce::HEARTBEAT_Payload &heartbeat_payload)
-{
-    (void) sub_header;
-    (void) heartbeat_payload;
-    if (ProxyClient *client = get_client(header.client_key()))
-    {
-        // TODO (julian): implement state machine for heartbeat message.
-        dds::xrce::ACKNACK_Payload acknack;
-        acknack.first_unacked_seq_num(heartbeat_payload.last_unacked_seq_nr());
-        add_reply(header, acknack);
-        (void) client;
-    }
-}
-
 eprosima::micrortps::ProxyClient* Agent::get_client(dds::xrce::ClientKey client_key)
 {
     try
@@ -495,13 +227,6 @@ eprosima::micrortps::ProxyClient* Agent::get_client(dds::xrce::ClientKey client_
         std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;
         return nullptr;
     }
-}
-
-void Agent::update_header(dds::xrce::MessageHeader& header)
-{
-    // TODO(Borja): sequence number is general and not independent for each client
-    static uint8_t sequence = 0;
-    header.sequence_nr(sequence++);
 }
 
 void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)

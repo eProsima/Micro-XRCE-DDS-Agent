@@ -453,10 +453,10 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     data_message_creator.data(data_payload);
     data_message.set_real_size(data_message_creator.get_total_size());
 
-    /* Store message. */
+    /* Store data message. */
     streams_manager_.store_output_message(stream_id, data_message.get_buffer().data(), data_message.get_real_size());
 
-    /* Send message. */
+    /* Send data message. */
     root()->add_reply(data_message);
 
     /* Heartbeat message header. */
@@ -468,14 +468,14 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked_seq_nr(stream_id));
     heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked_seq_nr(stream_id));
 
-    /* Serialize data message. */
+    /* Serialize heartbeat message. */
     Message heartbeat_message{};
     XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
     heartbeat_message_creator.header(message_header);
     heartbeat_message_creator.heartbeat(heartbeat_payload);
     heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
 
-    /* Send message. */
+    /* Send heartbeat. */
     root()->add_reply(heartbeat_message);
 }
 
