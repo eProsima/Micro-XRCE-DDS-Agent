@@ -37,14 +37,13 @@ public:
     void update(uint16_t seq_num) override;
     void update_from_heartbeat(uint16_t first_unacked, uint16_t last_unacked);
     void insert_input_message(uint16_t seq_num, const char* buf, size_t len);
-    void append_output_message(const char* buf, size_t len);
     uint8_t* get_message_data(uint16_t index);
     size_t get_message_size(uint16_t index);
-    bool is_mesage(uint16_t index);
+    bool has_message(uint16_t index);
     bool message_available() { return (messages_.begin()->first == seq_num_); }
     uint16_t get_ack_num() { return ack_num_; }
-    void set_ack_num(uint16_t ack_num) { ack_num_ = ack_num; }
-    void set_seq_num(uint16_t seq_num) { seq_num_ = seq_num; }
+    void append_output_message(const char* buf, size_t len);
+    void update_from_acknack(uint8_t first_unacked, std::array<uint8_t, 2> nack_bitmap);
 
 private:
     uint16_t ack_num_;

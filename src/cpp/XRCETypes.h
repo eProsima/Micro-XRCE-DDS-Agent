@@ -6579,160 +6579,6 @@ const DataFormat FORMAT_PACKED_SAMPLES    = 0x0E;
 const DataFormat FORMAT_MASK              = 0x0E;
 
 /*!
- * @brief This class represents the structure ContinuousReadOptions defined by the user in the IDL file.
- * @ingroup TYPESMOD
- */
-class ContinuousReadOptions
-{
-public:
-
-    /*!
-     * @brief Default constructor.
-     */
-    ContinuousReadOptions();
-    
-    /*!
-     * @brief Default destructor.
-     */
-    ~ContinuousReadOptions();
-    
-    /*!
-     * @brief Copy constructor.
-     * @param x Reference to the object ContinuousReadOptions that will be copied.
-     */
-    ContinuousReadOptions(const ContinuousReadOptions &x);
-    
-    /*!
-     * @brief Move constructor.
-     * @param x Reference to the object ContinuousReadOptions that will be copied.
-     */
-    ContinuousReadOptions(ContinuousReadOptions &&x);
-    
-    /*!
-     * @brief Copy assignment.
-     * @param x Reference to the object ContinuousReadOptions that will be copied.
-     */
-    ContinuousReadOptions& operator=(const ContinuousReadOptions &x);
-    
-    /*!
-     * @brief Move assignment.
-     * @param x Reference to the object ContinuousReadOptions that will be copied.
-     */
-    ContinuousReadOptions& operator=(ContinuousReadOptions &&x);
-    
-    /*!
-     * @brief This function sets a value in member pace_period
-     * @param _pace_period New value for member pace_period
-     */
-    inline void pace_period(uint16_t _pace_period)
-    {
-        m_pace_period = _pace_period;
-    }
-
-    /*!
-     * @brief This function returns the value of member pace_period
-     * @return Value of member pace_period
-     */
-    inline uint16_t pace_period() const
-    {
-        return m_pace_period;
-    }
-
-    /*!
-     * @brief This function returns a reference to member pace_period
-     * @return Reference to member pace_period
-     */
-    inline uint16_t& pace_period()
-    {
-        return m_pace_period;
-    }
-    /*!
-     * @brief This function sets a value in member max_total_samples
-     * @param _max_total_samples New value for member max_total_samples
-     */
-    inline void max_total_samples(uint16_t _max_total_samples)
-    {
-        m_max_total_samples = _max_total_samples;
-    }
-
-    /*!
-     * @brief This function returns the value of member max_total_samples
-     * @return Value of member max_total_samples
-     */
-    inline uint16_t max_total_samples() const
-    {
-        return m_max_total_samples;
-    }
-
-    /*!
-     * @brief This function returns a reference to member max_total_samples
-     * @return Reference to member max_total_samples
-     */
-    inline uint16_t& max_total_samples()
-    {
-        return m_max_total_samples;
-    }
-    /*!
-     * @brief This function sets a value in member max_total_elapsed_time
-     * @param _max_total_elapsed_time New value for member max_total_elapsed_time
-     */
-    inline void max_total_elapsed_time(uint16_t _max_total_elapsed_time)
-    {
-        m_max_total_elapsed_time = _max_total_elapsed_time;
-    }
-
-    /*!
-     * @brief This function returns the value of member max_total_elapsed_time
-     * @return Value of member max_total_elapsed_time
-     */
-    inline uint16_t max_total_elapsed_time() const
-    {
-        return m_max_total_elapsed_time;
-    }
-
-    /*!
-     * @brief This function returns a reference to member max_total_elapsed_time
-     * @return Reference to member max_total_elapsed_time
-     */
-    inline uint16_t& max_total_elapsed_time()
-    {
-        return m_max_total_elapsed_time;
-    }
-    
-    /*!
-     * @brief This function returns the maximum serialized size of an object
-     * depending on the buffer alignment.
-     * @param current_alignment Buffer alignment.
-     * @return Maximum serialized size.
-     */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
-
-    /*!
-     * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
-     * @param current_alignment Buffer alignment.
-     * @return Serialized size.
-     */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
-
-    /*!
-     * @brief This function serializes an object using CDR serialization.
-     * @param cdr CDR serialization object.
-     */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
-
-    /*!
-     * @brief This function deserializes an object using CDR serialization.
-     * @param cdr CDR serialization object.
-     */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-
-private:
-    uint16_t m_pace_period;
-    uint16_t m_max_total_samples;
-    uint16_t m_max_total_elapsed_time;
-};
-/*!
  * @brief This class represents the structure DataDeliveryControl defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
@@ -6975,7 +6821,7 @@ public:
 
     inline bool has_content_filter_expression() const
     {
-        return m_content_filter_expression ? true : false;
+        return bool(m_content_filter_expression);
     }
 
     /*!
@@ -7022,13 +6868,22 @@ public:
         m_delivery_control = std::move(_delivery_control);
     }
 
+    inline bool has_delivery_control() const
+    {
+        return bool(m_delivery_control);
+    }
+
     /*!
      * @brief This function returns a constant reference to member delivery_control
      * @return Constant reference to member delivery_control
      */
     inline const DataDeliveryControl& delivery_control() const
     {
-        return m_delivery_control;
+        if (!m_delivery_control)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+        }
+        return *m_delivery_control;
     }
 
     /*!
@@ -7037,7 +6892,11 @@ public:
      */
     inline DataDeliveryControl& delivery_control()
     {
-        return m_delivery_control;
+        if (!m_delivery_control)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+        }
+        return *m_delivery_control;
     }
     
     /*!
@@ -7071,7 +6930,7 @@ public:
 private:
     DataFormat m_data_format;
     eprosima::Optional<std::string> m_content_filter_expression;
-    DataDeliveryControl m_delivery_control;
+    eprosima::Optional<DataDeliveryControl> m_delivery_control;
 };
 
 /*!
@@ -8936,41 +8795,6 @@ public:
     {
         return m_read_specification;
     }
-    /*!
-     * @brief This function copies the value in member continuous_read_options
-     * @param _continuous_read_options New value to be copied in member continuous_read_options
-     */
-    inline void continuous_read_options(const ContinuousReadOptions &_continuous_read_options)
-    {
-        m_continuous_read_options = _continuous_read_options;
-    }
-
-    /*!
-     * @brief This function moves the value in member continuous_read_options
-     * @param _continuous_read_options New value to be moved in member continuous_read_options
-     */
-    inline void continuous_read_options(ContinuousReadOptions &&_continuous_read_options)
-    {
-        m_continuous_read_options = std::move(_continuous_read_options);
-    }
-
-    /*!
-     * @brief This function returns a constant reference to member continuous_read_options
-     * @return Constant reference to member continuous_read_options
-     */
-    inline const ContinuousReadOptions& continuous_read_options() const
-    {
-        return m_continuous_read_options;
-    }
-
-    /*!
-     * @brief This function returns a reference to member continuous_read_options
-     * @return Reference to member continuous_read_options
-     */
-    inline ContinuousReadOptions& continuous_read_options()
-    {
-        return m_continuous_read_options;
-    }
     
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -9002,7 +8826,6 @@ public:
 
 private:
     ReadSpecification m_read_specification;
-    ContinuousReadOptions m_continuous_read_options;
 };
 
 /*!

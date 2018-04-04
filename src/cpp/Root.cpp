@@ -687,13 +687,18 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
     dds::xrce::DELETE_Payload payload;
     if (deserializer.deserialize(payload))
     {
+        dds::xrce::MessageHeader status_header;
+        status_header.session_id(header.session_id());
+        status_header.stream_id(0x00);
+        status_header.sequence_nr(0);
+        status_header.client_key(header.client_key());
         if (payload.object_id() == dds::xrce::ObjectId{OBJECTID_CLIENT})
         {
             dds::xrce::STATUS_Payload status;
             status.related_request().request_id(payload.request_id());
             status.related_request().object_id(payload.object_id());
             status.result(delete_client(header.client_key()));
-            add_reply(header, status);
+            add_reply(status_header, status);
         }
         else
         {
@@ -701,7 +706,7 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
             status.related_request().request_id(payload.request_id());
             status.related_request().object_id(payload.object_id());
             status.result(client.delete_object(payload));
-            add_reply(header, status);
+            add_reply(status_header, status);
         }
     }
     else
@@ -741,11 +746,16 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
     dds::xrce::READ_DATA_Payload payload;
     if (deserializer.deserialize(payload))
     {
+        dds::xrce::MessageHeader status_header;
+        status_header.session_id(header.session_id());
+        status_header.stream_id(0x00);
+        status_header.sequence_nr(0);
+        status_header.client_key(header.client_key());
         dds::xrce::STATUS_Payload status;
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
         status.result(client.read(payload.object_id(), payload, header.stream_id()));
-        add_reply(header, status);
+        add_reply(status_header, status);
     }
     else
     {
@@ -769,7 +779,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                message = client.get_stream_manager().get_output_message(header.stream_id(), first_message + i);
+                message = client.get_stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i);
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
@@ -778,7 +788,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                message = client.get_stream_manager().get_output_message(header.stream_id(), first_message + i + 8);
+                message = client.get_stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i + 8);
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
@@ -786,6 +796,9 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
                 }
             }
         }
+
+        /* Update output stream. */
+        client.get_stream_manager().update_from_acknack((uint8_t) header.sequence_nr(), first_message, nack_bitmap);
     }
     else
     {

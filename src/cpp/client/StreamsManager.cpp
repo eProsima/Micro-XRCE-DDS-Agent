@@ -148,7 +148,7 @@ void StreamsManager::store_output_message(dds::xrce::StreamId stream_id, const c
 
 dds::xrce::XrceMessage StreamsManager::get_output_message(dds::xrce::StreamId stream_id, uint16_t index)
 {
-    dds::xrce::XrceMessage message;
+    dds::xrce::XrceMessage message = {0x00, 0x00};
 
     if (127 < stream_id)
     {
@@ -170,11 +170,11 @@ std::array<uint8_t, 2> StreamsManager::get_nack_bitmap(dds::xrce::StreamId strea
         uint16_t ack_num = stream.get_ack_num();
         for (int i = 0; i < 8; ++i)
         {
-            if (((seq_num + i) <= ack_num) && stream.is_mesage(seq_num + i))
+            if (((seq_num + i) <= ack_num) && stream.has_message(seq_num + i))
             {
                 bitmap.at(1) = bitmap.at(1) | (0x01 << i);
             }
-            if (((seq_num + i + 8) <= ack_num) && stream.is_mesage(seq_num + i + 8))
+            if (((seq_num + i + 8) <= ack_num) && stream.has_message(seq_num + i + 8))
             {
                 bitmap.at(0) = bitmap.at(0) | (0x01 << i);
             }
@@ -194,6 +194,16 @@ uint16_t StreamsManager::get_last_unacked_seq_nr(dds::xrce::StreamId stream_id)
 {
     uint16_t result = (127 < stream_id) ? output_relible_streams_[stream_id].get_ack_num() - 1 : 0;
     return result;
+}
+
+void StreamsManager::update_from_acknack(dds::xrce::StreamId stream_id,
+                                         uint16_t first_unacked,
+                                         std::array<uint8_t, 2> nack_bitmap)
+{
+    if (127 < stream_id)
+    {
+        output_relible_streams_[stream_id].update_from_acknack(first_unacked, nack_bitmap);
+    }
 }
 
 } } // namespace eprosima::micrortps

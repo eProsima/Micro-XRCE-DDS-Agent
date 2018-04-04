@@ -100,10 +100,19 @@ size_t ReliableStream::get_message_size(uint16_t index)
     return result;
 }
 
-bool ReliableStream::is_mesage(uint16_t index)
+bool ReliableStream::has_message(uint16_t index)
 {
     auto it = messages_.find(index);
     return (it != messages_.end());
+}
+
+void ReliableStream::update_from_acknack(uint8_t first_unacked, std::array<uint8_t, 2> /*nack_bitmap*/)
+{
+    while ((first_unacked > seq_num_) && (first_unacked < ack_num_))
+    {
+        messages_.erase(seq_num_);
+        seq_num_++;
+    }
 }
 
 } } // namespace eprosima::micrortps

@@ -125,14 +125,23 @@ bool DataReader::init(const std::string& xmlrep)
 
 int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id)
 {
-    dds::xrce::DataDeliveryControl delivery_control = read_data.read_specification().delivery_control();
     ReadTaskInfo read_info{};
     read_info.stream_id = stream_id;
     read_info.object_id = read_data.object_id();
     read_info.request_id = read_data.request_id();
+    if (read_data.read_specification().has_delivery_control())
+    {
+        dds::xrce::DataDeliveryControl delivery_control = read_data.read_specification().delivery_control();
+        read_info.max_elapsed_time = delivery_control.max_elapsed_time();
+        read_info.max_rate         = delivery_control.max_bytes_per_second();
+        read_info.max_samples      = delivery_control.max_samples();
+    }
     switch (read_data.read_specification().data_format())
     {
         case dds::xrce::FORMAT_DATA:
+            read_info.max_elapsed_time = 0;
+            read_info.max_rate         = 0;
+            read_info.max_samples      = 1;
             break;
         case dds::xrce::FORMAT_SAMPLE:
             read_info.max_elapsed_time = 0;
@@ -144,9 +153,6 @@ int DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::x
         case dds::xrce::FORMAT_SAMPLE_SEQ:
             break;
         case dds::xrce::FORMAT_PACKED_SAMPLES:
-            read_info.max_elapsed_time = delivery_control.max_elapsed_time();
-            read_info.max_rate         = delivery_control.max_bytes_per_second();
-            read_info.max_samples      = delivery_control.max_samples();
             break;
         default:
             std::cout << "Error: read format unexpected" << std::endl;

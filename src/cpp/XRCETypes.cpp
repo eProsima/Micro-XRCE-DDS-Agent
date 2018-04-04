@@ -5634,91 +5634,6 @@ void dds::xrce::BaseObjectReply::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_result;
 }
 
-dds::xrce::ContinuousReadOptions::ContinuousReadOptions()
-{
-    m_pace_period = 0;
-    m_max_total_samples = 0;
-    m_max_total_elapsed_time = 0;
-}
-
-dds::xrce::ContinuousReadOptions::~ContinuousReadOptions()
-{
-}
-
-dds::xrce::ContinuousReadOptions::ContinuousReadOptions(const ContinuousReadOptions &x)
-{
-    m_pace_period = x.m_pace_period;
-    m_max_total_samples = x.m_max_total_samples;
-    m_max_total_elapsed_time = x.m_max_total_elapsed_time;
-}
-
-dds::xrce::ContinuousReadOptions::ContinuousReadOptions(ContinuousReadOptions &&x)
-{
-    m_pace_period = x.m_pace_period;
-    m_max_total_samples = x.m_max_total_samples;
-    m_max_total_elapsed_time = x.m_max_total_elapsed_time;
-}
-
-dds::xrce::ContinuousReadOptions& dds::xrce::ContinuousReadOptions::operator=(const ContinuousReadOptions &x)
-{
-    m_pace_period = x.m_pace_period;
-    m_max_total_samples = x.m_max_total_samples;
-    m_max_total_elapsed_time = x.m_max_total_elapsed_time;
-    
-    return *this;
-}
-
-dds::xrce::ContinuousReadOptions& dds::xrce::ContinuousReadOptions::operator=(ContinuousReadOptions &&x)
-{
-    m_pace_period = x.m_pace_period;
-    m_max_total_samples = x.m_max_total_samples;
-    m_max_total_elapsed_time = x.m_max_total_elapsed_time;
-    
-    return *this;
-}
-
-size_t dds::xrce::ContinuousReadOptions::getMaxCdrSerializedSize(size_t current_alignment)
-{
-    size_t initial_alignment = current_alignment;
-            
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-
-    return current_alignment - initial_alignment;
-}
-
-size_t dds::xrce::ContinuousReadOptions::getCdrSerializedSize(size_t current_alignment) const
-{
-    size_t initial_alignment = current_alignment;
-            
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
-
-    return current_alignment - initial_alignment;
-}
-
-void dds::xrce::ContinuousReadOptions::serialize(eprosima::fastcdr::Cdr &scdr) const
-{
-    scdr << m_pace_period;
-    scdr << m_max_total_samples;
-    scdr << m_max_total_elapsed_time;
-}
-
-void dds::xrce::ContinuousReadOptions::deserialize(eprosima::fastcdr::Cdr &dcdr)
-{
-    dcdr >> m_pace_period;
-    dcdr >> m_max_total_samples;
-    dcdr >> m_max_total_elapsed_time;
-}
-
 dds::xrce::DataDeliveryControl::DataDeliveryControl()
 {
     m_max_samples = 0;
@@ -5864,7 +5779,7 @@ size_t dds::xrce::ReadSpecification::getCdrSerializedSize(size_t current_alignme
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4)
                          + (*m_content_filter_expression).size() + 1;
-    current_alignment += m_delivery_control.getCdrSerializedSize(current_alignment);
+    current_alignment += (*m_delivery_control).getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -5877,7 +5792,11 @@ void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
     {
          scdr << *m_content_filter_expression;
     }
-    scdr << m_delivery_control;
+    scdr << (bool)(m_delivery_control);
+    if (m_delivery_control)
+    {
+        scdr << *m_delivery_control;
+    }
 }
 
 void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -5887,11 +5806,17 @@ void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> temp;
     if (temp)
     {
-        std::string temp_content;
-        dcdr >> temp_content;
-        m_content_filter_expression = temp_content;
+        std::string temp_content_filter_expression;
+        dcdr >> temp_content_filter_expression;
+        m_content_filter_expression = temp_content_filter_expression;
     }
-    dcdr >> m_delivery_control;
+    dcdr >> temp;
+    if (temp)
+    {
+        dds::xrce::DataDeliveryControl temp_delivery_control;
+        dcdr >> temp_delivery_control;
+        m_delivery_control = temp_delivery_control;
+    }
 }
 
 dds::xrce::SampleInfo::SampleInfo()
@@ -7378,21 +7303,18 @@ dds::xrce::READ_DATA_Payload::READ_DATA_Payload(const READ_DATA_Payload &x)
     : BaseObjectRequest(x)
 {
     m_read_specification = x.m_read_specification;
-    m_continuous_read_options = x.m_continuous_read_options;
 }
 
 dds::xrce::READ_DATA_Payload::READ_DATA_Payload(READ_DATA_Payload &&x)
     : BaseObjectRequest(x)
 {
     m_read_specification = std::move(x.m_read_specification);
-    m_continuous_read_options = std::move(x.m_continuous_read_options);
 }
 
 dds::xrce::READ_DATA_Payload& dds::xrce::READ_DATA_Payload::operator=(const READ_DATA_Payload &x)
 {
     BaseObjectRequest::operator=(x);
     m_read_specification = x.m_read_specification;
-    m_continuous_read_options = x.m_continuous_read_options;
     
     return *this;
 }
@@ -7401,7 +7323,6 @@ dds::xrce::READ_DATA_Payload& dds::xrce::READ_DATA_Payload::operator=(READ_DATA_
 {
     BaseObjectRequest::operator=(x);
     m_read_specification = std::move(x.m_read_specification);
-    m_continuous_read_options = std::move(x.m_continuous_read_options);
     
     return *this;
 }
@@ -7412,7 +7333,6 @@ size_t dds::xrce::READ_DATA_Payload::getMaxCdrSerializedSize(size_t current_alig
             
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::ReadSpecification::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += dds::xrce::ContinuousReadOptions::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -7423,7 +7343,6 @@ size_t dds::xrce::READ_DATA_Payload::getCdrSerializedSize(size_t current_alignme
             
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_read_specification.getCdrSerializedSize(current_alignment);
-    current_alignment += m_continuous_read_options.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -7432,14 +7351,12 @@ void dds::xrce::READ_DATA_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     BaseObjectRequest::serialize(scdr);
     scdr << m_read_specification;
-    scdr << m_continuous_read_options;
 }
 
 void dds::xrce::READ_DATA_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     BaseObjectRequest::deserialize(dcdr);
     dcdr >> m_read_specification;
-    dcdr >> m_continuous_read_options;
 }
 
 dds::xrce::WRITE_DATA_Payload_Data::WRITE_DATA_Payload_Data()
