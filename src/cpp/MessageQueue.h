@@ -35,7 +35,13 @@ public:
     void set_real_size(size_t size){size_ = size;}
     size_t get_real_size(void){return size_;}
     std::array<char, max_message_size>& get_buffer() {return buffer_;}
+    void set_addr(uint32_t addr) { addr_ = addr; }
+    uint32_t get_addr() { return addr_; }
+    void set_port(uint16_t port) { port_ = port; }
+    uint16_t get_port() { return port_; }
 private:
+    uint32_t addr_;
+    uint16_t port_;
     size_t size_;
     std::array<char, max_message_size> buffer_;
 };

@@ -65,7 +65,8 @@ void Agent::init(const uint16_t local_port)
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& /*agent_representation*/)
+                                             dds::xrce::AGENT_Representation& /*agent_representation*/,
+                                             uint32_t addr, uint16_t port)
 {
     dds::xrce::ResultStatus result_status;
     result_status.status(dds::xrce::STATUS_OK);
@@ -85,7 +86,10 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                 create_result = clients_.emplace(std::piecewise_construct,
                                                  std::forward_as_tuple(client_key),
                                                  std::forward_as_tuple(client_representation,
-                                                                       client_key, session_id)).second;
+                                                                       client_key,
+                                                                       session_id,
+                                                                       addr,
+                                                                       port)).second;
                 if (!create_result)
                 {
                     result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
@@ -100,7 +104,10 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                     create_result = clients_.emplace(std::piecewise_construct,
                                                      std::forward_as_tuple(client_key),
                                                      std::forward_as_tuple(client_representation,
-                                                                           client_key, session_id)).second;
+                                                                           client_key,
+                                                                           session_id,
+                                                                           addr,
+                                                                           port)).second;
                     if (!create_result)
                     {
                         result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
@@ -144,8 +151,10 @@ void Agent::run()
     {
         if (0 < (ret = receive_data(static_cast<octet*>(input_buffer_), buffer_len_, locator_.locator_id)))
         {
+            uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
+            uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
             dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
-            handle_input_message(input_message);
+            handle_input_message(input_message, addr, port);
         }
         #ifdef WIN32
             Sleep(10);
@@ -171,8 +180,11 @@ void Agent::abort_execution()
         response_thread_->join();
 }
 
-void Agent::add_reply(const Message& message)
+void Agent::add_reply(Message& message, const dds::xrce::ClientKey& client_key)
 {
+    ProxyClient* client = get_client(client_key);
+    message.set_addr(client->get_addr());
+    message.set_port(client->get_port());
     messages_.push(message);
     if(response_thread_ == nullptr)
     {
@@ -183,7 +195,8 @@ void Agent::add_reply(const Message& message)
 
 
 void Agent::add_reply(const dds::xrce::MessageHeader& header,
-                      const dds::xrce::STATUS_Payload& status_reply)
+                      const dds::xrce::STATUS_Payload& status_reply,
+                      const dds::xrce::ClientKey& client_key)
 {
 #ifdef VERBOSE_OUTPUT
     std::cout << "<== ";
@@ -195,7 +208,7 @@ void Agent::add_reply(const dds::xrce::MessageHeader& header,
     message_creator.header(header);
     message_creator.status(status_reply);
     message.set_real_size(message_creator.get_total_size());
-    add_reply(message);
+    add_reply(message, client_key);
 }
 
 void Agent::reply()
@@ -206,6 +219,8 @@ void Agent::reply()
         if (!message.get_buffer().empty())
         {
             int ret = 0;
+            locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
+            locator_.channel._.udp.remote_addr.sin_port = message.get_port();
             if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(),
                      locator_.locator_id)))
             {
@@ -230,7 +245,7 @@ eprosima::micrortps::ProxyClient* Agent::get_client(dds::xrce::ClientKey client_
     }
 }
 
-void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
+void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port)
 {
     Serializer deserializer(input_message.buf, input_message.len);
 
@@ -247,7 +262,7 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message)
             {
                 if (sub_header.submessage_id() == dds::xrce::CREATE_CLIENT)
                 {
-                    process_create_client(header, deserializer);
+                    process_create_client(header, deserializer, addr, port);
                 }
             }
         }
@@ -358,7 +373,9 @@ void Agent::process_message(const dds::xrce::MessageHeader& header, Serializer& 
     }
 }
 
-void Agent::process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer)
+void Agent::process_create_client(const dds::xrce::MessageHeader& header,
+                                  Serializer& deserializer,
+                                  uint32_t addr, uint16_t port)
 {
     dds::xrce::CREATE_CLIENT_Payload payload;
     if (deserializer.deserialize(payload))
@@ -367,8 +384,8 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header, Serial
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
         dds::xrce::AGENT_Representation agent_representation;
-        status.result(create_client(payload.client_representation(), agent_representation));
-        add_reply(header, status);
+        status.result(create_client(payload.client_representation(), agent_representation, addr, port));
+        add_reply(header, status, payload.client_representation().client_key());
     }
     else
     {
@@ -399,7 +416,7 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
         status.related_request().request_id(payload.request_id());
         status.related_request().object_id(payload.object_id());
         status.result(client.create(creation_mode, payload.object_id(), payload.object_representation()));
-        add_reply(status_header, status);
+        add_reply(status_header, status, client.get_client_key());
     }
     else
     {
@@ -425,7 +442,7 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
             status.related_request().request_id(payload.request_id());
             status.related_request().object_id(payload.object_id());
             status.result(delete_client(header.client_key()));
-            add_reply(status_header, status);
+            add_reply(status_header, status, client.get_client_key());
         }
         else
         {
@@ -433,7 +450,7 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
             status.related_request().request_id(payload.request_id());
             status.related_request().object_id(payload.object_id());
             status.result(client.delete_object(payload.object_id()));
-            add_reply(status_header, status);
+            add_reply(status_header, status, client.get_client_key());
         }
     }
     else
@@ -496,7 +513,7 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
             result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         }
         status.result(result);
-        add_reply(status_header, status);
+        add_reply(status_header, status, client.get_client_key());
     }
     else
     {
@@ -524,7 +541,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
-                    add_reply(output_message);
+                    add_reply(output_message, client.get_client_key());
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
@@ -533,7 +550,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
-                    add_reply(output_message);
+                    add_reply(output_message, client.get_client_key());
                 }
             }
         }
@@ -576,7 +593,7 @@ void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
         message_creator.header(acknack_header);
         message_creator.acknack(payload);
         message.set_real_size(message_creator.get_total_size());
-        add_reply(message);
+        add_reply(message, client.get_client_key());
     }
     else
     {

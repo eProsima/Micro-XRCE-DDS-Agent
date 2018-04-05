@@ -40,7 +40,7 @@ TEST_F(AgentTests, CreateClientOk)
 {
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = agent_.create_client(generate_create_client_payload().client_representation(),
-                                                            agent_representation);
+                                                            agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -50,7 +50,7 @@ TEST_F(AgentTests, CreateClientBadCookie)
     dds::xrce::AGENT_Representation agent_representation;
     create_data.client_representation().xrce_cookie({0x00, 0x00});
     dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
-                                                            agent_representation);
+                                                            agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
@@ -60,7 +60,7 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
     create_data.client_representation().xrce_version({{XRCE_VERSION_MAJOR, 0x20}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
-                                                            agent_representation);
+                                                            agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -70,7 +70,7 @@ TEST_F(AgentTests, CreateClientIncompatibleVersion)
     create_data.client_representation().xrce_version({{0x02, XRCE_VERSION_MINOR}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
-                                                            agent_representation);
+                                                            agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
@@ -79,7 +79,7 @@ TEST_F(AgentTests, DeleteExistingClient)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response      = agent_.create_client(create_data.client_representation(),
-                                                                 agent_representation);
+                                                                 agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = agent_.delete_client(client_key);
@@ -99,7 +99,7 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response      = agent_.create_client(create_data.client_representation(),
-                                                                 agent_representation);
+                                                                 agent_representation, 0, 0);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = agent_.delete_client(fake_client_key);

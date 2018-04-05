@@ -42,11 +42,14 @@ namespace micrortps {
 
 ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
                          const dds::xrce::ClientKey& client_key,
-                         const dds::xrce::SessionId& session_id)
+                         const dds::xrce::SessionId& session_id,
+                         uint32_t addr, uint16_t port)
     : representation_(std::move(client)),
       objects_(),
       client_key_(client_key),
       session_id_(session_id),
+      addr_(addr),
+      port_(port),
       streams_manager_()
 {
 }
@@ -352,7 +355,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     streams_manager_.store_output_message(stream_id, data_message.get_buffer().data(), data_message.get_real_size());
 
     /* Send data message. */
-    root()->add_reply(data_message);
+    root()->add_reply(data_message, client_key_);
 
     /* Heartbeat message header. */
     message_header.stream_id(0x00);
@@ -371,7 +374,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
 
     /* Send heartbeat. */
-    root()->add_reply(heartbeat_message);
+    root()->add_reply(heartbeat_message, client_key_);
 }
 
 StreamsManager& ProxyClient::get_stream_manager()

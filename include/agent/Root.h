@@ -65,7 +65,8 @@ public:
      * @return Indicates whether the operation suceeded and the current status of the XRCE.
      */
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                          dds::xrce::AGENT_Representation& agent_info);
+                                          dds::xrce::AGENT_Representation& agent_info,
+                                          uint32_t addr, uint16_t port);
 
     /**
      * @brief The XRCE Agent shall ckeck the ClientKey to locate an existing XRCE ProxyClient.
@@ -100,14 +101,17 @@ public:
      *        first output message.
      * \param message The output message.
      */
-    void add_reply(const Message& message);
+    void add_reply(Message& message,
+                   const dds::xrce::ClientKey& client_key);
 
     /*!
      * \brief Adds STATUS submessages to the given message header and pushs it in the output queue.
      * \param header 	   The message header.
      * \param status_reply The STATUS submessage payload.
      */
-    void add_reply(const dds::xrce::MessageHeader& header, const dds::xrce::STATUS_Payload& status_reply);
+    void add_reply(const dds::xrce::MessageHeader& header,
+                   const dds::xrce::STATUS_Payload& status_reply,
+                   const dds::xrce::ClientKey& client_key);
 
     void abort_execution();
 
@@ -116,11 +120,11 @@ private:
     void reply();
 
     /* Message processing functions. */
-    void handle_input_message(const dds::xrce::XrceMessage& input_message);
+    void handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port);
     void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
 
     /* Submessage procession functions. */
-    void process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer);
+    void process_create_client(const dds::xrce::MessageHeader& header, Serializer& deserializer, uint32_t addr, uint16_t port);
     void process_create(const dds::xrce::MessageHeader& header,
                         const dds::xrce::SubmessageHeader& sub_header,
                         Serializer& deserializer, ProxyClient& client);
