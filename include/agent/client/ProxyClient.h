@@ -106,7 +106,7 @@ public:
     uint16_t get_port() { return port_; }
 
     dds::xrce::SessionId get_session_id() { return session_id_; }
-    StreamsManager& get_stream_manager();
+    StreamsManager& stream_manager();
 
 private:
     dds::xrce::CLIENT_Representation representation_;

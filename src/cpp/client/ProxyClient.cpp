@@ -335,7 +335,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     message_header.client_key(client_key_);
     message_header.session_id(session_id_);
     message_header.stream_id(stream_id);
-    uint16_t seq_num = streams_manager_.get_ack_num(stream_id);
+    uint16_t seq_num = streams_manager_.next_ouput_message(stream_id);
     message_header.sequence_nr(seq_num);
 
     /* Data payload. */
@@ -377,7 +377,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     root()->add_reply(heartbeat_message, client_key_);
 }
 
-StreamsManager& ProxyClient::get_stream_manager()
+StreamsManager& ProxyClient::stream_manager()
 {
     return streams_manager_;
 }
