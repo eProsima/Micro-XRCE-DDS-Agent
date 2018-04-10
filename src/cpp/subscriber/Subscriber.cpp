@@ -17,13 +17,13 @@
 namespace eprosima {
 namespace micrortps {
 
-Subscriber::Subscriber(const dds::xrce::ObjectId& id, XRCEObject& participant)
+Subscriber::Subscriber(const dds::xrce::ObjectId& id, XRCEParticipant& participant)
     : XRCEObject{id},
       participant_(participant)
 {
 }
 
-XRCEObject& Subscriber::get_participant()
+XRCEParticipant& Subscriber::get_participant()
 {
     return participant_;
 }

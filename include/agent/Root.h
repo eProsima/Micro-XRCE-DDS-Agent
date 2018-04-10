@@ -17,7 +17,7 @@
 
 #include <agent/client/ProxyClient.h>
 #include <agent/XRCEFactory.h>
-#include "MessageQueue.h"
+#include <MessageQueue.h>
 #include <MessageHeader.h>
 #include <SubMessageHeader.h>
 
@@ -34,8 +34,8 @@ class Agent;
 
 Agent* root();
 
-/*!
- * \brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
+/**
+ * @brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
  * 		  It implement the XRCEListener interface for receive messages from a XRCEParser.
  */
 class Agent
@@ -44,15 +44,17 @@ public:
     Agent();
     ~Agent() = default;
 
-    /*!
-     * \brief Initializes the Agent using serial communication.
-     * \param  device Name of the device, for example, in Linux one could be "/dev/ttyACM0".
+    /**
+     * @brief Initializes the Agent using serial communication.
+     *
+     * @param  device Name of the device, for example, in Linux one could be "/dev/ttyACM0".
      */
     void init(const std::string& device);
 
-    /*!
-     * \brief Initializes the Agent using UDP communication.
-     * \param local_port    The local port.
+    /**
+     * @brief Initializes the Agent using UDP communication.
+     *
+     * @param local_port    The local port.
      */
     void init(const uint16_t local_port);
 
@@ -61,6 +63,8 @@ public:
      *
      * @param client_representation A representation of the Client.
      * @param agent_info            A representation of the Agent.
+     * @param addr                  Client remote address.
+     * @param port                  Client remote port.
      *
      * @return Indicates whether the operation suceeded and the current status of the XRCE.
      */
@@ -75,39 +79,43 @@ public:
      *
      * @return Indicates whether the operation succeeded and the current status of the object.
      */
-    dds::xrce::ResultStatus delete_client(dds::xrce::ClientKey client_key);
+    dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
 
-    /*!
-     * \brief Starts a event loop in order to receive messages from Clients.
+    /**
+     * @brief Starts a event loop in order to receive messages from Clients.
      */
     void run();
 
-    /*!
-     * \brief Stops the messages receiver event loop.
+    /**
+     * @brief Stops the messages receiver event loop.
      */
     void stop();
 
-    /*!
-     * \brief Gets a Client based its key.
-     * \param  The client's key.
-     * \return If the Client does not exit return a nullptr.
-     * \return In other cases return a pointer to the Client.
+    /**
+     * @brief Gets a Client based its key.
+     *
+     * @param  The client's key.
+     * @return If the Client does not exit return a nullptr.
+     *
+     * @return In other cases return a pointer to the Client.
      */
-    ProxyClient* get_client(dds::xrce::ClientKey client_key);
+    ProxyClient* get_client(const dds::xrce::ClientKey& client_key);
 
-    /*!
-     * \brief Pushs messages in a output queue. These messages are delivered to Clients in a event
+    /**
+     * @brief Pushs messages in a output queue. These messages are delivered to Clients in a event
      *        loop that is running in a separate thread. This methods launch the thread at the
      *        first output message.
-     * \param message The output message.
+     *
+     * @param message The output message.
      */
     void add_reply(Message& message,
                    const dds::xrce::ClientKey& client_key);
 
-    /*!
-     * \brief Adds STATUS submessages to the given message header and pushs it in the output queue.
-     * \param header 	   The message header.
-     * \param status_reply The STATUS submessage payload.
+    /**
+     * @brief Adds STATUS submessages to the given message header and pushs it in the output queue.
+     *
+     * @param header 	   The message header.
+     * @param status_reply The STATUS submessage payload.
      */
     void add_reply(const dds::xrce::MessageHeader& header,
                    const dds::xrce::STATUS_Payload& status_reply,
@@ -147,7 +155,7 @@ private:
 private:
 
     micrortps_locator_t locator_;
-    static const size_t buffer_len_ = 1024;
+    static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;
     octet input_buffer_[buffer_len_];
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;

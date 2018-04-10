@@ -31,10 +31,11 @@ class ProxyClient : public ReaderListener
 public:
     ProxyClient() = default;
 
-    /*!
-     * \brief Creates a ProxyClient from a given object representation.
-     * \param client
-     * \param header
+    /**
+     * @brief Creates a ProxyClient from a given object representation.
+     *
+     * @param client
+     * @param header
      */
     ProxyClient(dds::xrce::CLIENT_Representation client,
                 const dds::xrce::ClientKey& client_key,
@@ -43,26 +44,28 @@ public:
 
     ~ProxyClient();
 
-    /*!
-     * \brief Deletes the copy constructor.
+    /**
+     * @brief Deletes the copy constructor.
      */
     ProxyClient(const ProxyClient&) = delete;
 
-    /*!
-     * \brief Default move constructor.
-     * \param x Object to move.
+    /**
+     * @brief Default move constructor.
+     *
+     * @param x Object to move.
      */
     ProxyClient(ProxyClient&& x) noexcept;
 
-    /*!
-     * \brief Deletes the assignment operator.
+    /**
+     * @brief Deletes the assignment operator.
      */
     ProxyClient& operator=(const ProxyClient&) = delete;
 
-    /*!
-     * \brief Default move assignment operator.
-     * \param x Object to move.
-     * \return New reference where the object is moved.
+    /**
+     * @brief Default move assignment operator.
+     *
+     * @param x Object to move.
+     * @return New reference where the object is moved.
      */
     ProxyClient& operator=(ProxyClient&& x) noexcept;
 
@@ -86,26 +89,88 @@ public:
      *
      * @param object_id
      *
-     * @return The retunrn values are the following:
+     * @return The return values are the following:
      *         * Íf the object is successfully deleted STATUS_OK.
      *         * If the object does not exist STATUS_ERR_UNKNOWN_REFERENCE.
      */
     dds::xrce::ResultStatus delete_object(const dds::xrce::ObjectId& object_id);
 
+    /**
+     * @brief This operation updates a given XRCE Object.
+     *
+     * @param object_id       The object being updated.
+     * @param representation  The variant of the updated object.
+     *
+     * @return Indicates whether the operation succeeded and the current status of the object.
+     */
     dds::xrce::ResultStatus update(const dds::xrce::ObjectId& object_id,
                                    const dds::xrce::ObjectVariant& representation);
+
+    /**
+     * @brief This operation returns the configuration and activity data for an existing object.
+     *
+     * @param object_id The object queried.
+     *
+     * @return Indicates whether the operation succeeded.
+     */
     dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
+
+    /**
+     * @brief Callback called on new data from a given DataReader.
+     *
+     * @param stream_id   The stream used to send data to the Client.
+     * @param object_id   The DataReader id.
+     * @param request_id  The request id performed by the Client.
+     *
+     * @param buffer
+     */
     void on_read_data(const dds::xrce::StreamId& stream_id,
                       const dds::xrce::ObjectId& object_id,
                       const dds::xrce::RequestId& request_id,
                       const std::vector<unsigned char>& buffer);
+
+    /**
+     * @brief This function return a given XRCE Object.
+     *
+     * @param object_id The object queried.
+     *
+     * @return A pointer to the XRCE Object.
+     */
     XRCEObject* get_object(const dds::xrce::ObjectId& object_id);
 
+    /**
+     * @brief This function return the Client's key.
+     *
+     * @return The Client's key.
+     */
     dds::xrce::ClientKey get_client_key() { return client_key_; }
+
+    /**
+     * @brief This function return the Client's session id.
+     *
+     * @return The Client's session id.
+     */
+    dds::xrce::SessionId get_session_id() { return session_id_; }
+
+    /**
+     * @brief This function return the Client's address.
+     *
+     * @return The Client's address.
+     */
     uint32_t get_addr() { return addr_; }
+
+    /**
+     * @brief This function return the Client's port.
+     *
+     * @return The Client's port.
+     */
     uint16_t get_port() { return port_; }
 
-    dds::xrce::SessionId get_session_id() { return session_id_; }
+    /**
+     * @brief This function return a stream manager used by the ProxyClient.
+     *
+     * @return The stream manager of the ProxyClient.
+     */
     StreamsManager& stream_manager();
 
 private:
@@ -123,6 +188,7 @@ private:
 
     bool create(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
 };
+
 } // namespace micrortps
 } // namespace eprosima
 

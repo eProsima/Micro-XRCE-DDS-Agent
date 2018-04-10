@@ -127,7 +127,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
     return result_status;
 }
 
-dds::xrce::ResultStatus Agent::delete_client(dds::xrce::ClientKey client_key)
+dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
     std::lock_guard<std::mutex> lock(clientsmtx_);
@@ -263,7 +263,7 @@ void Agent::reply()
     }
 }
 
-eprosima::micrortps::ProxyClient* Agent::get_client(dds::xrce::ClientKey client_key)
+eprosima::micrortps::ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
 {
     try
     {
@@ -650,9 +650,9 @@ void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
     dds::xrce::HEARTBEAT_Payload payload;
     if (deserializer.deserialize(payload))
     {
-        dds::xrce::StreamId stream_id = (dds::xrce::StreamId)(header.sequence_nr());
         /* Update input stream. */
-        client.stream_manager().update_from_heartbeat((dds::xrce::StreamId)header.sequence_nr(),
+        dds::xrce::StreamId stream_id = static_cast<dds::xrce::StreamId>(header.sequence_nr());
+        client.stream_manager().update_from_heartbeat(stream_id,
                                                       payload.first_unacked_seq_nr(),
                                                       payload.last_unacked_seq_nr());
 

@@ -15,7 +15,7 @@
 #ifndef SUBSCRIBER_H_
 #define SUBSCRIBER_H_
 
-#include <agent/XRCEObject.hpp>
+#include <agent/participant/Participant.h>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,13 +23,13 @@ namespace micrortps {
 class Subscriber : public XRCEObject
 {
 public:
-    Subscriber(const dds::xrce::ObjectId& id, XRCEObject& participant);
+    Subscriber(const dds::xrce::ObjectId& id, XRCEParticipant& participant);
     virtual ~Subscriber() = default;
 
-    XRCEObject& get_participant();
+    XRCEParticipant& get_participant();
 
 private:
-    XRCEObject& participant_;
+    XRCEParticipant& participant_;
 };
 
 } /* namespace micrortps */

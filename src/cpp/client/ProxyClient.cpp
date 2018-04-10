@@ -88,7 +88,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
             auto participant_it = objects_.find(representation.publisher().participant_id());
             if (participant_it != objects_.end())
             {
-                std::unique_ptr<Publisher> publisher(new Publisher(object_id, *participant_it->second.get()));
+                XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
+                std::unique_ptr<Publisher> publisher(new Publisher(object_id, *participant));
                 result = objects_.insert(std::make_pair(object_id, std::move(publisher))).second;
             }
             break;
@@ -99,7 +100,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
             auto participant_it = objects_.find(representation.subscriber().participant_id());
             if (participant_it != objects_.end())
             {
-                std::unique_ptr<Subscriber> subscriber(new Subscriber(object_id, *participant_it->second.get()));
+                XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
+                std::unique_ptr<Subscriber> subscriber(new Subscriber(object_id, *participant));
                 result = objects_.insert(std::make_pair(object_id, std::move(subscriber))).second;
             }
             break;
@@ -124,7 +126,7 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
                 {
                     case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     {
-                        XRCEParticipant& participant = dynamic_cast<XRCEParticipant&>(publisher->get_participant());
+                        XRCEParticipant& participant = publisher->get_participant();
                         data_writer =
                                 participant.create_writer(object_id, representation.data_writer().representation().string_representation());
                         break;
@@ -160,7 +162,7 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
                 {
                     case dds::xrce::REPRESENTATION_AS_XML_STRING:
                     {
-                        XRCEParticipant& participant = dynamic_cast<XRCEParticipant&>(subscriber->get_participant());
+                        XRCEParticipant& participant = subscriber->get_participant();
                         data_reader =
                                 participant.create_reader(object_id, representation.data_reader().representation().string_representation(), this);
                         break;

@@ -15,7 +15,7 @@
 #ifndef PUBLISHER_H_
 #define PUBLISHER_H_
 
-#include <agent/XRCEObject.hpp>
+#include <agent/participant/Participant.h>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,13 +23,13 @@ namespace micrortps {
 class Publisher : public XRCEObject
 {
 public:
-    Publisher(const dds::xrce::ObjectId& id, XRCEObject& participant);
+    Publisher(const dds::xrce::ObjectId& id, XRCEParticipant& participant);
     virtual ~Publisher() = default;
 
-    XRCEObject& get_participant();
+    XRCEParticipant& get_participant();
 
 private:
-    XRCEObject& participant_;
+    XRCEParticipant& participant_;
 };
 
 } /* namespace micrortps */
