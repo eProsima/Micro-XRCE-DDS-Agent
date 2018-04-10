@@ -27,6 +27,8 @@
 #include <memory>
 #include <map>
 
+#define HEARTBEAT_PERIOD 200
+
 namespace eprosima{
 namespace micrortps{
 
@@ -126,6 +128,7 @@ public:
 private:
     /* Send functions. */
     void reply();
+    void manage_heartbeats();
 
     /* Message processing functions. */
     void handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port);
@@ -161,8 +164,10 @@ private:
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
 
     std::unique_ptr<std::thread> response_thread_;
+    std::unique_ptr<std::thread> heartbeats_thread_;
     std::atomic<bool> running_;
     std::atomic<bool> reply_cond_;
+    std::atomic<bool> heartbeat_cond_;
 
     MessageQueue messages_;
 

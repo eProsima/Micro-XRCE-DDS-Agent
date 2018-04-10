@@ -38,10 +38,13 @@ Agent::Agent() :
     locator_{},
     input_buffer_{},
     response_thread_{},
-    reply_cond_()
+    heartbeats_thread_(),
+    reply_cond_(),
+    heartbeat_cond_()
 {
     running_ = false;
     reply_cond_ = false;
+    heartbeat_cond_ = false;
 }
 
 void Agent::init(const std::string& device)
@@ -175,9 +178,16 @@ void Agent::stop()
 void Agent::abort_execution()
 {
     reply_cond_ = false;
+    heartbeat_cond_ = false;
     messages_.abort();
     if (response_thread_ && response_thread_->joinable())
+    {
         response_thread_->join();
+    }
+    if (heartbeat_cond_ && heartbeats_thread_->joinable())
+    {
+        heartbeats_thread_->join();
+    }
 }
 
 void Agent::add_reply(Message& message, const dds::xrce::ClientKey& client_key)
@@ -190,6 +200,11 @@ void Agent::add_reply(Message& message, const dds::xrce::ClientKey& client_key)
     {
         reply_cond_ = true;
         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
+    }
+    if (heartbeats_thread_ == nullptr)
+    {
+        heartbeat_cond_ = true;
+        heartbeats_thread_.reset(new std::thread(std::bind(&Agent::manage_heartbeats, this)));
     }
 }
 
@@ -263,6 +278,48 @@ void Agent::reply()
     }
 }
 
+void Agent::manage_heartbeats()
+{
+    while (heartbeat_cond_)
+    {
+        /* Get clients. */
+        for (auto it = clients_.begin(); it != clients_.end(); ++it)
+        {
+            ProxyClient& client = it->second;
+            /* Get reliable streams. */
+            for (auto s : client.stream_manager().get_output_streams())
+            {
+                /* Get and send  pending messages. */
+                if (client.stream_manager().message_pending(s))
+                {
+                    /* Heartbeat message header. */
+                    dds::xrce::MessageHeader heartbeat_header;
+                    heartbeat_header.session_id(client.get_session_id());
+                    heartbeat_header.stream_id(0x00);
+                    heartbeat_header.sequence_nr(s);
+                    heartbeat_header.client_key(client.get_client_key());
+
+                    /* Heartbeat message payload. */
+                    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+                    heartbeat_payload.first_unacked_seq_nr(client.stream_manager().get_first_unacked_seq_nr(s));
+                    heartbeat_payload.last_unacked_seq_nr(client.stream_manager().get_last_unacked_seq_nr(s));
+
+                    /* Serialize heartbeat message. */
+                    Message heartbeat_message{};
+                    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
+                    heartbeat_message_creator.header(heartbeat_header);
+                    heartbeat_message_creator.heartbeat(heartbeat_payload);
+                    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
+
+                    /* Send heartbeat. */
+                    add_reply(heartbeat_message, client.get_client_key());
+                }
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
+    }
+}
+
 eprosima::micrortps::ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
 {
     try
@@ -333,35 +390,6 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, ui
                     stream_manager.store_input_message(stream_id, seq_num,
                                                        deserializer.get_current_position(),
                                                        deserializer.get_remainder_size());
-                }
-            }
-
-            /* Send heartbeat with pending output messages. */
-            for (auto s : stream_manager.get_output_streams())
-            {
-                if (client->stream_manager().message_pending(s))
-                {
-                    /* Heartbeat message header. */
-                    dds::xrce::MessageHeader heartbeat_header;
-                    heartbeat_header.session_id(header.session_id());
-                    heartbeat_header.stream_id(0x00);
-                    heartbeat_header.sequence_nr(s);
-                    heartbeat_header.client_key(header.client_key());
-
-                    /* Heartbeat message payload. */
-                    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-                    heartbeat_payload.first_unacked_seq_nr(client->stream_manager().get_first_unacked_seq_nr(s));
-                    heartbeat_payload.last_unacked_seq_nr(client->stream_manager().get_last_unacked_seq_nr(s));
-
-                    /* Serialize heartbeat message. */
-                    Message heartbeat_message{};
-                    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
-                    heartbeat_message_creator.header(heartbeat_header);
-                    heartbeat_message_creator.heartbeat(heartbeat_payload);
-                    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
-
-                    /* Send heartbeat. */
-                    add_reply(heartbeat_message, header.client_key());
                 }
             }
         }
@@ -660,7 +688,7 @@ void Agent::process_heartbeat(const dds::xrce::MessageHeader& header,
         dds::xrce::MessageHeader acknack_header;
         acknack_header.session_id() = header.session_id();
         acknack_header.stream_id() = 0x00;
-        acknack_header.sequence_nr() = header.stream_id();
+        acknack_header.sequence_nr() = header.sequence_nr();
         acknack_header.client_key() = header.client_key();
 
         dds::xrce::ACKNACK_Payload acknack_payload;
