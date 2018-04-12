@@ -332,7 +332,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
                                const dds::xrce::RequestId& request_id,
                                const std::vector<unsigned char>& buffer)
 {
-    /* Data message header. */
+    /* Message header. */
     dds::xrce::MessageHeader message_header;
     message_header.client_key(client_key_);
     message_header.session_id(session_id_);
@@ -340,43 +340,47 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     uint16_t seq_num = streams_manager_.next_ouput_message(stream_id);
     message_header.sequence_nr(seq_num);
 
-    /* Data payload. */
-    dds::xrce::DATA_Payload_Data data_payload;
-    data_payload.request_id(request_id);
-    data_payload.object_id(object_id);
-    data_payload.data().serialized_data(buffer);
+    /* Payload. */
+    dds::xrce::DATA_Payload_Data payload;
+    payload.request_id(request_id);
+    payload.object_id(object_id);
+    payload.data().serialized_data(buffer);
 
-    /* Serialize data message. */
-    Message data_message{};
-    XRCEFactory data_message_creator{data_message.get_buffer().data(), data_message.get_buffer().max_size()};
-    data_message_creator.header(message_header);
-    data_message_creator.data(data_payload);
-    data_message.set_real_size(data_message_creator.get_total_size());
+    /* Serialize message. */
+    Message message{};
+    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+    message_creator.header(message_header);
+    message_creator.data(payload);
+    message.set_real_size(message_creator.get_total_size());
+    message.set_addr(addr_);
+    message.set_port(port_);
 
-    /* Store data message. */
-    streams_manager_.store_output_message(stream_id, data_message.get_buffer().data(), data_message.get_real_size());
+    /* Store message. */
+    streams_manager_.store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
 
-    /* Send data message. */
-    root()->add_reply(data_message, client_key_);
+    /* Send message. */
+    root()->add_reply(message);
 
-    /* Heartbeat message header. */
-    message_header.stream_id(0x00);
-    message_header.sequence_nr(stream_id);
-
-    /* Heartbeat payload. */
-    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked_seq_nr(stream_id));
-    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked_seq_nr(stream_id));
-
-    /* Serialize heartbeat message. */
-    Message heartbeat_message{};
-    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
-    heartbeat_message_creator.header(message_header);
-    heartbeat_message_creator.heartbeat(heartbeat_payload);
-    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
-
-    /* Send heartbeat. */
-    root()->add_reply(heartbeat_message, client_key_);
+//    /* Heartbeat message header. */
+//    message_header.stream_id(0x00);
+//    message_header.sequence_nr(stream_id);
+//
+//    /* Heartbeat payload. */
+//    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+//    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked_seq_nr(stream_id));
+//    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked_seq_nr(stream_id));
+//
+//    /* Serialize heartbeat message. */
+//    Message heartbeat_message{};
+//    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
+//    heartbeat_message_creator.header(message_header);
+//    heartbeat_message_creator.heartbeat(heartbeat_payload);
+//    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
+//    heartbeat_message.set_addr(addr_);
+//    heartbeat_message.set_port(port_);
+//
+//    /* Send heartbeat. */
+//    root()->add_reply(heartbeat_message);
 }
 
 StreamsManager& ProxyClient::stream_manager()

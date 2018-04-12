@@ -110,18 +110,7 @@ public:
      *
      * @param message The output message.
      */
-    void add_reply(Message& message,
-                   const dds::xrce::ClientKey& client_key);
-
-    /**
-     * @brief Adds STATUS submessages to the given message header and pushs it in the output queue.
-     *
-     * @param header 	   The message header.
-     * @param status_reply The STATUS submessage payload.
-     */
-    void add_reply(const dds::xrce::MessageHeader& header,
-                   const dds::xrce::STATUS_Payload& status_reply,
-                   const dds::xrce::ClientKey& client_key);
+    void add_reply(Message& message);
 
     void abort_execution();
 
@@ -129,6 +118,9 @@ private:
     /* Send functions. */
     void reply();
     void manage_heartbeats();
+
+    /* Utils functions. */
+    ProxyClient* get_client(uint32_t addr);
 
     /* Message processing functions. */
     void handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port);
@@ -162,6 +154,7 @@ private:
     octet input_buffer_[buffer_len_];
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
+    std::map<uint32_t, dds::xrce::ClientKey> addr_to_key_;
 
     std::unique_ptr<std::thread> response_thread_;
     std::unique_ptr<std::thread> heartbeats_thread_;
