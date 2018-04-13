@@ -19,7 +19,8 @@ bool StreamsManager::is_next_message(const dds::xrce::StreamId stream_id, const 
     }
     else if (128 > stream_id)
     {
-        if (seq_num > input_best_effort_streams_[stream_id].get_last_handled())
+        uint16_t last_handled = input_best_effort_streams_[stream_id].get_last_handled();
+        if (seq_num_is_greater(seq_num, last_handled))
         {
             result = true;
         }
@@ -43,7 +44,8 @@ bool StreamsManager::is_valid_message(const dds::xrce::StreamId stream_id, const
     }
     else if (128 > stream_id)
     {
-        if (seq_num >= input_best_effort_streams_[stream_id].get_last_handled())
+        uint16_t last_handled = input_best_effort_streams_[stream_id].get_last_handled();
+        if (seq_num_is_greater(add_seq_num(seq_num, 1), last_handled))
         {
             result = true;
         }
@@ -51,7 +53,8 @@ bool StreamsManager::is_valid_message(const dds::xrce::StreamId stream_id, const
     else
     {
         uint16_t first_unacked = input_relible_streams_[stream_id].get_first_unacked();
-        if ((seq_num >= first_unacked) && (seq_num < (first_unacked + (uint16_t)16)))
+        if (seq_num_is_greater(add_seq_num(seq_num, 1), first_unacked)
+                && seq_num_is_less(seq_num, add_seq_num(first_unacked, 16)))
         {
             result = true;
         }
@@ -120,7 +123,7 @@ void StreamsManager::store_output_message(const dds::xrce::StreamId stream_id, c
 {
     if (128 > stream_id)
     {
-        uint16_t index = output_best_effort_streams_[stream_id].get_last_handled() + (uint16_t)1;
+        uint16_t index = add_seq_num(output_best_effort_streams_[stream_id].get_last_handled(), 1);
         output_best_effort_streams_[stream_id].update(index);
     }
     else
@@ -172,7 +175,7 @@ uint16_t StreamsManager::next_ouput_message(const dds::xrce::StreamId stream_id)
     uint16_t result;
     if (128 > stream_id)
     {
-        result = output_best_effort_streams_[stream_id].get_last_handled() + 1;
+        result = add_seq_num(output_best_effort_streams_[stream_id].get_last_handled(), 1);
     }
     if (127 < stream_id)
     {
