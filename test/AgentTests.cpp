@@ -89,7 +89,7 @@ TEST_F(AgentTests, DeleteExistingClient)
 TEST_F(AgentTests, DeleteOnEmptyAgent)
 {
     dds::xrce::ResultStatus response = agent_.delete_client(client_key);
-    ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
+    ASSERT_EQ(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE, response.status());
 }
 
 TEST_F(AgentTests, DeleteNoExistingClient)
@@ -103,7 +103,7 @@ TEST_F(AgentTests, DeleteNoExistingClient)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = agent_.delete_client(fake_client_key);
-    ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
+    ASSERT_EQ(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE, response.status());
 }
 
 class ProxyClientTests : public CommonData, public ::testing::Test

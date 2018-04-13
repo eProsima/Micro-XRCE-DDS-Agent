@@ -56,6 +56,7 @@ public:
     Message pop();
     void push(const Message& new_message);
     void abort();
+    bool is_aborted() { return aborted_; }
 
  private:
     std::queue<Message> internal_queue_;

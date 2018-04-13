@@ -141,12 +141,13 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
 dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
-    std::lock_guard<std::mutex> lock(clientsmtx_);
     ProxyClient* client = get_client(client_key);
     if (nullptr != client)
     {
+        std::unique_lock<std::mutex> lock(clientsmtx_);
         addr_to_key_.erase(client->get_addr());
         clients_.erase(client_key);
+        lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
     }
     else
@@ -195,7 +196,7 @@ void Agent::abort_execution()
     {
         response_thread_->join();
     }
-    if (heartbeat_cond_ && heartbeats_thread_->joinable())
+    if (heartbeats_thread_ && heartbeats_thread_->joinable())
     {
         heartbeats_thread_->join();
     }
@@ -221,7 +222,7 @@ void Agent::reply()
     while(reply_cond_)
     {
         Message message = messages_.pop();
-        if (!message.get_buffer().empty())
+        if (!messages_.is_aborted() && message.get_real_size() != 0)
         {
             int ret = 0;
             locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
@@ -305,6 +306,17 @@ ProxyClient* Agent::get_client(uint32_t addr)
     return client;
 }
 
+dds::xrce::ClientKey Agent::get_key(uint32_t addr)
+{
+    dds::xrce::ClientKey key = CLIENTKEY_INVALID;
+    auto it = addr_to_key_.find(addr);
+    if (it != addr_to_key_.end())
+    {
+        key = addr_to_key_.at(addr);
+    }
+    return key;
+}
+
 void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port)
 {
     Serializer deserializer(input_message.buf, input_message.len);
@@ -323,6 +335,10 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, ui
                 if (sub_header.submessage_id() == dds::xrce::CREATE_CLIENT)
                 {
                     process_create_client(header, deserializer, addr, port);
+                }
+                if (sub_header.submessage_id() == dds::xrce::DELETE)
+                {
+                    process_delete_client(header, deserializer, addr, port);
                 }
             }
         }
@@ -437,20 +453,20 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header,
                                   Serializer& deserializer,
                                   uint32_t addr, uint16_t port)
 {
-    dds::xrce::CREATE_CLIENT_Payload payload;
-    if (deserializer.deserialize(payload))
+    dds::xrce::CREATE_CLIENT_Payload client_payload;
+    if (deserializer.deserialize(client_payload))
     {
-        dds::xrce::STATUS_Payload status;
-        status.related_request().request_id(payload.request_id());
-        status.related_request().object_id(payload.object_id());
+        dds::xrce::STATUS_Payload status_payload;
+        status_payload.related_request().request_id(client_payload.request_id());
+        status_payload.related_request().object_id(client_payload.object_id());
         dds::xrce::AGENT_Representation agent_representation;
-        status.result(create_client(payload.client_representation(), agent_representation, addr, port));
+        status_payload.result(create_client(client_payload.client_representation(), agent_representation, addr, port));
 
         /* Send status message. */
         Message status_message{};
         XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
         message_creator.header(header);
-        message_creator.status(status);
+        message_creator.status(status_payload);
         status_message.set_real_size(message_creator.get_total_size());
         status_message.set_addr(addr);
         status_message.set_port(port);
@@ -459,6 +475,34 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header,
     else
     {
         std::cerr << "Error processing CREATE_CLIENT submessage." << std::endl;
+    }
+}
+
+void Agent::process_delete_client(const dds::xrce::MessageHeader &header,
+                                  Serializer &deserializer,
+                                  uint32_t addr, uint16_t port)
+{
+    dds::xrce::DELETE_Payload delete_payload;
+    if (deserializer.deserialize(delete_payload))
+    {
+        dds::xrce::STATUS_Payload status_payload;
+        status_payload.related_request().request_id(delete_payload.request_id());
+        status_payload.related_request().object_id(delete_payload.object_id());
+        dds::xrce::ClientKey client_key = get_key(addr);
+        status_payload.result(delete_client(client_key));
+
+        Message status_message{};
+        XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
+        message_creator.header(header);
+        message_creator.status(status_payload);
+        status_message.set_real_size(message_creator.get_total_size());
+        status_message.set_addr(addr);
+        status_message.set_port(port);
+        add_reply(status_message);
+    }
+    else
+    {
+        std::cerr << "Error processing DELETE submessage." << std::endl;
     }
 }
 
