@@ -17,19 +17,30 @@
 ###############################################################################
 cmake_minimum_required(VERSION 2.8.12)
 
-# Set CMAKE_BUILD_TYPE to Release by default.
-if(DEFINED CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-    )
-else()
-    set(CMAKE_BUILD_TYPE Release CACHE STRING
-        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-        )
+set(IS_TOP_LEVEL TRUE)
+if(PROJECT_SOURCE_DIR)
+    set(IS_TOP_LEVEL FALSE)
 endif()
 
-# TODO remove C language will crash transport
-project(micrortps_agent)
+# Set CMAKE_BUILD_TYPE to Release by default.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+if(CMAKE_VERSION VERSION_LESS 3.0)
+    project(micrortps_agent)
+    set(PROJECT_VERSION_MAJOR 0)
+    set(PROJECT_VERSION_MINOR 3)
+    set(PROJECT_VERSION_PATCH 0)
+    set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+else()
+    cmake_policy(SET CMP0048 NEW)
+    project(micrortps_agent VERSION "0.3.0")
+endif()
 
 # Set product name
 if(DEFINED PRODUCT_NAME)
@@ -45,6 +56,7 @@ set(PROJECT_MAJOR_VERSION 0)
 set(PROJECT_MINOR_VERSION 4)
 set(PROJECT_MICRO_VERSION 0)
 set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_MICRO_VERSION})
+
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 ###############################################################################
@@ -116,12 +128,10 @@ add_definitions(
 # Load external eProsima projects.
 ###############################################################################
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
-find_package(fastrtps REQUIRED)
-find_package(fastcdr REQUIRED)
+find_eprosima_package(fastcdr REQUIRED)
+find_eprosima_package(fastrtps REQUIRED)
 find_eprosima_thirdparty(Asio asio)
-if(NOT TARGET transport)
-  add_subdirectory(thirdparty/micrortps_transport)
-endif()
+find_eprosima_package(micrortps_transport REQUIRED)
 
 # Set C++11
 include(CheckCXXCompilerFlag)
