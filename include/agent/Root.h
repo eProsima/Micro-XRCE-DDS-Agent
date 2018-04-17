@@ -34,7 +34,7 @@ namespace micrortps{
 
 class Agent;
 
-Agent* root();
+Agent& root();
 
 /**
  * @brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
@@ -157,7 +157,7 @@ private:
 
     micrortps_locator_t locator_;
     static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;
-    octet input_buffer_[buffer_len_];
+    uint8_t input_buffer_[buffer_len_];
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
     std::map<uint32_t, dds::xrce::ClientKey> addr_to_key_;

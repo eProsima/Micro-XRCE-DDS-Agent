@@ -10201,7 +10201,7 @@ enum SubmessageId : uint8_t
     CREATE_CLIENT	= 0,
     CREATE			= 1,
     GET_INFO		= 2,
-    DELETE			= 3,
+    DELETE_ID		= 3,
     STATUS			= 4,
     INFO			= 5,
     WRITE_DATA		= 6,

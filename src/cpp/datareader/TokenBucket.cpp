@@ -40,7 +40,7 @@ TokenBucket::TokenBucket(size_t rate, size_t burst) : capacity_(burst), rate_(ra
         capacity_ = min_rate_;
     }
 
-    tokens_    = std::min(capacity_, static_cast<double>(rate_));
+    tokens_    = std::min(capacity_, rate_);
     timestamp_ = std::chrono::system_clock::now();
 }
 
@@ -75,10 +75,10 @@ TokenBucket& TokenBucket::TokenBucket::operator=(TokenBucket&& other) noexcept
 bool TokenBucket::get_tokens(size_t tokens)
 {
     std::lock_guard<std::mutex> lock(data_mutex_);
-    update_tokens();
-    if (tokens <= tokens_)
+    if (tokens <= available_tokens())
     {
-        tokens_ -= tokens;
+        tokens_ = available_tokens() - tokens;
+        timestamp_ = std::chrono::system_clock::now();
     }
     else
     {
@@ -87,18 +87,9 @@ bool TokenBucket::get_tokens(size_t tokens)
     return true;
 }
 
-void TokenBucket::update_tokens()
+size_t TokenBucket::available_tokens()
 {
     auto now = std::chrono::system_clock::now();
-    if (tokens_ < capacity_)
-    {
-        auto seconds = std::chrono::duration<double>(now - timestamp_).count();
-        // std::cout << " seconds: " << seconds << std::endl;
-        double delta_tokens = rate_ * seconds;
-
-        // std::cout << " tokens: " << seconds << std::endl;
-
-        tokens_ = std::min(capacity_, tokens_ + delta_tokens);
-    }
-    timestamp_ = now;
+    auto delta_sec = std::chrono::duration<double>(now - timestamp_).count();
+    return std::min(capacity_, tokens_ + (size_t)(rate_ * delta_sec));
 }

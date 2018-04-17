@@ -28,10 +28,10 @@
 namespace eprosima {
 namespace micrortps {
 
-Agent* root()
+Agent& root()
 {
     static Agent xrce_agent;
-    return &xrce_agent;
+    return xrce_agent;
 }
 
 Agent::Agent() :
@@ -164,7 +164,7 @@ void Agent::run()
     running_ = true;
     while(running_)
     {
-        if (0 < (ret = receive_data(static_cast<octet*>(input_buffer_), buffer_len_, locator_.locator_id)))
+        if (0 < (ret = receive_data(static_cast<uint8_t*>(input_buffer_), buffer_len_, locator_.locator_id)))
         {
             uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
             uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
@@ -227,7 +227,7 @@ void Agent::reply()
             int ret = 0;
             locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
             locator_.channel._.udp.remote_addr.sin_port = message.get_port();
-            if (0 < (ret = send_data(reinterpret_cast<octet*>(message.get_buffer().data()), message.get_real_size(),
+            if (0 < (ret = send_data(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(),
                      locator_.locator_id)))
             {
                 printf("%d bytes response sent\n", ret);
@@ -282,17 +282,25 @@ void Agent::manage_heartbeats()
 
 ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
 {
-    try
+//    try
+//    {
+//        std::lock_guard<std::mutex> lock(clientsmtx_);
+//        return &clients_.at(client_key);
+//    }
+//    catch (const std::out_of_range&)
+//    {
+//        unsigned int key = client_key[0] + (client_key[1] << 8) + (client_key[2] << 16) + (client_key[3] << 24);
+//        std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;
+//        return nullptr;
+//    }
+    ProxyClient* client = nullptr;
+    std::lock_guard<std::mutex> lock(clientsmtx_);
+    auto it = clients_.find(client_key);
+    if (it != clients_.end())
     {
-        std::lock_guard<std::mutex> lock(clientsmtx_);
-        return &clients_.at(client_key);
+        client = &clients_.at(client_key);
     }
-    catch (const std::out_of_range& e)
-    {
-        unsigned int key = client_key[0] + (client_key[1] << 8) + (client_key[2] << 16) + (client_key[3] << 24);
-        std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;
-        return nullptr;
-    }
+    return client;
 }
 
 ProxyClient* Agent::get_client(uint32_t addr)
@@ -336,7 +344,7 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, ui
                 {
                     process_create_client(header, deserializer, addr, port);
                 }
-                if (sub_header.submessage_id() == dds::xrce::DELETE)
+                if (sub_header.submessage_id() == dds::xrce::DELETE_ID)
                 {
                     process_delete_client(header, deserializer, addr, port);
                 }
@@ -413,7 +421,7 @@ void Agent::process_message(const dds::xrce::MessageHeader& header, Serializer& 
             case dds::xrce::GET_INFO:
                 /* TODO (Julian). */
                 break;
-            case dds::xrce::DELETE:
+            case dds::xrce::DELETE_ID:
                 process_delete(header, sub_header, deserializer, client);
                 break;
             case dds::xrce::WRITE_DATA:
@@ -690,7 +698,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
         /* Send missing messages again. */
         uint16_t first_message = payload.first_unacked_seq_num();
         std::array<uint8_t, 2> nack_bitmap = payload.nack_bitmap();
-        for (int i = 0; i < 8; ++i)
+        for (uint16_t i = 0; i < 8; ++i)
         {
             dds::xrce::XrceMessage message;
             uint8_t mask = 0x01 << i;

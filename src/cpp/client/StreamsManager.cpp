@@ -177,7 +177,7 @@ uint16_t StreamsManager::next_ouput_message(const dds::xrce::StreamId stream_id)
     {
         result = add_seq_num(output_best_effort_streams_[stream_id].get_last_handled(), 1);
     }
-    if (127 < stream_id)
+    else
     {
         result = output_relible_streams_[stream_id].next_message();
     }

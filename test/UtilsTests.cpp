@@ -119,7 +119,7 @@ TEST_F(TokenBucketTests, RateMeassure)
     }
     auto end     = std::chrono::steady_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-    ASSERT_EQ(test_package / bucket_size - 1, seconds);
+    ASSERT_EQ(test_package / bucket_size - 1, (size_t)seconds);
     ASSERT_EQ(test_package / tokens, count_tokens);
 }
 

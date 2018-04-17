@@ -160,7 +160,7 @@ void ReliableOutputStream::push_message(const char* buf, size_t len)
 dds::xrce::XrceMessage ReliableOutputStream::get_message(uint16_t index)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    dds::xrce::XrceMessage message;
+    dds::xrce::XrceMessage message = {nullptr, 0};
     auto it = messages_.find(index);
     if (it != messages_.end())
     {

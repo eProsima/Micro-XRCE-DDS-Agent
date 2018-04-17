@@ -52,7 +52,7 @@ std::ostream& operator<<(std::ostream& stream, const dds::xrce::SubmessageHeader
         case dds::xrce::CREATE:
             stream << "<Submessage> [CREATE]" << std::endl;
             break;
-        case dds::xrce::DELETE:
+        case dds::xrce::DELETE_ID:
             stream << "<Submessage> [DELETE]" << std::endl;
             break;
         case dds::xrce::WRITE_DATA:

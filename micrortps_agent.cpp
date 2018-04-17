@@ -19,17 +19,17 @@ int main(int argc, char** argv)
 {
     if(argc > 2)
     {
-        eprosima::micrortps::Agent* micrortps_agent = eprosima::micrortps::root();
+        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
         if(strcmp(argv[1], "serial") == 0)
         {
             // "/dev/ttyACM0"
-            micrortps_agent->init(argv[2]);
+            micrortps_agent.init(argv[2]);
         }
         else if(strcmp(argv[1], "udp") == 0 && argc == 3)
         {
-            micrortps_agent->init(atoi(argv[2]));
+            micrortps_agent.init((uint16_t)atoi(argv[2]));
         }
-        micrortps_agent->run();
+        micrortps_agent.run();
     }
     else
     {

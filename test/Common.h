@@ -35,8 +35,8 @@ class CommonData
     const uint16_t sequence_nr                 = 0x0001;
     const uint8_t flags                        = 0x07;
     const uint16_t max_samples                 = 0x0001;
-    const uint32_t max_elapsed_time            = 0x00000001;
-    const uint32_t max_rate                    = 0x00000012;
+    const uint16_t max_elapsed_time            = 0x0001;
+    const uint16_t max_rate                    = 0x0012;
 
     dds::xrce::MessageHeader generate_message_header() const;
 

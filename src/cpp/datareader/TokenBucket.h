@@ -24,7 +24,7 @@ namespace utils {
 
 class TokenBucket
 {
-  public:
+public:
     explicit TokenBucket(size_t rate, size_t burst = min_rate_);
     TokenBucket(TokenBucket&& other) noexcept;
     TokenBucket(const TokenBucket& other);
@@ -34,12 +34,13 @@ class TokenBucket
 
     bool get_tokens(size_t tokens);
 
-  private:
-    void update_tokens();
+private:
+    size_t available_tokens();
 
+private:
     static constexpr size_t min_rate_ = 64000; // 64KB
-    double capacity_;
-    double tokens_;
+    size_t capacity_;
+    size_t tokens_;
     size_t rate_;
     std::chrono::system_clock::time_point timestamp_;
 

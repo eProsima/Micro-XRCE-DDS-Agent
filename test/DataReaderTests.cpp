@@ -65,7 +65,7 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatData)
         --tries;
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
-    ASSERT_EQ(read_count_, 1);
+    ASSERT_EQ(read_count_, 1u);
     ASSERT_EQ(req_id_, fixed_request_id);
     ASSERT_EQ(object_id_, fixed_object_id);
 }
@@ -93,7 +93,7 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatDataSeq)
 
     // Wait to the read operation
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-    ASSERT_EQ(read_count_, 10);
+    ASSERT_EQ(read_count_, 10u);
     ASSERT_EQ(req_id_, fixed_request_id);
     ASSERT_EQ(object_id_, fixed_object_id);
 }

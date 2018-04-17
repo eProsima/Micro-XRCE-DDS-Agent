@@ -23,7 +23,7 @@ Message::Message(char* buf, size_t len)
 {
     if (len <= buffer_.size())
     {
-        std::copy(buf, buf + len, &buffer_[0]);
+        memcpy(&buffer_[0], buf, len);
         size_ = len;
     }
 }

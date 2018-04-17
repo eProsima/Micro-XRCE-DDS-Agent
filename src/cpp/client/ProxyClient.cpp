@@ -138,7 +138,6 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
                 }
                 if (data_writer != nullptr)
                 {
-                    auto publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
                     if (publisher != nullptr)
                     {
                         result = objects_.insert(std::make_pair(object_id, std::move(std::unique_ptr<XRCEObject>(data_writer)))).second;
@@ -175,7 +174,6 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
                 }
                 if (data_reader != nullptr)
                 {
-                    auto subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
                     if (subscriber != nullptr)
                     {
                         result = objects_.insert(std::make_pair(object_id, std::move(std::unique_ptr<XRCEObject>(data_reader)))).second;
@@ -359,28 +357,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     streams_manager_.store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
 
     /* Send message. */
-    root()->add_reply(message);
-
-//    /* Heartbeat message header. */
-//    message_header.stream_id(0x00);
-//    message_header.sequence_nr(stream_id);
-//
-//    /* Heartbeat payload. */
-//    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-//    heartbeat_payload.first_unacked_seq_nr(streams_manager_.get_first_unacked_seq_nr(stream_id));
-//    heartbeat_payload.last_unacked_seq_nr(streams_manager_.get_last_unacked_seq_nr(stream_id));
-//
-//    /* Serialize heartbeat message. */
-//    Message heartbeat_message{};
-//    XRCEFactory heartbeat_message_creator{heartbeat_message.get_buffer().data(), heartbeat_message.get_buffer().max_size()};
-//    heartbeat_message_creator.header(message_header);
-//    heartbeat_message_creator.heartbeat(heartbeat_payload);
-//    heartbeat_message.set_real_size(heartbeat_message_creator.get_total_size());
-//    heartbeat_message.set_addr(addr_);
-//    heartbeat_message.set_port(port_);
-//
-//    /* Send heartbeat. */
-//    root()->add_reply(heartbeat_message);
+    root().add_reply(message);
 }
 
 StreamsManager& ProxyClient::stream_manager()
