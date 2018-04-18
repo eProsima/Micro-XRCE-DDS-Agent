@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "MessageQueue.h"
+#include <string.h>
 
 using eprosima::micrortps::MessageQueue;
 using eprosima::micrortps::Message;
