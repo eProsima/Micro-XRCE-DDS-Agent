@@ -171,11 +171,11 @@ void Agent::run()
             dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
             handle_input_message(input_message, addr, port);
         }
-        #ifdef WIN32
-            Sleep(10);
-        #else
-            usleep(10000);
-        #endif
+#ifdef WIN32
+        Sleep(10);
+#else
+        usleep(10000);
+#endif
 
     };
     std::cout << "Execution stopped" << std::endl;
@@ -282,17 +282,6 @@ void Agent::manage_heartbeats()
 
 ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
 {
-//    try
-//    {
-//        std::lock_guard<std::mutex> lock(clientsmtx_);
-//        return &clients_.at(client_key);
-//    }
-//    catch (const std::out_of_range&)
-//    {
-//        unsigned int key = client_key[0] + (client_key[1] << 8) + (client_key[2] << 16) + (client_key[3] << 24);
-//        std::cerr << "Client 0x" << std::hex << key << " not found" << std::endl;
-//        return nullptr;
-//    }
     ProxyClient* client = nullptr;
     std::lock_guard<std::mutex> lock(clientsmtx_);
     auto it = clients_.find(client_key);
@@ -704,7 +693,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i);
+                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), add_seq_num(first_message, i));
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
@@ -715,7 +704,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i + 8);
+                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), add_seq_num(first_message, i + 8));
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
