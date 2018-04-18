@@ -8,43 +8,12 @@ The communication between a *Micro RTPS Client* and a *Micro RTPS Agent* support
 
 ![Architecture](docs/architecture_agent.png)
 
-Installation from Sources
-=========================
-
-Clone the project from Github: ::
-
-    $ git clone --recursive https://github.com/eProsima/micro-RTPS-agent.git
-    $ mkdir micro-RTPS-agent/build && cd micro-RTPS-agent/build
-
-On Linux, execute: ::
-
-    $ cmake -DTHIRDPARTY=ON ..
-    $ make
-    $ sudo make install
-
-Now you have micrortps_agent installed in your system. Before running it, you need to add /usr/local/lib to the dynamic loader-linker directories. ::
-
-    sudo ldconfig /usr/local/lib/
-
-Run an Agent
-============
-
-To run the *Micro RTPS Agent*, you need to launch it executing one of the following options:
-
-For running it on UDP.  ::
-
-    $ ./micrortps_agent udp <local_ip> <out_UDP_port> <in_UDP_port>
-
-For running it on SerialPort.  ::
-
-    $ ./micrortps_agent serial <serial_Device>
-
 ## Documentation
 
-You can access Micro-RTPS documentation online, which is hosted on [Read the Docs](http://micro-rtps.readthedocs.io).
+You can access Micro-RTPS documentation online, which is hosted on Read the Docs.
 
 * [Start Page](http://micro-rtps.readthedocs.io)
-* [Installation manual](http://micro-rtps.readthedocs.io/en/latest/dependencies.html)
+* [Installation manual](http://micro-rtps.readthedocs.io/en/latest/installation.html)
 * [User manual](http://micro-rtps.readthedocs.io/en/latest/introduction.html)
 
 ## Getting Help
