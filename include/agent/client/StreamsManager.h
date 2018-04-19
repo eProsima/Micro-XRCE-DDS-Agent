@@ -21,14 +21,14 @@ public:
     bool message_available(dds::xrce::StreamId stream_id);
     void update_from_heartbeat(dds::xrce::StreamId stream_id, uint16_t first_unacked, uint16_t last_unacked);
     void promote_stream(dds::xrce::StreamId stream_id, uint16_t seq_num);
-    dds::xrce::XrceMessage get_next_message(dds::xrce::StreamId stream_id);
+    XrceMessage get_next_message(dds::xrce::StreamId stream_id);
     void store_input_message(dds::xrce::StreamId stream_id, uint16_t seq_num, const char* buf, size_t len);
     uint16_t get_first_unacked_seq_num(dds::xrce::StreamId stream_id);
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
 
     /* Output streams functions. */
     void store_output_message(dds::xrce::StreamId stream_id, const char* buf, size_t len);
-    dds::xrce::XrceMessage get_output_message(dds::xrce::StreamId stream_id, uint16_t index);
+    XrceMessage get_output_message(dds::xrce::StreamId stream_id, uint16_t index);
     uint16_t get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
     uint16_t get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
     void update_from_acknack(dds::xrce::StreamId stream_id, uint16_t first_unacked);

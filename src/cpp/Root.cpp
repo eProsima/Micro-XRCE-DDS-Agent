@@ -168,7 +168,7 @@ void Agent::run()
         {
             uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
             uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
-            dds::xrce::XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
+            XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
             handle_input_message(input_message, addr, port);
         }
 #ifdef WIN32
@@ -314,7 +314,7 @@ dds::xrce::ClientKey Agent::get_key(uint32_t addr)
     return key;
 }
 
-void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port)
+void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port)
 {
     Serializer deserializer(input_message.buf, input_message.len);
 
@@ -359,7 +359,7 @@ void Agent::handle_input_message(const dds::xrce::XrceMessage& input_message, ui
                     while (stream_manager.message_available(stream_id))
                     {
                         /* Get and process next messages. */
-                        dds::xrce::XrceMessage next_message = stream_manager.get_next_message(stream_id);
+                        XrceMessage next_message = stream_manager.get_next_message(stream_id);
                         Serializer temp_deserializer(next_message.buf, next_message.len);
                         process_message(header, temp_deserializer, *client);
 
@@ -689,7 +689,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
         std::array<uint8_t, 2> nack_bitmap = payload.nack_bitmap();
         for (uint16_t i = 0; i < 8; ++i)
         {
-            dds::xrce::XrceMessage message;
+            XrceMessage message;
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {

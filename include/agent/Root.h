@@ -124,7 +124,7 @@ private:
     dds::xrce::ClientKey get_key(uint32_t addr);
 
     /* Message processing functions. */
-    void handle_input_message(const dds::xrce::XrceMessage& input_message, uint32_t addr, uint16_t port);
+    void handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port);
     void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
 
     /* Submessage procession functions. */

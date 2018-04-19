@@ -32,13 +32,13 @@ class Message
 public:
     Message() = default;
     Message(char* buf, size_t size);
-    void set_real_size(size_t size){size_ = size;}
-    size_t get_real_size(void){return size_;}
+    void set_real_size(size_t size) {size_ = size;}
+    size_t get_real_size(void)  const {return size_;}
     std::array<char, max_message_size>& get_buffer() {return buffer_;}
     void set_addr(uint32_t addr) { addr_ = addr; }
-    uint32_t get_addr() { return addr_; }
+    uint32_t get_addr() const { return addr_; }
     void set_port(uint16_t port) { port_ = port; }
-    uint16_t get_port() { return port_; }
+    uint16_t get_port() const { return port_; }
 private:
     uint32_t addr_;
     uint16_t port_;

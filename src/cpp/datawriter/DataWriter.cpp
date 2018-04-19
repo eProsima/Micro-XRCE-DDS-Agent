@@ -110,18 +110,17 @@ bool DataWriter::init(const std::string& xmlrep)
     return true;
 }
 
-dds::xrce::ResultStatus DataWriter::write(dds::xrce::DataRepresentation& data)
+const dds::xrce::ResultStatus& DataWriter::write(dds::xrce::DataRepresentation& data)
 {
-    dds::xrce::ResultStatus result;
-    result.status(dds::xrce::STATUS_OK);
-    result.implementation_status(0x00);
+    result_status_.status(dds::xrce::STATUS_OK);
+    result_status_.implementation_status(0x00);
 
     switch (data._d())
     {
         case dds::xrce::FORMAT_DATA:
             if (mp_rtps_publisher->write(&(data.data().serialized_data())))
             {
-                result.status(dds::xrce::STATUS_ERR_DDS_ERROR);
+                result_status_.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             }
             break;
         case dds::xrce::FORMAT_SAMPLE:
@@ -133,11 +132,11 @@ dds::xrce::ResultStatus DataWriter::write(dds::xrce::DataRepresentation& data)
         case dds::xrce::FORMAT_PACKED_SAMPLES:
             break;
         default:
-            result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+            result_status_.status(dds::xrce::STATUS_ERR_INCOMPATIBLE);
             break;
     }
 
-    return result;
+    return result_status_;
 }
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)

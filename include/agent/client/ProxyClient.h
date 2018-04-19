@@ -143,28 +143,28 @@ public:
      *
      * @return The Client's key.
      */
-    dds::xrce::ClientKey get_client_key() { return client_key_; }
+    const dds::xrce::ClientKey& get_client_key() const { return client_key_; }
 
     /**
      * @brief This function return the Client's session id.
      *
      * @return The Client's session id.
      */
-    dds::xrce::SessionId get_session_id() { return session_id_; }
+    const dds::xrce::SessionId& get_session_id() const { return session_id_; }
 
     /**
      * @brief This function return the Client's address.
      *
      * @return The Client's address.
      */
-    uint32_t get_addr() { return addr_; }
+    uint32_t get_addr() const { return addr_; }
 
     /**
      * @brief This function return the Client's port.
      *
      * @return The Client's port.
      */
-    uint16_t get_port() { return port_; }
+    uint16_t get_port() const { return port_; }
 
     /**
      * @brief This function return a stream manager used by the ProxyClient.

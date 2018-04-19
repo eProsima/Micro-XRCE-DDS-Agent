@@ -3531,7 +3531,9 @@ void dds::xrce::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr)
 
 void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> (uint16_t&)m_qos_flags;
+    std::underlying_type<dds::xrce::EndpointQosFlags>::type temp_qos_flags;
+    dcdr >> temp_qos_flags;
+    m_qos_flags = static_cast<dds::xrce::EndpointQosFlags>(temp_qos_flags);
     dcdr >> m_history_depth;
     dcdr >> m_deadline_msec;
     dcdr >> m_lifespan_msec;
@@ -7032,7 +7034,9 @@ void dds::xrce::GET_INFO_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 void dds::xrce::GET_INFO_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     BaseObjectRequest::deserialize(dcdr);
-    dcdr >> (uint32_t&)m_info_mask;
+    std::underlying_type<dds::xrce::InfoMask>::type temp_info_mask;
+    dcdr >> temp_info_mask;
+    m_info_mask = static_cast<dds::xrce::InfoMask>(temp_info_mask);
 }
 
 dds::xrce::DELETE_Payload::DELETE_Payload()

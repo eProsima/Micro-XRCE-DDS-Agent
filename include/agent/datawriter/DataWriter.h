@@ -54,7 +54,7 @@ class DataWriter : public XRCEObject
 
     bool init();
     bool init(const std::string& xmlrep);
-    dds::xrce::ResultStatus write(dds::xrce::DataRepresentation& data);
+    const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
   private:
@@ -62,6 +62,7 @@ class DataWriter : public XRCEObject
     fastrtps::Publisher* mp_rtps_publisher;
     std::string m_rtps_publisher_prof;
     TopicPubSubType topic_type_;
+    dds::xrce::ResultStatus result_status_;
 
     bool check_registered_topic(const std::string& topic_data_type) const;
 };

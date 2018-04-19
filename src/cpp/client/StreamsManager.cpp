@@ -94,9 +94,9 @@ void StreamsManager::update_from_heartbeat(const dds::xrce::StreamId stream_id,
     }
 }
 
-dds::xrce::XrceMessage StreamsManager::get_next_message(const dds::xrce::StreamId stream_id)
+XrceMessage StreamsManager::get_next_message(const dds::xrce::StreamId stream_id)
 {
-    dds::xrce::XrceMessage next_message = {nullptr, 0};
+    XrceMessage next_message = {nullptr, 0};
     if (127 < stream_id)
     {
         next_message = input_relible_streams_[stream_id].get_next_message();
@@ -132,9 +132,9 @@ void StreamsManager::store_output_message(const dds::xrce::StreamId stream_id, c
     }
 }
 
-dds::xrce::XrceMessage StreamsManager::get_output_message(const dds::xrce::StreamId stream_id, const uint16_t index)
+XrceMessage StreamsManager::get_output_message(const dds::xrce::StreamId stream_id, const uint16_t index)
 {
-    dds::xrce::XrceMessage message = {0x00, 0x00};
+    XrceMessage message = {0x00, 0x00};
     if (127 < stream_id)
     {
         message = output_relible_streams_[stream_id].get_message(index);
@@ -187,6 +187,7 @@ uint16_t StreamsManager::next_ouput_message(const dds::xrce::StreamId stream_id)
 std::vector<uint8_t> StreamsManager::get_output_streams()
 {
     std::vector<uint8_t> result;
+    result.reserve(output_relible_streams_.size());
     for (auto it = output_relible_streams_.begin(); it != output_relible_streams_.end(); ++it)
     {
         result.push_back(it->first);

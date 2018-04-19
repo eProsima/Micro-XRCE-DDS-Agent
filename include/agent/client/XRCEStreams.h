@@ -12,6 +12,13 @@
 
 namespace eprosima { namespace micrortps {
 
+typedef struct XrceMessage
+{
+    char* buf;
+    size_t len;
+
+} XrceMessage;
+
 inline uint16_t add_seq_num(uint16_t s, uint16_t n)
 {
     return (s + n) % SEQ_NUM_LIMITS;
@@ -49,7 +56,7 @@ public:
     BestEffortStream() : last_handled_(0xFFFF) {}
 
     void update(uint16_t seq_num);
-    uint16_t get_last_handled() { return last_handled_; }
+    uint16_t get_last_handled() const { return last_handled_; }
     bool is_valid(uint16_t seq_num);
 
 private:
@@ -68,10 +75,10 @@ public:
 
     void insert_message(uint16_t index, const char* buf, size_t len);
     bool message_available();
-    dds::xrce::XrceMessage get_next_message();
+    XrceMessage get_next_message();
     void update_from_heartbeat(uint16_t first_available, uint16_t last_available);
     void update_from_message(uint16_t seq_num);
-    uint16_t get_first_unacked();
+    uint16_t get_first_unacked() const;
     std::array<uint8_t, 2> get_nack_bitmap();
     bool is_valid(uint16_t seq_num);
 
@@ -94,7 +101,7 @@ public:
 
 
     void push_message(const char* buf, size_t len);
-    dds::xrce::XrceMessage get_message(uint16_t index);
+    XrceMessage get_message(uint16_t index);
     void update_from_acknack(uint16_t first_unacked);
     uint16_t get_first_available() { return add_seq_num(last_acknown_, 1); }
     uint16_t get_last_available() { return last_sent_; }

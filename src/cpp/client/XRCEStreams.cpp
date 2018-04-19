@@ -58,10 +58,10 @@ bool ReliableInputStream::message_available()
     return (it != messages_.end());
 }
 
-dds::xrce::XrceMessage ReliableInputStream::get_next_message()
+XrceMessage ReliableInputStream::get_next_message()
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    dds::xrce::XrceMessage message = {nullptr, 0};
+    XrceMessage message = {nullptr, 0};
     uint16_t index = add_seq_num(last_handled_, 1);
     auto it = messages_.find(index);
     if (it != messages_.end())
@@ -99,7 +99,7 @@ void ReliableInputStream::update_from_message(uint16_t seq_num)
     }
 }
 
-uint16_t ReliableInputStream::get_first_unacked()
+uint16_t ReliableInputStream::get_first_unacked() const
 {
     return add_seq_num(last_handled_, 1);
 }
@@ -157,10 +157,10 @@ void ReliableOutputStream::push_message(const char* buf, size_t len)
     }
 }
 
-dds::xrce::XrceMessage ReliableOutputStream::get_message(uint16_t index)
+XrceMessage ReliableOutputStream::get_message(uint16_t index)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    dds::xrce::XrceMessage message = {nullptr, 0};
+    XrceMessage message = {nullptr, 0};
     auto it = messages_.find(index);
     if (it != messages_.end())
     {

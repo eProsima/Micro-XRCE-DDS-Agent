@@ -54,13 +54,6 @@ class Cdr;
 
 namespace dds { namespace xrce {
 
-typedef struct XrceMessage
-{
-    char* buf;
-    size_t len;
-
-} XrceMessage;
-
 typedef std::array<uint8_t, 4> ClientKey;
 
 typedef uint8_t ObjectKind;
@@ -6821,7 +6814,7 @@ public:
 
     inline bool has_content_filter_expression() const
     {
-        return bool(m_content_filter_expression);
+        return static_cast<bool>(m_content_filter_expression);
     }
 
     /*!
@@ -6870,7 +6863,7 @@ public:
 
     inline bool has_delivery_control() const
     {
-        return bool(m_delivery_control);
+        return static_cast<bool>(m_delivery_control);
     }
 
     /*!
