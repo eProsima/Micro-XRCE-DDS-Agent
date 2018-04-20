@@ -119,10 +119,6 @@ private:
     void reply();
     void manage_heartbeats();
 
-    /* Utils functions. */
-    ProxyClient* get_client(uint32_t addr);
-    dds::xrce::ClientKey get_key(uint32_t addr);
-
     /* Message processing functions. */
     void handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port);
     void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
@@ -160,7 +156,6 @@ private:
     uint8_t input_buffer_[buffer_len_];
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
-    std::map<uint32_t, dds::xrce::ClientKey> addr_to_key_;
 
     std::unique_ptr<std::thread> response_thread_;
     std::unique_ptr<std::thread> heartbeats_thread_;

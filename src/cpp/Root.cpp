@@ -93,11 +93,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                        session_id,
                                                                        addr,
                                                                        port)).second;
-                if (create_result)
-                {
-                    addr_to_key_.insert(std::make_pair(addr, client_key));
-                }
-                else
+                if (!create_result)
                 {
                     result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                 }
@@ -115,11 +111,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                            session_id,
                                                                            addr,
                                                                            port)).second;
-                    if (create_result)
-                    {
-                        addr_to_key_.insert(std::make_pair(addr, client_key));
-                    }
-                    else
+                    if (!create_result)
                     {
                         result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                     }
@@ -145,7 +137,6 @@ dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_
     if (nullptr != client)
     {
         std::unique_lock<std::mutex> lock(clientsmtx_);
-        addr_to_key_.erase(client->get_addr());
         clients_.erase(client_key);
         lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
@@ -292,28 +283,6 @@ ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
     return client;
 }
 
-ProxyClient* Agent::get_client(uint32_t addr)
-{
-    ProxyClient* client = nullptr;
-    auto it = addr_to_key_.find(addr);
-    if (it != addr_to_key_.end())
-    {
-        client = get_client(addr_to_key_.at(addr));
-    }
-    return client;
-}
-
-dds::xrce::ClientKey Agent::get_key(uint32_t addr)
-{
-    dds::xrce::ClientKey key = CLIENTKEY_INVALID;
-    auto it = addr_to_key_.find(addr);
-    if (it != addr_to_key_.end())
-    {
-        key = addr_to_key_.at(addr);
-    }
-    return key;
-}
-
 void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port)
 {
     Serializer deserializer(input_message.buf, input_message.len);
@@ -340,7 +309,7 @@ void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr
             }
         }
         /* Process the rest of the messages. */
-        else if (ProxyClient* client = get_client(addr))
+        else if (ProxyClient* client = get_client(header.client_key()))
         {
             StreamsManager& stream_manager = client->stream_manager();
             dds::xrce::StreamId stream_id = header.stream_id();
@@ -485,8 +454,7 @@ void Agent::process_delete_client(const dds::xrce::MessageHeader &header,
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(delete_payload.request_id());
         status_payload.related_request().object_id(delete_payload.object_id());
-        dds::xrce::ClientKey client_key = get_key(addr);
-        status_payload.result(delete_client(client_key));
+        status_payload.result(delete_client(header.client_key()));
 
         Message status_message{};
         XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
