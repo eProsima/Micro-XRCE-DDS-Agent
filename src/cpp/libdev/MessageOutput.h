@@ -52,12 +52,15 @@ void print_data_submessage(const dds::xrce::DATA_Payload_DataSeq& payload);
 void print_data_submessage(const dds::xrce::DATA_Payload_SampleSeq& payload);
 void print_data_submessage(const dds::xrce::DATA_Payload_PackedSamples& payload);
 
-void printl_create_submessage(const dds::xrce::CREATE_Payload& payload);
+void printl_create_submessage(const dds::xrce::ClientKey& client_key, const dds::xrce::CREATE_Payload& payload);
 void printl_create_client_submessage(const dds::xrce::CREATE_CLIENT_Payload& payload);
+void printl_connected_client_submessage(const dds::xrce::CLIENT_Representation& representation);
 void printl_delete_submessage(const dds::xrce::DELETE_Payload& payload);
 void printl_status_submessage(const dds::xrce::STATUS_Payload& payload);
 void printl_write_data_submessage(const dds::xrce::WRITE_DATA_Payload_Data& payload);
 void printl_read_data_submessage(const dds::xrce::READ_DATA_Payload& payload);
+void printl_acknack_submessage(const dds::xrce::ACKNACK_Payload& payload);
+void printl_heartbeat_submessage(const dds::xrce::HEARTBEAT_Payload& payload);
 void printl_data_submessage(const dds::xrce::DATA_Payload_Data& payload);
 void printl_data_submessage(const dds::xrce::DATA_Payload_Sample& payload);
 void printl_data_submessage(const dds::xrce::DATA_Payload_DataSeq& payload);

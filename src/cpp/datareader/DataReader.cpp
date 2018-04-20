@@ -170,7 +170,7 @@ bool DataReader::has_message() const
 
 int DataReader::start_read(const ReadTaskInfo& read_info)
 {
-    std::cout << "START READ" << std::endl;
+//    std::cout << "START READ" << std::endl;
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_running = true;
@@ -188,7 +188,7 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
 
 int DataReader::stop_read()
 {
-    std::cout << "SETUP NEW READING..." << std::endl;
+//    std::cout << "SETUP NEW READING..." << std::endl;
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_running = false;
@@ -211,7 +211,7 @@ int DataReader::stop_read()
 void DataReader::read_task(const ReadTaskInfo& read_info)
 {
     TokenBucket rate_manager{read_info.max_rate};
-    std::cout << "Starting read_task..." << std::endl;
+//    std::cout << "Starting read_task..." << std::endl;
     uint16_t message_count = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
@@ -226,14 +226,14 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
                 size_t next_data_size = nextDataSize();
                 if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
                 {
-                    std::cout << "Read " << message_count + 1 << std::endl;
+//                    std::cout << "Read " << message_count + 1 << std::endl;
                     std::vector<unsigned char> buffer;
                     if (takeNextData(&buffer))
                     {
-                        std::cout << "Read " << next_data_size << " "
-                                  << "in "
-                                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
-                                  << std::endl;
+//                        std::cout << "Read " << next_data_size << " "
+//                                  << "in "
+//                                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
+//                                  << std::endl;
                         last_read = std::chrono::steady_clock::now();
                         mp_reader_listener->on_read_data(read_info.stream_id, read_info.object_id, read_info.request_id, buffer);
                         ++message_count;
@@ -256,15 +256,15 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
         }
     }
 
-    std::cout << "exiting read_task..." << std::endl;
+//    std::cout << "exiting read_task..." << std::endl;
 }
 
 void DataReader::on_max_timeout(const asio::error_code& error)
 {
-    std::cout << "on_timeout" << std::endl;
+//    std::cout << "on_timeout" << std::endl;
     if (error)
     {
-        std::cout << "error" << std::endl;
+//        std::cout << "error" << std::endl;
     }
     else
     {
@@ -302,10 +302,10 @@ void ReadTimeEvent::stop_max_timer()
 
 void ReadTimeEvent::run_max_timer(int milliseconds)
 {
-    std::cout << "Starting run_max_timer..." << std::endl;
+//    std::cout << "Starting run_max_timer..." << std::endl;
     init_max_timer(milliseconds);
     m_io_service_max.run();
-    std::cout << "exiting run_max_timer..." << std::endl;
+//    std::cout << "exiting run_max_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -318,11 +318,11 @@ bool DataReader::takeNextData(void* data)
     bool ret = mp_rtps_subscriber->takeNextData(data, &info);
     if (ret)
     {
-        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
+//        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
     }
     else
     {
-        std::cout << "Error taking sample" << std::endl;
+//        std::cout << "Error taking sample" << std::endl;
     }
     return ret;
 }

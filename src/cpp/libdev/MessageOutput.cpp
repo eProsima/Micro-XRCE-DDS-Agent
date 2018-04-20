@@ -330,12 +330,26 @@ void print_data_submessage(const dds::xrce::DATA_Payload_PackedSamples& payload)
 
 void printl_create_client_submessage(const dds::xrce::CREATE_CLIENT_Payload& payload)
 {
-    printf("%s[Create client | id: 0x%04X | session: 0x%02X]%s\n", YELLOW.data(),
-           platform_array_to_num(payload.object_id()), payload.client_representation().session_id(),
+    dds::xrce::ClientKey client_key = payload.client_representation().client_key();
+    printf("%s[Create client | id: 0x%04X | session: 0x%02X | client key: 0x%02X 0x%02X 0x%02X 0x%02X ]%s\n",
+           YELLOW.data(),
+           platform_array_to_num(payload.object_id()),
+           payload.client_representation().session_id(),
+           client_key[0], client_key[1], client_key[2], client_key[3],
            RESTORE_COLOR.data());
 }
 
-void printl_create_submessage(const dds::xrce::CREATE_Payload& payload)
+void printl_connected_client_submessage(const dds::xrce::CLIENT_Representation& representation)
+{
+    dds::xrce::ClientKey client_key = representation.client_key();
+    printf("%s[Client connected | session: 0x%02X | client key: 0x%02X 0x%02X 0x%02X 0x%02X ]%s\n",
+           YELLOW.data(),
+           representation.session_id(),
+           client_key[0], client_key[1], client_key[2], client_key[3],
+           RESTORE_COLOR.data());
+}
+
+void printl_create_submessage(const dds::xrce::ClientKey& client_key, const dds::xrce::CREATE_Payload& payload)
 {
     char content[128];
     switch (payload.object_representation()._d())
@@ -368,8 +382,13 @@ void printl_create_submessage(const dds::xrce::CREATE_Payload& payload)
         default:
             sprintf(content, "UNKNOWN");
     }
-    printf("%s[Create | #0x%04X | id: 0x%04X | %s]%s\n", YELLOW.data(), platform_array_to_num(payload.request_id()),
-           platform_array_to_num(payload.object_id()), content, RESTORE_COLOR.data());
+    printf("%s[Create XRCE object | client key: 0x%02X 0x%02X 0x%02X 0x%02X | #0x%04X | id: 0x%04X | %s]%s\n",
+           YELLOW.data(),
+           client_key[0], client_key[1], client_key[2], client_key[3],
+           platform_array_to_num(payload.request_id()),
+           platform_array_to_num(payload.object_id()),
+           content,
+           RESTORE_COLOR.data());
 }
 
 void printl_delete_submessage(const dds::xrce::DELETE_Payload& payload)
@@ -469,6 +488,27 @@ void printl_read_data_submessage(const dds::xrce::READ_DATA_Payload& payload)
         read_control.max_bytes_per_second(),
         read_control.max_samples(),
         RESTORE_COLOR.data());
+}
+
+void printl_acknack_submessage(const dds::xrce::ACKNACK_Payload& payload)
+{
+
+    printf("%s[Acknack | seq_num: %u | bitmap: 0x%02X 0x%02X]%s\n",
+           YELLOW.data(),
+           payload.first_unacked_seq_num(),
+           payload.nack_bitmap().at(0),
+           payload.nack_bitmap().at(1),
+           RESTORE_COLOR.data());
+}
+
+void printl_heartbeat_submessage(const dds::xrce::HEARTBEAT_Payload& payload)
+{
+
+    printf("%s[Heartbeat | first: %u | last: %u]%s\n",
+           YELLOW.data(),
+           payload.first_unacked_seq_nr(),
+           payload.last_unacked_seq_nr(),
+           RESTORE_COLOR.data());
 }
 
 void printl_data_submessage(const dds::xrce::DATA_Payload_Data& payload)

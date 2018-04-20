@@ -95,6 +95,10 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                        port)).second;
                 if (create_result)
                 {
+#ifdef VERBOSE_OUTPUT
+                    std::cout << "<== ";
+                    debug::printl_connected_client_submessage(client_representation);
+#endif
                     if (client_representation.session_id() > 127)
                     {
                         addr_to_key_.insert(std::make_pair(addr, client_key));
@@ -120,6 +124,9 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                            port)).second;
                     if (create_result)
                     {
+#ifdef VERBOSE_OUTPUT
+                        debug::printl_connected_client_submessage(client_representation);
+#endif
                         if (client_representation.session_id() > 127)
                         {
                             addr_to_key_.insert(std::make_pair(addr, client_key));
@@ -236,7 +243,7 @@ void Agent::reply()
             if (0 < (ret = send_data(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(),
                      locator_.locator_id)))
             {
-                printf("%d bytes response sent\n", ret);
+//                printf("%d bytes response sent\n", ret);
             }
         }
     }
@@ -543,6 +550,10 @@ void Agent::process_create(const dds::xrce::MessageHeader& header,
     dds::xrce::CREATE_Payload payload;
     if (deserializer.deserialize(payload))
     {
+#ifdef VERBOSE_OUTPUT
+        std::cout << "<== ";
+        debug::printl_create_submessage(client.get_client_key(), payload);
+#endif
         /* Status message header. */
         dds::xrce::MessageHeader status_header;
         status_header.session_id(header.session_id());
