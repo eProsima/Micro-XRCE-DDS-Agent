@@ -93,7 +93,14 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                        session_id,
                                                                        addr,
                                                                        port)).second;
-                if (!create_result)
+                if (create_result)
+                {
+                    if (client_representation.session_id() > 127)
+                    {
+                        addr_to_key_.insert(std::make_pair(addr, client_key));
+                    }
+                }
+                else
                 {
                     result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                 }
@@ -111,7 +118,14 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                                                                            session_id,
                                                                            addr,
                                                                            port)).second;
-                    if (!create_result)
+                    if (create_result)
+                    {
+                        if (client_representation.session_id() > 127)
+                        {
+                            addr_to_key_.insert(std::make_pair(addr, client_key));
+                        }
+                    }
+                    else
                     {
                         result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                     }
@@ -137,6 +151,7 @@ dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_
     if (nullptr != client)
     {
         std::unique_lock<std::mutex> lock(clientsmtx_);
+        addr_to_key_.erase(client->get_addr());
         clients_.erase(client_key);
         lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
@@ -283,6 +298,28 @@ ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
     return client;
 }
 
+ProxyClient* Agent::get_client(uint32_t addr)
+{
+    ProxyClient* client = nullptr;
+    auto it = addr_to_key_.find(addr);
+    if (it != addr_to_key_.end())
+    {
+        client = get_client(addr_to_key_.at(addr));
+    }
+    return client;
+}
+
+dds::xrce::ClientKey Agent::get_key(uint32_t addr)
+{
+    dds::xrce::ClientKey key = CLIENTKEY_INVALID;
+    auto it = addr_to_key_.find(addr);
+    if (it != addr_to_key_.end())
+    {
+        key = addr_to_key_.at(addr);
+    }
+    return key;
+}
+
 void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port)
 {
     Serializer deserializer(input_message.buf, input_message.len);
@@ -309,47 +346,59 @@ void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr
             }
         }
         /* Process the rest of the messages. */
-        else if (ProxyClient* client = get_client(header.client_key()))
-        {
-            StreamsManager& stream_manager = client->stream_manager();
-            dds::xrce::StreamId stream_id = header.stream_id();
-            uint16_t seq_num = header.sequence_nr();
-            if (stream_manager.is_valid_message(stream_id, seq_num))
-            {
-                if (stream_manager.is_next_message(stream_id, seq_num))
-                {
-                    /* Process message. */
-                    process_message(header, deserializer, *client);
-
-                    /* Promote sequence number. */
-                    stream_manager.promote_stream(stream_id, seq_num);
-
-                    /* Process next messages. */
-                    while (stream_manager.message_available(stream_id))
-                    {
-                        /* Get and process next messages. */
-                        XrceMessage next_message = stream_manager.get_next_message(stream_id);
-                        Serializer temp_deserializer(next_message.buf, next_message.len);
-                        process_message(header, temp_deserializer, *client);
-
-                        /* Update stream. */
-                        stream_manager.promote_stream(stream_id, ++seq_num);
-                    }
-                }
-                else
-                {
-                    /* Store message. */
-                    stream_manager.store_input_message(stream_id, seq_num,
-                                                       deserializer.get_current_position(),
-                                                       deserializer.get_remainder_size());
-                }
-            }
-        }
         else
         {
-            std::cerr << "Error client unknown." << std::endl;
-        }
+            ProxyClient* client = nullptr;
+            if (header.session_id() < 128)
+            {
+                client = get_client(header.client_key());
+            }
+            else
+            {
+                client = get_client(addr);
+            }
 
+            if (nullptr != client)
+            {
+                StreamsManager& stream_manager = client->stream_manager();
+                dds::xrce::StreamId stream_id = header.stream_id();
+                uint16_t seq_num = header.sequence_nr();
+                if (stream_manager.is_valid_message(stream_id, seq_num))
+                {
+                    if (stream_manager.is_next_message(stream_id, seq_num))
+                    {
+                        /* Process message. */
+                        process_message(header, deserializer, *client);
+
+                        /* Promote sequence number. */
+                        stream_manager.promote_stream(stream_id, seq_num);
+
+                        /* Process next messages. */
+                        while (stream_manager.message_available(stream_id))
+                        {
+                            /* Get and process next messages. */
+                            XrceMessage next_message = stream_manager.get_next_message(stream_id);
+                            Serializer temp_deserializer(next_message.buf, next_message.len);
+                            process_message(header, temp_deserializer, *client);
+
+                            /* Update stream. */
+                            stream_manager.promote_stream(stream_id, ++seq_num);
+                        }
+                    }
+                    else
+                    {
+                        /* Store message. */
+                        stream_manager.store_input_message(stream_id, seq_num,
+                                                           deserializer.get_current_position(),
+                                                           deserializer.get_remainder_size());
+                    }
+                }
+            }
+            else
+            {
+                std::cerr << "Error client unknown." << std::endl;
+            }
+        }
     }
     else
     {
@@ -454,7 +503,16 @@ void Agent::process_delete_client(const dds::xrce::MessageHeader &header,
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(delete_payload.request_id());
         status_payload.related_request().object_id(delete_payload.object_id());
-        status_payload.result(delete_client(header.client_key()));
+        dds::xrce::ClientKey client_key;
+        if (header.session_id() < 128)
+        {
+            client_key = header.client_key();
+        }
+        else
+        {
+            client_key = get_key(addr);
+        }
+        status_payload.result(delete_client(client_key));
 
         Message status_message{};
         XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
