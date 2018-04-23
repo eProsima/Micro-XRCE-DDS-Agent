@@ -42,7 +42,7 @@ endif()
 # Version information                                                         #
 ###############################################################################
 set(PROJECT_MAJOR_VERSION 0)
-set(PROJECT_MINOR_VERSION 3)
+set(PROJECT_MINOR_VERSION 4)
 set(PROJECT_MICRO_VERSION 0)
 set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_MICRO_VERSION})
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
