@@ -56,6 +56,7 @@ public:
     Message pop();
     void push(const Message& new_message);
     void abort();
+    void init();
     bool is_aborted() { return aborted_; }
 
  private:

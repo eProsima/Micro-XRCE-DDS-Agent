@@ -55,6 +55,7 @@ void Agent::init(const std::string& device)
     {
         std::cout << "Agent::init() -> error" << std::endl;
     }
+    messages_.init();
 }
 
 void Agent::init(const uint16_t local_port)
@@ -65,6 +66,7 @@ void Agent::init(const uint16_t local_port)
     {
         std::cout << "Agent::init() -> error" << std::endl;
     }
+    messages_.init();
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
@@ -197,6 +199,7 @@ void Agent::run()
 
 void Agent::stop()
 {
+    remove_locator(locator_.locator_id);
     running_ = false;
 }
 
@@ -218,12 +221,12 @@ void Agent::abort_execution()
 void Agent::add_reply(Message& message)
 {
     messages_.push(message);
-    if(response_thread_ == nullptr)
+    if(response_thread_ == nullptr || !response_thread_->joinable())
     {
         reply_cond_ = true;
         response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
     }
-    if (heartbeats_thread_ == nullptr)
+    if (heartbeats_thread_ == nullptr || !heartbeats_thread_->joinable())
     {
         heartbeat_cond_ = true;
         heartbeats_thread_.reset(new std::thread(std::bind(&Agent::manage_heartbeats, this)));

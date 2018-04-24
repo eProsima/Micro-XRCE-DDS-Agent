@@ -29,8 +29,14 @@ Message::Message(char* buf, size_t len)
     }
 }
 
-MessageQueue::MessageQueue() : aborted_(false)
+MessageQueue::MessageQueue()
+    : aborted_(false)
 {
+}
+
+void MessageQueue::init()
+{
+    aborted_ = false;
 }
 
 void MessageQueue::abort()
