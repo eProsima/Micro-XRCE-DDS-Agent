@@ -146,6 +146,14 @@ include_directories(${CMAKE_PREFIX_PATH}/include
 file(GLOB AGENT_LIB_SRCS "src/cpp/*.cpp" "src/cpp/*.cxx" "src/cpp/*/*.cpp" "src/cpp/*/*.cxx")
 add_library(agent STATIC ${AGENT_LIB_SRCS})
 target_link_libraries(agent transport fastcdr fastrtps)
+#TODO: fix it, import as public only the necesary paths and headers
+target_include_directories(
+    agent PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
+    $<INSTALL_INTERFACE:include>
+)
 
 # micrortps_agent
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml

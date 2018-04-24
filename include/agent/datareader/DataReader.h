@@ -19,7 +19,7 @@
 #ifndef DATAREADER_H_
 #define DATAREADER_H_
 
-#include <XRCETypes.h>
+#include <agent/XRCETypes.h>
 #include <agent/XRCEObject.hpp>
 #include <agent/types/TopicPubSubType.h>
 

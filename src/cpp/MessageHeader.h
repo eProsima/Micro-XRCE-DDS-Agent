@@ -22,7 +22,7 @@
 #ifndef _MessageHeader_H_
 #define _MessageHeader_H_
 
-#include "XRCETypes.h"
+#include "agent/XRCETypes.h"
 
 #include <array>
 #include <stdint.h>

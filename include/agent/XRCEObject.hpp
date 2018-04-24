@@ -15,7 +15,7 @@
 #ifndef _XRCE_OBJECT_H_
 #define _XRCE_OBJECT_H_
 
-#include <XRCETypes.h>
+#include <agent/XRCETypes.h>
 
 namespace eprosima {
 namespace micrortps {

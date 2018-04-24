@@ -1,7 +1,7 @@
 #ifndef XRCESTREAMS_H
 #define XRCESTREAMS_H
 
-#include <XRCETypes.h>
+#include <agent/XRCETypes.h>
 #include <mutex>
 #include <vector>
 #include <map>
