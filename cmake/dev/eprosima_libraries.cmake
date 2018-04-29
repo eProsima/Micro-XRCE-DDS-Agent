@@ -1,4 +1,4 @@
-# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,42 +17,50 @@ macro(find_eprosima_package package)
 
         option(THIRDPARTY_${package} "Activate the use of internal thirdparty ${package}" OFF)
 
-        if(THIRDPARTY)
-                set(LIST_OF_OPTIONS "")
+        set(REQUIRED_ FALSE)
+        set(LIST_OF_OPTIONS "")
+        set(next_is_option FALSE)
+        foreach(arg ${ARGN})
+            if(next_is_option)
                 set(next_is_option FALSE)
-                foreach(arg ${ARGN})
-                    if(next_is_option)
-                        set(next_is_option FALSE)
-                        list(APPEND LIST_OF_OPTIONS "-D${arg}=ON")
-                    elseif("${arg}" STREQUAL "OPTION")
-                        set(next_is_option TRUE)
+                list(APPEND LIST_OF_OPTIONS "-D${arg}=ON")
+            elseif("${arg}" STREQUAL "OPTION")
+                set(next_is_option TRUE)
+            elseif("${arg}" STREQUAL "REQUIRED")
+                set(REQUIRED_ TRUE)
+            endif()
+        endforeach()
+
+        find_package(${package} QUIET)
+        if(NOT ${package}_FOUND AND (THIRDPARTY OR THIRDPARTY_${package}))
+            if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${package}/CMakeLists.txt")
+                execute_process(
+                    COMMAND git submodule update --recursive --init "thirdparty/${package}"
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                    RESULT_VARIABLE EXECUTE_RESULT
+                    )
+                if(EXECUTE_RESULT EQUAL 0)
+                    add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/${package})
+                    set(${package}_FOUND TRUE)
+                    if(NOT IS_TOP_LEVEL)
+                        set(${package}_FOUND TRUE PARENT_SCOPE)
                     endif()
-                endforeach()
-        endif()
-
-        if(THIRDPARTY OR THIRDPARTY_${package})
-            execute_process(
-                COMMAND git submodule update --recursive --init "thirdparty/${package}"
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                RESULT_VARIABLE EXECUTE_RESULT
-                )
-
-            if(NOT EXECUTE_RESULT EQUAL 0)
-                message(WARNING "Cannot configure Git submodule ${package}")
+                else()
+                    message(WARNING "Cannot configure Git submodule ${package}")
+                endif()
+            else()
+                add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/${package})
+                set(${package}_FOUND TRUE)
+                if(NOT IS_TOP_LEVEL)
+                    set(${package}_FOUND TRUE PARENT_SCOPE)
+                endif()
             endif()
-
-            add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/${package})
-
-            set(${package}_FOUND TRUE)
-            if(NOT IS_TOP_LEVEL)
-                set(${package}_FOUND TRUE PARENT_SCOPE)
-            endif()
-        else()
-            find_package(${package} REQUIRED QUIET)
         endif()
 
         if(${package}_FOUND)
             message(STATUS "${package} library found...")
+        elseif(${REQUIRED_})
+            message(FATAL_ERROR "${package} library not found...")
         else()
             message(STATUS "${package} library not found...")
         endif()
@@ -61,6 +69,7 @@ endmacro()
 
 macro(find_eprosima_thirdparty package thirdparty_name)
     if(NOT (EPROSIMA_INSTALLER AND (MSVC OR MSVC_IDE)))
+
         option(THIRDPARTY_${package} "Activate the use of internal thirdparty ${package}" OFF)
 
         if(THIRDPARTY OR THIRDPARTY_${package})
@@ -70,29 +79,30 @@ macro(find_eprosima_thirdparty package thirdparty_name)
                 RESULT_VARIABLE EXECUTE_RESULT
                 )
 
-            if(NOT EXECUTE_RESULT EQUAL 0)
+            if(EXECUTE_RESULT EQUAL 0)
+            else()
                 message(FATAL_ERROR "Cannot configure Git submodule ${package}")
             endif()
         endif()
 
         set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/${thirdparty_name})
         set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_SOURCE_DIR}/thirdparty/${thirdparty_name}/${thirdparty_name})
+        find_package(${package} REQUIRED QUIET)
 
-        find_package(${package} REQUIRED)
     endif()
 endmacro()
 
 macro(install_eprosima_libraries)
     if((MSVC OR MSVC_IDE) AND THIRDPARTY AND NOT MINION)
         if(EPROSIMA_INSTALLER)
-            # Install includes. Take from x64Win64VS2013
+            # Install includes. Take from x64Win64VS2015
             install(DIRECTORY ${PROJECT_BINARY_DIR}/eprosima_installer/x64Win64VS2015/install/${INCLUDE_INSTALL_DIR}/
                 DESTINATION ${INCLUDE_INSTALL_DIR}
                 COMPONENT headers
                 OPTIONAL
                 )
 
-            # Install licenses. Take from x64Win64VS2013
+            # Install licenses. Take from x64Win64VS2015
             install(DIRECTORY ${PROJECT_BINARY_DIR}/eprosima_installer/x64Win64VS2015/install/licenses/
                 DESTINATION ${LICENSE_INSTALL_DIR}
                 COMPONENT licenses

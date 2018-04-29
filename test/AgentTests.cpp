@@ -16,9 +16,8 @@
 
 #include <agent/Root.h>
 #include <agent/client/ProxyClient.h>
-
-#include <MessageHeader.h>
-#include <SubMessageHeader.h>
+#include <agent/MessageHeader.h>
+#include <agent/SubMessageHeader.h>
 
 #include <gtest/gtest.h>
 

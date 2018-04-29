@@ -15,7 +15,7 @@
 #ifndef _PROXY_CLIENT_H
 #define _PROXY_CLIENT_H
 
-#include <MessageHeader.h>
+#include <agent/MessageHeader.h>
 #include <agent/datareader/DataReader.h>
 #include <agent/datawriter/DataWriter.h>
 #include <agent/client/StreamsManager.h>

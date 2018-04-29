@@ -12,56 +12,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
-    include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
-    # If Windows, link against export dll functions
-    if(WIN32)
-        add_definitions(-DFASTCDR_DYN_LINK)
-    endif()
+if(CMAKE_VERSION VERSION_LESS 3.0)
+    project(micrortps-agent_tests C CXX)
+else()
+    cmake_policy(SET CMP0048 NEW)
+    project(micrortps-agent_tests LANGUAGES C CXX)
+endif()
 
-    ###############################################################################
-    # Testing libraries
-    ###############################################################################
-    add_library(testcommon STATIC Common.cpp)
-    target_link_libraries(testcommon agent)
+include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
+check_gtest()
+if(GTEST_FOUND)
 
+    # Utils test
+    add_executable(util_test UtilsTests.cpp Common.cpp)
+    add_gtest(util_test UtilsTests.cpp Common.cpp)
+    target_include_directories(util_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(util_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(util_test PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        )
 
-    ###############################################################################
-    # Unit tests
-    ###############################################################################
+    # XRCE test
+    add_executable(xrce_test XRCETests.cpp Common.cpp)
+    add_gtest(xrce_test XRCETests.cpp Common.cpp)
+    target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(xrce_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(xrce_test PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        )
 
-    # Utils test.
-    set(UTILS_SOURCE UtilsTests.cpp)
-    add_executable(UtilsTest ${UTILS_SOURCE})
-    add_gtest(UtilsTest ${UTILS_SOURCE})
-    target_include_directories(UtilsTest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(UtilsTest testcommon ${GTEST_BOTH_LIBRARIES})
-
-    # XRCE test.
-#    set(XRCETESTS_SOURCE XRCETests.cxx)
-#    add_executable(XRCETest ${XRCETESTS_SOURCE})
-#    add_gtest(XRCETest ${XRCETESTS_SOURCE})
-#    target_include_directories(XRCETest PRIVATE ${GTEST_INCLUDE_DIRS})
-#    target_link_libraries(XRCETest testcommon ${GTEST_BOTH_LIBRARIES})
-
+    # Agent test
     file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
         DESTINATION ${PROJECT_BINARY_DIR}/test
     )
 
-    # Agent test.
-    # TODO (Julian): fix DataReaderTests.
-    set(AGENTTESTS_SOURCE AgentTests.cpp DataReaderTests.cpp)
-    add_executable(AgentTest ${AGENTTESTS_SOURCE})
-    add_gtest(AgentTest ${AGENTTESTS_SOURCE})
-    target_include_directories(AgentTest PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(AgentTest testcommon ${GTEST_BOTH_LIBRARIES})
+    add_executable(agent_test
+        AgentTests.cpp
+        DataReaderTests.cpp
+        Common.cpp
+        )
+    add_gtest(agent_test
+        AgentTests.cpp
+        DataReaderTests.cpp
+        Common.cpp
+        )
+    target_include_directories(agent_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(agent_test micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(agent_test PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        )
 
     if(WIN32)
         string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-	set_property(TEST AgentTest APPEND PROPERTY ENVIRONMENT
+        set_property(TEST AgentTest APPEND PROPERTY ENVIRONMENT
             "PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:transport>\\;$<TARGET_FILE_DIR:fastrtps>\\;
-	          $<TARGET_FILE_DIR:fastcdr>>\\;${WIN_PATH}"
-        )
+            $<TARGET_FILE_DIR:fastcdr>>\\;${WIN_PATH}"
+            )
     endif()
+
 endif()

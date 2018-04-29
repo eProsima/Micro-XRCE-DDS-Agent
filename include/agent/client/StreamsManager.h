@@ -2,8 +2,6 @@
 #define STREAMSMANAGER_H
 
 #include <agent/client/XRCEStreams.h>
-#include <agent/XRCETypes.h>
-#include <MessageHeader.h>
 
 #include <memory>
 #include <map>

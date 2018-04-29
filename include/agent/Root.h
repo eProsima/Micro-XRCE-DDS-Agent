@@ -17,9 +17,9 @@
 
 #include <agent/client/ProxyClient.h>
 #include <agent/XRCEFactory.h>
-#include <MessageQueue.h>
-#include <MessageHeader.h>
-#include <SubMessageHeader.h>
+#include <agent/MessageQueue.h>
+#include <agent/MessageHeader.h>
+#include <agent/SubMessageHeader.h>
 
 #include <micrortps/transport/micrortps_transport.h>
 
