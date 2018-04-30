@@ -51,7 +51,7 @@ void Agent::init(const std::string& device)
 {
     std::cout << "Serial agent initialization..." << std::endl;
     locator_id_t id = add_serial_locator(device.data(), &locator_);
-    if (id != MICRORTPS_TRANSPORT_OK)
+    if (id == MICRORTPS_TRANSPORT_ERROR)
     {
         std::cout << "Agent::init() -> error" << std::endl;
     }

@@ -33,7 +33,10 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "Help: program [serial | udp local_port]" << std::endl;
+        std::cout << "Help: program <command>" << std::endl;
+        std::cout << "List of commands:" << std::endl;
+        std::cout << "    serial device" << std::endl;
+        std::cout << "    udp local_port" << std::endl;
     }
     return 0;
 }
