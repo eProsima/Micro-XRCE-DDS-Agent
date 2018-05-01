@@ -26,53 +26,93 @@ check_gtest()
 if(GTEST_FOUND)
 
     # Utils test
-    add_executable(util_test UtilsTests.cpp Common.cpp)
-    add_gtest(util_test UtilsTests.cpp Common.cpp)
-    target_include_directories(util_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(util_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
-    set_target_properties(util_test PROPERTIES
+    add_executable(util_test_exec UtilsTests.cpp Common.cpp)
+    add_test(NAME util_test COMMAND util_test_exec)
+    target_include_directories(util_test_exec PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(util_test_exec PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(util_test_exec PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         )
+    if(WIN32)
+        set(DEPENDENCIES
+            micrortps-agent
+            )
+        set(WIN_PATH "$ENV{PATH}")
+        foreach(P ${CMAKE_PREFIX_PATH})
+            set(WIN_PATH "${CMAKE_PREFIX_PATH}/bin;${WIN_PATH}")
+        endforeach()
+        foreach(D ${DEPENDENCIES})
+            if(TARGET ${D})
+                set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
+            endif()
+        endforeach()
+        string(REPLACE ";" "\\;" WIN_PATH "${WIN_PATH}")
+        set_tests_properties(util_test PROPERTIES ENVIRONMENT "PATH=${WIN_PATH}")
+    endif()
 
     # XRCE test
-    add_executable(xrce_test XRCETests.cpp Common.cpp)
-    add_gtest(xrce_test XRCETests.cpp Common.cpp)
-    target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(xrce_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
-    set_target_properties(xrce_test PROPERTIES
+    add_executable(xrce_test_exec XRCETests.cpp Common.cpp)
+    add_test(NAME xrce_test COMMAND xrce_test_exec)
+    target_include_directories(xrce_test_exec PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(xrce_test_exec PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(xrce_test_exec PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         )
+    if(WIN32)
+        set(DEPENDENCIES
+            micrortps-agent
+            fastcdr
+            )
+        set(WIN_PATH "$ENV{PATH}")
+        foreach(P ${CMAKE_PREFIX_PATH})
+            set(WIN_PATH "${CMAKE_PREFIX_PATH}/bin;${WIN_PATH}")
+        endforeach()
+        foreach(D ${DEPENDENCIES})
+            if(TARGET ${D})
+                set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
+            endif()
+        endforeach()
+        string(REPLACE ";" "\\;" WIN_PATH "${WIN_PATH}")
+        set_tests_properties(xrce_test PROPERTIES ENVIRONMENT "PATH=${WIN_PATH}")
+    endif()
 
     # Agent test
     file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
         DESTINATION ${PROJECT_BINARY_DIR}/test
     )
 
-    add_executable(agent_test
+    add_executable(agent_test_exec
         AgentTests.cpp
         DataReaderTests.cpp
         Common.cpp
         )
-    add_gtest(agent_test
-        AgentTests.cpp
-        DataReaderTests.cpp
-        Common.cpp
-        )
-    target_include_directories(agent_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(agent_test micrortps-agent ${GTEST_BOTH_LIBRARIES})
-    set_target_properties(agent_test PROPERTIES
+    add_test(NAME agent_test COMMAND agent_test_exec)
+    target_include_directories(agent_test_exec PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(agent_test_exec micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    set_target_properties(agent_test_exec PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         )
-
     if(WIN32)
-        string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-        set_property(TEST AgentTest APPEND PROPERTY ENVIRONMENT
-            "PATH=$<SHELL_PATH:$<TARGET_FILE_DIR:transport>\\;$<TARGET_FILE_DIR:fastrtps>\\;
-            $<TARGET_FILE_DIR:fastcdr>>\\;${WIN_PATH}"
+        set(DEPENDENCIES
+            micrortps-agent
+            transport
+            fastrtps
+            fastcdr
             )
+        set(WIN_PATH "$ENV{PATH}")
+        foreach(P ${CMAKE_PREFIX_PATH})
+            set(WIN_PATH "${CMAKE_PREFIX_PATH}/bin;${WIN_PATH}")
+        endforeach()
+        foreach(D ${DEPENDENCIES})
+            if(TARGET ${D})
+                set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
+            endif()
+        endforeach()
+        string(REPLACE ";" "\\;" WIN_PATH "${WIN_PATH}")
+        set_tests_properties(agent_test PROPERTIES ENVIRONMENT "PATH=${WIN_PATH}")
     endif()
 
 endif()

@@ -208,6 +208,12 @@ if(EPROSIMA_BUILD_TESTS)
         CXX_STANDARD_REQUIRED YES
         )
 
+    target_compile_definitions(micrortps-agent
+        PUBLIC
+            -DBOOST_ASIO_STANDALONE
+            -DASIO_STANDALONE
+        )
+
     # Enable tests
     enable_testing()
     add_subdirectory(test)
