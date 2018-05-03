@@ -16,7 +16,7 @@
 #define _MESSAGE_OUTPUT_H_
 
 #include <cstdint>
-#include <XRCETypes.h>
+#include <agent/XRCETypes.h>
 
 namespace dds { namespace xrce {
 

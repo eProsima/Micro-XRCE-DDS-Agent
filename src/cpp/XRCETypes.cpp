@@ -24,14 +24,13 @@
 namespace { char dummy; }
 #endif
 
-#include "XRCETypes.h"
-
+#include <agent/XRCETypes.h>
 #include <fastcdr/Cdr.h>
-
 #include <fastcdr/exceptions/BadParamException.h>
-using namespace eprosima::fastcdr::exception;
 
 #include <utility>
+
+using namespace eprosima::fastcdr::exception;
 
 dds::xrce::Time_t::Time_t()
 {

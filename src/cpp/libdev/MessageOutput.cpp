@@ -16,9 +16,9 @@
 
 #include <stdio.h>
 
-#include <XRCETypes.h>
-#include <MessageHeader.h>
-#include <SubMessageHeader.h>
+#include <agent/XRCETypes.h>
+#include <agent/MessageHeader.h>
+#include <agent/SubMessageHeader.h>
 
 #ifdef _WIN32
 #define PRIstrsize "0x%08llX"

@@ -18,7 +18,7 @@
  */
 #include <agent/datawriter/DataWriter.h>
 
-#include <XRCETypes.h>
+#include <agent/XRCETypes.h>
 #include <xmlobjects/xmlobjects.h>
 
 #include <fastrtps/Domain.h>

@@ -14,9 +14,9 @@
 
 #include "agent/XRCEFactory.h"
 
-#include "XRCETypes.h"
-#include "MessageHeader.h"
-#include "SubMessageHeader.h"
+#include <agent/XRCETypes.h>
+#include <agent/MessageHeader.h>
+#include <agent/SubMessageHeader.h>
 
 namespace eprosima {
 namespace micrortps {

@@ -53,9 +53,10 @@ public:
     MessageQueue(const MessageQueue& other) = delete;
     MessageQueue& operator=(const MessageQueue& other) = delete;
 
+    void init();
+    void abort();
     Message pop();
     void push(const Message& new_message);
-    void abort();
     bool is_aborted() { return aborted_; }
 
  private:
