@@ -30,22 +30,6 @@
 #include <agent/Optional.h>
 #include <fastcdr/exceptions/BadParamException.h>
 
-#define CLIENTKEY_INVALID {0x00, 0x00, 0x00, 0x00}
-
-#define OBJECTID_INVALID {0x00, 0x00}
-#define OBJECTID_AGENT   {0xFF, 0xFD}
-#define OBJECTID_CLIENT  {0xFF, 0xFE}
-#define OBJECTID_SESSION {0xFF, 0xFF}
-
-#define XRCE_COOKIE {0x58, 0x52, 0x43, 0x45}
-
-#define XRCE_VERSION_MAJOR 0x01
-#define XRCE_VERSION_MINOR 0x00
-#define XRCE_VERSION {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR}
-
-#define XRCE_VENDOR_INVALID1 0x00
-#define XRCE_VENDOR_INVALID2 0x00
-
 namespace eprosima { namespace fastcdr {
 
 class Cdr;
@@ -77,6 +61,22 @@ typedef std::array<uint8_t, 2> ObjectPrefix;
 typedef std::array<uint8_t, 4> XrceCookie;
 typedef std::array<uint8_t, 2> XrceVersion;
 typedef std::array<uint8_t, 2> XrceVendorId;
+
+const ClientKey CLIENTKEY_INVALID = {0x00, 0x00, 0x00, 0x00};
+
+const ObjectId OBJECTID_INVALID   = {0x00, 0x00};
+const ObjectId OBJECTID_AGENT     = {0xFF, 0xFD};
+const ObjectId OBJECTID_CLIENT    = {0xFF, 0xFE};
+const ObjectId OBJECTID_SESSION   = {0xFF, 0xFF};
+
+const XrceCookie XRCE_COOKIE = {0x58, 0x52, 0x43, 0x45};
+
+const uint8_t XRCE_VERSION_MAJOR = 0x01;
+const uint8_t XRCE_VERSION_MINOR = 0x00;
+const XrceVersion XRCE_VERSION = {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR};
+
+const uint8_t XRCE_VENDOR_INVALID1 = 0x00;
+const uint8_t XRCE_VENDOR_INVALID2 = 0x00;
 
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.

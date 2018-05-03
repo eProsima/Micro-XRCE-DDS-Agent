@@ -67,8 +67,8 @@ dds::xrce::DELETE_Payload CommonData::generate_delete_resource_payload(const dds
 dds::xrce::CLIENT_Representation CommonData::generate_client_representation() const
 {
     dds::xrce::CLIENT_Representation client_representation;
-    client_representation.xrce_cookie(XRCE_COOKIE);
-    client_representation.xrce_version(XRCE_VERSION);
+    client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
+    client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id);
     client_representation.client_timestamp();
     client_representation.client_key(client_key);

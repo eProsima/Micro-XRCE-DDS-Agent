@@ -56,7 +56,7 @@ TEST_F(AgentTests, CreateClientBadCookie)
 TEST_F(AgentTests, CreateClientCompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
-    create_data.client_representation().xrce_version({{XRCE_VERSION_MAJOR, 0x20}});
+    create_data.client_representation().xrce_version({{dds::xrce::XRCE_VERSION_MAJOR, 0x20}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
                                                             agent_representation, 0, 0);
@@ -66,7 +66,7 @@ TEST_F(AgentTests, CreateClientCompatibleVersion)
 TEST_F(AgentTests, CreateClientIncompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
-    create_data.client_representation().xrce_version({{0x02, XRCE_VERSION_MINOR}});
+    create_data.client_representation().xrce_version({{0x02, dds::xrce::XRCE_VERSION_MINOR}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = agent_.create_client(create_data.client_representation(),
                                                             agent_representation, 0, 0);

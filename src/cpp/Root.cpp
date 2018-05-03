@@ -76,9 +76,9 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
     dds::xrce::ResultStatus result_status;
     result_status.status(dds::xrce::STATUS_OK);
 
-    if (client_representation.xrce_cookie() == dds::xrce::XrceCookie{XRCE_COOKIE})
+    if (client_representation.xrce_cookie() == dds::xrce::XRCE_COOKIE)
     {
-        if (client_representation.xrce_version()[0] == XRCE_VERSION_MAJOR)
+        if (client_representation.xrce_version()[0] == dds::xrce::XRCE_VERSION_MAJOR)
         {
             std::lock_guard<std::mutex> lock(clientsmtx_);
 
@@ -321,7 +321,7 @@ ProxyClient* Agent::get_client(uint32_t addr)
 
 dds::xrce::ClientKey Agent::get_key(uint32_t addr)
 {
-    dds::xrce::ClientKey key = CLIENTKEY_INVALID;
+    dds::xrce::ClientKey key = dds::xrce::CLIENTKEY_INVALID;
     auto it = addr_to_key_.find(addr);
     if (it != addr_to_key_.end())
     {
