@@ -47,26 +47,18 @@ Agent::Agent() :
     heartbeat_cond_ = false;
 }
 
-void Agent::init(const std::string& device)
+bool Agent::init(const std::string& device)
 {
-    std::cout << "Serial agent initialization..." << std::endl;
-    locator_id_t id = add_serial_locator(device.data(), &locator_);
-    if (id == MICRORTPS_TRANSPORT_ERROR)
-    {
-        std::cout << "Agent::init() -> error" << std::endl;
-    }
     messages_.init();
+    locator_id_t id = add_serial_locator(device.data(), &locator_);
+    return id != MICRORTPS_TRANSPORT_ERROR;
 }
 
-void Agent::init(const uint16_t local_port)
+bool Agent::init(const uint16_t local_port)
 {
-    std::cout << "UDP agent initialization..." << std::endl;
-    locator_id_t id = add_udp_locator_agent(local_port, &locator_);
-    if (id == MICRORTPS_TRANSPORT_ERROR)
-    {
-        std::cout << "Agent::init() -> error" << std::endl;
-    }
     messages_.init();
+    locator_id_t id = add_udp_locator_agent(local_port, &locator_);
+    return id != MICRORTPS_TRANSPORT_ERROR;
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,

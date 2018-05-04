@@ -51,14 +51,14 @@ public:
      *
      * @param  device Name of the device, for example, in Linux one could be "/dev/ttyACM0".
      */
-    void init(const std::string& device);
+    bool init(const std::string& device);
 
     /**
      * @brief Initializes the Agent using UDP communication.
      *
      * @param local_port    The local port.
      */
-    void init(const uint16_t local_port);
+    bool init(const uint16_t local_port);
 
     /**
      * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.

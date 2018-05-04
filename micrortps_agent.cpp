@@ -17,26 +17,36 @@
 
 int main(int argc, char** argv)
 {
-    if(argc > 2)
+    bool initialized = false;
+
+    eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
+    if(strcmp(argv[1], "serial") == 0 && argc == 3)
     {
-        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
-        if(strcmp(argv[1], "serial") == 0)
-        {
-            // "/dev/ttyACM0"
-            micrortps_agent.init(argv[2]);
-        }
-        else if(strcmp(argv[1], "udp") == 0 && argc == 3)
-        {
-            micrortps_agent.init((uint16_t)atoi(argv[2]));
-        }
+        std::cout << "Serial agent initialization... ";
+        initialized = micrortps_agent.init(argv[2]);
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+    else if(strcmp(argv[1], "udp") == 0 && argc == 3)
+    {
+        std::cout << "UDP agent initialization... ";
+        initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+    else
+    {
+        std::cout << "Error: Invalid arguments." << std::endl;
+    }
+
+    if(initialized)
+    {
         micrortps_agent.run();
     }
     else
     {
         std::cout << "Help: program <command>" << std::endl;
         std::cout << "List of commands:" << std::endl;
-        std::cout << "    serial device" << std::endl;
-        std::cout << "    udp local_port" << std::endl;
+        std::cout << "    serial <device>" << std::endl;
+        std::cout << "    udp <local_port>" << std::endl;
     }
     return 0;
 }
