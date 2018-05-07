@@ -21,6 +21,9 @@ else()
     project(micrortps-agent_tests LANGUAGES C CXX)
 endif()
 
+add_subdirectory(integration/cross_serialization)
+add_subdirectory(integration/xrce_serialization)
+
 include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
 check_gtest()
 if(GTEST_FOUND)
