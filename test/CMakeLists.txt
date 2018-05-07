@@ -13,6 +13,20 @@
 # limitations under the License.
 
 include(${PROJECT_SOURCE_DIR}/test/cmake/dev/gtest.cmake)
+
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+
+if(CMAKE_VERSION VERSION_LESS 3.0)
+    project(micrortps-agent_tests C CXX)
+else()
+    cmake_policy(SET CMP0048 NEW)
+    project(micrortps-agent_tests LANGUAGES C CXX)
+endif()
+
+add_subdirectory(integration/interaction)
+add_subdirectory(integration/cross_serialization)
+add_subdirectory(integration/xrce_serialization)
+
 check_gtest()
 if(GTEST_FOUND)
     include(CTest)
