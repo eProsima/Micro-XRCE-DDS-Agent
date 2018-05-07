@@ -18,7 +18,7 @@
 
 if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
 
-    project(CrossSerializationInTestAgent CXX)
+    project(cross-serialization-intest-agent CXX)
     set(SRCS AgentSerialization.cpp)
     add_library(${PROJECT_NAME} ${SRCS})
 
