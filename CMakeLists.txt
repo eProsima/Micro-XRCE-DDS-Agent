@@ -35,33 +35,23 @@ endif()
 # Product information
 ###############################################################################
 if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(agent C CXX)
+    project(micrortps-agent C CXX)
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
     set(PROJECT_VERSION_PATCH 0)
     set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 else()
     cmake_policy(SET CMP0048 NEW)
-    project(agent VERSION "1.0.0" LANGUAGES C CXX)
+    project(micrortps-agent VERSION "1.0.0" LANGUAGES C CXX)
 endif()
-
-# Set product name
-if(DEFINED PRODUCT_NAME)
-    set(PRODUCT_NAME ${PRODUCT_NAME} CACHE STRING "Choose the product name in which this project is included")
-else()
-    set(PRODUCT_NAME micrortps CACHE STRING "Choose the product name in which this project is included")
-endif()
-
-message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 ###############################################################################
 # eProsima build options
 ###############################################################################
-option(EPROSIMA_BUILD_EXAMPLES "Compile examples" OFF)
-option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
 option(EPROSIMA_BUILD "Activate internal building" OFF)
-option(THIRDPARTY "Activate the build of thirdparties" ON)
-option(VERBOSE "Use verbose output" ON)
+option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
+option(THIRDPARTY "Activate the build of thirdparties" OFF)
+option(VERBOSE "Use verbose output" OFF)
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
@@ -81,10 +71,10 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
-find_eprosima_package(fastcdr REQUIRED)
-find_eprosima_package(fastrtps REQUIRED)
-find_eprosima_thirdparty(Asio asio)
-find_eprosima_package(micrortps_transport REQUIRED)
+eprosima_find_package(fastcdr REQUIRED)
+eprosima_find_package(fastrtps REQUIRED)
+eprosima_find_thirdparty(Asio asio)
+eprosima_find_package(micrortps_transport REQUIRED)
 
 ###############################################################################
 # Targets
@@ -116,9 +106,9 @@ set(SRCS
     )
 
 # Executable
-add_executable(${PROJECT_NAME} micrortps_agent.cpp ${SRCS})
-target_link_libraries(${PROJECT_NAME} PRIVATE transport fastrtps fastcdr)
-target_include_directories(${PROJECT_NAME}
+add_executable(agent micrortps_agent.cpp ${SRCS})
+target_link_libraries(agent PRIVATE micrortps-transport fastrtps fastcdr)
+target_include_directories(agent
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -126,6 +116,11 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         ${ASIO_INCLUDE_DIR}
+    )
+
+# XML default profile used to launch exec in the building folder
+file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+    DESTINATION ${PROJECT_BINARY_DIR}
     )
 
 ###############################################################################
@@ -149,13 +144,13 @@ endif()
 ###############################################################################
 
 # Set std
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(agent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
 
 # Definition
-target_compile_definitions(${PROJECT_NAME}
+target_compile_definitions(agent
     PRIVATE
         -DBOOST_ASIO_STANDALONE
         -DASIO_STANDALONE
@@ -164,25 +159,9 @@ target_compile_definitions(${PROJECT_NAME}
 
 # Warnings
 if(MSVC OR MSVC_IDE)
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE
-            /W4
-            /wd4700
-            /wd4996
-            /wd4820
-            /wd4255
-            /wd4668
-        )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")
 else()
-    target_compile_options(${PROJECT_NAME}
-        PRIVATE
-            -pedantic
-            -fstrict-aliasing
-            -Wall
-            -Wextra
-            -Wcast-align
-            -Wshadow
-        )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align -Wshadow")
 endif()
 
 ###############################################################################
@@ -192,7 +171,7 @@ if(EPROSIMA_BUILD_TESTS)
 
     # Create library for testing purposes
     add_library(micrortps-agent ${SRCS})
-    target_link_libraries(micrortps-agent PUBLIC transport fastrtps fastcdr)
+    target_link_libraries(micrortps-agent PUBLIC micrortps-transport fastrtps fastcdr)
     target_include_directories(micrortps-agent
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -222,25 +201,24 @@ endif()
 ###############################################################################
 # Packaging
 ###############################################################################
-file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
-    DESTINATION ${PROJECT_BINARY_DIR}
-    )
 
-install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}Targets
+# Install agent exec
+install(TARGETS agent
+    EXPORT agentTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
     COMPONENT libraries
     )
 
-export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Targets.cmake)
+# Install default profile XML
+install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+    DESTINATION ${BIN_INSTALL_DIR}
+    )
 
-install(EXPORT ${PROJECT_NAME}Targets
+# Export agent exec
+install(EXPORT agentTargets
     DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
     COMPONENT cmake
     )
 
-install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
-    DESTINATION ${BIN_INSTALL_DIR}
-    )

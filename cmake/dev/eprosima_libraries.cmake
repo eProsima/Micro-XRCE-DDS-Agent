@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-macro(find_eprosima_package package)
+macro(eprosima_find_package package)
+
     if(NOT ${package}_FOUND AND NOT (EPROSIMA_INSTALLER AND (MSVC OR MSVC_IDE)))
 
         option(THIRDPARTY_${package} "Activate the use of internal thirdparty ${package}" OFF)
@@ -67,7 +68,7 @@ macro(find_eprosima_package package)
     endif()
 endmacro()
 
-macro(find_eprosima_thirdparty package thirdparty_name)
+macro(eprosima_find_thirdparty package thirdparty_name)
     if(NOT (EPROSIMA_INSTALLER AND (MSVC OR MSVC_IDE)))
 
         option(THIRDPARTY_${package} "Activate the use of internal thirdparty ${package}" OFF)
@@ -92,7 +93,7 @@ macro(find_eprosima_thirdparty package thirdparty_name)
     endif()
 endmacro()
 
-macro(install_eprosima_libraries)
+macro(eprosima_install_libraries)
     if((MSVC OR MSVC_IDE) AND THIRDPARTY AND NOT MINION)
         if(EPROSIMA_INSTALLER)
             # Install includes. Take from x64Win64VS2015

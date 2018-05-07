@@ -75,25 +75,12 @@ macro(check_gmock)
 endmacro()
 
 macro(add_gtest test)
-    # Separate arguments
-    set(GTEST_SOURCE_FILES "")
-    set(GTEST_ENVIRONMENTS "")
-    set(NEXT_ENV FALSE)
-    foreach(arg ${ARGN})
-        if(NOT NEXT_ENV)
-            if("${arg}" STREQUAL "ENVIRONMENT")
-                set(NEXT_ENV TRUE)
-            else()
-                set(GTEST_SOURCE_FILES ${GTEST_SOURCE_FILES} ${arg})
-            endif()
-        elseif(NEXT_ENV)
-            set(GTEST_ENVIRONMENTS ${GTEST_ENVIRONMENTS} ${arg})
-            set(NEXT_ENV FALSE)
-        endif()
-    endforeach()
+    # Parse arguments
+    set(multiValueArgs SOURCES ENVIRONMENTS DEPENDENCIES)
+    cmake_parse_arguments(GTEST "" "" "${multiValueArgs}" ${ARGN})
 
     if(GTEST_INDIVIDUAL)
-        foreach(GTEST_SOURCE_FILE ${GTEST_SOURCE_FILES})
+        foreach(GTEST_SOURCE_FILE ${GTEST_SOURCES})
             file(STRINGS ${GTEST_SOURCE_FILE} GTEST_NAMES REGEX ^TEST)
             foreach(GTEST_NAME ${GTEST_NAMES})
                 string(REGEX REPLACE ["\) \(,"] ";" GTEST_NAME ${GTEST_NAME})
@@ -102,12 +89,17 @@ macro(add_gtest test)
                 add_test(NAME ${GTEST_GROUP_NAME}.${GTEST_NAME}
                     COMMAND ${test}
                     --gtest_filter=${GTEST_GROUP_NAME}.${GTEST_NAME})
+
                 # Add environment
                 if(WIN32)
-                    string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-                    set_tests_properties(${GTEST_GROUP_NAME}.${GTEST_NAME} PROPERTIES ENVIRONMENT
-                        "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
+                    set(WIN_PATH "$ENV{PATH}")
+                    foreach(D ${GTEST_DEPENDENCIES})
+                        set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
+                    endforeach()
+                    string(REPLACE ";" "\\;" WIN_PATH "${WIN_PATH}")
+                    set_tests_properties(${test} PROPERTIES ENVIRONMENT "PATH=${WIN_PATH}")
                 endif()
+
                 foreach(property ${GTEST_ENVIRONMENTS})
                     set_property(TEST ${GTEST_GROUP_NAME}.${GTEST_NAME} APPEND PROPERTY ENVIRONMENT "${property}")
                 endforeach()
@@ -115,12 +107,16 @@ macro(add_gtest test)
         endforeach()
     else()
         add_test(NAME ${test} COMMAND ${test})
+
         # Add environment
         if(WIN32)
-            string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
-            set_tests_properties(${test} PROPERTIES ENVIRONMENT
-                "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
+            foreach(D ${GTEST_DEPENDENCIES})
+                set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
+            endforeach()
+            string(REPLACE ";" "\\;" WIN_PATH "${WIN_PATH}")
+            set_tests_properties(${test} PROPERTIES ENVIRONMENT "PATH=${WIN_PATH}")
         endif()
+
         foreach(property ${GTEST_ENVIRONMENTS})
             set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "${property}")
         endforeach()
@@ -155,6 +151,12 @@ macro(add_blackbox_gtest test memorymode)
                 add_test(NAME ${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME}
                     COMMAND ${test}
                     --gtest_filter=${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME})
+                # Add environment
+                if(WIN32)
+                    string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
+                    set_tests_properties(${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME} PROPERTIES ENVIRONMENT
+                        "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
+                endif()
                 foreach(property ${GTEST_ENVIRONMENTS})
                     set_property(TEST ${GTEST_GROUP_NAME}_${memorymode}.${GTEST_NAME} APPEND PROPERTY ENVIRONMENT "${property}")
                 endforeach()
@@ -162,6 +164,12 @@ macro(add_blackbox_gtest test memorymode)
         endforeach()
     else()
         add_test(NAME ${test} COMMAND ${test})
+        # Add environment
+        if(WIN32)
+            string(REPLACE ";" "\\;" WIN_PATH "$ENV{PATH}")
+            set_tests_properties(${test} PROPERTIES ENVIRONMENT
+                "PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>\\;$<TARGET_FILE_DIR:fastcdr>\\;${WIN_PATH}")
+        endif()
         foreach(property ${GTEST_ENVIRONMENTS})
             set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "${property}")
         endforeach()
