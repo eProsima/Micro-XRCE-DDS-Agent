@@ -12,7 +12,7 @@ namespace eprosima { namespace micrortps {
 class AgentT
 {
 public:
-    AgentT();
+    AgentT(uint16_t port);
 
     void launch();
     void stop();

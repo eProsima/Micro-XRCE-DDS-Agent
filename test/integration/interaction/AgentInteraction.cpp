@@ -6,9 +6,9 @@
 
 using namespace eprosima::micrortps;
 
-AgentT::AgentT()
+AgentT::AgentT(uint16_t port)
     : agent_(&root()),
-      port_(2019)
+      port_(port)
 {
 }
 
