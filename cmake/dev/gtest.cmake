@@ -110,6 +110,7 @@ macro(add_gtest test)
 
         # Add environment
         if(WIN32)
+            set(WIN_PATH "$ENV{PATH}")
             foreach(D ${GTEST_DEPENDENCIES})
                 set(WIN_PATH "$<TARGET_FILE_DIR:${D}>;${WIN_PATH}")
             endforeach()

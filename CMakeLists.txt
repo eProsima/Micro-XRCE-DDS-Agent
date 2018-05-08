@@ -35,14 +35,14 @@ endif()
 # Product information
 ###############################################################################
 if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(micrortps-agent C CXX)
+    project(micrortps_agent C CXX)
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
     set(PROJECT_VERSION_PATCH 0)
     set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 else()
     cmake_policy(SET CMP0048 NEW)
-    project(micrortps-agent VERSION "1.0.0" LANGUAGES C CXX)
+    project(micrortps_agent VERSION "1.0.0" LANGUAGES C CXX)
 endif()
 
 ###############################################################################
@@ -107,7 +107,7 @@ set(SRCS
 
 # Executable
 add_executable(agent micrortps_agent.cpp ${SRCS})
-target_link_libraries(agent PRIVATE micrortps-transport fastrtps fastcdr)
+target_link_libraries(agent PRIVATE micrortps_transport fastrtps fastcdr)
 target_include_directories(agent
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -163,7 +163,7 @@ if(MSVC OR MSVC_IDE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")
 else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align -Wshadow")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align -Wshadow")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align")
 endif()
 
 ###############################################################################
@@ -172,9 +172,9 @@ endif()
 if(EPROSIMA_BUILD_TESTS)
 
     # Create library for testing purposes
-    add_library(micrortps-agent ${SRCS})
-    target_link_libraries(micrortps-agent PUBLIC micrortps-transport fastrtps fastcdr)
-    target_include_directories(micrortps-agent
+    add_library(micrortps_agent_static STATIC ${SRCS})
+    target_link_libraries(micrortps_agent_static PUBLIC micrortps_transport fastrtps fastcdr)
+    target_include_directories(micrortps_agent_static
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
             $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -184,12 +184,12 @@ if(EPROSIMA_BUILD_TESTS)
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         )
 
-    set_target_properties(micrortps-agent PROPERTIES
+    set_target_properties(micrortps_agent_static PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         )
 
-    target_compile_definitions(micrortps-agent
+    target_compile_definitions(micrortps_agent_static
         PUBLIC
             -DBOOST_ASIO_STANDALONE
             -DASIO_STANDALONE

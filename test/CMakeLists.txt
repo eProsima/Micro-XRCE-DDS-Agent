@@ -39,10 +39,10 @@ if(GTEST_FOUND)
         SOURCES
             ${SRCS}
         DEPENDENCIES
-            micrortps-agent
+            micrortps_agent_static
         )
     target_include_directories(util_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(util_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(util_test PRIVATE micrortps_agent_static ${GTEST_BOTH_LIBRARIES})
     set_target_properties(util_test PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
@@ -58,11 +58,11 @@ if(GTEST_FOUND)
         SOURCES
             ${SRCS}
         DEPENDENCIES
-            micrortps-agent
-            fastrtps
+            micrortps_agent_static
+            fastcdr
         )
     target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(xrce_test PRIVATE micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(xrce_test PRIVATE micrortps_agent_static ${GTEST_BOTH_LIBRARIES})
     set_target_properties(xrce_test PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
@@ -83,13 +83,13 @@ if(GTEST_FOUND)
         SOURCES
             ${SRCS}
         DEPENDENCIES
-            micrortps-agent
-            micrortps-transport
+            micrortps_agent_static
+            micrortps_transport
             fastrtps
             fastcdr
         )
     target_include_directories(agent_test PRIVATE ${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(agent_test micrortps-agent ${GTEST_BOTH_LIBRARIES})
+    target_link_libraries(agent_test micrortps_agent_static ${GTEST_BOTH_LIBRARIES})
     set_target_properties(agent_test PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES

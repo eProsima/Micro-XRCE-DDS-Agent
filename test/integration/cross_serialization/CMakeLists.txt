@@ -20,10 +20,10 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
 
     project(cross-serialization-intest-agent CXX)
     set(SRCS AgentSerialization.cpp)
-    add_library(${PROJECT_NAME} ${SRCS})
+    add_library(${PROJECT_NAME} STATIC ${SRCS})
 
-    target_link_libraries(${PROJECT_NAME} micrortps-agent)
-    get_Target_property(MICRORTPS_AGENT_DIR micrortps-agent SOURCE_DIR)
+    target_link_libraries(${PROJECT_NAME} micrortps_agent_static)
+    get_target_property(MICRORTPS_AGENT_DIR micrortps_agent_static SOURCE_DIR)
     target_include_directories(${PROJECT_NAME}
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
