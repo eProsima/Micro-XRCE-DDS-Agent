@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${PROJECT_SOURCE_DIR}/test/cmake/dev/gtest.cmake)
-
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 if(CMAKE_VERSION VERSION_LESS 3.0)
