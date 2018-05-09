@@ -20,13 +20,13 @@ int main(int argc, char** argv)
     bool initialized = false;
 
     eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
-    if(strcmp(argv[1], "serial") == 0 && argc == 3)
+    if(argc == 3 && strcmp(argv[1], "serial") == 0)
     {
         std::cout << "Serial agent initialization... ";
         initialized = micrortps_agent.init(argv[2]);
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if(strcmp(argv[1], "udp") == 0 && argc == 3)
+    else if(argc ==3 && strcmp(argv[1], "udp") == 0)
     {
         std::cout << "UDP agent initialization... ";
         initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
