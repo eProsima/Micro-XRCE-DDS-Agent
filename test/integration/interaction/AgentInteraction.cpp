@@ -16,7 +16,7 @@ void AgentT::launch()
 {
     agent_->init(port_);
     thread_ = std::thread(&Agent::run, agent_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 void AgentT::stop()
