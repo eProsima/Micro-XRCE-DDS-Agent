@@ -156,7 +156,6 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     std::mutex m_mutex;
     std::condition_variable m_cond_var;
     bool m_running;
-    size_t unread_msgs_;
 
     ReaderListener* mp_reader_listener;
     std::string m_rtps_subscriber_prof;

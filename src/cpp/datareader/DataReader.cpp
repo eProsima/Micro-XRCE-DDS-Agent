@@ -38,7 +38,6 @@ DataReader::DataReader(const dds::xrce::ObjectId& id,
                        const std::string& profile_name)
     : XRCEObject(id),
       m_running(false),
-      unread_msgs_(0),
       mp_reader_listener(read_list),
       m_rtps_subscriber_prof(profile_name),
       mp_rtps_participant(rtps_participant),
@@ -174,7 +173,6 @@ int DataReader::start_read(const ReadTaskInfo& read_info)
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_running = true;
-    unread_msgs_ = 0;
     lock.unlock();
 
     if (read_info.max_elapsed_time > 0)
@@ -219,7 +217,7 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
         std::unique_lock<std::mutex> lock(m_mutex);
         if (m_running && (message_count < read_info.max_samples))
         {
-            if (unread_msgs_ != 0)
+            if (mp_rtps_subscriber->getUnreadCount() != 0)
             {
                 lock.unlock();
                 /* Read operation. */
@@ -277,7 +275,6 @@ void DataReader::on_max_timeout(const asio::error_code& error)
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    unread_msgs_ = mp_rtps_subscriber->getUnreadCount();
     m_cond_var.notify_one();
 }
 
