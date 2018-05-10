@@ -106,9 +106,9 @@ set(SRCS
     )
 
 # Executable
-add_executable(agent micrortps_agent.cpp ${SRCS})
-target_link_libraries(agent PRIVATE micrortps_transport fastrtps fastcdr)
-target_include_directories(agent
+add_executable(MicroRTPSAgent micrortps_agent.cpp ${SRCS})
+target_link_libraries(MicroRTPSAgent PRIVATE micrortps_transport fastrtps fastcdr)
+target_include_directories(MicroRTPSAgent
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -144,13 +144,13 @@ endif()
 ###############################################################################
 
 # Set std
-set_target_properties(agent PROPERTIES
+set_target_properties(MicroRTPSAgent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
 
 # Definition
-target_compile_definitions(agent
+target_compile_definitions(MicroRTPSAgent
     PRIVATE
         -DBOOST_ASIO_STANDALONE
         -DASIO_STANDALONE
@@ -206,8 +206,8 @@ endif()
 ###############################################################################
 
 # Install agent exec
-install(TARGETS agent
-    EXPORT agentTargets
+install(TARGETS MicroRTPSAgent
+    EXPORT MicroRTPSAgentTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
@@ -220,7 +220,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
     )
 
 # Export agent exec
-install(EXPORT agentTargets
+install(EXPORT MicroRTPSAgentTargets
     DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
     COMPONENT cmake
     )
