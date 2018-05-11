@@ -1,6 +1,6 @@
 [submodule "thirdparty/micrortps_transport"]
     path = thirdparty/micrortps_transport
-    url = git@github.com:eProsima/micro-RTPS-transport.git
+    url = https://github.com/eProsima/micro-RTPS-transport.git
 [submodule "thirdparty/asio"]
     path = thirdparty/asio
     url = https://github.com/chriskohlhoff/asio.git
