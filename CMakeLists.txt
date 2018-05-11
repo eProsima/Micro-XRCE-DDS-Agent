@@ -71,8 +71,8 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
-eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_package(fastrtps REQUIRED)
+find_package(fastcdr REQUIRED)
+find_package(fastrtps REQUIRED)
 eprosima_find_thirdparty(Asio asio)
 eprosima_find_package(micrortps_transport REQUIRED)
 
