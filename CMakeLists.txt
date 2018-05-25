@@ -61,7 +61,7 @@ endif()
 ###############################################################################
 # Check MSVC architecture
 ###############################################################################
-include(${PROJECT_SOURCE_DIR}/cmake/dev/check_configuration.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/common/check_configuration.cmake)
 if(MSVC OR MSVC_IDE)
     check_msvc_arch()
 endif()
@@ -70,9 +70,9 @@ endif()
 # Load external eProsima projects.
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
-include(${PROJECT_SOURCE_DIR}/cmake/dev/eprosima_libraries.cmake)
-find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
+include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
+eprosima_find_package(fastcdr REQUIRED)
+eprosima_find_package(fastrtps REQUIRED)
 eprosima_find_thirdparty(Asio asio)
 eprosima_find_package(micrortps_transport REQUIRED)
 
@@ -196,7 +196,7 @@ if(EPROSIMA_BUILD_TESTS)
         )
 
     # Enable tests
-    include(${PROJECT_SOURCE_DIR}/cmake/dev/gtest.cmake)
+    include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
     enable_testing()
     add_subdirectory(test)
 endif()
