@@ -4,7 +4,7 @@ namespace eprosima { namespace micrortps {
 
 void BestEffortStream::update(uint16_t seq_num)
 {
-    if (seq_num > last_handled_)
+    if (seq_num_is_greater(seq_num, last_handled_))
     {
         last_handled_ = seq_num;
     }
@@ -33,10 +33,11 @@ ReliableInputStream& ReliableInputStream::operator=(ReliableInputStream&& x)
 void ReliableInputStream::insert_message(uint16_t index, const char* buf, size_t len)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    if ((index > last_handled_) && (index <= last_handled_ + STREAM_HISTORY_DEPTH))
+    if ((seq_num_is_greater(index, last_handled_) && seq_num_is_less(index, last_handled_ + STREAM_HISTORY_DEPTH))
+            || index == last_handled_ + STREAM_HISTORY_DEPTH)
     {
         /* Update last_announced. */
-        if (index > last_announced_)
+        if (seq_num_is_greater(index, last_announced_))
         {
             last_announced_ = index;
         }

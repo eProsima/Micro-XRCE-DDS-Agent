@@ -664,9 +664,8 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
         /* Status message header. */
         dds::xrce::MessageHeader status_header;
         status_header.session_id(header.session_id());
-        uint8_t stream_id = 0x80;
-        status_header.stream_id(stream_id);
-        uint16_t seq_num = client.stream_manager().next_ouput_message(stream_id);
+        status_header.stream_id(header.stream_id());
+        uint16_t seq_num = client.stream_manager().next_ouput_message(header.stream_id());
         status_header.sequence_nr(seq_num);
         status_header.client_key(header.client_key());
 
@@ -698,7 +697,7 @@ void Agent::process_read_data(const dds::xrce::MessageHeader& header,
         message.set_port(client.get_port());
 
         /* Store message. */
-        client.stream_manager().store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
+        client.stream_manager().store_output_message(header.stream_id(), message.get_buffer().data(), message.get_real_size());
 
         /* Send status. */
         add_reply(message);
