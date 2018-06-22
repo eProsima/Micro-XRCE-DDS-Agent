@@ -37,6 +37,12 @@ void XRCEFactory::status(const dds::xrce::STATUS_Payload& payload)
     serializer_.serialize(payload);
 }
 
+void XRCEFactory::status_agent(const dds::xrce::STATUS_AGENT_Payload& payload)
+{
+    submessage_header(dds::xrce::STATUS_AGENT, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    serializer_.serialize(payload);
+}
+
 void XRCEFactory::acknack(const dds::xrce::ACKNACK_Payload& payload)
 {
     submessage_header(dds::xrce::ACKNACK, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));

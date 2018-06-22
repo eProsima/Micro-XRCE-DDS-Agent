@@ -44,6 +44,7 @@ template <class T> bool Serializer::serialize(const T& data)
 template bool Serializer::serialize(const dds::xrce::MessageHeader& data);
 template bool Serializer::serialize(const dds::xrce::SubmessageHeader& data);
 template bool Serializer::serialize(const dds::xrce::STATUS_Payload& data);
+template bool Serializer::serialize(const dds::xrce::STATUS_AGENT_Payload& data);
 template bool Serializer::serialize(const dds::xrce::DATA_Payload_Data& data);
 template bool Serializer::serialize(const dds::xrce::DATA_Payload_DataSeq& data);
 template bool Serializer::serialize(const dds::xrce::DATA_Payload_Sample& data);

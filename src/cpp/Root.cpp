@@ -57,12 +57,14 @@ bool Agent::init(const std::string& device)
 bool Agent::init(const uint16_t local_port)
 {
     messages_.init();
-    locator_id_t id = add_udp_locator_agent(local_port, &locator_);
-    return id != MICRORTPS_TRANSPORT_ERROR;
+    udp_server_ = UDPServer::create(local_port);
+    return (udp_server_ != nullptr);
+//    locator_id_t id = add_udp_locator_agent(local_port, &locator_);
+//    return id != MICRORTPS_TRANSPORT_ERROR;
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& /*agent_representation*/,
+                                             dds::xrce::AGENT_Representation& agent_representation,
                                              uint32_t addr, uint16_t port)
 {
     dds::xrce::ResultStatus result_status;
@@ -142,6 +144,16 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
     {
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
     }
+
+    // TODO (julian): measure time.
+    dds::xrce::Time_t timestamp;
+    timestamp.seconds(0);
+    timestamp.nanoseconds(0);
+    agent_representation.agent_timestamp(timestamp);
+    agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
+    agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
+    agent_representation.xrce_vendor_id(dds::xrce::XrceVendorId{EPROSIMA_VENDOR_ID});
+
     return result_status;
 }
 
@@ -167,17 +179,26 @@ dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_
 void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
-    int ret = 0;
+//    int ret = 0;
     running_ = true;
+    uint32_t addr = 0;
+    uint16_t port = 0;
+    uint8_t* buf = nullptr;
+    size_t len = 0;
     while(running_)
     {
-        if (0 < (ret = receive_data(static_cast<uint8_t*>(input_buffer_), buffer_len_, locator_.locator_id)))
+        if (udp_server_->recv_data(&addr, &port, &buf, &len, -1))
         {
-            uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
-            uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
-            XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
+            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
             handle_input_message(input_message, addr, port);
         }
+//        if (0 < (ret = receive_data(static_cast<uint8_t*>(input_buffer_), buffer_len_, locator_.locator_id)))
+//        {
+//            uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
+//            uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
+//            XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
+//            handle_input_message(input_message, addr, port);
+//        }
 #ifdef WIN32
         Sleep(10);
 #else
@@ -232,14 +253,18 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!messages_.is_aborted() && message.get_real_size() != 0)
         {
-            int ret = 0;
-            locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
-            locator_.channel._.udp.remote_addr.sin_port = message.get_port();
-            if (0 < (ret = send_data(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(),
-                     locator_.locator_id)))
-            {
-//                printf("%d bytes response sent\n", ret);
-            }
+            udp_server_->send_data(message.get_addr(),
+                                   message.get_port(),
+                                   reinterpret_cast<uint8_t*>(message.get_buffer().data()),
+                                   message.get_real_size());
+//            int ret = 0;
+//            locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
+//            locator_.channel._.udp.remote_addr.sin_port = message.get_port();
+//            if (0 < (ret = send_data(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(),
+//                     locator_.locator_id)))
+//            {
+////                printf("%d bytes response sent\n", ret);
+//            }
         }
     }
 }
@@ -473,17 +498,18 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header,
     dds::xrce::CREATE_CLIENT_Payload client_payload;
     if (deserializer.deserialize(client_payload))
     {
-        dds::xrce::STATUS_Payload status_payload;
+        dds::xrce::STATUS_AGENT_Payload status_payload;
         status_payload.related_request().request_id(client_payload.request_id());
         status_payload.related_request().object_id(client_payload.object_id());
         dds::xrce::AGENT_Representation agent_representation;
         status_payload.result(create_client(client_payload.client_representation(), agent_representation, addr, port));
+        status_payload.agent_info(agent_representation);
 
-        /* Send status message. */
+        /* Send STATUS_AGENT submessage. */
         Message status_message{};
         XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
         message_creator.header(header);
-        message_creator.status(status_payload);
+        message_creator.status_agent(status_payload);
         status_message.set_real_size(message_creator.get_total_size());
         status_message.set_addr(addr);
         status_message.set_port(port);

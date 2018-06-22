@@ -1101,12 +1101,11 @@ size_t dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(size_t current_a
     size_t initial_alignment = current_alignment;
             
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+    /* TODO (Julian): add optional support for getMaxCrdSerializedSize */
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -1119,6 +1118,13 @@ size_t dds::xrce::AGENT_Representation::getCdrSerializedSize(size_t current_alig
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += m_agent_timestamp.getCdrSerializedSize(current_alignment);
+    if (m_properties)
+    {
+        for (size_t a = 0; a < (*m_properties).size(); ++a)
+        {
+            current_alignment += (*m_properties).at(a).getCdrSerializedSize(current_alignment);
+        }
+    }
 
     return current_alignment - initial_alignment;
 }
@@ -1129,6 +1135,11 @@ void dds::xrce::AGENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) co
     scdr << m_xrce_version;
     scdr << m_xrce_vendor_id;
     scdr << m_agent_timestamp;
+    scdr << bool(m_properties);
+    if (m_properties)
+    {
+        scdr << (*m_properties);
+    }
 }
 
 void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -1137,6 +1148,14 @@ void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_xrce_version;
     dcdr >> m_xrce_vendor_id;
     dcdr >> m_agent_timestamp;
+    bool m_properties_flag;
+    dcdr >> m_properties_flag;
+    if (m_properties_flag)
+    {
+        PropertySeq temp_properties;
+        dcdr >> temp_properties;
+        m_properties = temp_properties;
+    }
 }
 
 dds::xrce::OBJK_Representation3Formats::OBJK_Representation3Formats()

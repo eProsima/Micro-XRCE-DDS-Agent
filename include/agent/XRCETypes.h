@@ -1345,7 +1345,7 @@ public:
     }
 
     /*!
-     * @brief This function sets a value in member session_id
+     * @brief This function sets a value in member properties
      * @param _properties New value for member properties
      */
     inline void properties(eprosima::Optional<PropertySeq> _properties)
@@ -1592,7 +1592,34 @@ public:
     {
         return m_agent_timestamp;
     }
-    
+
+    /*!
+     * @brief This function sets a value in member properties
+     * @param _properties New value for member properties
+     */
+    inline void properties(eprosima::Optional<PropertySeq> _properties)
+    {
+        m_properties = _properties;
+    }
+
+    /*!
+     * @brief This function returns the value of member properties
+     * @return Value of member properties
+     */
+    inline eprosima::Optional<PropertySeq> properties() const
+    {
+        return m_properties;
+    }
+
+    /*!
+     * @brief This function returns a reference to member properties
+     * @return Reference to member properties
+     */
+    inline eprosima::Optional<PropertySeq>& properties()
+    {
+        return m_properties;
+    }
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -1627,6 +1654,7 @@ private:
     XrceVersion m_xrce_version;
     XrceVendorId m_xrce_vendor_id;
     Time_t m_agent_timestamp;
+    eprosima::Optional<PropertySeq> m_properties;
 };
 
 typedef uint8_t RepresentationFormat;
@@ -10191,19 +10219,20 @@ private:
  */
 enum SubmessageId : uint8_t
 {
-    CREATE_CLIENT	= 0,
-    CREATE			= 1,
-    GET_INFO		= 2,
-    DELETE_ID		= 3,
-    STATUS			= 4,
-    INFO			= 5,
-    WRITE_DATA		= 6,
-    READ_DATA		= 7,
-    DATA			= 8,
-    ACKNACK			= 9,
-    HEARTBEAT		= 10,
-    FRAGMENT		= 12,
-    FRAGMENT_END	= 13
+    CREATE_CLIENT   = 0,
+    CREATE          = 1,
+    GET_INFO        = 2,
+    DELETE_ID       = 3,
+    STATUS_AGENT    = 4,
+    STATUS          = 5,
+    INFO            = 6,
+    WRITE_DATA      = 7,
+    READ_DATA       = 8,
+    DATA            = 9,
+    ACKNACK         = 10,
+    HEARTBEAT       = 11,
+    RESET           = 12,
+    FRAGMENT        = 13
 };
 
 } } // namespace 

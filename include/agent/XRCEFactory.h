@@ -30,7 +30,8 @@ class XRCEFactory
 public:
     XRCEFactory(char* buffer, size_t max_size) : serializer_(buffer, max_size) {}
     void header(const dds::xrce::MessageHeader& header);
-    void status(const dds::xrce::STATUS_Payload& result);
+    void status(const dds::xrce::STATUS_Payload& payload);
+    void status_agent(const dds::xrce::STATUS_AGENT_Payload& payload);
     void acknack(const dds::xrce::ACKNACK_Payload& payload);
     void heartbeat(const dds::xrce::HEARTBEAT_Payload& payload);
 

@@ -22,12 +22,14 @@
 #include <agent/SubMessageHeader.h>
 
 #include <micrortps/transport/micrortps_transport.h>
+#include <agent/transport/UDPServer.hpp>
 
 #include <thread>
 #include <memory>
 #include <map>
 
 #define HEARTBEAT_PERIOD 200
+#define EPROSIMA_VENDOR_ID {0x01, 0x0F}
 
 namespace eprosima{
 namespace micrortps{
@@ -71,7 +73,7 @@ public:
      * @return Indicates whether the operation suceeded and the current status of the XRCE.
      */
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                          dds::xrce::AGENT_Representation& agent_info,
+                                          dds::xrce::AGENT_Representation& agent_representation,
                                           uint32_t addr, uint16_t port);
 
     /**
@@ -154,7 +156,7 @@ private:
                            Serializer& deserializer, ProxyClient& client);
 
 private:
-
+    UDPServer* udp_server_;
     micrortps_locator_t locator_;
     static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;
     uint8_t input_buffer_[buffer_len_];
