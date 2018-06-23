@@ -15,6 +15,7 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_UARTSERVER_HPP_
 #define _MICRORTPS_AGENT_TRANSPORT_UARTSERVER_HPP_
 
+#include <agent/transport/SerialLayer.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
@@ -25,21 +26,25 @@ namespace micrortps {
 class UARTServer
 {
 public:
-    static UARTServer* create(uint16_t port);
+    static UARTServer* create(int fd, uint8_t addr);
 
-    bool send_data(uint32_t addr, uint16_t port, const uint8_t* buf, size_t len);
-    bool recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout);
+    bool send_msg(const uint8_t* buf, size_t len, uint8_t addr);
+    bool recv_msg(uint8_t** buf, size_t* len, uint8_t* addr, int timeout);
     int get_error();
 
 private:
-    UARTServer() : socket_fd_(0), poll_fd_{}, buffer_{0} {}
+    UARTServer() : fd_(0), poll_fd_{}, buffer_{0}, serial_io_{}, errno_(0) {}
     ~UARTServer();
-    int init(uint16_t port);
+    int init(int fd, uint8_t addr);
+    static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
-    int socket_fd_;
+    int fd_;
+    uint8_t addr_;
     struct pollfd poll_fd_;
-    uint8_t buffer_[1024];
+    uint8_t buffer_[MICRORTPS_SERIAL_MTU];
+    SerialIO serial_io_;
+    int errno_;
 };
 
 } // namespace micrortps

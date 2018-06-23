@@ -22,6 +22,7 @@
 #include <agent/SubMessageHeader.h>
 
 #include <micrortps/transport/micrortps_transport.h>
+#include <agent/transport/UARTServer.hpp>
 #include <agent/transport/UDPServer.hpp>
 
 #include <thread>
@@ -47,6 +48,16 @@ class Agent
 public:
     Agent();
     ~Agent() = default;
+
+    /**
+     * @brief Initializes the Agent using UART communication.
+     *
+     * @param fd    A file descriptor.
+     * @param addr  The server address to assign.
+     *
+     * @return On success return TRUE. In case of error FALSE.
+     */
+    bool init(int fd, const uint8_t addr);
 
     /**
      * @brief Initializes the Agent using serial communication.
@@ -156,7 +167,9 @@ private:
                            Serializer& deserializer, ProxyClient& client);
 
 private:
+    UARTServer* uart_server_;
     UDPServer* udp_server_;
+
     micrortps_locator_t locator_;
     static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;
     uint8_t input_buffer_[buffer_len_];

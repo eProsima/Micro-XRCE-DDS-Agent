@@ -47,6 +47,13 @@ Agent::Agent() :
     heartbeat_cond_ = false;
 }
 
+bool Agent::init(const int fd, const uint8_t addr)
+{
+    messages_.init();
+    uart_server_ = UARTServer::create(fd, addr);
+    return (uart_server_ != nullptr);
+}
+
 bool Agent::init(const std::string& device)
 {
     messages_.init();
@@ -181,17 +188,24 @@ void Agent::run()
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
 //    int ret = 0;
     running_ = true;
-    uint32_t addr = 0;
+    uint32_t addr_udp = 0;
+    uint8_t addr_uart = 0;
     uint16_t port = 0;
     uint8_t* buf = nullptr;
     size_t len = 0;
     while(running_)
     {
-        if (udp_server_->recv_data(&addr, &port, &buf, &len, -1))
+        if (uart_server_->recv_msg(&buf, &len, &addr_uart, -1))
         {
             XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
-            handle_input_message(input_message, addr, port);
+            handle_input_message(input_message, addr_uart, port);
         }
+//        if (udp_server_->recv_msg(&addr_udp, &port, &buf, &len, -1))
+//        {
+//            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
+//            handle_input_message(input_message, addr_udp, port);
+//        }
+
 //        if (0 < (ret = receive_data(static_cast<uint8_t*>(input_buffer_), buffer_len_, locator_.locator_id)))
 //        {
 //            uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
@@ -199,11 +213,11 @@ void Agent::run()
 //            XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
 //            handle_input_message(input_message, addr, port);
 //        }
-#ifdef WIN32
-        Sleep(10);
-#else
-        usleep(10000);
-#endif
+//#ifdef WIN32
+//        Sleep(10);
+//#else
+//        usleep(10000);
+//#endif
 
     };
     std::cout << "Execution stopped" << std::endl;
@@ -253,10 +267,15 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!messages_.is_aborted() && message.get_real_size() != 0)
         {
-            udp_server_->send_data(message.get_addr(),
-                                   message.get_port(),
-                                   reinterpret_cast<uint8_t*>(message.get_buffer().data()),
-                                   message.get_real_size());
+            uart_server_->send_msg(reinterpret_cast<uint8_t*>(message.get_buffer().data()),
+                                   message.get_real_size(), 0x00);
+
+//            udp_server_->send_msg(message.get_addr(),
+//                                  message.get_port(),
+//                                  reinterpret_cast<uint8_t*>(message.get_buffer().data()),
+//                                  message.get_real_size());
+
+
 //            int ret = 0;
 //            locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
 //            locator_.channel._.udp.remote_addr.sin_port = message.get_port();

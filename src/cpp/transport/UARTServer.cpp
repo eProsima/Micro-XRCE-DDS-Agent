@@ -1,70 +1,47 @@
 #include <agent/transport/UARTServer.hpp>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <errno.h>
+#include <unistd.h>
 
 namespace eprosima {
 namespace micrortps {
 
-UARTServer* UARTServer::create(uint16_t port)
+UARTServer* UARTServer::create(int fd, uint8_t addr)
 {
     UARTServer* server = new UARTServer();
-    return (0 == server->init(port)) ? server : nullptr;
+    return (0 == server->init(fd, addr)) ? server : nullptr;
 }
 
-bool UARTServer::send_data(uint32_t addr, uint16_t port, const uint8_t* buf, const size_t len)
+bool UARTServer::send_msg(const uint8_t* buf, const size_t len, uint8_t addr)
 {
-    bool rv = true;
-    struct sockaddr_in client_addr;
+    bool rv = false;
 
-    client_addr.sin_family = AF_INET;
-    client_addr.sin_port = port;
-    client_addr.sin_addr.s_addr = addr;
-    ssize_t bytes_sent = sendto(socket_fd_, buf, len, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
-    if (0 < bytes_sent)
+    uint16_t bytes_written = write_serial_msg(&serial_io_, buf, len, addr);
+    if (0 < bytes_written)
     {
-        if ((size_t)bytes_sent != len)
+        ssize_t bytes_sent = write(fd_, serial_io_.output.buffer, size_t(bytes_written));
+        if (0 < bytes_sent && bytes_sent == bytes_written)
         {
-            rv = false;
+            rv = true;
         }
     }
-    else
-    {
-        rv = false;
-    }
+    errno_ = rv ? 0 : -1;
 
     return rv;
 }
 
-bool UARTServer::recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout)
+bool UARTServer::recv_msg(uint8_t** buf, size_t* len, uint8_t* addr, int timeout)
 {
     bool rv = true;
-    struct sockaddr client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
 
-    int poll_rv = poll(&poll_fd_, 1, timeout);
-    if (0 < poll_rv)
+    uint8_t bytes_read = read_serial_msg(&serial_io_, read_data, this, buffer_, sizeof(buffer_), addr, timeout);
+    if (0 < bytes_read)
     {
-        ssize_t bytes_received = recvfrom(socket_fd_, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
-        if (0 < bytes_received)
-        {
-            *len = (size_t)bytes_received;
-            *buf = buffer_;
-            *addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            *port = ((struct sockaddr_in*)&client_addr)->sin_port;
-        }
-    }
-    else if (0 == poll_rv)
-    {
-        errno = ETIME;
-        rv = false;
+        *len = bytes_read;
+        *buf = buffer_;
     }
     else
     {
         rv = false;
+        errno_ = -1;
     }
 
     return rv;
@@ -72,37 +49,49 @@ bool UARTServer::recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t
 
 int UARTServer::get_error()
 {
-    return errno;
+    return errno_;
 }
 
-int UARTServer::init(uint16_t port)
+int UARTServer::init(int fd, uint8_t addr)
 {
     int rv = 0;
 
-    /* Socker initialization. */
-    socket_fd_ = socket(PF_INET, SOCK_DGRAM, 0);
+    /* File descriptor setup. */
+    fd_ = fd;
+    addr_ = addr;
 
-    if (-1 == socket_fd_)
+    /* Init SerialIO. */
+    init_serial_io(&serial_io_);
+
+    /* Send init flag. */
+    uint8_t flag = MICRORTPS_FRAMING_END_FLAG;
+    ssize_t bytes_written = write(fd_, &flag, 1);
+    if (0 < bytes_written && 1 == bytes_written)
     {
-        rv = errno;
+        /* Poll setup. */
+        poll_fd_.fd = fd_;
+        poll_fd_.events = POLLIN;
     }
     else
     {
-        /* IP and Port setup. */
-        struct sockaddr_in address;
-        address.sin_family = AF_INET;
-        address.sin_port = htons(port);
-        address.sin_addr.s_addr = inet_addr("127.0.0.1");
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (-1 == bind(socket_fd_, (struct sockaddr*)&address, sizeof(address)))
+        rv = -1;
+    }
+
+    return rv;
+}
+
+uint16_t UARTServer::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
+{
+    uint16_t rv = 0;
+    UARTServer* server = static_cast<UARTServer*>(instance);
+
+    int poll_rv = poll(&server->poll_fd_, 1, timeout);
+    if (0 < poll_rv)
+    {
+        ssize_t bytes_read = read(server->fd_, buf, len);
+        if (0 < bytes_read)
         {
-            rv = errno;
-        }
-        else
-        {
-            /* Poll setup. */
-            poll_fd_.fd = socket_fd_;
-            poll_fd_.events = POLLIN;
+            rv = static_cast<uint16_t>(bytes_read);
         }
     }
 

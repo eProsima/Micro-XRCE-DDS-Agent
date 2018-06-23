@@ -27,8 +27,8 @@ class UDPServer
 public:
     static UDPServer* create(uint16_t port);
 
-    bool send_data(uint32_t addr, uint16_t port, const uint8_t* buf, size_t len);
-    bool recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout);
+    bool send_msg(uint32_t addr, uint16_t port, const uint8_t* buf, size_t len);
+    bool recv_msg(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout);
     int get_error();
 
 private:

@@ -105,7 +105,8 @@ set(SRCS
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/UDPServer.cpp
     src/cpp/transport/TCPServer.cpp
-    src/cpp/transport/TCPServer.cpp
+    src/cpp/transport/UARTServer.cpp
+    src/cpp/transport/SerialLayer.c
     )
 
 # Executable

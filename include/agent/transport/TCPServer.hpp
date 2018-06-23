@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <sys/poll.h>
 
+#define MICRORTPS_MAX_TCP_CLIENTS 1024
+
 namespace eprosima {
 namespace micrortps {
 
@@ -32,13 +34,14 @@ public:
     int get_error();
 
 private:
-    TCPServer() : socket_fd_(0), poll_fd_{}, buffer_{0} {}
+    TCPServer() : listen_fd_(0), poll_fd_{}, buffer_{0} {}
     ~TCPServer();
     int init(uint16_t port);
 
 private:
-    int socket_fd_;
-    struct pollfd poll_fd_;
+    int listen_fd_;
+    int client_fds_[MICRORTPS_MAX_TCP_CLIENTS];
+    struct pollfd poll_fd_[MICRORTPS_MAX_TCP_CLIENTS];
     uint8_t buffer_[1024];
 };
 

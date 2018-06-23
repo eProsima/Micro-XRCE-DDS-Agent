@@ -15,7 +15,7 @@ UDPServer* UDPServer::create(uint16_t port)
     return (0 == server->init(port)) ? server : nullptr;
 }
 
-bool UDPServer::send_data(uint32_t addr, uint16_t port, const uint8_t* buf, const size_t len)
+bool UDPServer::send_msg(uint32_t addr, uint16_t port, const uint8_t* buf, const size_t len)
 {
     bool rv = true;
     struct sockaddr_in client_addr;
@@ -39,7 +39,7 @@ bool UDPServer::send_data(uint32_t addr, uint16_t port, const uint8_t* buf, cons
     return rv;
 }
 
-bool UDPServer::recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout)
+bool UDPServer::recv_msg(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout)
 {
     bool rv = true;
     struct sockaddr client_addr;
