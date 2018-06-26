@@ -24,6 +24,7 @@
 #include <micrortps/transport/micrortps_transport.h>
 #include <agent/transport/UARTServer.hpp>
 #include <agent/transport/UDPServer.hpp>
+#include <agent/transport/TCPServer.hpp>
 
 #include <thread>
 #include <memory>
@@ -167,8 +168,11 @@ private:
                            Serializer& deserializer, ProxyClient& client);
 
 private:
+    // TODO (julian): remove, only for transport checking.
     UARTServer* uart_server_;
     UDPServer* udp_server_;
+    TCPServer* tcp_server_;
+    TCPClient* tcp_client_;
 
     micrortps_locator_t locator_;
     static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;

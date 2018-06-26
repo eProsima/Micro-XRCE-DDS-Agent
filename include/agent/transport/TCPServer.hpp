@@ -18,30 +18,66 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
+#include <vector>
+#include <array>
 
-#define MICRORTPS_MAX_TCP_CLIENTS 1024
+#define TCP_TRANSPORT_MTU 512
+#define MICRORTPS_MAX_TCP_CLIENTS 1
+#define MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS 100
 
 namespace eprosima {
 namespace micrortps {
+
+typedef enum TCPInputBufferState
+{
+    TCP_BUFFER_EMPTY,
+    TCP_SIZE_INCOMPLETE,
+    TCP_SIZE_READ,
+    TCP_MESSAGE_INCOMPLETE,
+    TCP_MESSAGE_AVAILABLE
+} TCPInputBufferState;
+
+typedef struct TCPInputBuffer TCPInputBuffer;
+struct TCPInputBuffer
+{
+    std::vector<uint8_t> buffer;
+    uint16_t position;
+    TCPInputBufferState state;
+    uint16_t msg_size;
+};
+
+typedef struct TCPClient TCPClient;
+struct TCPClient
+{
+    struct pollfd* poll_fd;
+    TCPClient* next;
+    TCPClient* prev;
+    TCPInputBuffer input_buffer;
+};
 
 class TCPServer
 {
 public:
     static TCPServer* create(uint16_t port);
 
-    bool send_data(uint32_t addr, uint16_t port, const uint8_t* buf, size_t len);
-    bool recv_data(uint32_t* addr, uint16_t* port, uint8_t** buf, size_t* len, int timeout);
+    bool send_msg(const uint8_t* buf, size_t len, TCPClient* client);
+    bool recv_msg(uint8_t** buf, size_t* len, int timeout, TCPClient** client);
     int get_error();
 
 private:
-    TCPServer() : listen_fd_(0), poll_fd_{}, buffer_{0} {}
+    TCPServer() : clients_{}, poll_fds_{}, buffer_{0} {}
     ~TCPServer();
     int init(uint16_t port);
+    uint16_t read_data(TCPClient* client);
+    void disconnect_client(TCPClient* client);
+    static void init_input_buffer(TCPInputBuffer* buffer);
 
 private:
-    int listen_fd_;
-    int client_fds_[MICRORTPS_MAX_TCP_CLIENTS];
-    struct pollfd poll_fd_[MICRORTPS_MAX_TCP_CLIENTS];
+    std::array<TCPClient, MICRORTPS_MAX_TCP_CLIENTS> clients_;
+    TCPClient* connected_clients_;
+    TCPClient* available_clients_;
+    TCPClient* last_client_read_;
+    std::array<struct pollfd, MICRORTPS_MAX_TCP_CLIENTS + 1> poll_fds_;
     uint8_t buffer_[1024];
 };
 

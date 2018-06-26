@@ -62,6 +62,12 @@ int main(int argc, char** argv)
         initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
+    else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
+    {
+        std::cout << "TCP agent initialization... ";
+        initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
     else
     {
         std::cout << "Error: Invalid arguments." << std::endl;
