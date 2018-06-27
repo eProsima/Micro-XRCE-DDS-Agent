@@ -44,18 +44,25 @@ static const uint16_t crc16_table[256] = {
  * Private function declarations.
  *******************************************************************************/
 static void update_crc(uint16_t* crc, const uint8_t data);
-static uint8_t process_input_message(SerialInputBuffer* input, uint8_t* buf, size_t len, uint8_t* addr);
+static uint8_t process_serial_message(SerialInputBuffer* input, uint8_t* buf, size_t len, uint8_t* addr);
+static bool init_serial_stream(SerialInputBuffer* input);
+static bool find_serial_message(SerialInputBuffer* input);
 static inline uint8_t get_next_octet(SerialInputBuffer* input, uint16_t* relative_position);
 static inline bool add_next_octet(SerialOutputBuffer* output, uint8_t octet, uint16_t* position);
 
 /*******************************************************************************
  * Private function definitions.
  *******************************************************************************/
-static uint8_t process_input_message(SerialInputBuffer* input, uint8_t* buf, size_t len, uint8_t* addr)
+void update_crc(uint16_t* crc, const uint8_t data)
+{
+    *crc = (*crc >> 8) ^ crc16_table[(*crc ^ data) & 0xFF];
+}
+
+uint8_t process_serial_message(SerialInputBuffer* input, uint8_t* buf, size_t len, uint8_t* addr)
 {
     bool cond = true;
     uint16_t msg_len = 0;
-    uint16_t msg_marker = 1;
+    uint16_t msg_marker = 0;
     uint8_t payload_len = 0;
     uint8_t payload_marker = 0;
     uint16_t crc = 0;
@@ -107,16 +114,61 @@ static uint8_t process_input_message(SerialInputBuffer* input, uint8_t* buf, siz
             }
         }
     }
+    input->head = input->marker;
 
     return cond ? payload_len : 0;
 }
 
-static void update_crc(uint16_t* crc, const uint8_t data)
+bool init_serial_stream(SerialInputBuffer* input)
 {
-    *crc = (*crc >> 8) ^ crc16_table[(*crc ^ data) & 0xFF];
+    bool rv = true;
+
+    /* Find BEGIN_FLAG. */
+    while (MICRORTPS_FRAMING_END_FLAG != input->buffer[input->head])
+    {
+        input->head = (input->head + 1) % sizeof(input->buffer);
+        if (input->head == input->tail)
+        {
+            rv = false;
+            break;
+        }
+    }
+
+    /* If BEGIN_FLAG was found, move ahead. */
+    if (rv)
+    {
+        input->head = (input->head + 1) % sizeof(input->buffer);
+        input->marker = input->head;
+    }
+
+    return rv;
 }
 
-static inline uint8_t get_next_octet(SerialInputBuffer* input, uint16_t* relative_position)
+bool find_serial_message(SerialInputBuffer* input)
+{
+    bool rv = true;
+
+    /* Find END_FLAG. */
+    while (MICRORTPS_FRAMING_END_FLAG != input->buffer[input->marker])
+    {
+        input->marker = (input->marker + 1) % sizeof(input->buffer);
+        if (input->marker == input->tail)
+        {
+            rv = false;
+            break;
+        }
+    }
+
+    /* If END_FLAG was found, move ahead. */
+    if (rv)
+    {
+        input->marker = (input->marker + 1) % sizeof(input->buffer);
+    }
+
+    return rv;
+}
+
+uint8_t get_next_octet(SerialInputBuffer* input, uint16_t* relative_position)
 {
     uint8_t rv = input->buffer[(input->head + *relative_position) % sizeof(input->buffer)];
 
@@ -130,7 +182,7 @@ static inline uint8_t get_next_octet(SerialInputBuffer* input, uint16_t* relativ
     return rv;
 }
 
-static inline bool add_next_octet(SerialOutputBuffer* output, uint8_t octet, uint16_t* position)
+bool add_next_octet(SerialOutputBuffer* output, uint8_t octet, uint16_t* position)
 {
     bool rv = false;
 
@@ -162,7 +214,7 @@ static inline bool add_next_octet(SerialOutputBuffer* output, uint8_t octet, uin
  *******************************************************************************/
 void init_serial_io(SerialIO* serial_io)
 {
-    serial_io->input.state = SERIAL_BUFFER_EMPTY;
+    serial_io->input.stream_init = false;
 }
 
 uint16_t write_serial_msg(SerialIO* serial_io, const uint8_t* buf, size_t len, uint8_t addr)
@@ -198,7 +250,7 @@ uint16_t write_serial_msg(SerialIO* serial_io, const uint8_t* buf, size_t len, u
         if (cond)
         {
             cond = add_next_octet(&serial_io->output, (uint8_t)(crc >> 8), &position) &&
-                 add_next_octet(&serial_io->output, (uint8_t)(crc & 0xFF), &position);
+                   add_next_octet(&serial_io->output, (uint8_t)(crc & 0xFF), &position);
 
             /* Write end flag. */
             if (cond)
@@ -215,137 +267,80 @@ uint8_t read_serial_msg(SerialIO* serial_io, read_cb cb, void* cb_arg,
                         uint8_t* buf, size_t len, uint8_t* addr, int timeout)
 {
     uint8_t rv = 0;
-    bool exit_flag = false;
-    bool read_taken = false;
+    bool data_available = false;
 
-    /*
-     * State Machine.
-     */
-    while (!exit_flag)
+    if (!serial_io->input.stream_init)
     {
-        switch (serial_io->input.state) {
-            case SERIAL_BUFFER_EMPTY:
-            {
-                if (!read_taken)
-                {
-                    serial_io->input.head = 0;
-                    serial_io->input.marker = 1;
-                    serial_io->input.tail = 0;
+        /* Init buffer. */
+        serial_io->input.head = 0;
+        serial_io->input.marker = 0;
+        serial_io->input.tail = 0;
 
-                    uint16_t bytes_read = cb(cb_arg, serial_io->input.buffer, sizeof(serial_io->input.buffer), timeout);
-                    read_taken = true;
-                    if (0 < bytes_read)
-                    {
-                        serial_io->input.tail = (serial_io->input.tail + bytes_read) % sizeof(serial_io->input.buffer);
-                        serial_io->input.state = SERIAL_DATA_AVAILABLE;
-                    }
-                }
-                else
-                {
-                    rv = 0;
-                    exit_flag = true;
-                }
-                break;
-            }
-            case SERIAL_DATA_AVAILABLE:
+        /* Read from callback. */
+        uint16_t bytes_read = cb(cb_arg, serial_io->input.buffer, sizeof(serial_io->input.buffer), timeout);
+        serial_io->input.tail = (serial_io->input.tail + bytes_read) % sizeof(serial_io->input.buffer);
+        if (0 < bytes_read)
+        {
+            /* Init stream. */
+            if (init_serial_stream(&serial_io->input))
             {
-                while (SERIAL_DATA_AVAILABLE == serial_io->input.state)
-                {
-                    if (MICRORTPS_FRAMING_END_FLAG == serial_io->input.buffer[serial_io->input.head])
-                    {
-                        serial_io->input.marker = (serial_io->input.head + 1) % sizeof(serial_io->input.buffer);
-                        serial_io->input.state = SERIAL_MESSAGE_INIT;
-                    }
-                    else
-                    {
-                        serial_io->input.head = (serial_io->input.head + 1) % sizeof(serial_io->input.buffer);
-                        if (serial_io->input.head == serial_io->input.tail)
-                        {
-                            serial_io->input.state = SERIAL_BUFFER_EMPTY;
-                            exit_flag = true;
-                        }
-                    }
-                }
-                break;
+                serial_io->input.stream_init = true;
+                /* Check if there is data available. */
+                data_available = serial_io->input.head != serial_io->input.tail;
             }
-            case SERIAL_MESSAGE_INIT:
-            {
-                while (SERIAL_MESSAGE_INIT == serial_io->input.state)
-                {
-                    if (serial_io->input.marker != serial_io->input.tail)
-                    {
-                        if (MICRORTPS_FRAMING_END_FLAG == serial_io->input.buffer[serial_io->input.marker])
-                        {
-                            serial_io->input.state = SERIAL_MESSAGE_AVAILABLE;
-                        }
-                        serial_io->input.marker = (serial_io->input.marker + 1) % sizeof(serial_io->input.buffer);
-                    }
-                    else
-                    {
-                        if (serial_io->input.tail != serial_io->input.head)
-                        {
-                            serial_io->input.state = SERIAL_MESSAGE_INCOMPLETE;
-                        }
-                        else
-                        {
-                            serial_io->input.state = SERIAL_BUFFER_EMPTY;
-                        }
-                    }
-                }
-                break;
-            }
-            case SERIAL_MESSAGE_INCOMPLETE:
-            {
-                if (!read_taken)
-                {
-                    size_t av_len = 0;
-                    if (serial_io->input.head < serial_io->input.tail)
-                    {
-                        av_len = sizeof(serial_io->input.buffer) - serial_io->input.tail;
-                    }
-                    else
-                    {
-                        av_len = serial_io->input.head - serial_io->input.tail;
-                    }
+        }
+    }
+    else
+    {
+        /* Get available buffer size. */
+        size_t av_len = 0;
+        if (serial_io->input.head <= serial_io->input.tail)
+        {
+            av_len = sizeof(serial_io->input.buffer) - serial_io->input.tail;
+        }
+        else
+        {
+            av_len = serial_io->input.head - serial_io->input.tail;
+        }
 
-                    uint16_t bytes_read = cb(cb_arg, &serial_io->input.buffer[serial_io->input.tail], av_len, timeout);
-                    read_taken = true;
-                    if (0 < bytes_read)
-                    {
-                        serial_io->input.tail = (serial_io->input.tail + bytes_read) % sizeof(serial_io->input.buffer);
-                        while (SERIAL_MESSAGE_INCOMPLETE == serial_io->input.state && 
-                               serial_io->input.marker != serial_io->input.tail)
-                        {
-                            if (MICRORTPS_FRAMING_END_FLAG == serial_io->input.buffer[serial_io->input.marker])
-                            {
-                                serial_io->input.state = SERIAL_MESSAGE_AVAILABLE;
-                            }
-                            serial_io->input.marker = (serial_io->input.marker + 1) % sizeof(serial_io->input.buffer);
-                        }
-                    }
-                }
-                else
-                {
-                    rv = 0;
-                    exit_flag = true;
-                }
-                break;
-            }
-            case SERIAL_MESSAGE_AVAILABLE:
+        /* Read data from callback and update tail. */
+        uint16_t bytes_read = cb(cb_arg, &serial_io->input.buffer[serial_io->input.tail], av_len, timeout);
+        serial_io->input.tail = (serial_io->input.tail + bytes_read) % sizeof(serial_io->input.buffer);
+
+        /* Check if data available. */
+        data_available = (0 < bytes_read || serial_io->input.head != serial_io->input.tail);
+    }
+
+    /* Process data in case. */
+    if (data_available)
+    {
+        /* Look for available messages. */
+        bool message_found = find_serial_message(&serial_io->input);
+        while (message_found)
+        {
+            /* Process available message from head to marker and update head. */
+            rv = process_serial_message(&serial_io->input, buf, len, addr);
+            if (0 < rv)
             {
-                rv = process_input_message(&serial_io->input, buf, len, addr);
-                serial_io->input.head = (serial_io->input.marker - 1) % sizeof(serial_io->input.buffer);
-                serial_io->input.state = (serial_io->input.head != serial_io->input.tail) ? SERIAL_DATA_AVAILABLE : SERIAL_BUFFER_EMPTY;
-                if (0 < rv)
-                {
-                    exit_flag = true;
-                }
                 break;
             }
-            default:
-                rv = 0;
-                exit_flag = true;
-                break;
+            message_found = find_serial_message(&serial_io->input);
+        }
+
+        if (serial_io->input.marker == serial_io->input.tail)
+        {
+            if (0 == rv)
+            {
+                /* Buffer full, reset stream. */
+                serial_io->input.stream_init = false;
+            }
+            else
+            {
+                /* Reset buffer to gain continuous free space. */
+                serial_io->input.head = 0;
+                serial_io->input.marker = 0;
+                serial_io->input.tail = 0;
+            }
         }
     }
 

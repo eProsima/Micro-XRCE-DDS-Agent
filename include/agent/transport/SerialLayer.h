@@ -32,16 +32,6 @@ extern "C"
 #define MICRORTPS_SERIAL_OVERHEAD 5
 #define MICRORTPS_SERIAL_BUFFER_SIZE 2 * (MICRORTPS_SERIAL_MTU + MICRORTPS_SERIAL_OVERHEAD)
 
-typedef enum InputBufferState
-{
-    SERIAL_BUFFER_EMPTY,
-    SERIAL_DATA_AVAILABLE,
-    SERIAL_MESSAGE_INIT,
-    SERIAL_MESSAGE_INCOMPLETE,
-    SERIAL_MESSAGE_AVAILABLE
-
-} InputBufferState;
-
 typedef struct SerialInputBuffer SerialInputBuffer;
 struct SerialInputBuffer
 {
@@ -49,7 +39,7 @@ struct SerialInputBuffer
     uint16_t head;
     uint16_t marker;
     uint16_t tail;
-    InputBufferState state;
+    bool stream_init;
 };
 
 typedef struct SerialOutputBuffer SerialOutputBuffer;
