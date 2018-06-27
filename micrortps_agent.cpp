@@ -14,17 +14,25 @@
 #define _XOPEN_SOURCE >= 600
 #include <termios.h>
 
+#include <agent/transport/UARTServer.hpp>
+#include <agent/transport/UDPServer.hpp>
+#include <agent/transport/TCPServer.hpp>
 #include <agent/Root.h>
 
 int main(int argc, char** argv)
 {
+    eprosima::micrortps::XRCEServer* server;
     bool initialized = false;
 
-    eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
     if(argc == 3 && strcmp(argv[1], "uart") == 0)
     {
         std::cout << "UART agent initialization... ";
-        initialized = micrortps_agent.init(argv[2]);
+        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer();
+        if (0 == uart_server->launch((uint8_t)atoi(argv[2]), 0x00))
+        {
+            initialized = true;
+            server = uart_server;
+        }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
     else if (argc == 2 && strcmp(argv[1], "pseudo-uart") == 0)
@@ -43,9 +51,17 @@ int main(int argc, char** argv)
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
                 tcsetattr(fd, TCSANOW, &attr);
-                initialized = micrortps_agent.init(fd, 0x00);
             }
         }
+
+        /* Launch server. */
+        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer();
+        if (0 == uart_server->launch(fd, 0x00))
+        {
+            initialized = true;
+            server = uart_server;
+        }
+
         if (initialized)
         {
             std::cout << "OK" << std::endl;
@@ -59,13 +75,23 @@ int main(int argc, char** argv)
     else if(argc ==3 && strcmp(argv[1], "udp") == 0)
     {
         std::cout << "UDP agent initialization... ";
-        initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
+        eprosima::micrortps::UDPServer* udp_server = new eprosima::micrortps::UDPServer();
+        if (0 == udp_server->launch((uint16_t)atoi(argv[2])))
+        {
+            initialized = true;
+            server = udp_server;
+        }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
     else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
     {
         std::cout << "TCP agent initialization... ";
-        initialized = micrortps_agent.init((uint16_t)atoi(argv[2]));
+        eprosima::micrortps::TCPServer* tcp_server = new eprosima::micrortps::TCPServer();
+        if (0 == tcp_server->launch((uint16_t)atoi(argv[2])))
+        {
+            initialized = true;
+            server = tcp_server;
+        }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
     else
@@ -75,6 +101,8 @@ int main(int argc, char** argv)
 
     if(initialized)
     {
+        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
+        micrortps_agent.init(server);
         micrortps_agent.run();
     }
     else

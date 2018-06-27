@@ -22,9 +22,7 @@
 #include <agent/SubMessageHeader.h>
 
 #include <micrortps/transport/micrortps_transport.h>
-#include <agent/transport/UARTServer.hpp>
-#include <agent/transport/UDPServer.hpp>
-#include <agent/transport/TCPServer.hpp>
+#include <agent/transport/XRCEServer.hpp>
 
 #include <thread>
 #include <memory>
@@ -50,29 +48,7 @@ public:
     Agent();
     ~Agent() = default;
 
-    /**
-     * @brief Initializes the Agent using UART communication.
-     *
-     * @param fd    A file descriptor.
-     * @param addr  The server address to assign.
-     *
-     * @return On success return TRUE. In case of error FALSE.
-     */
-    bool init(int fd, const uint8_t addr);
-
-    /**
-     * @brief Initializes the Agent using serial communication.
-     *
-     * @param  device Name of the device, for example, in Linux one could be "/dev/ttyACM0".
-     */
-    bool init(const std::string& device);
-
-    /**
-     * @brief Initializes the Agent using UDP communication.
-     *
-     * @param local_port    The local port.
-     */
-    bool init(const uint16_t local_port);
+    bool init(XRCEServer* server);
 
     /**
      * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
@@ -168,11 +144,8 @@ private:
                            Serializer& deserializer, ProxyClient& client);
 
 private:
-    // TODO (julian): remove, only for transport checking.
-    UARTServer* uart_server_;
-    UDPServer* udp_server_;
-    TCPServer* tcp_server_;
-    TCPClient* tcp_client_;
+    XRCEServer* server_;
+    TransportClient* transport_client_;
 
     micrortps_locator_t locator_;
     static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;

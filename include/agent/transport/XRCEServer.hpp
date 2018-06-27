@@ -1,4 +1,3 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,52 +11,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _MICRORTPS_AGENT_TRANSPORT_UDPSERVER_HPP_
-#define _MICRORTPS_AGENT_TRANSPORT_UDPSERVER_HPP_
+#ifndef _MICRORTPS_AGENT_TRANSPORT_XRCE_SERVER_HPP_
+#define _MICRORTPS_AGENT_TRANSPORT_XRCE_SERVER_HPP_
 
-#include <agent/transport/XRCEServer.hpp>
 #include <stdint.h>
 #include <stddef.h>
-#include <sys/poll.h>
 
 namespace eprosima {
 namespace micrortps {
 
 /******************************************************************************
- * UDP Client.
+ * Abstract Client class.
  ******************************************************************************/
-class UDPClient : public TransportClient
+class TransportClient
 {
 public:
-    UDPClient(uint32_t addr, uint8_t port) : addr_(addr), port_(port) {}
-    ~UDPClient() = default;
-
-public:
-    uint32_t addr_;
-    uint16_t port_;
+    TransportClient() {}
+    virtual ~TransportClient() {}
 };
 
 /******************************************************************************
- * UDP Server.
+ * Server interface.
  ******************************************************************************/
-class UDPServer : public XRCEServer
+class XRCEServer
 {
 public:
-    UDPServer() : client_(0, 0), poll_fd_{}, buffer_{0} {}
-    ~UDPServer() = default;
+    XRCEServer() {}
+    virtual ~XRCEServer() {}
 
-    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) override;
-    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) override;
-    virtual int get_error() override;
-    int launch(uint16_t port);
-
-private:   
-    UDPClient client_;
-    struct pollfd poll_fd_;
-    uint8_t buffer_[1024];
+    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) = 0;
+    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) = 0;
+    virtual int get_error() = 0;
 };
 
 } // namespace micrortps
 } // namespace eprosima
 
-#endif //_MICRORTPS_AGENT_TRANSPORT_UDPSERVER_HPP_
+#endif //_MICRORTPS_AGENT_TRANSPORT_XRCE_SERVER_HPP_

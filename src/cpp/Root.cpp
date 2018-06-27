@@ -35,6 +35,7 @@ Agent& root()
 }
 
 Agent::Agent() :
+    server_(),
     locator_{},
     input_buffer_{},
     response_thread_{},
@@ -47,29 +48,15 @@ Agent::Agent() :
     heartbeat_cond_ = false;
 }
 
-bool Agent::init(const int fd, const uint8_t addr)
+bool Agent::init(XRCEServer* server)
 {
-    messages_.init();
-    uart_server_ = UARTServer::create(fd, addr);
-    return (uart_server_ != nullptr);
-}
-
-bool Agent::init(const std::string& device)
-{
-    messages_.init();
-    locator_id_t id = add_serial_locator(device.data(), &locator_);
-    return id != MICRORTPS_TRANSPORT_ERROR;
-}
-
-bool Agent::init(const uint16_t local_port)
-{
-//    messages_.init();
-//    udp_server_ = UDPServer::create(local_port);
-//    return (udp_server_ != nullptr);
-
-    messages_.init();
-    tcp_server_ = TCPServer::create(local_port);
-    return (tcp_server_ != nullptr);
+    bool rv = false;
+    if (nullptr != server)
+    {
+        server_ = server;
+        rv = true;
+    }
+    return rv;
 }
 
 dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
@@ -191,46 +178,16 @@ void Agent::run()
 //    int ret = 0;
     running_ = true;
     uint32_t addr_udp = 0;
-    uint8_t addr_uart = 0;
     uint16_t port = 0;
     uint8_t* buf = nullptr;
     size_t len = 0;
     while(running_)
     {
-        /* UART server. */
-//        if (uart_server_->recv_msg(&buf, &len, &addr_uart, -1))
-//        {
-//            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
-//            handle_input_message(input_message, addr_uart, port);
-//        }
-
-        /* UDP server. */
-//        if (udp_server_->recv_msg(&addr_udp, &port, &buf, &len, -1))
-//        {
-//            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
-//            handle_input_message(input_message, addr_udp, port);
-//        }
-
-        /* TCP server. */
-        if (tcp_server_->recv_msg(&buf, &len, -1, &tcp_client_))
+        if (server_->recv_msg(&buf, &len, -1, &transport_client_))
         {
             XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
             handle_input_message(input_message, addr_udp, port);
         }
-
-//        if (0 < (ret = receive_data(static_cast<uint8_t*>(input_buffer_), buffer_len_, locator_.locator_id)))
-//        {
-//            uint32_t addr = locator_.channel._.udp.remote_addr.sin_addr.s_addr;
-//            uint16_t port = locator_.channel._.udp.remote_addr.sin_port;
-//            XrceMessage input_message = {reinterpret_cast<char*>(input_buffer_), static_cast<size_t>(ret)};
-//            handle_input_message(input_message, addr, port);
-//        }
-//#ifdef WIN32
-//        Sleep(10);
-//#else
-//        usleep(10000);
-//#endif
-
     };
     std::cout << "Execution stopped" << std::endl;
 
@@ -279,25 +236,8 @@ void Agent::reply()
         Message message = messages_.pop();
         if (!messages_.is_aborted() && message.get_real_size() != 0)
         {
-//            uart_server_->send_msg(reinterpret_cast<uint8_t*>(message.get_buffer().data()),
-//                                   message.get_real_size(), 0x00);
-
-//            udp_server_->send_msg(message.get_addr(),
-//                                  message.get_port(),
-//                                  reinterpret_cast<uint8_t*>(message.get_buffer().data()),
-//                                  message.get_real_size());
-
-            tcp_server_->send_msg(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(), tcp_client_);
-
-
-//            int ret = 0;
-//            locator_.channel._.udp.remote_addr.sin_addr.s_addr = message.get_addr();
-//            locator_.channel._.udp.remote_addr.sin_port = message.get_port();
-//            if (0 < (ret = send_data(reinterpret_cast<uint8_t*>(message.get_buffer().data()), message.get_real_size(),
-//                     locator_.locator_id)))
-//            {
-////                printf("%d bytes response sent\n", ret);
-//            }
+            server_->send_msg(reinterpret_cast<uint8_t*>(message.get_buffer().data()),
+                              message.get_real_size(), transport_client_);
         }
     }
 }

@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _MICRORTPS_AGENT_TRANSPORT_TCPSERVER_HPP_
-#define _MICRORTPS_AGENT_TRANSPORT_TCPSERVER_HPP_
+#ifndef _MICRORTPS_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#define _MICRORTPS_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
-#include <stdint.h>
-#include <stddef.h>
+#include <agent/transport/XRCEServer.hpp>
 #include <sys/poll.h>
 #include <vector>
 #include <array>
@@ -28,6 +27,9 @@
 namespace eprosima {
 namespace micrortps {
 
+/******************************************************************************
+ * TCP Client.
+ ******************************************************************************/
 typedef enum TCPInputBufferState
 {
     TCP_BUFFER_EMPTY,
@@ -46,31 +48,39 @@ struct TCPInputBuffer
     uint16_t msg_size;
 };
 
-typedef struct TCPClient TCPClient;
-struct TCPClient
+class TCPClient : public TransportClient
 {
+public:
+    TCPClient() : connected(false) {}
+    ~TCPClient() {}
+
+public:
     struct pollfd* poll_fd;
     TCPClient* next;
     TCPClient* prev;
     TCPInputBuffer input_buffer;
+    bool connected;
 };
 
-class TCPServer
+/******************************************************************************
+ * TCP Server.
+ ******************************************************************************/
+class TCPServer : public XRCEServer
 {
 public:
-    static TCPServer* create(uint16_t port);
+    TCPServer() : clients_{}, poll_fds_{}, buffer_{0} {}
+    ~TCPServer() {}
 
-    bool send_msg(const uint8_t* buf, size_t len, TCPClient* client);
-    bool recv_msg(uint8_t** buf, size_t* len, int timeout, TCPClient** client);
-    int get_error();
+    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) override;
+    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) override;
+    virtual int get_error() override;
+    int launch(uint16_t port);
 
 private:
-    TCPServer() : clients_{}, poll_fds_{}, buffer_{0} {}
-    ~TCPServer();
-    int init(uint16_t port);
     uint16_t read_data(TCPClient* client);
     void disconnect_client(TCPClient* client);
     static void init_input_buffer(TCPInputBuffer* buffer);
+    static void sigpipe_handler(int fd) { }
 
 private:
     std::array<TCPClient, MICRORTPS_MAX_TCP_CLIENTS> clients_;
@@ -84,4 +94,4 @@ private:
 } // namespace micrortps
 } // namespace eprosima
 
-#endif //_MICRORTPS_AGENT_TRANSPORT_TCPSERVER_HPP_
+#endif //_MICRORTPS_AGENT_TRANSPORT_XRCE_SERVER_HPP_

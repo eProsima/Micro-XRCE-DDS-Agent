@@ -15,36 +15,54 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_UARTSERVER_HPP_
 #define _MICRORTPS_AGENT_TRANSPORT_UARTSERVER_HPP_
 
+#include <agent/transport/XRCEServer.hpp>
 #include <agent/transport/SerialLayer.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
+#include <map>
 
 namespace eprosima {
 namespace micrortps {
 
-class UARTServer
+/******************************************************************************
+ * UART Client.
+ ******************************************************************************/
+class UARTClient : public TransportClient
 {
 public:
-    static UARTServer* create(int fd, uint8_t addr);
+    UARTClient(uint8_t addr) { addr_ = addr; }
+    ~UARTClient() {}
 
-    bool send_msg(const uint8_t* buf, size_t len, uint8_t addr);
-    bool recv_msg(uint8_t** buf, size_t* len, uint8_t* addr, int timeout);
-    int get_error();
+public:
+    uint8_t addr_;
+};
+
+/******************************************************************************
+ * UART Server.
+ ******************************************************************************/
+class UARTServer : public XRCEServer
+{
+public:
+    UARTServer() : poll_fd_{}, buffer_{0}, serial_io_{}, errno_(0), clients_{} {}
+    ~UARTServer() {}
+
+    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) override;
+    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) override;
+    virtual int get_error() override;
+    int launch(int fd, uint8_t addr);
 
 private:
-    UARTServer() : fd_(0), poll_fd_{}, buffer_{0}, serial_io_{}, errno_(0) {}
-    ~UARTServer();
     int init(int fd, uint8_t addr);
     static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
-    int fd_;
     uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[MICRORTPS_SERIAL_MTU];
     SerialIO serial_io_;
     int errno_;
+    std::map<uint8_t, UARTClient*> clients_;
 };
 
 } // namespace micrortps

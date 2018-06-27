@@ -6,36 +6,32 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 namespace eprosima {
 namespace micrortps {
 
-TCPServer* TCPServer::create(uint16_t port)
-{
-    TCPServer* server = new TCPServer();
-    return (0 == server->init(port)) ? server : nullptr;
-}
-
-bool TCPServer::send_msg(const uint8_t* buf, const size_t len, TCPClient* client)
+bool TCPServer::send_msg(const uint8_t* buf, const size_t len, TransportClient* client)
 {
     bool rv = true;
     uint16_t bytes_sent = 0;
     ssize_t send_rv = 0;
     uint8_t msg_size_buf[2]; 
+    TCPClient* tcp_client = static_cast<TCPClient*>(client);
 
     /* Send message size. */
     msg_size_buf[0] = (uint8_t)(0x00FF & len);
     msg_size_buf[1] = (uint8_t)((0xFF00 & len) >> 8);
     do
     {
-        send_rv = send(client->poll_fd->fd, msg_size_buf, 2, 0);
+        send_rv = send(tcp_client->poll_fd->fd, msg_size_buf, 2, 0);
         if (0 <= send_rv)
         {
             bytes_sent += send_rv;
         }
         else
         {
-            disconnect_client(client);
+            disconnect_client(tcp_client);
             rv = false;
         }
     } 
@@ -47,14 +43,14 @@ bool TCPServer::send_msg(const uint8_t* buf, const size_t len, TCPClient* client
         bytes_sent = 0;
         do
         {
-            send_rv = send(client->poll_fd->fd, buf + bytes_sent, len - bytes_sent, 0);
+            send_rv = send(tcp_client->poll_fd->fd, buf + bytes_sent, len - bytes_sent, 0);
             if (0 <= send_rv)
             {
                 bytes_sent += send_rv;
             }
             else
             {
-                disconnect_client(client);
+                disconnect_client(tcp_client);
                 rv = false;
             }
         }
@@ -64,14 +60,14 @@ bool TCPServer::send_msg(const uint8_t* buf, const size_t len, TCPClient* client
     return rv;
 }
 
-bool TCPServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TCPClient** client)
+bool TCPServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client)
 {
     bool rv = false;
 
     int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
     if (0 < poll_rv)
     {
-        if (POLLIN == poll_fds_[0].revents && nullptr != available_clients_)
+        if (POLLIN == (POLLIN & poll_fds_[0].revents) && nullptr != available_clients_)
         {
             /* New client connection. */
             struct sockaddr client_addr;
@@ -82,6 +78,7 @@ bool TCPServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TCPClient** cl
                 /* Update available clients list. */
                 TCPClient* incoming_client = available_clients_;
                 incoming_client->poll_fd->fd = incoming_fd;
+                incoming_client->connected = true;
                 if (available_clients_ != available_clients_->next)
                 {
                     available_clients_->prev->next = available_clients_->next;
@@ -122,7 +119,7 @@ bool TCPServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TCPClient** cl
                 TCPClient* reader = last_client_read_->next;
                 do
                 {
-                    if (POLLIN == reader->poll_fd->revents)
+                    if (POLLIN == (POLLIN & reader->poll_fd->revents))
                     {
                         uint16_t bytes_read = read_data(reader);
                         if (0 < bytes_read)
@@ -155,9 +152,12 @@ int TCPServer::get_error()
     return errno;
 }
 
-int TCPServer::init(uint16_t port)
+int TCPServer::launch(uint16_t port)
 {
     int rv = 0;
+
+    /* Ignore SIGPIPE signal. */
+    signal(SIGPIPE, sigpipe_handler);
 
     /* Socket initialization. */
     poll_fds_[0].fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -404,6 +404,7 @@ void TCPServer::disconnect_client(TCPClient* client)
         available_clients_ = client;
     }
     client->poll_fd->fd = -1;
+    client->connected = false;
 }
 
 void TCPServer::init_input_buffer(TCPInputBuffer* buffer)

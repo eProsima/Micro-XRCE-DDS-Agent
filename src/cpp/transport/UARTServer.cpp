@@ -4,20 +4,15 @@
 namespace eprosima {
 namespace micrortps {
 
-UARTServer* UARTServer::create(int fd, uint8_t addr)
-{
-    UARTServer* server = new UARTServer();
-    return (0 == server->init(fd, addr)) ? server : nullptr;
-}
-
-bool UARTServer::send_msg(const uint8_t* buf, const size_t len, uint8_t addr)
+bool UARTServer::send_msg(const uint8_t* buf, const size_t len, TransportClient* /*client*/)
 {
     bool rv = false;
+//    UARTClient* uart_client = static_cast<UARTClient*>(client);
 
-    uint16_t bytes_written = write_serial_msg(&serial_io_, buf, len, addr);
+    uint16_t bytes_written = write_serial_msg(&serial_io_, buf, len, addr_);
     if (0 < bytes_written)
     {
-        ssize_t bytes_sent = write(fd_, serial_io_.output.buffer, size_t(bytes_written));
+        ssize_t bytes_sent = write(poll_fd_.fd, serial_io_.output.buffer, size_t(bytes_written));
         if (0 < bytes_sent && bytes_sent == bytes_written)
         {
             rv = true;
@@ -28,15 +23,41 @@ bool UARTServer::send_msg(const uint8_t* buf, const size_t len, uint8_t addr)
     return rv;
 }
 
-bool UARTServer::recv_msg(uint8_t** buf, size_t* len, uint8_t* addr, int timeout)
+bool UARTServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client)
 {
     bool rv = true;
+    UARTClient* uart_client;
+    uint8_t addr;
 
-    uint8_t bytes_read = read_serial_msg(&serial_io_, read_data, this, buffer_, sizeof(buffer_), addr, timeout);
+    uint8_t bytes_read = read_serial_msg(&serial_io_, read_data, this, buffer_, sizeof(buffer_), &addr, timeout);
     if (0 < bytes_read)
     {
         *len = bytes_read;
         *buf = buffer_;
+
+        /* Find client. */
+        auto it = clients_.find(addr);
+        if (it == clients_.end())
+        {
+            uart_client = new UARTClient(addr);
+            uart_client->addr_ = addr;
+            if (!clients_.insert(std::make_pair(addr, uart_client)).second)
+            {
+                rv = false;
+                errno_ = -1;
+            }
+        }
+        else
+        {
+            uart_client = clients_.at(addr);
+        }
+
+        /* Set client. */
+        if (rv)
+        {
+            uart_client->addr_ = addr;
+            *client = uart_client;
+        }
     }
     else
     {
@@ -52,12 +73,12 @@ int UARTServer::get_error()
     return errno_;
 }
 
-int UARTServer::init(int fd, uint8_t addr)
+int UARTServer::launch(int fd, uint8_t addr)
 {
     int rv = 0;
 
     /* File descriptor setup. */
-    fd_ = fd;
+    poll_fd_.fd = fd;
     addr_ = addr;
 
     /* Init SerialIO. */
@@ -65,11 +86,10 @@ int UARTServer::init(int fd, uint8_t addr)
 
     /* Send init flag. */
     uint8_t flag = MICRORTPS_FRAMING_END_FLAG;
-    ssize_t bytes_written = write(fd_, &flag, 1);
+    ssize_t bytes_written = write(poll_fd_.fd, &flag, 1);
     if (0 < bytes_written && 1 == bytes_written)
     {
         /* Poll setup. */
-        poll_fd_.fd = fd_;
         poll_fd_.events = POLLIN;
     }
     else
@@ -88,7 +108,7 @@ uint16_t UARTServer::read_data(void* instance, uint8_t* buf, size_t len, int tim
     int poll_rv = poll(&server->poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_read = read(server->fd_, buf, len);
+        ssize_t bytes_read = read(server->poll_fd_.fd, buf, len);
         if (0 < bytes_read)
         {
             rv = static_cast<uint16_t>(bytes_read);
