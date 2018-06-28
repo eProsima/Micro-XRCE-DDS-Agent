@@ -7,7 +7,6 @@ namespace micrortps {
 bool UARTServer::send_msg(const uint8_t* buf, const size_t len, TransportClient* /*client*/)
 {
     bool rv = false;
-//    UARTClient* uart_client = static_cast<UARTClient*>(client);
 
     uint16_t bytes_written = write_serial_msg(&serial_io_, buf, len, addr_);
     if (0 < bytes_written)

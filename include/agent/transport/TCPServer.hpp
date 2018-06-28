@@ -51,7 +51,7 @@ struct TCPInputBuffer
 class TCPClient : public TransportClient
 {
 public:
-    TCPClient() : connected(false) {}
+    TCPClient() {}
     ~TCPClient() {}
 
 public:
@@ -59,7 +59,6 @@ public:
     TCPClient* next;
     TCPClient* prev;
     TCPInputBuffer input_buffer;
-    bool connected;
 };
 
 /******************************************************************************
@@ -80,7 +79,7 @@ private:
     uint16_t read_data(TCPClient* client);
     void disconnect_client(TCPClient* client);
     static void init_input_buffer(TCPInputBuffer* buffer);
-    static void sigpipe_handler(int fd) { }
+    static void sigpipe_handler(int fd) { } // TODO (julian): handle sigpipe to disconnect.
 
 private:
     std::array<TCPClient, MICRORTPS_MAX_TCP_CLIENTS> clients_;

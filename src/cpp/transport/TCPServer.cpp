@@ -78,7 +78,6 @@ bool TCPServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClien
                 /* Update available clients list. */
                 TCPClient* incoming_client = available_clients_;
                 incoming_client->poll_fd->fd = incoming_fd;
-                incoming_client->connected = true;
                 if (available_clients_ != available_clients_->next)
                 {
                     available_clients_->prev->next = available_clients_->next;
@@ -404,7 +403,6 @@ void TCPServer::disconnect_client(TCPClient* client)
         available_clients_ = client;
     }
     client->poll_fd->fd = -1;
-    client->connected = false;
 }
 
 void TCPServer::init_input_buffer(TCPInputBuffer* buffer)

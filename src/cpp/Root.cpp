@@ -723,7 +723,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), add_seq_num(first_message, i));
+                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i);
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);
@@ -734,7 +734,7 @@ void Agent::process_acknack(const dds::xrce::MessageHeader& header,
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), add_seq_num(first_message, i + 8));
+                message = client.stream_manager().get_output_message((uint8_t) header.sequence_nr(), first_message + i + 8);
                 if (message.len != 0)
                 {
                     Message output_message(message.buf, message.len);

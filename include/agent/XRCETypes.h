@@ -5822,7 +5822,7 @@ public:
      * @brief This function sets a value in member highest_acked_num
      * @param _highest_acked_num New value for member highest_acked_num
      */
-    inline void highest_acked_num(int16_t _highest_acked_num)
+    inline void highest_acked_num(uint16_t _highest_acked_num)
     {
         m_highest_acked_num = _highest_acked_num;
     }
@@ -5831,7 +5831,7 @@ public:
      * @brief This function returns the value of member highest_acked_num
      * @return Value of member highest_acked_num
      */
-    inline int16_t highest_acked_num() const
+    inline uint16_t highest_acked_num() const
     {
         return m_highest_acked_num;
     }
@@ -5840,7 +5840,7 @@ public:
      * @brief This function returns a reference to member highest_acked_num
      * @return Reference to member highest_acked_num
      */
-    inline int16_t& highest_acked_num()
+    inline uint16_t& highest_acked_num()
     {
         return m_highest_acked_num;
     }
@@ -5874,7 +5874,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    int16_t m_highest_acked_num;
+    uint16_t m_highest_acked_num;
 };
 
 /*!
@@ -5923,7 +5923,7 @@ public:
      * @brief This function sets a value in member stream_seq_num
      * @param _stream_seq_num New value for member stream_seq_num
      */
-    inline void stream_seq_num(int16_t _stream_seq_num)
+    inline void stream_seq_num(uint16_t _stream_seq_num)
     {
         m_stream_seq_num = _stream_seq_num;
     }
@@ -5932,7 +5932,7 @@ public:
      * @brief This function returns the value of member stream_seq_num
      * @return Value of member stream_seq_num
      */
-    inline int16_t stream_seq_num() const
+    inline uint16_t stream_seq_num() const
     {
         return m_stream_seq_num;
     }
@@ -5941,7 +5941,7 @@ public:
      * @brief This function returns a reference to member stream_seq_num
      * @return Reference to member stream_seq_num
      */
-    inline int16_t& stream_seq_num()
+    inline uint16_t& stream_seq_num()
     {
         return m_stream_seq_num;
     }
@@ -6001,7 +6001,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    int16_t m_stream_seq_num;
+    uint16_t m_stream_seq_num;
     uint64_t m_sample_seq_num;
 };
 
@@ -9995,7 +9995,7 @@ public:
      * @brief This function sets a value in member first_unacked_seq_num
      * @param _first_unacked_seq_num New value for member first_unacked_seq_num
      */
-    inline void first_unacked_seq_num(int16_t _first_unacked_seq_num)
+    inline void first_unacked_seq_num(uint16_t _first_unacked_seq_num)
     {
         m_first_unacked_seq_num = _first_unacked_seq_num;
     }
@@ -10004,7 +10004,7 @@ public:
      * @brief This function returns the value of member first_unacked_seq_num
      * @return Value of member first_unacked_seq_num
      */
-    inline int16_t first_unacked_seq_num() const
+    inline uint16_t first_unacked_seq_num() const
     {
         return m_first_unacked_seq_num;
     }
@@ -10013,7 +10013,7 @@ public:
      * @brief This function returns a reference to member first_unacked_seq_num
      * @return Reference to member first_unacked_seq_num
      */
-    inline int16_t& first_unacked_seq_num()
+    inline uint16_t& first_unacked_seq_num()
     {
         return m_first_unacked_seq_num;
     }
@@ -10082,7 +10082,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    int16_t m_first_unacked_seq_num;
+    uint16_t m_first_unacked_seq_num;
     std::array<uint8_t, 2> m_nack_bitmap;
 };
 
@@ -10132,7 +10132,7 @@ public:
      * @brief This function sets a value in member first_unacked_seq_nr
      * @param _first_unacked_seq_nr New value for member first_unacked_seq_nr
      */
-    inline void first_unacked_seq_nr(int16_t _first_unacked_seq_nr)
+    inline void first_unacked_seq_nr(uint16_t _first_unacked_seq_nr)
     {
         m_first_unacked_seq_nr = _first_unacked_seq_nr;
     }
@@ -10141,7 +10141,7 @@ public:
      * @brief This function returns the value of member first_unacked_seq_nr
      * @return Value of member first_unacked_seq_nr
      */
-    inline int16_t first_unacked_seq_nr() const
+    inline uint16_t first_unacked_seq_nr() const
     {
         return m_first_unacked_seq_nr;
     }
@@ -10150,7 +10150,7 @@ public:
      * @brief This function returns a reference to member first_unacked_seq_nr
      * @return Reference to member first_unacked_seq_nr
      */
-    inline int16_t& first_unacked_seq_nr()
+    inline uint16_t& first_unacked_seq_nr()
     {
         return m_first_unacked_seq_nr;
     }
@@ -10158,7 +10158,7 @@ public:
      * @brief This function sets a value in member last_unacked_seq_nr
      * @param _last_unacked_seq_nr New value for member last_unacked_seq_nr
      */
-    inline void last_unacked_seq_nr(int16_t _last_unacked_seq_nr)
+    inline void last_unacked_seq_nr(uint16_t _last_unacked_seq_nr)
     {
         m_last_unacked_seq_nr = _last_unacked_seq_nr;
     }
@@ -10167,7 +10167,7 @@ public:
      * @brief This function returns the value of member last_unacked_seq_nr
      * @return Value of member last_unacked_seq_nr
      */
-    inline int16_t last_unacked_seq_nr() const
+    inline uint16_t last_unacked_seq_nr() const
     {
         return m_last_unacked_seq_nr;
     }
@@ -10176,7 +10176,7 @@ public:
      * @brief This function returns a reference to member last_unacked_seq_nr
      * @return Reference to member last_unacked_seq_nr
      */
-    inline int16_t& last_unacked_seq_nr()
+    inline uint16_t& last_unacked_seq_nr()
     {
         return m_last_unacked_seq_nr;
     }
@@ -10210,8 +10210,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    int16_t m_first_unacked_seq_nr;
-    int16_t m_last_unacked_seq_nr;
+    uint16_t m_first_unacked_seq_nr;
+    uint16_t m_last_unacked_seq_nr;
 };
 /*!
  * @brief This class represents the enumeration SubmessageId defined by the user in the IDL file.

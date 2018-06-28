@@ -12,7 +12,7 @@ namespace micrortps {
 bool UDPServer::send_msg(const uint8_t* buf, const size_t len, TransportClient* client)
 {
     bool rv = true;
-    UDPClient* udp_client = static_cast<UDPClient*>(client);
+    const UDPClient* udp_client = static_cast<const UDPClient*>(client);
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;

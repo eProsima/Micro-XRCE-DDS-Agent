@@ -10,69 +10,54 @@ StreamsManager::StreamsManager()
 {
 }
 
-bool StreamsManager::is_next_message(const dds::xrce::StreamId stream_id, const uint16_t seq_num)
+bool StreamsManager::is_next_message(const dds::xrce::StreamId stream_id, const SeqNum seq_num)
 {
-    bool result = false;
+    bool rv = false;
     if (0x00 == stream_id)
     {
-        result = true;
+        rv = true;
     }
     else if (128 > stream_id)
     {
-        uint16_t last_handled = input_best_effort_streams_[stream_id].get_last_handled();
-        if (seq_num_is_greater(seq_num, last_handled))
-        {
-            result = true;
-        }
+        rv = (seq_num > input_best_effort_streams_[stream_id].get_last_handled());
     }
     else
     {
-        if (seq_num == input_relible_streams_[stream_id].get_first_unacked())
-        {
-            result = true;
-        }
+        rv = (seq_num == input_relible_streams_[stream_id].get_first_unacked());
     }
-    return result;
+    return rv;
 }
 
-bool StreamsManager::is_valid_message(const dds::xrce::StreamId stream_id, const uint16_t seq_num)
+bool StreamsManager::is_valid_message(const dds::xrce::StreamId stream_id, const SeqNum seq_num)
 {
-    bool result = false;
+    bool rv = false;
     if (0x00 == stream_id)
     {
-        result = true;
+        rv = true;
     }
     else if (128 > stream_id)
     {
-        uint16_t last_handled = input_best_effort_streams_[stream_id].get_last_handled();
-        if (seq_num_is_greater(add_seq_num(seq_num, 1), last_handled))
-        {
-            result = true;
-        }
+        rv = (seq_num > input_best_effort_streams_[stream_id].get_last_handled());
     }
     else
     {
-        uint16_t first_unacked = input_relible_streams_[stream_id].get_first_unacked();
-        if (seq_num_is_greater(add_seq_num(seq_num, 1), first_unacked)
-                && seq_num_is_less(seq_num, add_seq_num(first_unacked, 16)))
-        {
-            result = true;
-        }
+        SeqNum first_unacked = input_relible_streams_[stream_id].get_first_unacked();
+        rv = ((seq_num >= first_unacked) && (seq_num < 16 + first_unacked));
     }
-    return result;
+    return rv;
 }
 
 bool StreamsManager::message_available(const dds::xrce::StreamId stream_id)
 {
-    bool result = false;
+    bool rv = false;
     if (127 < stream_id)
     {
-        result = input_relible_streams_[stream_id].message_available();
+        rv = input_relible_streams_[stream_id].message_available();
     }
-    return result;
+    return rv;
 }
 
-void StreamsManager::promote_stream(const dds::xrce::StreamId stream_id, const uint16_t seq_num)
+void StreamsManager::promote_stream(const dds::xrce::StreamId stream_id, const SeqNum seq_num)
 {
     if (128 > stream_id)
     {
@@ -85,8 +70,8 @@ void StreamsManager::promote_stream(const dds::xrce::StreamId stream_id, const u
 }
 
 void StreamsManager::update_from_heartbeat(const dds::xrce::StreamId stream_id,
-                                           const uint16_t first_unacked,
-                                           const uint16_t last_unacked)
+                                           const SeqNum first_unacked,
+                                           const SeqNum last_unacked)
 {
     if (127 < stream_id)
     {
@@ -105,7 +90,7 @@ XrceMessage StreamsManager::get_next_message(const dds::xrce::StreamId stream_id
 }
 
 void StreamsManager::store_input_message(const dds::xrce::StreamId stream_id,
-                                         const uint16_t seq_num,
+                                         const SeqNum seq_num,
                                          const char* buf, size_t len)
 {
     if (127 < stream_id)
@@ -114,7 +99,7 @@ void StreamsManager::store_input_message(const dds::xrce::StreamId stream_id,
     }
 }
 
-uint16_t StreamsManager::get_first_unacked_seq_num(const dds::xrce::StreamId stream_id)
+SeqNum StreamsManager::get_first_unacked_seq_num(const dds::xrce::StreamId stream_id)
 {
     return input_relible_streams_[stream_id].get_first_unacked();
 }
@@ -123,7 +108,7 @@ void StreamsManager::store_output_message(const dds::xrce::StreamId stream_id, c
 {
     if (128 > stream_id)
     {
-        uint16_t index = add_seq_num(output_best_effort_streams_[stream_id].get_last_handled(), 1);
+        SeqNum index = output_best_effort_streams_[stream_id].get_last_handled() + 1;
         output_best_effort_streams_[stream_id].update(index);
     }
     else
@@ -132,7 +117,7 @@ void StreamsManager::store_output_message(const dds::xrce::StreamId stream_id, c
     }
 }
 
-XrceMessage StreamsManager::get_output_message(const dds::xrce::StreamId stream_id, const uint16_t index)
+XrceMessage StreamsManager::get_output_message(const dds::xrce::StreamId stream_id, const SeqNum index)
 {
     XrceMessage message = {0x00, 0x00};
     if (127 < stream_id)
@@ -152,17 +137,17 @@ std::array<uint8_t, 2> StreamsManager::get_nack_bitmap(const dds::xrce::StreamId
     return bitmap;
 }
 
-uint16_t StreamsManager::get_first_unacked_seq_nr(const dds::xrce::StreamId stream_id)
+SeqNum StreamsManager::get_first_unacked_seq_nr(const dds::xrce::StreamId stream_id)
 {
-    return (127 < stream_id) ? output_relible_streams_[stream_id].get_first_available() : 0;
+    return (127 < stream_id) ? output_relible_streams_[stream_id].get_first_available() : SeqNum(0);
 }
 
-uint16_t StreamsManager::get_last_unacked_seq_nr(const dds::xrce::StreamId stream_id)
+SeqNum StreamsManager::get_last_unacked_seq_nr(const dds::xrce::StreamId stream_id)
 {
-    return (127 < stream_id) ? output_relible_streams_[stream_id].get_last_available() : 0;
+    return (127 < stream_id) ? output_relible_streams_[stream_id].get_last_available() : SeqNum(0);
 }
 
-void StreamsManager::update_from_acknack(const dds::xrce::StreamId stream_id, const uint16_t first_unacked)
+void StreamsManager::update_from_acknack(const dds::xrce::StreamId stream_id, const SeqNum first_unacked)
 {
     if (127 < stream_id)
     {
@@ -170,18 +155,18 @@ void StreamsManager::update_from_acknack(const dds::xrce::StreamId stream_id, co
     }
 }
 
-uint16_t StreamsManager::next_ouput_message(const dds::xrce::StreamId stream_id)
+SeqNum StreamsManager::next_ouput_message(const dds::xrce::StreamId stream_id)
 {
-    uint16_t result;
+    SeqNum rv;
     if (128 > stream_id)
     {
-        result = add_seq_num(output_best_effort_streams_[stream_id].get_last_handled(), 1);
+        rv = output_best_effort_streams_[stream_id].get_last_handled() + 1;
     }
     else
     {
-        result = output_relible_streams_[stream_id].next_message();
+        rv = output_relible_streams_[stream_id].next_message();
     }
-    return result;
+    return rv;
 }
 
 std::vector<uint8_t> StreamsManager::get_output_streams()

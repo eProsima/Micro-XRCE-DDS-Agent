@@ -19,50 +19,89 @@ typedef struct XrceMessage
 
 } XrceMessage;
 
-inline uint16_t add_seq_num(uint16_t s, uint16_t n)
+/******************************************************************************
+ * Sequence Number Class.
+ ******************************************************************************/
+class SeqNum
 {
-    return (s + n) % SEQ_NUM_LIMITS;
-}
+public:
+    SeqNum() : seq_num_(0) {}
+    SeqNum(uint16_t seq_num) : seq_num_(seq_num) {}
+    SeqNum(int seq_num) : seq_num_((uint16_t)seq_num) {}
 
-inline bool seq_num_is_less(uint16_t a, uint16_t b)
-{
-    bool result = false;
-    if (a != b)
+    /*
+     * Operators.
+     */
+    inline operator uint16_t() const { return seq_num_; }
+    operator int() const { return seq_num_; }
+
+    inline SeqNum& operator+=(const int& rhs)
     {
-        if (((a < b) && ((b - a) < (SEQ_NUM_LIMITS >> 1))) || ((a > b) && ((a - b) > (SEQ_NUM_LIMITS >> 1))))
-        {
-            result = true;
-        }
+        seq_num_ = (seq_num_ + (uint16_t)rhs) % seq_num_limits_;
+        return *this;
     }
-    return result;
-}
 
-inline bool seq_num_is_greater(uint16_t a, uint16_t b)
-{
-    bool result = false;
-    if (a != b)
+    inline SeqNum& operator+=(const SeqNum& rhs)
     {
-        if (((a < b) && ((b - a) > (SEQ_NUM_LIMITS >> 1))) || ((a > b) && ((a - b) < (SEQ_NUM_LIMITS >> 1))))
-        {
-            result = true;
-        }
+        seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
+        return *this;
     }
-    return result;
-}
 
+    friend SeqNum operator+(SeqNum lhs, const SeqNum& rhs)
+    {
+        lhs += rhs;
+        return lhs;
+    }
+
+    friend SeqNum operator+(SeqNum lhs, const int& rhs)
+    {
+        lhs += rhs;
+        return lhs;
+    }
+
+    friend SeqNum operator+(const int& lhs, SeqNum rhs)
+    {
+        rhs += lhs;
+        return rhs;
+    }
+
+    friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
+    {
+        return (lhs.seq_num_ != rhs.seq_num_) &&
+               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (seq_num_add_range_))) ||
+                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_))));
+    }
+
+    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs.seq_num_ < lhs.seq_num_; }
+    friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
+    friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
+    friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
+    friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
+
+private:
+    uint16_t seq_num_;
+    static const int32_t seq_num_limits_ = (1 << 16);
+    static const int32_t seq_num_add_range_ = (1 << 15);
+};
+
+/******************************************************************************
+ * Best-Effort Streams.
+ ******************************************************************************/
 class BestEffortStream
 {
 public:
     BestEffortStream() : last_handled_(0xFFFF) {}
 
-    void update(uint16_t seq_num);
-    uint16_t get_last_handled() const { return last_handled_; }
-    bool is_valid(uint16_t seq_num);
+    void update(SeqNum seq_num);
+    SeqNum get_last_handled() const { return last_handled_; }
 
 private:
-    uint16_t last_handled_;
+    SeqNum last_handled_;
 };
 
+/******************************************************************************
+ * Reliable Input Stream.
+ ******************************************************************************/
 class ReliableInputStream
 {
 public:
@@ -73,22 +112,24 @@ public:
     ReliableInputStream(ReliableInputStream&&);
     ReliableInputStream& operator=(ReliableInputStream&&);
 
-    void insert_message(uint16_t index, const char* buf, size_t len);
+    void insert_message(SeqNum index, const char* buf, size_t len);
     bool message_available();
     XrceMessage get_next_message();
-    void update_from_heartbeat(uint16_t first_available, uint16_t last_available);
-    void update_from_message(uint16_t seq_num);
-    uint16_t get_first_unacked() const;
+    void update_from_heartbeat(SeqNum first_available, SeqNum last_available);
+    void update_from_message(SeqNum seq_num);
+    SeqNum get_first_unacked() const;
     std::array<uint8_t, 2> get_nack_bitmap();
-    bool is_valid(uint16_t seq_num);
 
 private:
-    uint16_t last_handled_;
-    uint16_t last_announced_;
+    SeqNum last_handled_;
+    SeqNum last_announced_;
     std::map<uint16_t, std::vector<uint8_t>> messages_;
     std::mutex mtx_;
 };
 
+/******************************************************************************
+ * Reliable Output Stream.
+ ******************************************************************************/
 class ReliableOutputStream
 {
 public:
@@ -101,16 +142,16 @@ public:
 
 
     void push_message(const char* buf, size_t len);
-    XrceMessage get_message(uint16_t index);
-    void update_from_acknack(uint16_t first_unacked);
-    uint16_t get_first_available() { return add_seq_num(last_acknown_, 1); }
-    uint16_t get_last_available() { return last_sent_; }
-    uint16_t next_message() { return add_seq_num(last_sent_, 1); }
+    XrceMessage get_message(SeqNum index);
+    void update_from_acknack(SeqNum first_unacked);
+    SeqNum get_first_available() { return last_acknown_ + 1;}
+    SeqNum get_last_available() { return last_sent_; }
+    SeqNum next_message() { return last_sent_ + 1; }
     bool message_pending() { return messages_.size() != 0; }
 
 private:
-    uint16_t last_sent_;
-    uint16_t last_acknown_;
+    SeqNum last_sent_;
+    SeqNum last_acknown_;
     std::map<uint16_t, std::vector<uint8_t>> messages_;
     std::mutex mtx_;
 };
