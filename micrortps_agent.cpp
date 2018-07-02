@@ -11,13 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#define _XOPEN_SOURCE >= 600
-#include <termios.h>
 
 #include <agent/transport/UARTServer.hpp>
 #include <agent/transport/UDPServer.hpp>
 #include <agent/transport/TCPServer.hpp>
 #include <agent/Root.h>
+#include <termios.h>
 
 int main(int argc, char** argv)
 {
@@ -109,8 +108,10 @@ int main(int argc, char** argv)
     {
         std::cout << "Help: program <command>" << std::endl;
         std::cout << "List of commands:" << std::endl;
-        std::cout << "    serial <device>" << std::endl;
+        std::cout << "    uart <fd>" << std::endl;
+        std::cout << "    pseudo-uart" << std::endl;
         std::cout << "    udp <local_port>" << std::endl;
+        std::cout << "    tcp <local_port>" << std::endl;
     }
     return 0;
 }

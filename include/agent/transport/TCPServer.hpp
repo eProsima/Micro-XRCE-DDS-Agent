@@ -79,7 +79,7 @@ private:
     uint16_t read_data(TCPClient* client);
     void disconnect_client(TCPClient* client);
     static void init_input_buffer(TCPInputBuffer* buffer);
-    static void sigpipe_handler(int fd) { } // TODO (julian): handle sigpipe to disconnect.
+    static void sigpipe_handler(int fd) { (void)fd; } // TODO (julian): handle sigpipe to disconnect.
 
 private:
     std::array<TCPClient, MICRORTPS_MAX_TCP_CLIENTS> clients_;

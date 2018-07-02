@@ -5659,6 +5659,7 @@ dds::xrce::DataDeliveryControl::DataDeliveryControl()
     m_max_samples = 0;
     m_max_elapsed_time = 0;
     m_max_bytes_per_second = 0;
+    m_min_pace_period = 0;
 }
 
 dds::xrce::DataDeliveryControl::~DataDeliveryControl()
@@ -5670,6 +5671,7 @@ dds::xrce::DataDeliveryControl::DataDeliveryControl(const DataDeliveryControl &x
     m_max_samples = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
+    m_min_pace_period = x.m_min_pace_period;
 }
 
 dds::xrce::DataDeliveryControl::DataDeliveryControl(DataDeliveryControl &&x)
@@ -5677,6 +5679,7 @@ dds::xrce::DataDeliveryControl::DataDeliveryControl(DataDeliveryControl &&x)
     m_max_samples = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
+    m_min_pace_period = x.m_min_pace_period;
 }
 
 dds::xrce::DataDeliveryControl& dds::xrce::DataDeliveryControl::operator=(const DataDeliveryControl &x)
@@ -5684,6 +5687,7 @@ dds::xrce::DataDeliveryControl& dds::xrce::DataDeliveryControl::operator=(const 
     m_max_samples = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
+    m_min_pace_period = x.m_min_pace_period;
     
     return *this;
 }
@@ -5693,6 +5697,7 @@ dds::xrce::DataDeliveryControl& dds::xrce::DataDeliveryControl::operator=(DataDe
     m_max_samples = x.m_max_samples;
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
+    m_min_pace_period = x.m_min_pace_period;
     
     return *this;
 }
@@ -5702,11 +5707,9 @@ size_t dds::xrce::DataDeliveryControl::getMaxCdrSerializedSize(size_t current_al
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
+    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     return current_alignment - initial_alignment;
 }
@@ -5716,11 +5719,9 @@ size_t dds::xrce::DataDeliveryControl::getCdrSerializedSize(size_t current_align
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
+    current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     return current_alignment - initial_alignment;
 }
@@ -5730,6 +5731,7 @@ void dds::xrce::DataDeliveryControl::serialize(eprosima::fastcdr::Cdr &scdr) con
     scdr << m_max_samples;
     scdr << m_max_elapsed_time;
     scdr << m_max_bytes_per_second;
+    scdr << m_min_pace_period;
 }
 
 void dds::xrce::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -5737,6 +5739,7 @@ void dds::xrce::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_max_samples;
     dcdr >> m_max_elapsed_time;
     dcdr >> m_max_bytes_per_second;
+    dcdr >> m_min_pace_period;
 }
 
 dds::xrce::ReadSpecification::ReadSpecification()

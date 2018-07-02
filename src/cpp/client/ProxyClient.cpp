@@ -86,7 +86,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
         {
             /* Check whether participant exists */
             auto participant_it = objects_.find(representation.publisher().participant_id());
-            if (participant_it != objects_.end())
+            if (participant_it != objects_.end() &&
+                ((representation.publisher().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
             {
                 XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                 std::unique_ptr<Publisher> publisher(new Publisher(object_id, *participant));
@@ -98,7 +99,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
         {
             /* Check whether participant exists */
             auto participant_it = objects_.find(representation.subscriber().participant_id());
-            if (participant_it != objects_.end())
+            if (participant_it != objects_.end() &&
+                ((representation.subscriber().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
             {
                 XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
                 std::unique_ptr<Subscriber> subscriber(new Subscriber(object_id, *participant));
@@ -118,7 +120,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
         case dds::xrce::OBJK_DATAWRITER:
         {
             auto publisher_it   = objects_.find(representation.data_writer().publisher_id());
-            if ((publisher_it != objects_.end()))
+            if ((publisher_it != objects_.end()) &&
+                ((representation.data_writer().publisher_id()[1] & 0x0F) == dds::xrce::OBJK_PUBLISHER))
             {
                 Publisher* publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
                 XRCEObject* data_writer = nullptr;
@@ -153,7 +156,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
         case dds::xrce::OBJK_DATAREADER:
         {
             auto subscriber_it  = objects_.find(representation.data_reader().subscriber_id());
-            if ((subscriber_it != objects_.end()))
+            if ((subscriber_it != objects_.end()) &&
+                ((representation.data_reader().subscriber_id()[1] & 0x0F) == dds::xrce::OBJK_SUBSCRIBER))
             {
                 Subscriber* subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
                 XRCEObject* data_reader = nullptr;
@@ -189,7 +193,8 @@ bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::
         case dds::xrce::OBJK_TOPIC:
         {
             auto participant_it = objects_.find(representation.topic().participant_id());
-            if ((participant_it != objects_.end()))
+            if ((participant_it != objects_.end()) &&
+                ((representation.topic().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
             {
                 std::unique_ptr<XRCEObject> topic;
                 switch (representation.topic().representation()._d())

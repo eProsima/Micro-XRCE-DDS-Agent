@@ -6719,7 +6719,25 @@ public:
     {
         return m_max_bytes_per_second;
     }
-    
+
+    /*!
+     * @brief This function returns the value of member min_pace_period
+     * @return Value of member min_pace_period
+     */
+    inline uint16_t min_pace_period() const
+    {
+        return m_min_pace_period;
+    }
+
+    /*!
+     * @brief This function returns a reference to member min_pace_period
+     * @return Reference to member min_pace_period
+     */
+    inline uint16_t& min_pace_period()
+    {
+        return m_min_pace_period;
+    }
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -6752,6 +6770,7 @@ private:
     uint16_t m_max_samples;
     uint16_t m_max_elapsed_time;
     uint16_t m_max_bytes_per_second;
+    uint16_t m_min_pace_period;
 };
 /*!
  * @brief This class represents the structure ReadSpecification defined by the user in the IDL file.

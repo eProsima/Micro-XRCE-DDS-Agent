@@ -175,7 +175,6 @@ dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_
 void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
-//    int ret = 0;
     running_ = true;
     uint32_t addr_udp = 0;
     uint16_t port = 0;
@@ -339,24 +338,13 @@ void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr
                 {
                     process_create_client(header, deserializer, addr, port);
                 }
-                if (sub_header.submessage_id() == dds::xrce::DELETE_ID)
-                {
-                    process_delete_client(header, deserializer, addr, port);
-                }
             }
         }
         /* Process the rest of the messages. */
         else
         {
             ProxyClient* client = nullptr;
-            if (header.session_id() < 128)
-            {
-                client = get_client(header.client_key());
-            }
-            else
-            {
-                client = get_client(addr);
-            }
+            client = (header.session_id() < 128) ? get_client(header.client_key()) : get_client(addr);
 
             if (nullptr != client)
             {
@@ -369,21 +357,26 @@ void Agent::handle_input_message(const XrceMessage& input_message, uint32_t addr
                     {
                         /* Process message. */
                         process_message(header, deserializer, *client);
-
-                        /* Promote sequence number. */
-                        stream_manager.promote_stream(stream_id, seq_num);
-
-                        /* Process next messages. */
-                        while (stream_manager.message_available(stream_id))
+                        client = (header.session_id() < 128) ? get_client(header.client_key()) : get_client(addr);
+                        if (nullptr != client)
                         {
-                            /* Get and process next messages. */
-                            XrceMessage next_message = stream_manager.get_next_message(stream_id);
-                            Serializer temp_deserializer(next_message.buf, next_message.len);
-                            process_message(header, temp_deserializer, *client);
+                            /* Promote sequence number. */
+                            stream_manager.promote_stream(stream_id, seq_num);
 
-                            /* Update stream. */
-                            stream_manager.promote_stream(stream_id, ++seq_num);
+                            /* Process next messages. */
+                            while (nullptr != client && stream_manager.message_available(stream_id))
+                            {
+                                /* Get and process next messages. */
+                                XrceMessage next_message = stream_manager.get_next_message(stream_id);
+                                Serializer temp_deserializer(next_message.buf, next_message.len);
+                                process_message(header, temp_deserializer, *client);
+                                client = (header.session_id() < 128) ? get_client(header.client_key()) : get_client(addr);
+
+                                /* Update stream. */
+                                stream_manager.promote_stream(stream_id, ++seq_num);
+                            }
                         }
+
                     }
                     else
                     {
@@ -481,7 +474,9 @@ void Agent::process_create_client(const dds::xrce::MessageHeader& header,
         /* Send STATUS_AGENT submessage. */
         Message status_message{};
         XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
-        message_creator.header(header);
+        dds::xrce::MessageHeader output_header = header;
+        output_header.session_id(client_payload.client_representation().session_id());
+        message_creator.header(output_header);
         message_creator.status_agent(status_payload);
         status_message.set_real_size(message_creator.get_total_size());
         status_message.set_addr(addr);
@@ -594,17 +589,12 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
         /* Status message header. */
         dds::xrce::MessageHeader status_header;
         status_header.session_id(header.session_id());
-        uint8_t stream_id = 0x80;
-        status_header.stream_id(stream_id);
-        uint16_t seq_num = client.stream_manager().next_ouput_message(stream_id);
-        status_header.sequence_nr(seq_num);
         status_header.client_key(header.client_key());
 
         /* Status payload. */
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(payload.request_id());
         status_payload.related_request().object_id(payload.object_id());
-        status_payload.result(client.delete_object(payload.object_id()));
 
         /* Serialize status. */
         Message message{};
@@ -615,8 +605,39 @@ void Agent::process_delete(const dds::xrce::MessageHeader& header,
         message.set_addr(client.get_addr());
         message.set_port(client.get_port());
 
-        /* Store message. */
-        client.stream_manager().store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
+        /* Delete object. */
+        if ((payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
+        {
+            /* Set stream and sequence number. */
+            status_header.sequence_nr(0x00);
+            status_header.stream_id(0x00);
+
+            /* Set result status. */
+            dds::xrce::ClientKey client_key;
+            if (header.session_id() < 128)
+            {
+                client_key = header.client_key();
+            }
+            else
+            {
+                client_key = get_key(client.get_addr());
+            }
+            status_payload.result(delete_client(client_key));
+        }
+        else
+        {
+            /* Set stream and sequence number. */
+            uint8_t stream_id = 0x80;
+            uint16_t seq_num = client.stream_manager().next_ouput_message(stream_id);
+            status_header.sequence_nr(seq_num);
+            status_header.stream_id(stream_id);
+
+            /* Set result status. */
+            status_payload.result(client.delete_object(payload.object_id()));
+
+            /* Store message. */
+            client.stream_manager().store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
+        }
 
         /* Send status. */
         add_reply(message);
