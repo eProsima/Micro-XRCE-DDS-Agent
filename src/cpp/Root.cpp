@@ -35,8 +35,6 @@ Agent& root()
 
 Agent::Agent() :
     server_(),
-//    locator_{},
-//    input_buffer_{},
     response_thread_{},
     heartbeats_thread_(),
     reply_cond_(),
@@ -193,7 +191,6 @@ void Agent::run()
 
 void Agent::stop()
 {
-//    remove_locator(locator_.locator_id);
     running_ = false;
 }
 

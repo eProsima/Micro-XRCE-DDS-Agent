@@ -74,7 +74,6 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
 eprosima_find_package(fastrtps REQUIRED)
 eprosima_find_thirdparty(Asio asio)
-eprosima_find_package(micrortps_transport REQUIRED)
 
 ###############################################################################
 # Targets
@@ -111,7 +110,7 @@ set(SRCS
 
 # Executable
 add_executable(MicroRTPSAgent micrortps_agent.cpp ${SRCS})
-target_link_libraries(MicroRTPSAgent PRIVATE micrortps_transport fastrtps fastcdr)
+target_link_libraries(MicroRTPSAgent PRIVATE fastrtps fastcdr)
 target_include_directories(MicroRTPSAgent
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -177,7 +176,7 @@ if(EPROSIMA_BUILD_TESTS)
 
     # Create library for testing purposes
     add_library(micrortps_agent_static STATIC ${SRCS})
-    target_link_libraries(micrortps_agent_static PUBLIC micrortps_transport fastrtps fastcdr)
+    target_link_libraries(micrortps_agent_static PUBLIC fastrtps fastcdr)
     target_include_directories(micrortps_agent_static
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
