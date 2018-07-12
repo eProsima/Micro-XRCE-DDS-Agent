@@ -28,11 +28,7 @@ ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
       session_id_(session_id),
       addr_(addr),
       port_(port),
-      streams_manager_()
-{
-}
-
-ProxyClient::~ProxyClient()
+      session_()
 {
 }
 
@@ -41,7 +37,7 @@ ProxyClient::ProxyClient(ProxyClient&& x) noexcept
       objects_(std::move(x.objects_)),
       client_key_(x.client_key_),
       session_id_(x.session_id_),
-      streams_manager_(std::move(x.streams_manager_))
+      session_(std::move(x.session_))
 {
 }
 
@@ -51,11 +47,11 @@ ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
     objects_         = std::move(x.objects_);
     client_key_      = std::move(x.client_key_);
     session_id_      = std::move(x.session_id_);
-    streams_manager_ = std::move(x.streams_manager_);
+    session_ = std::move(x.session_);
     return *this;
 }
 
-bool ProxyClient::create(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
+bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
 {
     bool result = false;
     switch (representation._d())
@@ -239,7 +235,7 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
     /* Create object according with creation mode (see Table 7 XRCE). */
     if (!exists)
     {
-        if (!create(object_id, object_representation))
+        if (!create_object(object_id, object_representation))
         {
             result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         }
@@ -249,7 +245,7 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
         if (creation_mode.replace())
         {
             objects_.erase(object_id);
-            if (!create(object_id, object_representation))
+            if (!create_object(object_id, object_representation))
             {
                 result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
             }
@@ -318,7 +314,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     message_header.client_key(client_key_);
     message_header.session_id(session_id_);
     message_header.stream_id(stream_id);
-    uint16_t seq_num = streams_manager_.next_ouput_message(stream_id);
+    uint16_t seq_num = session().next_ouput_message(stream_id);
     message_header.sequence_nr(seq_num);
 
     /* Payload. */
@@ -337,15 +333,15 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     message.set_port(port_);
 
     /* Store message. */
-    streams_manager_.store_output_message(stream_id, message.get_buffer().data(), message.get_real_size());
+    session_.push_output_message(stream_id, {message.get_buffer().data(), message.get_real_size()});
 
     /* Send message. */
     root().add_reply(message);
 }
 
-StreamsManager& ProxyClient::stream_manager()
+Session& ProxyClient::session()
 {
-    return streams_manager_;
+    return session_;
 }
 
 } // namespace micrortps

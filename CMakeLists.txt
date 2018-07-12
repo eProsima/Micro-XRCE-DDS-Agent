@@ -83,8 +83,6 @@ eprosima_find_thirdparty(Asio asio)
 set(SRCS
     src/cpp/Root.cpp
     src/cpp/client/ProxyClient.cpp
-    src/cpp/client/StreamsManager.cpp
-    src/cpp/client/XRCEStreams.cpp
     src/cpp/participant/Participant.cpp
     src/cpp/topic/Topic.cpp
     src/cpp/publisher/Publisher.cpp

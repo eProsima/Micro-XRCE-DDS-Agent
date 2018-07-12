@@ -16,7 +16,7 @@
 #define _MICRORTPS_AGENT_CLIENT_PROXYCLIENT_HPP_
 
 #include <micrortps/agent/participant/Participant.hpp>
-#include <micrortps/agent/client/StreamsManager.hpp>
+#include <micrortps/agent/client/session/Session.hpp>
 
 #include <array>
 #include <map>
@@ -40,7 +40,7 @@ public:
                 const dds::xrce::SessionId& session_id,
                 uint32_t addr, uint16_t port);
 
-    ~ProxyClient();
+    ~ProxyClient() = default;
 
     /**
      * @brief Deletes the copy constructor.
@@ -165,11 +165,11 @@ public:
     uint16_t get_port() const { return port_; }
 
     /**
-     * @brief This function return a stream manager used by the ProxyClient.
+     * @brief This function return the session used by the ProxyClient.
      *
-     * @return The stream manager of the ProxyClient.
+     * @return The session of the ProxyClient.
      */
-    StreamsManager& stream_manager();
+    Session& session();
 
 private:
     dds::xrce::CLIENT_Representation representation_;
@@ -182,9 +182,9 @@ private:
     uint32_t addr_;
     uint16_t port_;
 
-    StreamsManager streams_manager_;
+    Session session_;
 
-    bool create(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
+    bool create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
 };
 
 } // namespace micrortps
