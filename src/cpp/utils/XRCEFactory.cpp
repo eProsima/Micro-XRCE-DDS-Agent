@@ -30,51 +30,51 @@ void XRCEFactory::header(const dds::xrce::MessageHeader& header)
 
 void XRCEFactory::status(const dds::xrce::STATUS_Payload& payload)
 {
-    submessage_header(dds::xrce::STATUS, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    submessage_header(dds::xrce::STATUS, 0x01, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
 void XRCEFactory::status_agent(const dds::xrce::STATUS_AGENT_Payload& payload)
 {
-    submessage_header(dds::xrce::STATUS_AGENT, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    submessage_header(dds::xrce::STATUS_AGENT, 0x01, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
 void XRCEFactory::acknack(const dds::xrce::ACKNACK_Payload& payload)
 {
-    submessage_header(dds::xrce::ACKNACK, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    submessage_header(dds::xrce::ACKNACK, 0x01, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
 void XRCEFactory::heartbeat(const dds::xrce::HEARTBEAT_Payload& payload)
 {
-    submessage_header(dds::xrce::HEARTBEAT, 0x07, static_cast<uint16_t>(payload.getCdrSerializedSize()));
+    submessage_header(dds::xrce::HEARTBEAT, 0x01, static_cast<uint16_t>(payload.getCdrSerializedSize()));
     serializer_.serialize(payload);
 }
 
 void XRCEFactory::data(const dds::xrce::DATA_Payload_Data& payload)
 {
-    reply(dds::xrce::DATA, payload);
+    reply(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG);
 }
 
 void XRCEFactory::data(const dds::xrce::DATA_Payload_Sample& payload)
 {
-    reply(dds::xrce::DATA, payload);
+    reply(dds::xrce::DATA, payload, dds::xrce::FORMAT_SAMPLE_FLAG);
 }
 
 void XRCEFactory::data(const dds::xrce::DATA_Payload_DataSeq& payload)
 {
-    reply(dds::xrce::DATA, payload);
+    reply(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_SEQ_FLAG);
 }
 
 void XRCEFactory::data(const dds::xrce::DATA_Payload_SampleSeq& payload)
 {
-    reply(dds::xrce::DATA, payload);
+    reply(dds::xrce::DATA, payload, dds::xrce::FORMAT_SAMPLE_SEQ_FLAG);
 }
 
 void XRCEFactory::data(const dds::xrce::DATA_Payload_PackedSamples& payload)
 {
-    reply(dds::xrce::DATA, payload);
+    reply(dds::xrce::DATA, payload, dds::xrce::FORMAT_PACKED_SAMPLES_FLAG);
 }
 
 void XRCEFactory::submessage_header(const dds::xrce::SubmessageId submessage_id,
@@ -89,9 +89,10 @@ void XRCEFactory::submessage_header(const dds::xrce::SubmessageId submessage_id,
 }
 
 void XRCEFactory::reply(const dds::xrce::SubmessageId submessage_id,
-                        const dds::xrce::BaseObjectRequest& object_reply)
+                        const dds::xrce::BaseObjectRequest& object_reply,
+                        uint8_t data_flags)
 {
-    submessage_header(submessage_id, 0x07, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
+    submessage_header(submessage_id, data_flags | 0x01, static_cast<uint16_t>(object_reply.getCdrSerializedSize()));
     serializer_.serialize(object_reply);
 }
 

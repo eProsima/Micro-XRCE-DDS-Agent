@@ -655,7 +655,7 @@ void Agent::process_write_data(const dds::xrce::MessageHeader& /*header*/,
     dds::xrce::DataRepresentation data;
     switch (flags)
     {
-        case dds::xrce::FORMAT_DATA_F: ;
+        case dds::xrce::FORMAT_DATA_FLAG: ;
         {
             dds::xrce::WRITE_DATA_Payload_Data payload;
             if (deserializer.deserialize(payload))

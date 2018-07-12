@@ -47,7 +47,8 @@ private:
                            uint8_t flags,
                            uint16_t submessage_length);
     void reply(dds::xrce::SubmessageId submessage_id,
-               const dds::xrce::BaseObjectRequest& object_reply);
+               const dds::xrce::BaseObjectRequest& object_reply,
+               uint8_t data_flag);
 
     Serializer serializer_;
 };
