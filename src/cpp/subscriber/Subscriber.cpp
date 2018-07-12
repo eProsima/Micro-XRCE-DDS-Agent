@@ -1,4 +1,4 @@
-// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/subscriber/Subscriber.h>
+#include <micrortps/agent/subscriber/Subscriber.hpp>
 
 namespace eprosima {
 namespace micrortps {
@@ -28,5 +28,5 @@ XRCEParticipant& Subscriber::get_participant()
     return participant_;
 }
 
-} /* namespace micrortps */
-} /* namespace eprosima */
+} // namespace micrortps
+} // namespace eprosima

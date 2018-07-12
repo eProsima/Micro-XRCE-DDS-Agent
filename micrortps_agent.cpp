@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/transport/UARTServer.hpp>
-#include <agent/transport/UDPServer.hpp>
-#include <agent/transport/TCPServer.hpp>
-#include <agent/Root.h>
+#include <micrortps/agent/transport/UARTServer.hpp>
+#include <micrortps/agent/transport/UDPServer.hpp>
+#include <micrortps/agent/transport/TCPServer.hpp>
+#include <micrortps/agent/Root.hpp>
 #include <termios.h>
 
 int main(int argc, char** argv)

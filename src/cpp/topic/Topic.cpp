@@ -1,4 +1,4 @@
-// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/topic/Topic.hpp>
-
+#include <micrortps/agent/topic/Topic.hpp>
 #include <xmlobjects/xmlobjects.h>
-
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
@@ -50,5 +48,6 @@ bool Topic::init(const std::string& xmlrep)
         return false;
     }
 }
+
 } // namespace micrortps
 } // namespace eprosima

@@ -83,13 +83,6 @@ eprosima_find_package(micrortps_transport REQUIRED)
 # Set source files
 set(SRCS
     src/cpp/Root.cpp
-    src/cpp/XRCEObject.cpp
-    src/cpp/XRCETypes.cpp
-    src/cpp/XRCEFactory.cpp
-    src/cpp/Serializer.cpp
-    src/cpp/MessageHeader.cpp
-    src/cpp/SubMessageHeader.cpp
-    src/cpp/MessageQueue.cpp
     src/cpp/client/ProxyClient.cpp
     src/cpp/client/StreamsManager.cpp
     src/cpp/client/XRCEStreams.cpp
@@ -97,10 +90,17 @@ set(SRCS
     src/cpp/topic/Topic.cpp
     src/cpp/publisher/Publisher.cpp
     src/cpp/subscriber/Subscriber.cpp
+    src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
     src/cpp/datareader/TokenBucket.cpp
-    src/cpp/datawriter/DataWriter.cpp
+    src/cpp/object/XRCEObject.cpp
+    src/cpp/types/XRCETypes.cpp
+    src/cpp/types/MessageHeader.cpp
+    src/cpp/types/SubMessageHeader.cpp
     src/cpp/types/TopicPubSubType.cpp
+    src/cpp/utils/XRCEFactory.cpp
+    src/cpp/utils/Serializer.cpp
+    src/cpp/utils/MessageQueue.cpp
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/UDPServer.cpp

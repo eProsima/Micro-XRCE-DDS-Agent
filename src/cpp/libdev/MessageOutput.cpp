@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include "MessageOutput.h"
+#include <micrortps/agent/types/XRCETypes.hpp>
+#include <micrortps/agent/types/MessageHeader.hpp>
+#include <micrortps/agent/types/SubMessageHeader.hpp>
 
 #include <stdio.h>
-
-#include <agent/XRCETypes.h>
-#include <agent/MessageHeader.h>
-#include <agent/SubMessageHeader.h>
 
 #ifdef _WIN32
 #define PRIstrsize "0x%08llX"

@@ -16,7 +16,7 @@
 #define _MESSAGE_OUTPUT_H_
 
 #include <cstdint>
-#include <agent/XRCETypes.h>
+#include <micrortps/agent/types/XRCETypes.hpp>
 
 namespace dds { namespace xrce {
 

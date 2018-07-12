@@ -1,4 +1,4 @@
-// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/Root.h>
-
+#include <micrortps/agent/Root.hpp>
 #include <libdev/MessageDebugger.h>
 #include <libdev/MessageOutput.h>
 #include <fastcdr/Cdr.h>
@@ -36,8 +35,8 @@ Agent& root()
 
 Agent::Agent() :
     server_(),
-    locator_{},
-    input_buffer_{},
+//    locator_{},
+//    input_buffer_{},
     response_thread_{},
     heartbeats_thread_(),
     reply_cond_(),
@@ -194,7 +193,7 @@ void Agent::run()
 
 void Agent::stop()
 {
-    remove_locator(locator_.locator_id);
+//    remove_locator(locator_.locator_id);
     running_ = false;
 }
 

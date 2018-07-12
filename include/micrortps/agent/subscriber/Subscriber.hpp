@@ -12,21 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/publisher/Publisher.hpp>
+#ifndef _MICRORTPS_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
+#define _MICRORTPS_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
+
+#include <micrortps/agent/datareader/DataReader.hpp>
 
 namespace eprosima {
 namespace micrortps {
 
-Publisher::Publisher(const dds::xrce::ObjectId& id, XRCEParticipant& participant)
-    : XRCEObject {id},
-      participant_(participant)
-{
-}
+class XRCEParticipant;
 
-XRCEParticipant& Publisher::get_participant()
+class Subscriber : public XRCEObject
 {
-    return participant_;
-}
+public:
+    Subscriber(const dds::xrce::ObjectId& id, XRCEParticipant& participant);
+    virtual ~Subscriber() = default;
+
+    XRCEParticipant& get_participant();
+
+private:
+    XRCEParticipant& participant_;
+};
 
 } // namespace micrortps
 } // namespace eprosima
+
+#endif //_MICRORTPS_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_

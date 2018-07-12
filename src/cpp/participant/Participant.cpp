@@ -1,4 +1,4 @@
-// Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <agent/datareader/DataReader.h>
-#include <agent/datawriter/DataWriter.h>
-#include <agent/participant/Participant.h>
-#include <agent/topic/Topic.hpp>
+#include <micrortps/agent/participant/Participant.hpp>
 #include <xmlobjects/xmlobjects.h>
 
 #include <fastrtps/Domain.h>
