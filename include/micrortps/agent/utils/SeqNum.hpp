@@ -70,7 +70,7 @@ public:
                 ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_))));
     }
 
-    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs.seq_num_ < lhs.seq_num_; }
+    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
     friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
     friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
     friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }

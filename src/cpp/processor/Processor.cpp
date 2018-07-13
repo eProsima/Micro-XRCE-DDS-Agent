@@ -43,7 +43,6 @@ void Processor::process_input_message(const XrceMessage& input_message, uint32_t
         {
             ProxyClient* client = nullptr;
             client = (header.session_id() < 128) ? root_.get_client(header.client_key()) : root_.get_client(addr);
-
             if (nullptr != client)
             {
                 Session& session = client->session();
@@ -62,6 +61,30 @@ void Processor::process_input_message(const XrceMessage& input_message, uint32_t
                         session.remove_last_message(stream_id);
                         client = (header.session_id() < 128) ? root_.get_client(header.client_key()) : root_.get_client(addr);
                     }
+
+                }
+
+                /* Send acknack in case. */
+                if (127 < stream_id)
+                {
+                    dds::xrce::MessageHeader acknack_header;
+                    acknack_header.session_id() = header.session_id();
+                    acknack_header.stream_id() = 0x00;
+                    acknack_header.sequence_nr() = header.sequence_nr();
+                    acknack_header.client_key() = header.client_key();
+
+                    dds::xrce::ACKNACK_Payload acknack_payload;
+                    acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
+                    acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
+
+                    Message message{};
+                    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+                    message_creator.header(acknack_header);
+                    message_creator.acknack(acknack_payload);
+                    message.set_real_size(message_creator.get_total_size());
+                    message.set_addr(client->get_addr());
+                    message.set_port(client->get_port());
+                    root_.add_reply(message);
                 }
             }
             else
@@ -276,9 +299,6 @@ bool Processor::process_delete_submessage(const dds::xrce::MessageHeader& header
         /* Serialize status. */
         Message message{};
         XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-        message_creator.header(status_header);
-        message_creator.status(status_payload);
-        message.set_real_size(message_creator.get_total_size());
         message.set_addr(client.get_addr());
         message.set_port(client.get_port());
 
@@ -315,6 +335,10 @@ bool Processor::process_delete_submessage(const dds::xrce::MessageHeader& header
             /* Store message. */
             client.session().push_output_message(stream_id, {message.get_buffer().data(), message.get_real_size()});
         }
+
+        message_creator.header(status_header);
+        message_creator.status(status_payload);
+        message.set_real_size(message_creator.get_total_size());
 
         /* Send status. */
         root_.add_reply(message);
@@ -390,23 +414,23 @@ bool Processor::process_read_data_submessage(const dds::xrce::MessageHeader& hea
         else
         {
             result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+            /* Serialize status. */
+            Message message{};
+            XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
+            message_creator.header(status_header);
+            message_creator.status(status_payload);
+            message.set_real_size(message_creator.get_total_size());
+            message.set_addr(client.get_addr());
+            message.set_port(client.get_port());
+
+            /* Store message. */
+            client.stream_manager().store_output_message(header.stream_id(), message.get_buffer().data(), message.get_real_size());
+
+            /* Send status. */
+            root_.add_reply(message);
         }
         status_payload.result(result);
-
-        /* Serialize status. */
-        Message message{};
-        XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-        message_creator.header(status_header);
-        message_creator.status(status_payload);
-        message.set_real_size(message_creator.get_total_size());
-        message.set_addr(client.get_addr());
-        message.set_port(client.get_port());
-
-        /* Store message. */
-        client.stream_manager().store_output_message(header.stream_id(), message.get_buffer().data(), message.get_real_size());
-
-        /* Send status. */
-        root_.add_reply(message);
     }
     else
     {
