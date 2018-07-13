@@ -82,6 +82,7 @@ eprosima_find_thirdparty(Asio asio)
 # Set source files
 set(SRCS
     src/cpp/Root.cpp
+    src/cpp/processor/Processor.cpp
     src/cpp/client/ProxyClient.cpp
     src/cpp/participant/Participant.cpp
     src/cpp/topic/Topic.cpp

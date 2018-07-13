@@ -18,6 +18,7 @@
 #include <micrortps/agent/client/ProxyClient.hpp>
 #include <micrortps/agent/utils/XRCEFactory.hpp>
 #include <micrortps/agent/utils/MessageQueue.hpp>
+#include <micrortps/agent/processor/Processor.hpp>
 
 #include <micrortps/agent/transport/XRCEServer.hpp>
 
@@ -90,6 +91,8 @@ public:
      * @return In other cases return a pointer to the Client.
      */
     ProxyClient* get_client(const dds::xrce::ClientKey& client_key);
+    ProxyClient* get_client(uint32_t addr);
+    dds::xrce::ClientKey get_key(uint32_t addr);
 
     /**
      * @brief Pushs messages in a output queue. These messages are delivered to Clients in a event
@@ -107,47 +110,12 @@ private:
     void reply();
     void manage_heartbeats();
 
-    /* Utils functions. */
-    ProxyClient* get_client(uint32_t addr);
-    dds::xrce::ClientKey get_key(uint32_t addr);
-
-    /* Message processing functions. */
-    void handle_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port);
-    void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
-
-    /* Submessage procession functions. */
-    void process_create_client(const dds::xrce::MessageHeader& header,
-                               Serializer& deserializer,
-                               uint32_t addr, uint16_t port);
-    void process_delete_client(const dds::xrce::MessageHeader& header,
-                               Serializer& deserializer,
-                               uint32_t addr, uint16_t port);
-    void process_create(const dds::xrce::MessageHeader& header,
-                        const dds::xrce::SubmessageHeader& sub_header,
-                        Serializer& deserializer, ProxyClient& client);
-    void process_delete(const dds::xrce::MessageHeader& header,
-                        const dds::xrce::SubmessageHeader& sub_header,
-                        Serializer& deserializer, ProxyClient& client);
-    void process_write_data(const dds::xrce::MessageHeader& header,
-                            const dds::xrce::SubmessageHeader& sub_header,
-                            Serializer& deserializer, ProxyClient& client);
-    void process_read_data(const dds::xrce::MessageHeader& header,
-                           const dds::xrce::SubmessageHeader& sub_header,
-                           Serializer& deserializer, ProxyClient& client);
-    void process_acknack(const dds::xrce::MessageHeader& header,
-                         const dds::xrce::SubmessageHeader& sub_header,
-                         Serializer& deserializer, ProxyClient& client);
-    void process_heartbeat(const dds::xrce::MessageHeader& header,
-                           const dds::xrce::SubmessageHeader& sub_header,
-                           Serializer& deserializer, ProxyClient& client);
-
 private:
     XRCEServer* server_;
     TransportClient* transport_client_;
 
-//    micrortps_locator_t locator_;
-//    static const size_t buffer_len_ = CONFIG_MAX_TRANSMISSION_UNIT_SIZE;
-//    uint8_t input_buffer_[buffer_len_];
+    Processor processor_;
+
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
     std::map<uint32_t, dds::xrce::ClientKey> addr_to_key_;
