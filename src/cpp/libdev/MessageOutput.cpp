@@ -62,7 +62,7 @@ void print_submessage_header(const dds::xrce::SubmessageHeader& header)
         case dds::xrce::CREATE:
             printf("<Submessage> [CREATE] \n");
             break;
-        case dds::xrce::DELETE_ID:
+        case dds::xrce::DELETE:
             printf("<Submessage> [DELETE]\n");
             break;
         case dds::xrce::STATUS:

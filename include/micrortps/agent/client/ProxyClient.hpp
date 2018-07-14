@@ -170,9 +170,11 @@ public:
      * @return The session of the ProxyClient.
      */
     Session& session();
+    std::mutex& get_mutex() { return mtx_; }
 
 private:
     dds::xrce::CLIENT_Representation representation_;
+    std::mutex mtx_;
 
     std::mutex objects_mutex_;
     std::map<dds::xrce::ObjectId, std::unique_ptr<XRCEObject>> objects_;

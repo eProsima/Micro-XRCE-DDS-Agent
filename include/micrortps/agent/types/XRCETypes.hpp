@@ -216,6 +216,8 @@ const SessionId STREAMID_NONE                 = 0x00;
 const SessionId STREAMID_BUILTIN_BEST_EFFORTS = 0x01;
 const SessionId STREAMID_BUILTIN_RELIABLE     = 0x80;
 
+typedef uint16_t SequenceNr;
+
 /*!
  * @brief This class represents the enumeration TransportAddressFormat defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -10241,7 +10243,7 @@ enum SubmessageId : uint8_t
     CREATE_CLIENT   = 0,
     CREATE          = 1,
     GET_INFO        = 2,
-    DELETE_ID       = 3,
+    DELETE          = 3,
     STATUS_AGENT    = 4,
     STATUS          = 5,
     INFO            = 6,

@@ -15,10 +15,8 @@
 #ifndef _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_INPUT_STREAM_HPP_
 #define _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_INPUT_STREAM_HPP_
 
-#include <micrortps/agent/types/XRCETypes.hpp>
 #include <micrortps/agent/utils/SeqNum.hpp>
-#include <micrortps/agent/message/Message.hpp>
-
+#include <micrortps/agent/message/Packet.hpp>
 #include <map>
 
 #define MICRORTPS_RELIABLE_STREAM_DEPTH 16
@@ -63,18 +61,16 @@ public:
     ReliableInputStream(ReliableInputStream&&);
     ReliableInputStream& operator=(ReliableInputStream&&);
 
-    bool next_message(SeqNum seq_num, const XrceMessage& message);
-    bool pop_message(XrceMessage& message);
+    bool next_message(SeqNum seq_num, InputMessagePtr& message);
+    bool pop_message(InputMessagePtr& message);
     void update_from_heartbeat(SeqNum first_available, SeqNum last_available);
     SeqNum get_first_unacked() const;
     std::array<uint8_t, 2> get_nack_bitmap();
-    // TODO (julian): remove.
-    void remove_last_message();
 
 private:
     SeqNum last_handled_;
     SeqNum last_announced_;
-    std::map<uint16_t, std::vector<uint8_t>> messages_;
+    std::map<uint16_t, InputMessagePtr> messages_;
 };
 
 inline ReliableInputStream::ReliableInputStream(ReliableInputStream&& x)
@@ -92,7 +88,7 @@ inline ReliableInputStream& ReliableInputStream::operator=(ReliableInputStream&&
     return *this;
 }
 
-inline bool ReliableInputStream::next_message(SeqNum seq_num, const XrceMessage& message)
+inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& message)
 {
     bool rv = false;
     if (seq_num == last_handled_ + 1)
@@ -107,18 +103,14 @@ inline bool ReliableInputStream::next_message(SeqNum seq_num, const XrceMessage&
             if (seq_num > last_announced_)
             {
                 last_announced_ = seq_num;
-                messages_.emplace(std::piecewise_construct,
-                                  std::forward_as_tuple(seq_num),
-                                  std::forward_as_tuple(message.buf, message.buf + message.len));
+                messages_.insert(std::make_pair(seq_num, std::move(message)));
             }
             else
             {
                 auto it = messages_.find(seq_num);
                 if (it == messages_.end())
                 {
-                    messages_.emplace(std::piecewise_construct,
-                                      std::forward_as_tuple(seq_num),
-                                      std::forward_as_tuple(message.buf, message.buf + message.len));
+                    messages_.insert(std::make_pair(seq_num, std::move(message)));
 
                 }
             }
@@ -127,15 +119,15 @@ inline bool ReliableInputStream::next_message(SeqNum seq_num, const XrceMessage&
     return rv;
 }
 
-inline bool ReliableInputStream::pop_message(XrceMessage& message)
+inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
 {
     bool rv = false;
     auto it = messages_.find(last_handled_ + 1);
     if (it != messages_.end())
     {
         last_handled_ += 1;
-        message.buf = reinterpret_cast<char*>(messages_.at(last_handled_ + 1).data());
-        message.len = messages_.at(last_handled_ + 1).size();
+        message = std::move(messages_.at(last_handled_));
+        messages_.erase(last_handled_);
         rv = true;
     }
     return rv;
@@ -181,11 +173,6 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
         }
     }
     return bitmap;
-}
-
-inline void ReliableInputStream::remove_last_message()
-{
-    messages_.erase(last_handled_);
 }
 
 } // namespace micrortps

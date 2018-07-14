@@ -20,6 +20,7 @@
 #include <micrortps/agent/types/SubMessageHeader.hpp>
 #include <micrortps/agent/message/Message.hpp>
 #include <micrortps/agent/utils/Serializer.hpp>
+#include <micrortps/agent/message/Packet.hpp>
 
 namespace eprosima {
 namespace micrortps {
@@ -32,18 +33,18 @@ class Processor
 public:
     Processor(Agent& root) : root_(root) {}
 
-    void process_input_message(const XrceMessage& input_message, uint32_t addr, uint16_t port);
+    void process_input_packet(InputPacket&& input_packet);
 
 private:
-    void process_message(const dds::xrce::MessageHeader& header, Serializer& deserializer, ProxyClient& client);
-    bool process_create_client_submessage(dds::xrce::MessageHeader& header, Serializer& deserializer, uint32_t addr, uint16_t port);
-    bool process_delete_client_submessage(dds::xrce::MessageHeader& header, Serializer& deserializer, uint32_t addr, uint16_t port);
-    bool process_create_submessage(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header, Serializer& deserializer, ProxyClient& client);
-    bool process_delete_submessage(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& sub_header, Serializer& deserializer, ProxyClient& client);
-    bool process_write_data_submessage(const dds::xrce::MessageHeader& /*header*/, const dds::xrce::SubmessageHeader& sub_header, Serializer& deserializer, ProxyClient& client);
-    bool process_read_data_submessage(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& /*sub_header*/, Serializer& deserializer, ProxyClient& client);
-    bool process_acknack_submessage(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& /*sub_header*/, Serializer& deserializer, ProxyClient& client);
-    bool process_heartbeat_submessage(const dds::xrce::MessageHeader& header, const dds::xrce::SubmessageHeader& /*sub_header*/, Serializer& deserializer, ProxyClient& client);
+    void process_input_message(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_create_client_submessage(InputMessagePtr& input_message);
+    bool process_create_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_delete_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_write_data_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_read_data_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_acknack_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_heartbeat_submessage(ProxyClient& client, InputMessagePtr& input_message);
 
 private:
     Agent& root_;

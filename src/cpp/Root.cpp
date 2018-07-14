@@ -174,16 +174,20 @@ void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
     running_ = true;
-    uint32_t addr_udp = 0;
-    uint16_t port = 0;
+//    uint32_t addr_udp = 0;
+//    uint16_t port = 0;
     uint8_t* buf = nullptr;
     size_t len = 0;
     while(running_)
     {
         if (server_->recv_msg(&buf, &len, -1, &transport_client_))
         {
-            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
-            processor_.process_input_message(input_message, addr_udp, port);
+//            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
+//            processor_.process_input_message(input_message, addr_udp, port);
+            InputPacket input_packet;
+            input_packet.client_key = {0xAA, 0xBB, 0xCC, 0xDD};
+            input_packet.message.reset(new InputMessage(buf, len));
+            processor_.process_input_packet(std::move(input_packet));
         }
     };
     std::cout << "Execution stopped" << std::endl;

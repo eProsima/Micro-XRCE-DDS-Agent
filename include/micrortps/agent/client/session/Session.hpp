@@ -36,12 +36,11 @@ public:
     Session& operator=(Session&&) = default;
 
     /* Input streams functions. */
-    bool next_input_message(dds::xrce::StreamId stream_id, SeqNum seq_num, const XrceMessage& message);
-    bool pop_input_message(dds::xrce::StreamId stream_id, XrceMessage& message);
+    bool next_input_message(InputMessagePtr& message);
+    bool pop_input_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
     void update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum first_unacked, SeqNum last_unacked);
     SeqNum get_first_unacked_seq_num(dds::xrce::StreamId stream_id);
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
-    void remove_last_message(dds::xrce::StreamId stream_id);
 
     /* Output streams functions. */
     void push_output_message(dds::xrce::StreamId stream_id, const XrceMessage& message);
@@ -63,9 +62,11 @@ private:
 /**************************************************************************************************
  * Input Stream Methods.
  **************************************************************************************************/
-inline bool Session::next_input_message(dds::xrce::StreamId stream_id, SeqNum seq_num, const XrceMessage& message)
+inline bool Session::next_input_message(InputMessagePtr& message)
 {
     bool rv;
+    dds::xrce::StreamId stream_id = message->get_header().stream_id();
+    SeqNum seq_num = message->get_header().sequence_nr();
     if (0 == stream_id)
     {
         rv = true;
@@ -81,7 +82,7 @@ inline bool Session::next_input_message(dds::xrce::StreamId stream_id, SeqNum se
     return rv;
 }
 
-inline bool Session::pop_input_message(dds::xrce::StreamId stream_id, XrceMessage& message)
+inline bool Session::pop_input_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
 {
     bool rv = false;
     if (127 < stream_id)
@@ -102,14 +103,6 @@ inline void Session::update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum
 inline SeqNum Session::get_first_unacked_seq_num(dds::xrce::StreamId stream_id)
 {
     return input_relible_streams_[stream_id].get_first_unacked();
-}
-
-inline void Session::remove_last_message(dds::xrce::StreamId stream_id)
-{
-    if (127 < stream_id)
-    {
-        input_relible_streams_[stream_id].remove_last_message();
-    }
 }
 
 /**************************************************************************************************
