@@ -101,7 +101,7 @@ public:
      *
      * @param message The output message.
      */
-    void add_reply(Message& message);
+    void add_reply(OutputMessagePtr& output_message);
 
     void abort_execution();
 

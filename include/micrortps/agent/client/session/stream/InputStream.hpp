@@ -15,10 +15,11 @@
 #ifndef _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_INPUT_STREAM_HPP_
 #define _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_INPUT_STREAM_HPP_
 
-#include <micrortps/agent/utils/SeqNum.hpp>
 #include <micrortps/agent/message/Packet.hpp>
+#include <micrortps/agent/utils/SeqNum.hpp>
 #include <map>
 
+// TODO (julian): move to global config.
 #define MICRORTPS_RELIABLE_STREAM_DEPTH 16
 
 namespace eprosima {

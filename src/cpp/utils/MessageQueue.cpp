@@ -46,22 +46,22 @@ void MessageQueue::abort()
     condition_.notify_one();
 }
 
-Message MessageQueue::pop()
+eprosima::micrortps::OutputMessagePtr MessageQueue::pop()
 {
     std::unique_lock<std::mutex> queuelock(data_mutex_);
     condition_.wait(queuelock, [this]{
         return (!internal_queue_.empty() || aborted_);
     });
-    Message message{};
+    eprosima::micrortps::OutputMessagePtr output_message;
     if (!aborted_)
     {
-        message = internal_queue_.front();
+        output_message = internal_queue_.front();
         internal_queue_.pop();
     }
-    return message;
+    return output_message;
 }
 
-void MessageQueue::push(const Message& new_message)
+void MessageQueue::push(const eprosima::micrortps::OutputMessagePtr& new_message)
   {
     std::lock_guard<std::mutex> queuelock(data_mutex_);
     internal_queue_.push(new_message);

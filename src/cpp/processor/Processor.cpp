@@ -20,70 +20,64 @@ namespace micrortps {
 
 void Processor::process_input_packet(InputPacket&& input_packet)
 {
-        /* Create client message. */
-        if ((input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY) ||
-            (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY))
+    /* Create client message. */
+    if ((input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY) ||
+        (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY))
+    {
+        if (input_packet.message->prepare_next_submessage())
         {
-            if (input_packet.message->prepare_next_submessage())
+            if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
             {
-                if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
-                {
-                    process_create_client_submessage(input_packet.message);
-                }
+                process_create_client_submessage(input_packet.message);
             }
         }
-        /* Process the rest of the messages. */
-        else
+    }
+    /* Process the rest of the messages. */
+    else
+    {
+        dds::xrce::MessageHeader header = input_packet.message->get_header();
+        dds::xrce::ClientKey client_key = input_packet.client_key;
+        ProxyClient* client = root_.get_client(client_key);
+        if (nullptr != client)
         {
-            dds::xrce::MessageHeader header = input_packet.message->get_header();
-            dds::xrce::ClientKey client_key = input_packet.client_key;
-            ProxyClient* client = root_.get_client(client_key);
-            if (nullptr != client)
+            Session& session = client->session();
+            dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
+            if (session.next_input_message(input_packet.message))
             {
-                Session& session = client->session();
-                dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
-                if (session.next_input_message(input_packet.message))
+                /* Process message. */
+                process_input_message(*client, input_packet.message);
+                client = root_.get_client(client_key);
+                while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
                 {
-                    /* Process message. */
                     process_input_message(*client, input_packet.message);
                     client = root_.get_client(client_key);
-                    while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
-                    {
-                        process_input_message(*client, input_packet.message);
-                        client = root_.get_client(client_key);
-                    }
-
                 }
 
-                /* Send acknack in case. */
-                if (127 < stream_id)
-                {
-                    dds::xrce::MessageHeader acknack_header;
-                    acknack_header.session_id() = header.session_id();
-                    acknack_header.stream_id() = 0x00;
-                    acknack_header.sequence_nr() = header.sequence_nr();
-                    acknack_header.client_key() = header.client_key();
-
-                    dds::xrce::ACKNACK_Payload acknack_payload;
-                    acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
-                    acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
-
-                    Message message{};
-                    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-                    message_creator.header(acknack_header);
-                    message_creator.acknack(acknack_payload);
-                    message.set_real_size(message_creator.get_total_size());
-                    message.set_addr(client->get_addr());
-                    message.set_port(client->get_port());
-                    root_.add_reply(message);
-                }
             }
-            else
+
+            /* Send acknack in case. */
+            if (127 < stream_id)
             {
-                std::cerr << "Error client unknown." << std::endl;
+                dds::xrce::MessageHeader acknack_header;
+                acknack_header.session_id(header.session_id());
+                acknack_header.stream_id(0x00);
+                acknack_header.sequence_nr(header.sequence_nr());
+                acknack_header.client_key(header.client_key());
+
+                dds::xrce::ACKNACK_Payload acknack_payload;
+                acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
+                acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
+
+                OutputMessagePtr output_message(new OutputMessage(acknack_header));
+                output_message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
+                root_.add_reply(output_message);
             }
         }
-
+        else
+        {
+            std::cerr << "Error client unknown." << std::endl;
+        }
+    }
 }
 
 void Processor::process_input_message(ProxyClient& client, InputMessagePtr& input_message)
@@ -107,6 +101,7 @@ bool Processor::process_submessage(ProxyClient& client, InputMessagePtr& input_m
             rv = process_create_submessage(client, input_message);
             break;
         case dds::xrce::GET_INFO:
+            // TODO (julian): implement get info functionality.
             rv = false;
             break;
         case dds::xrce::DELETE:
@@ -124,6 +119,14 @@ bool Processor::process_submessage(ProxyClient& client, InputMessagePtr& input_m
             break;
         case dds::xrce::HEARTBEAT:
             rv = process_heartbeat_submessage(client, input_message);
+            break;
+        case dds::xrce::RESET:
+            // TODO (julian): implement reset functionality.
+            rv = false;
+            break;
+        case dds::xrce::FRAGMENT:
+            // TODO (julian): implement fragment functionality.
+            rv = false;
             break;
         default:
             rv = false;
@@ -148,16 +151,12 @@ bool Processor::process_create_client_submessage(InputMessagePtr& input_message)
         status_payload.agent_info(agent_representation);
 
         /* Send STATUS_AGENT submessage. */
-        Message status_message{};
-        XRCEFactory message_creator{status_message.get_buffer().data(), status_message.get_buffer().max_size()};
         dds::xrce::MessageHeader output_header = input_message->get_header();
         output_header.session_id(client_payload.client_representation().session_id());
-        message_creator.header(output_header);
-        message_creator.status_agent(status_payload);
-        status_message.set_real_size(message_creator.get_total_size());
-        status_message.set_addr(0);
-        status_message.set_port(0);
-        root_.add_reply(status_message);
+        OutputMessagePtr output_message(new OutputMessage(output_header));
+        output_message->append_submessage(dds::xrce::STATUS_AGENT, status_payload);
+
+        root_.add_reply(output_message);
     }
     else
     {
@@ -181,7 +180,8 @@ bool Processor::process_create_submessage(ProxyClient& client, InputMessagePtr& 
         dds::xrce::MessageHeader status_header;
         status_header.session_id(input_message->get_header().session_id());
         status_header.stream_id(0x80);
-        status_header.sequence_nr(client.session().next_ouput_message(0x80));
+        status_header.sequence_nr(client.session().next_output_message(0x80));
+        status_header.client_key(input_message->get_header().client_key());
 
         /* Status payload. */
         dds::xrce::STATUS_Payload status_payload;
@@ -192,19 +192,14 @@ bool Processor::process_create_submessage(ProxyClient& client, InputMessagePtr& 
                                             create_payload.object_representation()));
 
         /* Serialize status. */
-        Message message{};
-        XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-        message_creator.header(status_header);
-        message_creator.status(status_payload);
-        message.set_real_size(message_creator.get_total_size());
-        message.set_addr(client.get_addr());
-        message.set_port(client.get_port());
+        OutputMessagePtr output_message(new OutputMessage(status_header));
+        output_message->append_submessage(dds::xrce::STATUS, status_payload);
 
         /* Store message. */
-        client.session().push_output_message(0x80, {message.get_buffer().data(), message.get_real_size()});
+        client.session().push_output_message(0x80, output_message);
 
         /* Send status. */
-        root_.add_reply(message);
+        root_.add_reply(output_message);
     }
     return rv;
 }
@@ -226,10 +221,7 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputMessagePtr& 
         status_payload.related_request().object_id(delete_payload.object_id());
 
         /* Serialize status. */
-        Message message{};
-        XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-        message.set_addr(client.get_addr());
-        message.set_port(client.get_port());
+        OutputMessagePtr output_message;
 
         /* Delete object. */
         if ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
@@ -249,12 +241,13 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputMessagePtr& 
                 client_key = root_.get_key(client.get_addr());
             }
             status_payload.result(root_.delete_client(client_key));
+            output_message = OutputMessagePtr(new OutputMessage(status_header));
         }
         else
         {
             /* Set stream and sequence number. */
             uint8_t stream_id = 0x80;
-            uint16_t seq_num = client.session().next_ouput_message(stream_id);
+            uint16_t seq_num = client.session().next_output_message(stream_id);
             status_header.sequence_nr(seq_num);
             status_header.stream_id(stream_id);
 
@@ -262,15 +255,12 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputMessagePtr& 
             status_payload.result(client.delete_object(delete_payload.object_id()));
 
             /* Store message. */
-            client.session().push_output_message(stream_id, {message.get_buffer().data(), message.get_real_size()});
+            output_message = OutputMessagePtr(new OutputMessage(status_header));
+            client.session().push_output_message(stream_id, output_message);
         }
 
-        message_creator.header(status_header);
-        message_creator.status(status_payload);
-        message.set_real_size(message_creator.get_total_size());
-
         /* Send status. */
-        root_.add_reply(message);
+        root_.add_reply(output_message);
     }
     else
     {
@@ -345,19 +335,14 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputMessagePt
             result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
 
             /* Serialize status. */
-            Message message{};
-            XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-            message_creator.header(status_header);
-            message_creator.status(status_payload);
-            message.set_real_size(message_creator.get_total_size());
-            message.set_addr(client.get_addr());
-            message.set_port(client.get_port());
+            OutputMessagePtr output_message(new OutputMessage(status_header));
+            output_message->append_submessage(dds::xrce::STATUS, status_payload);
 
             /* Store message. */
             client.stream_manager().store_output_message(header.stream_id(), message.get_buffer().data(), message.get_real_size());
 
             /* Send status. */
-            root_.add_reply(message);
+            root_.add_reply(output_message);
         }
         status_payload.result(result);
     }
@@ -381,27 +366,19 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputMessagePtr&
         dds::xrce::SequenceNr seq_num = input_message->get_header().sequence_nr();
         for (uint16_t i = 0; i < 8; ++i)
         {
-            XrceMessage message;
+            OutputMessagePtr output_message;
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                message = client.session().get_output_message((uint8_t) seq_num, first_message + i);
-                if (message.len != 0)
+                if (client.session().get_output_message((uint8_t) seq_num, first_message + i, output_message))
                 {
-                    Message output_message(message.buf, message.len);
-                    output_message.set_addr(client.get_addr());
-                    output_message.set_port(client.get_port());
                     root_.add_reply(output_message);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                message = client.session().get_output_message((uint8_t) seq_num, first_message + i + 8);
-                if (message.len != 0)
+                if (client.session().get_output_message((uint8_t) seq_num, first_message + i + 8, output_message))
                 {
-                    Message output_message(message.buf, message.len);
-                    output_message.set_addr(client.get_addr());
-                    output_message.set_port(client.get_port());
                     root_.add_reply(output_message);
                 }
             }
@@ -432,23 +409,19 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputMessagePt
 
         /* Send ACKNACK message. */
         dds::xrce::MessageHeader acknack_header;
-        acknack_header.session_id() = input_message->get_header().session_id();
-        acknack_header.stream_id() = 0x00;
-        acknack_header.sequence_nr() = input_message->get_header().sequence_nr();
-        acknack_header.client_key() = input_message->get_header().client_key();
+        acknack_header.session_id(input_message->get_header().session_id());
+        acknack_header.stream_id(0x00);
+        acknack_header.sequence_nr(input_message->get_header().sequence_nr());
+        acknack_header.client_key(input_message->get_header().client_key());
 
         dds::xrce::ACKNACK_Payload acknack_payload;
         acknack_payload.first_unacked_seq_num(client.session().get_first_unacked_seq_num(stream_id));
         acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
 
-        Message message{};
-        XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-        message_creator.header(acknack_header);
-        message_creator.acknack(acknack_payload);
-        message.set_real_size(message_creator.get_total_size());
-        message.set_addr(client.get_addr());
-        message.set_port(client.get_port());
-        root_.add_reply(message);
+        OutputMessagePtr output_message(new OutputMessage(acknack_header));
+        output_message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
+
+        root_.add_reply(output_message);
     }
     else
     {

@@ -174,18 +174,14 @@ void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
     running_ = true;
-//    uint32_t addr_udp = 0;
-//    uint16_t port = 0;
     uint8_t* buf = nullptr;
     size_t len = 0;
     while(running_)
     {
         if (server_->recv_msg(&buf, &len, -1, &transport_client_))
         {
-//            XrceMessage input_message = {reinterpret_cast<char*>(buf), len};
-//            processor_.process_input_message(input_message, addr_udp, port);
             InputPacket input_packet;
-            input_packet.client_key = {0xAA, 0xBB, 0xCC, 0xDD};
+            input_packet.client_key = {0xAA, 0xAA, 0xBB, 0xBB};
             input_packet.message.reset(new InputMessage(buf, len));
             processor_.process_input_packet(std::move(input_packet));
         }
@@ -214,9 +210,9 @@ void Agent::abort_execution()
     }
 }
 
-void Agent::add_reply(Message& message)
+void Agent::add_reply(OutputMessagePtr& output_message)
 {
-    messages_.push(message);
+    messages_.push(output_message);
     if(response_thread_ == nullptr || !response_thread_->joinable())
     {
         reply_cond_ = true;
@@ -233,11 +229,10 @@ void Agent::reply()
 {
     while(reply_cond_)
     {
-        Message message = messages_.pop();
-        if (!messages_.is_aborted() && message.get_real_size() != 0)
+        OutputMessagePtr output_message = messages_.pop();
+        if (!messages_.is_aborted() && output_message->get_len() != 0)
         {
-            server_->send_msg(reinterpret_cast<uint8_t*>(message.get_buffer().data()),
-                              message.get_real_size(), transport_client_);
+            server_->send_msg(output_message->get_buf(), output_message->get_len(), transport_client_);
         }
     }
 }
@@ -269,13 +264,15 @@ void Agent::manage_heartbeats()
                     heartbeat_payload.last_unacked_seq_nr(client.session().get_last_unacked_seq_nr(s));
 
                     /* Serialize heartbeat message. */
-                    Message output_message{};
-                    XRCEFactory message_creator{output_message.get_buffer().data(), output_message.get_buffer().max_size()};
-                    message_creator.header(heartbeat_header);
-                    message_creator.heartbeat(heartbeat_payload);
-                    output_message.set_real_size(message_creator.get_total_size());
-                    output_message.set_addr(client.get_addr());
-                    output_message.set_port(client.get_port());
+                    OutputMessagePtr output_message(new OutputMessage(heartbeat_header));
+                    output_message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+//                    Message output_message{};
+//                    XRCEFactory message_creator{output_message.get_buffer().data(), output_message.get_buffer().max_size()};
+//                    message_creator.header(heartbeat_header);
+//                    message_creator.heartbeat(heartbeat_payload);
+//                    output_message.set_real_size(message_creator.get_total_size());
+//                    output_message.set_addr(client.get_addr());
+//                    output_message.set_port(client.get_port());
 
                     /* Send heartbeat. */
                     add_reply(output_message);

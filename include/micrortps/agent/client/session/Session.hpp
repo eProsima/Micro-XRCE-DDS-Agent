@@ -43,12 +43,12 @@ public:
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
 
     /* Output streams functions. */
-    void push_output_message(dds::xrce::StreamId stream_id, const XrceMessage& message);
-    XrceMessage get_output_message(dds::xrce::StreamId stream_id, SeqNum index);
+    void push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
+    bool get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_submessage);
     SeqNum get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
     SeqNum get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
     void update_from_acknack(dds::xrce::StreamId stream_id, SeqNum first_unacked);
-    SeqNum next_ouput_message(dds::xrce::StreamId stream_id);
+    SeqNum next_output_message(dds::xrce::StreamId stream_id);
     std::vector<uint8_t> get_output_streams();
     bool message_pending(dds::xrce::StreamId stream_id);
 
@@ -108,7 +108,7 @@ inline SeqNum Session::get_first_unacked_seq_num(dds::xrce::StreamId stream_id)
 /**************************************************************************************************
  * Output Stream Methods.
  **************************************************************************************************/
-inline void Session::push_output_message(dds::xrce::StreamId stream_id, const XrceMessage& message)
+inline void Session::push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
 {
     if (128 > stream_id)
     {
@@ -116,18 +116,18 @@ inline void Session::push_output_message(dds::xrce::StreamId stream_id, const Xr
     }
     else
     {
-        output_relible_streams_[stream_id].push_message(message);
+        output_relible_streams_[stream_id].push_message(output_message);
     }
 }
 
-inline XrceMessage Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum index)
+inline bool Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_message)
 {
-    XrceMessage message = {0x00, 0x00};
+    bool rv = false;
     if (127 < stream_id)
     {
-        message = output_relible_streams_[stream_id].get_message(index);
+        rv = output_relible_streams_[stream_id].get_message(seq_num, output_message);
     }
-    return message;
+    return rv;
 }
 
 inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId stream_id)
@@ -158,7 +158,7 @@ inline void Session::update_from_acknack(const dds::xrce::StreamId stream_id, co
     }
 }
 
-inline SeqNum Session::next_ouput_message(const dds::xrce::StreamId stream_id)
+inline SeqNum Session::next_output_message(const dds::xrce::StreamId stream_id)
 {
     SeqNum rv;
     if (128 > stream_id)

@@ -15,43 +15,59 @@
 #ifndef _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_OUTPUT_STREAM_HPP_
 #define _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_OUTPUT_STREAM_HPP_
 
-#include <micrortps/agent/types/XRCETypes.hpp>
+#include <micrortps/agent/message/Packet.hpp>
 #include <micrortps/agent/utils/SeqNum.hpp>
-#include <micrortps/agent/message/Message.hpp>
-
-#include <vector>
 #include <map>
+#include <queue>
 
 // TODO (julian): move to global config.
+#define MICRORTPS_BEST_EFFORT_STREAM_DEPTH 16
 #define MICRORTPS_RELIABLE_STREAM_DEPTH 16
 
 namespace eprosima {
 namespace micrortps {
 
 /******************************************************************************
- * Output Stream.
- ******************************************************************************/
-class OutputStream
-{
-public:
-    OutputStream() {}
-};
-
-/******************************************************************************
  * Best-Effort Output Stream.
  ******************************************************************************/
-class BestEffortOutputStream : public OutputStream
+class BestEffortOutputStream
 {
 public:
     BestEffortOutputStream() : last_send_(~0) {}
 
     // TODO (julian): remove.
+    bool push_message(OutputMessagePtr&& output_message);
+    bool pop_message(OutputMessagePtr& output_message);
     SeqNum get_last_handled() const { return last_send_; }
     void promote_stream();
 
 private:
     SeqNum last_send_;
+    std::queue<OutputMessagePtr> messages_;
 };
+
+inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
+{
+    bool rv = false;
+    if (MICRORTPS_BEST_EFFORT_STREAM_DEPTH > messages_.size())
+    {
+        messages_.push(std::move(output_message));
+        rv = true;
+    }
+    return rv;
+}
+
+inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (!messages_.empty())
+    {
+        output_message = std::move(messages_.front());
+        messages_.pop();
+        rv = true;
+    }
+    return rv;
+}
 
 inline void BestEffortOutputStream::promote_stream()
 {
@@ -71,8 +87,8 @@ public:
     ReliableOutputStream(ReliableOutputStream&&);
     ReliableOutputStream& operator=(ReliableOutputStream&&);
 
-    void push_message(const XrceMessage& message);
-    XrceMessage get_message(SeqNum seq_num);
+    bool push_message(OutputMessagePtr& output_message);
+    bool get_message(SeqNum seq_num, OutputMessagePtr& output_message);
     void update_from_acknack(SeqNum first_unacked);
     SeqNum get_first_available() { return last_acknown_ + 1;}
     SeqNum get_last_available() { return last_sent_; }
@@ -82,7 +98,7 @@ public:
 private:
     SeqNum last_sent_;
     SeqNum last_acknown_;
-    std::map<uint16_t, std::vector<uint8_t>> messages_;
+    std::map<uint16_t, OutputMessagePtr> messages_;
 };
 
 inline ReliableOutputStream::ReliableOutputStream(ReliableOutputStream&& x)
@@ -100,27 +116,28 @@ inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStrea
     return *this;
 }
 
-inline void ReliableOutputStream::push_message(const XrceMessage& message)
+inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 {
+    bool rv = false;
     if (last_sent_ < last_acknown_ + 16)
     {
         last_sent_ += 1;
-        messages_.emplace(std::piecewise_construct,
-                          std::forward_as_tuple(last_sent_),
-                          std::forward_as_tuple(message.buf, message.buf + message.len));
+        messages_.insert(std::make_pair(last_sent_, output_message));
+        rv = true;
     }
+    return rv;
 }
 
-inline XrceMessage ReliableOutputStream::get_message(SeqNum seq_num)
+inline bool ReliableOutputStream::get_message(SeqNum seq_num, OutputMessagePtr& output_message)
 {
-    XrceMessage message = {nullptr, 0};
+    bool rv = false;
     auto it = messages_.find(seq_num);
     if (it != messages_.end())
     {
-        message.buf = reinterpret_cast<char*>(messages_.at(seq_num).data());
-        message.len = messages_.at(seq_num).size();
+        output_message = it->second;
+        rv = true;
     }
-    return message;
+    return rv;
 }
 
 inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)

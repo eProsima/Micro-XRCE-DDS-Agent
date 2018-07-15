@@ -72,8 +72,7 @@ inline bool InputMessage::prepare_next_submessage()
     return rv;
 }
 
-template<class T>
-inline bool InputMessage::get_payload(T& data)
+template<class T> inline bool InputMessage::get_payload(T& data)
 {
     bool rv = true;
     try
@@ -96,8 +95,7 @@ template bool InputMessage::get_payload(dds::xrce::WRITE_DATA_Payload_Data& data
 template bool InputMessage::get_payload(dds::xrce::HEARTBEAT_Payload& data);
 template bool InputMessage::get_payload(dds::xrce::ACKNACK_Payload& data);
 
-template<class T>
-inline bool InputMessage::deserialize(T& data)
+template<class T> inline bool InputMessage::deserialize(T& data)
 {
     bool rv = true;
     try

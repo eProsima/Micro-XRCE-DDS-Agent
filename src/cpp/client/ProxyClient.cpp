@@ -314,7 +314,7 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     message_header.client_key(client_key_);
     message_header.session_id(session_id_);
     message_header.stream_id(stream_id);
-    uint16_t seq_num = session().next_ouput_message(stream_id);
+    uint16_t seq_num = session().next_output_message(stream_id);
     message_header.sequence_nr(seq_num);
 
     /* Payload. */
@@ -324,19 +324,14 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     payload.data().serialized_data(buffer);
 
     /* Serialize message. */
-    Message message{};
-    XRCEFactory message_creator{message.get_buffer().data(), message.get_buffer().max_size()};
-    message_creator.header(message_header);
-    message_creator.data(payload);
-    message.set_real_size(message_creator.get_total_size());
-    message.set_addr(addr_);
-    message.set_port(port_);
+    OutputMessagePtr output_message(new OutputMessage(message_header));
+    output_message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
 
     /* Store message. */
-    session_.push_output_message(stream_id, {message.get_buffer().data(), message.get_real_size()});
+    session_.push_output_message(stream_id, output_message);
 
     /* Send message. */
-    root().add_reply(message);
+    root().add_reply(output_message);
 }
 
 Session& ProxyClient::session()

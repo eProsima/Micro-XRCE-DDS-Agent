@@ -16,6 +16,7 @@
 #define _MICRORTPS_AGENT_MESSAGE_PACKET_HPP_
 
 #include <micrortps/agent/message/InputMessage.hpp>
+#include <micrortps/agent/message/OutputMessage.hpp>
 #include <memory>
 
 namespace eprosima {
@@ -26,6 +27,13 @@ struct InputPacket
 {
     dds::xrce::ClientKey client_key;
     InputMessagePtr message;
+};
+
+typedef std::shared_ptr<OutputMessage> OutputMessagePtr;
+struct OutputPacket
+{
+    dds::xrce::ClientKey client_key;
+    OutputMessagePtr message;
 };
 
 } // namespace micrortps

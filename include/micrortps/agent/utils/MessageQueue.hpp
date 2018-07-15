@@ -15,6 +15,7 @@
 #ifndef _MICRORTPS_AGENT_UTILS_MESSAGE_QUEUE_HPP_
 #define _MICRORTPS_AGENT_UTILS_MESSAGE_QUEUE_HPP_
 
+#include <micrortps/agent/message/Packet.hpp>
 #include <queue>
 #include <thread>
 #include <mutex>
@@ -55,12 +56,12 @@ public:
 
     void init();
     void abort();
-    Message pop();
-    void push(const Message& new_message);
+    OutputMessagePtr pop();
+    void push(const OutputMessagePtr& new_message);
     bool is_aborted() { return aborted_; }
 
  private:
-    std::queue<Message> internal_queue_;
+    std::queue<OutputMessagePtr> internal_queue_;
     std::mutex data_mutex_;
     std::condition_variable condition_;
     std::atomic<bool> aborted_;
