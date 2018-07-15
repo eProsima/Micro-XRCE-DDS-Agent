@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
 #define _MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
 
-#include <micrortps/agent/transport/XRCEServer.hpp>
+#include <micrortps/agent/transport/Server.hpp>
 #include <micrortps/agent/transport/SerialLayer.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -28,11 +28,11 @@ namespace micrortps {
 /******************************************************************************
  * UART Client.
  ******************************************************************************/
-class UARTClient : public TransportClient
+class UARTEndPoint : public EndPoint
 {
 public:
-    UARTClient(uint8_t addr) { addr_ = addr; }
-    ~UARTClient() {}
+    UARTEndPoint(uint8_t addr) { addr_ = addr; }
+    ~UARTEndPoint() {}
 
 public:
     uint8_t addr_;
@@ -41,14 +41,14 @@ public:
 /******************************************************************************
  * UART Server.
  ******************************************************************************/
-class UARTServer : public XRCEServer
+class UARTServer : public Server
 {
 public:
     UARTServer() : poll_fd_{}, buffer_{0}, serial_io_{}, errno_(0), clients_{} {}
     ~UARTServer() {}
 
-    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) override;
-    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) override;
+    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
+    virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
     int launch(int fd, uint8_t addr);
 
@@ -62,7 +62,7 @@ private:
     uint8_t buffer_[MICRORTPS_SERIAL_MTU];
     SerialIO serial_io_;
     int errno_;
-    std::map<uint8_t, UARTClient*> clients_;
+    std::map<uint8_t, UARTEndPoint*> clients_;
 };
 
 } // namespace micrortps

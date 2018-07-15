@@ -28,8 +28,8 @@ public:
 
     virtual void run() = 0;
     virtual void stop() = 0;
-    virtual void push(const T& element, uint8_t priority) = 0;
-    virtual void push(T& element, uint8_t priority) = 0;
+//    virtual void push(const T& element, uint8_t priority) = 0;
+    virtual void push(T&& element, uint8_t priority) = 0;
     virtual bool pop(T& element) = 0;
 };
 

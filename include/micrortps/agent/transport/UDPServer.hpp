@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_UDP_SERVER_HPP_
 #define _MICRORTPS_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
-#include <micrortps/agent/transport/XRCEServer.hpp>
+#include <micrortps/agent/transport/Server.hpp>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
@@ -24,15 +24,18 @@ namespace eprosima {
 namespace micrortps {
 
 /******************************************************************************
- * UDP Client.
+ * UDP EndPoint.
  ******************************************************************************/
-class UDPClient : public TransportClient
+class UDPEndPoint : public EndPoint
 {
 public:
-    UDPClient(uint32_t addr, uint8_t port) : addr_(addr), port_(port) {}
-    ~UDPClient() = default;
+    UDPEndPoint(uint32_t addr, uint8_t port) : addr_(addr), port_(port) {}
+    ~UDPEndPoint() = default;
 
-public:
+    uint32_t get_addr() const { return addr_; }
+    uint16_t get_port() const { return port_; }
+
+private:
     uint32_t addr_;
     uint16_t port_;
 };
@@ -40,19 +43,21 @@ public:
 /******************************************************************************
  * UDP Server.
  ******************************************************************************/
-class UDPServer : public XRCEServer
+class UDPServer : public Server
 {
 public:
-    UDPServer() : client_(0, 0), poll_fd_{}, buffer_{0} {}
+    UDPServer(uint16_t port) : port_(port), poll_fd_{}, buffer_{0} {}
     ~UDPServer() = default;
 
-    virtual bool send_msg(const uint8_t* buf, size_t len, TransportClient* client) override;
-    virtual bool recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client) override;
+    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
+    virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    int launch(uint16_t port);
+
+private:
+    virtual bool init() override;
 
 private:   
-    UDPClient client_;
+    uint16_t port_;
     struct pollfd poll_fd_;
     uint8_t buffer_[1024];
 };

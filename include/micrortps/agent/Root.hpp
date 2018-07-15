@@ -20,7 +20,7 @@
 #include <micrortps/agent/utils/MessageQueue.hpp>
 #include <micrortps/agent/processor/Processor.hpp>
 
-#include <micrortps/agent/transport/XRCEServer.hpp>
+#include <micrortps/agent/transport/Server.hpp>
 
 #include <thread>
 #include <memory>
@@ -47,7 +47,7 @@ public:
     Agent();
     ~Agent() = default;
 
-    bool init(XRCEServer* server);
+    bool init(Server* server);
 
     /**
      * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
@@ -111,8 +111,8 @@ private:
     void manage_heartbeats();
 
 private:
-    XRCEServer* server_;
-    TransportClient* transport_client_;
+    Server* server_;
+    EndPoint* end_point_;
 
     Processor processor_;
 

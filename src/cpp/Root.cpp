@@ -46,7 +46,7 @@ Agent::Agent() :
     heartbeat_cond_ = false;
 }
 
-bool Agent::init(XRCEServer* server)
+bool Agent::init(Server* server)
 {
     bool rv = false;
     if (nullptr != server)
@@ -174,15 +174,12 @@ void Agent::run()
 {
     std::cout << "Running DDS-XRCE Agent..." << std::endl;
     running_ = true;
-    uint8_t* buf = nullptr;
-    size_t len = 0;
+    InputPacket input_packet;
     while(running_)
     {
-        if (server_->recv_msg(&buf, &len, -1, &transport_client_))
+        if (server_->recv_message(input_packet, -1))
         {
-            InputPacket input_packet;
             input_packet.client_key = {0xAA, 0xAA, 0xBB, 0xBB};
-            input_packet.message.reset(new InputMessage(buf, len));
             processor_.process_input_packet(std::move(input_packet));
         }
     };
@@ -229,10 +226,11 @@ void Agent::reply()
 {
     while(reply_cond_)
     {
-        OutputMessagePtr output_message = messages_.pop();
-        if (!messages_.is_aborted() && output_message->get_len() != 0)
+        OutputPacket output_packet;
+        output_packet.message = messages_.pop();
+        if (!messages_.is_aborted() && output_packet.message->get_len() != 0)
         {
-            server_->send_msg(output_message->get_buf(), output_message->get_len(), transport_client_);
+            server_->send_message(output_packet);
         }
     }
 }
@@ -266,13 +264,6 @@ void Agent::manage_heartbeats()
                     /* Serialize heartbeat message. */
                     OutputMessagePtr output_message(new OutputMessage(heartbeat_header));
                     output_message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
-//                    Message output_message{};
-//                    XRCEFactory message_creator{output_message.get_buffer().data(), output_message.get_buffer().max_size()};
-//                    message_creator.header(heartbeat_header);
-//                    message_creator.heartbeat(heartbeat_payload);
-//                    output_message.set_real_size(message_creator.get_total_size());
-//                    output_message.set_addr(client.get_addr());
-//                    output_message.set_port(client.get_port());
 
                     /* Send heartbeat. */
                     add_reply(output_message);

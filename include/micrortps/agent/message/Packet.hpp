@@ -22,9 +22,14 @@
 namespace eprosima {
 namespace micrortps {
 
+class Server;
+class EndPoint;
+
 typedef std::unique_ptr<InputMessage> InputMessagePtr;
 struct InputPacket
 {
+    Server* server;
+    std::unique_ptr<EndPoint> source;
     dds::xrce::ClientKey client_key;
     InputMessagePtr message;
 };
@@ -32,6 +37,8 @@ struct InputPacket
 typedef std::shared_ptr<OutputMessage> OutputMessagePtr;
 struct OutputPacket
 {
+    Server* server;
+    std::shared_ptr<EndPoint> destination;
     dds::xrce::ClientKey client_key;
     OutputMessagePtr message;
 };

@@ -32,7 +32,7 @@ public:
 
     virtual void run() override;
     virtual void stop() override;
-    virtual void push(const T& element, uint8_t priority) override;
+//    virtual void push(const T& element, uint8_t priority) override;
     virtual void push(T&& element, uint8_t priority) override;
     virtual bool pop(T& element) override;
 
@@ -56,13 +56,13 @@ inline void FCFSScheduler<T>::stop()
     cond_var_.notify_one();
 }
 
-template<class T>
-inline void FCFSScheduler<T>::push(const T& element, uint8_t /*priority*/)
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-    queue_.push(element);
-    cond_var_.notify_one();
-}
+//template<class T>
+//inline void FCFSScheduler<T>::push(const T& element, uint8_t /*priority*/)
+//{
+//    std::lock_guard<std::mutex> lock(mtx_);
+//    queue_.push(element);
+//    cond_var_.notify_one();
+//}
 
 template<class T>
 inline void FCFSScheduler<T>::push(T&& element, uint8_t /*priority*/)
@@ -73,10 +73,10 @@ inline void FCFSScheduler<T>::push(T&& element, uint8_t /*priority*/)
 }
 
 template<class T>
-inline void FCFSScheduler<T>::pop(T& element)
+inline bool FCFSScheduler<T>::pop(T& element)
 {
     bool rv = false;
-    std::lock_guard<std::mutex> lock(mtx_);
+    std::unique_lock<std::mutex> lock(mtx_);
     cond_var_.wait(lock, [this] { return (!queue_.empty() || !running_cond_); });
     if (running_cond_)
     {

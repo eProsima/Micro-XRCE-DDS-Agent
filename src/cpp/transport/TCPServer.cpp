@@ -231,7 +231,7 @@ int TCPServer::launch(uint16_t port)
     return rv;
 }
 
-uint16_t TCPServer::read_data(TCPClient* client)
+uint16_t TCPServer::read_data(TCPEndPoint* client)
 {
     uint16_t rv = 0;
     bool exit_flag = false;
@@ -382,7 +382,7 @@ uint16_t TCPServer::read_data(TCPClient* client)
     return rv;
 }
 
-void TCPServer::disconnect_client(TCPClient* client)
+void TCPServer::disconnect_client(TCPEndPoint* client)
 {
     close(client->poll_fd->fd);
     if (nullptr != available_clients_)
