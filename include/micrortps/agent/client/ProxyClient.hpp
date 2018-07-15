@@ -35,10 +35,7 @@ public:
      * @param client
      * @param header
      */
-    ProxyClient(dds::xrce::CLIENT_Representation client,
-                const dds::xrce::ClientKey& client_key,
-                const dds::xrce::SessionId& session_id,
-                uint32_t addr, uint16_t port);
+    ProxyClient(const dds::xrce::CLIENT_Representation& representation);
 
     ~ProxyClient() = default;
 
@@ -141,28 +138,14 @@ public:
      *
      * @return The Client's key.
      */
-    const dds::xrce::ClientKey& get_client_key() const { return client_key_; }
+    const dds::xrce::ClientKey& get_client_key() const { return representation_.client_key(); }
 
     /**
      * @brief This function return the Client's session id.
      *
      * @return The Client's session id.
      */
-    const dds::xrce::SessionId& get_session_id() const { return session_id_; }
-
-    /**
-     * @brief This function return the Client's address.
-     *
-     * @return The Client's address.
-     */
-    uint32_t get_addr() const { return addr_; }
-
-    /**
-     * @brief This function return the Client's port.
-     *
-     * @return The Client's port.
-     */
-    uint16_t get_port() const { return port_; }
+    dds::xrce::SessionId get_session_id() const { return representation_.session_id(); }
 
     /**
      * @brief This function return the session used by the ProxyClient.
@@ -173,20 +156,15 @@ public:
     std::mutex& get_mutex() { return mtx_; }
 
 private:
+    bool create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
+
+private:
     dds::xrce::CLIENT_Representation representation_;
     std::mutex mtx_;
-
     std::mutex objects_mutex_;
     std::map<dds::xrce::ObjectId, std::unique_ptr<XRCEObject>> objects_;
-
-    dds::xrce::ClientKey client_key_;
-    dds::xrce::SessionId session_id_;
-    uint32_t addr_;
-    uint16_t port_;
-
     Session session_;
 
-    bool create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
 };
 
 } // namespace micrortps

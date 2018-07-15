@@ -29,7 +29,7 @@ typedef std::unique_ptr<InputMessage> InputMessagePtr;
 struct InputPacket
 {
     Server* server;
-    std::unique_ptr<EndPoint> source;
+    std::shared_ptr<EndPoint> source;
     dds::xrce::ClientKey client_key;
     InputMessagePtr message;
 };

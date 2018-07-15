@@ -27,37 +27,13 @@
 namespace eprosima {
 namespace micrortps {
 
-Agent& root()
+Root::Root()
+    : clientsmtx_(),
+      clients_()
 {
-    static Agent xrce_agent;
-    return xrce_agent;
 }
 
-Agent::Agent() :
-    server_(),
-    processor_(*this),
-    response_thread_{},
-    heartbeats_thread_(),
-    reply_cond_(),
-    heartbeat_cond_()
-{
-    running_ = false;
-    reply_cond_ = false;
-    heartbeat_cond_ = false;
-}
-
-bool Agent::init(Server* server)
-{
-    bool rv = false;
-    if (nullptr != server)
-    {
-        server_ = server;
-        rv = true;
-    }
-    return rv;
-}
-
-dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representation& client_representation,
+dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
                                              dds::xrce::AGENT_Representation& agent_representation,
                                              uint32_t addr, uint16_t port)
 {
@@ -78,11 +54,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
             {
                 create_result = clients_.emplace(std::piecewise_construct,
                                                  std::forward_as_tuple(client_key),
-                                                 std::forward_as_tuple(client_representation,
-                                                                       client_key,
-                                                                       session_id,
-                                                                       addr,
-                                                                       port)).second;
+                                                 std::forward_as_tuple(client_representation)).second;
                 if (create_result)
                 {
 #ifdef VERBOSE_OUTPUT
@@ -91,7 +63,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
 #endif
                     if (client_representation.session_id() > 127)
                     {
-                        addr_to_key_.insert(std::make_pair(addr, client_key));
+//                        addr_to_key_.insert(std::make_pair(addr, client_key));
                     }
                 }
                 else
@@ -107,11 +79,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
                     clients_.erase(it);
                     create_result = clients_.emplace(std::piecewise_construct,
                                                      std::forward_as_tuple(client_key),
-                                                     std::forward_as_tuple(client_representation,
-                                                                           client_key,
-                                                                           session_id,
-                                                                           addr,
-                                                                           port)).second;
+                                                     std::forward_as_tuple(client_representation)).second;
                     if (create_result)
                     {
 #ifdef VERBOSE_OUTPUT
@@ -119,7 +87,7 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
 #endif
                         if (client_representation.session_id() > 127)
                         {
-                            addr_to_key_.insert(std::make_pair(addr, client_key));
+//                            addr_to_key_.insert(std::make_pair(addr, client_key));
                         }
                     }
                     else
@@ -151,14 +119,14 @@ dds::xrce::ResultStatus Agent::create_client(const dds::xrce::CLIENT_Representat
     return result_status;
 }
 
-dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_key)
+dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
     ProxyClient* client = get_client(client_key);
     if (nullptr != client)
     {
         std::unique_lock<std::mutex> lock(clientsmtx_);
-        addr_to_key_.erase(client->get_addr());
+//        addr_to_key_.erase(client->get_addr());
         clients_.erase(client_key);
         lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
@@ -170,111 +138,46 @@ dds::xrce::ResultStatus Agent::delete_client(const dds::xrce::ClientKey& client_
     return result_status;
 }
 
-void Agent::run()
-{
-    std::cout << "Running DDS-XRCE Agent..." << std::endl;
-    running_ = true;
-    InputPacket input_packet;
-    while(running_)
-    {
-        if (server_->recv_message(input_packet, -1))
-        {
-            input_packet.client_key = {0xAA, 0xAA, 0xBB, 0xBB};
-            processor_.process_input_packet(std::move(input_packet));
-        }
-    };
-    std::cout << "Execution stopped" << std::endl;
+//void Root::manage_heartbeats()
+//{
+//    while (heartbeat_cond_)
+//    {
+//        /* Get clients. */
+//        for (auto it = clients_.begin(); it != clients_.end(); ++it)
+//        {
+//            ProxyClient& client = it->second;
+//            /* Get reliable streams. */
+//            for (auto s : client.session().get_output_streams())
+//            {
+//                /* Get and send  pending messages. */
+//                if (client.session().message_pending(s))
+//                {
+//                    /* Heartbeat message header. */
+//                    dds::xrce::MessageHeader heartbeat_header;
+//                    heartbeat_header.session_id(client.get_session_id());
+//                    heartbeat_header.stream_id(0x00);
+//                    heartbeat_header.sequence_nr(s);
+//                    heartbeat_header.client_key(client.get_client_key());
+//
+//                    /* Heartbeat message payload. */
+//                    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+//                    heartbeat_payload.first_unacked_seq_nr(client.session().get_first_unacked_seq_nr(s));
+//                    heartbeat_payload.last_unacked_seq_nr(client.session().get_last_unacked_seq_nr(s));
+//
+//                    /* Serialize heartbeat message. */
+//                    OutputMessagePtr output_message(new OutputMessage(heartbeat_header));
+//                    output_message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+//
+//                    /* Send heartbeat. */
+//                    add_reply(output_message);
+//                }
+//            }
+//        }
+//        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
+//    }
+//}
 
-}
-
-void Agent::stop()
-{
-    running_ = false;
-}
-
-void Agent::abort_execution()
-{
-    reply_cond_ = false;
-    heartbeat_cond_ = false;
-    messages_.abort();
-    if (response_thread_ && response_thread_->joinable())
-    {
-        response_thread_->join();
-    }
-    if (heartbeats_thread_ && heartbeats_thread_->joinable())
-    {
-        heartbeats_thread_->join();
-    }
-}
-
-void Agent::add_reply(OutputMessagePtr& output_message)
-{
-    messages_.push(output_message);
-    if(response_thread_ == nullptr || !response_thread_->joinable())
-    {
-        reply_cond_ = true;
-        response_thread_.reset(new std::thread(std::bind(&Agent::reply, this)));
-    }
-    if (heartbeats_thread_ == nullptr || !heartbeats_thread_->joinable())
-    {
-        heartbeat_cond_ = true;
-        heartbeats_thread_.reset(new std::thread(std::bind(&Agent::manage_heartbeats, this)));
-    }
-}
-
-void Agent::reply()
-{
-    while(reply_cond_)
-    {
-        OutputPacket output_packet;
-        output_packet.message = messages_.pop();
-        if (!messages_.is_aborted() && output_packet.message->get_len() != 0)
-        {
-            server_->send_message(output_packet);
-        }
-    }
-}
-
-void Agent::manage_heartbeats()
-{
-    while (heartbeat_cond_)
-    {
-        /* Get clients. */
-        for (auto it = clients_.begin(); it != clients_.end(); ++it)
-        {
-            ProxyClient& client = it->second;
-            /* Get reliable streams. */
-            for (auto s : client.session().get_output_streams())
-            {
-                /* Get and send  pending messages. */
-                if (client.session().message_pending(s))
-                {
-                    /* Heartbeat message header. */
-                    dds::xrce::MessageHeader heartbeat_header;
-                    heartbeat_header.session_id(client.get_session_id());
-                    heartbeat_header.stream_id(0x00);
-                    heartbeat_header.sequence_nr(s);
-                    heartbeat_header.client_key(client.get_client_key());
-
-                    /* Heartbeat message payload. */
-                    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-                    heartbeat_payload.first_unacked_seq_nr(client.session().get_first_unacked_seq_nr(s));
-                    heartbeat_payload.last_unacked_seq_nr(client.session().get_last_unacked_seq_nr(s));
-
-                    /* Serialize heartbeat message. */
-                    OutputMessagePtr output_message(new OutputMessage(heartbeat_header));
-                    output_message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
-
-                    /* Send heartbeat. */
-                    add_reply(output_message);
-                }
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
-    }
-}
-
-ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
+ProxyClient* Root::get_client(const dds::xrce::ClientKey& client_key)
 {
     ProxyClient* client = nullptr;
     std::lock_guard<std::mutex> lock(clientsmtx_);
@@ -284,28 +187,6 @@ ProxyClient* Agent::get_client(const dds::xrce::ClientKey& client_key)
         client = &clients_.at(client_key);
     }
     return client;
-}
-
-ProxyClient* Agent::get_client(uint32_t addr)
-{
-    ProxyClient* client = nullptr;
-    auto it = addr_to_key_.find(addr);
-    if (it != addr_to_key_.end())
-    {
-        client = get_client(addr_to_key_.at(addr));
-    }
-    return client;
-}
-
-dds::xrce::ClientKey Agent::get_key(uint32_t addr)
-{
-    dds::xrce::ClientKey key = dds::xrce::CLIENTKEY_INVALID;
-    auto it = addr_to_key_.find(addr);
-    if (it != addr_to_key_.end())
-    {
-        key = addr_to_key_.at(addr);
-    }
-    return key;
 }
 
 } // namespace micrortps

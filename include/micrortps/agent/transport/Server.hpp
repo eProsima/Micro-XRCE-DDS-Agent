@@ -31,6 +31,7 @@ class EndPoint
 {
 public:
     EndPoint() {}
+    ~EndPoint() = default;
 };
 
 /**************************************************************************************************
@@ -39,7 +40,10 @@ public:
 class Server
 {
 public:
-    Server() {}
+    Server()
+        : input_scheduler_(),
+          output_scheduler_()
+    {}
     virtual ~Server() {}
 
     bool run();

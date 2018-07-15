@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     {
         std::cout << "UDP agent initialization... ";
         eprosima::micrortps::UDPServer* udp_server = new eprosima::micrortps::UDPServer((uint16_t)atoi(argv[2]));
-        if (0 == udp_server->run())
+        if (udp_server->run())
         {
             initialized = true;
             server = udp_server;
@@ -100,9 +100,9 @@ int main(int argc, char** argv)
 
     if(initialized)
     {
-        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
-        micrortps_agent.init(server);
-        micrortps_agent.run();
+//        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
+//        micrortps_agent.init(server);
+//        micrortps_agent.run();
     }
     else
     {
@@ -113,5 +113,11 @@ int main(int argc, char** argv)
         std::cout << "    udp <local_port>" << std::endl;
         std::cout << "    tcp <local_port>" << std::endl;
     }
+
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
     return 0;
 }

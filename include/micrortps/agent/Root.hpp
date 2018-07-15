@@ -16,12 +16,6 @@
 #define _MICRORTPS_AGENT_ROOT_HPP_
 
 #include <micrortps/agent/client/ProxyClient.hpp>
-#include <micrortps/agent/utils/XRCEFactory.hpp>
-#include <micrortps/agent/utils/MessageQueue.hpp>
-#include <micrortps/agent/processor/Processor.hpp>
-
-#include <micrortps/agent/transport/Server.hpp>
-
 #include <thread>
 #include <memory>
 #include <map>
@@ -33,21 +27,19 @@
 namespace eprosima{
 namespace micrortps{
 
-class Agent;
-
-Agent& root();
-
 /**
  * @brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
  * 		  It implement the XRCEListener interface for receive messages from a XRCEParser.
  */
-class Agent
+class Root
 {
 public:
-    Agent();
-    ~Agent() = default;
-
-    bool init(Server* server);
+    /* Singleton instance. */
+    static Root& instance()
+    {
+        static Root root;
+        return root;
+    }
 
     /**
      * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
@@ -73,16 +65,6 @@ public:
     dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
 
     /**
-     * @brief Starts a event loop in order to receive messages from Clients.
-     */
-    void run();
-
-    /**
-     * @brief Stops the messages receiver event loop.
-     */
-    void stop();
-
-    /**
      * @brief Gets a Client based its key.
      *
      * @param  The client's key.
@@ -91,43 +73,21 @@ public:
      * @return In other cases return a pointer to the Client.
      */
     ProxyClient* get_client(const dds::xrce::ClientKey& client_key);
-    ProxyClient* get_client(uint32_t addr);
-    dds::xrce::ClientKey get_key(uint32_t addr);
-
-    /**
-     * @brief Pushs messages in a output queue. These messages are delivered to Clients in a event
-     *        loop that is running in a separate thread. This methods launch the thread at the
-     *        first output message.
-     *
-     * @param message The output message.
-     */
-    void add_reply(OutputMessagePtr& output_message);
-
-    void abort_execution();
 
 private:
-    /* Send functions. */
-    void reply();
-    void manage_heartbeats();
+    /* Singleton private constructor and destructor. */
+    Root();
+    ~Root() = default;
+
+    /* Delete singleton copy and move constructor and assigments operator. */
+    Root(const Root&) = delete;
+    Root(Root&&) = delete;
+    Root& operator=(const Root&) = delete;
+    Root& operator=(Root&&) = delete;
 
 private:
-    Server* server_;
-    EndPoint* end_point_;
-
-    Processor processor_;
-
     std::mutex clientsmtx_;
     std::map<dds::xrce::ClientKey, ProxyClient> clients_;
-    std::map<uint32_t, dds::xrce::ClientKey> addr_to_key_;
-
-    std::unique_ptr<std::thread> response_thread_;
-    std::unique_ptr<std::thread> heartbeats_thread_;
-    std::atomic<bool> running_;
-    std::atomic<bool> reply_cond_;
-    std::atomic<bool> heartbeat_cond_;
-
-    MessageQueue messages_;
-
 };
 
 } // micrortps

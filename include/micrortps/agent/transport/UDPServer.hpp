@@ -29,7 +29,7 @@ namespace micrortps {
 class UDPEndPoint : public EndPoint
 {
 public:
-    UDPEndPoint(uint32_t addr, uint8_t port) : addr_(addr), port_(port) {}
+    UDPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
     ~UDPEndPoint() = default;
 
     uint32_t get_addr() const { return addr_; }

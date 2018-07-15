@@ -18,16 +18,9 @@
 namespace eprosima {
 namespace micrortps {
 
-ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
-                         const dds::xrce::ClientKey& client_key,
-                         const dds::xrce::SessionId& session_id,
-                         uint32_t addr, uint16_t port)
-    : representation_(std::move(client)),
+ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
+    : representation_(std::move(representation)),
       objects_(),
-      client_key_(client_key),
-      session_id_(session_id),
-      addr_(addr),
-      port_(port),
       session_()
 {
 }
@@ -35,8 +28,6 @@ ProxyClient::ProxyClient(dds::xrce::CLIENT_Representation client,
 ProxyClient::ProxyClient(ProxyClient&& x) noexcept
     : representation_(std::move(x.representation_)),
       objects_(std::move(x.objects_)),
-      client_key_(x.client_key_),
-      session_id_(x.session_id_),
       session_(std::move(x.session_))
 {
 }
@@ -44,9 +35,7 @@ ProxyClient::ProxyClient(ProxyClient&& x) noexcept
 ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
 {
     representation_  = std::move(x.representation_);
-    objects_         = std::move(x.objects_);
-    client_key_      = std::move(x.client_key_);
-    session_id_      = std::move(x.session_id_);
+    objects_ = std::move(x.objects_);
     session_ = std::move(x.session_);
     return *this;
 }
@@ -311,8 +300,8 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
 {
     /* Message header. */
     dds::xrce::MessageHeader message_header;
-    message_header.client_key(client_key_);
-    message_header.session_id(session_id_);
+    message_header.client_key(representation_.client_key());
+    message_header.session_id(representation_.session_id());
     message_header.stream_id(stream_id);
     uint16_t seq_num = session().next_output_message(stream_id);
     message_header.sequence_nr(seq_num);
@@ -331,7 +320,8 @@ void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
     session_.push_output_message(stream_id, output_message);
 
     /* Send message. */
-    root().add_reply(output_message);
+    // TODO (julian).
+//    root().add_reply(output_message);
 }
 
 Session& ProxyClient::session()

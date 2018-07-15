@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <micrortps/agent/transport/Server.hpp>
+#include <micrortps/agent/processor/Processor.hpp>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,6 +24,10 @@ bool Server::run()
     {
         return false;
     }
+
+    /* Scheduler initialization. */
+    input_scheduler_.run();
+    output_scheduler_.run();
 
     /* Thread initialization. */
     running_cond_ = true;
@@ -50,6 +55,11 @@ void Server::stop()
     {
         processing_thread_->join();
     }
+}
+
+void Server::push_output_packet(OutputPacket output_packet)
+{
+    output_scheduler_.push(std::move(output_packet), 0);
 }
 
 void Server::receiver_loop()
@@ -80,13 +90,13 @@ void Server::sender_loop()
 
 void Server::processing_loop()
 {
-    // TODO (julian): add processor.
+    Processor& processor = Processor::instance();
     InputPacket input_packet;
     while (running_cond_)
     {
         if (input_scheduler_.pop(input_packet))
         {
-            // TODO (julian): process input_packet.
+            processor.process_input_packet(std::move(input_packet));
         }
     }
 }
