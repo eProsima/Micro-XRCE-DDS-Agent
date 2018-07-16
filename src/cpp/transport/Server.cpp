@@ -18,6 +18,15 @@
 namespace eprosima {
 namespace micrortps {
 
+Server::Server()
+    : processor_(new Processor(this))
+{}
+
+Server::~Server()
+{
+    delete processor_;
+}
+
 bool Server::run()
 {
     if (!init())
@@ -90,13 +99,12 @@ void Server::sender_loop()
 
 void Server::processing_loop()
 {
-    Processor& processor = Processor::instance();
     InputPacket input_packet;
     while (running_cond_)
     {
         if (input_scheduler_.pop(input_packet))
         {
-            processor.process_input_packet(std::move(input_packet));
+            processor_->process_input_packet(std::move(input_packet));
         }
     }
 }

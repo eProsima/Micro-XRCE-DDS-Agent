@@ -19,6 +19,16 @@
 namespace eprosima {
 namespace micrortps {
 
+Processor::Processor(Server* server)
+    : server_(server),
+      root_(new Root())
+{}
+
+Processor::~Processor()
+{
+    delete root_;
+}
+
 void Processor::process_input_packet(InputPacket&& input_packet)
 {
     /* Create client message. */
@@ -38,8 +48,8 @@ void Processor::process_input_packet(InputPacket&& input_packet)
     {
         dds::xrce::MessageHeader header = input_packet.message->get_header();
         dds::xrce::ClientKey client_key;
-        input_packet.server->get_client_key(input_packet.source.get(), client_key);
-        ProxyClient* client = root_.get_client(client_key);
+        server_->get_client_key(input_packet.source.get(), client_key);
+        ProxyClient* client = root_->get_client(client_key);
         if (nullptr != client)
         {
             Session& session = client->session();
@@ -48,11 +58,11 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             {
                 /* Process message. */
                 process_input_message(*client, input_packet);
-                client = root_.get_client(client_key);
+                client = root_->get_client(client_key);
                 while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
                 {
                     process_input_message(*client, input_packet);
-                    client = root_.get_client(client_key);
+                    client = root_->get_client(client_key);
                 }
 
             }
@@ -71,12 +81,11 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
 
                 OutputPacket output_packet;
-                output_packet.server = input_packet.server;
                 output_packet.destination.reset(new EndPoint(*input_packet.source));
                 output_packet.message.reset(new OutputMessage(acknack_header));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 
-                output_packet.server->push_output_packet(output_packet);
+                server_->push_output_packet(output_packet);
             }
         }
         else
@@ -148,33 +157,38 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
          (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
           input_packet.message->get_payload(client_payload))
     {
-        dds::xrce::STATUS_AGENT_Payload status_payload;
-        status_payload.related_request().request_id(client_payload.request_id());
-        status_payload.related_request().object_id(client_payload.object_id());
-
-        /* Create client. */
-        dds::xrce::AGENT_Representation agent_representation;
-        dds::xrce::ResultStatus result = root_.create_client(client_payload.client_representation(),
-                                                             agent_representation);
-        if (dds::xrce::STATUS_OK == result.status())
+        dds::xrce::ClientKey client_key;
+        server_->get_client_key(input_packet.source.get(), client_key);
+        if (dds::xrce::CLIENTKEY_INVALID == client_key ||
+            client_payload.client_representation().client_key() == client_key)
         {
-            input_packet.server->on_create_client(input_packet.source.get(),
-                                                  client_payload.client_representation().client_key());
+            dds::xrce::STATUS_AGENT_Payload status_payload;
+            status_payload.related_request().request_id(client_payload.request_id());
+            status_payload.related_request().object_id(client_payload.object_id());
+
+            /* Create client. */
+            dds::xrce::AGENT_Representation agent_representation;
+            dds::xrce::ResultStatus result = root_->create_client(client_payload.client_representation(),
+                                                                 agent_representation);
+            if (dds::xrce::STATUS_OK == result.status())
+            {
+                server_->on_create_client(input_packet.source.get(),
+                                          client_payload.client_representation().client_key());
+            }
+            status_payload.result(result);
+            status_payload.agent_info(agent_representation);
+
+            /* Send STATUS_AGENT submessage. */
+            dds::xrce::MessageHeader output_header = input_packet.message->get_header();
+            output_header.session_id(client_payload.client_representation().session_id());
+
+            OutputPacket output_packet;
+            output_packet.destination = input_packet.source;
+            output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(output_header));
+            output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_payload);
+
+            server_->push_output_packet(output_packet);
         }
-        status_payload.result(result);
-        status_payload.agent_info(agent_representation);
-
-        /* Send STATUS_AGENT submessage. */
-        dds::xrce::MessageHeader output_header = input_packet.message->get_header();
-        output_header.session_id(client_payload.client_representation().session_id());
-
-        OutputPacket output_packet;
-        output_packet.server = input_packet.server;
-        output_packet.destination = input_packet.source;
-        output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(output_header));
-        output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_payload);
-
-        output_packet.server->push_output_packet(output_packet);
     }
     else
     {
@@ -211,7 +225,6 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
 
         /* Serialize status. */
         OutputPacket output_packet;
-        output_packet.server = input_packet.server;
         output_packet.destination = input_packet.source;
         output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
@@ -220,7 +233,7 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
         client.session().push_output_message(0x80, output_packet.message);
 
         /* Send status. */
-        output_packet.server->push_output_packet(output_packet);
+        server_->push_output_packet(output_packet);
     }
     return rv;
 }
@@ -243,7 +256,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
 
         /* Serialize status. */
         OutputPacket output_packet;
-        output_packet.server = input_packet.server;
         output_packet.destination = input_packet.source;
 
         /* Delete object. */
@@ -255,8 +267,8 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
 
             /* Set result status. */
             dds::xrce::ClientKey client_key;
-            input_packet.server->get_client_key(input_packet.source.get(), client_key);
-            status_payload.result(root_.delete_client(client_key));
+            server_->get_client_key(input_packet.source.get(), client_key);
+            status_payload.result(root_->delete_client(client_key));
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         }
         else
@@ -273,10 +285,12 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             /* Store message. */
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
             client.session().push_output_message(stream_id, output_packet.message);
+            output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
         }
+        output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
         /* Send status. */
-        output_packet.server->push_output_packet(output_packet);
+        server_->push_output_packet(output_packet);
     }
     else
     {
@@ -352,7 +366,6 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
 
             /* Serialize status. */
             OutputPacket output_packet;
-            output_packet.server = input_packet.server;
             output_packet.destination = input_packet.source;
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
             output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
@@ -361,7 +374,7 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             client.stream_manager().store_output_message(status_header.stream_id(), output_packet.message.get_buffer().data(), output_packet.message.get_real_size());
 
             /* Send status. */
-            output_packet.server->push_output_packet(output_packet);
+            server_->push_output_packet(output_packet);
         }
         status_payload.result(result);
     }
@@ -386,21 +399,20 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         for (uint16_t i = 0; i < 8; ++i)
         {
             OutputPacket output_packet;
-            output_packet.server = input_packet.server;
             output_packet.destination = input_packet.source;
             uint8_t mask = 0x01 << i;
             if ((nack_bitmap.at(1) & mask) == mask)
             {
                 if (client.session().get_output_message((uint8_t) seq_num, first_message + i, output_packet.message))
                 {
-                    output_packet.server->push_output_packet(output_packet);
+                    server_->push_output_packet(output_packet);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
                 if (client.session().get_output_message((uint8_t) seq_num, first_message + i + 8, output_packet.message))
                 {
-                    output_packet.server->push_output_packet(output_packet);
+                    server_->push_output_packet(output_packet);
                 }
             }
         }
@@ -440,12 +452,11 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
         acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
 
         OutputPacket output_packet;
-        output_packet.server = input_packet.server;
         output_packet.destination = input_packet.source;
         output_packet.message = OutputMessagePtr(new OutputMessage(acknack_header));
         output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 
-        output_packet.server->push_output_packet(output_packet);
+        server_->push_output_packet(output_packet);
     }
     else
     {

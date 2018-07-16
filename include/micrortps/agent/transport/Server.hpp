@@ -17,12 +17,15 @@
 
 #include <micrortps/agent/scheduler/FCFSScheduler.hpp>
 #include <micrortps/agent/message/Packet.hpp>
+#include <micrortps/agent/processor/Processor.hpp>
 #include <stdint.h>
 #include <stddef.h>
 #include <thread>
 
 namespace eprosima {
 namespace micrortps {
+
+class Processor;
 
 /**************************************************************************************************
  * EndPoint interface.
@@ -40,11 +43,8 @@ public:
 class Server
 {
 public:
-    Server()
-        : input_scheduler_(),
-          output_scheduler_()
-    {}
-    virtual ~Server() {}
+    Server();
+    virtual ~Server();
 
     bool run();
     void stop();
@@ -70,6 +70,7 @@ private:
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket> input_scheduler_;
     FCFSScheduler<OutputPacket> output_scheduler_;
+    Processor* processor_;
 };
 
 } // namespace micrortps

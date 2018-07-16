@@ -34,12 +34,8 @@ namespace micrortps{
 class Root
 {
 public:
-    /* Singleton instance. */
-    static Root& instance()
-    {
-        static Root root;
-        return root;
-    }
+    Root();
+    ~Root() = default;
 
     /**
      * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
@@ -72,17 +68,6 @@ public:
      * @return In other cases return a pointer to the Client.
      */
     ProxyClient* get_client(const dds::xrce::ClientKey& client_key);
-
-private:
-    /* Singleton private constructor and destructor. */
-    Root();
-    ~Root() = default;
-
-    /* Delete singleton copy and move constructor and assigments operator. */
-    Root(const Root&) = delete;
-    Root(Root&&) = delete;
-    Root& operator=(const Root&) = delete;
-    Root& operator=(Root&&) = delete;
 
 private:
     std::mutex clientsmtx_;

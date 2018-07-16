@@ -15,28 +15,23 @@
 #ifndef _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 #define _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 
-#include <micrortps/agent/Root.hpp>
-
 namespace eprosima {
 namespace micrortps {
 
-class Agent;
+class Server;
+class Root;
 class ProxyClient;
+class InputPacket;
 
 class Processor
 {
 public:
-    /* Singleton instance. */
-    static Processor& instance()
-    {
-        static Processor processor;
-        return processor;
-    }
+    Processor(Server* server);
+    ~Processor();
 
     void process_input_packet(InputPacket&& input_packet);
 
 private:
-    Processor() : root_(Root::instance()) {}
 
     void process_input_message(ProxyClient& client, InputPacket& input_packet);
     bool process_submessage(ProxyClient& client, InputPacket& input_packet);
@@ -49,7 +44,8 @@ private:
     bool process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet);
 
 private:
-    Root& root_;
+    Server* server_;
+    Root* root_;
 };
 
 } // namespace micrortps
