@@ -23,6 +23,59 @@
 namespace eprosima {
 namespace micrortps {
 
+void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
+{
+    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    client_key_map_.insert(std::make_pair((endpoint->get_addr() << 16) | endpoint->get_port(), client_key));
+}
+
+void UDPServer::on_delete_client(EndPoint* source)
+{
+    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    client_key_map_.erase((endpoint->get_addr() << 16) | endpoint->get_port());
+}
+
+void UDPServer::get_client_key(EndPoint* source, dds::xrce::ClientKey& client_key)
+{
+    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    auto it = client_key_map_.find((endpoint->get_addr() << 16) | endpoint->get_port());
+    if (it != client_key_map_.end())
+    {
+        client_key = it->second;
+    }
+    else
+    {
+        client_key = dds::xrce::CLIENTKEY_INVALID;
+    }
+}
+
+bool UDPServer::init()
+{
+    bool rv = false;
+
+    /* Socker initialization. */
+    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
+
+    if (-1 != poll_fd_.fd)
+    {
+        /* IP and Port setup. */
+        struct sockaddr_in address;
+        address.sin_family = AF_INET;
+        address.sin_port = htons(port_);
+        address.sin_addr.s_addr = inet_addr("127.0.0.1");
+        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+        if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+        {
+            /* Poll setup. */
+            poll_fd_.events = POLLIN;
+            rv = true;
+        }
+    }
+
+    return rv;
+}
+
+
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
@@ -35,7 +88,6 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (0 < bytes_received)
         {
-            input_packet.client_key = {0xAA,  0xBB, 0xCC, 0xDD};
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
@@ -89,32 +141,6 @@ bool UDPServer::send_message(OutputPacket output_packet)
 int UDPServer::get_error()
 {
     return errno;
-}
-
-bool UDPServer::init()
-{
-    bool rv = false;
-
-    /* Socker initialization. */
-    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
-
-    if (-1 != poll_fd_.fd)
-    {
-        /* IP and Port setup. */
-        struct sockaddr_in address;
-        address.sin_family = AF_INET;
-        address.sin_port = htons(port_);
-        address.sin_addr.s_addr = inet_addr("127.0.0.1");
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
-        {
-            /* Poll setup. */
-            poll_fd_.events = POLLIN;
-            rv = true;
-        }
-    }
-
-    return rv;
 }
 
 } // namespace micrortps

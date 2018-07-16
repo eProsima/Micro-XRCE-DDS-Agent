@@ -38,15 +38,15 @@ public:
 private:
     Processor() : root_(Root::instance()) {}
 
-    void process_input_message(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    void process_input_message(ProxyClient& client, InputPacket& input_packet);
+    bool process_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_create_client_submessage(InputPacket& input_packet);
-    bool process_create_submessage(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_delete_submessage(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_write_data_submessage(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_read_data_submessage(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_acknack_submessage(ProxyClient& client, InputMessagePtr& input_message);
-    bool process_heartbeat_submessage(ProxyClient& client, InputMessagePtr& input_message);
+    bool process_create_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_delete_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_write_data_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_read_data_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_acknack_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet);
 
 private:
     Root& root_;

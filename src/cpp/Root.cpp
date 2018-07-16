@@ -34,9 +34,15 @@ Root::Root()
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& agent_representation,
-                                             uint32_t addr, uint16_t port)
+                                             dds::xrce::AGENT_Representation& agent_representation)
 {
+    if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
+    {
+        dds::xrce::ResultStatus invalid_result;
+        invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+        return invalid_result;
+    }
+
     dds::xrce::ResultStatus result_status;
     result_status.status(dds::xrce::STATUS_OK);
 

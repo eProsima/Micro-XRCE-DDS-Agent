@@ -49,13 +49,16 @@ public:
     bool run();
     void stop();
 
-    virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
-    virtual bool send_message(OutputPacket output_packet) = 0;
-    virtual int get_error() = 0;
     void push_output_packet(OutputPacket output_packet);
+    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) = 0;
+    virtual void on_delete_client(EndPoint* source) = 0;
+    virtual void get_client_key(EndPoint* source, dds::xrce::ClientKey& client_key) = 0;
 
 private:
     virtual bool init() = 0;
+    virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
+    virtual bool send_message(OutputPacket output_packet) = 0;
+    virtual int get_error() = 0;
     void receiver_loop();
     void sender_loop();
     void processing_loop();

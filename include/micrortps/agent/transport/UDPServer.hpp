@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
+#include <unordered_map>
 
 namespace eprosima {
 namespace micrortps {
@@ -49,17 +50,21 @@ public:
     UDPServer(uint16_t port) : port_(port), poll_fd_{}, buffer_{0} {}
     ~UDPServer() = default;
 
-    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
-    virtual bool send_message(OutputPacket output_packet) override;
-    virtual int get_error() override;
+    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
+    virtual void on_delete_client(EndPoint* source) override;
+    virtual void get_client_key(EndPoint* source, dds::xrce::ClientKey& client_key) override;
 
 private:
     virtual bool init() override;
+    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
+    virtual bool send_message(OutputPacket output_packet) override;
+    virtual int get_error() override;
 
 private:   
     uint16_t port_;
     struct pollfd poll_fd_;
     uint8_t buffer_[1024];
+    std::unordered_map<uint64_t, dds::xrce::ClientKey> client_key_map_;
 };
 
 } // namespace micrortps

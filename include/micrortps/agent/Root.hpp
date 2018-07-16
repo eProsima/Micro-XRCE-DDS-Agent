@@ -52,8 +52,7 @@ public:
      * @return Indicates whether the operation suceeded and the current status of the XRCE.
      */
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                          dds::xrce::AGENT_Representation& agent_representation,
-                                          uint32_t addr, uint16_t port);
+                                          dds::xrce::AGENT_Representation& agent_representation);
 
     /**
      * @brief The XRCE Agent shall ckeck the ClientKey to locate an existing XRCE ProxyClient.

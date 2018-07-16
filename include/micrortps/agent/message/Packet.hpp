@@ -30,7 +30,6 @@ struct InputPacket
 {
     Server* server;
     std::shared_ptr<EndPoint> source;
-    dds::xrce::ClientKey client_key;
     InputMessagePtr message;
 };
 
@@ -39,7 +38,6 @@ struct OutputPacket
 {
     Server* server;
     std::shared_ptr<EndPoint> destination;
-    dds::xrce::ClientKey client_key;
     OutputMessagePtr message;
 };
 
