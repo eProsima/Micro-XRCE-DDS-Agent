@@ -33,11 +33,11 @@ using utils::TokenBucket;
 
 DataReader::DataReader(const dds::xrce::ObjectId& id,
                        eprosima::fastrtps::Participant& rtps_participant,
-                       ReaderListener* read_list,
+                       ReaderListener* reader_listener,
                        const std::string& profile_name)
     : XRCEObject(id),
       m_running(false),
-      mp_reader_listener(read_list),
+      mp_reader_listener(reader_listener),
       m_rtps_subscriber_prof(profile_name),
       mp_rtps_participant(rtps_participant),
       mp_rtps_subscriber(nullptr),
@@ -121,30 +121,26 @@ bool DataReader::init(const std::string& xmlrep)
     return true;
 }
 
-void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id)
+void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
+                      read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    ReadTaskInfo read_info{};
-    read_info.stream_id = stream_id;
-    read_info.object_id = read_data.object_id();
-    read_info.request_id = read_data.request_id();
+    dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
     {
-        dds::xrce::DataDeliveryControl delivery_control = read_data.read_specification().delivery_control();
-        read_info.max_elapsed_time = delivery_control.max_elapsed_time();
-        read_info.max_rate         = delivery_control.max_bytes_per_second();
-        read_info.max_samples      = delivery_control.max_samples();
+        delivery_control = read_data.read_specification().delivery_control();
     }
+    else
+    {
+        delivery_control.max_elapsed_time(0);
+        delivery_control.max_bytes_per_second(0);
+        delivery_control.max_samples(1);
+    }
+
     switch (read_data.read_specification().data_format())
     {
         case dds::xrce::FORMAT_DATA:
-            read_info.max_elapsed_time = 0;
-            read_info.max_rate         = 0;
-            read_info.max_samples      = 1;
             break;
         case dds::xrce::FORMAT_SAMPLE:
-            read_info.max_elapsed_time = 0;
-            read_info.max_rate         = 0;
-            read_info.max_samples      = 1;
             break;
         case dds::xrce::FORMAT_DATA_SEQ:
             break;
@@ -158,7 +154,7 @@ void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data, const dds::
     }
 
     stop_read();
-    start_read(read_info);
+    start_read(delivery_control, read_cb, cb_args);
 }
 
 bool DataReader::has_message() const
@@ -166,27 +162,23 @@ bool DataReader::has_message() const
     return msg_;
 }
 
-int DataReader::start_read(const ReadTaskInfo& read_info)
+int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-//    std::cout << "START READ" << std::endl;
-
     std::unique_lock<std::mutex> lock(m_mutex);
     m_running = true;
     lock.unlock();
 
-    if (read_info.max_elapsed_time > 0)
+    if (delivery_control.max_elapsed_time() > 0)
     {
-        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, read_info.max_elapsed_time);
+        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
     }
-    m_read_thread = std::thread(&DataReader::read_task, this, read_info);
+    m_read_thread = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
 
     return 0;
 }
 
 int DataReader::stop_read()
 {
-//    std::cout << "SETUP NEW READING..." << std::endl;
-
     std::unique_lock<std::mutex> lock(m_mutex);
     m_running = false;
     lock.unlock();
@@ -205,16 +197,16 @@ int DataReader::stop_read()
     return 0;
 }
 
-void DataReader::read_task(const ReadTaskInfo& read_info)
+void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
+                           read_callback read_cb, ReadCallbackArgs cb_args)
 {
-    TokenBucket rate_manager{read_info.max_rate};
-//    std::cout << "Starting read_task..." << std::endl;
+    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
     uint16_t message_count = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        if (m_running && (message_count < read_info.max_samples))
+        if (m_running && (message_count < delivery_control.max_samples()))
         {
             if (mp_rtps_subscriber->getUnreadCount() != 0)
             {
@@ -223,16 +215,12 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
                 size_t next_data_size = nextDataSize();
                 if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
                 {
-//                    std::cout << "Read " << message_count + 1 << std::endl;
                     std::vector<unsigned char> buffer;
                     if (takeNextData(&buffer))
                     {
-//                        std::cout << "Read " << next_data_size << " "
-//                                  << "in "
-//                                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - last_read).count()
-//                                  << std::endl;
                         last_read = std::chrono::steady_clock::now();
-                        mp_reader_listener->on_read_data(read_info.stream_id, read_info.object_id, read_info.request_id, buffer);
+//                        mp_reader_listener->on_read_data(delivery_control.stream_id, delivery_control.object_id, delivery_control.request_id, buffer);
+                        read_cb(cb_args, buffer);
                         ++message_count;
                     }
                 }
@@ -252,18 +240,11 @@ void DataReader::read_task(const ReadTaskInfo& read_info)
             break;
         }
     }
-
-//    std::cout << "exiting read_task..." << std::endl;
 }
 
 void DataReader::on_max_timeout(const asio::error_code& error)
 {
-//    std::cout << "on_timeout" << std::endl;
-    if (error)
-    {
-//        std::cout << "error" << std::endl;
-    }
-    else
+    if (!error)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_running = false;
@@ -298,10 +279,8 @@ void ReadTimeEvent::stop_max_timer()
 
 void ReadTimeEvent::run_max_timer(int milliseconds)
 {
-//    std::cout << "Starting run_max_timer..." << std::endl;
     init_max_timer(milliseconds);
     m_io_service_max.run();
-//    std::cout << "exiting run_max_timer..." << std::endl;
 }
 
 bool DataReader::takeNextData(void* data)
@@ -311,16 +290,7 @@ bool DataReader::takeNextData(void* data)
         return false;
     }
     fastrtps::SampleInfo_t info;
-    bool ret = mp_rtps_subscriber->takeNextData(data, &info);
-    if (ret)
-    {
-//        std::cout << "Sample taken " << info.sample_identity.sequence_number() << std::endl;
-    }
-    else
-    {
-//        std::cout << "Error taking sample" << std::endl;
-    }
-    return ret;
+    return mp_rtps_subscriber->takeNextData(data, &info);
 }
 
 size_t DataReader::nextDataSize()

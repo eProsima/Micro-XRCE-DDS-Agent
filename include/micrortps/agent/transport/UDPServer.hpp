@@ -52,7 +52,8 @@ public:
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
     virtual void on_delete_client(EndPoint* source) override;
-    virtual void get_client_key(EndPoint* source, dds::xrce::ClientKey& client_key) override;
+    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
+    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 private:
     virtual bool init() override;

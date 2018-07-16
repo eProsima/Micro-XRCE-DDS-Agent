@@ -15,13 +15,17 @@
 #ifndef _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 #define _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 
+#include <stdint.h>
+#include <vector>
+
 namespace eprosima {
 namespace micrortps {
 
-class Server;
 class Root;
+class Server;
 class ProxyClient;
 class InputPacket;
+class ReadCallbackArgs;
 
 class Processor
 {
@@ -30,9 +34,10 @@ public:
     ~Processor();
 
     void process_input_packet(InputPacket&& input_packet);
+    Root* get_root() { return root_; }
+    Server* get_server() { return server_; }
 
 private:
-
     void process_input_message(ProxyClient& client, InputPacket& input_packet);
     bool process_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_create_client_submessage(InputPacket& input_packet);
@@ -42,6 +47,7 @@ private:
     bool process_read_data_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_acknack_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet);
+    void read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer);
 
 private:
     Server* server_;

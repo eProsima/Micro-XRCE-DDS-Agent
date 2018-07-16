@@ -26,7 +26,7 @@ namespace micrortps {
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
-    uint64_t source_id = (endpoint->get_addr() << 16) | endpoint->get_port();
+    uint64_t source_id = ((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port();
     uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
 
     /* Update maps. */
@@ -66,10 +66,11 @@ void UDPServer::on_delete_client(EndPoint* source)
     }
 }
 
-void UDPServer::get_client_key(EndPoint* source, dds::xrce::ClientKey& client_key)
+const dds::xrce::ClientKey UDPServer::get_client_key(EndPoint* source)
 {
+    dds::xrce::ClientKey client_key;
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
-    auto it = source_to_client_map_.find((endpoint->get_addr() << 16) | endpoint->get_port());
+    auto it = source_to_client_map_.find(((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
         client_key.at(0) = it->second & 0x000000FF;
@@ -81,6 +82,20 @@ void UDPServer::get_client_key(EndPoint* source, dds::xrce::ClientKey& client_ke
     {
         client_key = dds::xrce::CLIENTKEY_INVALID;
     }
+    return client_key;
+}
+
+std::unique_ptr<EndPoint> UDPServer::get_source(const dds::xrce::ClientKey& client_key)
+{
+    std::unique_ptr<EndPoint> source;
+    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    auto it = client_to_source_map_.find(client_id);
+    if (it != client_to_source_map_.end())
+    {
+        uint64_t source_id = it->second;
+        source.reset(new UDPEndPoint(source_id >> 16, source_id & 0xFFFF));
+    }
+    return source;
 }
 
 bool UDPServer::init()
@@ -108,7 +123,6 @@ bool UDPServer::init()
 
     return rv;
 }
-
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {

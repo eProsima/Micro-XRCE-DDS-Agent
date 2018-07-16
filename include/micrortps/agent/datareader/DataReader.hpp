@@ -26,6 +26,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <functional>
 
 namespace eprosima {
 
@@ -38,6 +39,19 @@ class MatchingInfo;
 } // namespace fastrtps
 
 namespace micrortps {
+
+class Processor;
+
+typedef struct ReadCallbackArgs
+{
+    dds::xrce::ClientKey client_key;
+    dds::xrce::StreamId stream_id;
+    dds::xrce::ObjectId object_id;
+    dds::xrce::RequestId request_id;
+
+} ReadCallbackArgs;
+
+typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
 
 class ReaderListener
 {
@@ -104,11 +118,10 @@ class RTPSSubListener : public fastrtps::SubscriberListener
  */
 class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
 {
-
-  public:
+public:
     DataReader(const dds::xrce::ObjectId& id,
                eprosima::fastrtps::Participant& rtps_participant,
-               ReaderListener* read_list,
+               ReaderListener* reader_listener,
                const std::string& profile_name = "");
     ~DataReader() noexcept override;
 
@@ -119,7 +132,7 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 
     bool init();
     bool init(const std::string& xmlrep);
-    void read(const dds::xrce::READ_DATA_Payload& read_data, const dds::xrce::StreamId& stream_id);
+    void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     bool has_message() const;
 
     void on_max_timeout(const asio::error_code& error) override;
@@ -128,20 +141,12 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
                                eprosima::fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
 
-  private:
-    struct ReadTaskInfo
-    {
-        dds::xrce::StreamId stream_id;
-        dds::xrce::ObjectId object_id;
-        dds::xrce::RequestId request_id;
-        uint16_t max_samples;      // Maximum number of samples
-        uint32_t max_elapsed_time; // In milliseconds
-        uint32_t max_rate;         // Bytes per second
-    };
-
-    int start_read(const ReadTaskInfo& read_info);
+private:
+    int start_read(const dds::xrce::DataDeliveryControl& delivery_control,
+                   read_callback read_cb, const ReadCallbackArgs& cb_args);
     int stop_read();
-    void read_task(const ReadTaskInfo& read_info);
+    void read_task(dds::xrce::DataDeliveryControl delivery_control,
+                   read_callback read_cb, ReadCallbackArgs cb_args);
     bool takeNextData(void* data);
     size_t nextDataSize();
     bool check_registered_topic(const std::string& topic_data_type) const;
@@ -157,7 +162,6 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
     fastrtps::Participant& mp_rtps_participant;
     fastrtps::Subscriber* mp_rtps_subscriber;
     TopicPubSubType topic_type_;
-
 };
 
 } // namespace micrortps
