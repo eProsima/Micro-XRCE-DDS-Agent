@@ -28,7 +28,7 @@ namespace eprosima {
 namespace micrortps {
 
 Root::Root()
-    : clientsmtx_(),
+    : mtx_(),
       clients_()
 {
 }
@@ -50,18 +50,14 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
     {
         if (client_representation.xrce_version()[0] == dds::xrce::XRCE_VERSION_MAJOR)
         {
-            std::lock_guard<std::mutex> lock(clientsmtx_);
-
-            bool create_rv;
+            std::unique_lock<std::mutex> lock(mtx_);
             dds::xrce::ClientKey client_key = client_representation.client_key();
             dds::xrce::SessionId session_id = client_representation.session_id();
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                create_rv = clients_.emplace(std::piecewise_construct,
-                                             std::forward_as_tuple(client_key),
-                                             std::forward_as_tuple(client_representation)).second;
-                if (create_rv)
+                std::shared_ptr<ProxyClient> new_client(new ProxyClient(client_representation));
+                if (clients_.insert(std::make_pair(client_key, std::move(new_client))).second)
                 {
 #ifdef VERBOSE_OUTPUT
                     std::cout << "<== ";
@@ -70,34 +66,22 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 }
                 else
                 {
-                    result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
+                    result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 }
             }
             else
             {
-                ProxyClient& client = clients_.at(client_key);
-                if (session_id != client.get_session_id())
+                std::shared_ptr<ProxyClient> client = clients_.at(client_key);
+                if (session_id != client->get_session_id())
                 {
-                    clients_.erase(it);
-                    create_rv = clients_.emplace(std::piecewise_construct,
-                                                 std::forward_as_tuple(client_key),
-                                                 std::forward_as_tuple(client_representation)).second;
-                    if (create_rv)
-                    {
-#ifdef VERBOSE_OUTPUT
-                        debug::printl_connected_client_submessage(client_representation);
-#endif
-                    }
-                    else
-                    {
-                        result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
-                    }
+                    it->second = std::shared_ptr<ProxyClient>(new ProxyClient(client_representation));
                 }
                 else
                 {
-                    client.session().reset();
+                    client->session().reset();
                 }
             }
+            lock.unlock();
         }
         else
         {
@@ -124,11 +108,9 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
 dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
-    ProxyClient* client = get_client(client_key);
-    if (nullptr != client)
+    if (get_client(client_key))
     {
-        std::unique_lock<std::mutex> lock(clientsmtx_);
-//        addr_to_key_.erase(client->get_addr());
+        std::unique_lock<std::mutex> lock(mtx_);
         clients_.erase(client_key);
         lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
@@ -138,6 +120,18 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
     return result_status;
+}
+
+std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client_key)
+{
+    std::shared_ptr<ProxyClient> client;
+    std::unique_lock<std::mutex> lock(mtx_);
+    auto it = clients_.find(client_key);
+    if (it != clients_.end())
+    {
+        client = clients_.at(client_key);
+    }
+    return client;
 }
 
 //void Root::manage_heartbeats()
@@ -178,18 +172,6 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
 //        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
 //    }
 //}
-
-ProxyClient* Root::get_client(const dds::xrce::ClientKey& client_key)
-{
-    ProxyClient* client = nullptr;
-    std::lock_guard<std::mutex> lock(clientsmtx_);
-    auto it = clients_.find(client_key);
-    if (it != clients_.end())
-    {
-        client = &clients_.at(client_key);
-    }
-    return client;
-}
 
 } // namespace micrortps
 } // namespace eprosima

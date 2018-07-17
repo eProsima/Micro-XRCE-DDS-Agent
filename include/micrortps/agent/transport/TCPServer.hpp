@@ -20,7 +20,7 @@
 #include <vector>
 #include <array>
 
-#define TCP_TRANSPORT_MTU 512
+#define MICRORTPS_TCP_TRANSPORT_MTU 512
 #define MICRORTPS_MAX_TCP_CLIENTS 1
 #define MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS 100
 
@@ -28,7 +28,7 @@ namespace eprosima {
 namespace micrortps {
 
 /******************************************************************************
- * TCP Client.
+ * TCP EndPoint.
  ******************************************************************************/
 typedef enum TCPInputBufferState
 {
@@ -87,7 +87,7 @@ private:
     TCPEndPoint* available_clients_;
     TCPEndPoint* last_client_read_;
     std::array<struct pollfd, MICRORTPS_MAX_TCP_CLIENTS + 1> poll_fds_;
-    uint8_t buffer_[1024];
+    uint8_t buffer_[MICRORTPS_TCP_TRANSPORT_MTU];
 };
 
 } // namespace micrortps

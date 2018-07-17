@@ -48,7 +48,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
     {
         dds::xrce::MessageHeader header = input_packet.message->get_header();
         dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
-        ProxyClient* client = root_->get_client(client_key);
+        std::shared_ptr<ProxyClient> client = root_->get_client(client_key);
         if (nullptr != client)
         {
             /* Check whether it is the next message. */
@@ -111,7 +111,6 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
-    std::unique_lock<std::mutex> lock(client.get_mutex());
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -488,7 +487,7 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
-    ProxyClient* client = root_->get_client(cb_args.client_key);
+    std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
 
     /* DATA header. */
     dds::xrce::MessageHeader message_header;

@@ -25,21 +25,6 @@ ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
 {
 }
 
-ProxyClient::ProxyClient(ProxyClient&& x) noexcept
-    : representation_(std::move(x.representation_)),
-      objects_(std::move(x.objects_)),
-      session_(std::move(x.session_))
-{
-}
-
-ProxyClient& ProxyClient::operator=(ProxyClient&& x) noexcept
-{
-    representation_  = std::move(x.representation_);
-    objects_ = std::move(x.objects_);
-    session_ = std::move(x.session_);
-    return *this;
-}
-
 bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
 {
     bool result = false;
@@ -217,7 +202,7 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
     object_id[1] = (objectid_prefix[1] & 0xF0) | object_representation._d();
 
     /* Check whether object exists. */
-    std::unique_lock<std::mutex> lock(objects_mutex_);
+    std::unique_lock<std::mutex> lock(mtx_);
     auto it = objects_.find(object_id);
     bool exists = (it != objects_.end());
 
@@ -254,7 +239,7 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     result.status(dds::xrce::STATUS_OK);
     result.implementation_status(0x00);
 
-    std::unique_lock<std::mutex> lock(objects_mutex_);
+    std::unique_lock<std::mutex> lock(mtx_);
     auto it = objects_.find(object_id);
     if (it != objects_.end())
     {
@@ -284,7 +269,7 @@ dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_
 XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 {
     XRCEObject* object = nullptr;
-    std::lock_guard<std::mutex> lockGuard(objects_mutex_);
+    std::lock_guard<std::mutex> lockGuard(mtx_);
     auto object_it = objects_.find(object_id);
     if (object_it != objects_.end())
     {

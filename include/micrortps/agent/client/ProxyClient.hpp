@@ -50,7 +50,7 @@ public:
      *
      * @param x Object to move.
      */
-    ProxyClient(ProxyClient&& x) noexcept;
+    ProxyClient(ProxyClient&& x) = delete;
 
     /**
      * @brief Deletes the assignment operator.
@@ -63,7 +63,7 @@ public:
      * @param x Object to move.
      * @return New reference where the object is moved.
      */
-    ProxyClient& operator=(ProxyClient&& x) noexcept;
+    ProxyClient& operator=(ProxyClient&& x) = delete;
 
     /**
      * @brief This operation attempts to create a XRCE object according to the specification provided in the
@@ -140,7 +140,6 @@ public:
      * @return The session of the ProxyClient.
      */
     Session& session();
-    std::mutex& get_mutex() { return mtx_; }
 
 private:
     bool create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation);
@@ -148,7 +147,6 @@ private:
 private:
     dds::xrce::CLIENT_Representation representation_;
     std::mutex mtx_;
-    std::mutex objects_mutex_;
     std::map<dds::xrce::ObjectId, std::unique_ptr<XRCEObject>> objects_;
     Session session_;
 

@@ -67,11 +67,11 @@ public:
      *
      * @return In other cases return a pointer to the Client.
      */
-    ProxyClient* get_client(const dds::xrce::ClientKey& client_key);
+    std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
 
 private:
-    std::mutex clientsmtx_;
-    std::map<dds::xrce::ClientKey, ProxyClient> clients_;
+    std::mutex mtx_;
+    std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
 };
 
 } // micrortps
