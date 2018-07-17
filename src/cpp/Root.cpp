@@ -52,25 +52,21 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
         {
             std::lock_guard<std::mutex> lock(clientsmtx_);
 
-            bool create_result;
+            bool create_rv;
             dds::xrce::ClientKey client_key = client_representation.client_key();
             dds::xrce::SessionId session_id = client_representation.session_id();
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                create_result = clients_.emplace(std::piecewise_construct,
-                                                 std::forward_as_tuple(client_key),
-                                                 std::forward_as_tuple(client_representation)).second;
-                if (create_result)
+                create_rv = clients_.emplace(std::piecewise_construct,
+                                             std::forward_as_tuple(client_key),
+                                             std::forward_as_tuple(client_representation)).second;
+                if (create_rv)
                 {
 #ifdef VERBOSE_OUTPUT
                     std::cout << "<== ";
                     debug::printl_connected_client_submessage(client_representation);
 #endif
-                    if (client_representation.session_id() > 127)
-                    {
-//                        addr_to_key_.insert(std::make_pair(addr, client_key));
-                    }
                 }
                 else
                 {
@@ -83,23 +79,23 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 if (session_id != client.get_session_id())
                 {
                     clients_.erase(it);
-                    create_result = clients_.emplace(std::piecewise_construct,
-                                                     std::forward_as_tuple(client_key),
-                                                     std::forward_as_tuple(client_representation)).second;
-                    if (create_result)
+                    create_rv = clients_.emplace(std::piecewise_construct,
+                                                 std::forward_as_tuple(client_key),
+                                                 std::forward_as_tuple(client_representation)).second;
+                    if (create_rv)
                     {
 #ifdef VERBOSE_OUTPUT
                         debug::printl_connected_client_submessage(client_representation);
 #endif
-                        if (client_representation.session_id() > 127)
-                        {
-//                            addr_to_key_.insert(std::make_pair(addr, client_key));
-                        }
                     }
                     else
                     {
                         result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
                     }
+                }
+                else
+                {
+                    client.session().reset();
                 }
             }
         }

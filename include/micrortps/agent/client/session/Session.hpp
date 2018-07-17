@@ -35,6 +35,8 @@ public:
     Session(Session&&) = default;
     Session& operator=(Session&&) = default;
 
+    void reset();
+
     /* Input streams functions. */
     bool next_input_message(InputMessagePtr& message);
     bool pop_input_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
@@ -58,6 +60,33 @@ private:
     std::map<dds::xrce::StreamId, BestEffortOutputStream> output_best_effort_streams_;
     std::map<dds::xrce::StreamId, ReliableOutputStream> output_relible_streams_;
 };
+
+inline void Session::reset()
+{
+    /* Reset Best-Effor Input streams. */
+    for (auto& it : input_best_effort_streams_)
+    {
+        it.second.reset();
+    }
+
+    /* Reset Reliable Input streams. */
+    for (auto& it : input_relible_streams_)
+    {
+        it.second.reset();
+    }
+
+    /* Reset Best-Effor Output streams. */
+    for (auto& it : output_best_effort_streams_)
+    {
+        it.second.reset();
+    }
+
+    /* Reset Reliable Output streams. */
+    for (auto& it : output_relible_streams_)
+    {
+        it.second.reset();
+    }
+}
 
 /**************************************************************************************************
  * Input Stream Methods.

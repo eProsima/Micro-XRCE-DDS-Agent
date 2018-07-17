@@ -39,7 +39,8 @@ public:
     bool push_message(OutputMessagePtr&& output_message);
     bool pop_message(OutputMessagePtr& output_message);
     SeqNum get_last_handled() const { return last_send_; }
-    void promote_stream();
+    void promote_stream() { last_send_ += 1; }
+    void reset() { last_send_ = ~0; }
 
 private:
     SeqNum last_send_;
@@ -69,11 +70,6 @@ inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message
     return rv;
 }
 
-inline void BestEffortOutputStream::promote_stream()
-{
-    last_send_ += 1;
-}
-
 /******************************************************************************
  * Reliable Output Stream.
  ******************************************************************************/
@@ -94,6 +90,7 @@ public:
     SeqNum get_last_available() { return last_sent_; }
     SeqNum next_message() { return last_sent_ + 1; }
     bool message_pending() { return messages_.size() != 0; }
+    void reset();
 
 private:
     SeqNum last_sent_;
@@ -147,6 +144,13 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
         last_acknown_ += 1;
         messages_.erase(last_acknown_);
     }
+}
+
+inline void ReliableOutputStream::reset()
+{
+    last_acknown_ = ~0;
+    last_sent_ = ~0;
+    messages_.clear();
 }
 
 } // namespace micrortps

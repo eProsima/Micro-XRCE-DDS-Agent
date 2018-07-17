@@ -34,6 +34,7 @@ public:
     BestEffortInputStream() : last_received_(~0) {}
 
     bool next_message(SeqNum seq_num);
+    void reset() { last_received_ = ~0; }
 
 private:
     SeqNum last_received_;
@@ -67,6 +68,7 @@ public:
     void update_from_heartbeat(SeqNum first_available, SeqNum last_available);
     SeqNum get_first_unacked() const;
     std::array<uint8_t, 2> get_nack_bitmap();
+    void reset();
 
 private:
     SeqNum last_handled_;
@@ -174,6 +176,13 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
         }
     }
     return bitmap;
+}
+
+inline void ReliableInputStream::reset()
+{
+    last_handled_ = ~0;
+    last_announced_ = ~0;
+    messages_.clear();
 }
 
 } // namespace micrortps
