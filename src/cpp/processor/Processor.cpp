@@ -85,6 +85,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 /* Set output packet and serialize ACKNACK. */
                 OutputPacket output_packet;
                 output_packet.destination.reset(new EndPoint(*input_packet.source));
+                output_packet.destination = input_packet.source;
                 output_packet.message.reset(new OutputMessage(acknack_header));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 

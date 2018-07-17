@@ -43,7 +43,8 @@ class XRCEParticipant : public XRCEObject
 
     XRCEObject* create_topic(const dds::xrce::ObjectId& id, const std::string& xmlrep);
     XRCEObject* create_writer(const dds::xrce::ObjectId& id, const std::string& xmlrep);
-    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
+//    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
+    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep);
 
     XRCEObject* get_writer();
     XRCEObject* get_reader();

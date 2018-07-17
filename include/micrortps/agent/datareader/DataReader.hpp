@@ -17,10 +17,8 @@
 
 #include <micrortps/agent/object/XRCEObject.hpp>
 #include <micrortps/agent/types/TopicPubSubType.hpp>
-
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
-
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
 #include <condition_variable>
@@ -40,6 +38,9 @@ class MatchingInfo;
 
 namespace micrortps {
 
+/**
+ * Callback data structure.
+ */
 class Processor;
 
 typedef struct ReadCallbackArgs
@@ -53,23 +54,9 @@ typedef struct ReadCallbackArgs
 
 typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
 
-class ReaderListener
-{
-  public:
-    ReaderListener()          = default;
-    virtual ~ReaderListener() = default;
-
-    ReaderListener(ReaderListener&&)      = default;
-    ReaderListener(const ReaderListener&) = default;
-    ReaderListener& operator=(ReaderListener&&) = default;
-    ReaderListener& operator=(const ReaderListener&) = default;
-
-    virtual void on_read_data(const dds::xrce::StreamId& stream_id,
-                              const dds::xrce::ObjectId& object_id,
-                              const dds::xrce::RequestId& request_id,
-                              const std::vector<unsigned char>& buffer) = 0;
-};
-
+/**
+ * @brief The ReadTimeEvent class
+ */
 class ReadTimeEvent
 {
   public:
@@ -91,6 +78,9 @@ class ReadTimeEvent
     asio::steady_timer m_timer_max;
 };
 
+/**
+ * @brief The RTPSSubListener class
+ */
 class RTPSSubListener : public fastrtps::SubscriberListener
 {
   public:
@@ -113,15 +103,13 @@ class RTPSSubListener : public fastrtps::SubscriberListener
 };
 
 /**
- * Class DataReader, contains the public API that allows the user to control the reception of messages.
- * @ingroup MICRORTPS_MODULE
+ * @brief The DataReader class contains the public API that allows the user to control the reception of message.
  */
 class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
 {
 public:
     DataReader(const dds::xrce::ObjectId& id,
                eprosima::fastrtps::Participant& rtps_participant,
-               ReaderListener* reader_listener,
                const std::string& profile_name = "");
     ~DataReader() noexcept override;
 
@@ -151,16 +139,15 @@ private:
     size_t nextDataSize();
     bool check_registered_topic(const std::string& topic_data_type) const;
 
-    std::thread m_read_thread;
-    std::thread m_max_timer_thread;
-    std::mutex m_mutex;
-    std::condition_variable m_cond_var;
-    bool m_running;
+    std::thread read_thread_;
+    std::thread max_timer_thread_;
+    std::mutex mtx_;
+    std::condition_variable cond_var_;
+    bool running_cond_;
 
-    ReaderListener* mp_reader_listener;
-    std::string m_rtps_subscriber_prof;
-    fastrtps::Participant& mp_rtps_participant;
-    fastrtps::Subscriber* mp_rtps_subscriber;
+    std::string rtps_subscriber_prof_;
+    fastrtps::Participant& rtps_participant_;
+    fastrtps::Subscriber* rtps_subscriber_;
     TopicPubSubType topic_type_;
 };
 

@@ -28,7 +28,6 @@ class EndPoint;
 typedef std::unique_ptr<InputMessage> InputMessagePtr;
 struct InputPacket
 {
-//    Server* server;
     std::shared_ptr<EndPoint> source;
     InputMessagePtr message;
 };
@@ -36,7 +35,6 @@ struct InputPacket
 typedef std::shared_ptr<OutputMessage> OutputMessagePtr;
 struct OutputPacket
 {
-//    Server* server;
     std::shared_ptr<EndPoint> destination;
     OutputMessagePtr message;
 };

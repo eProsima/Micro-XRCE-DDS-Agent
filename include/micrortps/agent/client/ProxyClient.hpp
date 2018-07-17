@@ -24,7 +24,8 @@
 namespace eprosima {
 namespace micrortps {
 
-class ProxyClient : public ReaderListener
+//class ProxyClient : public ReaderListener
+class ProxyClient
 {
 public:
     ProxyClient() = default;
@@ -110,19 +111,19 @@ public:
      */
     dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
 
-    /**
-     * @brief Callback called on new data from a given DataReader.
-     *
-     * @param stream_id   The stream used to send data to the Client.
-     * @param object_id   The DataReader id.
-     * @param request_id  The request id performed by the Client.
-     *
-     * @param buffer
-     */
-    void on_read_data(const dds::xrce::StreamId& stream_id,
-                      const dds::xrce::ObjectId& object_id,
-                      const dds::xrce::RequestId& request_id,
-                      const std::vector<unsigned char>& buffer);
+//    /**
+//     * @brief Callback called on new data from a given DataReader.
+//     *
+//     * @param stream_id   The stream used to send data to the Client.
+//     * @param object_id   The DataReader id.
+//     * @param request_id  The request id performed by the Client.
+//     *
+//     * @param buffer
+//     */
+//    void on_read_data(const dds::xrce::StreamId& stream_id,
+//                      const dds::xrce::ObjectId& object_id,
+//                      const dds::xrce::RequestId& request_id,
+//                      const std::vector<unsigned char>& buffer);
 
     /**
      * @brief This function return a given XRCE Object.

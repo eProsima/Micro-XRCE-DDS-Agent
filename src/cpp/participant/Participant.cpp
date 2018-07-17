@@ -68,10 +68,10 @@ XRCEObject* XRCEParticipant::create_writer(const dds::xrce::ObjectId& id, const 
 }
 
 XRCEObject* XRCEParticipant::create_reader(const dds::xrce::ObjectId& id,
-                                           const std::string& xmlrep,
-                                           ReaderListener* message_listener)
+                                           const std::string& xmlrep)
 {
-    auto data_reader = new DataReader(id, *mp_rtps_participant, message_listener);
+    auto data_reader = new DataReader(id, *mp_rtps_participant);
+//    auto data_reader = new DataReader(id, *mp_rtps_participant, message_listener);
     if (data_reader->init(xmlrep))
     {
         return data_reader;

@@ -33,14 +33,12 @@ using utils::TokenBucket;
 
 DataReader::DataReader(const dds::xrce::ObjectId& id,
                        eprosima::fastrtps::Participant& rtps_participant,
-                       ReaderListener* reader_listener,
                        const std::string& profile_name)
     : XRCEObject(id),
-      m_running(false),
-      mp_reader_listener(reader_listener),
-      m_rtps_subscriber_prof(profile_name),
-      mp_rtps_participant(rtps_participant),
-      mp_rtps_subscriber(nullptr),
+      running_cond_(false),
+      rtps_subscriber_prof_(profile_name),
+      rtps_participant_(rtps_participant),
+      rtps_subscriber_(nullptr),
       topic_type_(false)
 {
 }
@@ -48,45 +46,45 @@ DataReader::DataReader(const dds::xrce::ObjectId& id,
 DataReader::~DataReader() noexcept
 {
     stop_read();
-    if (m_read_thread.joinable())
+    if (read_thread_.joinable())
     {
-        m_read_thread.join();
+        read_thread_.join();
     }
 
-    if (m_max_timer_thread.joinable())
+    if (max_timer_thread_.joinable())
     {
-        m_max_timer_thread.join();
+        max_timer_thread_.join();
     }
 
-    if (nullptr != mp_rtps_subscriber)
+    if (nullptr != rtps_subscriber_)
     {
-        fastrtps::Domain::removeSubscriber(mp_rtps_subscriber);
+        fastrtps::Domain::removeSubscriber(rtps_subscriber_);
     }
 }
 
 bool DataReader::init()
 {
     SubscriberAttributes attributes;
-    if (m_rtps_subscriber_prof.empty() ||
+    if (rtps_subscriber_prof_.empty() ||
         (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
-         fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(m_rtps_subscriber_prof, attributes)))
+         fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(rtps_subscriber_prof_, attributes)))
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
     }
     if (check_registered_topic(attributes.topic.getTopicDataType()))
     {
 
-        if (!m_rtps_subscriber_prof.empty())
+        if (!rtps_subscriber_prof_.empty())
         {
-            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(&mp_rtps_participant, m_rtps_subscriber_prof, this);
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(&rtps_participant_, rtps_subscriber_prof_, this);
         }
         else
         {
-            mp_rtps_subscriber =
-                fastrtps::Domain::createSubscriber(&mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+            rtps_subscriber_ =
+                fastrtps::Domain::createSubscriber(&rtps_participant_, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
-    if (mp_rtps_subscriber == nullptr)
+    if (rtps_subscriber_ == nullptr)
     {
         std::cout << "init subscriber error" << std::endl;
         return false;
@@ -101,7 +99,7 @@ bool DataReader::init(const std::string& xmlrep)
     {
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
-            mp_rtps_subscriber = fastrtps::Domain::createSubscriber(&mp_rtps_participant, attributes, this);
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(&rtps_participant_, attributes, this);
         }
     }
     else
@@ -109,11 +107,11 @@ bool DataReader::init(const std::string& xmlrep)
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
         if (check_registered_topic(attributes.topic.getTopicDataType()))
         {
-            mp_rtps_subscriber =
-                fastrtps::Domain::createSubscriber(&mp_rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+            rtps_subscriber_ =
+                fastrtps::Domain::createSubscriber(&rtps_participant_, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
-    if (mp_rtps_subscriber == nullptr)
+    if (rtps_subscriber_ == nullptr)
     {
         std::cout << "init subscriber error" << std::endl;
         return false;
@@ -164,35 +162,35 @@ bool DataReader::has_message() const
 
 int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_running = true;
+    std::unique_lock<std::mutex> lock(mtx_);
+    running_cond_ = true;
     lock.unlock();
 
     if (delivery_control.max_elapsed_time() > 0)
     {
-        m_max_timer_thread = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
+        max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
     }
-    m_read_thread = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
+    read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
 
     return 0;
 }
 
 int DataReader::stop_read()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_running = false;
+    std::unique_lock<std::mutex> lock(mtx_);
+    running_cond_ = false;
     lock.unlock();
-    m_cond_var.notify_one();
+    cond_var_.notify_one();
 
-    if (m_read_thread.joinable())
+    if (read_thread_.joinable())
     {
-        m_read_thread.join();
+        read_thread_.join();
     }
 
     stop_max_timer();
-    if (m_max_timer_thread.joinable())
+    if (max_timer_thread_.joinable())
     {
-        m_max_timer_thread.join();
+        max_timer_thread_.join();
     }
     return 0;
 }
@@ -205,10 +203,10 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        if (m_running && (message_count < delivery_control.max_samples()))
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
-            if (mp_rtps_subscriber->getUnreadCount() != 0)
+            if (rtps_subscriber_->getUnreadCount() != 0)
             {
                 lock.unlock();
                 /* Read operation. */
@@ -219,7 +217,6 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                     if (takeNextData(&buffer))
                     {
                         last_read = std::chrono::steady_clock::now();
-//                        mp_reader_listener->on_read_data(delivery_control.stream_id, delivery_control.object_id, delivery_control.request_id, buffer);
                         read_cb(cb_args, buffer);
                         ++message_count;
                     }
@@ -228,13 +225,13 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
             else
             {
                 /* Wait for new message or terminate signal. */
-                m_cond_var.wait(lock);
+                cond_var_.wait(lock);
                 lock.unlock();
             }
         }
         else
         {
-            m_running = false;
+            running_cond_ = false;
             lock.unlock();
             stop_max_timer();
             break;
@@ -246,16 +243,16 @@ void DataReader::on_max_timeout(const asio::error_code& error)
 {
     if (!error)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_running = false;
-        m_cond_var.notify_one();
+        std::lock_guard<std::mutex> lock(mtx_);
+        running_cond_ = false;
+        cond_var_.notify_one();
     }
 }
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_cond_var.notify_one();
+    std::lock_guard<std::mutex> lock(mtx_);
+    cond_var_.notify_one();
 }
 
 ReadTimeEvent::ReadTimeEvent()
@@ -285,20 +282,20 @@ void ReadTimeEvent::run_max_timer(int milliseconds)
 
 bool DataReader::takeNextData(void* data)
 {
-    if (nullptr == mp_rtps_subscriber)
+    if (nullptr == rtps_subscriber_)
     {
         return false;
     }
     fastrtps::SampleInfo_t info;
-    return mp_rtps_subscriber->takeNextData(data, &info);
+    return rtps_subscriber_->takeNextData(data, &info);
 }
 
 size_t DataReader::nextDataSize()
 {
     std::vector<unsigned char> buffer;
     fastrtps::SampleInfo_t info;
-    // TODO Cuidado con las configuraciones KEEPALL
-    if (mp_rtps_subscriber->readNextData(&buffer, &info))
+    // TODO (julian): review KEE_PALL configuration.
+    if (rtps_subscriber_->readNextData(&buffer, &info))
     {
         if (info_.sampleKind == rtps::ALIVE)
         {
@@ -328,9 +325,9 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
 
 bool DataReader::check_registered_topic(const std::string& topic_data_type) const
 {
-    // TODO(Borja) Take this method out to Topic type.
+    // TODO (Borja): take this method out to Topic type.
     TopicDataType* p_type = nullptr;
-    if (!fastrtps::Domain::getRegisteredType(&mp_rtps_participant, topic_data_type.data(), &p_type))
+    if (!fastrtps::Domain::getRegisteredType(&rtps_participant_, topic_data_type.data(), &p_type))
     {
         std::cout << "DDS ERROR: No registered type" << std::endl;
         return false;

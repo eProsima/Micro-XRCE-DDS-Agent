@@ -130,11 +130,11 @@ bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds:
                     {
                         XRCEParticipant& participant = subscriber->get_participant();
                         data_reader =
-                                participant.create_reader(object_id, representation.data_reader().representation().string_representation(), this);
+                                participant.create_reader(object_id, representation.data_reader().representation().string_representation());
                         break;
                     }
                     case dds::xrce::REPRESENTATION_IN_BINARY:
-                    /* TODO (Julian). */
+                        // TODO (Julian).
                         break;
                     default:
                         break;
@@ -291,37 +291,6 @@ XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
         object = object_it->second.get();
     }
     return object;
-}
-
-void ProxyClient::on_read_data(const dds::xrce::StreamId& stream_id,
-                               const dds::xrce::ObjectId& object_id,
-                               const dds::xrce::RequestId& request_id,
-                               const std::vector<unsigned char>& buffer)
-{
-    /* Message header. */
-    dds::xrce::MessageHeader message_header;
-    message_header.client_key(representation_.client_key());
-    message_header.session_id(representation_.session_id());
-    message_header.stream_id(stream_id);
-    uint16_t seq_num = session().next_output_message(stream_id);
-    message_header.sequence_nr(seq_num);
-
-    /* Payload. */
-    dds::xrce::DATA_Payload_Data payload;
-    payload.request_id(request_id);
-    payload.object_id(object_id);
-    payload.data().serialized_data(buffer);
-
-    /* Serialize message. */
-    OutputMessagePtr output_message(new OutputMessage(message_header));
-    output_message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
-
-    /* Store message. */
-    session_.push_output_message(stream_id, output_message);
-
-    /* Send message. */
-    // TODO (julian).
-//    root().add_reply(output_message);
 }
 
 Session& ProxyClient::session()
