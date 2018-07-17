@@ -6815,7 +6815,34 @@ public:
      * @param x Reference to the object ReadSpecification that will be copied.
      */
     ReadSpecification& operator=(ReadSpecification &&x);
-    
+
+    /*!
+     * @brief This function sets a value in member data_stream_id
+     * @param _data_stream_id New value for member data_stream_id
+     */
+    inline void data_stream_id(StreamId _data_stream_id)
+    {
+        m_data_stream_id = _data_stream_id;
+    }
+
+    /*!
+     * @brief This function returns the value of member data_stream_id
+     * @return Value of member data_stream_id
+     */
+    inline StreamId data_stream_id() const
+    {
+        return m_data_stream_id;
+    }
+
+    /*!
+     * @brief This function returns a reference to member data_stream_id
+     * @return Reference to member data_stream_id
+     */
+    inline StreamId& data_stream_id()
+    {
+        return m_data_stream_id;
+    }
+
     /*!
      * @brief This function sets a value in member data_format
      * @param _data_format New value for member data_format
@@ -6970,6 +6997,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
+    StreamId m_data_stream_id;
     DataFormat m_data_format;
     eprosima::Optional<std::string> m_content_filter_expression;
     eprosima::Optional<DataDeliveryControl> m_delivery_control;

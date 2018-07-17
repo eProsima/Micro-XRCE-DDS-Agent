@@ -5744,8 +5744,8 @@ void dds::xrce::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr &dcdr)
 
 dds::xrce::ReadSpecification::ReadSpecification()
 {
+    m_data_stream_id = 0;
     m_data_format = 0;
-
 }
 
 dds::xrce::ReadSpecification::~ReadSpecification()
@@ -5754,6 +5754,7 @@ dds::xrce::ReadSpecification::~ReadSpecification()
 
 dds::xrce::ReadSpecification::ReadSpecification(const ReadSpecification &x)
 {
+    m_data_stream_id = x.m_data_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_control = x.m_delivery_control;
@@ -5761,6 +5762,7 @@ dds::xrce::ReadSpecification::ReadSpecification(const ReadSpecification &x)
 
 dds::xrce::ReadSpecification::ReadSpecification(ReadSpecification &&x)
 {
+    m_data_stream_id = x.m_data_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_control = std::move(x.m_delivery_control);
@@ -5768,6 +5770,7 @@ dds::xrce::ReadSpecification::ReadSpecification(ReadSpecification &&x)
 
 dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(const ReadSpecification &x)
 {
+    m_data_stream_id = x.m_data_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_control = x.m_delivery_control;
@@ -5777,6 +5780,7 @@ dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(const Read
 
 dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(ReadSpecification &&x)
 {
+    m_data_stream_id = x.m_data_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_control = std::move(x.m_delivery_control);
@@ -5789,6 +5793,7 @@ size_t dds::xrce::ReadSpecification::getMaxCdrSerializedSize(size_t current_alig
     size_t initial_alignment = current_alignment;
             
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
     current_alignment += dds::xrce::DataDeliveryControl::getMaxCdrSerializedSize(current_alignment);
 
@@ -5800,8 +5805,9 @@ size_t dds::xrce::ReadSpecification::getCdrSerializedSize(size_t current_alignme
     size_t initial_alignment = current_alignment;
             
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4)
-                         + (*m_content_filter_expression).size() + 1;
+                           + (*m_content_filter_expression).size() + 1;
     current_alignment += (*m_delivery_control).getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -5809,6 +5815,7 @@ size_t dds::xrce::ReadSpecification::getCdrSerializedSize(size_t current_alignme
 
 void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
+    scdr << m_data_stream_id;
     scdr << m_data_format;
     scdr << bool(m_content_filter_expression);
     if (m_content_filter_expression)
@@ -5824,6 +5831,7 @@ void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 
 void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
+    dcdr >> m_data_stream_id;
     dcdr >> m_data_format;
     bool temp;
     dcdr >> temp;

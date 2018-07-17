@@ -351,8 +351,8 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
         {
             /* Set callback args. */
             ReadCallbackArgs cb_args;
-            cb_args.stream_id = input_packet.message->get_header().stream_id();
             cb_args.client_key = server_->get_client_key(input_packet.source.get());
+            cb_args.stream_id = read_payload.read_specification().data_stream_id();
             cb_args.object_id = read_payload.object_id();
             cb_args.request_id = read_payload.request_id();
 
