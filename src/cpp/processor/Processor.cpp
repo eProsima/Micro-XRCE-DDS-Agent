@@ -140,8 +140,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = process_heartbeat_submessage(client, input_packet);
             break;
         case dds::xrce::RESET:
-            // TODO (julian): implement reset functionality.
-            rv = false;
+            rv = process_reset_submessage(client, input_packet);
             break;
         case dds::xrce::FRAGMENT:
             // TODO (julian): implement fragment functionality.
@@ -479,6 +478,12 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
         rv = false;
     }
     return rv;
+}
+
+bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*input_packet*/)
+{
+    client.session().reset();
+    return true;
 }
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
