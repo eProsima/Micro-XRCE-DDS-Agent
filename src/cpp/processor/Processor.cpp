@@ -74,7 +74,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 dds::xrce::MessageHeader acknack_header;
                 acknack_header.session_id(header.session_id());
                 acknack_header.stream_id(0x00);
-                acknack_header.sequence_nr(header.sequence_nr());
+                acknack_header.sequence_nr(header.stream_id());
                 acknack_header.client_key(header.client_key());
 
                 /* ACKNACK payload. */
@@ -445,7 +445,8 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
     if (input_packet.message->get_payload(heartbeat_payload))
     {
         /* Update input stream. */
-        dds::xrce::StreamId stream_id = static_cast<dds::xrce::StreamId>(input_packet.message->get_header().sequence_nr());
+        dds::xrce::StreamId stream_id;
+        stream_id = static_cast<dds::xrce::StreamId>(input_packet.message->get_header().sequence_nr());
         client.session().update_from_heartbeat(stream_id,
                                                heartbeat_payload.first_unacked_seq_nr(),
                                                heartbeat_payload.last_unacked_seq_nr());
@@ -454,7 +455,7 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
         dds::xrce::MessageHeader acknack_header;
         acknack_header.session_id(input_packet.message->get_header().session_id());
         acknack_header.stream_id(0x00);
-        acknack_header.sequence_nr(input_packet.message->get_header().sequence_nr());
+        acknack_header.sequence_nr(stream_id);
         acknack_header.client_key(input_packet.message->get_header().client_key());
 
         /* ACKNACK payload. */
