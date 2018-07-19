@@ -16,44 +16,49 @@
 #define _MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
-#include <micrortps/agent/transport/SerialLayer.h>
+#include <micrortps/agent/transport/SerialLayer.hpp>
+#include <unordered_map>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
-#include <map>
 
 namespace eprosima {
 namespace micrortps {
 
-/******************************************************************************
- * UART Client.
- ******************************************************************************/
+/**************************************************************************************************
+ * UART EndPoint.
+ **************************************************************************************************/
 class UARTEndPoint : public EndPoint
 {
 public:
     UARTEndPoint(uint8_t addr) { addr_ = addr; }
     ~UARTEndPoint() {}
 
+    uint8_t get_addr() const { return addr_; }
+
 public:
     uint8_t addr_;
 };
 
-/******************************************************************************
+/**************************************************************************************************
  * UART Server.
- ******************************************************************************/
+ **************************************************************************************************/
 class UARTServer : public Server
 {
 public:
-    UARTServer() : poll_fd_{}, buffer_{0}, serial_io_{}, errno_(0), clients_{} {}
-    ~UARTServer() {}
+    UARTServer(int fd, uint8_t addr);
+    ~UARTServer() = default;
 
+    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
+    virtual void on_delete_client(EndPoint* source) override;
+    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
+    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
+
+private:
+    virtual bool init() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    int launch(int fd, uint8_t addr);
-
-private:
-    int init(int fd, uint8_t addr);
     static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
@@ -62,7 +67,8 @@ private:
     uint8_t buffer_[MICRORTPS_SERIAL_MTU];
     SerialIO serial_io_;
     int errno_;
-    std::map<uint8_t, UARTEndPoint*> clients_;
+    std::unordered_map<uint8_t, uint32_t> source_to_client_map_;
+    std::unordered_map<uint32_t, uint8_t> client_to_source_map_;
 };
 
 } // namespace micrortps

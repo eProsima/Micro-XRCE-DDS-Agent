@@ -49,7 +49,7 @@ private:
 class UDPServer : public Server
 {
 public:
-    UDPServer(uint16_t port) : port_(port), poll_fd_{}, buffer_{0} {}
+    UDPServer(uint16_t port);
     ~UDPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;

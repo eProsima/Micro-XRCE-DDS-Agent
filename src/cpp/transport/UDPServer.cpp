@@ -23,6 +23,14 @@
 namespace eprosima {
 namespace micrortps {
 
+UDPServer::UDPServer(uint16_t port)
+    : port_(port),
+      poll_fd_{},
+      buffer_{0},
+      source_to_client_map_{},
+      client_to_source_map_{}
+{}
+
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);

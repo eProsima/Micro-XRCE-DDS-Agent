@@ -36,40 +36,40 @@ int main(int argc, char** argv)
     }
     else if (argc == 2 && strcmp(argv[1], "pseudo-uart") == 0)
     {
-//        std::cout << "Pseudo-UART initialization... ";
-//
-//        /* Open pseudo-terminal. */
-//        char* dev;
-//        int fd = posix_openpt(O_RDWR | O_NOCTTY);
-//        if (-1 != fd)
-//        {
-//            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
-//            {
-//                struct termios attr;
-//                tcgetattr(fd, &attr);
-//                cfmakeraw(&attr);
-//                tcflush(fd, TCIOFLUSH);
-//                tcsetattr(fd, TCSANOW, &attr);
-//            }
-//        }
-//
-//        /* Launch server. */
-//        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer();
-//        if (0 == uart_server->launch(fd, 0x00))
-//        {
-//            initialized = true;
-//            server = uart_server;
-//        }
-//
-//        if (initialized)
-//        {
-//            std::cout << "OK" << std::endl;
-//            std::cout << "Device: " << dev << std::endl;
-//        }
-//        else
-//        {
-//            std::cout << "ERROR" << std::endl;
-//        }
+        std::cout << "Pseudo-UART initialization... ";
+
+        /* Open pseudo-terminal. */
+        char* dev;
+        int fd = posix_openpt(O_RDWR | O_NOCTTY);
+        if (-1 != fd)
+        {
+            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
+            {
+                struct termios attr;
+                tcgetattr(fd, &attr);
+                cfmakeraw(&attr);
+                tcflush(fd, TCIOFLUSH);
+                tcsetattr(fd, TCSANOW, &attr);
+            }
+        }
+
+        /* Launch server. */
+        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer(fd, 0x00);
+        if (uart_server->run())
+        {
+            initialized = true;
+            server = uart_server;
+        }
+
+        if (initialized)
+        {
+            std::cout << "OK" << std::endl;
+            std::cout << "Device: " << dev << std::endl;
+        }
+        else
+        {
+            std::cout << "ERROR" << std::endl;
+        }
     }
     else if(argc ==3 && strcmp(argv[1], "udp") == 0)
     {

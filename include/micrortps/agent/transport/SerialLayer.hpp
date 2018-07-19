@@ -15,11 +15,6 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_SERIAL_LAYER_H_
 #define _MICRORTPS_AGENT_TRANSPORT_SERIAL_LAYER_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -28,9 +23,12 @@ extern "C"
 #define MICRORTPS_FRAMING_ESC_FLAG 0x7D
 #define MICRORTPS_FRAMING_XOR_FLAG 0x20
 
-#define MICRORTPS_SERIAL_MTU 255
+#define MICRORTPS_SERIAL_MTU 256
 #define MICRORTPS_SERIAL_OVERHEAD 5
 #define MICRORTPS_SERIAL_BUFFER_SIZE 2 * (MICRORTPS_SERIAL_MTU + MICRORTPS_SERIAL_OVERHEAD)
+
+namespace eprosima {
+namespace micrortps {
 
 typedef struct SerialInputBuffer SerialInputBuffer;
 struct SerialInputBuffer
@@ -48,22 +46,40 @@ struct SerialOutputBuffer
     uint8_t buffer[MICRORTPS_SERIAL_BUFFER_SIZE];
 };
 
-typedef struct SerialIO SerialIO;
-struct SerialIO
-{
-    SerialInputBuffer input;
-    SerialOutputBuffer output;
-};
-
 typedef uint16_t (*read_cb)(void*, uint8_t*, size_t, int);
 
-void init_serial_io(SerialIO* serial_io);
-uint16_t write_serial_msg(SerialIO* serial_io, const uint8_t* buf, size_t len, uint8_t addr);
-uint8_t read_serial_msg(SerialIO* serial_io, read_cb cb, void* cb_arg,
-                        uint8_t* buf, size_t len, uint8_t* addr, int timeout);
+class SerialIO
+{
+public:
+    SerialIO() = default;
 
-#ifdef __cplusplus
-}
-#endif
+    void init();
+    uint16_t write_serial_msg(const uint8_t* buf, size_t len, const uint8_t src_addr, const uint8_t rmt_addr);
+    uint16_t read_serial_msg(read_cb cb,
+                             void* cb_arg,
+                             uint8_t* buf,
+                             size_t len,
+                             uint8_t* src_addr,
+                             uint8_t* rmt_addr,
+                             int timeout);
+    uint8_t* get_output_buffer() { return output_buffer_.buffer; }
+
+
+private:
+    static void update_crc(uint16_t* crc, const uint8_t data);
+    uint8_t process_serial_message(uint8_t* buf, size_t len, uint8_t* src_addr, uint8_t* rmt_addr);
+    bool init_serial_stream();
+    bool find_serial_message();
+    uint8_t get_next_octet(uint16_t* relative_position);
+    bool add_next_octet(uint8_t octet, uint16_t* position);
+
+private:
+    SerialInputBuffer input_buffer_;
+    SerialOutputBuffer output_buffer_;
+    static const uint16_t crc16_table_[256];
+};
+
+} // namespace micrortps
+} // namespace eprosima
 
 #endif //_MICRORTPS_AGENT_TRANSPORT_SERIAL_LAYER_H_

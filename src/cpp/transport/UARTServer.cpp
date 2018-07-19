@@ -18,84 +18,99 @@
 namespace eprosima {
 namespace micrortps {
 
-bool UARTServer::send_msg(const uint8_t* buf, const size_t len, TransportClient* /*client*/)
+UARTServer::UARTServer(int fd, uint8_t addr)
+    : addr_(addr),
+      poll_fd_(),
+      buffer_{0},
+      serial_io_(),
+      errno_(0),
+      source_to_client_map_{},
+      client_to_source_map_{}
 {
-    bool rv = false;
-
-    uint16_t bytes_written = write_serial_msg(&serial_io_, buf, len, addr_);
-    if (0 < bytes_written)
-    {
-        ssize_t bytes_sent = write(poll_fd_.fd, serial_io_.output.buffer, size_t(bytes_written));
-        if (0 < bytes_sent && bytes_sent == bytes_written)
-        {
-            rv = true;
-        }
-    }
-    errno_ = rv ? 0 : -1;
-
-    return rv;
+    poll_fd_.fd = fd;
 }
 
-bool UARTServer::recv_msg(uint8_t** buf, size_t* len, int timeout, TransportClient** client)
+void UARTServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
-    bool rv = true;
-    UARTClient* uart_client;
-    uint8_t addr;
+    UARTEndPoint* endpoint = static_cast<UARTEndPoint*>(source);
+    uint8_t source_id = endpoint->get_addr();
+    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
 
-    uint8_t bytes_read = read_serial_msg(&serial_io_, read_data, this, buffer_, sizeof(buffer_), &addr, timeout);
-    if (0 < bytes_read)
+    /* Update maps. */
+    auto it_client = client_to_source_map_.find(client_id);
+    if (it_client != client_to_source_map_.end())
     {
-        *len = bytes_read;
-        *buf = buffer_;
-
-        /* Find client. */
-        auto it = clients_.find(addr);
-        if (it == clients_.end())
-        {
-            uart_client = new UARTClient(addr);
-            uart_client->addr_ = addr;
-            if (!clients_.insert(std::make_pair(addr, uart_client)).second)
-            {
-                rv = false;
-                errno_ = -1;
-            }
-        }
-        else
-        {
-            uart_client = clients_.at(addr);
-        }
-
-        /* Set client. */
-        if (rv)
-        {
-            uart_client->addr_ = addr;
-            *client = uart_client;
-        }
+        source_to_client_map_.erase(it_client->second);
+        it_client->second = source_id;
     }
     else
     {
-        rv = false;
-        errno_ = -1;
+        client_to_source_map_.insert(std::make_pair(client_id, source_id));
     }
 
-    return rv;
+    auto it_source = source_to_client_map_.find(source_id);
+    if (it_source != source_to_client_map_.end())
+    {
+        it_source->second = client_id;
+    }
+    else
+    {
+        source_to_client_map_.insert(std::make_pair(source_id, client_id));
+    }
 }
 
-int UARTServer::get_error()
+void UARTServer::on_delete_client(EndPoint* source)
 {
-    return errno_;
+    UARTEndPoint* endpoint = static_cast<UARTEndPoint*>(source);
+    uint8_t source_id = endpoint->get_addr();
+
+    /* Update maps. */
+    auto it = source_to_client_map_.find(source_id);
+    if (it != source_to_client_map_.end())
+    {
+        client_to_source_map_.erase(it->second);
+        source_to_client_map_.erase(it->first);
+    }
 }
 
-int UARTServer::launch(int fd, uint8_t addr)
+const dds::xrce::ClientKey UARTServer::get_client_key(EndPoint* source)
 {
-    int rv = 0;
+    dds::xrce::ClientKey client_key;
+    UARTEndPoint* endpoint = static_cast<UARTEndPoint*>(source);
+    auto it = source_to_client_map_.find(endpoint->get_addr());
+    if (it != source_to_client_map_.end())
+    {
+        client_key.at(0) = it->second & 0x000000FF;
+        client_key.at(1) = (it->second & 0x0000FF00) >> 8;
+        client_key.at(2) = (it->second & 0x00FF0000) >> 16;
+        client_key.at(3) = (it->second & 0xFF000000) >> 24;
+    }
+    else
+    {
+        client_key = dds::xrce::CLIENTKEY_INVALID;
+    }
+    return client_key;
+}
 
-    /* File descriptor setup. */
-    poll_fd_.fd = fd;
-    addr_ = addr;
+std::unique_ptr<EndPoint> UARTServer::get_source(const dds::xrce::ClientKey& client_key)
+{
+    std::unique_ptr<EndPoint> source;
+    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    auto it = client_to_source_map_.find(client_id);
+    if (it != client_to_source_map_.end())
+    {
+        uint64_t source_id = it->second;
+        source.reset(new UARTEndPoint(source_id));
+    }
+    return source;
+}
 
-    /* Init SerialIO. */
-    init_serial_io(&serial_io_);
+bool UARTServer::init()
+{
+    bool rv = false;
+
+    /* Init serial IO. */
+    serial_io_.init();
 
     /* Send init flag. */
     uint8_t flag = MICRORTPS_FRAMING_END_FLAG;
@@ -104,20 +119,63 @@ int UARTServer::launch(int fd, uint8_t addr)
     {
         /* Poll setup. */
         poll_fd_.events = POLLIN;
+        rv = true;
     }
     else
     {
-        rv = -1;
+        errno_ = -1;
     }
-
     return rv;
+}
+
+bool UARTServer::recv_message(InputPacket& input_packet, int timeout)
+{
+    bool rv = true;
+    uint8_t src_addr;
+    uint8_t rmt_addr;
+    uint16_t bytes_read = serial_io_.read_serial_msg(read_data, this, buffer_, sizeof(buffer_), &src_addr, &rmt_addr, timeout);
+    if (0 < bytes_read && rmt_addr == addr_)
+    {
+        input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
+        input_packet.source.reset(new UARTEndPoint(src_addr));
+    }
+    else
+    {
+        errno_ = -1;
+        rv = false;
+    }
+    return rv;
+}
+
+bool UARTServer::send_message(OutputPacket output_packet)
+{
+    bool rv = false;
+    const UARTEndPoint* destination = static_cast<const UARTEndPoint*>(output_packet.destination.get());
+    uint16_t bytes_written = serial_io_.write_serial_msg(output_packet.message->get_buf(),
+                                                         output_packet.message->get_len(),
+                                                         addr_,
+                                                         destination->get_addr());
+    if (0 < bytes_written)
+    {
+        ssize_t bytes_sent = write(poll_fd_.fd, serial_io_.get_output_buffer(), static_cast<size_t>(bytes_written));
+        if (0 < bytes_sent && bytes_sent == bytes_written)
+        {
+            rv = true;
+        }
+    }
+    errno_ = rv ? 0 : -1;
+    return rv;
+}
+
+int UARTServer::get_error()
+{
+    return errno_;
 }
 
 uint16_t UARTServer::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
 {
     uint16_t rv = 0;
     UARTServer* server = static_cast<UARTServer*>(instance);
-
     int poll_rv = poll(&server->poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
@@ -127,7 +185,6 @@ uint16_t UARTServer::read_data(void* instance, uint8_t* buf, size_t len, int tim
             rv = static_cast<uint16_t>(bytes_read);
         }
     }
-
     return rv;
 }
 
