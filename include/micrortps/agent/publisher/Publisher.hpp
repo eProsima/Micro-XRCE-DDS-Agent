@@ -16,22 +16,27 @@
 #define _MICRORTPS_AGENT_PUBLISHER_PUBLISHER_HPP_
 
 #include <micrortps/agent/datawriter/DataWriter.hpp>
+#include <set>
 
 namespace eprosima {
 namespace micrortps {
 
-class XRCEParticipant;
+class Participant;
 
 class Publisher : public XRCEObject
 {
 public:
-    Publisher(const dds::xrce::ObjectId& id, XRCEParticipant& participant);
-    virtual ~Publisher() = default;
+    Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant);
+    virtual ~Publisher();
 
-    XRCEParticipant& get_participant();
+    const std::shared_ptr<Participant>& get_participant() { return participant_; }
+    virtual void release(ObjectContainer&) override {}
+    void tie_object(const dds::xrce::ObjectId& object_id) { objects_.insert(object_id); }
+    void untie_object(const dds::xrce::ObjectId& object_id) { objects_.erase(object_id); }
 
 private:
-    XRCEParticipant& participant_;
+    std::shared_ptr<Participant> participant_;
+    std::set<dds::xrce::ObjectId> objects_;
 };
 
 } // namespace micrortps

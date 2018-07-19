@@ -17,21 +17,19 @@
 
 #include <micrortps/agent/object/XRCEObject.hpp>
 #include <micrortps/agent/types/TopicPubSubType.hpp>
-
 #include <string>
+#include <memory>
+#include <set>
 
 namespace eprosima {
-
-namespace fastrtps {
-class Participant;
-} // namespace fastrtps
-
 namespace micrortps {
+
+class Participant;
 
 class Topic : public XRCEObject
 {
   public:
-    Topic(const dds::xrce::ObjectId& id, fastrtps::Participant& rtps_participant);
+    Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant);
     Topic(Topic&&)      = default;
     Topic(const Topic&) = default;
     Topic& operator=(Topic&&) = default;
@@ -39,14 +37,18 @@ class Topic : public XRCEObject
     ~Topic() override;
 
     bool init(const std::string& xmlrep);
+    virtual void release(ObjectContainer&) override;
+    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
+    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
 
   private:
     std::string name;
     std::string type_name;
-
-    fastrtps::Participant& rtps_participant_;
+    std::shared_ptr<Participant> participant_;
     TopicPubSubType generic_type_;
+    std::set<dds::xrce::ObjectId> tied_objects_;
 };
+
 } // namespace micrortps
 } // namespace eprosima
 

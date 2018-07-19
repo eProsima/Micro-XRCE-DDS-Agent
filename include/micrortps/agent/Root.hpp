@@ -27,46 +27,15 @@
 namespace eprosima{
 namespace micrortps{
 
-/**
- * @brief The Agent class handle XRCE messages and distribute them to different ProxyClients.
- * 		  It implement the XRCEListener interface for receive messages from a XRCEParser.
- */
 class Root
 {
 public:
     Root();
     ~Root() = default;
 
-    /**
-     * @brief The XRCE Agent create a new ProxyClient with the specification of the client_representation.
-     *
-     * @param client_representation A representation of the Client.
-     * @param agent_info            A representation of the Agent.
-     * @param addr                  Client remote address.
-     * @param port                  Client remote port.
-     *
-     * @return Indicates whether the operation suceeded and the current status of the XRCE.
-     */
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
                                           dds::xrce::AGENT_Representation& agent_representation);
-
-    /**
-     * @brief The XRCE Agent shall ckeck the ClientKey to locate an existing XRCE ProxyClient.
-     *
-     * @param client_key ProxyClient identifier.
-     *
-     * @return Indicates whether the operation succeeded and the current status of the object.
-     */
     dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
-
-    /**
-     * @brief Gets a Client based its key.
-     *
-     * @param  The client's key.
-     * @return If the Client does not exit return a nullptr.
-     *
-     * @return In other cases return a pointer to the Client.
-     */
     std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
 
 private:

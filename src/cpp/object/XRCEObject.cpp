@@ -20,7 +20,7 @@ namespace micrortps {
 
 XRCEObject::~XRCEObject() {}
 
-dds::xrce::ObjectId XRCEObject::getID() const
+dds::xrce::ObjectId XRCEObject::get_id() const
 {
     return id_;
 }

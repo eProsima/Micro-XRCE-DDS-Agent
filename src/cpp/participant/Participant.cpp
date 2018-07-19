@@ -14,7 +14,6 @@
 
 #include <micrortps/agent/participant/Participant.hpp>
 #include <xmlobjects/xmlobjects.h>
-
 #include <fastrtps/Domain.h>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
@@ -22,66 +21,59 @@
 namespace eprosima {
 namespace micrortps {
 
-XRCEParticipant::XRCEParticipant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
+Participant::Participant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
 
-XRCEParticipant::~XRCEParticipant()
+Participant::~Participant()
 {
-    if (nullptr != mp_rtps_participant)
+    if (nullptr != rtps_participant_)
     {
-        fastrtps::Domain::removeParticipant(mp_rtps_participant);
+        fastrtps::Domain::removeParticipant(rtps_participant_);
+    }
+    std::cout << "Participant deleted!!" << std::endl;
+}
+
+bool Participant::init()
+{
+    return !(nullptr == rtps_participant_ &&
+             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
+}
+
+bool Participant::init(const std::string& xml_rep)
+{
+    return !(nullptr == rtps_participant_ &&
+             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(xml_rep)));
+}
+
+void Participant::register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id)
+{
+    registered_topics_[topic_name] = object_id;
+}
+
+void Participant::unregister_topic(const std::string& topic_name)
+{
+    registered_topics_.erase(topic_name);
+}
+
+bool Participant::check_register_topic(const std::string& topic_name, dds::xrce::ObjectId& object_id)
+{
+    bool rv = false;
+    auto it = registered_topics_.find(topic_name);
+    if (it != registered_topics_.end())
+    {
+        object_id = it->second;
+        rv = true;
+    }
+    return rv;
+}
+
+void Participant::release(ObjectContainer& root_objects)
+{
+    for (auto obj : tied_objects_)
+    {
+        root_objects.at(obj)->release(root_objects);
+        root_objects.erase(obj);
     }
 }
 
-bool XRCEParticipant::init()
-{
-    return !(nullptr == mp_rtps_participant &&
-             nullptr == (mp_rtps_participant = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
-}
-
-
-XRCEObject* XRCEParticipant::create_topic(const dds::xrce::ObjectId& id, const std::string& xmlrep)
-{
-    auto topic = new Topic(id, *mp_rtps_participant);
-    if (topic->init(xmlrep))
-    {
-        return topic;
-    }
-    else
-    {
-        delete topic;
-        return nullptr;
-    }
-}
-
-XRCEObject* XRCEParticipant::create_writer(const dds::xrce::ObjectId& id, const std::string& xmlrep)
-{
-    auto data_writer = new DataWriter(id, *mp_rtps_participant);
-    if (data_writer->init(xmlrep))
-    {
-        return data_writer;
-    }
-    else
-    {
-        delete data_writer;
-        return nullptr;
-    }
-}
-
-XRCEObject* XRCEParticipant::create_reader(const dds::xrce::ObjectId& id,
-                                           const std::string& xmlrep)
-{
-    auto data_reader = new DataReader(id, *mp_rtps_participant);
-//    auto data_reader = new DataReader(id, *mp_rtps_participant, message_listener);
-    if (data_reader->init(xmlrep))
-    {
-        return data_reader;
-    }
-    else
-    {
-        delete data_reader;
-        return nullptr;
-    }
-}
-
-} /* namespace micrortps */
-} /* namespace eprosima */
+} // namespace micrortps
+} // namespace eprosima

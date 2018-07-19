@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <micrortps/agent/client/ProxyClient.hpp>
-#include <micrortps/agent/Root.hpp>
 
 namespace eprosima {
 namespace micrortps {
@@ -23,169 +22,6 @@ ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
       objects_(),
       session_()
 {
-}
-
-bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
-{
-    bool result = false;
-    switch (representation._d())
-    {
-        case dds::xrce::OBJK_PUBLISHER:
-        {
-            /* Check whether participant exists */
-            auto participant_it = objects_.find(representation.publisher().participant_id());
-            if (participant_it != objects_.end() &&
-                ((representation.publisher().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
-            {
-                XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
-                std::unique_ptr<Publisher> publisher(new Publisher(object_id, *participant));
-                result = objects_.insert(std::make_pair(object_id, std::move(publisher))).second;
-            }
-            break;
-        }
-        case dds::xrce::OBJK_SUBSCRIBER:
-        {
-            /* Check whether participant exists */
-            auto participant_it = objects_.find(representation.subscriber().participant_id());
-            if (participant_it != objects_.end() &&
-                ((representation.subscriber().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
-            {
-                XRCEParticipant* participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
-                std::unique_ptr<Subscriber> subscriber(new Subscriber(object_id, *participant));
-                result = objects_.insert(std::make_pair(object_id, std::move(subscriber))).second;
-            }
-            break;
-        }
-        case dds::xrce::OBJK_PARTICIPANT:
-        {
-            auto participant = std::unique_ptr<XRCEParticipant>(new XRCEParticipant(object_id));
-            if (participant->init())
-            {
-                result = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
-            }
-            break;
-        }
-        case dds::xrce::OBJK_DATAWRITER:
-        {
-            auto publisher_it   = objects_.find(representation.data_writer().publisher_id());
-            if ((publisher_it != objects_.end()) &&
-                ((representation.data_writer().publisher_id()[1] & 0x0F) == dds::xrce::OBJK_PUBLISHER))
-            {
-                Publisher* publisher = dynamic_cast<Publisher*>(publisher_it->second.get());
-                XRCEObject* data_writer = nullptr;
-                switch (representation.data_writer().representation()._d())
-                {
-                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
-                    {
-                        XRCEParticipant& participant = publisher->get_participant();
-                        data_writer =
-                                participant.create_writer(object_id, representation.data_writer().representation().string_representation());
-                        break;
-                    }
-                    case dds::xrce::REPRESENTATION_IN_BINARY:
-                        break;
-                    default:
-                        break;
-                }
-                if (data_writer != nullptr)
-                {
-                    if (publisher != nullptr)
-                    {
-                        result = objects_.insert(std::make_pair(object_id, std::move(std::unique_ptr<XRCEObject>(data_writer)))).second;
-                        if (!result)
-                        {
-                            delete data_writer;
-                        }
-                    }
-                }
-            }
-            break;
-        }
-        case dds::xrce::OBJK_DATAREADER:
-        {
-            auto subscriber_it  = objects_.find(representation.data_reader().subscriber_id());
-            if ((subscriber_it != objects_.end()) &&
-                ((representation.data_reader().subscriber_id()[1] & 0x0F) == dds::xrce::OBJK_SUBSCRIBER))
-            {
-                Subscriber* subscriber = dynamic_cast<Subscriber*>(subscriber_it->second.get());
-                XRCEObject* data_reader = nullptr;
-                switch (representation.data_reader().representation()._d())
-                {
-                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
-                    {
-                        XRCEParticipant& participant = subscriber->get_participant();
-                        data_reader =
-                                participant.create_reader(object_id, representation.data_reader().representation().string_representation());
-                        break;
-                    }
-                    case dds::xrce::REPRESENTATION_IN_BINARY:
-                        // TODO (Julian).
-                        break;
-                    default:
-                        break;
-                }
-                if (data_reader != nullptr)
-                {
-                    if (subscriber != nullptr)
-                    {
-                        result = objects_.insert(std::make_pair(object_id, std::move(std::unique_ptr<XRCEObject>(data_reader)))).second;
-                        if (!result)
-                        {
-                            delete data_reader;
-                        }
-                    }
-                }
-            }
-            break;
-        }
-        case dds::xrce::OBJK_TOPIC:
-        {
-            auto participant_it = objects_.find(representation.topic().participant_id());
-            if ((participant_it != objects_.end()) &&
-                ((representation.topic().participant_id()[1] & 0x0F) == dds::xrce::OBJK_PARTICIPANT))
-            {
-                std::unique_ptr<XRCEObject> topic;
-                switch (representation.topic().representation()._d())
-                {
-                    case dds::xrce::REPRESENTATION_AS_XML_STRING:
-                    {
-                        auto participant = dynamic_cast<XRCEParticipant*>(participant_it->second.get());
-                        if (participant != nullptr)
-                        {
-                            topic.reset(participant->create_topic(
-                                object_id, representation.topic().representation().xml_string_representation()));
-                        }
-                        break;
-                    }
-                    case dds::xrce::REPRESENTATION_BY_REFERENCE:
-                    /* TODO (Julian). */
-                        break;
-                    case dds::xrce::REPRESENTATION_IN_BINARY:
-                    /* TODO (Julian). */
-                        break;
-                    default:
-                        break;
-                }
-                if (topic)
-                {
-                    result = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
-                }
-            }
-            break;
-        }
-        case dds::xrce::OBJK_APPLICATION:
-            /* TODO (Julian). */
-            break;
-        case dds::xrce::OBJK_QOSPROFILE:
-            /* TODO (Julian). */
-            break;
-        case dds::xrce::OBJK_TYPE:
-            /* TODO (Julian). */
-            break;
-        default:
-            break;
-    }
-    return result;
 }
 
 dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
@@ -218,7 +54,9 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
     {
         if (creation_mode.replace())
         {
-            objects_.erase(object_id);
+            lock.unlock();
+            delete_object(object_id);
+            lock.lock();
             if (!create_object(object_id, object_representation))
             {
                 result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
@@ -243,6 +81,7 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     auto it = objects_.find(object_id);
     if (it != objects_.end())
     {
+        it->second->release(objects_);
         objects_.erase(object_id);
     }
     else
@@ -269,7 +108,7 @@ dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_
 XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 {
     XRCEObject* object = nullptr;
-    std::lock_guard<std::mutex> lockGuard(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto object_it = objects_.find(object_id);
     if (object_it != objects_.end())
     {
@@ -281,6 +120,248 @@ XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 Session& ProxyClient::session()
 {
     return session_;
+}
+
+bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
+{
+    bool rv = false;
+    switch (representation._d())
+    {
+        case dds::xrce::OBJK_PARTICIPANT:
+            rv = create_participant(object_id, representation.participant());
+            break;
+        case dds::xrce::OBJK_TOPIC:
+            rv = create_topic(object_id, representation.topic());
+            break;
+        case dds::xrce::OBJK_PUBLISHER:
+            rv = create_publisher(object_id, representation.publisher());
+            break;
+        case dds::xrce::OBJK_SUBSCRIBER:
+            rv = create_subscriber(object_id, representation.subscriber());
+            break;
+        case dds::xrce::OBJK_DATAWRITER:
+            rv = create_datawriter(object_id, representation.data_writer());
+            break;
+        case dds::xrce::OBJK_DATAREADER:
+            rv = create_datareader(object_id, representation.data_reader());
+            break;
+        case dds::xrce::OBJK_APPLICATION:
+            /* TODO (Julian). */
+            break;
+        case dds::xrce::OBJK_QOSPROFILE:
+            /* TODO (Julian). */
+            break;
+        case dds::xrce::OBJK_TYPE:
+            /* TODO (Julian). */
+            break;
+        default:
+            break;
+    }
+    return rv;
+}
+
+bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
+                                     const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
+{
+    bool rv = false;
+    if (dds::xrce::OBJK_PARTICIPANT == (object_id.at(1) & 0x0F))
+    {
+        switch (representation.representation()._d())
+        {
+            case dds::xrce::REPRESENTATION_BY_REFERENCE:
+            {
+                if (0 == strcmp(representation.representation().object_reference().c_str(), "default participant"))
+                {
+                    std::shared_ptr<Participant> participant(new Participant(object_id));
+                    if (participant->init())
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
+                    }
+                }
+                break;
+            }
+            case dds::xrce::REPRESENTATION_AS_XML_STRING:
+            {
+                const std::string& xml_rep = representation.representation().xml_string_representation();
+                std::shared_ptr<Participant> participant(new Participant(object_id));
+                if (participant->init(xml_rep))
+                {
+                    rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    return rv;
+}
+
+bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
+                               const dds::xrce::OBJK_TOPIC_Representation& representation)
+{
+    bool rv = false;
+    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
+        dds::xrce::OBJK_TOPIC == (object_id.at(1) & 0x0F))
+    {
+        auto it = objects_.find(representation.participant_id());
+        if (it != objects_.end())
+        {
+            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+            switch (representation.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    const std::string& xml_rep = representation.representation().xml_string_representation();
+                    std::shared_ptr<Topic> topic(new Topic(object_id, participant));
+                    if (topic->init(xml_rep))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
+                    }
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                    // TODO (julian).
+                    break;
+                case dds::xrce::REPRESENTATION_IN_BINARY:
+                    // TODO (julian).
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return rv;
+}
+
+bool ProxyClient::create_publisher(const dds::xrce::ObjectId& object_id,
+                                   const dds::xrce::OBJK_PUBLISHER_Representation& representation)
+{
+    /* Check whether participant exists. */
+    bool rv = false;
+    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
+        dds::xrce::OBJK_PUBLISHER == (object_id.at(1) & 0x0F))
+    {
+        auto it = objects_.find(representation.participant_id());
+        if (it != objects_.end())
+        {
+            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+            switch (representation.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    std::shared_ptr<Publisher> publisher(new Publisher(object_id, participant));
+                    rv = objects_.insert(std::make_pair(object_id, std::move(publisher))).second;
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_IN_BINARY:
+                    // TODO (julian).
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return rv;
+}
+
+bool ProxyClient::create_subscriber(const dds::xrce::ObjectId& object_id,
+                                    const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
+{
+    /* Check whether participant exists. */
+    bool rv = false;
+    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
+        dds::xrce::OBJK_SUBSCRIBER == (object_id.at(1) & 0x0F))
+    {
+        auto it = objects_.find(representation.participant_id());
+        if (it != objects_.end())
+        {
+            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+            switch (representation.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    std::shared_ptr<Subscriber> subscriber(new Subscriber(object_id, participant));
+                    rv = objects_.insert(std::make_pair(object_id, std::move(subscriber))).second;
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_IN_BINARY:
+                    // TODO (julian).
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return rv;
+}
+
+bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
+                                    const dds::xrce::DATAWRITER_Representation& representation)
+{
+    bool rv = false;
+    if (dds::xrce::OBJK_PUBLISHER == (representation.publisher_id()[1] & 0x0F) &&
+        dds::xrce::OBJK_DATAWRITER == (object_id.at(1) & 0x0F))
+    {
+        auto it = objects_.find(representation.publisher_id());
+        if (it != objects_.end())
+        {
+            std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
+            switch (representation.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    const std::string& xml_rep = representation.representation().string_representation();
+                    std::shared_ptr<DataWriter> datawriter(new DataWriter(object_id, publisher));
+                    if (datawriter->init(xml_rep, objects_))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(datawriter))).second;
+                    }
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_IN_BINARY:
+                    // TODO (julian).
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return rv;
+}
+
+bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
+                                    const dds::xrce::DATAREADER_Representation& representation)
+{
+    bool rv = false;
+    if (dds::xrce::OBJK_SUBSCRIBER == (representation.subscriber_id()[1] & 0x0F) &&
+        dds::xrce::OBJK_DATAREADER == (object_id.at(1) & 0x0F))
+    {
+        auto it = objects_.find(representation.subscriber_id());
+        if (it != objects_.end())
+        {
+            std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
+            switch (representation.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    const std::string& xml_rep = representation.representation().string_representation();
+                    std::shared_ptr<DataReader> datareader(new DataReader(object_id, subscriber));
+                    if (datareader->init(xml_rep, objects_))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(datareader))).second;
+                    }
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_IN_BINARY:
+                    // TODO (julian).
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return rv;
 }
 
 } // namespace micrortps

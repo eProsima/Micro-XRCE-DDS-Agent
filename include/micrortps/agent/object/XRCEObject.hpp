@@ -18,9 +18,23 @@
 #include <micrortps/agent/types/XRCETypes.hpp>
 #include <micrortps/agent/types/MessageHeader.hpp>
 #include <micrortps/agent/types/SubMessageHeader.hpp>
+#include <unordered_map>
+#include <memory>
 
 namespace eprosima {
 namespace micrortps {
+
+class XRCEObject;
+
+struct ObjectIdHash
+{
+    uint16_t operator()(const dds::xrce::ObjectId& object_id) const
+    {
+        return object_id.at(0) + (object_id.at(1) << 8);
+    }
+};
+
+typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, ObjectIdHash> ObjectContainer;
 
 class XRCEObject
 {
@@ -28,11 +42,12 @@ class XRCEObject
     explicit XRCEObject(const dds::xrce::ObjectId& object_id) : id_{object_id} {}
     XRCEObject(XRCEObject &&) = default;
     XRCEObject(const XRCEObject &) = default;
-    XRCEObject &operator=(XRCEObject &&) = default;
-    XRCEObject &operator=(const XRCEObject &) = default;
+    XRCEObject& operator=(XRCEObject &&) = default;
+    XRCEObject& operator=(const XRCEObject &) = default;
     virtual ~XRCEObject() = 0;
 
-    dds::xrce::ObjectId getID() const;
+    dds::xrce::ObjectId get_id() const;
+    virtual void release(ObjectContainer& root_objects) = 0;
 
   private:
     dds::xrce::ObjectId id_;

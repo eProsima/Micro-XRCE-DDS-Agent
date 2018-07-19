@@ -14,6 +14,7 @@
 
 #include <micrortps/agent/topic/Topic.hpp>
 #include <xmlobjects/xmlobjects.h>
+#include <micrortps/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 
@@ -22,30 +23,45 @@ namespace micrortps {
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 
-Topic::Topic(const dds::xrce::ObjectId& id, Participant& rtps_participant)
-    : XRCEObject{id},
-      rtps_participant_(rtps_participant),
+Topic::Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
+    : XRCEObject{object_id},
+      participant_(participant),
       generic_type_(false)
 {
+    participant_->tie_object(object_id);
 }
 
 Topic::~Topic()
 {
-    fastrtps::Domain::unregisterType(&rtps_participant_, generic_type_.getName());
+    fastrtps::Domain::unregisterType(participant_->get_rtps_participant(), generic_type_.getName());
+    participant_->unregister_topic(generic_type_.getName());
+    participant_->untie_object(get_id());
+    std::cout << "Topic deleted!!" << std::endl;
 }
 
 bool Topic::init(const std::string& xmlrep)
 {
+    bool rv = false;
     TopicAttributes attributes;
     if (xmlobjects::parse_topic(xmlrep.data(), xmlrep.size(), attributes))
     {
         generic_type_.setName(attributes.getTopicDataType().data());
         generic_type_.m_isGetKeyDefined = (attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-        return fastrtps::Domain::registerType(&rtps_participant_, &generic_type_);
+        if (fastrtps::Domain::registerType(participant_->get_rtps_participant(), &generic_type_))
+        {
+            participant_->register_topic(generic_type_.getName(), get_id());
+            rv = true;
+        }
     }
-    else
+    return rv;
+}
+
+void Topic::release(ObjectContainer& root_objects)
+{
+    for (auto obj : tied_objects_)
     {
-        return false;
+        root_objects.at(obj)->release(root_objects);
+        root_objects.erase(obj);
     }
 }
 

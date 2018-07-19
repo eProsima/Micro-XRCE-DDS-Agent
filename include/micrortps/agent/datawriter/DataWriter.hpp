@@ -17,8 +17,8 @@
 
 #include <micrortps/agent/object/XRCEObject.hpp>
 #include <micrortps/agent/types/TopicPubSubType.hpp>
-
 #include <string>
+#include <set>
 
 namespace eprosima {
 
@@ -29,16 +29,15 @@ class Publisher;
 
 namespace micrortps {
 
+class Publisher;
+class Topic;
 class WRITE_DATA_Payload;
-/**
- * Class DataWriter, used to send data to associated datareaders.
- * @ingroup MICRORTPS_MODULE
- */
+
 class DataWriter : public XRCEObject
 {
-  public:
-    DataWriter(const dds::xrce::ObjectId& id,
-               Participant& rtps_participant,
+public:
+    DataWriter(const dds::xrce::ObjectId& object_id,
+               const std::shared_ptr<Publisher>& publisher,
                const std::string& profile_name = "");
     ~DataWriter() override;
 
@@ -47,19 +46,20 @@ class DataWriter : public XRCEObject
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init();
-    bool init(const std::string& xmlrep);
+    bool init(const ObjectContainer& root_objects);
+    bool init(const std::string& xml_rep, const ObjectContainer& root_objects);
     const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
+    void release(ObjectContainer&) override {}
 
-  private:
-    fastrtps::Participant& mp_rtps_participant;
-    fastrtps::Publisher* mp_rtps_publisher;
-    std::string m_rtps_publisher_prof;
+private:
+    std::shared_ptr<Publisher> publisher_;
+    std::shared_ptr<Topic> topic_;
+    fastrtps::Publisher* rtps_publisher_;
+    std::string rtps_publisher_prof_;
     TopicPubSubType topic_type_;
     dds::xrce::ResultStatus result_status_;
-
-    bool check_registered_topic(const std::string& topic_data_type) const;
+    std::set<dds::xrce::ObjectId> objects_;
 };
 
 } // namespace micrortps

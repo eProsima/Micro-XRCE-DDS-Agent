@@ -18,8 +18,9 @@
 #include <micrortps/agent/publisher/Publisher.hpp>
 #include <micrortps/agent/subscriber/Subscriber.hpp>
 #include <micrortps/agent/topic/Topic.hpp>
-
+#include <unordered_map>
 #include <string>
+#include <set>
 
 namespace eprosima {
 
@@ -29,28 +30,26 @@ class Participant;
 
 namespace micrortps {
 
-/**
- * Class Participana, modules DDS participant.
- * @ingroup MICRORTPS_MODULE
- */
-class XRCEParticipant : public XRCEObject
+class Participant : public XRCEObject
 {
   public:
-    XRCEParticipant(const dds::xrce::ObjectId& id);
-    virtual ~XRCEParticipant();
+    Participant(const dds::xrce::ObjectId& id);
+    virtual ~Participant();
 
     bool init();
-
-    XRCEObject* create_topic(const dds::xrce::ObjectId& id, const std::string& xmlrep);
-    XRCEObject* create_writer(const dds::xrce::ObjectId& id, const std::string& xmlrep);
-//    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep, ReaderListener* message_listener);
-    XRCEObject* create_reader(const dds::xrce::ObjectId& id, const std::string& xmlrep);
-
-    XRCEObject* get_writer();
-    XRCEObject* get_reader();
+    bool init(const std::string& xml_rep);
+    fastrtps::Participant* get_rtps_participant() { return rtps_participant_; }
+    void register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id);
+    void unregister_topic(const std::string& topic_name);
+    bool check_register_topic(const std::string& topic_name, dds::xrce::ObjectId& object_id);
+    void release(ObjectContainer& root_objects) override;
+    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
+    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
 
   private:
-    eprosima::fastrtps::Participant* mp_rtps_participant = nullptr;
+    fastrtps::Participant* rtps_participant_ = nullptr;
+    std::unordered_map<std::string, dds::xrce::ObjectId> registered_topics_;
+    std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace micrortps

@@ -13,19 +13,22 @@
 // limitations under the License.
 
 #include <micrortps/agent/subscriber/Subscriber.hpp>
+#include <micrortps/agent/participant/Participant.hpp>
 
 namespace eprosima {
 namespace micrortps {
 
-Subscriber::Subscriber(const dds::xrce::ObjectId& id, XRCEParticipant& participant)
-    : XRCEObject{id},
+Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
+    : XRCEObject{object_id},
       participant_(participant)
 {
+    participant_->tie_object(object_id);
 }
 
-XRCEParticipant& Subscriber::get_participant()
+Subscriber::~Subscriber()
 {
-    return participant_;
+    participant_->untie_object(get_id());
+    std::cout << "Subscriber deleted!!" << std::endl;
 }
 
 } // namespace micrortps

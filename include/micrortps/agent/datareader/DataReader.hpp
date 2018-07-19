@@ -38,11 +38,13 @@ class MatchingInfo;
 
 namespace micrortps {
 
+class Subscriber;
+class Topic;
+class Processor;
+
 /**
  * Callback data structure.
  */
-class Processor;
-
 typedef struct ReadCallbackArgs
 {
     dds::xrce::ClientKey client_key;
@@ -108,26 +110,25 @@ class RTPSSubListener : public fastrtps::SubscriberListener
 class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
 {
 public:
-    DataReader(const dds::xrce::ObjectId& id,
-               eprosima::fastrtps::Participant& rtps_participant,
+    DataReader(const dds::xrce::ObjectId& object_id,
+               const std::shared_ptr<Subscriber>& subscriber,
                const std::string& profile_name = "");
-    ~DataReader() noexcept override;
+    virtual ~DataReader() noexcept override;
 
     DataReader(DataReader&&)      = delete;
     DataReader(const DataReader&) = delete;
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    bool init();
-    bool init(const std::string& xmlrep);
+    bool init(const ObjectContainer& root_objects);
+    bool init(const std::string& xml_rep, const ObjectContainer& root_objects);
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     bool has_message() const;
-
     void on_max_timeout(const asio::error_code& error) override;
-
     void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub,
                                eprosima::fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
+    void release(ObjectContainer&) override {}
 
 private:
     int start_read(const dds::xrce::DataDeliveryControl& delivery_control,
@@ -137,16 +138,16 @@ private:
                    read_callback read_cb, ReadCallbackArgs cb_args);
     bool takeNextData(void* data);
     size_t nextDataSize();
-    bool check_registered_topic(const std::string& topic_data_type) const;
 
+private:
+    std::shared_ptr<Subscriber> subscriber_;
+    std::shared_ptr<Topic> topic_;
     std::thread read_thread_;
     std::thread max_timer_thread_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
     bool running_cond_;
-
     std::string rtps_subscriber_prof_;
-    fastrtps::Participant& rtps_participant_;
     fastrtps::Subscriber* rtps_subscriber_;
     TopicPubSubType topic_type_;
 };

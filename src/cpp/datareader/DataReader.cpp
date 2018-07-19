@@ -13,14 +13,14 @@
 // limitations under the License.
 
 #include <micrortps/agent/datareader/DataReader.hpp>
+#include <micrortps/agent/subscriber/Subscriber.hpp>
+#include <micrortps/agent/participant/Participant.hpp>
 #include <micrortps/agent/utils/TokenBucket.hpp>
 #include <fastrtps/Domain.h>
 #include <xmlobjects/xmlobjects.h>
-
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-
 #include <atomic>
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
@@ -31,16 +31,17 @@ namespace micrortps {
 
 using utils::TokenBucket;
 
-DataReader::DataReader(const dds::xrce::ObjectId& id,
-                       eprosima::fastrtps::Participant& rtps_participant,
+DataReader::DataReader(const dds::xrce::ObjectId& object_id,
+                       const std::shared_ptr<Subscriber>& subscriber,
                        const std::string& profile_name)
-    : XRCEObject(id),
+    : XRCEObject(object_id),
+      subscriber_(subscriber),
       running_cond_(false),
       rtps_subscriber_prof_(profile_name),
-      rtps_participant_(rtps_participant),
       rtps_subscriber_(nullptr),
       topic_type_(false)
 {
+    subscriber_->tie_object(object_id);
 }
 
 DataReader::~DataReader() noexcept
@@ -60,9 +61,16 @@ DataReader::~DataReader() noexcept
     {
         fastrtps::Domain::removeSubscriber(rtps_subscriber_);
     }
+
+    subscriber_->untie_object(get_id());
+    if (topic_)
+    {
+        topic_->untie_object(get_id());
+    }
+    std::cout << "DataReader deleted!!" << std::endl;
 }
 
-bool DataReader::init()
+bool DataReader::init(const ObjectContainer& root_objects)
 {
     SubscriberAttributes attributes;
     if (rtps_subscriber_prof_.empty() ||
@@ -71,20 +79,24 @@ bool DataReader::init()
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
     }
-    if (check_registered_topic(attributes.topic.getTopicDataType()))
-    {
 
+    dds::xrce::ObjectId topic_id;
+    if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
+    {
+        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+        topic_->tie_object(get_id());
+        fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
         if (!rtps_subscriber_prof_.empty())
         {
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(&rtps_participant_, rtps_subscriber_prof_, this);
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, rtps_subscriber_prof_, this);
         }
         else
         {
             rtps_subscriber_ =
-                fastrtps::Domain::createSubscriber(&rtps_participant_, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+                fastrtps::Domain::createSubscriber(rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
-    if (rtps_subscriber_ == nullptr)
+    if (nullptr == rtps_subscriber_)
     {
         std::cout << "init subscriber error" << std::endl;
         return false;
@@ -92,23 +104,29 @@ bool DataReader::init()
     return true;
 }
 
-bool DataReader::init(const std::string& xmlrep)
+bool DataReader::init(const std::string& xml_rep, const ObjectContainer& root_objects)
 {
     SubscriberAttributes attributes;
-    if (xmlobjects::parse_subscriber(xmlrep.data(), xmlrep.size(), attributes))
+    fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
+    if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), attributes))
     {
-        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        dds::xrce::ObjectId topic_id;
+        if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
         {
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(&rtps_participant_, attributes, this);
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+            topic_->tie_object(get_id());
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, attributes, this);
         }
     }
     else
     {
+        dds::xrce::ObjectId topic_id;
         fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
-        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
         {
-            rtps_subscriber_ =
-                fastrtps::Domain::createSubscriber(&rtps_participant_, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+            topic_->tie_object(get_id());
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
         }
     }
     if (rtps_subscriber_ == nullptr)
@@ -294,7 +312,7 @@ size_t DataReader::nextDataSize()
 {
     std::vector<unsigned char> buffer;
     fastrtps::SampleInfo_t info;
-    // TODO (julian): review KEE_PALL configuration.
+    // TODO (Borja): review KEE_PALL configuration.
     if (rtps_subscriber_->readNextData(&buffer, &info))
     {
         if (info_.sampleKind == rtps::ALIVE)
@@ -321,18 +339,6 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
         matched_--;
         std::cout << "RTPS Publisher unmatched" << std::endl;
     }
-}
-
-bool DataReader::check_registered_topic(const std::string& topic_data_type) const
-{
-    // TODO (Borja): take this method out to Topic type.
-    TopicDataType* p_type = nullptr;
-    if (!fastrtps::Domain::getRegisteredType(&rtps_participant_, topic_data_type.data(), &p_type))
-    {
-        std::cout << "DDS ERROR: No registered type" << std::endl;
-        return false;
-    }
-    return true;
 }
 
 } // namespace micrortps

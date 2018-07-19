@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <micrortps/agent/datawriter/DataWriter.hpp>
+#include <micrortps/agent/publisher/Publisher.hpp>
+#include <micrortps/agent/participant/Participant.hpp>
 #include <xmlobjects/xmlobjects.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
@@ -25,50 +26,60 @@
 namespace eprosima {
 namespace micrortps {
 
-DataWriter::DataWriter(const dds::xrce::ObjectId& id,
-                       Participant& rtps_participant,
+DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
+                       const std::shared_ptr<Publisher>& publisher,
                        const std::string& profile_name)
-    : XRCEObject{id},
-      mp_rtps_participant(rtps_participant),
-      mp_rtps_publisher(nullptr),
-      m_rtps_publisher_prof(profile_name),
+    : XRCEObject{object_id},
+      publisher_(publisher),
+      rtps_publisher_(nullptr),
+      rtps_publisher_prof_(profile_name),
       topic_type_(false)
 
 {
+    publisher_->tie_object(object_id);
 }
 
 DataWriter::~DataWriter()
 {
-    if (nullptr != mp_rtps_publisher)
+    if (nullptr != rtps_publisher_)
     {
-        fastrtps::Domain::removePublisher(mp_rtps_publisher);
+        fastrtps::Domain::removePublisher(rtps_publisher_);
     }
+    publisher_->untie_object(get_id());
+    if (topic_)
+    {
+        topic_->untie_object(get_id());
+    }
+    std::cout << "DataWriter deleted!!" << std::endl;
 }
 
-bool DataWriter::init()
+bool DataWriter::init(const ObjectContainer& root_objects)
 {
     PublisherAttributes attributes;
-    if (m_rtps_publisher_prof.empty() ||
+    if (rtps_publisher_prof_.empty() ||
         (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
-         fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(m_rtps_publisher_prof, attributes)))
+         fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(rtps_publisher_prof_, attributes)))
     {
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
     }
 
-    if (check_registered_topic(attributes.topic.getTopicDataType()))
+    dds::xrce::ObjectId topic_id;
+    if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
     {
-        if (!m_rtps_publisher_prof.empty())
+        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+        topic_->tie_object(get_id());
+        fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
+        if (!rtps_publisher_prof_.empty())
         {
-            mp_rtps_publisher = fastrtps::Domain::createPublisher(&mp_rtps_participant, m_rtps_publisher_prof, nullptr);
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, rtps_publisher_prof_, nullptr);
         }
         else
         {
-            mp_rtps_publisher =
-                fastrtps::Domain::createPublisher(&mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
         }
     }
 
-    if (mp_rtps_publisher == nullptr)
+    if (rtps_publisher_ == nullptr)
     {
         std::cout << "DDS ERROR: init publisher error" << std::endl;
         return false;
@@ -76,27 +87,34 @@ bool DataWriter::init()
     return true;
 }
 
-bool DataWriter::init(const std::string& xmlrep)
+bool DataWriter::init(const std::string& xml_rep, const ObjectContainer& root_objects)
 {
     PublisherAttributes attributes;
-    if (xmlobjects::parse_publisher(xmlrep.data(), xmlrep.size(), attributes))
+    fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
+    if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), attributes))
     {
-        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        dds::xrce::ObjectId topic_id;
+        if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
         {
-            mp_rtps_publisher = fastrtps::Domain::createPublisher(&mp_rtps_participant, attributes, nullptr);
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+            topic_->tie_object(get_id());
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, nullptr);
         }
     }
     else
     {
+        dds::xrce::ObjectId topic_id;
         fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
-        if (check_registered_topic(attributes.topic.getTopicDataType()))
+        if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
         {
-            mp_rtps_publisher =
-                fastrtps::Domain::createPublisher(&mp_rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+            topic_->tie_object(get_id());
+            rtps_publisher_ =
+                fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
         }
     }
 
-    if (mp_rtps_publisher == nullptr)
+    if (rtps_publisher_ == nullptr)
     {
         std::cout << "init publisher error" << std::endl;
         return false;
@@ -112,7 +130,7 @@ const dds::xrce::ResultStatus& DataWriter::write(dds::xrce::DataRepresentation& 
     switch (data._d())
     {
         case dds::xrce::FORMAT_DATA:
-            if (mp_rtps_publisher->write(&(data.data().serialized_data())))
+            if (rtps_publisher_->write(&(data.data().serialized_data())))
             {
                 result_status_.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             }
@@ -135,23 +153,11 @@ const dds::xrce::ResultStatus& DataWriter::write(dds::xrce::DataRepresentation& 
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    if (nullptr == mp_rtps_publisher)
+    if (nullptr == rtps_publisher_)
     {
         return false;
     }
-    return mp_rtps_publisher->write(&(write_data.data().serialized_data()));
-}
-
-bool DataWriter::check_registered_topic(const std::string& topic_data_type) const
-{
-    // TODO(Borja) Take this method out to Topic type.
-    TopicDataType* p_type = nullptr;
-    if (!fastrtps::Domain::getRegisteredType(&mp_rtps_participant, topic_data_type.data(), &p_type))
-    {
-        std::cout << "DDS ERROR: No registered type" << std::endl;
-        return false;
-    }
-    return true;
+    return rtps_publisher_->write(&(write_data.data().serialized_data()));
 }
 
 } // namespace micrortps
