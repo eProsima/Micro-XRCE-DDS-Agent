@@ -13,28 +13,51 @@
 // limitations under the License.
 
 #ifdef _WIN32
+#include <micrortps/agent/transport/UDPServerWindows.hpp>
+#include <micrortps/agent/transport/TCPServerWindows.hpp>
 #else
 #include <micrortps/agent/transport/UARTServerLinux.hpp>
 #include <micrortps/agent/transport/UDPServerLinux.hpp>
 #include <micrortps/agent/transport/TCPServerLinux.hpp>
 #include <termios.h>
 #include <fcntl.h>
-#endif
+#endif //_WIN32
+#include <iostream>
 
 int main(int argc, char** argv)
 {
     bool initialized = false;
 
-    if(argc == 3 && strcmp(argv[1], "uart") == 0)
+    if(argc ==3 && strcmp(argv[1], "udp") == 0)
     {
-//        std::cout << "UART agent initialization... ";
-//        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer();
-//        if (0 == uart_server->launch((uint8_t)atoi(argv[2]), 0x00))
-//        {
-//            initialized = true;
-//            server = uart_server;
-//        }
-//        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+        std::cout << "UDP agent initialization... ";
+        eprosima::micrortps::UDPServer* udp_server = new eprosima::micrortps::UDPServer((uint16_t)atoi(argv[2]));
+        if (udp_server->run())
+        {
+            initialized = true;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+    else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
+    {
+        std::cout << "TCP agent initialization... ";
+        eprosima::micrortps::TCPServer* tcp_server = new eprosima::micrortps::TCPServer((uint16_t)atoi(argv[2]));
+        if (tcp_server->run())
+        {
+            initialized = true;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+#ifndef _WIN32
+    else if(argc == 3 && strcmp(argv[1], "uart") == 0)
+    {
+        std::cout << "UART agent initialization... ";
+        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer((uint8_t)atoi(argv[2]), 0);
+        if (uart_server->run())
+        {
+            initialized = true;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
     else if (argc == 2 && strcmp(argv[1], "pseudo-uart") == 0)
     {
@@ -72,26 +95,7 @@ int main(int argc, char** argv)
             std::cout << "ERROR" << std::endl;
         }
     }
-    else if(argc ==3 && strcmp(argv[1], "udp") == 0)
-    {
-        std::cout << "UDP agent initialization... ";
-        eprosima::micrortps::UDPServer* udp_server = new eprosima::micrortps::UDPServer((uint16_t)atoi(argv[2]));
-        if (udp_server->run())
-        {
-            initialized = true;
-        }
-        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
-    }
-    else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
-    {
-        std::cout << "TCP agent initialization... ";
-        eprosima::micrortps::TCPServer* tcp_server = new eprosima::micrortps::TCPServer((uint16_t)atoi(argv[2]));
-        if (tcp_server->run())
-        {
-            initialized = true;
-        }
-        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
-    }
+#endif
     else
     {
         std::cout << "Error: Invalid arguments." << std::endl;
