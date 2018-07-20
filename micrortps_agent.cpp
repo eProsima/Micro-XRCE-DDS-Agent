@@ -38,7 +38,7 @@ int main(int argc, char** argv)
         std::cout << "Pseudo-UART initialization... ";
 
         /* Open pseudo-terminal. */
-        char* dev;
+        char* dev = NULL;
         int fd = posix_openpt(O_RDWR | O_NOCTTY);
         if (-1 != fd)
         {

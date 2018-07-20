@@ -22,6 +22,9 @@
 #include <stddef.h>
 #include <thread>
 
+// TODO (julian): move to global config.
+#define HEARTBEAT_PERIOD 200
+
 namespace eprosima {
 namespace micrortps {
 
@@ -63,11 +66,13 @@ private:
     void receiver_loop();
     void sender_loop();
     void processing_loop();
+    void heartbeat_loop();
 
 private:
     std::unique_ptr<std::thread> receiver_thread_;
     std::unique_ptr<std::thread> sender_thread_;
     std::unique_ptr<std::thread> processing_thread_;
+    std::unique_ptr<std::thread> heartbeat_thread_;
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket> input_scheduler_;
     FCFSScheduler<OutputPacket> output_scheduler_;

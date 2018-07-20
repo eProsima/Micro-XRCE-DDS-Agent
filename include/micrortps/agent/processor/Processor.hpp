@@ -35,6 +35,7 @@ public:
     ~Processor();
 
     void process_input_packet(InputPacket&& input_packet);
+    void check_heartbeats();
     Root* get_root() { return root_; }
     Server* get_server() { return server_; }
 

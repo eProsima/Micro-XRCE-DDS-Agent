@@ -29,8 +29,10 @@ namespace micrortps {
 
 Root::Root()
     : mtx_(),
-      clients_()
+      clients_(),
+      current_client_()
 {
+    current_client_ = clients_.begin();
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
@@ -112,6 +114,10 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
     {
         std::unique_lock<std::mutex> lock(mtx_);
         clients_.erase(client_key);
+        if (client_key == current_client_->first)
+        {
+            ++current_client_;
+        }
         lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
     }
@@ -134,44 +140,24 @@ std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client
     return client;
 }
 
-//void Root::manage_heartbeats()
-//{
-//    while (heartbeat_cond_)
-//    {
-//        /* Get clients. */
-//        for (auto it = clients_.begin(); it != clients_.end(); ++it)
-//        {
-//            ProxyClient& client = it->second;
-//            /* Get reliable streams. */
-//            for (auto s : client.session().get_output_streams())
-//            {
-//                /* Get and send  pending messages. */
-//                if (client.session().message_pending(s))
-//                {
-//                    /* Heartbeat message header. */
-//                    dds::xrce::MessageHeader heartbeat_header;
-//                    heartbeat_header.session_id(client.get_session_id());
-//                    heartbeat_header.stream_id(0x00);
-//                    heartbeat_header.sequence_nr(s);
-//                    heartbeat_header.client_key(client.get_client_key());
-//
-//                    /* Heartbeat message payload. */
-//                    dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-//                    heartbeat_payload.first_unacked_seq_nr(client.session().get_first_unacked_seq_nr(s));
-//                    heartbeat_payload.last_unacked_seq_nr(client.session().get_last_unacked_seq_nr(s));
-//
-//                    /* Serialize heartbeat message. */
-//                    OutputMessagePtr output_message(new OutputMessage(heartbeat_header));
-//                    output_message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
-//
-//                    /* Send heartbeat. */
-//                    add_reply(output_message);
-//                }
-//            }
-//        }
-//        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
-//    }
-//}
+void Root::init_client_iteration()
+{
+    std::unique_lock<std::mutex> lock(mtx_);
+    current_client_ = clients_.begin();
+}
+
+bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
+{
+    bool rv = false;
+    std::unique_lock<std::mutex> lock(mtx_);
+    if (current_client_ != clients_.end())
+    {
+        next_client = current_client_->second;
+        ++current_client_;
+        rv = true;
+    }
+    return rv;
+}
 
 } // namespace micrortps
 } // namespace eprosima

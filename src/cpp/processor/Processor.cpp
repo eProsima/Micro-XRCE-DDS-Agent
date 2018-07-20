@@ -518,5 +518,42 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     server_->push_output_packet(output_packet);
 }
 
+void Processor::check_heartbeats()
+{
+    root_->init_client_iteration();
+    std::shared_ptr<ProxyClient> client;
+    while (root_->get_next_client(client))
+    {
+        /* Get reliable streams. */
+        for (auto stream : client->session().get_output_streams())
+        {
+            /* Get and send pending messages. */
+            if (client->session().message_pending(stream))
+            {
+                /* Heartbeat message header. */
+                dds::xrce::MessageHeader heartbeat_header;
+                heartbeat_header.session_id(client->get_session_id());
+                heartbeat_header.stream_id(0x00);
+                heartbeat_header.sequence_nr(stream);
+                heartbeat_header.client_key(client->get_client_key());
+
+                /* Heartbeat message payload. */
+                dds::xrce::HEARTBEAT_Payload heartbeat_payload;
+                heartbeat_payload.first_unacked_seq_nr(client->session().get_first_unacked_seq_nr(stream));
+                heartbeat_payload.last_unacked_seq_nr(client->session().get_last_unacked_seq_nr(stream));
+
+                /* Set output packet and serialize HEARTBEAT. */
+                OutputPacket output_packet;
+                output_packet.destination = server_->get_source(client->get_client_key());
+                output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
+                output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+
+                /* Send message. */
+                server_->push_output_packet(output_packet);
+            }
+        }
+    }
+}
+
 } // namespace micrortps
 } // namespace eprosima

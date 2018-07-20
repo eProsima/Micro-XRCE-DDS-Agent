@@ -21,7 +21,6 @@
 #include <map>
 
 // TODO (julian): move to global config.
-#define HEARTBEAT_PERIOD 200
 #define EPROSIMA_VENDOR_ID {0x01, 0x0F}
 
 namespace eprosima{
@@ -37,10 +36,13 @@ public:
                                           dds::xrce::AGENT_Representation& agent_representation);
     dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
     std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
+    void init_client_iteration();
+    bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
 private:
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
+    std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;
 };
 
 } // micrortps

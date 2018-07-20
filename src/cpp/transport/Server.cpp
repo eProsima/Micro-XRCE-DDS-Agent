@@ -43,6 +43,7 @@ bool Server::run()
     receiver_thread_.reset(new std::thread(std::bind(&Server::receiver_loop, this)));
     sender_thread_.reset(new std::thread(std::bind(&Server::sender_loop, this)));
     processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
+    heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
 
     return true;
 }
@@ -63,6 +64,10 @@ void Server::stop()
     if (processing_thread_ && processing_thread_->joinable())
     {
         processing_thread_->join();
+    }
+    if (heartbeat_thread_ && heartbeat_thread_->joinable())
+    {
+        heartbeat_thread_->join();
     }
 }
 
@@ -106,6 +111,15 @@ void Server::processing_loop()
         {
             processor_->process_input_packet(std::move(input_packet));
         }
+    }
+}
+
+void Server::heartbeat_loop()
+{
+    while (running_cond_)
+    {
+        processor_->check_heartbeats();
+        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
     }
 }
 
