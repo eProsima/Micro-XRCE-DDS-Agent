@@ -124,7 +124,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             // TODO (julian): implement get info functionality.
             rv = false;
             break;
-        case dds::xrce::DELETE:
+        case dds::xrce::DELETE_ID:
             rv = process_delete_submessage(client, input_packet);
             break;
         case dds::xrce::WRITE_DATA:

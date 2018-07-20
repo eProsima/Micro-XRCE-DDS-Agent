@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/UDPServerLinux.hpp>
+#include <micrortps/agent/transport/UDPServerWindows.hpp>
 #include <string.h>
 
 namespace eprosima {
@@ -131,12 +131,17 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
     struct sockaddr client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    int client_addr_len = sizeof(client_addr);
 
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
+        int bytes_received = recvfrom(poll_fd_.fd,
+                                      reinterpret_cast<char*>(buffer_),
+                                      sizeof(buffer_),
+                                      0,
+                                      &client_addr,
+                                      &client_addr_len);
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
@@ -168,11 +173,11 @@ bool UDPServer::send_message(OutputPacket output_packet)
     client_addr.sin_port = destination->get_port();
     client_addr.sin_addr.s_addr = destination->get_addr();
     int bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                (struct sockaddr*)&client_addr,
-                                sizeof(client_addr));
+                            reinterpret_cast<char*>(output_packet.message->get_buf()),
+                            output_packet.message->get_len(),
+                            0,
+                            (struct sockaddr*)&client_addr,
+                            sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
         if ((size_t)bytes_sent != output_packet.message->get_len())

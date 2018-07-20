@@ -158,17 +158,17 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
     std::array<uint8_t, 2> bitmap = {0, 0};
     for (uint16_t i = 0; i < 8; i++)
     {
-        if (last_handled_ + i < last_announced_)
+        if (last_handled_ + SeqNum(i) < last_announced_)
         {
-            auto it = messages_.find(last_handled_ + i + 1);
+            auto it = messages_.find(last_handled_ + SeqNum(i + 1));
             if (it == messages_.end())
             {
                 bitmap.at(1) = bitmap.at(1) | (0x01 << i);
             }
         }
-        if (last_handled_ + i + 8 < last_announced_)
+        if (last_handled_ + SeqNum(i + 8) < last_announced_)
         {
-            auto it = messages_.find(last_handled_ + i + 9);
+            auto it = messages_.find(last_handled_ + SeqNum(i + 9));
             if (it == messages_.end())
             {
                 bitmap.at(0) = bitmap.at(0) | (0x01 << i);

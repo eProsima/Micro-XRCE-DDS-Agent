@@ -97,7 +97,6 @@ private:
     uint16_t read_data(TCPConnection* connection);
     void disconnect_client(TCPConnection* connection);
     static void init_input_buffer(TCPInputBuffer* buffer);
-    static void sigpipe_handler(int fd) { (void)fd; } // TODO (julian): handle sigpipe to disconnect.
 
 private:
     uint16_t port_;
