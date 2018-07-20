@@ -20,7 +20,6 @@
 
 int main(int argc, char** argv)
 {
-    eprosima::micrortps::Server* server;
     bool initialized = false;
 
     if(argc == 3 && strcmp(argv[1], "uart") == 0)
@@ -58,7 +57,6 @@ int main(int argc, char** argv)
         if (uart_server->run())
         {
             initialized = true;
-            server = uart_server;
         }
 
         if (initialized)
@@ -78,7 +76,6 @@ int main(int argc, char** argv)
         if (udp_server->run())
         {
             initialized = true;
-            server = udp_server;
         }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
@@ -89,7 +86,6 @@ int main(int argc, char** argv)
         if (tcp_server->run())
         {
             initialized = true;
-            server = tcp_server;
         }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
@@ -98,13 +94,7 @@ int main(int argc, char** argv)
         std::cout << "Error: Invalid arguments." << std::endl;
     }
 
-    if(initialized)
-    {
-//        eprosima::micrortps::Agent& micrortps_agent = eprosima::micrortps::root();
-//        micrortps_agent.init(server);
-//        micrortps_agent.run();
-    }
-    else
+    if(!initialized)
     {
         std::cout << "Help: program <command>" << std::endl;
         std::cout << "List of commands:" << std::endl;

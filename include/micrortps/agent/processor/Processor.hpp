@@ -17,6 +17,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <mutex>
 
 namespace eprosima {
 namespace micrortps {
@@ -54,6 +55,7 @@ private:
 private:
     Server* server_;
     Root* root_;
+    std::mutex mtx_;
 };
 
 } // namespace micrortps

@@ -111,6 +111,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
+    std::lock_guard<std::mutex> lock(mtx_);
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -488,6 +489,7 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
 
     /* DATA header. */
