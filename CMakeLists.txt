@@ -96,9 +96,6 @@ set(SRCS
     src/cpp/types/MessageHeader.cpp
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/types/TopicPubSubType.cpp
-    src/cpp/utils/XRCEFactory.cpp
-    src/cpp/utils/Serializer.cpp
-    src/cpp/utils/MessageQueue.cpp
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/Server.cpp
