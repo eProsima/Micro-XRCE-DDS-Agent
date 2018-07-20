@@ -79,6 +79,19 @@ eprosima_find_thirdparty(Asio asio)
 # Targets
 ###############################################################################
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(TRANSPORT_SRCS
+        src/cpp/transport/UDPServerLinux.cpp
+        src/cpp/transport/TCPServerLinux.cpp
+        src/cpp/transport/UARTServerLinux.cpp
+        )
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(TRANSPORT_SRCS
+        src/cpp/transport/UDPServerWindows.cpp
+        src/cpp/transport/TCPServerWindows.cpp
+        )
+endif()
+
 # Set source files
 set(SRCS
     src/cpp/Root.cpp
@@ -99,10 +112,8 @@ set(SRCS
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/UDPServer.cpp
-    src/cpp/transport/TCPServer.cpp
-    src/cpp/transport/UARTServer.cpp
     src/cpp/transport/SerialLayer.cpp
+    ${TRANSPORT_SRCS}
     )
 
 # Executable

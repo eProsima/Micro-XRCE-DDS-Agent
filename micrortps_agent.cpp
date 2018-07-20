@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/UARTServer.hpp>
-#include <micrortps/agent/transport/UDPServer.hpp>
-#include <micrortps/agent/transport/TCPServer.hpp>
+#ifdef _WIN32
+#else
+#include <micrortps/agent/transport/UARTServerLinux.hpp>
+#include <micrortps/agent/transport/UDPServerLinux.hpp>
+#include <micrortps/agent/transport/TCPServerLinux.hpp>
 #include <termios.h>
 #include <fcntl.h>
+#endif
 
 int main(int argc, char** argv)
 {

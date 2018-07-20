@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/TCPServer.hpp>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <micrortps/agent/transport/TCPServerLinux.hpp>
 #include <string.h>
-#include <unistd.h>
-#include <errno.h>
 #include <signal.h>
 
 namespace eprosima {
@@ -123,11 +117,7 @@ bool TCPServer::init()
     /* Socket initialization. */
     poll_fds_[0].fd = socket(PF_INET, SOCK_STREAM, 0);
 
-    if (-1 == poll_fds_[0].fd)
-    {
-        rv = errno;
-    }
-    else
+    if (SOCKET_ERROR != poll_fds_[0].fd)
     {
         /* IP and Port setup. */
         struct sockaddr_in address;
@@ -135,7 +125,7 @@ bool TCPServer::init()
         address.sin_port = htons(port_);
         address.sin_addr.s_addr = inet_addr("127.0.0.1");
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (-1 != bind(poll_fds_[0].fd, (struct sockaddr*)&address, sizeof(address)))
+        if (SOCKET_ERROR != bind(poll_fds_[0].fd, (struct sockaddr*)&address, sizeof(address)))
         {
             /* Listen Poll setup. */
             poll_fds_[0].events = POLLIN;
@@ -148,7 +138,7 @@ bool TCPServer::init()
             }
 
             /* Listener setup. */
-            if (-1 != listen(poll_fds_[0].fd, MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS))
+            if (SOCKET_ERROR != listen(poll_fds_[0].fd, MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS))
             {
                 /* Client setup. */
                 connections_[0].poll_fd = &poll_fds_[1];
@@ -176,7 +166,7 @@ bool TCPServer::init()
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
-    int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
+    int poll_rv = WSAPoll(poll_fds_.data(), poll_fds_.size(), timeout);
     if (0 < poll_rv)
     {
         if (POLLIN == (POLLIN & poll_fds_[0].revents) && nullptr != free_connections_)
@@ -184,8 +174,8 @@ bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
             /* New client connection. */
             struct sockaddr client_addr;
             socklen_t client_addr_len = sizeof(client_addr);
-            int incoming_fd = accept(poll_fds_[0].fd, &client_addr, &client_addr_len);
-            if (-1 != incoming_fd)
+            SOCKET incoming_fd = accept(poll_fds_[0].fd, &client_addr, &client_addr_len);
+            if (INVALID_SOCKET != incoming_fd)
             {
                 /* Update available clients list. */
                 TCPConnection* incoming_connection = free_connections_;
@@ -255,7 +245,7 @@ bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
     }
     else if (0 == poll_rv)
     {
-        errno = ETIME;
+        WSASetLastError(WAIT_TIMEOUT);
     }
     return rv;
 }
@@ -264,7 +254,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     uint16_t bytes_sent = 0;
-    ssize_t send_rv = 0;
+    int send_rv = 0;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
     uint64_t source_id = ((uint64_t)destination->get_addr() << 16) | destination->get_port();
@@ -280,7 +270,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
         do
         {
             send_rv = send(connection.poll_fd->fd, msg_size_buf, 2, 0);
-            if (0 <= send_rv)
+            if (SOCKET_ERROR != send_rv)
             {
                 bytes_sent += send_rv;
             }
@@ -301,7 +291,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
                 send_rv = send(connection.poll_fd->fd,
                                output_packet.message->get_buf() + bytes_sent,
                                output_packet.message->get_len() - bytes_sent, 0);
-                if (0 <= send_rv)
+                if (SOCKET_ERROR != send_rv)
                 {
                     bytes_sent += send_rv;
                 }
@@ -320,7 +310,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 
 int TCPServer::get_error()
 {
-    return errno;
+    return WSAGetLastError();
 }
 
 uint16_t TCPServer::read_data(TCPConnection* connection)
@@ -337,8 +327,8 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
             {
                 connection->input_buffer.position = 0;
                 uint8_t size_buf[2];
-                ssize_t bytes_received = recv(connection->poll_fd->fd, size_buf, 2, 0);
-                if (0 < bytes_received)
+                int bytes_received = recv(connection->poll_fd->fd, size_buf, 2, 0);
+                if (SOCKET_ERROR != bytes_received)
                 {
                     connection->input_buffer.msg_size = 0;
                     if (2 == bytes_received)
@@ -363,7 +353,7 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 {
                     if (0 == bytes_received)
                     {
-                        errno = ENOTCONN;
+                        WSASetLastError(WSAENOTCONN);
                     }
                     disconnect_client(connection);
                     exit_flag = true;
@@ -374,8 +364,8 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
             case TCP_SIZE_INCOMPLETE:
             {
                 uint8_t size_msb;
-                ssize_t bytes_received = recv(connection->poll_fd->fd, &size_msb, 1, 0);
-                if (0 < bytes_received)
+                int bytes_received = recv(connection->poll_fd->fd, &size_msb, 1, 0);
+                if (SOCKET_ERROR != bytes_received)
                 {
                     connection->input_buffer.msg_size = (uint16_t)(size_msb << 8) | connection->input_buffer.msg_size;
                     if (connection->input_buffer.msg_size != 0)
@@ -391,21 +381,21 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 {
                     if (0 == bytes_received)
                     {
-                        errno = ENOTCONN;
+                        WSASetLastError(WSAENOTCONN);
                     }
                     disconnect_client(connection);
                     exit_flag = true;
                 }
-                exit_flag = (0 == poll(connection->poll_fd, 1, 0));
+                exit_flag = (0 == WSAPoll(connection->poll_fd, 1, 0));
                 break;
             }
             case TCP_SIZE_READ:
             {
                 connection->input_buffer.buffer.resize(connection->input_buffer.msg_size);
-                ssize_t bytes_received = recv(connection->poll_fd->fd,
-                                              connection->input_buffer.buffer.data(),
-                                              connection->input_buffer.buffer.size(), 0);
-                if (0 < bytes_received)
+                int bytes_received = recv(connection->poll_fd->fd,
+                                          connection->input_buffer.buffer.data(),
+                                          connection->input_buffer.buffer.size(), 0);
+                if (SOCKET_ERROR != bytes_received)
                 {
                     if ((uint16_t)bytes_received == connection->input_buffer.msg_size)
                     {
@@ -422,7 +412,7 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 {
                     if (0 == bytes_received)
                     {
-                        errno = ENOTCONN;
+                        WSASetLastError(WSAENOTCONN);
                     }
                     disconnect_client(connection);
                     exit_flag = true;
@@ -431,10 +421,10 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
             }
             case TCP_MESSAGE_INCOMPLETE:
             {
-                ssize_t bytes_received = recv(connection->poll_fd->fd,
-                                              connection->input_buffer.buffer.data() + connection->input_buffer.position,
-                                              connection->input_buffer.buffer.size() - connection->input_buffer.position, 0);
-                if (0 < bytes_received)
+                int bytes_received = recv(connection->poll_fd->fd,
+                                          connection->input_buffer.buffer.data() + connection->input_buffer.position,
+                                          connection->input_buffer.buffer.size() - connection->input_buffer.position, 0);
+                if (SOCKET_ERROR != bytes_received)
                 {
                     connection->input_buffer.position += (uint16_t)bytes_received;
                     if (connection->input_buffer.position == connection->input_buffer.msg_size)
@@ -450,7 +440,7 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 {
                     if (0 == bytes_received)
                     {
-                        errno = ENOTCONN;
+                        WSASetLastError(WSAENOTCONN);
                     }
                     disconnect_client(connection);
                     exit_flag = true;
