@@ -30,8 +30,8 @@ class FCFSScheduler : public Scheduler<T>
 public:
     FCFSScheduler() : queue_(), mtx_(), cond_var_(), running_cond_(false) {}
 
-    virtual void run() override;
-    virtual void stop() override;
+    virtual void init() override;
+    virtual void deinit() override;
     virtual void push(T&& element, uint8_t priority) override;
     virtual bool pop(T& element) override;
 
@@ -43,13 +43,13 @@ private:
 };
 
 template<class T>
-inline void FCFSScheduler<T>::run()
+inline void FCFSScheduler<T>::init()
 {
     running_cond_ = true;
 }
 
 template<class T>
-inline void FCFSScheduler<T>::stop()
+inline void FCFSScheduler<T>::deinit()
 {
     running_cond_ = false;
     cond_var_.notify_one();

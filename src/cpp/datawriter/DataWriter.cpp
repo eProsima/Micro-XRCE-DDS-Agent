@@ -15,10 +15,10 @@
 #include <micrortps/agent/datawriter/DataWriter.hpp>
 #include <micrortps/agent/publisher/Publisher.hpp>
 #include <micrortps/agent/participant/Participant.hpp>
-#include <xmlobjects/xmlobjects.h>
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include "../xmlobjects/xmlobjects.h"
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_PUBLISHER_PROFILE "default_xrce_publisher_profile"

@@ -16,8 +16,8 @@
 #define _MICRORTPS_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include <sys/poll.h>
 #include <unordered_map>
 

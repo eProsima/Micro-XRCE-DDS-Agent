@@ -15,9 +15,8 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_SERIAL_LAYER_H_
 #define _MICRORTPS_AGENT_TRANSPORT_SERIAL_LAYER_H_
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstddef>
 
 #define MICRORTPS_FRAMING_END_FLAG 0x7E
 #define MICRORTPS_FRAMING_ESC_FLAG 0x7D

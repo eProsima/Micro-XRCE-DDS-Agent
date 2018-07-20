@@ -17,11 +17,11 @@
 #include <micrortps/agent/participant/Participant.hpp>
 #include <micrortps/agent/utils/TokenBucket.hpp>
 #include <fastrtps/Domain.h>
-#include <xmlobjects/xmlobjects.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <atomic>
+#include "../xmlobjects/xmlobjects.h"
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"

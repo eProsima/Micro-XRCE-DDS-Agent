@@ -18,7 +18,7 @@ namespace eprosima {
 namespace micrortps {
 
 ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
-    : representation_(std::move(representation)),
+    : representation_(representation),
       objects_(),
       session_()
 {
@@ -77,7 +77,7 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     result.status(dds::xrce::STATUS_OK);
     result.implementation_status(0x00);
 
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = objects_.find(object_id);
     if (it != objects_.end())
     {

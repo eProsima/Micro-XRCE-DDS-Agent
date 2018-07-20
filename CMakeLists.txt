@@ -106,17 +106,19 @@ set(SRCS
     )
 
 # Executable
-add_executable(MicroRTPSAgent micrortps_agent.cpp ${SRCS})
-target_link_libraries(MicroRTPSAgent PRIVATE fastrtps fastcdr)
-target_include_directories(MicroRTPSAgent
+add_library(${PROJECT_NAME} ${SRCS})
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
+target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
+        ${ASIO_INCLUDE_DIR}
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        ${ASIO_INCLUDE_DIR}
     )
+add_executable(MicroRTPSAgent micrortps_agent.cpp)
+target_link_libraries(MicroRTPSAgent PRIVATE ${PROJECT_NAME})
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
@@ -144,13 +146,17 @@ endif()
 ###############################################################################
 
 # Set std
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )
 set_target_properties(MicroRTPSAgent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
 
 # Definition
-target_compile_definitions(MicroRTPSAgent
+target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         -DBOOST_ASIO_STANDALONE
         -DASIO_STANDALONE
@@ -170,32 +176,6 @@ endif()
 # Testing
 ###############################################################################
 if(EPROSIMA_BUILD_TESTS)
-
-    # Create library for testing purposes
-    add_library(micrortps_agent_static STATIC ${SRCS})
-    target_link_libraries(micrortps_agent_static PUBLIC fastrtps fastcdr)
-    target_include_directories(micrortps_agent_static
-        PUBLIC
-            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-            ${ASIO_INCLUDE_DIR}
-        PRIVATE
-            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        )
-
-    set_target_properties(micrortps_agent_static PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        )
-
-    target_compile_definitions(micrortps_agent_static
-        PUBLIC
-            -DBOOST_ASIO_STANDALONE
-            -DASIO_STANDALONE
-        )
-
-    # Enable tests
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
     enable_testing()
     add_subdirectory(test)

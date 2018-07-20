@@ -19,7 +19,8 @@ namespace eprosima {
 namespace micrortps {
 
 Server::Server()
-    : processor_(new Processor(this))
+    : running_cond_(false),
+      processor_(new Processor(this))
 {}
 
 Server::~Server()
@@ -35,8 +36,8 @@ bool Server::run()
     }
 
     /* Scheduler initialization. */
-    input_scheduler_.run();
-    output_scheduler_.run();
+    input_scheduler_.init();
+    output_scheduler_.init();
 
     /* Thread initialization. */
     running_cond_ = true;
@@ -51,8 +52,8 @@ bool Server::run()
 void Server::stop()
 {
     running_cond_ = false;
-    input_scheduler_.stop();
-    output_scheduler_.stop();
+    input_scheduler_.deinit();
+    output_scheduler_.deinit();
     if (receiver_thread_ && receiver_thread_->joinable())
     {
         receiver_thread_->join();
@@ -78,7 +79,6 @@ void Server::push_output_packet(OutputPacket output_packet)
 
 void Server::receiver_loop()
 {
-    input_scheduler_.run();
     InputPacket input_packet;
     while (running_cond_)
     {
@@ -91,7 +91,6 @@ void Server::receiver_loop()
 
 void Server::sender_loop()
 {
-    output_scheduler_.run();
     OutputPacket output_packet;
     while (running_cond_)
     {
@@ -119,7 +118,7 @@ void Server::heartbeat_loop()
     while (running_cond_)
     {
         processor_->check_heartbeats();
-        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
+        std::this_thread::sleep_for(std::chrono::milliseconds(MICRORTPS_HEARTBEAT_PERIOD));
     }
 }
 

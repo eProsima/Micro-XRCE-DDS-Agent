@@ -89,7 +89,7 @@ public:
     SeqNum get_first_available() { return last_acknown_ + 1;}
     SeqNum get_last_available() { return last_sent_; }
     SeqNum next_message() { return last_sent_ + 1; }
-    bool message_pending() { return messages_.size() != 0; }
+    bool message_pending() { return !messages_.empty(); }
     void reset();
 
 private:

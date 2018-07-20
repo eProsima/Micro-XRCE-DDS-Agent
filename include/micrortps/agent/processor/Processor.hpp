@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 #define _MICRORTPS_AGENT_PROCESSOR_PROCESSOR_HPP_
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <mutex>
 

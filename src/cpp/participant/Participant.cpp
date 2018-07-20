@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include <micrortps/agent/participant/Participant.hpp>
-#include <xmlobjects/xmlobjects.h>
 #include <fastrtps/Domain.h>
+#include "../xmlobjects/xmlobjects.h"
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 

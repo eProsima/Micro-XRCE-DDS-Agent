@@ -18,8 +18,8 @@
 #include <micrortps/agent/transport/Server.hpp>
 #include <micrortps/agent/transport/SerialLayer.hpp>
 #include <unordered_map>
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include <sys/poll.h>
 
 namespace eprosima {

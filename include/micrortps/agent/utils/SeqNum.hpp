@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_UTILS_SEQNUM_HPP_
 #define _MICRORTPS_AGENT_UTILS_SEQNUM_HPP_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace eprosima {
 namespace micrortps {
@@ -25,7 +25,7 @@ class SeqNum
 public:
     SeqNum() : seq_num_(0) {}
     SeqNum(uint16_t seq_num) : seq_num_(seq_num) {}
-    SeqNum(int seq_num) : seq_num_((uint16_t)seq_num) {}
+    SeqNum(int seq_num) : seq_num_(static_cast<uint16_t>(seq_num)) {}
 
     /*
      * Operators.
@@ -35,7 +35,7 @@ public:
 
     inline SeqNum& operator+=(const int& rhs)
     {
-        seq_num_ = (seq_num_ + (uint16_t)rhs) % seq_num_limits_;
+        seq_num_ = (seq_num_ + static_cast<uint16_t>(rhs)) % seq_num_limits_;
         return *this;
     }
 

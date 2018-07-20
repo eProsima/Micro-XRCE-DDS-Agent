@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include <micrortps/agent/Root.hpp>
-#include <libdev/MessageDebugger.h>
-#include <libdev/MessageOutput.h>
+#include <micrortps/agent/libdev/MessageDebugger.h>
+#include <micrortps/agent/libdev/MessageOutput.h>
 #include <fastcdr/Cdr.h>
 #include <memory>
 
@@ -52,7 +52,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
     {
         if (client_representation.xrce_version()[0] == dds::xrce::XRCE_VERSION_MAJOR)
         {
-            std::unique_lock<std::mutex> lock(mtx_);
+            std::lock_guard<std::mutex> lock(mtx_);
             dds::xrce::ClientKey client_key = client_representation.client_key();
             dds::xrce::SessionId session_id = client_representation.session_id();
             auto it = clients_.find(client_key);
@@ -83,7 +83,6 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                     client->session().reset();
                 }
             }
-            lock.unlock();
         }
         else
         {
@@ -112,13 +111,12 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
     dds::xrce::ResultStatus result_status;
     if (get_client(client_key))
     {
-        std::unique_lock<std::mutex> lock(mtx_);
+        std::lock_guard<std::mutex> lock(mtx_);
         clients_.erase(client_key);
         if (client_key == current_client_->first)
         {
             ++current_client_;
         }
-        lock.unlock();
         result_status.status(dds::xrce::STATUS_OK);
     }
     else

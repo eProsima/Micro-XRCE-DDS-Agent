@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "MessageOutput.h"
+#include <micrortps/agent/libdev/MessageOutput.h>
 #include <micrortps/agent/types/XRCETypes.hpp>
 #include <micrortps/agent/types/MessageHeader.hpp>
 #include <micrortps/agent/types/SubMessageHeader.hpp>

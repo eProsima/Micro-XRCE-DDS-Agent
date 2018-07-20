@@ -15,8 +15,8 @@
 #include <micrortps/agent/transport/UARTServer.hpp>
 #include <micrortps/agent/transport/UDPServer.hpp>
 #include <micrortps/agent/transport/TCPServer.hpp>
-#include <micrortps/agent/Root.hpp>
 #include <termios.h>
+#include <fcntl.h>
 
 int main(int argc, char** argv)
 {

@@ -18,12 +18,10 @@
 #include <micrortps/agent/scheduler/FCFSScheduler.hpp>
 #include <micrortps/agent/message/Packet.hpp>
 #include <micrortps/agent/processor/Processor.hpp>
-#include <stdint.h>
-#include <stddef.h>
 #include <thread>
 
 // TODO (julian): move to global config.
-#define HEARTBEAT_PERIOD 200
+#define MICRORTPS_HEARTBEAT_PERIOD 200
 
 namespace eprosima {
 namespace micrortps {
@@ -36,8 +34,8 @@ class Processor;
 class EndPoint
 {
 public:
-    EndPoint() {}
-    ~EndPoint() = default;
+    EndPoint() = default;
+    virtual ~EndPoint() = default;
 };
 
 /**************************************************************************************************

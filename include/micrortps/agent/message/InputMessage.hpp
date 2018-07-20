@@ -32,7 +32,7 @@ public:
           len_(len),
           header_(),
           subheader_(),
-          fastbuffer_((char*)(buf_), len_),
+          fastbuffer_(reinterpret_cast<char*>(buf_), len_),
           deserializer_(fastbuffer_)
     {
         memcpy(buf_, buf, len);
@@ -43,6 +43,11 @@ public:
     {
         delete[] buf_;
     }
+
+    InputMessage(const InputMessage&) = delete;
+    InputMessage(InputMessage&&) = delete;
+    InputMessage& operator=(const InputMessage&) = delete;
+    InputMessage& operator=(InputMessage&&) = delete;
 
     const dds::xrce::MessageHeader& get_header() const { return header_; }
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }

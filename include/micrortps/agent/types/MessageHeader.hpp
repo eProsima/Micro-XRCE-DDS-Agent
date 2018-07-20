@@ -17,8 +17,8 @@
 
 #include <micrortps/agent/types/XRCETypes.hpp>
 
+#include <cstdint>
 #include <array>
-#include <stdint.h>
 #include <string>
 #include <vector>
 

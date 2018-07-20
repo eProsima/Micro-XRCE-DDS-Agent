@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include <micrortps/agent/topic/Topic.hpp>
-#include <xmlobjects/xmlobjects.h>
 #include <micrortps/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace micrortps {

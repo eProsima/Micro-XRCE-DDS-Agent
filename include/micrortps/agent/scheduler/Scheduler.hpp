@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_SCHEDULER_SCHEDULER_HPP_
 #define _MICRORTPS_AGENT_SCHEDULER_SCHEDULER_HPP_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace eprosima {
 namespace micrortps {
@@ -24,11 +24,11 @@ template<class T>
 class Scheduler
 {
 public:
-    Scheduler() {}
+    Scheduler() = default;
+    virtual ~Scheduler() {}
 
-    virtual void run() = 0;
-    virtual void stop() = 0;
-//    virtual void push(const T& element, uint8_t priority) = 0;
+    virtual void init() = 0;
+    virtual void deinit() = 0;
     virtual void push(T&& element, uint8_t priority) = 0;
     virtual bool pop(T& element) = 0;
 };

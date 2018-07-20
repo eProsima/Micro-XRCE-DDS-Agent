@@ -26,14 +26,13 @@ namespace micrortps {
 class ProxyClient
 {
 public:
-    ProxyClient() = default;
-    ProxyClient(const dds::xrce::CLIENT_Representation& representation);
+    explicit ProxyClient(const dds::xrce::CLIENT_Representation& representation);
     ~ProxyClient() = default;
 
     ProxyClient(const ProxyClient&) = delete;
-    ProxyClient(ProxyClient&& x) = delete;
+    ProxyClient(ProxyClient&&) = delete;
     ProxyClient& operator=(const ProxyClient&) = delete;
-    ProxyClient& operator=(ProxyClient&& x) = delete;
+    ProxyClient& operator=(ProxyClient&&) = delete;
 
     dds::xrce::ResultStatus create(const dds::xrce::CreationMode& creation_mode,
                                    const dds::xrce::ObjectPrefix& objectid_prefix,

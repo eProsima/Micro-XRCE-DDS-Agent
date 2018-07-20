@@ -25,7 +25,7 @@
 #include <micrortps/agent/types/Optional.hpp>
 #include <fastcdr/exceptions/BadParamException.h>
 
-#include <stdint.h>
+#include <cstdint>
 #include <array>
 #include <string>
 #include <vector>
