@@ -36,7 +36,6 @@ Topic::~Topic()
     fastrtps::Domain::unregisterType(participant_->get_rtps_participant(), generic_type_.getName());
     participant_->unregister_topic(generic_type_.getName());
     participant_->untie_object(get_id());
-    std::cout << "Topic deleted!!" << std::endl;
 }
 
 bool Topic::init(const std::string& xmlrep)

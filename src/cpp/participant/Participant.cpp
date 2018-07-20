@@ -29,7 +29,6 @@ Participant::~Participant()
     {
         fastrtps::Domain::removeParticipant(rtps_participant_);
     }
-    std::cout << "Participant deleted!!" << std::endl;
 }
 
 bool Participant::init()

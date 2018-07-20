@@ -28,7 +28,6 @@ Publisher::Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr
 Publisher::~Publisher()
 {
     participant_->untie_object(get_id());
-    std::cout << "Publisher deleted!!" << std::endl;
 }
 
 } // namespace micrortps

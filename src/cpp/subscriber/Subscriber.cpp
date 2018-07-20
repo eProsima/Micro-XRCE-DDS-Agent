@@ -28,7 +28,6 @@ Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, const std::shared_p
 Subscriber::~Subscriber()
 {
     participant_->untie_object(get_id());
-    std::cout << "Subscriber deleted!!" << std::endl;
 }
 
 } // namespace micrortps

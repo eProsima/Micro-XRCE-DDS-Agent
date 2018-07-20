@@ -50,7 +50,6 @@ DataWriter::~DataWriter()
     {
         topic_->untie_object(get_id());
     }
-    std::cout << "DataWriter deleted!!" << std::endl;
 }
 
 bool DataWriter::init(const ObjectContainer& root_objects)
