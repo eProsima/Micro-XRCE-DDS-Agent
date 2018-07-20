@@ -84,14 +84,14 @@ int main(int argc, char** argv)
     }
     else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
     {
-//        std::cout << "TCP agent initialization... ";
-//        eprosima::micrortps::TCPServer* tcp_server = new eprosima::micrortps::TCPServer();
-//        if (0 == tcp_server->launch((uint16_t)atoi(argv[2])))
-//        {
-//            initialized = true;
-//            server = tcp_server;
-//        }
-//        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+        std::cout << "TCP agent initialization... ";
+        eprosima::micrortps::TCPServer* tcp_server = new eprosima::micrortps::TCPServer((uint16_t)atoi(argv[2]));
+        if (tcp_server->run())
+        {
+            initialized = true;
+            server = tcp_server;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
     else
     {

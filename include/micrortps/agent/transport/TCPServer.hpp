@@ -16,12 +16,13 @@
 #define _MICRORTPS_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
+#include <unordered_map>
 #include <sys/poll.h>
 #include <vector>
 #include <array>
 
 #define MICRORTPS_TCP_TRANSPORT_MTU 512
-#define MICRORTPS_MAX_TCP_CLIENTS 1
+#define MICRORTPS_MAX_TCP_CONNECTIONS 10
 #define MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS 100
 
 namespace eprosima {
@@ -49,17 +50,29 @@ struct TCPInputBuffer
     uint16_t msg_size;
 };
 
+struct TCPConnection
+{
+    struct pollfd* poll_fd;
+    TCPConnection* next;
+    TCPConnection* prev;
+    TCPInputBuffer input_buffer;
+    uint32_t addr;
+    uint16_t port;
+    uint32_t id;
+};
+
 class TCPEndPoint : public EndPoint
 {
 public:
-    TCPEndPoint() {}
-    ~TCPEndPoint() {}
+    TCPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
+    ~TCPEndPoint() = default;
 
-public:
-    struct pollfd* poll_fd;
-    TCPEndPoint* next;
-    TCPEndPoint* prev;
-    TCPInputBuffer input_buffer;
+    uint32_t get_addr() const { return addr_; }
+    uint16_t get_port() const { return port_; }
+
+private:
+    uint32_t addr_;
+    uint16_t port_;
 };
 
 /**************************************************************************************************
@@ -68,27 +81,35 @@ public:
 class TCPServer : public Server
 {
 public:
-    TCPServer() : clients_{}, poll_fds_{}, buffer_{0} {}
-    ~TCPServer() {}
+    TCPServer(uint16_t port);
+    ~TCPServer() = default;
 
+    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
+    virtual void on_delete_client(EndPoint* source) override;
+    virtual const dds::xrce::ClientKey get_client_key(EndPoint *source) override;
+    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
+
+private:
+    virtual bool init() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    int launch(uint16_t port);
-
-private:
-    uint16_t read_data(TCPEndPoint* client);
-    void disconnect_client(TCPEndPoint* client);
+    uint16_t read_data(TCPConnection* connection);
+    void disconnect_client(TCPConnection* connection);
     static void init_input_buffer(TCPInputBuffer* buffer);
     static void sigpipe_handler(int fd) { (void)fd; } // TODO (julian): handle sigpipe to disconnect.
 
 private:
-    std::array<TCPEndPoint, MICRORTPS_MAX_TCP_CLIENTS> clients_;
-    TCPEndPoint* connected_clients_;
-    TCPEndPoint* available_clients_;
-    TCPEndPoint* last_client_read_;
-    std::array<struct pollfd, MICRORTPS_MAX_TCP_CLIENTS + 1> poll_fds_;
+    uint16_t port_;
+    std::array<TCPConnection, MICRORTPS_MAX_TCP_CONNECTIONS> connections_;
+    TCPConnection* active_connections_;
+    TCPConnection* free_connections_;
+    TCPConnection* last_connection_read_;
+    std::array<struct pollfd, MICRORTPS_MAX_TCP_CONNECTIONS + 1> poll_fds_;
     uint8_t buffer_[MICRORTPS_TCP_TRANSPORT_MTU];
+    std::unordered_map<uint64_t, uint32_t> source_to_connection_map_;
+    std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
+    std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
 };
 
 } // namespace micrortps
