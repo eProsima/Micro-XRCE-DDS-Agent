@@ -310,7 +310,7 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
 bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& input_packet)
 {
     bool rv = true;
-    bool deserialized = false;
+    bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
     dds::xrce::DataRepresentation data;
     switch (flags)
@@ -320,12 +320,12 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
             dds::xrce::WRITE_DATA_Payload_Data data_payload;
             if (input_packet.message->get_payload(data_payload))
             {
+                deserialized = true;
                 DataWriter* data_writer = dynamic_cast<DataWriter*>(client.get_object(data_payload.object_id()));
                 if (nullptr != data_writer)
                 {
-                    data_writer->write(data_payload);
+                    written = data_writer->write(data_payload);
                 }
-                deserialized = true;
             }
             break;
         }
@@ -338,6 +338,13 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
         std::cerr << "Error processing WRITE_DATA submessage." << std::endl;
         rv = false;
     }
+
+    if(!written)
+    {
+        std::cerr << "Error written data on DDS entity." << std::endl;
+        rv = false;
+    }
+
     return rv;
 }
 

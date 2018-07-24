@@ -212,7 +212,7 @@ TEST_F(SerializerDeserializerTests, DeleteSubmessage)
     dds::xrce::MessageHeader message_header = generate_message_header();
     dds::xrce::DELETE_Payload delete_payload = generate_delete_resource_payload(object_id);
     OutputMessage output(message_header);
-    output.append_submessage(dds::xrce::DELETE, delete_payload);
+    output.append_submessage(dds::xrce::DELETE_ID, delete_payload);
 
     dds::xrce::DELETE_Payload deserialized_data;
     InputMessage input(output.get_buf(), output.get_len());

@@ -58,7 +58,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                std::shared_ptr<ProxyClient> new_client(new ProxyClient(client_representation));
+                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation);
                 if (clients_.insert(std::make_pair(client_key, std::move(new_client))).second)
                 {
 #ifdef VERBOSE_OUTPUT
@@ -76,7 +76,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 std::shared_ptr<ProxyClient> client = clients_.at(client_key);
                 if (session_id != client->get_session_id())
                 {
-                    it->second = std::shared_ptr<ProxyClient>(new ProxyClient(client_representation));
+                    it->second = std::make_shared<ProxyClient>(client_representation);
                 }
                 else
                 {

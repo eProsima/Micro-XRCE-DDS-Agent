@@ -82,7 +82,7 @@ std::vector<uint8_t> AgentSerialization::delete_payload()
     dds::xrce::DELETE_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
-    output.append_submessage(dds::xrce::DELETE, payload, 0x0001);
+    output.append_submessage(dds::xrce::DELETE_ID, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
     buffer.assign(output.get_buf(), output.get_buf() + output.get_len());
