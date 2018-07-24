@@ -34,13 +34,13 @@ Participant::~Participant()
 bool Participant::init()
 {
     return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE)));
+             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE, this)));
 }
 
 bool Participant::init(const std::string& xml_rep)
 {
     return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(xml_rep)));
+             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(xml_rep, this)));
 }
 
 void Participant::register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id)
@@ -71,6 +71,18 @@ void Participant::release(ObjectContainer& root_objects)
     {
         root_objects.at(obj)->release(root_objects);
         root_objects.erase(obj);
+    }
+}
+
+void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*, eprosima::fastrtps::ParticipantDiscoveryInfo info)
+{
+    if(info.rtps.m_status == eprosima::fastrtps::rtps::DISCOVERED_RTPSPARTICIPANT)
+    {
+        std::cout << "RTPS Participant matched " << info.rtps.m_guid << std::endl;
+    }
+    else
+    {
+        std::cout << "RTPS Participant unmatched " << info.rtps.m_guid << std::endl;
     }
 }
 

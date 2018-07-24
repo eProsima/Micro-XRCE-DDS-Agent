@@ -17,6 +17,7 @@
 
 #include <micrortps/agent/object/XRCEObject.hpp>
 #include <micrortps/agent/types/TopicPubSubType.hpp>
+#include <fastrtps/publisher/PublisherListener.h>
 #include <string>
 #include <set>
 
@@ -33,7 +34,7 @@ class Publisher;
 class Topic;
 class WRITE_DATA_Payload;
 
-class DataWriter : public XRCEObject
+class DataWriter : public XRCEObject, public fastrtps::PublisherListener
 {
 public:
     DataWriter(const dds::xrce::ObjectId& object_id,
@@ -53,6 +54,7 @@ public:
     void release(ObjectContainer&) override {}
 
 private:
+    void onPublicationMatched(fastrtps::Publisher* pub, fastrtps::rtps::MatchingInfo& info) override;
     std::shared_ptr<Publisher> publisher_;
     std::shared_ptr<Topic> topic_;
     fastrtps::Publisher* rtps_publisher_;

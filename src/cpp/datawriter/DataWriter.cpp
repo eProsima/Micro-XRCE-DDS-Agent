@@ -71,11 +71,11 @@ bool DataWriter::init(const ObjectContainer& root_objects)
         fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
         if (!rtps_publisher_prof_.empty())
         {
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, rtps_publisher_prof_, nullptr);
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, rtps_publisher_prof_, this);
         }
         else
         {
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, this);
         }
     }
 
@@ -98,7 +98,7 @@ bool DataWriter::init(const std::string& xml_rep, const ObjectContainer& root_ob
         {
             topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
             topic_->tie_object(get_id());
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, nullptr);
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, this);
         }
     }
     else
@@ -110,7 +110,7 @@ bool DataWriter::init(const std::string& xml_rep, const ObjectContainer& root_ob
             topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
             topic_->tie_object(get_id());
             rtps_publisher_ =
-                fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, nullptr);
+                fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, this);
         }
     }
 
@@ -158,6 +158,18 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
         return false;
     }
     return rtps_publisher_->write(&(write_data.data().serialized_data()));
+}
+
+void DataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info)
+{
+    if (info.status == rtps::MATCHED_MATCHING)
+    {
+        std::cout << "RTPS Subscriber matched " << info.remoteEndpointGuid << std::endl;
+    }
+    else
+    {
+        std::cout << "RTPS Subscriber unmatched " << info.remoteEndpointGuid << std::endl;
+    }
 }
 
 } // namespace micrortps

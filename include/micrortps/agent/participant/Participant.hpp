@@ -21,14 +21,18 @@
 #include <set>
 
 namespace eprosima {
-
 namespace fastrtps {
 class Participant;
 }
+}
 
+#include <fastrtps/participant/ParticipantDiscoveryInfo.h>
+#include <fastrtps/participant/ParticipantListener.h>
+
+namespace eprosima {
 namespace micrortps {
 
-class Participant : public XRCEObject
+class Participant : public XRCEObject, public fastrtps::ParticipantListener
 {
   public:
     Participant(const dds::xrce::ObjectId& id);
@@ -45,6 +49,7 @@ class Participant : public XRCEObject
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
 
   private:
+    void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo info) override;
     fastrtps::Participant* rtps_participant_ = nullptr;
     std::unordered_map<std::string, dds::xrce::ObjectId> registered_topics_;
     std::set<dds::xrce::ObjectId> tied_objects_;

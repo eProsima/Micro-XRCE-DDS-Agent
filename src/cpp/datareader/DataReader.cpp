@@ -332,12 +332,12 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
     if (info.status == rtps::MATCHED_MATCHING)
     {
         matched_++;
-        std::cout << "RTPS Publisher matched" << std::endl;
+        std::cout << "RTPS Publisher matched " << info.remoteEndpointGuid << std::endl;
     }
     else
     {
         matched_--;
-        std::cout << "RTPS Publisher unmatched" << std::endl;
+        std::cout << "RTPS Publisher unmatched " << info.remoteEndpointGuid << std::endl;
     }
 }
 
