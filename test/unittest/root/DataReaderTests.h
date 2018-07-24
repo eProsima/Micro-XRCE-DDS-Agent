@@ -15,7 +15,7 @@
 #ifndef DATA_READER_TESTS_
 #define DATA_READER_TESTS_
 
-#include "agent/datareader/DataReader.h"
+#include "micrortps/agent/datareader/DataReader.hpp"
 
 #include <gtest/gtest.h>
 
@@ -23,19 +23,14 @@ namespace eprosima {
 namespace micrortps {
 namespace testing {
 
-class DataReaderTests : public ::testing::Test, public ReaderListener
+class DataReaderTests : public ::testing::Test
 {
   protected:
     DataReaderTests();
 
     virtual ~DataReaderTests() = default;
 
-    void on_read_data(const dds::xrce::StreamId& stream_id,
-                      const dds::xrce::ObjectId& object_id,
-                      const dds::xrce::RequestId& req_id,
-                      const std::vector<unsigned char>& buffer) override;
-
-    eprosima::micrortps::DataReader* data_reader_;
+    eprosima::micrortps::DataReader data_reader_;
     bool data_reader_init_ = false;
     unsigned int read_count_ = 0;
     dds::xrce::StreamId stream_id_;

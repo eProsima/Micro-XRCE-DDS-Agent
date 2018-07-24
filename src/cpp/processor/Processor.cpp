@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <micrortps/agent/processor/Processor.hpp>
+#include <micrortps/agent/datawriter/DataWriter.hpp>
+#include <micrortps/agent/datareader/DataReader.hpp>
 #include <micrortps/agent/Root.hpp>
 #include <micrortps/agent/transport/Server.hpp>
 

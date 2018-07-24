@@ -1,5 +1,6 @@
 #include "AgentInteraction.hpp"
-#include <agent/Root.h>
+#include <micrortps/agent/transport/UDPServer.hpp>
+#include <micrortps/agent/Root.hpp>
 
 #define AGENT_MAX_NUM_ATTEMPTS 100
 #define AGENT_MAX_TIME_WAIT 10
@@ -7,23 +8,20 @@
 using namespace eprosima::micrortps;
 
 AgentT::AgentT(uint16_t port)
-    : agent_(&root()),
+    : server_(new eprosima::micrortps::UDPServer(port)),
       port_(port)
 {
 }
 
 void AgentT::launch()
 {
-    agent_->init(port_);
-    thread_ = std::thread(&Agent::run, agent_);
+    server_->run();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 void AgentT::stop()
 {
-    agent_->stop();
-    thread_.join();
-    agent_->abort_execution();
+    server_->stop();
 }
 
 bool AgentT::client_disconnected(const std::array<uint8_t, 4> client_key)
@@ -71,4 +69,3 @@ bool AgentT::object_deleted(const std::array<uint8_t, 4> client_key, const std::
     }
     return (object == nullptr) && (client != nullptr);
 }
-

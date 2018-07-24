@@ -63,7 +63,7 @@ private:
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
 
-private:   
+private:
     uint16_t port_;
     struct pollfd poll_fd_;
     uint8_t buffer_[MICRORTPS_UDP_TRANSPORT_MTU];

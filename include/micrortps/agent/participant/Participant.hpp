@@ -15,9 +15,7 @@
 #ifndef _MICRORTPS_AGENT_PARTICIPANT_HPP_
 #define _MICRORTPS_AGENT_PARTICIPANT_HPP_
 
-#include <micrortps/agent/publisher/Publisher.hpp>
-#include <micrortps/agent/subscriber/Subscriber.hpp>
-#include <micrortps/agent/topic/Topic.hpp>
+#include <micrortps/agent/object/XRCEObject.hpp>
 #include <unordered_map>
 #include <string>
 #include <set>

@@ -15,6 +15,7 @@
 #include <micrortps/agent/datawriter/DataWriter.hpp>
 #include <micrortps/agent/publisher/Publisher.hpp>
 #include <micrortps/agent/participant/Participant.hpp>
+#include <micrortps/agent/topic/Topic.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>

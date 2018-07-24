@@ -188,7 +188,10 @@ endif()
 ###############################################################################
 if(EPROSIMA_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+    check_gtest()
+    check_gmock()
     enable_testing()
+    include(CTest)
     add_subdirectory(test)
 endif()
 

@@ -15,6 +15,7 @@
 #include <micrortps/agent/datareader/DataReader.hpp>
 #include <micrortps/agent/subscriber/Subscriber.hpp>
 #include <micrortps/agent/participant/Participant.hpp>
+#include <micrortps/agent/topic/Topic.hpp>
 #include <micrortps/agent/utils/TokenBucket.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>

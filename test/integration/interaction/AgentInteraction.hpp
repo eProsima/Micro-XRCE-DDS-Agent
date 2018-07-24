@@ -6,7 +6,7 @@
 #define AGENT_MAX_TIME_WAIT 10
 
 namespace eprosima { namespace micrortps {
-    class Agent;
+    class UDPServer;
 } }
 
 class AgentT
@@ -23,6 +23,6 @@ public:
 
 private:
     std::thread thread_;
-    eprosima::micrortps::Agent* agent_;
+    eprosima::micrortps::UDPServer* server_;
     uint16_t port_;
 };

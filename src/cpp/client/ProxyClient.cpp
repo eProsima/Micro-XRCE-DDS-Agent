@@ -13,6 +13,11 @@
 // limitations under the License.
 
 #include <micrortps/agent/client/ProxyClient.hpp>
+#include <micrortps/agent/publisher/Publisher.hpp>
+#include <micrortps/agent/subscriber/Subscriber.hpp>
+#include <micrortps/agent/datareader/DataReader.hpp>
+#include <micrortps/agent/datawriter/DataWriter.hpp>
+#include <micrortps/agent/topic/Topic.hpp>
 
 namespace eprosima {
 namespace micrortps {

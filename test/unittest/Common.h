@@ -15,9 +15,9 @@
 #ifndef _TESTS_COMMON_H
 #define _TESTS_COMMON_H
 
-#include <agent/XRCETypes.h>
-#include <agent/MessageHeader.h>
-#include <agent/SubMessageHeader.h>
+#include <micrortps/agent/types/XRCETypes.hpp>
+#include <micrortps/agent/types/MessageHeader.hpp>
+#include <micrortps/agent/types/SubMessageHeader.hpp>
 
 namespace eprosima {
 namespace micrortps {

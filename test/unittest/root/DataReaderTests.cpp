@@ -33,9 +33,7 @@ namespace micrortps {
 namespace testing {
 
 DataReaderTests::DataReaderTests()
-    : data_reader_()
 {
-//    data_reader_init_ = data_reader_.init();
 }
 
 void DataReaderTests::on_read_data(const dds::xrce::StreamId& stream_id,

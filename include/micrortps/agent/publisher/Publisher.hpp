@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_PUBLISHER_PUBLISHER_HPP_
 #define _MICRORTPS_AGENT_PUBLISHER_PUBLISHER_HPP_
 
-#include <micrortps/agent/datawriter/DataWriter.hpp>
+#include <micrortps/agent/object/XRCEObject.hpp>
 #include <set>
 
 namespace eprosima {

@@ -15,7 +15,7 @@
 #ifndef _MICRORTPS_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
 #define _MICRORTPS_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
 
-#include <micrortps/agent/datareader/DataReader.hpp>
+#include <micrortps/agent/object/XRCEObject.hpp>
 #include <set>
 
 namespace eprosima {

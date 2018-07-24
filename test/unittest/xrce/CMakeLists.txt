@@ -11,10 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if(GTEST_FOUND)
-add_subdirectory(unittest/root)
-add_subdirectory(unittest/util)
-add_subdirectory(unittest/xrce)
-endif()
-add_subdirectory(integration/cross_serialization)
-add_subdirectory(integration/xrce_serialization)
+
+# XRCE test
+set(SRCS
+    XRCETests.cpp
+    ../Common.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    )
+add_executable(xrce_test ${SRCS})
+add_gtest(xrce_test
+    SOURCES ${SRCS}
+    )
+target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
+target_link_libraries(xrce_test PRIVATE fastrtps ${GTEST_BOTH_LIBRARIES})
+set_target_properties(xrce_test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )
