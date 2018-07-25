@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <micrortps/agent/transport/UDPServerLinux.hpp>
+
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -130,6 +132,11 @@ bool UDPServer::init()
     }
 
     return rv;
+}
+
+bool UDPServer::close()
+{
+    return 0 == ::close(poll_fd_.fd);
 }
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)

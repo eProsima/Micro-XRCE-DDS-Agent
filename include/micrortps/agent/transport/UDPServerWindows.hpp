@@ -59,11 +59,12 @@ public:
 
 private:
     virtual bool init() override;
+    virtual bool close() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
 
-private:   
+private:
     uint16_t port_;
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[MICRORTPS_UDP_TRANSPORT_MTU];

@@ -91,6 +91,7 @@ public:
 
 private:
     virtual bool init() override;
+    virtual bool close() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;

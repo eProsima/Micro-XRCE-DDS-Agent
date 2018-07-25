@@ -127,6 +127,12 @@ bool UDPServer::init()
     return rv;
 }
 
+bool UDPServer::close()
+{
+    //TODO
+    return true;
+}
+
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;

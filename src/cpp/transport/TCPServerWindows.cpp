@@ -159,6 +159,12 @@ bool TCPServer::init()
     return rv;
 }
 
+bool TCPServer::close()
+{
+    //TODO
+    return true;
+}
+
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;

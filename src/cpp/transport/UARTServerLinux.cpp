@@ -128,6 +128,11 @@ bool UARTServer::init()
     return rv;
 }
 
+bool UARTServer::close()
+{
+    return 0 == poll_fd_.fd; //Check this.
+}
+
 bool UARTServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;

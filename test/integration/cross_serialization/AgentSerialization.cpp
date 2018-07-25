@@ -152,6 +152,7 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
     dds::xrce::READ_DATA_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
+    payload.read_specification().data_stream_id() = 0x80;
     payload.read_specification().data_format() = 0x89;
     output.append_submessage(dds::xrce::READ_DATA, payload, 0x0001);
 

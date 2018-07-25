@@ -72,6 +72,8 @@ void Server::stop()
     {
         heartbeat_thread_->join();
     }
+
+    (void) close();
 }
 
 void Server::push_output_packet(OutputPacket output_packet)
@@ -84,7 +86,7 @@ void Server::receiver_loop()
     InputPacket input_packet;
     while (running_cond_)
     {
-        if (recv_message(input_packet, -1))
+        if (recv_message(input_packet, 100))
         {
             input_scheduler_.push(std::move(input_packet), 0);
         }

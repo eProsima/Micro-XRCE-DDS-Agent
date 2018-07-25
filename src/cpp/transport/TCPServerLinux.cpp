@@ -173,6 +173,12 @@ bool TCPServer::init()
     return rv;
 }
 
+bool TCPServer::close()
+{
+    //TODO
+    return true;
+}
+
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
@@ -476,7 +482,7 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
 
 void TCPServer::disconnect_client(TCPConnection* connection)
 {
-    close(connection->poll_fd->fd);
+    ::close(connection->poll_fd->fd);
     if (nullptr != free_connections_)
     {
         if (connection != connection->next)
