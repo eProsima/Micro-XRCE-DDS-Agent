@@ -95,12 +95,14 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
     eprosima::micrortps::OutputMessage output(generate_message_header());
 
     dds::xrce::STATUS_AGENT_Payload payload;
-    payload.agent_info().xrce_vendor_id({0x01, 0x15});
-    payload.agent_info().xrce_version({0x00, 0x01});
-    payload.agent_info().xrce_cookie({0x01, 0x02, 0x03, 0x04});
+    payload.related_request().request_id() = {0x01, 0x23};
+    payload.related_request().object_id() = {0x45, 0x67};
+    payload.agent_info().xrce_cookie({0x89, 0xAB, 0xCD, 0xEF});
+    payload.agent_info().xrce_version({0x01, 0x23});
+    payload.agent_info().xrce_vendor_id({0x45, 0x67});
     dds::xrce::Time_t time;
-    time.seconds(10);
-    time.nanoseconds(20);
+    time.seconds(0x89ABCDEF);
+    time.nanoseconds(0x01234567);
     payload.agent_info().agent_timestamp(time);
     output.append_submessage(dds::xrce::STATUS_AGENT, payload, 0x0001);
 
