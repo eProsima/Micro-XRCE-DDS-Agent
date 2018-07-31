@@ -83,6 +83,8 @@ int main(int argc, char** argv)
                 tty_config.c_iflag &= ~ISTRIP;  // Disable strip parity bits.
                 tty_config.c_iflag &= ~IGNBRK;  // No ignore break condition.
                 tty_config.c_iflag &= ~IGNCR;   // No ignore carrier return.
+                tty_config.c_iflag &= ~INLCR;   // No map NL to CR.
+                tty_config.c_iflag &= ~ICRNL;   // No map CR to NL.
 
                 /* Setting OUTPUT OPTIONS. */
                 tty_config.c_oflag &= ~OPOST;   // Set raw output.
