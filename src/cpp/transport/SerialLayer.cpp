@@ -79,7 +79,7 @@ uint16_t SerialIO::read_serial_msg(read_cb cb,
                                   uint8_t* rmt_addr,
                                   int timeout)
 {
-    uint8_t rv = 0;
+    uint16_t rv = 0;
     bool data_available = false;
 
     if (!input_buffer_.stream_init)
@@ -133,14 +133,14 @@ uint16_t SerialIO::read_serial_msg(read_cb cb,
         {
             /* Process available message from head to marker and update head. */
             rv = process_serial_message(buf, len, src_addr, rmt_addr);
-            if (0 < rv)
+            if (0 < rv || input_buffer_.head == input_buffer_.tail)
             {
                 break;
             }
             message_found = find_serial_message();
         }
 
-        if (input_buffer_.marker == input_buffer_.tail)
+        if (input_buffer_.head == input_buffer_.tail)
         {
             if (0 == rv)
             {
@@ -166,7 +166,7 @@ void SerialIO::update_crc(uint16_t* crc, const uint8_t data)
     *crc = (*crc >> 8) ^ crc16_table_[(*crc ^ data) & 0xFF];
 }
 
-uint8_t SerialIO::process_serial_message(uint8_t* buf, size_t len, uint8_t* src_addr, uint8_t* rmt_addr)
+uint16_t SerialIO::process_serial_message(uint8_t* buf, size_t len, uint8_t* src_addr, uint8_t* rmt_addr)
 {
     bool cond = true;
     uint16_t msg_len = 0;

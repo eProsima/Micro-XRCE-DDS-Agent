@@ -49,19 +49,68 @@ int main(int argc, char** argv)
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
 #ifndef _WIN32
-    else if(argc == 3 && strcmp(argv[1], "uart") == 0)
+    else if(argc == 3 && strcmp(argv[1], "serial") == 0)
     {
-        std::cout << "UART agent initialization... ";
-        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer((uint8_t)atoi(argv[2]), 0);
-        if (uart_server->run())
+        std::cout << "Serial agent initialization... ";
+
+        /* Open serial device. */
+        int fd = open(argv[2], O_RDWR | O_NOCTTY);
+        if (0 < fd)
         {
-            initialized = true;
+            struct termios tty_config;
+            memset(&tty_config, 0, sizeof(tty_config));
+            if (0 == tcgetattr(fd, &tty_config))
+            {
+                /* Setting CONTROL OPTIONS. */
+                tty_config.c_cflag |= CREAD;    // Enable read.
+                tty_config.c_cflag |= CLOCAL;   // Set local mode.
+                tty_config.c_cflag &= ~PARENB;  // Disable parity.
+                tty_config.c_cflag &= ~CSTOPB;  // Set one stop bit.
+                tty_config.c_cflag &= ~CSIZE;   // Mask the character size bits.
+                tty_config.c_cflag |= CS8;      // Set 8 data bits.
+                tty_config.c_cflag &= ~CRTSCTS; // Disable hardware flow control.
+
+                /* Setting LOCAL OPTIONS. */
+                tty_config.c_lflag &= ~ICANON;  // Set non-canonical input.
+                tty_config.c_lflag &= ~ECHO;    // Disable echoing of input characters.
+                tty_config.c_lflag &= ~ECHOE;   // Disable echoing the erase character.
+                tty_config.c_lflag &= ~ISIG;    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+
+                /* Setting INPUT OPTIONS. */
+                tty_config.c_iflag &= ~IXON;    // Disable output software flow control.
+                tty_config.c_iflag &= ~IXOFF;   // Disable input software flow control.
+                tty_config.c_iflag &= ~INPCK;   // Disable parity check.
+                tty_config.c_iflag &= ~ISTRIP;  // Disable strip parity bits.
+                tty_config.c_iflag &= ~IGNBRK;  // No ignore break condition.
+                tty_config.c_iflag &= ~IGNCR;   // No ignore carrier return.
+
+                /* Setting OUTPUT OPTIONS. */
+                tty_config.c_oflag &= ~OPOST;   // Set raw output.
+
+                /* Setting OUTPUT CHARACTERS. */
+                tty_config.c_cc[VMIN] = 10;
+                tty_config.c_cc[VTIME] = 1;
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&tty_config, B115200);
+                cfsetospeed(&tty_config, B115200);
+
+                if (0 == tcsetattr(fd, TCSANOW, &tty_config))
+                {
+                    eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer(fd, 0);
+                    if (uart_server->run())
+                    {
+                        initialized = true;
+                    }
+                }
+            }
         }
+
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if (argc == 2 && strcmp(argv[1], "pseudo-uart") == 0)
+    else if (argc == 2 && strcmp(argv[1], "pseudo-serial") == 0)
     {
-        std::cout << "Pseudo-UART initialization... ";
+        std::cout << "Pseudo-Serial initialization... ";
 
         /* Open pseudo-terminal. */
         char* dev = NULL;
@@ -105,8 +154,8 @@ int main(int argc, char** argv)
     {
         std::cout << "Help: program <command>" << std::endl;
         std::cout << "List of commands:" << std::endl;
-        std::cout << "    uart <fd>" << std::endl;
-        std::cout << "    pseudo-uart" << std::endl;
+        std::cout << "    serial <device_name>" << std::endl;
+        std::cout << "    pseudo-serial" << std::endl;
         std::cout << "    udp <local_port>" << std::endl;
         std::cout << "    tcp <local_port>" << std::endl;
     }

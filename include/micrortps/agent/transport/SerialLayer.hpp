@@ -22,7 +22,7 @@
 #define MICRORTPS_FRAMING_ESC_FLAG 0x7D
 #define MICRORTPS_FRAMING_XOR_FLAG 0x20
 
-#define MICRORTPS_SERIAL_MTU 256
+#define MICRORTPS_SERIAL_MTU 512
 #define MICRORTPS_SERIAL_OVERHEAD 5
 #define MICRORTPS_SERIAL_BUFFER_SIZE 2 * (MICRORTPS_SERIAL_MTU + MICRORTPS_SERIAL_OVERHEAD)
 
@@ -66,7 +66,7 @@ public:
 
 private:
     static void update_crc(uint16_t* crc, const uint8_t data);
-    uint8_t process_serial_message(uint8_t* buf, size_t len, uint8_t* src_addr, uint8_t* rmt_addr);
+    uint16_t process_serial_message(uint8_t* buf, size_t len, uint8_t* src_addr, uint8_t* rmt_addr);
     bool init_serial_stream();
     bool find_serial_message();
     uint8_t get_next_octet(uint16_t* relative_position);
