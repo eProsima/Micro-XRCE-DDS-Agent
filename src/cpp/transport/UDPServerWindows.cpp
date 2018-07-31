@@ -76,10 +76,10 @@ const dds::xrce::ClientKey UDPServer::get_client_key(EndPoint* source)
     auto it = source_to_client_map_.find(((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = it->second & 0x000000FF;
-        client_key.at(1) = (it->second & 0x0000FF00) >> 8;
-        client_key.at(2) = (it->second & 0x00FF0000) >> 16;
-        client_key.at(3) = (it->second & 0xFF000000) >> 24;
+        client_key.at(0) = static_cast<uint8_t>(it->second & 0x000000FF);
+        client_key.at(1) = static_cast<uint8_t>((it->second & 0x0000FF00) >> 8);
+        client_key.at(2) = static_cast<uint8_t>((it->second & 0x00FF0000) >> 16);
+        client_key.at(3) = static_cast<uint8_t>((it->second & 0xFF000000) >> 24);
     }
     else
     {
@@ -96,7 +96,7 @@ std::unique_ptr<EndPoint> UDPServer::get_source(const dds::xrce::ClientKey& clie
     if (it != client_to_source_map_.end())
     {
         uint64_t source_id = it->second;
-        source.reset(new UDPEndPoint(source_id >> 16, source_id & 0xFFFF));
+        source.reset(new UDPEndPoint(static_cast<uint32_t>(source_id >> 16), static_cast<uint16_t>(source_id & 0xFFFF)));
     }
     return source;
 }
@@ -180,7 +180,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
     client_addr.sin_addr.s_addr = destination->get_addr();
     int bytes_sent = sendto(poll_fd_.fd,
                             reinterpret_cast<char*>(output_packet.message->get_buf()),
-                            output_packet.message->get_len(),
+                            static_cast<int>(output_packet.message->get_len()),
                             0,
                             (struct sockaddr*)&client_addr,
                             sizeof(client_addr));

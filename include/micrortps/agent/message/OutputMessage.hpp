@@ -69,7 +69,7 @@ inline bool OutputMessage::append_subheader(dds::xrce::SubmessageId submessage_i
     dds::xrce::SubmessageHeader subheader;
     subheader.submessage_id(submessage_id);
     subheader.flags(flags);
-    subheader.submessage_length(submessage_len);
+    subheader.submessage_length(static_cast<uint16_t>(submessage_len));
 
     serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
     return serialize(subheader);

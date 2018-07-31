@@ -81,10 +81,10 @@ const dds::xrce::ClientKey TCPServer::get_client_key(EndPoint* source)
     auto it = source_to_client_map_.find(((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = it->second & 0x000000FF;
-        client_key.at(1) = (it->second & 0x0000FF00) >> 8;
-        client_key.at(2) = (it->second & 0x00FF0000) >> 16;
-        client_key.at(3) = (it->second & 0xFF000000) >> 24;
+        client_key.at(0) = static_cast<uint8_t>(it->second & 0x000000FF);
+        client_key.at(1) = static_cast<uint8_t>((it->second & 0x0000FF00) >> 8);
+        client_key.at(2) = static_cast<uint8_t>((it->second & 0x00FF0000) >> 16);
+        client_key.at(3) = static_cast<uint8_t>((it->second & 0xFF000000) >> 24);
     }
     else
     {
@@ -101,7 +101,8 @@ std::unique_ptr<EndPoint> TCPServer::get_source(const dds::xrce::ClientKey& clie
     if (it != client_to_source_map_.end())
     {
         uint64_t source_id = it->second;
-        source.reset(new TCPEndPoint(source_id >> 16, source_id & 0xFFFF));
+        source.reset(new TCPEndPoint(static_cast<uint32_t>(source_id >> 16), 
+				     static_cast<uint16_t>(source_id & 0xFFFF)));
     }
     return source;
 }
@@ -129,7 +130,7 @@ bool TCPServer::init()
             /* Client polls setup. */
             for (unsigned int i = 1; i < poll_fds_.size(); ++i)
             {
-                poll_fds_[i].fd = -1;
+                poll_fds_[i].fd = INVALID_SOCKET;
                 poll_fds_[i].events = POLLIN;
             }
 
@@ -168,7 +169,7 @@ bool TCPServer::close()
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
-    int poll_rv = WSAPoll(poll_fds_.data(), poll_fds_.size(), timeout);
+    int poll_rv = WSAPoll(poll_fds_.data(), static_cast<unsigned int>(poll_fds_.size()), timeout);
     if (0 < poll_rv)
     {
         if (POLLIN == (POLLIN & poll_fds_[0].revents) && nullptr != free_connections_)
@@ -274,7 +275,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
             send_rv = send(connection.poll_fd->fd, reinterpret_cast<char*>(msg_size_buf), 2, 0);
             if (SOCKET_ERROR != send_rv)
             {
-                bytes_sent += send_rv;
+                bytes_sent += static_cast<uint16_t>(send_rv);
             }
             else
             {
@@ -292,10 +293,10 @@ bool TCPServer::send_message(OutputPacket output_packet)
             {
                 send_rv = send(connection.poll_fd->fd,
                                reinterpret_cast<char*>(output_packet.message->get_buf() + bytes_sent),
-                               output_packet.message->get_len() - bytes_sent, 0);
+                               static_cast<int>(output_packet.message->get_len() - bytes_sent), 0);
                 if (SOCKET_ERROR != send_rv)
                 {
-                    bytes_sent += send_rv;
+                    bytes_sent += static_cast<uint16_t>(send_rv);
                 }
                 else
                 {
@@ -396,7 +397,7 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 connection->input_buffer.buffer.resize(connection->input_buffer.msg_size);
                 int bytes_received = recv(connection->poll_fd->fd,
                                           reinterpret_cast<char*>(connection->input_buffer.buffer.data()),
-                                          connection->input_buffer.buffer.size(), 0);
+                                          static_cast<int>(connection->input_buffer.buffer.size()), 0);
                 if (SOCKET_ERROR != bytes_received)
                 {
                     if ((uint16_t)bytes_received == connection->input_buffer.msg_size)
@@ -426,7 +427,8 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
                 int bytes_received = recv(connection->poll_fd->fd,
                                           reinterpret_cast<char*>(connection->input_buffer.buffer.data() +
                                                                   connection->input_buffer.position),
-                                          connection->input_buffer.buffer.size() - connection->input_buffer.position, 0);
+                                          static_cast<int>(connection->input_buffer.buffer.size() - 
+						           connection->input_buffer.position), 0);
                 if (SOCKET_ERROR != bytes_received)
                 {
                     connection->input_buffer.position += (uint16_t)bytes_received;
@@ -501,7 +503,7 @@ void TCPServer::disconnect_client(TCPConnection* connection)
         connection->prev = connection;
         free_connections_ = connection;
     }
-    connection->poll_fd->fd = -1;
+    connection->poll_fd->fd = INVALID_SOCKET;
 
     /* Free connection maps. */
     uint64_t source_id = ((uint64_t)connection->addr << 16) | connection->port;

@@ -25,8 +25,8 @@ namespace micrortps {
 class Root;
 class Server;
 class ProxyClient;
-class InputPacket;
-class ReadCallbackArgs;
+struct InputPacket;
+struct ReadCallbackArgs;
 
 class Processor
 {
