@@ -292,7 +292,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             /* Store message. */
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
             client.session().push_output_message(stream_id, output_packet.message);
-            output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
         }
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
