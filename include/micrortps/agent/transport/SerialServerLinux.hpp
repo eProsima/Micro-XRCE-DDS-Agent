@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
-#define _MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
+#ifndef _MICRORTPS_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#define _MICRORTPS_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
 #include <micrortps/agent/transport/SerialLayer.hpp>
@@ -26,13 +26,13 @@ namespace eprosima {
 namespace micrortps {
 
 /**************************************************************************************************
- * UART EndPoint.
+ * Serial EndPoint.
  **************************************************************************************************/
-class UARTEndPoint : public EndPoint
+class SerialEndPoint : public EndPoint
 {
 public:
-    UARTEndPoint(uint8_t addr) { addr_ = addr; }
-    ~UARTEndPoint() {}
+    SerialEndPoint(uint8_t addr) { addr_ = addr; }
+    ~SerialEndPoint() {}
 
     uint8_t get_addr() const { return addr_; }
 
@@ -41,13 +41,13 @@ public:
 };
 
 /**************************************************************************************************
- * UART Server.
+ * Serial Server.
  **************************************************************************************************/
-class UARTServer : public Server
+class SerialServer : public Server
 {
 public:
-    UARTServer(int fd, uint8_t addr);
-    ~UARTServer() = default;
+    SerialServer(int fd, uint8_t addr);
+    ~SerialServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
     virtual void on_delete_client(EndPoint* source) override;
@@ -75,4 +75,4 @@ private:
 } // namespace micrortps
 } // namespace eprosima
 
-#endif //_MICRORTPS_AGENT_TRANSPORT_UART_SERVER_HPP_
+#endif //_MICRORTPS_AGENT_TRANSPORT_SERIAL_SERVER_HPP_

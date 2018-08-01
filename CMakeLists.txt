@@ -83,7 +83,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/UDPServerLinux.cpp
         src/cpp/transport/TCPServerLinux.cpp
-        src/cpp/transport/UARTServerLinux.cpp
+        src/cpp/transport/SerialServerLinux.cpp
         )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(TRANSPORT_SRCS

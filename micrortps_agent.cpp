@@ -16,7 +16,7 @@
 #include <micrortps/agent/transport/UDPServerWindows.hpp>
 #include <micrortps/agent/transport/TCPServerWindows.hpp>
 #else
-#include <micrortps/agent/transport/UARTServerLinux.hpp>
+#include <micrortps/agent/transport/SerialServerLinux.hpp>
 #include <micrortps/agent/transport/UDPServerLinux.hpp>
 #include <micrortps/agent/transport/TCPServerLinux.hpp>
 #include <termios.h>
@@ -99,8 +99,8 @@ int main(int argc, char** argv)
 
                 if (0 == tcsetattr(fd, TCSANOW, &tty_config))
                 {
-                    eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer(fd, 0);
-                    if (uart_server->run())
+                    eprosima::micrortps::SerialServer* serial_server = new eprosima::micrortps::SerialServer(fd, 0);
+                    if (serial_server->run())
                     {
                         initialized = true;
                     }
@@ -130,8 +130,8 @@ int main(int argc, char** argv)
         }
 
         /* Launch server. */
-        eprosima::micrortps::UARTServer* uart_server = new eprosima::micrortps::UARTServer(fd, 0x00);
-        if (uart_server->run())
+        eprosima::micrortps::SerialServer* serial_server = new eprosima::micrortps::SerialServer(fd, 0x00);
+        if (serial_server->run())
         {
             initialized = true;
         }
