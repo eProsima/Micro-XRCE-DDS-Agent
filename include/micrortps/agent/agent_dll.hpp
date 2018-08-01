@@ -16,12 +16,12 @@
 #define _MICRORTPS_AGENT_DLL_HPP_
 
 #if defined(_WIN32)
-#if define(micrortps_agent_SHARED)
-#if define(micrortps_agent_EXPORT)
+#if defined(micrortps_agent_SHARED)
+#if define(micrortps_agent_EXPORTS)
 #define micrortps_agent_DllAPI __declspec( dllexport )
 #else
 #define micrortps_agent_DllAPI __declspec( dllimport )
-#endif // micrortps_agent_EXPORT
+#endif // micrortps_agent_EXPORTS
 #else
 #define micrortps_agent_DllAPI
 #endif // micrortps_agent_SHARED
