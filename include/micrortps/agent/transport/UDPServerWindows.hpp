@@ -49,8 +49,8 @@ private:
 class UDPServer : public Server
 {
 public:
-    UDPServer(uint16_t port);
-    ~UDPServer() = default;
+    micrortps_agent_DllAPI UDPServer(uint16_t port);
+    micrortps_agent_DllAPI ~UDPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
     virtual void on_delete_client(EndPoint* source) override;

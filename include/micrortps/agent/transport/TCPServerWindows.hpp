@@ -81,8 +81,8 @@ private:
 class TCPServer : public Server
 {
 public:
-    TCPServer(uint16_t port);
-    ~TCPServer() = default;
+    micrortps_agent_DllAPI TCPServer(uint16_t port);
+    micrortps_agent_DllAPI ~TCPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
     virtual void on_delete_client(EndPoint* source) override;

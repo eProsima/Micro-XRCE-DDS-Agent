@@ -174,6 +174,14 @@ target_compile_definitions(${PROJECT_NAME}
         -D$<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
     )
 
+get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
+if((MSVC OR MSVC_IDE) AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            -D${PROJECT_NAME}_SHARED
+        )
+endif()
+
 # Warnings
 if(MSVC OR MSVC_IDE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")

@@ -16,7 +16,6 @@
 #define _MICRORTPS_AGENT_TYPES_MESSAGE_HEADER_HPP_
 
 #include <micrortps/agent/types/XRCETypes.hpp>
-
 #include <cstdint>
 #include <array>
 #include <string>
@@ -207,13 +206,13 @@ class MessageHeader
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &scdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &dcdr);
 
   private:
     uint8_t m_session_id;

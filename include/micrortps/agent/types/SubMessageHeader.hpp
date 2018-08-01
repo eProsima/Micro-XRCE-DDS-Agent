@@ -187,13 +187,13 @@ class SubmessageHeader
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
   private:
     dds::xrce::SubmessageId m_submessage_id;

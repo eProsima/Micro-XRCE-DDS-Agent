@@ -17,7 +17,7 @@
 
 #if defined(_WIN32)
 #if defined(micrortps_agent_SHARED)
-#if define(micrortps_agent_EXPORTS)
+#if defined(micrortps_agent_EXPORTS)
 #define micrortps_agent_DllAPI __declspec( dllexport )
 #else
 #define micrortps_agent_DllAPI __declspec( dllimport )
