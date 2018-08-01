@@ -1,4 +1,4 @@
-# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -117,16 +117,16 @@ set(SRCS
     )
 
 # Executable
-add_library(${PROJECT_NAME} ${SRCS})
+add_library(${PROJECT_NAME} SHARED ${SRCS})
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
-        ${ASIO_INCLUDE_DIR}
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
+        ${ASIO_INCLUDE_DIR}
     )
 add_executable(MicroRTPSAgent micrortps_agent.cpp)
 target_link_libraries(MicroRTPSAgent PRIVATE ${PROJECT_NAME})
@@ -198,6 +198,26 @@ endif()
 ###############################################################################
 # Packaging
 ###############################################################################
+
+# Install agent lib
+install(TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
+    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+    COMPONENT libraries
+    )
+
+# Install includes
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/micrortps/agent/
+    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
+    FILES_MATCHING PATTERN "*.hpp"
+    )
+
+# Export library
+install(EXPORT ${PROJECT_NAME}Targets
+    DESTINATION ${LIB_INSTALL_DIR}/micrortps/agent
+    )
 
 # Install agent exec
 install(TARGETS MicroRTPSAgent

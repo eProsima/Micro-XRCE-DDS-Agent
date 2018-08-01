@@ -21,9 +21,6 @@
 #include <map>
 #include <mutex>
 
-// TODO (julian): move to global config.
-#define EPROSIMA_VENDOR_ID {0x01, 0x0F}
-
 namespace eprosima{
 namespace micrortps{
 

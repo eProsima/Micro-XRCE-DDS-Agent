@@ -14,7 +14,6 @@
 
 #include <micrortps/agent/transport/Server.hpp>
 #include <micrortps/agent/processor/Processor.hpp>
-
 #include <functional>
 
 namespace eprosima {

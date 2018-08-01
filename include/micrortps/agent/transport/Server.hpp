@@ -15,6 +15,7 @@
 #ifndef _MICRORTPS_AGENT_TRANSPORT_SERVER_HPP_
 #define _MICRORTPS_AGENT_TRANSPORT_SERVER_HPP_
 
+#include <micrortps/agent/agent_dll.hpp>
 #include <micrortps/agent/scheduler/FCFSScheduler.hpp>
 #include <micrortps/agent/message/Packet.hpp>
 #include <micrortps/agent/processor/Processor.hpp>
@@ -47,8 +48,8 @@ public:
     Server();
     virtual ~Server();
 
-    bool run();
-    void stop();
+    micrortps_agent_DllAPI bool run();
+    micrortps_agent_DllAPI void stop();
 
     void push_output_packet(OutputPacket output_packet);
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) = 0;

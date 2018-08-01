@@ -35,7 +35,6 @@ class BestEffortOutputStream
 public:
     BestEffortOutputStream() : last_send_(~0) {}
 
-    // TODO (julian): remove.
     bool push_message(OutputMessagePtr&& output_message);
     bool pop_message(OutputMessagePtr& output_message);
     SeqNum get_last_handled() const { return last_send_; }

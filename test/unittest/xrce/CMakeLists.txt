@@ -22,10 +22,14 @@ set(SRCS
     )
 add_executable(xrce_test ${SRCS})
 add_gtest(xrce_test
-    SOURCES ${SRCS}
+    SOURCES
+        ${SRCS}
+    DEPENDENCIES
+        fastrtps
+        fastcdr
     )
 target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
-target_link_libraries(xrce_test PRIVATE fastrtps ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(xrce_test PRIVATE fastrtps fastcdr ${GTEST_BOTH_LIBRARIES})
 set_target_properties(xrce_test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES

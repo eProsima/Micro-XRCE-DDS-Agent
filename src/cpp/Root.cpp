@@ -24,6 +24,8 @@
     #include <unistd.h>
 #endif
 
+const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
+
 namespace eprosima {
 namespace micrortps {
 
@@ -101,7 +103,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
     agent_representation.agent_timestamp(timestamp);
     agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(dds::xrce::XrceVendorId{EPROSIMA_VENDOR_ID});
+    agent_representation.xrce_vendor_id(eprosima_vendor_id);
 
     return result_status;
 }

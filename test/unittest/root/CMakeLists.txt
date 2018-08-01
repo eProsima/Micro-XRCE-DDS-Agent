@@ -24,11 +24,15 @@ if(GMOCK_FOUND)
         )
     add_executable(root_unit_test ${SRCS})
     add_gtest(root_unit_test
-        SOURCES ${SRCS}
+        SOURCES
+            ${SRCS}
+        DEPENDENCIES
+            fastcdr
         )
     target_include_directories(root_unit_test PRIVATE
         ${PROJECT_SOURCE_DIR}/test/mock/ProxyClient
-        ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
+        ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        )
     target_link_libraries(root_unit_test PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
     set_target_properties(root_unit_test PROPERTIES
         CXX_STANDARD 11
