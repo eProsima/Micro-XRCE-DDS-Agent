@@ -125,34 +125,31 @@ uint16_t SerialIO::read_serial_msg(read_cb cb,
     }
 
     /* Process data in case. */
-    if (data_available)
+    while (data_available && 0 == rv)
     {
         /* Look for available messages. */
-        bool message_found = find_serial_message();
-        while (message_found)
+        if (find_serial_message())
         {
             /* Process available message from head to marker and update head. */
             rv = process_serial_message(buf, len, src_addr, rmt_addr);
-            if (0 < rv || input_buffer_.head == input_buffer_.tail)
-            {
-                break;
-            }
-            message_found = find_serial_message();
-        }
 
-        if (input_buffer_.head == input_buffer_.tail)
-        {
-            if (0 == rv)
+            /* Reset buffer to gain continuous free space. */
+            if (input_buffer_.head == input_buffer_.tail)
             {
-                /* Buffer full, reset stream. */
-                input_buffer_.stream_init = false;
-            }
-            else
-            {
-                /* Reset buffer to gain continuous free space. */
+                data_available = false;
                 input_buffer_.head = 0;
                 input_buffer_.marker = 0;
                 input_buffer_.tail = 0;
+            }
+        }
+        else
+        {
+            data_available = false;
+
+            /* Reset stream in case of buffer full and message not found. */
+            if (input_buffer_.head == input_buffer_.tail)
+            {
+                input_buffer_.stream_init = false;
             }
         }
     }
@@ -284,7 +281,7 @@ uint8_t SerialIO::get_next_octet(uint16_t* relative_position)
     uint8_t rv = input_buffer_.buffer[(input_buffer_.head + *relative_position) % sizeof(input_buffer_.buffer)];
 
     *relative_position += 1;
-    if (MICRORTPS_FRAMING_END_FLAG == rv || MICRORTPS_FRAMING_ESC_FLAG == rv)
+    if (MICRORTPS_FRAMING_ESC_FLAG == rv)
     {
         rv = input_buffer_.buffer[(input_buffer_.head + *relative_position) % sizeof(input_buffer_.buffer)] ^ MICRORTPS_FRAMING_XOR_FLAG;
         *relative_position += 1;
