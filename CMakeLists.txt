@@ -220,11 +220,12 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/micrortps/agent/
     DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
     FILES_MATCHING PATTERN "*.hpp"
+                   PATTERN "*.h"
     )
 
 # Export library
 install(EXPORT ${PROJECT_NAME}Targets
-    DESTINATION ${LIB_INSTALL_DIR}/micrortps/agent
+    DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Install agent exec
@@ -241,9 +242,13 @@ install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
     DESTINATION ${BIN_INSTALL_DIR}
     )
 
-# Export agent exec
-install(EXPORT MicroRTPSAgentTargets
-    DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
-    COMPONENT cmake
+# Package configuration
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
+    ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+    PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
-
+install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
+    DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+    )
