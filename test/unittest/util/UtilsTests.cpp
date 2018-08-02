@@ -34,9 +34,9 @@ protected:
 public:
     size_t sleep_thread(int64_t millisecons)
     {
-        auto start = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::steady_clock::now();
         std::this_thread::sleep_for(std::chrono::milliseconds(millisecons));
-        auto end = std::chrono::high_resolution_clock::now();
+        auto end = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
         return static_cast<size_t>(duration);
     }
@@ -110,7 +110,7 @@ TEST_F(TokenBucketTests, RateMeassure)
 
     size_t sended_size  = 0;
     int reading_counter = 0;
-    auto start         = std::chrono::high_resolution_clock::now();
+    auto start         = std::chrono::steady_clock::now();
     while (sended_size < requested_tokens)
     {
         if (bucket.get_tokens(bunch_size))
@@ -119,7 +119,7 @@ TEST_F(TokenBucketTests, RateMeassure)
             sended_size += bunch_size;
         }
     }
-    auto end     = std::chrono::high_resolution_clock::now();
+    auto end     = std::chrono::steady_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
     ASSERT_EQ((requested_tokens / bucket_rate) - 1, static_cast<size_t>(seconds));
     ASSERT_EQ(requested_tokens / bunch_size, reading_counter);

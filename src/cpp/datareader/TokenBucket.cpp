@@ -42,7 +42,7 @@ TokenBucket::TokenBucket(size_t rate, size_t burst)
     }
 
     tokens_    = std::min(capacity_, rate_);
-    timestamp_ = std::chrono::high_resolution_clock::now();
+    timestamp_ = std::chrono::steady_clock::now();
 }
 
 TokenBucket::TokenBucket::TokenBucket(const TokenBucket& other)
@@ -85,7 +85,7 @@ bool TokenBucket::get_tokens(size_t tokens)
     if (tokens <= available_tokens())
     {
         tokens_ = available_tokens() - tokens;
-        timestamp_ = std::chrono::high_resolution_clock::now();
+        timestamp_ = std::chrono::steady_clock::now();
     }
     else
     {
@@ -96,7 +96,7 @@ bool TokenBucket::get_tokens(size_t tokens)
 
 size_t TokenBucket::available_tokens()
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
     auto delta_sec = std::chrono::duration_cast<std::chrono::milliseconds>(now - timestamp_).count();
     return std::min(capacity_, tokens_ + (size_t)((rate_ * delta_sec) / 1000));
 }
