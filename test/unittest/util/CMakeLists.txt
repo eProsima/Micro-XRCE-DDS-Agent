@@ -23,7 +23,10 @@ set(SRCS
     )
 add_executable(util_test ${SRCS})
 add_gtest(util_test
-    SOURCES ${SRCS}
+    SOURCES
+        ${SRCS}
+    DEPENDENCIES
+        fastcdr
     )
 target_include_directories(util_test PRIVATE ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
 target_link_libraries(util_test PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
