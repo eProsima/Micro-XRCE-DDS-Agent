@@ -194,7 +194,7 @@ endif()
 ###############################################################################
 # Testing
 ###############################################################################
-if(EPROSIMA_BUILD_TESTS)
+if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
     check_gtest()
     check_gmock()
