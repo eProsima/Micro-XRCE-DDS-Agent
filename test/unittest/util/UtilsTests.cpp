@@ -27,10 +27,19 @@ using eprosima::micrortps::utils::TokenBucket;
 
 class TokenBucketTests : public ::testing::Test
 {
-  protected:
+protected:
     TokenBucketTests() = default;
-
     ~TokenBucketTests() override = default;
+
+public:
+    size_t sleep_thread(int64_t millisecons)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        std::this_thread::sleep_for(std::chrono::milliseconds(millisecons));
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+        return static_cast<size_t>(duration);
+    }
 };
 
 TEST_F(TokenBucketTests, RateNoBurst)
@@ -40,13 +49,11 @@ TEST_F(TokenBucketTests, RateNoBurst)
     TokenBucket bucket{rate,0};
     ASSERT_TRUE(bucket.get_tokens(rate));
     ASSERT_FALSE(bucket.get_tokens(10));
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    ASSERT_FALSE(bucket.get_tokens(rate * 2));
+    ASSERT_FALSE(bucket.get_tokens(rate * sleep_thread(2100)));
     ASSERT_TRUE(bucket.get_tokens(10));
     ASSERT_TRUE(bucket.get_tokens(1));
     ASSERT_FALSE(bucket.get_tokens(60));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    ASSERT_TRUE(bucket.get_tokens(1));
+    ASSERT_TRUE(bucket.get_tokens(sleep_thread(1100)));
     ASSERT_FALSE(bucket.get_tokens(rate));
 }
 
@@ -56,13 +63,11 @@ TEST_F(TokenBucketTests, NoRateNoBurst)
     TokenBucket bucket{0};
     ASSERT_TRUE(bucket.get_tokens(min_rate));
     ASSERT_FALSE(bucket.get_tokens(10));
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    ASSERT_FALSE(bucket.get_tokens(min_rate * 2));
+    ASSERT_FALSE(bucket.get_tokens(min_rate * sleep_thread(2100)));
     ASSERT_TRUE(bucket.get_tokens(63000));
     ASSERT_TRUE(bucket.get_tokens(1));
     ASSERT_FALSE(bucket.get_tokens(1000));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    ASSERT_TRUE(bucket.get_tokens(1));
+    ASSERT_TRUE(bucket.get_tokens(sleep_thread(1100)));
     ASSERT_FALSE(bucket.get_tokens(min_rate));
 }
 
@@ -73,8 +78,7 @@ TEST_F(TokenBucketTests, AdjustedBurst)
     TokenBucket bucket{rate, 10};
     ASSERT_TRUE(bucket.get_tokens(rate));
     ASSERT_FALSE(bucket.get_tokens(10));
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    ASSERT_TRUE(bucket.get_tokens(rate * 2));
+    ASSERT_TRUE(bucket.get_tokens(rate * sleep_thread(2100)));
     ASSERT_FALSE(bucket.get_tokens(1));
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_TRUE(bucket.get_tokens((unsigned int) (rate * 0.5)));
@@ -87,40 +91,38 @@ TEST_F(TokenBucketTests, LimitToUDPBucket)
     TokenBucket bucket{0, 1};
     ASSERT_FALSE(bucket.get_tokens(udp_size + 1));
     ASSERT_TRUE(bucket.get_tokens(udp_size));
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    ASSERT_FALSE(bucket.get_tokens(udp_size * 2));
+    ASSERT_FALSE(bucket.get_tokens(udp_size * sleep_thread(2100)));
     ASSERT_TRUE(bucket.get_tokens(udp_size));
     ASSERT_FALSE(bucket.get_tokens(1));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    ASSERT_TRUE(bucket.get_tokens(udp_size));
+    ASSERT_TRUE(bucket.get_tokens(udp_size * sleep_thread(1100)));
     ASSERT_FALSE(bucket.get_tokens(10));
 }
 
 TEST_F(TokenBucketTests, RateMeassure)
 {
-    const size_t test_package = 300;
-    const size_t bucket_size = 100;
-    const size_t tokens = 50;
-    TokenBucket bucket{bucket_size,0};
+    const size_t requested_tokens = 300;
+    const size_t bucket_rate = 100;
+    const size_t bunch_size = 50;
+    TokenBucket bucket{bucket_rate, 0};
 
-    std::cout << "Testing package size: " << test_package << " Rate: " << bucket_size << " Token: " << tokens
-              << std::endl;
+    std::cout << "Testing getting " << requested_tokens << " tokens at a rate of " << bucket_rate;
+    std::cout << " tokens per second, reading by " << bunch_size << std::endl;
 
-    size_t sended_size = 0;
-    int count_tokens   = 0;
+    size_t sended_size  = 0;
+    int reading_counter = 0;
     auto start         = std::chrono::high_resolution_clock::now();
-    while (sended_size < test_package)
+    while (sended_size < requested_tokens)
     {
-        if (bucket.get_tokens(tokens))
+        if (bucket.get_tokens(bunch_size))
         {
-            ++count_tokens;
-            sended_size += tokens;
+            ++reading_counter;
+            sended_size += bunch_size;
         }
     }
     auto end     = std::chrono::high_resolution_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-    ASSERT_EQ(test_package / bucket_size - 1, static_cast<size_t>(seconds));
-    ASSERT_EQ(test_package / tokens, count_tokens);
+    ASSERT_EQ((requested_tokens / bucket_rate) - 1, static_cast<size_t>(seconds));
+    ASSERT_EQ(requested_tokens / bunch_size, reading_counter);
 }
 
 } // namespace testing
