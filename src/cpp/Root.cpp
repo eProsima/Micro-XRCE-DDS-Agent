@@ -97,8 +97,8 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
     }
 
-    unsigned long epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
-                               (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
+                      (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     dds::xrce::Time_t timestamp;
     timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
     timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));

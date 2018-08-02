@@ -19,7 +19,9 @@
 
 using eprosima::micrortps::utils::TokenBucket;
 
-TokenBucket::TokenBucket(size_t rate, size_t burst) : capacity_(burst), rate_(rate)
+TokenBucket::TokenBucket(size_t rate, size_t burst)
+    : capacity_(burst),
+      rate_(rate)
 {
     // Adjust to min rate
     if (rate_ == 0)
@@ -40,16 +42,22 @@ TokenBucket::TokenBucket(size_t rate, size_t burst) : capacity_(burst), rate_(ra
     }
 
     tokens_    = std::min(capacity_, rate_);
-    timestamp_ = std::chrono::system_clock::now();
+    timestamp_ = std::chrono::high_resolution_clock::now();
 }
 
 TokenBucket::TokenBucket::TokenBucket(const TokenBucket& other)
-    : capacity_(other.capacity_), tokens_(other.tokens_), rate_(other.rate_), timestamp_(other.timestamp_)
+    : capacity_(other.capacity_),
+      tokens_(other.tokens_),
+      rate_(other.rate_),
+      timestamp_(other.timestamp_)
 {
 }
 
 TokenBucket::TokenBucket(TokenBucket&& other) noexcept
-    : capacity_(other.capacity_), tokens_(other.tokens_), rate_(other.rate_), timestamp_(other.timestamp_)
+    : capacity_(other.capacity_),
+      tokens_(other.tokens_),
+      rate_(other.rate_),
+      timestamp_(other.timestamp_)
 {
 }
 
@@ -77,7 +85,7 @@ bool TokenBucket::get_tokens(size_t tokens)
     if (tokens <= available_tokens())
     {
         tokens_ = available_tokens() - tokens;
-        timestamp_ = std::chrono::system_clock::now();
+        timestamp_ = std::chrono::high_resolution_clock::now();
     }
     else
     {
@@ -88,7 +96,7 @@ bool TokenBucket::get_tokens(size_t tokens)
 
 size_t TokenBucket::available_tokens()
 {
-    auto now = std::chrono::system_clock::now();
-    auto delta_sec = std::chrono::duration<double>(now - timestamp_).count();
-    return std::min(capacity_, tokens_ + (size_t)(rate_ * delta_sec));
+    auto now = std::chrono::high_resolution_clock::now();
+    auto delta_sec = std::chrono::duration_cast<std::chrono::milliseconds>(now - timestamp_).count();
+    return std::min(capacity_, tokens_ + (size_t)((rate_ * delta_sec) / 1000));
 }

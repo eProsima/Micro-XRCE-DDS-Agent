@@ -42,7 +42,7 @@ private:
     size_t capacity_;
     size_t tokens_;
     size_t rate_;
-    std::chrono::system_clock::time_point timestamp_;
+    std::chrono::high_resolution_clock::time_point timestamp_;
 
     std::mutex data_mutex_;
 };

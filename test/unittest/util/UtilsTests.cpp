@@ -99,7 +99,7 @@ TEST_F(TokenBucketTests, LimitToUDPBucket)
 TEST_F(TokenBucketTests, RateMeassure)
 {
     const size_t test_package = 300;
-    const unsigned int bucket_size = 100;
+    const size_t bucket_size = 100;
     const size_t tokens = 50;
     TokenBucket bucket{bucket_size,0};
 
@@ -108,7 +108,7 @@ TEST_F(TokenBucketTests, RateMeassure)
 
     size_t sended_size = 0;
     int count_tokens   = 0;
-    auto start         = std::chrono::steady_clock::now();
+    auto start         = std::chrono::high_resolution_clock::now();
     while (sended_size < test_package)
     {
         if (bucket.get_tokens(tokens))
@@ -117,9 +117,9 @@ TEST_F(TokenBucketTests, RateMeassure)
             sended_size += tokens;
         }
     }
-    auto end     = std::chrono::steady_clock::now();
+    auto end     = std::chrono::high_resolution_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-    ASSERT_EQ(test_package / bucket_size - 1, (size_t)seconds);
+    ASSERT_EQ(test_package / bucket_size - 1, static_cast<size_t>(seconds));
     ASSERT_EQ(test_package / tokens, count_tokens);
 }
 
