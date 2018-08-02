@@ -133,7 +133,7 @@ bool TCPServer::init()
         struct sockaddr_in address;
         address.sin_family = AF_INET;
         address.sin_port = htons(port_);
-        address.sin_addr.s_addr = inet_addr("127.0.0.1");
+        address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(poll_fds_[0].fd, (struct sockaddr*)&address, sizeof(address)))
         {

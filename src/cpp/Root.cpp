@@ -97,8 +97,8 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
     }
 
-    long int epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
-                          (std::chrono::system_clock::now().time_since_epoch()).count();
+    unsigned long epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
+                               (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     dds::xrce::Time_t timestamp;
     timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
     timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
@@ -116,11 +116,11 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
     if (get_client(client_key))
     {
         std::lock_guard<std::mutex> lock(mtx_);
-        clients_.erase(client_key);
-        if (client_key == current_client_->first)
+        if (current_client_ != clients_.end() && client_key == current_client_->first)
         {
             ++current_client_;
         }
+        clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
     }
     else
