@@ -31,7 +31,7 @@ uint16_t SerialIO::write_serial_msg(const uint8_t* buf, size_t len, const uint8_
     uint16_t writing_len = 0;
 
     /* Check output buffer size. */
-    if (MICRORTPS_SERIAL_MTU < len || sizeof(output_buffer_.buffer) - MICRORTPS_SERIAL_OVERHEAD < len)
+    if (SERIAL_TRANSPORT_MTU < len || sizeof(output_buffer_.buffer) - MICRORTPS_SERIAL_OVERHEAD < len)
     {
         cond = false;
     }

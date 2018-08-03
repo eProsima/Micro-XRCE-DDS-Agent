@@ -16,14 +16,11 @@
 #define _MICRORTPS_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
+#include <micrortps/agent/config.hpp>
 #include <unordered_map>
 #include <winsock2.h>
 #include <vector>
 #include <array>
-
-#define MICRORTPS_TCP_TRANSPORT_MTU 512
-#define MICRORTPS_MAX_TCP_CONNECTIONS 10
-#define MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS 100
 
 namespace eprosima {
 namespace micrortps {
@@ -101,12 +98,12 @@ private:
 
 private:
     uint16_t port_;
-    std::array<TCPConnection, MICRORTPS_MAX_TCP_CONNECTIONS> connections_;
+    std::array<TCPConnection, TCP_MAX_CONNECTIONS> connections_;
     TCPConnection* active_connections_;
     TCPConnection* free_connections_;
     TCPConnection* last_connection_read_;
-    std::array<WSAPOLLFD, MICRORTPS_MAX_TCP_CONNECTIONS + 1> poll_fds_;
-    uint8_t buffer_[MICRORTPS_TCP_TRANSPORT_MTU];
+    std::array<WSAPOLLFD, TCP_MAX_CONNECTIONS + 1> poll_fds_;
+    uint8_t buffer_[TCP_TRANSPORT_MTU];
     std::unordered_map<uint64_t, uint32_t> source_to_connection_map_;
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;

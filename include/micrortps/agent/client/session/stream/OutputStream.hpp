@@ -15,14 +15,11 @@
 #ifndef _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_OUTPUT_STREAM_HPP_
 #define _MICRORTPS_AGENT_CLIENT_SESSION_STREAM_OUTPUT_STREAM_HPP_
 
+#include <micrortps/agent/config.hpp>
 #include <micrortps/agent/message/Packet.hpp>
 #include <micrortps/agent/utils/SeqNum.hpp>
 #include <map>
 #include <queue>
-
-// TODO (julian): move to global config.
-#define MICRORTPS_BEST_EFFORT_STREAM_DEPTH 16
-#define MICRORTPS_RELIABLE_STREAM_DEPTH 16
 
 namespace eprosima {
 namespace micrortps {
@@ -49,7 +46,7 @@ private:
 inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
 {
     bool rv = false;
-    if (MICRORTPS_BEST_EFFORT_STREAM_DEPTH > messages_.size())
+    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
         messages_.push(std::move(output_message));
         rv = true;
@@ -85,7 +82,7 @@ public:
     bool push_message(OutputMessagePtr& output_message);
     bool get_message(SeqNum seq_num, OutputMessagePtr& output_message);
     void update_from_acknack(SeqNum first_unacked);
-    SeqNum get_first_available() { return last_acknown_ + 1;}
+    SeqNum get_first_available() { return last_acknown_ + 1; }
     SeqNum get_last_available() { return last_sent_; }
     SeqNum next_message() { return last_sent_ + 1; }
     bool message_pending() { return !messages_.empty(); }
@@ -115,7 +112,7 @@ inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStrea
 inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 {
     bool rv = false;
-    if (last_sent_ < last_acknown_ + 16)
+    if (last_sent_ < last_acknown_ + RELIABLE_STREAM_DEPTH)
     {
         last_sent_ += 1;
         messages_.insert(std::make_pair(last_sent_, output_message));

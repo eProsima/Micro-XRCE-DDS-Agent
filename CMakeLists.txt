@@ -152,6 +152,21 @@ else()
     set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
 endif()
 
+# Configuration options.
+set(CONFIG_RELIABLE_STREAM_DEPTH 16 CACHE STRING "Reliable streams depth.")
+set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth.")
+set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
+set(CONFIG_TCP_TRANSPORT_MTU 512 CACHE STRING "TCP transport MTU.")
+set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
+set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
+set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
+set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
+
+# Create source files with the define
+configure_file(${PROJECT_SOURCE_DIR}/include/micrortps/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
+    )
+
 ###############################################################################
 # Compile options
 ###############################################################################
@@ -235,6 +250,11 @@ install(TARGETS MicroRTPSAgent
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
     COMPONENT libraries
+    )
+
+# Install config.h
+install(FILES ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
+    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
     )
 
 # Install default profile XML

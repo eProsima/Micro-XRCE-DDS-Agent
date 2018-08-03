@@ -65,7 +65,7 @@ private:
 private:
     uint8_t addr_;
     struct pollfd poll_fd_;
-    uint8_t buffer_[MICRORTPS_SERIAL_MTU];
+    uint8_t buffer_[SERIAL_TRANSPORT_MTU];
     SerialIO serial_io_;
     int errno_;
     std::unordered_map<uint8_t, uint32_t> source_to_client_map_;

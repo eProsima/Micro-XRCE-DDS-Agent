@@ -16,12 +16,11 @@
 #define _MICRORTPS_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <micrortps/agent/transport/Server.hpp>
+#include <micrortps/agent/config.hpp>
 #include <winsock2.h>
 #include <unordered_map>
 #include <cstdint>
 #include <cstddef>
-
-#define MICRORTPS_UDP_TRANSPORT_MTU 512
 
 namespace eprosima {
 namespace micrortps {
@@ -67,7 +66,7 @@ private:
 private:
     uint16_t port_;
     WSAPOLLFD poll_fd_;
-    uint8_t buffer_[MICRORTPS_UDP_TRANSPORT_MTU];
+    uint8_t buffer_[UDP_TRANSPORT_MTU];
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
 };

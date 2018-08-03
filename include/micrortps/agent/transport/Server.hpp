@@ -21,9 +21,6 @@
 #include <micrortps/agent/processor/Processor.hpp>
 #include <thread>
 
-// TODO (julian): move to global config.
-#define MICRORTPS_HEARTBEAT_PERIOD 200
-
 namespace eprosima {
 namespace micrortps {
 

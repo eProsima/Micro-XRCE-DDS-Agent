@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <micrortps/agent/transport/Server.hpp>
+#include <micrortps/agent/config.hpp>
 #include <micrortps/agent/processor/Processor.hpp>
 #include <functional>
 
@@ -121,7 +122,7 @@ void Server::heartbeat_loop()
     while (running_cond_)
     {
         processor_->check_heartbeats();
-        std::this_thread::sleep_for(std::chrono::milliseconds(MICRORTPS_HEARTBEAT_PERIOD));
+        std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
     }
 }
 

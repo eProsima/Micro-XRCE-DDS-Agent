@@ -135,7 +135,7 @@ bool TCPServer::init()
             }
 
             /* Listener setup. */
-            if (SOCKET_ERROR != listen(poll_fds_[0].fd, MICRORTPS_MAX_BACKLOG_TCP_CONNECTIONS))
+            if (SOCKET_ERROR != listen(poll_fds_[0].fd, TCP_MAX_BACKLOG_CONNECTIONS))
             {
                 /* Client setup. */
                 connections_[0].poll_fd = &poll_fds_[1];
