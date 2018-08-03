@@ -175,8 +175,22 @@ bool TCPServer::init()
 
 bool TCPServer::close()
 {
-    //TODO
-    return true;
+    bool rv = false;
+
+    /* Close listener. */
+    if (0 == ::close(poll_fds_[0].fd))
+    {
+        /* Disconnect clients. */
+        while (nullptr != active_connections_)
+        {
+            if (!disconnect_client(active_connections_))
+            {
+                break;
+            }
+        }
+        rv = (nullptr == active_connections_);
+    }
+    return rv;
 }
 
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
@@ -480,51 +494,57 @@ uint16_t TCPServer::read_data(TCPConnection* connection)
     return rv;
 }
 
-void TCPServer::disconnect_client(TCPConnection* connection)
+bool TCPServer::disconnect_client(TCPConnection* connection)
 {
-    ::close(connection->poll_fd->fd);
-    if (nullptr != free_connections_)
+    bool rv = false;
+    if (0 == ::close(connection->poll_fd->fd))
     {
-        if (connection != connection->next)
+        if (nullptr != free_connections_)
         {
-            /* Remove from connected_clients_. */
-            connection->prev->next = connection->next;
-            connection->next->prev = connection->prev;
+            if (connection != connection->next)
+            {
+                /* Remove from connected_clients_. */
+                connection->prev->next = connection->next;
+                connection->next->prev = connection->prev;
+            }
+            else
+            {
+                active_connections_ = nullptr;
+            }
+
+            /* Add to free connections. */
+            connection->next = free_connections_;
+            connection->prev = free_connections_->prev;
+            free_connections_->prev->next = connection;
+            free_connections_->prev = connection;
+
+            /* Reset last connection read if necessary. */
+            if (connection == last_connection_read_)
+            {
+                last_connection_read_ = active_connections_;
+            }
         }
         else
         {
-            active_connections_ = nullptr;
+            connection->next = connection;
+            connection->prev = connection;
+            free_connections_ = connection;
         }
+        connection->poll_fd->fd = -1;
 
-        /* Add to free connections. */
-        connection->next = free_connections_;
-        connection->prev = free_connections_->prev;
-        free_connections_->prev->next = connection;
-        free_connections_->prev = connection;
-
-        /* Reset last connection read if necessary. */
-        if (connection == last_connection_read_)
+        /* Free connection maps. */
+        uint64_t source_id = ((uint64_t)connection->addr << 16) | connection->port;
+        auto it = source_to_client_map_.find(source_id);
+        if (it != source_to_client_map_.end())
         {
-            last_connection_read_ = active_connections_;
+            source_to_connection_map_.erase(it->first);
+            source_to_client_map_.erase(it->first);
+            client_to_source_map_.erase(it->second);
         }
+        rv = true;
     }
-    else
-    {
-        connection->next = connection;
-        connection->prev = connection;
-        free_connections_ = connection;
-    }
-    connection->poll_fd->fd = -1;
 
-    /* Free connection maps. */
-    uint64_t source_id = ((uint64_t)connection->addr << 16) | connection->port;
-    auto it = source_to_client_map_.find(source_id);
-    if (it != source_to_client_map_.end())
-    {
-        source_to_connection_map_.erase(it->first);
-        source_to_client_map_.erase(it->first);
-        client_to_source_map_.erase(it->second);
-    }
+    return rv;
 }
 
 void TCPServer::init_input_buffer(TCPInputBuffer* buffer)

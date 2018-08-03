@@ -130,7 +130,7 @@ bool SerialServer::init()
 
 bool SerialServer::close()
 {
-    return 0 == poll_fd_.fd; //Check this.
+    return 0 == ::close(poll_fd_.fd);
 }
 
 bool SerialServer::recv_message(InputPacket& input_packet, int timeout)

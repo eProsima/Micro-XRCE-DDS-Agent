@@ -93,7 +93,7 @@ private:
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
     uint16_t read_data(TCPConnection* connection);
-    void disconnect_client(TCPConnection* connection);
+    bool disconnect_client(TCPConnection* connection);
     static void init_input_buffer(TCPInputBuffer* buffer);
 
 private:

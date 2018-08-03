@@ -50,7 +50,7 @@ std::vector<uint8_t> AgentSerialization::create_payload()
     payload.object_representation()._d() = dds::xrce::OBJK_PARTICIPANT;
     payload.object_representation().participant().representation()._d() = dds::xrce::REPRESENTATION_BY_REFERENCE;
     payload.object_representation().participant().representation().object_reference() = "ABCDE";
-    payload.object_representation().participant().domain_id() = (uint16_t)0x89AB;
+    payload.object_representation().participant().domain_id() = (uint16_t)0x09AB;
     output.append_submessage(dds::xrce::CREATE, payload, 0x0001);
 
     std::vector<uint8_t> buffer;

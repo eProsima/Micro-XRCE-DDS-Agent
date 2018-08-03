@@ -129,8 +129,7 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-    //TODO
-    return true;
+    return (0 == closesocket(poll_fd_.fd));
 }
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
