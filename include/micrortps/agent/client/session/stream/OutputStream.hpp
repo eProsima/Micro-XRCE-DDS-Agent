@@ -112,7 +112,7 @@ inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStrea
 inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 {
     bool rv = false;
-    if (last_sent_ < last_acknown_ + RELIABLE_STREAM_DEPTH)
+    if (last_sent_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
         last_sent_ += 1;
         messages_.insert(std::make_pair(last_sent_, output_message));

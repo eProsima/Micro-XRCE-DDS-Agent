@@ -99,7 +99,7 @@ inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& m
     }
     else
     {
-        if ((seq_num > last_handled_ + 1) && (seq_num <= last_handled_ + RELIABLE_STREAM_DEPTH))
+        if ((seq_num > last_handled_ + 1) && (seq_num <= last_handled_ + SeqNum(RELIABLE_STREAM_DEPTH)))
         {
             if (seq_num > last_announced_)
             {
