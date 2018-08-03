@@ -79,7 +79,7 @@ TEST_F(TokenBucketTests, AdjustedBurst)
     ASSERT_TRUE(bucket.get_tokens(rate));
     ASSERT_FALSE(bucket.get_tokens(10));
     ASSERT_TRUE(bucket.get_tokens(rate * sleep_thread(2100)));
-    ASSERT_FALSE(bucket.get_tokens(1));
+    ASSERT_FALSE(bucket.get_tokens(10));
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_TRUE(bucket.get_tokens((unsigned int) (rate * 0.5)));
     ASSERT_FALSE(bucket.get_tokens(rate));
@@ -93,7 +93,7 @@ TEST_F(TokenBucketTests, LimitToUDPBucket)
     ASSERT_TRUE(bucket.get_tokens(udp_size));
     ASSERT_FALSE(bucket.get_tokens(udp_size * sleep_thread(2100)));
     ASSERT_TRUE(bucket.get_tokens(udp_size));
-    ASSERT_FALSE(bucket.get_tokens(1));
+    ASSERT_FALSE(bucket.get_tokens(10));
     ASSERT_TRUE(bucket.get_tokens(udp_size * sleep_thread(1100)));
     ASSERT_FALSE(bucket.get_tokens(10));
 }
