@@ -67,10 +67,11 @@ bool Participant::check_register_topic(const std::string& topic_name, dds::xrce:
 
 void Participant::release(ObjectContainer& root_objects)
 {
-    for (auto obj : tied_objects_)
+    while (!tied_objects_.empty())
     {
-        root_objects.at(obj)->release(root_objects);
-        root_objects.erase(obj);
+        auto obj = tied_objects_.begin();
+        root_objects.at(*obj)->release(root_objects);
+        root_objects.erase(*obj);
     }
 }
 
