@@ -391,7 +391,7 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
             /* Store message. */
-            client.stream_manager().store_output_message(status_header.stream_id(), output_packet.message.get_buffer().data(), output_packet.message.get_real_size());
+            client.session().push_output_message(stream_id, output_packet.message);
 
             /* Send message. */
             server_->push_output_packet(output_packet);
