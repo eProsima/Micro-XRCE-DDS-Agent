@@ -52,6 +52,11 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(VERBOSE "Use verbose output" OFF)
+option(BUILD_INSTALLER "Activate the creation of a build to create windows installer" OFF)
+
+if(BUILD_INSTALLER)
+    set(EPROSIMA_BUILD ON)
+endif()
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
@@ -282,3 +287,30 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake
 install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
     DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
     )
+
+# Generate Windows Installer.
+if(WIN32 AND BUILD_INSTALLER)
+    set(CPACK_GENERATOR NSIS)
+
+    # Setup generic options.
+    set(CPACK_PACKAGE_NAME MicroRTPSAgent)
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ implementarion of XRCE Root")
+    set(CPACK_PACKAGE_DESCRIPTION "eProsima MicroRTPSAgent is a executable which implement the XRCE Root functionality.")
+    set(CPACK_PACKAGE_VENDOR "eProsima")
+    set(CPACK_PACKAGE_CONTACT "eProsima Support <support@eprosima.com>")
+    set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_MAJOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_MINOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_PATH ${PROJECT_MICRO_VERSION})
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
+
+    # Setup NSIS installer.
+    set(CPACK_NSIS_DISPLAY_NAME "Micro RTPS Agent ${PROJECT_VERSION}")
+    set(CPACK_NSIS_PACKAGE_NAME "eProsima Micro RTPS Agent ${PROJECT_VERSION}")
+    set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
+    set(CPACK_NSIS_CONTACT "support@eprosima.com")
+    set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}\\utils\\images\\icon\\eprosima_icon.ico")
+    set(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}\\utils\\images\\icon\\eprosima_icon.bmp")
+
+    include(CPack)
+endif()
