@@ -18,6 +18,10 @@
 #include <micrortps/agent/datareader/DataReader.hpp>
 #include <micrortps/agent/datawriter/DataWriter.hpp>
 #include <micrortps/agent/topic/Topic.hpp>
+#ifdef VERBOSE_OUTPUT
+#include <micrortps/agent/libdev/MessageDebugger.h>
+#include <micrortps/agent/libdev/MessageOutput.h>
+#endif
 
 namespace eprosima {
 namespace micrortps {
@@ -162,6 +166,15 @@ bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds:
         default:
             break;
     }
+
+#ifdef VERBOSE_OUTPUT
+    if (rv)
+    {
+        std::cout << "<== ";
+        debug::printl_create_submessage(representation_.client_key(), object_id, representation);
+    }
+#endif
+
     return rv;
 }
 

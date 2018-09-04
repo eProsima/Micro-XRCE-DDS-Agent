@@ -348,44 +348,48 @@ void printl_connected_client_submessage(const dds::xrce::CLIENT_Representation& 
            RESTORE_COLOR.data());
 }
 
-void printl_create_submessage(const dds::xrce::ClientKey& client_key, const dds::xrce::CREATE_Payload& payload)
+void printl_create_submessage(const dds::xrce::ClientKey& client_key,
+                              const dds::xrce::ObjectId& object_id,
+                              const dds::xrce::ObjectVariant& representation)
 {
     char content[128];
-    switch (payload.object_representation()._d())
+    switch (representation._d())
     {
         case dds::xrce::OBJK_PARTICIPANT:
             sprintf(content, "PARTICIPANT");
             break;
         case dds::xrce::OBJK_DATAWRITER:
             sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(payload.object_representation().data_writer().publisher_id()),
-                    payload.object_representation().data_writer().representation().string_representation().size());
+                    platform_array_to_num(representation.data_writer().publisher_id()),
+                                          representation.data_writer().representation().string_representation().size());
             break;
 
         case dds::xrce::OBJK_DATAREADER:
             sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(payload.object_representation().data_reader().subscriber_id()),
-                    payload.object_representation().data_reader().representation().string_representation().size());
+                    platform_array_to_num(representation.data_reader().subscriber_id()),
+                                          representation.data_reader().representation().string_representation().size());
             break;
 
         case dds::xrce::OBJK_SUBSCRIBER:
-            sprintf(content, "SUBSCRIBER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().subscriber().participant_id()));
+            sprintf(content, "SUBSCRIBER | participant id: 0x%04X",
+                    platform_array_to_num(representation.subscriber().participant_id()));
             break;
 
         case dds::xrce::OBJK_PUBLISHER:
-            sprintf(content, "PUBLISHER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().publisher().participant_id()));
+            sprintf(content, "PUBLISHER | participant id: 0x%04X",
+                    platform_array_to_num(representation.publisher().participant_id()));
             break;
         case dds::xrce::OBJK_TOPIC:
-            sprintf(content, "TOPIC | participant id: 0x%04X", platform_array_to_num(payload.object_representation().topic().participant_id()));
+            sprintf(content, "TOPIC | participant id: 0x%04X",
+                    platform_array_to_num(representation.topic().participant_id()));
             break;
         default:
             sprintf(content, "UNKNOWN");
     }
-    printf("%s[Create XRCE object | client key: 0x%02X 0x%02X 0x%02X 0x%02X | #0x%04X | id: 0x%04X | %s]%s\n",
+    printf("%s[Create XRCE object | client key: 0x%02X 0x%02X 0x%02X 0x%02X | id: 0x%04X | %s]%s\n",
            YELLOW.data(),
            client_key[0], client_key[1], client_key[2], client_key[3],
-           platform_array_to_num(payload.request_id()),
-           platform_array_to_num(payload.object_id()),
+           platform_array_to_num(object_id),
            content,
            RESTORE_COLOR.data());
 }
