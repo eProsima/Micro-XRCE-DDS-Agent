@@ -35,7 +35,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 ###############################################################################
 # Create CMake package config file
 ###############################################################################
-if(NOT((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
+if(NOT((MSVC OR MSVC_IDE) AND BUILD_INSTALLER))
     set(DIR_EXTENSION "")
     if(EPROSIMA_INSTALLER_MINION)
         set(DIR_EXTENSION "/${MSVC_ARCH}")

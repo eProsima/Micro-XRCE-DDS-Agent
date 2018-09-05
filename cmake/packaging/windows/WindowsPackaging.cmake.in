@@ -18,7 +18,7 @@ set(MSVC_ARCH @MSVC_ARCH@)
 if(${CPACK_GENERATOR} STREQUAL "NSIS" )
     cmake_policy(SET CMP0012 NEW)
 
-    if(@EPROSIMA_INSTALLER@)
+    if(@BUILD_INSTALLER@)
         # Define name of the NSIS file
         set(CPACK_PACKAGE_FILE_NAME eProsima_@PROJECT_NAME_STYLED@-@PROJECT_VERSION@-Windows)
     else()

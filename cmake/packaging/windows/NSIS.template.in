@@ -566,9 +566,6 @@ FunctionEnd
 ; Component sections
 @CPACK_NSIS_COMPONENT_SECTIONS@
 
-;Include page for set environment variables
-  !include "EnvVarPage.nsh"
-
 ;Include installation of redistributable files.
   !include InstallRedistributables.nsh
 
@@ -578,20 +575,6 @@ FunctionEnd
 @CPACK_NSIS_INSTALLER_ICON_CODE@
 @CPACK_NSIS_INSTALLER_MUI_COMPONENTS_DESC@
 @CPACK_NSIS_INSTALLER_MUI_FINISHPAGE_RUN_CODE@
-
-;--------------------------------
-Function DisableReadme
-  ${IfNot} ${SectionIsSectionGroup} ${documentation}
-  ${AndIf} ${SectionIsSelected} ${documentation}
-  Goto done
-  ${EndIf}
-
-  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 4" "HWND"
-  ${NSD_SetState} $0 0
-  EnableWindow $0 0
-
-  done:
-FunctionEnd
 
 ;--------------------------------
 ;Pages
@@ -609,10 +592,7 @@ FunctionEnd
 
   @CPACK_NSIS_PAGE_COMPONENTS@
 
-  Page custom VariablesEntornoPage
   !insertmacro MUI_PAGE_INSTFILES
-  !define MUI_FINISHPAGE_SHOWREADME $INSTDIR\Readme.html
-  !define MUI_PAGE_CUSTOMFUNCTION_SHOW DisableReadme
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_CONFIRM
@@ -746,10 +726,10 @@ Section "-Core installation"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
 @CPACK_NSIS_CREATE_ICONS@
 @CPACK_NSIS_CREATE_ICONS_EXTRA@
-  ${IfNot} ${SectionIsSectionGroup} ${documentation}
-  ${AndIf} ${SectionIsSelected} ${documentation}
-    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\README.lnk" "$INSTDIR\README.html"
-  ${EndIf}
+#  ${IfNot} ${SectionIsSectionGroup} ${documentation}
+#  ${AndIf} ${SectionIsSelected} ${documentation}
+#    CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\README.lnk" "$INSTDIR\README.html"
+#  ${EndIf}
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 
   ;Read a value from an InstallOptions INI file
@@ -778,7 +758,7 @@ Section "-Core installation"
 
 @CPACK_NSIS_EXTRA_INSTALL_COMMANDS@
 
-  call InstallVarEnvs
+#  call InstallVarEnvs
 
   call InstallRedistributables
 
@@ -882,7 +862,7 @@ Section "Uninstall"
 
 @CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS@
 
-  !insertmacro UninstallVarEnvs
+#  !insertmacro UninstallVarEnvs
 
   ;Remove files we installed.
   ;Keep the list of directories here in sync with the File commands above.
