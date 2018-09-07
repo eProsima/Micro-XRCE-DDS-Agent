@@ -87,7 +87,32 @@ bool DataWriter::init(const ObjectContainer& root_objects)
     return true;
 }
 
-bool DataWriter::init(const std::string& xml_rep, const ObjectContainer& root_objects)
+bool DataWriter::init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objects)
+{
+    bool rv = false;
+    fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
+
+    rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, ref_rep, this);
+    if (nullptr != rtps_publisher_)
+    {
+        dds::xrce::ObjectId topic_id;
+        const std::string& topic_data_type = rtps_publisher_->getAttributes().topic.getTopicDataType();
+        if (publisher_->get_participant()->check_register_topic(topic_data_type, topic_id))
+        {
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+            topic_->tie_object(get_id());
+            rv = true;
+        }
+        else
+        {
+            fastrtps::Domain::removePublisher(rtps_publisher_);
+        }
+    }
+
+    return rv;
+}
+
+bool DataWriter::init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects)
 {
     PublisherAttributes attributes;
     fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
@@ -114,7 +139,7 @@ bool DataWriter::init(const std::string& xml_rep, const ObjectContainer& root_ob
         }
     }
 
-    if (rtps_publisher_ == nullptr)
+    if (nullptr == rtps_publisher_)
     {
         std::cout << "init publisher error" << std::endl;
         return false;

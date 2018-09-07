@@ -38,8 +38,8 @@ class Participant : public XRCEObject, public fastrtps::ParticipantListener
     Participant(const dds::xrce::ObjectId& id);
     virtual ~Participant();
 
-    bool init();
-    bool init(const std::string& xml_rep);
+    bool init_by_ref(const std::string& ref_rep);
+    bool init_by_xml(const std::string& xml_rep);
     fastrtps::Participant* get_rtps_participant() { return rtps_participant_; }
     void register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id);
     void unregister_topic(const std::string& topic_name);

@@ -121,7 +121,8 @@ public:
     DataReader& operator=(const DataReader&) = delete;
 
     bool init(const ObjectContainer& root_objects);
-    bool init(const std::string& xml_rep, const ObjectContainer& root_objects);
+    bool init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objcets);
+    bool init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects);
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     bool has_message() const;
     void on_max_timeout(const asio::error_code& error) override;

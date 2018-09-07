@@ -2737,7 +2737,7 @@ size_t dds::xrce::OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(size_t 
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::OBJK_Representation3_Base::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -2843,20 +2843,20 @@ dds::xrce::DATAWRITER_Representation::~DATAWRITER_Representation()
 }
 
 dds::xrce::DATAWRITER_Representation::DATAWRITER_Representation(const DATAWRITER_Representation &x)
-    : OBJK_RepresentationBinAndXML_Base(x)
+    : OBJK_Representation3_Base(x)
 {
     m_publisher_id = x.m_publisher_id;
 }
 
 dds::xrce::DATAWRITER_Representation::DATAWRITER_Representation(DATAWRITER_Representation &&x)
-    : OBJK_RepresentationBinAndXML_Base(x)
+    : OBJK_Representation3_Base(x)
 {
     m_publisher_id = std::move(x.m_publisher_id);
 }
 
 dds::xrce::DATAWRITER_Representation& dds::xrce::DATAWRITER_Representation::operator=(const DATAWRITER_Representation &x)
 {
-    OBJK_RepresentationBinAndXML_Base::operator=(x);
+    OBJK_Representation3_Base::operator=(x);
     m_publisher_id = x.m_publisher_id;
     
     return *this;
@@ -2864,7 +2864,7 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::DATAWRITER_Representation::oper
 
 dds::xrce::DATAWRITER_Representation& dds::xrce::DATAWRITER_Representation::operator=(DATAWRITER_Representation &&x)
 {
-    OBJK_RepresentationBinAndXML_Base::operator=(x);
+    OBJK_Representation3_Base::operator=(x);
     m_publisher_id = std::move(x.m_publisher_id);
     
     return *this;
@@ -2885,7 +2885,7 @@ size_t dds::xrce::DATAWRITER_Representation::getCdrSerializedSize(size_t current
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -2893,13 +2893,13 @@ size_t dds::xrce::DATAWRITER_Representation::getCdrSerializedSize(size_t current
 
 void dds::xrce::DATAWRITER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    OBJK_RepresentationBinAndXML_Base::serialize(scdr);
+    OBJK_Representation3_Base::serialize(scdr);
     scdr << m_publisher_id;
 }
 
 void dds::xrce::DATAWRITER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    OBJK_RepresentationBinAndXML_Base::deserialize(dcdr);
+    OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_publisher_id;
 }
 
@@ -2912,20 +2912,20 @@ dds::xrce::DATAREADER_Representation::~DATAREADER_Representation()
 }
 
 dds::xrce::DATAREADER_Representation::DATAREADER_Representation(const DATAREADER_Representation &x)
-    : OBJK_RepresentationBinAndXML_Base(x)
+    : OBJK_Representation3_Base(x)
 {
     m_subscriber_id = x.m_subscriber_id;
 }
 
 dds::xrce::DATAREADER_Representation::DATAREADER_Representation(DATAREADER_Representation &&x)
-    : OBJK_RepresentationBinAndXML_Base(x)
+    : OBJK_Representation3_Base(x)
 {
     m_subscriber_id = std::move(x.m_subscriber_id);
 }
 
 dds::xrce::DATAREADER_Representation& dds::xrce::DATAREADER_Representation::operator=(const DATAREADER_Representation &x)
 {
-    OBJK_RepresentationBinAndXML_Base::operator=(x);
+    OBJK_Representation3_Base::operator=(x);
     m_subscriber_id = x.m_subscriber_id;
     
     return *this;
@@ -2933,7 +2933,7 @@ dds::xrce::DATAREADER_Representation& dds::xrce::DATAREADER_Representation::oper
 
 dds::xrce::DATAREADER_Representation& dds::xrce::DATAREADER_Representation::operator=(DATAREADER_Representation &&x)
 {
-    OBJK_RepresentationBinAndXML_Base::operator=(x);
+    OBJK_Representation3_Base::operator=(x);
     m_subscriber_id = std::move(x.m_subscriber_id);
     
     return *this;
@@ -2954,7 +2954,7 @@ size_t dds::xrce::DATAREADER_Representation::getCdrSerializedSize(size_t current
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
@@ -2962,13 +2962,13 @@ size_t dds::xrce::DATAREADER_Representation::getCdrSerializedSize(size_t current
 
 void dds::xrce::DATAREADER_Representation::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    OBJK_RepresentationBinAndXML_Base::serialize(scdr);
+    OBJK_Representation3_Base::serialize(scdr);
     scdr << m_subscriber_id;
 }
 
 void dds::xrce::DATAREADER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    OBJK_RepresentationBinAndXML_Base::deserialize(dcdr);
+    OBJK_Representation3_Base::deserialize(dcdr);
     dcdr >> m_subscriber_id;
 }
 

@@ -130,10 +130,10 @@ void print_create_submessage(const dds::xrce::CREATE_Payload& payload)
                     printf("    - string_size: " PRIstrsize "\n", payload.object_representation()
                                                                   .data_writer()
                                                                   .representation()
-                                                                  .string_representation()
+                                                                  .xml_string_representation()
                                                                   .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_writer().representation().string_representation().c_str());
+                           payload.object_representation().data_writer().representation().xml_string_representation().c_str());
                     break;
                 case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
@@ -158,10 +158,10 @@ void print_create_submessage(const dds::xrce::CREATE_Payload& payload)
                     printf("    - string_size: " PRIstrsize "\n", payload.object_representation()
                                                               .data_reader()
                                                               .representation()
-                                                              .string_representation()
+                                                              .xml_string_representation()
                                                               .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_reader().representation().string_representation().c_str());
+                           payload.object_representation().data_reader().representation().xml_string_representation().c_str());
                     break;
                 case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
@@ -359,17 +359,53 @@ void printl_create_submessage(const dds::xrce::ClientKey& client_key,
             sprintf(content, "PARTICIPANT");
             break;
         case dds::xrce::OBJK_DATAWRITER:
-            sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(representation.data_writer().publisher_id()),
-                                          representation.data_writer().representation().string_representation().size());
+        {
+            const dds::xrce::DATAWRITER_Representation& datawriter_rep = representation.data_writer();
+            switch (datawriter_rep.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datawriter_rep.publisher_id()),
+                                                  datawriter_rep.representation().object_reference().size());
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datawriter_rep.publisher_id()),
+                            datawriter_rep.representation().xml_string_representation().size());
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
-
+        }
         case dds::xrce::OBJK_DATAREADER:
-            sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(representation.data_reader().subscriber_id()),
-                                          representation.data_reader().representation().string_representation().size());
+        {
+            const dds::xrce::DATAREADER_Representation& datareader_rep = representation.data_reader();
+            switch (datareader_rep.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datareader_rep.subscriber_id()),
+                            datareader_rep.representation().object_reference().size());
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datareader_rep.subscriber_id()),
+                            datareader_rep.representation().xml_string_representation().size());
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
-
+        }
         case dds::xrce::OBJK_SUBSCRIBER:
             sprintf(content, "SUBSCRIBER | participant id: 0x%04X",
                     platform_array_to_num(representation.subscriber().participant_id()));

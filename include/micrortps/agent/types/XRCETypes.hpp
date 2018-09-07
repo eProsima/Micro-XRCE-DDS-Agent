@@ -3206,7 +3206,7 @@ private:
  * @brief This class represents the structure DATAWRITER_Representation defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
-class DATAWRITER_Representation : public OBJK_RepresentationBinAndXML_Base
+class DATAWRITER_Representation : public OBJK_Representation3_Base
 {
 public:
 
@@ -3316,7 +3316,7 @@ private:
  * @brief This class represents the structure DATAREADER_Representation defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
-class DATAREADER_Representation : public OBJK_RepresentationBinAndXML_Base
+class DATAREADER_Representation : public OBJK_Representation3_Base
 {
 public:
 
