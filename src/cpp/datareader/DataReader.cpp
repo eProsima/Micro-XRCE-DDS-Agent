@@ -122,7 +122,10 @@ bool DataReader::init_by_ref(const std::string& ref_rep, const ObjectContainer& 
         }
         else
         {
-            fastrtps::Domain::removeSubscriber(rtps_subscriber_);
+            if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
+            {
+                rtps_subscriber_ = nullptr;
+            }
         }
     }
 

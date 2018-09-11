@@ -225,13 +225,20 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
             switch (representation.representation()._d())
             {
                 case dds::xrce::REPRESENTATION_BY_REFERENCE:
-                    // TODO (julian).
+                {
+                    const std::string& ref_rep = representation.representation().object_reference();
+                    std::shared_ptr<Topic> topic(new Topic(object_id, participant));
+                    if (topic->init_by_ref(ref_rep))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
+                    }
                     break;
+                }
                 case dds::xrce::REPRESENTATION_AS_XML_STRING:
                 {
                     const std::string& xml_rep = representation.representation().xml_string_representation();
                     std::shared_ptr<Topic> topic(new Topic(object_id, participant));
-                    if (topic->init(xml_rep))
+                    if (topic->init_by_xml(xml_rep))
                     {
                         rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
                     }

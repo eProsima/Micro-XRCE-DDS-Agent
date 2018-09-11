@@ -105,7 +105,10 @@ bool DataWriter::init_by_ref(const std::string& ref_rep, const ObjectContainer& 
         }
         else
         {
-            fastrtps::Domain::removePublisher(rtps_publisher_);
+            if (fastrtps::Domain::removePublisher(rtps_publisher_))
+            {
+                rtps_publisher_ = nullptr;
+            }
         }
     }
 
