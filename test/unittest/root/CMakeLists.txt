@@ -15,30 +15,29 @@
 if(GMOCK_FOUND)
     set(SRCS
         RootUnitTests.cpp
-        #DataReaderTests.cpp
         ../Common.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/Root.cpp
         )
     add_executable(root_unit_test ${SRCS})
     add_gtest(root_unit_test
         SOURCES
             ${SRCS}
         DEPENDENCIES
+            micrortps_agent
             fastcdr
+            fastrtps
         )
     target_include_directories(root_unit_test PRIVATE
-        ${PROJECT_SOURCE_DIR}/test/mock/ProxyClient
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIRS}
         )
-    target_link_libraries(root_unit_test PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+    target_link_libraries(root_unit_test PRIVATE micrortps_agent ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
     set_target_properties(root_unit_test PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
+        )
+    file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
         )
 endif()
