@@ -52,7 +52,9 @@ void print_data_submessage(const dds::xrce::DATA_Payload_DataSeq& payload);
 void print_data_submessage(const dds::xrce::DATA_Payload_SampleSeq& payload);
 void print_data_submessage(const dds::xrce::DATA_Payload_PackedSamples& payload);
 
-void printl_create_submessage(const dds::xrce::ClientKey& client_key, const dds::xrce::CREATE_Payload& payload);
+void printl_create_submessage(const dds::xrce::ClientKey& client_key,
+                              const dds::xrce::ObjectId& object_id,
+                              const dds::xrce::ObjectVariant& representation);
 void printl_create_client_submessage(const dds::xrce::CREATE_CLIENT_Payload& payload);
 void printl_connected_client_submessage(const dds::xrce::CLIENT_Representation& representation);
 void printl_delete_submessage(const dds::xrce::DELETE_Payload& payload);
