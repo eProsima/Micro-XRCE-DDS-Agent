@@ -18,7 +18,7 @@ You can access Micro-RTPS documentation online, which is hosted on Read the Docs
 
 ## Dockerfile
 
-There is a *Micro RTPS Agent* Dockerfile available on **Docker Hub**.
+There is a *Micro RTPS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micrortps/).
 
 ## Getting Help
 
