@@ -14,6 +14,7 @@
 
 #include <micrortps/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../xmlobjects/xmlobjects.h"
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
@@ -31,16 +32,25 @@ Participant::~Participant()
     }
 }
 
-bool Participant::init()
+bool Participant::init_by_ref(const std::string& ref_rep)
 {
     return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE, this)));
+             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(ref_rep, this)));
 }
 
-bool Participant::init(const std::string& xml_rep)
+bool Participant::init_by_xml(const std::string& xml_rep)
 {
-    return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(xml_rep, this)));
+    bool rv = false;
+    if (nullptr == rtps_participant_)
+    {
+        fastrtps::ParticipantAttributes attributes;
+        if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), attributes))
+        {
+            rtps_participant_ = fastrtps::Domain::createParticipant(attributes, this);
+            rv = (nullptr != rtps_participant_);
+        }
+    }
+    return rv;
 }
 
 void Participant::register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id)

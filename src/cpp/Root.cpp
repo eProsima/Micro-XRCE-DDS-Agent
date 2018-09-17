@@ -15,6 +15,7 @@
 #include <micrortps/agent/Root.hpp>
 #include <micrortps/agent/libdev/MessageDebugger.h>
 #include <micrortps/agent/libdev/MessageOutput.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastcdr/Cdr.h>
 #include <memory>
 #include <chrono>
@@ -36,6 +37,9 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
+
+    /* Load XML profile file. */
+    fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,

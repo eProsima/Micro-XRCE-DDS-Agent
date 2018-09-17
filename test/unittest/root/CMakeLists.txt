@@ -15,7 +15,6 @@
 if(GMOCK_FOUND)
     set(SRCS
         RootUnitTests.cpp
-        #DataReaderTests.cpp
         ../Common.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
@@ -27,6 +26,7 @@ if(GMOCK_FOUND)
         SOURCES
             ${SRCS}
         DEPENDENCIES
+            fastrtps
             fastcdr
         )
     target_include_directories(root_unit_test PRIVATE
@@ -36,7 +36,7 @@ if(GMOCK_FOUND)
         ${GTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIRS}
         )
-    target_link_libraries(root_unit_test PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+    target_link_libraries(root_unit_test PRIVATE fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
     set_target_properties(root_unit_test PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES

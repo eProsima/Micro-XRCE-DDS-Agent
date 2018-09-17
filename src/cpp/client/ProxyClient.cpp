@@ -188,21 +188,17 @@ bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
         {
             case dds::xrce::REPRESENTATION_BY_REFERENCE:
             {
-                if (0 == strcmp(representation.representation().object_reference().c_str(), "default participant"))
+                std::shared_ptr<Participant> participant(new Participant(object_id));
+                if (participant->init_by_ref(representation.representation().object_reference()))
                 {
-                    std::shared_ptr<Participant> participant(new Participant(object_id));
-                    if (participant->init())
-                    {
-                        rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
-                    }
+                    rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
                 }
                 break;
             }
             case dds::xrce::REPRESENTATION_AS_XML_STRING:
             {
-                const std::string& xml_rep = representation.representation().xml_string_representation();
                 std::shared_ptr<Participant> participant(new Participant(object_id));
-                if (participant->init(xml_rep))
+                if (participant->init_by_xml(representation.representation().xml_string_representation()))
                 {
                     rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
                 }
@@ -228,19 +224,26 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             switch (representation.representation()._d())
             {
-                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
                 {
-                    const std::string& xml_rep = representation.representation().xml_string_representation();
+                    const std::string& ref_rep = representation.representation().object_reference();
                     std::shared_ptr<Topic> topic(new Topic(object_id, participant));
-                    if (topic->init(xml_rep))
+                    if (topic->init_by_ref(ref_rep))
                     {
                         rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
                     }
                     break;
                 }
-                case dds::xrce::REPRESENTATION_BY_REFERENCE:
-                    // TODO (julian).
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    const std::string& xml_rep = representation.representation().xml_string_representation();
+                    std::shared_ptr<Topic> topic(new Topic(object_id, participant));
+                    if (topic->init_by_xml(xml_rep))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
+                    }
                     break;
+                }
                 case dds::xrce::REPRESENTATION_IN_BINARY:
                     // TODO (julian).
                     break;
@@ -327,11 +330,21 @@ bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
             switch (representation.representation()._d())
             {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    const std::string& ref_rep = representation.representation().object_reference();
+                    std::shared_ptr<DataWriter> datawriter(new DataWriter(object_id, publisher));
+                    if (datawriter->init_by_ref(ref_rep, objects_))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(datawriter))).second;
+                    }
+                    break;
+                }
                 case dds::xrce::REPRESENTATION_AS_XML_STRING:
                 {
-                    const std::string& xml_rep = representation.representation().string_representation();
+                    const std::string& xml_rep = representation.representation().xml_string_representation();
                     std::shared_ptr<DataWriter> datawriter(new DataWriter(object_id, publisher));
-                    if (datawriter->init(xml_rep, objects_))
+                    if (datawriter->init_by_xml(xml_rep, objects_))
                     {
                         rv = objects_.insert(std::make_pair(object_id, std::move(datawriter))).second;
                     }
@@ -361,11 +374,21 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
             switch (representation.representation()._d())
             {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    const std::string& ref_rep = representation.representation().object_reference();
+                    std::shared_ptr<DataReader> datareader(new DataReader(object_id, subscriber));
+                    if (datareader->init_by_ref(ref_rep, objects_))
+                    {
+                        rv = objects_.insert(std::make_pair(object_id, std::move(datareader))).second;
+                    }
+                    break;
+                }
                 case dds::xrce::REPRESENTATION_AS_XML_STRING:
                 {
-                    const std::string& xml_rep = representation.representation().string_representation();
+                    const std::string& xml_rep = representation.representation().xml_string_representation();
                     std::shared_ptr<DataReader> datareader(new DataReader(object_id, subscriber));
-                    if (datareader->init(xml_rep, objects_))
+                    if (datareader->init_by_xml(xml_rep, objects_))
                     {
                         rv = objects_.insert(std::make_pair(object_id, std::move(datareader))).second;
                     }

@@ -104,7 +104,35 @@ bool DataReader::init(const ObjectContainer& root_objects)
     return true;
 }
 
-bool DataReader::init(const std::string& xml_rep, const ObjectContainer& root_objects)
+bool DataReader::init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objcets)
+{
+    bool rv = false;
+    fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
+
+    rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, ref_rep, this);
+    if (nullptr != rtps_subscriber_)
+    {
+        dds::xrce::ObjectId topic_id;
+        const std::string& topic_data_type = rtps_subscriber_->getAttributes().topic.getTopicDataType();
+        if (subscriber_->get_participant()->check_register_topic(topic_data_type, topic_id))
+        {
+            topic_ = std::dynamic_pointer_cast<Topic>(root_objcets.at(topic_id));
+            topic_->tie_object(get_id());
+            rv = true;
+        }
+        else
+        {
+            if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
+            {
+                rtps_subscriber_ = nullptr;
+            }
+        }
+    }
+
+    return rv;
+}
+
+bool DataReader::init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects)
 {
     SubscriberAttributes attributes;
     fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
