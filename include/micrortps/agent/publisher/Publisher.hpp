@@ -30,13 +30,13 @@ public:
     virtual ~Publisher();
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
-    virtual void release(ObjectContainer&) override {}
-    void tie_object(const dds::xrce::ObjectId& object_id) { objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { objects_.erase(object_id); }
+    virtual void release(ObjectContainer& root_objects) override;
+    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
+    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
 
 private:
     std::shared_ptr<Participant> participant_;
-    std::set<dds::xrce::ObjectId> objects_;
+    std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace micrortps

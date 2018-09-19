@@ -15,7 +15,6 @@
 if(GMOCK_FOUND)
     set(SRCS
         RootUnitTests.cpp
-        #DataReaderTests.cpp
         ../Common.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp

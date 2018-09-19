@@ -97,8 +97,7 @@ TEST_F(RootUnitTests, DeleteNoExistingClient)
 
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response      = root_.create_client(create_data.client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(), agent_representation);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(fake_client_key);

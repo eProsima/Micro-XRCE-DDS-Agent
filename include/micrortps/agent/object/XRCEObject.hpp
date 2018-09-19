@@ -30,7 +30,7 @@ struct ObjectIdHash
 {
     uint16_t operator()(const dds::xrce::ObjectId& object_id) const
     {
-        return object_id.at(0) + (object_id.at(1) << 8);
+        return object_id.at(1) + (object_id.at(0) << 8);
     }
 };
 
