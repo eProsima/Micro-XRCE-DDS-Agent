@@ -52,15 +52,15 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(VERBOSE "Use verbose output" OFF)
-option(BUILD_INSTALLER "Activate the creation of a build to create windows installer" OFF)
+option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
 
-if(BUILD_INSTALLER)
+if(EPROSIMA_INSTALLER)
     set(EPROSIMA_BUILD ON)
 endif()
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
-    #    set(EPROSIMA_BUILD_TESTS ON)
+    set(EPROSIMA_BUILD_TESTS ON)
 endif()
 
 ###############################################################################
@@ -80,9 +80,8 @@ set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
 set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
 set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
-set(DOC_INSTALL_DIR ${DOC_DIR} CACHE PATH "Installation directory for documentation")
-if(MSVC OR MSVC_IDE)
-    set(LICENSE_INSTALL_DIR share/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+if(WIN32 AND EPROSIMA_INSTALLER AND IS_TOP_LEVEL)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 else()
     set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
 endif()
@@ -98,8 +97,8 @@ set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
 set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
 
 # Create source files with the define
-configure_file(${PROJECT_SOURCE_DIR}/include/micrortps/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
     )
 
 ###############################################################################
@@ -296,7 +295,7 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/uxr/agent/
 
 # Export library
 install(EXPORT ${PROJECT_NAME}Targets
-    DESTINATION share/${PROJECT_NAME}/cmake
+    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Install agent exec
@@ -332,11 +331,11 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake
     PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
 install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-    DESTINATION share/${PROJECT_NAME}/cmake
+    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Generate Windows Installer.
-if(WIN32 AND BUILD_INSTALLER)
+if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_GENERATOR NSIS)
 
     # Setup generic options.
@@ -384,7 +383,6 @@ if(WIN32 AND BUILD_INSTALLER)
     configure_file(${PROJECT_SOURCE_DIR}/cmake/packaging/windows/NSISPackaging.cmake.in
         ${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake @ONLY
         )
-
     # Setup redistributables installation nsh.
     if(${MSVC_ARCH} STREQUAL "x64Win64VS2017")
         set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,amd64,14.0,bundle")
