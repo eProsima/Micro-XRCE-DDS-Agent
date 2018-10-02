@@ -419,17 +419,17 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         {
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
-            uint8_t mask = 0x01 << i;
+            uint8_t mask = uint8_t(0x01 << i);
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                if (client.session().get_output_message((uint8_t) seq_num, first_message + i, output_packet.message))
+                if (client.session().get_output_message(uint8_t(seq_num), first_message + i, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                if (client.session().get_output_message((uint8_t) seq_num, first_message + i + 8, output_packet.message))
+                if (client.session().get_output_message(uint8_t(seq_num), first_message + i + 8, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
@@ -437,7 +437,7 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         }
 
         /* Update output stream. */
-        client.session().update_from_acknack((uint8_t) seq_num, first_message);
+        client.session().update_from_acknack(uint8_t(seq_num), first_message);
     }
     else
     {
