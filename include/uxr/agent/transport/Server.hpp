@@ -54,16 +54,24 @@ public:
     virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) = 0;
     virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
 
+protected:
+    dds::xrce::TransportAddress transport_address_;
+
 private:
     virtual bool init() = 0;
     virtual bool close() = 0;
     virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
     virtual bool send_message(OutputPacket output_packet) = 0;
     virtual int get_error() = 0;
+    virtual bool recv_discovery_request(InputPacket& input_packet,
+                                        int timeout,
+                                        dds::xrce::TransportAddress& address) = 0;
+    virtual bool send_discovery_response(OutputPacket output_packet) = 0;
     void receiver_loop();
     void sender_loop();
     void processing_loop();
     void heartbeat_loop();
+    void discovery_loop();
 
 protected:
     Processor* processor_;
@@ -73,6 +81,7 @@ private:
     std::unique_ptr<std::thread> sender_thread_;
     std::unique_ptr<std::thread> processing_thread_;
     std::unique_ptr<std::thread> heartbeat_thread_;
+    std::unique_ptr<std::thread> discovery_thread_;
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket> input_scheduler_;
     FCFSScheduler<OutputPacket> output_scheduler_;

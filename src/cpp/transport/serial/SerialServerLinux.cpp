@@ -197,5 +197,15 @@ uint16_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int t
     return rv;
 }
 
+bool SerialServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
+{
+    return discovery_.recv_message(input_packet, timeout, address);
+}
+
+bool SerialServer::send_discovery_response(OutputPacket output_packet)
+{
+    return discovery_.send_message(output_packet);
+}
+
 } // namespace uxr
 } // namespace eprosima

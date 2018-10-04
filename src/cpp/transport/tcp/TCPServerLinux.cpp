@@ -167,7 +167,12 @@ bool TCPServer::init()
             {
                 running_cond_ = true;
                 listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
-                rv = true;
+
+                /* Init discovery. */
+                if (discovery_.init(port_))
+                {
+                    rv = true;
+                }
             }
         }
     }
@@ -573,6 +578,16 @@ ssize_t TCPServer::send_locking(TCPConnection& connection, void* buffer, size_t 
         rv = send(connection.poll_fd->fd, buffer, len, 0);
     }
     return rv;
+}
+
+bool TCPServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
+{
+    return discovery_.recv_message(input_packet, timeout, address);
+}
+
+bool TCPServer::send_discovery_response(OutputPacket output_packet)
+{
+    return discovery_.send_message(output_packet);
 }
 
 } // namespace uxr
