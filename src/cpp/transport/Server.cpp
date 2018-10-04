@@ -17,6 +17,8 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <functional>
 
+#define RECEIVE_TIMEOUT 100
+
 namespace eprosima {
 namespace uxr {
 
@@ -47,6 +49,7 @@ bool Server::run()
     sender_thread_.reset(new std::thread(std::bind(&Server::sender_loop, this)));
     processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
     heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
+    discovery_thread_.reset(new std::thread(std::bind(&Server::discovery_loop, this)));
 
     return true;
 }
@@ -72,6 +75,10 @@ void Server::stop()
     {
         heartbeat_thread_->join();
     }
+    if (discovery_thread_ && discovery_thread_->joinable())
+    {
+        discovery_thread_->join();
+    }
 
     (void) close();
 }
@@ -89,7 +96,7 @@ void Server::receiver_loop()
     InputPacket input_packet;
     while (running_cond_)
     {
-        if (recv_message(input_packet, 100))
+        if (recv_message(input_packet, RECEIVE_TIMEOUT))
         {
             input_scheduler_.push(std::move(input_packet), 0);
         }
@@ -126,6 +133,23 @@ void Server::heartbeat_loop()
     {
         processor_->check_heartbeats();
         std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
+    }
+}
+
+void Server::discovery_loop()
+{
+    InputPacket input_packet;
+    OutputPacket output_packet;
+    dds::xrce::TransportAddress transport_address;
+    while (running_cond_)
+    {
+        if (recv_discovery_request(input_packet, RECEIVE_TIMEOUT, transport_address))
+        {
+            if (processor_->process_get_info_packet(std::move(input_packet), transport_address, output_packet))
+            {
+                send_discovery_response(output_packet);
+            }
+        }
     }
 }
 

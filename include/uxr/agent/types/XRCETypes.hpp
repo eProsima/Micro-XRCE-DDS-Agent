@@ -6067,7 +6067,33 @@ public:
      * @return Reference to the discriminator.
      */
     ObjectKind& _d();
-    
+
+    /*!
+     * @brief This function copies the value in member agent
+     * @param _agent New value to be copied in member agent
+     */
+    void agent(const AGENT_ActivityInfo &_agent);
+
+    /*!
+     * @brief This function moves the value in member agent
+     * @param _agent New value to be moved in member agent
+     */
+    void agent(AGENT_ActivityInfo &&_agent);
+
+    /*!
+     * @brief This function returns a constant reference to member agent
+     * @return Constant reference to member agent
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    const AGENT_ActivityInfo& agent() const;
+
+    /*!
+     * @brief This function returns a reference to member agent
+     * @return Reference to member agent
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    AGENT_ActivityInfo& agent();
+
     /*!
      * @brief This function copies the value in member data_writer
      * @param _data_writer New value to be copied in member data_writer
@@ -6093,6 +6119,7 @@ public:
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAWRITER_ActivityInfo& data_writer();
+
     /*!
      * @brief This function copies the value in member data_reader
      * @param _data_reader New value to be copied in member data_reader
@@ -6150,6 +6177,7 @@ public:
 private:
     ObjectKind m__d;
     
+    AGENT_ActivityInfo m_agent;
     DATAWRITER_ActivityInfo m_data_writer;
     DATAREADER_ActivityInfo m_data_reader;
 };
@@ -6214,13 +6242,22 @@ public:
         m_config = std::move(_config);
     }
 
+    inline bool has_config() const
+    {
+        return bool(m_config);
+    }
+
     /*!
      * @brief This function returns a constant reference to member config
      * @return Constant reference to member config
      */
     inline const ObjectVariant& config() const
     {
-        return m_config;
+        if (!m_config)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+        }
+        return *m_config;
     }
 
     /*!
@@ -6229,7 +6266,11 @@ public:
      */
     inline ObjectVariant& config()
     {
-        return m_config;
+        if (!m_config)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+        }
+        return *m_config;
     }
     /*!
      * @brief This function copies the value in member activity
@@ -6249,13 +6290,22 @@ public:
         m_activity = std::move(_activity);
     }
 
+    inline bool has_activity() const
+    {
+        return bool(m_activity);
+    }
+
     /*!
      * @brief This function returns a constant reference to member activity
      * @return Constant reference to member activity
      */
     inline const ActivityInfoVariant& activity() const
     {
-        return m_activity;
+        if (!m_activity)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+        }
+        return *m_activity;
     }
 
     /*!
@@ -6264,7 +6314,11 @@ public:
      */
     inline ActivityInfoVariant& activity()
     {
-        return m_activity;
+        if (!m_activity)
+        {
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+        }
+        return *m_activity;
     }
     
     /*!
@@ -6296,8 +6350,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    ObjectVariant m_config;
-    ActivityInfoVariant m_activity;
+    eprosima::Optional<ObjectVariant> m_config;
+    eprosima::Optional<ActivityInfoVariant> m_activity;
 };
 
 /*!
@@ -6901,7 +6955,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -6914,7 +6968,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -6950,7 +7004,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }
@@ -6963,7 +7017,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member is not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }

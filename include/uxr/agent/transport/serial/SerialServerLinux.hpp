@@ -12,44 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/config.hpp>
+#include <uxr/agent/transport/serial/SerialLayer.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryLinux.hpp>
+#include <unordered_map>
 #include <cstdint>
 #include <cstddef>
 #include <sys/poll.h>
-#include <unordered_map>
 
 namespace eprosima {
 namespace uxr {
 
 /**************************************************************************************************
- * UDP EndPoint.
+ * Serial EndPoint.
  **************************************************************************************************/
-class UDPEndPoint : public EndPoint
+class SerialEndPoint : public EndPoint
 {
 public:
-    UDPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
-    ~UDPEndPoint() = default;
+    SerialEndPoint(uint8_t addr) { addr_ = addr; }
+    ~SerialEndPoint() {}
 
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
+    uint8_t get_addr() const { return addr_; }
 
-private:
-    uint32_t addr_;
-    uint16_t port_;
+public:
+    uint8_t addr_;
 };
 
 /**************************************************************************************************
- * UDP Server.
+ * Serial Server.
  **************************************************************************************************/
-class UDPServer : public Server
+class SerialServer : public Server
 {
 public:
-    UDPServer(uint16_t port);
-    ~UDPServer() = default;
+    SerialServer(int fd, uint8_t addr);
+    ~SerialServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
     virtual void on_delete_client(EndPoint* source) override;
@@ -62,17 +61,25 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
+    virtual bool recv_discovery_request(InputPacket& input_packet,
+                                        int timeout,
+                                        dds::xrce::TransportAddress& address) override;
+    virtual bool send_discovery_response(OutputPacket output_packet) override;
+    static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
-    uint16_t port_;
+    uint8_t addr_;
     struct pollfd poll_fd_;
-    uint8_t buffer_[UDP_TRANSPORT_MTU];
-    std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
-    std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
+    uint8_t buffer_[SERIAL_TRANSPORT_MTU];
+    SerialIO serial_io_;
+    int errno_;
+    std::unordered_map<uint8_t, uint32_t> source_to_client_map_;
+    std::unordered_map<uint32_t, uint8_t> client_to_source_map_;
     std::mutex clients_mtx_;
+    Discovery discovery_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif //_UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_

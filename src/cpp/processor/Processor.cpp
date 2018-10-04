@@ -528,6 +528,50 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     }
 }
 
+bool Processor::process_get_info_packet(InputPacket&& input_packet,
+                                        dds::xrce::TransportAddress& address,
+                                        OutputPacket& output_packet)
+{
+    bool rv = false;
+
+    if (input_packet.message->prepare_next_submessage())
+    {
+        if (input_packet.message->get_subheader().submessage_id() == dds::xrce::GET_INFO)
+        {
+            /* Get GET_INFO payload. */
+            dds::xrce::GET_INFO_Payload get_info_payload;
+            input_packet.message->get_payload(get_info_payload);
+
+            /* Get info from root. */
+            dds::xrce::ObjectInfo object_info;
+            dds::xrce::ResultStatus result_status = root_->get_info(object_info);
+            if (dds::xrce::STATUS_OK == result_status.status())
+            {
+                dds::xrce::AGENT_ActivityInfo agent_info;
+                agent_info.address_seq().push_back(address);
+                agent_info.availability(1);
+
+                dds::xrce::ActivityInfoVariant info_variant;
+                info_variant.agent(agent_info);
+                object_info.activity(info_variant);
+
+                dds::xrce::INFO_Payload payload;
+                payload.related_request().request_id(get_info_payload.request_id());
+                payload.related_request().object_id(get_info_payload.object_id());
+                payload.result(result_status);
+                payload.object_info(object_info);
+
+                /* Set output packet and serialize INFO. */
+                output_packet.destination = input_packet.source;
+                output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header()));
+                rv = output_packet.message->append_submessage(dds::xrce::INFO, payload);
+            }
+        }
+    }
+
+    return rv;
+}
+
 void Processor::check_heartbeats()
 {
     root_->init_client_iteration();

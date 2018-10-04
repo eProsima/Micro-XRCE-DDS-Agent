@@ -12,8 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/TCPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+#include <functional>
 
 namespace eprosima {
 namespace uxr {
@@ -39,7 +46,7 @@ void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& c
 {
     TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
 
     /* Update maps. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -103,7 +110,7 @@ const dds::xrce::ClientKey TCPServer::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> TCPServer::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())
@@ -118,13 +125,13 @@ bool TCPServer::init()
 {
     bool rv = false;
 
-    /* Socket initialization. */
-    poll_fds_[0].fd = socket(PF_INET, SOCK_STREAM, 0);
+    /* Ignore SIGPIPE signal. */
+    signal(SIGPIPE, sigpipe_handler);
 
     /* Listener socket initialization. */
     listener_poll_.fd = socket(PF_INET, SOCK_STREAM, 0);
 
-    if (INVALID_SOCKET != listener_poll_.fd)
+    if (-1 != listener_poll_.fd)
     {
         /* IP and Port setup. */
         struct sockaddr_in address;
@@ -132,7 +139,7 @@ bool TCPServer::init()
         address.sin_port = htons(port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
+        if (-1 != bind(listener_poll_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
@@ -140,7 +147,7 @@ bool TCPServer::init()
             /* Setup connections. */
             for (size_t i = 0; i < poll_fds_.size(); ++i)
             {
-                poll_fds_[i].fd = INVALID_SOCKET;
+                poll_fds_[i].fd = -1;
                 poll_fds_[i].events = POLLIN;
                 connections_[i].poll_fd = &poll_fds_[i];
                 connections_[i].id = uint32_t(i);
@@ -150,11 +157,16 @@ bool TCPServer::init()
             }
 
             /* Init listener. */
-            if (SOCKET_ERROR != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
+            if (-1 != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
             {
                 running_cond_ = true;
                 listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
-                rv = true;
+
+                /* Init discovery. */
+                if (discovery_.init(port_))
+                {
+                    rv = true;
+                }
             }
         }
     }
@@ -171,11 +183,11 @@ bool TCPServer::close()
     }
 
     /* Close listener. */
-    if (INVALID_SOCKET != listener_poll_.fd)
+    if (-1 != listener_poll_.fd)
     {
-        if (0 == closesocket(listener_poll_.fd))
+        if (0 == ::close(listener_poll_.fd))
         {
-            listener_poll_.fd = INVALID_SOCKET;
+            listener_poll_.fd = -1;
         }
     }
 
@@ -186,7 +198,7 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
-    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty());
+    return (-1 == listener_poll_.fd) && (active_connections_.empty());
 }
 
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
@@ -208,7 +220,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     uint16_t bytes_sent = 0;
-    int send_rv = 0;
+    ssize_t send_rv = 0;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
@@ -225,8 +237,8 @@ bool TCPServer::send_message(OutputPacket output_packet)
         msg_size_buf[1] = uint8_t((0xFF00 & output_packet.message->get_len()) >> 8);
         do
         {
-            send_rv = send_locking(connection, reinterpret_cast<char*>(msg_size_buf), 2);
-            if (SOCKET_ERROR != send_rv)
+            send_rv = send_locking(connection, msg_size_buf, 2);
+            if (0 <= send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
             }
@@ -245,9 +257,9 @@ bool TCPServer::send_message(OutputPacket output_packet)
             do
             {
                 send_rv = send_locking(connection,
-                                       reinterpret_cast<char*>(output_packet.message->get_buf() + bytes_sent),
-                                       int(output_packet.message->get_len() - bytes_sent));
-                if (SOCKET_ERROR != send_rv)
+                                       output_packet.message->get_buf() + bytes_sent,
+                                       output_packet.message->get_len() - bytes_sent);
+                if (0 <= send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
                 }
@@ -266,7 +278,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 
 int TCPServer::get_error()
 {
-    return WSAGetLastError();
+    return errno;
 }
 
 uint16_t TCPServer::read_data(TCPConnection& connection)
@@ -283,8 +295,8 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
             {
                 connection.input_buffer.position = 0;
                 uint8_t size_buf[2];
-                int bytes_received = recv_locking(connection, reinterpret_cast<char*>(size_buf), 2);
-                if (SOCKET_ERROR != bytes_received)
+                ssize_t bytes_received = recv_locking(connection, size_buf, 2);
+                if (0 < bytes_received)
                 {
                     connection.input_buffer.msg_size = 0;
                     if (2 == bytes_received)
@@ -305,7 +317,7 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 {
                     if (0 == bytes_received)
                     {
-                        WSASetLastError(WSAENOTCONN);
+                        errno = ENOTCONN;
                     }
                     close_connection(connection);
                     exit_flag = true;
@@ -315,8 +327,8 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
             case TCP_SIZE_INCOMPLETE:
             {
                 uint8_t size_msb;
-                int bytes_received = recv_locking(connection, reinterpret_cast<char*>(&size_msb), 1);
-                if (SOCKET_ERROR != bytes_received)
+                ssize_t bytes_received = recv_locking(connection, &size_msb, 1);
+                if (0 < bytes_received)
                 {
                     connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
                     if (connection.input_buffer.msg_size != 0)
@@ -332,21 +344,21 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 {
                     if (0 == bytes_received)
                     {
-                        WSASetLastError(WSAENOTCONN);
+                        errno = ENOTCONN;
                     }
                     close_connection(connection);
                     exit_flag = true;
                 }
-                exit_flag = (0 == WSAPoll(connection.poll_fd, 1, 0));
+                exit_flag = (0 == poll(connection.poll_fd, 1, 0));
                 break;
             }
             case TCP_SIZE_READ:
             {
                 connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
-                int bytes_received = recv_locking(connection,
-                                                  reinterpret_cast<char*>(connection.input_buffer.buffer.data()),
-                                                  int(connection.input_buffer.buffer.size()));
-                if (SOCKET_ERROR != bytes_received)
+                ssize_t bytes_received = recv_locking(connection,
+                                                      connection.input_buffer.buffer.data(),
+                                                      connection.input_buffer.buffer.size());
+                if (0 < bytes_received)
                 {
                     if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
                     {
@@ -363,7 +375,7 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 {
                     if (0 == bytes_received)
                     {
-                        WSASetLastError(WSAENOTCONN);
+                        errno = ENOTCONN;
                     }
                     close_connection(connection);
                     exit_flag = true;
@@ -372,12 +384,10 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
             }
             case TCP_MESSAGE_INCOMPLETE:
             {
-                int bytes_received = recv_locking(connection,
-                                                  reinterpret_cast<char*>(connection.input_buffer.buffer.data() +
-                                                                          connection.input_buffer.position),
-                                                  int(connection.input_buffer.buffer.size() - 
-                                                      connection.input_buffer.position));
-                if (SOCKET_ERROR != bytes_received)
+                ssize_t bytes_received = recv_locking(connection,
+                                                      connection.input_buffer.buffer.data() + connection.input_buffer.position,
+                                                      connection.input_buffer.buffer.size() - connection.input_buffer.position);
+                if (0 < bytes_received)
                 {
                     connection.input_buffer.position += uint16_t(bytes_received);
                     if (connection.input_buffer.position == connection.input_buffer.msg_size)
@@ -393,7 +403,7 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 {
                     if (0 == bytes_received)
                     {
-                        WSASetLastError(WSAENOTCONN);
+                        errno = ENOTCONN;
                     }
                     close_connection(connection);
                     exit_flag = true;
@@ -413,14 +423,14 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
     return rv;
 }
 
-bool TCPServer::open_connection(SOCKET fd, struct sockaddr_in* sockaddr)
+bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(connections_mtx_);
     if (!free_connections_.empty())
     {
         uint32_t id = free_connections_.front();
-        TCPConnection& connection = connections_[id];
+        TCPConnection& connection = connections_[size_t(id)];
         connection.poll_fd->fd = fd;
         connection.addr = sockaddr->sin_addr.s_addr;
         connection.port = sockaddr->sin_port;
@@ -445,9 +455,9 @@ bool TCPServer::close_connection(TCPConnection& connection)
         lock.unlock();
         /* Add lock for close. */
         std::unique_lock<std::mutex> conn_lock(connection.mtx);
-        if (0 == closesocket(connection.poll_fd->fd))
+        if (0 == ::close(connection.poll_fd->fd))
         {
-            connection.poll_fd->fd = INVALID_SOCKET;
+            connection.poll_fd->fd = -1;
             connection.active = false;
             conn_lock.unlock();
 
@@ -481,12 +491,12 @@ void TCPServer::init_input_buffer(TCPInputBuffer& buffer)
 bool TCPServer::read_message(int timeout)
 {
     bool rv = false;
-    int poll_rv = WSAPoll(poll_fds_.data(), ULONG(poll_fds_.size()), timeout);
+    int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
     if (0 < poll_rv)
     {
         for (auto& conn : connections_)
         {
-            if (0 < (POLLIN & conn.poll_fd->revents))
+            if (POLLIN == (POLLIN & conn.poll_fd->revents))
             {
                 uint16_t bytes_read = read_data(conn);
                 if (0 < bytes_read)
@@ -504,7 +514,7 @@ bool TCPServer::read_message(int timeout)
     {
         if (0 == poll_rv)
         {
-            WSASetLastError(WAIT_TIMEOUT);
+            errno = ETIME;
         }
     }
     return rv;
@@ -514,21 +524,21 @@ void TCPServer::listener_loop()
 {
     while (running_cond_)
     {
-        int poll_rv = WSAPoll(&listener_poll_, 1, 100);
+        int poll_rv = poll(&listener_poll_, 1, 100);
         if (0 < poll_rv)
         {
-            if (0 < (POLLIN & listener_poll_.revents))
+            if (POLLIN == (POLLIN & listener_poll_.revents))
             {
                 if (connection_available())
                 {
                     /* New client connection. */
                     struct sockaddr client_addr;
-                    int client_addr_len = sizeof(client_addr);
-                    SOCKET incoming_fd = accept(listener_poll_.fd, &client_addr, &client_addr_len);
-                    if (INVALID_SOCKET != incoming_fd)
+                    socklen_t client_addr_len = sizeof(client_addr);
+                    int incoming_fd = accept(listener_poll_.fd, &client_addr, &client_addr_len);
+                    if (-1 != incoming_fd)
                     {
                         /* Open connection. */
-                        open_connection(incoming_fd, reinterpret_cast<struct sockaddr_in*>(&client_addr));
+                        open_connection(incoming_fd, (struct sockaddr_in*)&client_addr);
                     }
                 }
             }
@@ -542,9 +552,9 @@ bool TCPServer::connection_available()
     return !free_connections_.empty();
 }
 
-int TCPServer::recv_locking(TCPConnection& connection, char* buffer, int len)
+ssize_t TCPServer::recv_locking(TCPConnection& connection, void* buffer, size_t len)
 {
-    int rv = 0;
+    ssize_t rv = 0;
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
@@ -553,15 +563,25 @@ int TCPServer::recv_locking(TCPConnection& connection, char* buffer, int len)
     return rv;
 }
 
-int TCPServer::send_locking(TCPConnection& connection, char* buffer, int len)
+ssize_t TCPServer::send_locking(TCPConnection& connection, void* buffer, size_t len)
 {
-    int rv = 0;
+    ssize_t rv = 0;
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
         rv = send(connection.poll_fd->fd, buffer, len, 0);
     }
     return rv;
+}
+
+bool TCPServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
+{
+    return discovery_.recv_message(input_packet, timeout, address);
+}
+
+bool TCPServer::send_discovery_response(OutputPacket output_packet)
+{
+    return discovery_.send_message(output_packet);
 }
 
 } // namespace uxr

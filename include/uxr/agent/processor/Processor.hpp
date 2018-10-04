@@ -19,6 +19,14 @@
 #include <vector>
 #include <mutex>
 
+namespace dds {
+namespace xrce {
+
+struct TransportAddress;
+
+}
+}
+
 namespace eprosima {
 namespace uxr {
 
@@ -26,6 +34,7 @@ class Root;
 class Server;
 class ProxyClient;
 struct InputPacket;
+struct OutputPacket;
 struct ReadCallbackArgs;
 
 class Processor
@@ -35,6 +44,9 @@ public:
     ~Processor();
 
     void process_input_packet(InputPacket&& input_packet);
+    bool process_get_info_packet(InputPacket&& input_packet,
+                                 dds::xrce::TransportAddress& address,
+                                 OutputPacket& output_packet);
     void check_heartbeats();
     Root* get_root() { return root_; }
     Server* get_server() { return server_; }

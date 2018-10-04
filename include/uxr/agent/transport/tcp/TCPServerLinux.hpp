@@ -16,6 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryLinux.hpp>
 #include <uxr/agent/config.hpp>
 #include <unordered_map>
 #include <netinet/in.h>
@@ -94,6 +95,10 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
+    virtual bool recv_discovery_request(InputPacket& input_packet,
+                                        int timeout,
+                                        dds::xrce::TransportAddress& address) override;
+    virtual bool send_discovery_response(OutputPacket output_packet) override;
     bool read_message(int timeout);
     uint16_t read_data(TCPConnection& connection);
     bool open_connection(int fd, struct sockaddr_in* sockaddr);
@@ -121,6 +126,7 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+    Discovery discovery_;
 };
 
 } // namespace uxr

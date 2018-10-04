@@ -81,14 +81,16 @@ eprosima_find_thirdparty(Asio asio)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(TRANSPORT_SRCS
-        src/cpp/transport/UDPServerLinux.cpp
-        src/cpp/transport/TCPServerLinux.cpp
-        src/cpp/transport/SerialServerLinux.cpp
+        src/cpp/transport/udp/UDPServerLinux.cpp
+        src/cpp/transport/tcp/TCPServerLinux.cpp
+        src/cpp/transport/serial/SerialServerLinux.cpp
+        src/cpp/transport/discovery/DiscoveryLinux.cpp
         )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(TRANSPORT_SRCS
-        src/cpp/transport/UDPServerWindows.cpp
-        src/cpp/transport/TCPServerWindows.cpp
+        src/cpp/transport/udp/UDPServerWindows.cpp
+        src/cpp/transport/tcp/TCPServerWindows.cpp
+        src/cpp/transport/discovery/DiscoveryWindows.cpp
         )
 endif()
 
@@ -112,7 +114,7 @@ set(SRCS
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/SerialLayer.cpp
+    src/cpp/transport/serial/SerialLayer.cpp
     ${TRANSPORT_SRCS}
     )
 

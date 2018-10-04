@@ -13,12 +13,12 @@
 // limitations under the License.
 
 #ifdef _WIN32
-#include <uxr/agent/transport/UDPServerWindows.hpp>
-#include <uxr/agent/transport/TCPServerWindows.hpp>
+#include <uxr/agent/transport/udp/UDPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
 #else
-#include <uxr/agent/transport/SerialServerLinux.hpp>
-#include <uxr/agent/transport/UDPServerLinux.hpp>
-#include <uxr/agent/transport/TCPServerLinux.hpp>
+#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #include <termios.h>
 #include <fcntl.h>
 #endif //_WIN32

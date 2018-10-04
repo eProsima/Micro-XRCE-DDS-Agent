@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/SerialLayer.hpp>
+#include <uxr/agent/transport/serial/SerialLayer.hpp>
 #include <string.h>
 
 namespace eprosima {
