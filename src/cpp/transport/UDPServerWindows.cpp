@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/UDPServerWindows.hpp>
+#include <uxr/agent/transport/UDPServerWindows.hpp>
 #include <string.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 UDPServer::UDPServer(uint16_t port)
     : port_(port),
@@ -203,5 +203,5 @@ int UDPServer::get_error()
     return WSAGetLastError();
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

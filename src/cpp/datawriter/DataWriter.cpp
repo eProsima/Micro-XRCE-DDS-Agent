@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/datawriter/DataWriter.hpp>
-#include <micrortps/agent/publisher/Publisher.hpp>
-#include <micrortps/agent/participant/Participant.hpp>
-#include <micrortps/agent/topic/Topic.hpp>
+#include <uxr/agent/datawriter/DataWriter.hpp>
+#include <uxr/agent/publisher/Publisher.hpp>
+#include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/topic/Topic.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -25,7 +25,7 @@
 #define DEFAULT_XRCE_PUBLISHER_PROFILE "default_xrce_publisher_profile"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
                        const std::shared_ptr<Publisher>& publisher,
@@ -200,5 +200,5 @@ void DataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::Matc
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

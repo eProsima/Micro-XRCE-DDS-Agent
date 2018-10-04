@@ -21,7 +21,7 @@
 #include <iomanip>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace debug {
 
 #define SEPARATOR " | "
@@ -385,5 +385,5 @@ std::ostream& short_print(std::ostream& stream, const dds::xrce::DATA_Payload_Da
 }
 
 } // namespace debug
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

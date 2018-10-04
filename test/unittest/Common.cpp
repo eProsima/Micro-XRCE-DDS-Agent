@@ -15,7 +15,7 @@
 #include "Common.h"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 dds::xrce::MessageHeader CommonData::generate_message_header() const
@@ -189,5 +189,5 @@ dds::xrce::DATA_Payload_Data CommonData::generate_data_payload_data() const
     return data_payload;
 }
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

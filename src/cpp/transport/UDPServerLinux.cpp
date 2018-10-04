@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/UDPServerLinux.hpp>
+#include <uxr/agent/transport/UDPServerLinux.hpp>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -23,7 +23,7 @@
 #include <errno.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 UDPServer::UDPServer(uint16_t port)
     : port_(port),
@@ -205,5 +205,5 @@ int UDPServer::get_error()
     return errno;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

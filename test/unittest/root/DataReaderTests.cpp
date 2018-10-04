@@ -29,7 +29,7 @@
 #include <gtest/gtest.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 DataReaderTests::DataReaderTests()
@@ -97,5 +97,5 @@ TEST_F(DataReaderTests, DISABLED_ReadFormatDataSeq)
 }
 
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

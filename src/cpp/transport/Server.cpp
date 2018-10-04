@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/Server.hpp>
-#include <micrortps/agent/config.hpp>
-#include <micrortps/agent/processor/Processor.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/config.hpp>
+#include <uxr/agent/processor/Processor.hpp>
 #include <functional>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Server::Server()
     : running_cond_(false),
@@ -126,5 +126,5 @@ void Server::heartbeat_loop()
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

@@ -24,7 +24,7 @@
 namespace { char dummy; }
 #endif
 
-#include <micrortps/agent/types/XRCETypes.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
 #include <fastcdr/Cdr.h>
 #include <fastcdr/exceptions/BadParamException.h>
 

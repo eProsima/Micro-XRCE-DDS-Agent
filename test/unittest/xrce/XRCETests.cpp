@@ -14,8 +14,8 @@
 
 #include "../Common.h"
 
-#include <micrortps/agent/message/InputMessage.hpp>
-#include <micrortps/agent/message/OutputMessage.hpp>
+#include <uxr/agent/message/InputMessage.hpp>
+#include <uxr/agent/message/OutputMessage.hpp>
 
 #include <fastcdr/exceptions/BadParamException.h>
 
@@ -30,7 +30,7 @@
 #define BUFFER_LENGTH 200
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 bool operator==(const dds::xrce::MessageHeader& m1, const dds::xrce::MessageHeader& m2)
@@ -224,7 +224,7 @@ TEST_F(SerializerDeserializerTests, DeleteSubmessage)
 }
 
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 
 int main(int args, char** argv)

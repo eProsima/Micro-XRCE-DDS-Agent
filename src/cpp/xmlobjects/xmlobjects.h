@@ -26,7 +26,7 @@ class PublisherAttributes;
 class SubscriberAttributes;
 class TopicAttributes;
 } // namespace fastrtps
-namespace micrortps {
+namespace uxr {
 namespace xmlobjects {
 
 bool parse_participant(const char* source, std::size_t source_size,
@@ -37,7 +37,7 @@ bool parse_subscriber(const char* source, std::size_t source_size,
 bool parse_topic(const char* source, std::size_t source_size, eprosima::fastrtps::TopicAttributes& topic);
 
 } // namespace xmlobjects
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 
 #endif // !_XML_OBJECTS_H

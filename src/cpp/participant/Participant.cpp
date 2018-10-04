@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/participant/Participant.hpp>
+#include <uxr/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../xmlobjects/xmlobjects.h"
@@ -20,7 +20,7 @@
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Participant::Participant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
 
@@ -97,5 +97,5 @@ void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*, epros
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

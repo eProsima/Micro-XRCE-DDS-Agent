@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/libdev/MessageOutput.h>
-#include <micrortps/agent/types/XRCETypes.hpp>
-#include <micrortps/agent/types/MessageHeader.hpp>
-#include <micrortps/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/types/MessageHeader.hpp>
+#include <uxr/agent/types/SubMessageHeader.hpp>
 
 #include <stdio.h>
 
@@ -26,7 +26,7 @@
 #endif
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace debug {
 
 const std::string GREEN         = "\x1B[1;32m";
@@ -595,5 +595,5 @@ unsigned int objectid_to_uint(const dds::xrce::ObjectId& id)
 }
 
 } // namespace debug
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

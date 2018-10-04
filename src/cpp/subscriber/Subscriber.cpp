@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/subscriber/Subscriber.hpp>
-#include <micrortps/agent/participant/Participant.hpp>
+#include <uxr/agent/subscriber/Subscriber.hpp>
+#include <uxr/agent/participant/Participant.hpp>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
     : XRCEObject{object_id},
@@ -30,5 +30,5 @@ Subscriber::~Subscriber()
     participant_->untie_object(get_id());
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

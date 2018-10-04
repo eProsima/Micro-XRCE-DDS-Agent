@@ -13,10 +13,10 @@
 // limitations under the License.
 
 
-#include <micrortps/agent/object/XRCEObject.hpp>
+#include <uxr/agent/object/XRCEObject.hpp>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 XRCEObject::~XRCEObject() {}
 
@@ -25,6 +25,6 @@ dds::xrce::ObjectId XRCEObject::get_id() const
     return id_;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 

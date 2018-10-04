@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/types/TopicPubSubType.hpp>
+#include <uxr/agent/types/TopicPubSubType.hpp>
 #include <fastcdr/FastBuffer.h>
 #include <fastcdr/Cdr.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 TopicPubSubType::TopicPubSubType(bool with_key) {
     m_typeSize = 1024 + 4 /*encapsulation*/;
@@ -67,5 +67,5 @@ bool TopicPubSubType::getKey(void *data, rtps::InstanceHandle_t* handle)
     return m_isGetKeyDefined;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

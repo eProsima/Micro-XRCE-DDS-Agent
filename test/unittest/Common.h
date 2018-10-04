@@ -15,12 +15,12 @@
 #ifndef _TESTS_COMMON_H
 #define _TESTS_COMMON_H
 
-#include <micrortps/agent/types/XRCETypes.hpp>
-#include <micrortps/agent/types/MessageHeader.hpp>
-#include <micrortps/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/types/MessageHeader.hpp>
+#include <uxr/agent/types/SubMessageHeader.hpp>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 class CommonData
@@ -56,7 +56,7 @@ class CommonData
     dds::xrce::DATA_Payload_Data generate_data_payload_data() const;
 };
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 
 #endif // !_TESTS_COMMON_H

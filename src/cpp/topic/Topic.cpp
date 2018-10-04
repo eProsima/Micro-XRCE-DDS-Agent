@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/topic/Topic.hpp>
-#include <micrortps/agent/participant/Participant.hpp>
+#include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 
@@ -83,5 +83,5 @@ void Topic::release(ObjectContainer& root_objects)
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/processor/Processor.hpp>
-#include <micrortps/agent/datawriter/DataWriter.hpp>
-#include <micrortps/agent/datareader/DataReader.hpp>
-#include <micrortps/agent/Root.hpp>
-#include <micrortps/agent/transport/Server.hpp>
+#include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/datawriter/DataWriter.hpp>
+#include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/Root.hpp>
+#include <uxr/agent/transport/Server.hpp>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Processor::Processor(Server* server)
     : server_(server),
@@ -563,5 +563,5 @@ void Processor::check_heartbeats()
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

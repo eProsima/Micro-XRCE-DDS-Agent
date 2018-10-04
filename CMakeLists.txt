@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ###############################################################################
-# CMake build rules for Micro RTPS Agent
+# CMake build rules for Micro XRCE-DDS Agent
 ###############################################################################
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
@@ -35,14 +35,14 @@ endif()
 # Product information
 ###############################################################################
 if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(micrortps_agent C CXX)
+    project(microxrcedds_agent C CXX)
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
     set(PROJECT_VERSION_PATCH 0)
     set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 else()
     cmake_policy(SET CMP0048 NEW)
-    project(micrortps_agent VERSION "1.0.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.0.0" LANGUAGES C CXX)
 endif()
 
 ###############################################################################
@@ -128,8 +128,8 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         ${ASIO_INCLUDE_DIR}
     )
-add_executable(MicroRTPSAgent micrortps_agent.cpp)
-target_link_libraries(MicroRTPSAgent PRIVATE ${PROJECT_NAME})
+add_executable(MicroXRCEAgent microxrce_agent.cpp)
+target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
@@ -163,8 +163,8 @@ set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
 set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
 
 # Create source files with the define
-configure_file(${PROJECT_SOURCE_DIR}/include/micrortps/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
     )
 
 ###############################################################################
@@ -176,7 +176,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
-set_target_properties(MicroRTPSAgent PROPERTIES
+set_target_properties(MicroXRCEAgent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
@@ -232,8 +232,8 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 # Install includes
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/micrortps/agent/
-    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/uxr/agent/
+    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
     FILES_MATCHING PATTERN "*.hpp"
                    PATTERN "*.h"
     )
@@ -244,8 +244,8 @@ install(EXPORT ${PROJECT_NAME}Targets
     )
 
 # Install agent exec
-install(TARGETS MicroRTPSAgent
-    EXPORT MicroRTPSAgentTargets
+install(TARGETS MicroXRCEAgent
+    EXPORT MicroXRCEAgentTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
@@ -253,8 +253,8 @@ install(TARGETS MicroRTPSAgent
     )
 
 # Install config.h
-install(FILES ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
-    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
+install(FILES ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
     )
 
 # Install default profile XML

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/TCPServerLinux.hpp>
+#include <uxr/agent/transport/TCPServerLinux.hpp>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -23,7 +23,7 @@
 #include <signal.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 TCPServer::TCPServer(uint16_t port)
     : port_(port),
@@ -553,5 +553,5 @@ void TCPServer::init_input_buffer(TCPInputBuffer* buffer)
     buffer->msg_size = 0;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
