@@ -53,101 +53,66 @@ DataWriter::~DataWriter()
     }
 }
 
-bool DataWriter::init(const ObjectContainer& root_objects)
-{
-    PublisherAttributes attributes;
-    if (rtps_publisher_prof_.empty() ||
-        (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
-         fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(rtps_publisher_prof_, attributes)))
-    {
-        fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
-    }
-
-    dds::xrce::ObjectId topic_id;
-    if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-    {
-        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-        topic_->tie_object(get_id());
-        fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
-        if (!rtps_publisher_prof_.empty())
-        {
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, rtps_publisher_prof_, this);
-        }
-        else
-        {
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, this);
-        }
-    }
-
-    if (rtps_publisher_ == nullptr)
-    {
-        std::cout << "DDS ERROR: init publisher error" << std::endl;
-        return false;
-    }
-    return true;
-}
-
-bool DataWriter::init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objects)
+bool DataWriter::init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects)
 {
     bool rv = false;
     fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
-
-    rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, ref_rep, this);
-    if (nullptr != rtps_publisher_)
+    dds::xrce::ObjectId topic_id;
+    switch (representation.representation()._d())
     {
-        dds::xrce::ObjectId topic_id;
-        const std::string& topic_data_type = rtps_publisher_->getAttributes().topic.getTopicDataType();
-        if (publisher_->get_participant()->check_register_topic(topic_data_type, topic_id))
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-            topic_->tie_object(get_id());
-            rv = true;
-        }
-        else
-        {
-            if (fastrtps::Domain::removePublisher(rtps_publisher_))
+            const std::string& ref_rep = representation.representation().object_reference();
+            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, ref_rep, this);
+            if (nullptr != rtps_publisher_)
             {
-                rtps_publisher_ = nullptr;
+                const std::string& topic_data_type = rtps_publisher_->getAttributes().topic.getTopicDataType();
+                if (publisher_->get_participant()->check_register_topic(topic_data_type, topic_id))
+                {
+                    topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+                    topic_->tie_object(get_id());
+                    rv = true;
+                }
             }
+            else
+            {
+                if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                {
+                    rtps_publisher_ = nullptr;
+                }
+            }
+            break;
         }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            fastrtps::PublisherAttributes attributes;
+            if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), attributes))
+            {
+                rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, this);
+                if (nullptr != rtps_publisher_)
+                {
+                    if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
+                    {
+                        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+                        topic_->tie_object(get_id());
+                        rv = true;
+                    }
+                }
+                else
+                {
+                    if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                    {
+                        rtps_publisher_ = nullptr;
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
-
     return rv;
-}
-
-bool DataWriter::init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects)
-{
-    PublisherAttributes attributes;
-    fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
-    if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), attributes))
-    {
-        dds::xrce::ObjectId topic_id;
-        if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-        {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-            topic_->tie_object(get_id());
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, this);
-        }
-    }
-    else
-    {
-        dds::xrce::ObjectId topic_id;
-        fastrtps::xmlparser::XMLProfileManager::getDefaultPublisherAttributes(attributes);
-        if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-        {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-            topic_->tie_object(get_id());
-            rtps_publisher_ =
-                fastrtps::Domain::createPublisher(rtps_participant, DEFAULT_XRCE_PUBLISHER_PROFILE, this);
-        }
-    }
-
-    if (nullptr == rtps_publisher_)
-    {
-        std::cout << "init publisher error" << std::endl;
-        return false;
-    }
-    return true;
 }
 
 const dds::xrce::ResultStatus& DataWriter::write(dds::xrce::DataRepresentation& data)

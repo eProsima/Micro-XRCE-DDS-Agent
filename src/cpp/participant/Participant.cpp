@@ -33,23 +33,37 @@ Participant::~Participant()
     }
 }
 
-bool Participant::init_by_ref(const std::string& ref_rep)
-{
-    return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(ref_rep, this)));
-}
-
-bool Participant::init_by_xml(const std::string& xml_rep)
+bool Participant::init(const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
     bool rv = false;
-    if (nullptr == rtps_participant_)
+    switch (representation.representation()._d())
     {
-        fastrtps::ParticipantAttributes attributes;
-        if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), attributes))
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            rtps_participant_ = fastrtps::Domain::createParticipant(attributes, this);
-            rv = (nullptr != rtps_participant_);
+            if (nullptr == rtps_participant_)
+            {
+                const std::string& ref_rep = representation.representation().object_reference();
+                rtps_participant_ = fastrtps::Domain::createParticipant(ref_rep, this);
+                rv = (nullptr != rtps_participant_);
+            }
+            break;
         }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            if (nullptr == rtps_participant_)
+            {
+                const std::string& xml_rep = representation.representation().xml_string_representation();
+                fastrtps::ParticipantAttributes attributes;
+                if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), attributes))
+                {
+                    rtps_participant_ = fastrtps::Domain::createParticipant(attributes, this);
+                    rv = (nullptr != rtps_participant_);
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
     return rv;
 }

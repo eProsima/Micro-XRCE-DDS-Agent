@@ -70,99 +70,66 @@ DataReader::~DataReader() noexcept
     }
 }
 
-bool DataReader::init(const ObjectContainer& root_objects)
-{
-    SubscriberAttributes attributes;
-    if (rtps_subscriber_prof_.empty() ||
-        (fastrtps::xmlparser::XMLP_ret::XML_ERROR ==
-         fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(rtps_subscriber_prof_, attributes)))
-    {
-        fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
-    }
-
-    dds::xrce::ObjectId topic_id;
-    if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-    {
-        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-        topic_->tie_object(get_id());
-        fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
-        if (!rtps_subscriber_prof_.empty())
-        {
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, rtps_subscriber_prof_, this);
-        }
-        else
-        {
-            rtps_subscriber_ =
-                fastrtps::Domain::createSubscriber(rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
-        }
-    }
-    if (nullptr == rtps_subscriber_)
-    {
-        std::cout << "init subscriber error" << std::endl;
-        return false;
-    }
-    return true;
-}
-
-bool DataReader::init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objcets)
+bool DataReader::init(const dds::xrce::DATAREADER_Representation& representation, const ObjectContainer& root_objects)
 {
     bool rv = false;
     fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
-
-    rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, ref_rep, this);
-    if (nullptr != rtps_subscriber_)
+    dds::xrce::ObjectId topic_id;
+    switch (representation.representation()._d())
     {
-        dds::xrce::ObjectId topic_id;
-        const std::string& topic_data_type = rtps_subscriber_->getAttributes().topic.getTopicDataType();
-        if (subscriber_->get_participant()->check_register_topic(topic_data_type, topic_id))
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objcets.at(topic_id));
-            topic_->tie_object(get_id());
-            rv = true;
-        }
-        else
-        {
-            if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
+            const std::string& ref_rep = representation.representation().object_reference();
+            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, ref_rep, this);
+            if (nullptr != rtps_subscriber_)
             {
-                rtps_subscriber_ = nullptr;
+                const std::string& topic_data_type = rtps_subscriber_->getAttributes().topic.getTopicDataType();
+                if (subscriber_->get_participant()->check_register_topic(topic_data_type, topic_id))
+                {
+                    topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+                    topic_->tie_object(get_id());
+                    rv = true;
+                }
             }
+            else
+            {
+                if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
+                {
+                    rtps_subscriber_ = nullptr;
+                }
+            }
+            break;
         }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            fastrtps::SubscriberAttributes attributes;
+            if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), attributes))
+            {
+                rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, attributes, this);
+                if (nullptr != rtps_subscriber_)
+                {
+                    if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
+                    {
+                        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
+                        topic_->tie_object(get_id());
+                        rv = true;
+                    }
+                }
+                else
+                {
+                    if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
+                    {
+                        rtps_subscriber_ = nullptr;
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
-
     return rv;
-}
-
-bool DataReader::init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects)
-{
-    SubscriberAttributes attributes;
-    fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
-    if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), attributes))
-    {
-        dds::xrce::ObjectId topic_id;
-        if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-        {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-            topic_->tie_object(get_id());
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, attributes, this);
-        }
-    }
-    else
-    {
-        dds::xrce::ObjectId topic_id;
-        fastrtps::xmlparser::XMLProfileManager::getDefaultSubscriberAttributes(attributes);
-        if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-        {
-            topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-            topic_->tie_object(get_id());
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, DEFAULT_XRCE_SUBSCRIBER_PROFILE, this);
-        }
-    }
-    if (rtps_subscriber_ == nullptr)
-    {
-        std::cout << "init subscriber error" << std::endl;
-        return false;
-    }
-    return true;
 }
 
 void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
