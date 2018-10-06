@@ -41,6 +41,7 @@ class Topic : public XRCEObject
     virtual void release(ObjectContainer&) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
+    bool matched(const dds::xrce::OBJK_TOPIC_Representation& representation) const;
 
   private:
     std::string name;

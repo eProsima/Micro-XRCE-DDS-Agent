@@ -47,6 +47,7 @@ class Participant : public XRCEObject, public fastrtps::ParticipantListener
     void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
+    bool matched(const dds::xrce::OBJK_PARTICIPANT_Representation& representation) const;
 
   private:
     void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo info) override;

@@ -83,5 +83,42 @@ void Topic::release(ObjectContainer& root_objects)
     }
 }
 
+bool Topic::matched(const dds::xrce::OBJK_TOPIC_Representation& representation) const
+{
+    bool rv = false;
+    fastrtps::TopicAttributes new_attributes;
+
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref_rep = representation.representation().object_reference();
+            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+                fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref_rep, new_attributes))
+            {
+                rv = (generic_type_.getName() == new_attributes.getTopicDataType().data()) &&
+                     (generic_type_.m_isGetKeyDefined == (new_attributes.getTopicKind() ==
+                                                          fastrtps::rtps::TopicKind_t::WITH_KEY));
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            if (xmlobjects::parse_topic(xml_rep.data(), xml_rep.size(), new_attributes))
+            {
+                rv = (generic_type_.getName() == new_attributes.getTopicDataType().data()) &&
+                     (generic_type_.m_isGetKeyDefined == (new_attributes.getTopicKind() ==
+                                                          fastrtps::rtps::TopicKind_t::WITH_KEY));
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return rv;
+}
+
 } // namespace uxr
 } // namespace eprosima

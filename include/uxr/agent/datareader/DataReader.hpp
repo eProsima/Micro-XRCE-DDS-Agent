@@ -130,6 +130,7 @@ public:
                                eprosima::fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
     void release(ObjectContainer&) override {}
+    bool matched(const dds::xrce::DATAREADER_Representation& representation) const;
 
 private:
     int start_read(const dds::xrce::DataDeliveryControl& delivery_control,

@@ -301,6 +301,40 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
     cond_var_.notify_one();
 }
 
+bool DataReader::matched(const dds::xrce::DATAREADER_Representation& representation) const
+{
+    bool rv = false;
+    fastrtps::SubscriberAttributes old_attributes = rtps_subscriber_->getAttributes();
+    fastrtps::SubscriberAttributes new_attributes;
+
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref_rep = representation.representation().object_reference();
+            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+                fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(ref_rep, new_attributes))
+            {
+                rv = (new_attributes == old_attributes);
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), new_attributes))
+            {
+                rv = (new_attributes == old_attributes);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return rv;
+}
+
 ReadTimeEvent::ReadTimeEvent()
     : m_timer_max(m_io_service_max)
 {

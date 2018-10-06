@@ -200,5 +200,39 @@ void DataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::Matc
     }
 }
 
+bool DataWriter::matched(const dds::xrce::DATAWRITER_Representation& representation) const
+{
+    bool rv = false;
+    fastrtps::PublisherAttributes old_attributes = rtps_publisher_->getAttributes();
+    fastrtps::PublisherAttributes new_attributes;
+
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref_rep = representation.representation().object_reference();
+            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+                fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(ref_rep, new_attributes))
+            {
+                rv = (new_attributes == old_attributes);
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), new_attributes))
+            {
+                rv = (new_attributes == old_attributes);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return rv;
+}
+
 } // namespace uxr
 } // namespace eprosima

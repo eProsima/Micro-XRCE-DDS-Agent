@@ -33,6 +33,7 @@ public:
     virtual void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
+    bool matched(const dds::xrce::OBJK_PUBLISHER_Representation& ) const { return true; }
 
 private:
     std::shared_ptr<Participant> participant_;
