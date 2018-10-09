@@ -39,14 +39,14 @@ TCPServer::TCPServer(uint16_t port)
       clients_mtx_(),
       listener_thread_(),
       running_cond_(false),
-      messages_queue{}
+      messages_queue_{}
 {}
 
 void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
     TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
-    uint64_t source_id = ((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port();
-    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
 
     /* Update maps. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -92,13 +92,13 @@ const dds::xrce::ClientKey TCPServer::get_client_key(EndPoint* source)
     dds::xrce::ClientKey client_key;
     TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
     std::lock_guard<std::mutex> lock(clients_mtx_);
-    auto it = source_to_client_map_.find(((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port());
+    auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = it->second & 0x000000FF;
-        client_key.at(1) = (it->second & 0x0000FF00) >> 8;
-        client_key.at(2) = (it->second & 0x00FF0000) >> 16;
-        client_key.at(3) = (it->second & 0xFF000000) >> 24;
+        client_key.at(0) = uint8_t(it->second & 0x000000FF);
+        client_key.at(1) = uint8_t((it->second & 0x0000FF00) >> 8);
+        client_key.at(2) = uint8_t((it->second & 0x00FF0000) >> 16);
+        client_key.at(3) = uint8_t((it->second & 0xFF000000) >> 24);
     }
     else
     {
@@ -110,13 +110,13 @@ const dds::xrce::ClientKey TCPServer::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> TCPServer::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())
     {
         uint64_t source_id = it->second;
-        source.reset(new TCPEndPoint(source_id >> 16, source_id & 0xFFFF));
+        source.reset(new TCPEndPoint(uint32_t(source_id >> 16), uint16_t(source_id & 0xFFFF)));
     }
     return source;
 }
@@ -170,40 +170,43 @@ bool TCPServer::init()
 
 bool TCPServer::close()
 {
-    bool rv = false;
-
     /* Stop listener thread. */
     running_cond_ = false;
     if (listener_thread_ && listener_thread_->joinable())
     {
-        /* Close listener. */
         listener_thread_->join();
+    }
+
+    /* Close listener. */
+    if (-1 != listener_poll_.fd)
+    {
         if (0 == ::close(listener_poll_.fd))
         {
-            /* Disconnect clients. */
-            for (auto& conn : connections_)
-            {
-                close_connection(conn);
-            }
-            std::lock_guard<std::mutex> lock(connections_mtx_);
-            rv = active_connections_.empty();
+            listener_poll_.fd = -1;
         }
     }
 
-    return rv;
+    /* Disconnect clients. */
+    for (auto& conn : connections_)
+    {
+        close_connection(conn);
+    }
+
+    std::lock_guard<std::mutex> lock(connections_mtx_);
+    return (-1 == listener_poll_.fd) && (active_connections_.empty());
 }
 
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
-    if (messages_queue.empty() && !read_message(timeout))
+    if (messages_queue_.empty() && !read_message(timeout))
     {
         rv = false;
     }
     else
     {
-        input_packet = std::move(messages_queue.front());
-        messages_queue.pop();
+        input_packet = std::move(messages_queue_.front());
+        messages_queue_.pop();
     }
     return rv;
 }
@@ -215,7 +218,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
     ssize_t send_rv = 0;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
-    uint64_t source_id = ((uint64_t)destination->get_addr() << 16) | destination->get_port();
+    uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it = source_to_connection_map_.find(source_id);
@@ -225,14 +228,14 @@ bool TCPServer::send_message(OutputPacket output_packet)
         lock.unlock();
 
         /* Send message size. */
-        msg_size_buf[0] = (uint8_t)(0x00FF & output_packet.message->get_len());
-        msg_size_buf[1] = (uint8_t)((0xFF00 & output_packet.message->get_len()) >> 8);
+        msg_size_buf[0] = uint8_t(0x00FF & output_packet.message->get_len());
+        msg_size_buf[1] = uint8_t((0xFF00 & output_packet.message->get_len()) >> 8);
         do
         {
             send_rv = send_locking(connection, msg_size_buf, 2);
             if (0 <= send_rv)
             {
-                bytes_sent += send_rv;
+                bytes_sent += uint16_t(send_rv);
             }
             else
             {
@@ -253,7 +256,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
                                        output_packet.message->get_len() - bytes_sent);
                 if (0 <= send_rv)
                 {
-                    bytes_sent += send_rv;
+                    bytes_sent += uint16_t(send_rv);
                 }
                 else
                 {
@@ -261,7 +264,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
                     rv = false;
                 }
             }
-            while (rv && bytes_sent != static_cast<uint16_t>(output_packet.message->get_len()));
+            while (rv && bytes_sent != uint16_t(output_packet.message->get_len()));
         }
     }
 
@@ -293,19 +296,15 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                     connection.input_buffer.msg_size = 0;
                     if (2 == bytes_received)
                     {
-                        connection.input_buffer.msg_size = (uint16_t)(size_buf[1] << 8) | (uint16_t)size_buf[0];
+                        connection.input_buffer.msg_size = uint16_t((uint16_t(size_buf[1]) << 8) | size_buf[0]);
                         if (connection.input_buffer.msg_size != 0)
                         {
                             connection.input_buffer.state = TCP_SIZE_READ;
                         }
-                        else
-                        {
-                            connection.input_buffer.state = TCP_BUFFER_EMPTY;
-                        }
                     }
                     else
                     {
-                        connection.input_buffer.msg_size = (uint16_t)size_buf[0];
+                        connection.input_buffer.msg_size = uint16_t(size_buf[0]);
                         connection.input_buffer.state = TCP_SIZE_INCOMPLETE;
                     }
                 }
@@ -326,7 +325,7 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 ssize_t bytes_received = recv_locking(connection, &size_msb, 1);
                 if (0 < bytes_received)
                 {
-                    connection.input_buffer.msg_size = (uint16_t)(size_msb << 8) | connection.input_buffer.msg_size;
+                    connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
                     if (connection.input_buffer.msg_size != 0)
                     {
                         connection.input_buffer.state = TCP_SIZE_READ;
@@ -356,13 +355,13 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                                                       connection.input_buffer.buffer.size());
                 if (0 < bytes_received)
                 {
-                    if ((uint16_t)bytes_received == connection.input_buffer.msg_size)
+                    if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
                     {
                         connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
                     }
                     else
                     {
-                        connection.input_buffer.position = (uint16_t)bytes_received;
+                        connection.input_buffer.position = uint16_t(bytes_received);
                         connection.input_buffer.state = TCP_MESSAGE_INCOMPLETE;
                         exit_flag = true;
                     }
@@ -385,7 +384,7 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                                                       connection.input_buffer.buffer.size() - connection.input_buffer.position);
                 if (0 < bytes_received)
                 {
-                    connection.input_buffer.position += (uint16_t)bytes_received;
+                    connection.input_buffer.position += uint16_t(bytes_received);
                     if (connection.input_buffer.position == connection.input_buffer.msg_size)
                     {
                         connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
@@ -413,10 +412,6 @@ uint16_t TCPServer::read_data(TCPConnection& connection)
                 exit_flag = true;
                 break;
             }
-            default:
-                rv = 0;
-                exit_flag = true;
-                break;
         }
     }
 
@@ -429,8 +424,8 @@ bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
     std::lock_guard<std::mutex> lock(connections_mtx_);
     if (!free_connections_.empty())
     {
-        size_t id = size_t(free_connections_.front());
-        TCPConnection& connection = connections_[id];
+        uint32_t id = free_connections_.front();
+        TCPConnection& connection = connections_[size_t(id)];
         connection.poll_fd->fd = fd;
         connection.addr = sockaddr->sin_addr.s_addr;
         connection.port = sockaddr->sin_port;
@@ -504,7 +499,7 @@ bool TCPServer::read_message(int timeout)
                     InputPacket input_packet;
                     input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
                     input_packet.source.reset(new TCPEndPoint(conn.addr, conn.port));
-                    messages_queue.push(std::move(input_packet));
+                    messages_queue_.push(std::move(input_packet));
                     rv = true;
                 }
             }

@@ -36,10 +36,11 @@ UDPServer::UDPServer(uint16_t port)
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
-    uint64_t source_id = ((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port();
-    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
 
     /* Update maps. */
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it_client = client_to_source_map_.find(client_id);
     if (it_client != client_to_source_map_.end())
     {
@@ -68,6 +69,7 @@ void UDPServer::on_delete_client(EndPoint* source)
     uint64_t source_id = (endpoint->get_addr() << 16) | endpoint->get_port();
 
     /* Update maps. */
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = source_to_client_map_.find(source_id);
     if (it != source_to_client_map_.end())
     {
@@ -80,13 +82,14 @@ const dds::xrce::ClientKey UDPServer::get_client_key(EndPoint* source)
 {
     dds::xrce::ClientKey client_key;
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
-    auto it = source_to_client_map_.find(((uint64_t)endpoint->get_addr() << 16) | endpoint->get_port());
+    std::lock_guard<std::mutex> lock(clients_mtx_);
+    auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = it->second & 0x000000FF;
-        client_key.at(1) = (it->second & 0x0000FF00) >> 8;
-        client_key.at(2) = (it->second & 0x00FF0000) >> 16;
-        client_key.at(3) = (it->second & 0xFF000000) >> 24;
+        client_key.at(0) = uint8_t(it->second & 0x000000FF);
+        client_key.at(1) = uint8_t((it->second & 0x0000FF00) >> 8);
+        client_key.at(2) = uint8_t((it->second & 0x00FF0000) >> 16);
+        client_key.at(3) = uint8_t((it->second & 0xFF000000) >> 24);
     }
     else
     {
@@ -98,12 +101,13 @@ const dds::xrce::ClientKey UDPServer::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> UDPServer::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())
     {
         uint64_t source_id = it->second;
-        source.reset(new UDPEndPoint(source_id >> 16, source_id & 0xFFFF));
+        source.reset(new UDPEndPoint(uint32_t(source_id >> 16), uint16_t(source_id & 0xFFFF)));
     }
     return source;
 }

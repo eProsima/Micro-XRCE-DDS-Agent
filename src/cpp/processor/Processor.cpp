@@ -86,7 +86,6 @@ void Processor::process_input_packet(InputPacket&& input_packet)
 
                 /* Set output packet and serialize ACKNACK. */
                 OutputPacket output_packet;
-                output_packet.destination.reset(new EndPoint(*input_packet.source));
                 output_packet.destination = input_packet.source;
                 output_packet.message.reset(new OutputMessage(acknack_header));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
@@ -516,14 +515,17 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     /* Set output packet and serialize DATA. */
     OutputPacket output_packet;
     output_packet.destination = server_->get_source(cb_args.client_key);
-    output_packet.message = OutputMessagePtr(new OutputMessage(message_header));
-    output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
+    if (output_packet.destination)
+    {
+        output_packet.message = OutputMessagePtr(new OutputMessage(message_header));
+        output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
 
-    /* Store message. */
-    client->session().push_output_message(cb_args.stream_id, output_packet.message);
+        /* Store message. */
+        client->session().push_output_message(cb_args.stream_id, output_packet.message);
 
-    /* Send message. */
-    server_->push_output_packet(output_packet);
+        /* Send message. */
+        server_->push_output_packet(output_packet);
+    }
 }
 
 void Processor::check_heartbeats()

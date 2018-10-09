@@ -120,7 +120,7 @@ private:
     std::mutex clients_mtx_;
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
-    std::queue<InputPacket> messages_queue;
+    std::queue<InputPacket> messages_queue_;
 };
 
 } // namespace uxr

@@ -69,6 +69,7 @@ private:
     uint8_t buffer_[UDP_TRANSPORT_MTU];
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
+    std::mutex clients_mtx_;
 };
 
 } // namespace uxr
