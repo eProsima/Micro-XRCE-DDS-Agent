@@ -29,7 +29,6 @@
 namespace eprosima {
 namespace uxr {
 
-typedef struct SerialInputBuffer SerialInputBuffer;
 struct SerialInputBuffer
 {
     uint8_t buffer[UXR_SERIAL_BUFFER_SIZE];
@@ -39,7 +38,6 @@ struct SerialInputBuffer
     bool stream_init;
 };
 
-typedef struct SerialOutputBuffer SerialOutputBuffer;
 struct SerialOutputBuffer
 {
     uint8_t buffer[UXR_SERIAL_BUFFER_SIZE];

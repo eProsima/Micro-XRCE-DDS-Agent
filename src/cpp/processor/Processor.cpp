@@ -553,11 +553,14 @@ void Processor::check_heartbeats()
                 /* Set output packet and serialize HEARTBEAT. */
                 OutputPacket output_packet;
                 output_packet.destination = server_->get_source(client->get_client_key());
-                output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
-                output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+                if (output_packet.destination)
+                {
+                    output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
+                    output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
 
-                /* Send message. */
-                server_->push_output_packet(output_packet);
+                    /* Send message. */
+                    server_->push_output_packet(output_packet);
+                }
             }
         }
     }

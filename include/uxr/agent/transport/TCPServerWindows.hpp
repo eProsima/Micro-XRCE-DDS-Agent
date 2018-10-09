@@ -38,7 +38,6 @@ typedef enum TCPInputBufferState
 
 } TCPInputBufferState;
 
-typedef struct TCPInputBuffer TCPInputBuffer;
 struct TCPInputBuffer
 {
     std::vector<uint8_t> buffer;
