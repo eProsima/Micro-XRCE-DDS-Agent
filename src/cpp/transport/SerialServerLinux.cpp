@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/SerialServerLinux.hpp>
+#include <uxr/agent/transport/SerialServerLinux.hpp>
 #include <unistd.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 SerialServer::SerialServer(int fd, uint8_t addr)
     : addr_(addr),
@@ -113,7 +113,7 @@ bool SerialServer::init()
     serial_io_.init();
 
     /* Send init flag. */
-    uint8_t flag = MICRORTPS_FRAMING_END_FLAG;
+    uint8_t flag = UXR_FRAMING_END_FLAG;
     ssize_t bytes_written = write(poll_fd_.fd, &flag, 1);
     if (0 < bytes_written && 1 == bytes_written)
     {
@@ -193,5 +193,5 @@ uint16_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int t
     return rv;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

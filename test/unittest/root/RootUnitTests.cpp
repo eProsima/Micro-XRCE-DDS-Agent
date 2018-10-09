@@ -14,15 +14,15 @@
 
 #include "../Common.h"
 
-#include <micrortps/agent/Root.hpp>
-#include <micrortps/agent/client/ProxyClient.hpp>
-#include <micrortps/agent/types/MessageHeader.hpp>
-#include <micrortps/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/Root.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
+#include <uxr/agent/types/MessageHeader.hpp>
+#include <uxr/agent/types/SubMessageHeader.hpp>
 
 #include <gtest/gtest.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 class RootUnitTests : public CommonData, public ::testing::Test
@@ -32,7 +32,7 @@ class RootUnitTests : public CommonData, public ::testing::Test
 
         virtual ~RootUnitTests() = default;
 
-        eprosima::micrortps::Root root_;
+        eprosima::uxr::Root root_;
 };
 
 TEST_F(RootUnitTests, CreateClientOk)
@@ -178,7 +178,7 @@ TEST_F(ProxyClientTests, DeleteOnEmpty)
 //    ASSERT_EQ(dds::xrce::STATUS_OK, result.implementation_status());
 //}
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 
 int main(int args, char** argv)

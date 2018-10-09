@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/utils/TokenBucket.hpp>
 
 #include <algorithm>
 #include <iostream>
 
-using eprosima::micrortps::utils::TokenBucket;
+using eprosima::uxr::utils::TokenBucket;
 
 TokenBucket::TokenBucket(size_t rate, size_t burst)
     : capacity_(burst),

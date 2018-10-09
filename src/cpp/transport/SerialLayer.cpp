@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/SerialLayer.hpp>
+#include <uxr/agent/transport/SerialLayer.hpp>
 #include <string.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 void SerialIO::init()
 {
@@ -31,7 +31,7 @@ uint16_t SerialIO::write_serial_msg(const uint8_t* buf, size_t len, const uint8_
     uint16_t writing_len = 0;
 
     /* Check output buffer size. */
-    if (SERIAL_TRANSPORT_MTU < len || sizeof(output_buffer_.buffer) - MICRORTPS_SERIAL_OVERHEAD < len)
+    if (SERIAL_TRANSPORT_MTU < len || sizeof(output_buffer_.buffer) - UXR_SERIAL_OVERHEAD < len)
     {
         cond = false;
     }
@@ -63,7 +63,7 @@ uint16_t SerialIO::write_serial_msg(const uint8_t* buf, size_t len, const uint8_
             /* Write end flag. */
             if (cond)
             {
-                output_buffer_.buffer[position] = MICRORTPS_FRAMING_END_FLAG;
+                output_buffer_.buffer[position] = UXR_FRAMING_END_FLAG;
             }
         }
     }
@@ -175,8 +175,8 @@ uint16_t SerialIO::process_serial_message(uint8_t* buf, size_t len, uint8_t* src
     /* Check raw message length. */
     msg_len = (input_buffer_.head < input_buffer_.marker) ?
                   (input_buffer_.marker - input_buffer_.head) :
-                  (MICRORTPS_SERIAL_BUFFER_SIZE - input_buffer_.marker + input_buffer_.head);
-    if (MICRORTPS_SERIAL_OVERHEAD > msg_len)
+                  (UXR_SERIAL_BUFFER_SIZE - input_buffer_.marker + input_buffer_.head);
+    if (UXR_SERIAL_OVERHEAD > msg_len)
     {
         cond = false;
     }
@@ -189,7 +189,7 @@ uint16_t SerialIO::process_serial_message(uint8_t* buf, size_t len, uint8_t* src
         payload_len += get_next_octet(&msg_marker) << 8;
 
         /* Check message length. */
-        if (payload_len > len || payload_len > msg_len - MICRORTPS_SERIAL_OVERHEAD)
+        if (payload_len > len || payload_len > msg_len - UXR_SERIAL_OVERHEAD)
         {
             cond = false;
         }
@@ -232,7 +232,7 @@ bool SerialIO::init_serial_stream()
     bool rv = true;
 
     /* Find BEGIN_FLAG. */
-    while (MICRORTPS_FRAMING_END_FLAG != input_buffer_.buffer[input_buffer_.head])
+    while (UXR_FRAMING_END_FLAG != input_buffer_.buffer[input_buffer_.head])
     {
         input_buffer_.head = (input_buffer_.head + 1) % sizeof(input_buffer_.buffer);
         if (input_buffer_.head == input_buffer_.tail)
@@ -257,7 +257,7 @@ bool SerialIO::find_serial_message()
     bool rv = true;
 
     /* Find END_FLAG. */
-    while (MICRORTPS_FRAMING_END_FLAG != input_buffer_.buffer[input_buffer_.marker])
+    while (UXR_FRAMING_END_FLAG != input_buffer_.buffer[input_buffer_.marker])
     {
         input_buffer_.marker = (input_buffer_.marker + 1) % sizeof(input_buffer_.buffer);
         if (input_buffer_.marker == input_buffer_.tail)
@@ -281,9 +281,9 @@ uint8_t SerialIO::get_next_octet(uint16_t* relative_position)
     uint8_t rv = input_buffer_.buffer[(input_buffer_.head + *relative_position) % sizeof(input_buffer_.buffer)];
 
     *relative_position += 1;
-    if (MICRORTPS_FRAMING_ESC_FLAG == rv)
+    if (UXR_FRAMING_ESC_FLAG == rv)
     {
-        rv = input_buffer_.buffer[(input_buffer_.head + *relative_position) % sizeof(input_buffer_.buffer)] ^ MICRORTPS_FRAMING_XOR_FLAG;
+        rv = input_buffer_.buffer[(input_buffer_.head + *relative_position) % sizeof(input_buffer_.buffer)] ^ UXR_FRAMING_XOR_FLAG;
         *relative_position += 1;
     }
 
@@ -294,12 +294,12 @@ bool SerialIO::add_next_octet(uint8_t octet, uint16_t* position)
 {
     bool rv = false;
 
-    if (MICRORTPS_FRAMING_END_FLAG == octet || MICRORTPS_FRAMING_ESC_FLAG == octet)
+    if (UXR_FRAMING_END_FLAG == octet || UXR_FRAMING_ESC_FLAG == octet)
     {
         if (*position < sizeof(output_buffer_.buffer))
         {
-            output_buffer_.buffer[*position] = MICRORTPS_FRAMING_ESC_FLAG;
-            output_buffer_.buffer[*position + 1] = octet ^ MICRORTPS_FRAMING_XOR_FLAG;
+            output_buffer_.buffer[*position] = UXR_FRAMING_ESC_FLAG;
+            output_buffer_.buffer[*position + 1] = octet ^ UXR_FRAMING_XOR_FLAG;
             *position += 2;
             rv = true;
         }
@@ -353,5 +353,5 @@ const uint16_t SerialIO::crc16_table_[256] = {
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

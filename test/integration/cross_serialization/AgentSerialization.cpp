@@ -1,6 +1,6 @@
 #include "AgentSerialization.hpp"
-#include <micrortps/agent/types/XRCETypes.hpp>
-#include <micrortps/agent/message/OutputMessage.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/message/OutputMessage.hpp>
 #include "../../unittest/Common.h"
 
 const dds::xrce::ClientKey client_key      = {{0xF1, 0xF2, 0xF3, 0xF4}};
@@ -20,7 +20,7 @@ dds::xrce::MessageHeader generate_message_header()
 
 std::vector<uint8_t> AgentSerialization::create_client_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::CREATE_CLIENT_Payload payload;
     payload.request_id() = {0x01, 0x23};
@@ -42,7 +42,7 @@ std::vector<uint8_t> AgentSerialization::create_client_payload()
 
 std::vector<uint8_t> AgentSerialization::create_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::CREATE_Payload payload;
     payload.request_id() = {0x01, 0x23};
@@ -61,7 +61,7 @@ std::vector<uint8_t> AgentSerialization::create_payload()
 
 std::vector<uint8_t> AgentSerialization::get_info_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::GET_INFO_Payload payload;
     payload.request_id() = {0x01, 0x23};
@@ -77,7 +77,7 @@ std::vector<uint8_t> AgentSerialization::get_info_payload()
 
 std::vector<uint8_t> AgentSerialization::delete_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::DELETE_Payload payload;
     payload.request_id() = {0x01, 0x23};
@@ -92,7 +92,7 @@ std::vector<uint8_t> AgentSerialization::delete_payload()
 
 std::vector<uint8_t> AgentSerialization::status_agent_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::STATUS_AGENT_Payload payload;
     payload.related_request().request_id() = {0x01, 0x23};
@@ -114,7 +114,7 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
 
 std::vector<uint8_t> AgentSerialization::status_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::STATUS_Payload payload;
     payload.related_request().request_id() = {0x01, 0x23};
@@ -131,7 +131,7 @@ std::vector<uint8_t> AgentSerialization::status_payload()
 
 std::vector<uint8_t> AgentSerialization::info_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::INFO_Payload payload;
     payload.object_info().activity()._d(dds::xrce::OBJK_DATAWRITER);
@@ -149,7 +149,7 @@ std::vector<uint8_t> AgentSerialization::info_payload()
 
 std::vector<uint8_t> AgentSerialization::read_data_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::READ_DATA_Payload payload;
     payload.request_id() = {0x01, 0x23};
@@ -166,7 +166,7 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
 
 std::vector<uint8_t> AgentSerialization::write_data_payload_data()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::WRITE_DATA_Payload_Data payload;
     payload.request_id() = {0x01, 0x23};
@@ -206,7 +206,7 @@ std::vector<uint8_t> AgentSerialization::write_data_payload_packed_samples()
 
 std::vector<uint8_t> AgentSerialization::data_payload_data()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::DATA_Payload_Data payload;
     payload.request_id() = {0x01, 0x23};
@@ -246,7 +246,7 @@ std::vector<uint8_t> AgentSerialization::data_payload_packed_samples()
 
 std::vector<uint8_t> AgentSerialization::acknack_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::ACKNACK_Payload payload;
     payload.first_unacked_seq_num() = (uint16_t)0x0123;
@@ -261,7 +261,7 @@ std::vector<uint8_t> AgentSerialization::acknack_payload()
 
 std::vector<uint8_t> AgentSerialization::heartbeat_payload()
 {
-    eprosima::micrortps::OutputMessage output(generate_message_header());
+    eprosima::uxr::OutputMessage output(generate_message_header());
 
     dds::xrce::HEARTBEAT_Payload payload;
     payload.first_unacked_seq_nr() = (uint16_t)0x0123;

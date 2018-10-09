@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/TCPServerWindows.hpp>
+#include <uxr/agent/transport/TCPServerWindows.hpp>
 #include <string.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 TCPServer::TCPServer(uint16_t port)
     : port_(port),
@@ -541,5 +541,5 @@ void TCPServer::init_input_buffer(TCPInputBuffer* buffer)
     buffer->msg_size = 0;
 }
 
-} // namespace micrortps
+} // namespace uxr 
 } // namespace eprosima

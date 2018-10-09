@@ -28,7 +28,7 @@ using eprosima::fastrtps::xmlparser::NodeType;
 using eprosima::fastrtps::xmlparser::XMLP_ret;
 using eprosima::fastrtps::xmlparser::XMLParser;
 
-bool eprosima::micrortps::xmlobjects::parse_participant(const char* source, std::size_t source_size,
+bool eprosima::uxr::xmlobjects::parse_participant(const char* source, std::size_t source_size,
                                                         ParticipantAttributes& participant)
 {
     bool ret = false;
@@ -47,7 +47,7 @@ bool eprosima::micrortps::xmlobjects::parse_participant(const char* source, std:
     return ret;
 }
 
-bool eprosima::micrortps::xmlobjects::parse_publisher(const char* source, size_t source_size,
+bool eprosima::uxr::xmlobjects::parse_publisher(const char* source, size_t source_size,
                                                       PublisherAttributes& publisher)
 {
     bool ret = false;
@@ -66,7 +66,7 @@ bool eprosima::micrortps::xmlobjects::parse_publisher(const char* source, size_t
     return ret;
 }
 
-bool eprosima::micrortps::xmlobjects::parse_subscriber(const char* source, size_t source_size,
+bool eprosima::uxr::xmlobjects::parse_subscriber(const char* source, size_t source_size,
                                                        SubscriberAttributes& subscriber)
 {
     bool ret = false;
@@ -85,7 +85,7 @@ bool eprosima::micrortps::xmlobjects::parse_subscriber(const char* source, size_
     return ret;
 }
 
-bool eprosima::micrortps::xmlobjects::parse_topic(const char* source, std::size_t source_size, TopicAttributes& topic)
+bool eprosima::uxr::xmlobjects::parse_topic(const char* source, std::size_t source_size, TopicAttributes& topic)
 {
     bool ret = false;
     std::unique_ptr<BaseNode> root;

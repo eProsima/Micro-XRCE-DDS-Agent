@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/Root.hpp>
-#include <micrortps/agent/libdev/MessageDebugger.h>
-#include <micrortps/agent/libdev/MessageOutput.h>
+#include <uxr/agent/Root.hpp>
+#include <uxr/agent/libdev/MessageDebugger.h>
+#include <uxr/agent/libdev/MessageOutput.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastcdr/Cdr.h>
 #include <memory>
@@ -29,7 +29,7 @@
 const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Root::Root()
     : mtx_(),
@@ -165,5 +165,5 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
     return rv;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/utils/TokenBucket.hpp>
 
 #include <gtest/gtest.h>
 
@@ -20,10 +20,10 @@
 #include <thread>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
-using eprosima::micrortps::utils::TokenBucket;
+using eprosima::uxr::utils::TokenBucket;
 
 class TokenBucketTests : public ::testing::Test
 {
@@ -126,7 +126,7 @@ TEST_F(TokenBucketTests, RateMeassure)
 }
 
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 
 int main(int args, char** argv)

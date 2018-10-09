@@ -15,12 +15,12 @@
 #ifndef DATA_READER_TESTS_
 #define DATA_READER_TESTS_
 
-#include "micrortps/agent/datareader/DataReader.hpp"
+#include "uxr/agent/datareader/DataReader.hpp"
 
 #include <gtest/gtest.h>
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace testing {
 
 class DataReaderTests : public ::testing::Test
@@ -30,7 +30,7 @@ class DataReaderTests : public ::testing::Test
 
     virtual ~DataReaderTests() = default;
 
-    eprosima::micrortps::DataReader data_reader_;
+    eprosima::uxr::DataReader data_reader_;
     bool data_reader_init_ = false;
     unsigned int read_count_ = 0;
     dds::xrce::StreamId stream_id_;
@@ -40,6 +40,6 @@ class DataReaderTests : public ::testing::Test
     const dds::xrce::ObjectId fixed_object_id   = {{10, 20}};
 };
 } // namespace testing
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
 #endif // !DATA_READER_TESTS_

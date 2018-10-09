@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/client/ProxyClient.hpp>
-#include <micrortps/agent/publisher/Publisher.hpp>
-#include <micrortps/agent/subscriber/Subscriber.hpp>
-#include <micrortps/agent/datareader/DataReader.hpp>
-#include <micrortps/agent/datawriter/DataWriter.hpp>
-#include <micrortps/agent/topic/Topic.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
+#include <uxr/agent/publisher/Publisher.hpp>
+#include <uxr/agent/subscriber/Subscriber.hpp>
+#include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/datawriter/DataWriter.hpp>
+#include <uxr/agent/topic/Topic.hpp>
 #ifdef VERBOSE_OUTPUT
-#include <micrortps/agent/libdev/MessageDebugger.h>
-#include <micrortps/agent/libdev/MessageOutput.h>
+#include <uxr/agent/libdev/MessageDebugger.h>
+#include <uxr/agent/libdev/MessageOutput.h>
 #endif
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
     : representation_(representation),
@@ -405,5 +405,5 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
     return rv;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

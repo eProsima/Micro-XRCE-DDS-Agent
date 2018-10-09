@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/datareader/DataReader.hpp>
-#include <micrortps/agent/subscriber/Subscriber.hpp>
-#include <micrortps/agent/participant/Participant.hpp>
-#include <micrortps/agent/topic/Topic.hpp>
-#include <micrortps/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/subscriber/Subscriber.hpp>
+#include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/utils/TokenBucket.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
@@ -28,7 +28,7 @@
 #define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 using utils::TokenBucket;
 
@@ -369,5 +369,5 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima
