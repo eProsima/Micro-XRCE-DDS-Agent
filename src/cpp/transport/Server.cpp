@@ -78,7 +78,10 @@ void Server::stop()
 
 void Server::push_output_packet(OutputPacket output_packet)
 {
-    output_scheduler_.push(std::move(output_packet), 0);
+    if (output_packet.destination && output_packet.message)
+    {
+        output_scheduler_.push(std::move(output_packet), 0);
+    }
 }
 
 void Server::receiver_loop()

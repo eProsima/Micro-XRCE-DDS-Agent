@@ -18,9 +18,12 @@
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/config.hpp>
 #include <unordered_map>
+#include <netinet/in.h>
 #include <sys/poll.h>
 #include <vector>
 #include <array>
+#include <list>
+#include <set>
 
 namespace eprosima {
 namespace uxr {
@@ -38,7 +41,6 @@ typedef enum TCPInputBufferState
 
 } TCPInputBufferState;
 
-typedef struct TCPInputBuffer TCPInputBuffer;
 struct TCPInputBuffer
 {
     std::vector<uint8_t> buffer;
@@ -50,12 +52,12 @@ struct TCPInputBuffer
 struct TCPConnection
 {
     struct pollfd* poll_fd;
-    TCPConnection* next;
-    TCPConnection* prev;
     TCPInputBuffer input_buffer;
     uint32_t addr;
     uint16_t port;
     uint32_t id;
+    bool active;
+    std::mutex mtx;
 };
 
 class TCPEndPoint : public EndPoint
@@ -92,22 +94,33 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    uint16_t read_data(TCPConnection* connection);
-    bool disconnect_client(TCPConnection* connection);
-    static void init_input_buffer(TCPInputBuffer* buffer);
+    bool read_message(int timeout);
+    uint16_t read_data(TCPConnection& connection);
+    bool open_connection(int fd, struct sockaddr_in* sockaddr);
+    bool close_connection(TCPConnection& connection);
+    bool connection_available();
+    void listener_loop();
+    static void init_input_buffer(TCPInputBuffer& buffer);
     static void sigpipe_handler(int fd) { (void)fd; }
+    static ssize_t recv_locking(TCPConnection& connection, void* buffer, size_t len);
+    static ssize_t send_locking(TCPConnection& connection, void* buffer, size_t len);
 
 private:
     uint16_t port_;
     std::array<TCPConnection, TCP_MAX_CONNECTIONS> connections_;
-    TCPConnection* active_connections_;
-    TCPConnection* free_connections_;
-    TCPConnection* last_connection_read_;
-    std::array<struct pollfd, TCP_MAX_CONNECTIONS + 1> poll_fds_;
+    std::set<uint32_t> active_connections_;
+    std::list<uint32_t> free_connections_;
+    std::mutex connections_mtx_;
+    struct pollfd listener_poll_;
+    std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
     uint8_t buffer_[TCP_TRANSPORT_MTU];
     std::unordered_map<uint64_t, uint32_t> source_to_connection_map_;
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
+    std::mutex clients_mtx_;
+    std::unique_ptr<std::thread> listener_thread_;
+    std::atomic<bool> running_cond_;
+    std::queue<InputPacket> messages_queue_;
 };
 
 } // namespace uxr

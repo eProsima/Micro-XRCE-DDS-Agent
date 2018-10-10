@@ -45,14 +45,14 @@ class Processor;
 /**
  * Callback data structure.
  */
-typedef struct ReadCallbackArgs
+struct ReadCallbackArgs
 {
     dds::xrce::ClientKey client_key;
     dds::xrce::StreamId stream_id;
     dds::xrce::ObjectId object_id;
     dds::xrce::RequestId request_id;
 
-} ReadCallbackArgs;
+};
 
 typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
 

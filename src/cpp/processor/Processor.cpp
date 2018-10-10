@@ -86,7 +86,6 @@ void Processor::process_input_packet(InputPacket&& input_packet)
 
                 /* Set output packet and serialize ACKNACK. */
                 OutputPacket output_packet;
-                output_packet.destination.reset(new EndPoint(*input_packet.source));
                 output_packet.destination = input_packet.source;
                 output_packet.message.reset(new OutputMessage(acknack_header));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
@@ -419,17 +418,17 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         {
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
-            uint8_t mask = 0x01 << i;
+            uint8_t mask = uint8_t(0x01 << i);
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                if (client.session().get_output_message((uint8_t) seq_num, first_message + i, output_packet.message))
+                if (client.session().get_output_message(uint8_t(seq_num), first_message + i, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                if (client.session().get_output_message((uint8_t) seq_num, first_message + i + 8, output_packet.message))
+                if (client.session().get_output_message(uint8_t(seq_num), first_message + i + 8, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
@@ -437,7 +436,7 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         }
 
         /* Update output stream. */
-        client.session().update_from_acknack((uint8_t) seq_num, first_message);
+        client.session().update_from_acknack(uint8_t(seq_num), first_message);
     }
     else
     {
@@ -516,14 +515,17 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     /* Set output packet and serialize DATA. */
     OutputPacket output_packet;
     output_packet.destination = server_->get_source(cb_args.client_key);
-    output_packet.message = OutputMessagePtr(new OutputMessage(message_header));
-    output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
+    if (output_packet.destination)
+    {
+        output_packet.message = OutputMessagePtr(new OutputMessage(message_header));
+        output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
 
-    /* Store message. */
-    client->session().push_output_message(cb_args.stream_id, output_packet.message);
+        /* Store message. */
+        client->session().push_output_message(cb_args.stream_id, output_packet.message);
 
-    /* Send message. */
-    server_->push_output_packet(output_packet);
+        /* Send message. */
+        server_->push_output_packet(output_packet);
+    }
 }
 
 void Processor::check_heartbeats()
@@ -553,11 +555,14 @@ void Processor::check_heartbeats()
                 /* Set output packet and serialize HEARTBEAT. */
                 OutputPacket output_packet;
                 output_packet.destination = server_->get_source(client->get_client_key());
-                output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
-                output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+                if (output_packet.destination)
+                {
+                    output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
+                    output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
 
-                /* Send message. */
-                server_->push_output_packet(output_packet);
+                    /* Send message. */
+                    server_->push_output_packet(output_packet);
+                }
             }
         }
     }

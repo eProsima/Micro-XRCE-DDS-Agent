@@ -37,6 +37,7 @@ void SerialServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey
     uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
 
     /* Update maps. */
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it_client = client_to_source_map_.find(client_id);
     if (it_client != client_to_source_map_.end())
     {
@@ -65,6 +66,7 @@ void SerialServer::on_delete_client(EndPoint* source)
     uint8_t source_id = endpoint->get_addr();
 
     /* Update maps. */
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = source_to_client_map_.find(source_id);
     if (it != source_to_client_map_.end())
     {
@@ -77,6 +79,7 @@ const dds::xrce::ClientKey SerialServer::get_client_key(EndPoint* source)
 {
     dds::xrce::ClientKey client_key;
     SerialEndPoint* endpoint = static_cast<SerialEndPoint*>(source);
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = source_to_client_map_.find(endpoint->get_addr());
     if (it != source_to_client_map_.end())
     {
@@ -96,6 +99,7 @@ std::unique_ptr<EndPoint> SerialServer::get_source(const dds::xrce::ClientKey& c
 {
     std::unique_ptr<EndPoint> source;
     uint32_t client_id = client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24);
+    std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())
     {
