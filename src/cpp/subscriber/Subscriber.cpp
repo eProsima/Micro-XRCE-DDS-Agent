@@ -30,5 +30,15 @@ Subscriber::~Subscriber()
     participant_->untie_object(get_id());
 }
 
+void Subscriber::release(ObjectContainer& root_objects)
+{
+    while (!tied_objects_.empty())
+    {
+        auto obj = tied_objects_.begin();
+        root_objects.at(*obj)->release(root_objects);
+        root_objects.erase(*obj);
+    }
+}
+
 } // namespace uxr
 } // namespace eprosima
