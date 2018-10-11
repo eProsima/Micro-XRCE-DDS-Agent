@@ -105,7 +105,7 @@ bool Topic::matched(const dds::xrce::OBJK_TOPIC_Representation& representation) 
             if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
                 fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref_rep, new_attributes))
             {
-                rv = (generic_type_.getName() == new_attributes.getTopicDataType().data()) &&
+                rv = (0 == std::strcmp(generic_type_.getName(), new_attributes.getTopicDataType().data())) &&
                      (generic_type_.m_isGetKeyDefined == (new_attributes.getTopicKind() ==
                                                           fastrtps::rtps::TopicKind_t::WITH_KEY));
             }
@@ -116,7 +116,7 @@ bool Topic::matched(const dds::xrce::OBJK_TOPIC_Representation& representation) 
             const std::string& xml_rep = representation.representation().xml_string_representation();
             if (xmlobjects::parse_topic(xml_rep.data(), xml_rep.size(), new_attributes))
             {
-                rv = (generic_type_.getName() == new_attributes.getTopicDataType().data()) &&
+                rv = (0 == std::strcmp(generic_type_.getName(), new_attributes.getTopicDataType().data())) &&
                      (generic_type_.m_isGetKeyDefined == (new_attributes.getTopicKind() ==
                                                           fastrtps::rtps::TopicKind_t::WITH_KEY));
             }

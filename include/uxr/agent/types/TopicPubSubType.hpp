@@ -30,12 +30,12 @@ public:
 
     explicit TopicPubSubType(bool with_key);
     virtual ~TopicPubSubType() override = default;
-    bool serialize(void *data, rtps::SerializedPayload_t *payload);
-    bool deserialize(rtps::SerializedPayload_t *payload, void *data);
+    bool serialize(void* data, rtps::SerializedPayload_t* payload);
+    bool deserialize(rtps::SerializedPayload_t* payload, void* data);
     std::function<uint32_t()> getSerializedSizeProvider(void* data);
-    bool getKey(void *data, rtps::InstanceHandle_t *ihandle);
+    bool getKey(void* data, rtps::InstanceHandle_t* ihandle);
     void* createData();
-    void deleteData(void * data);
+    void deleteData(void* data);
 };
 
 } // namespace uxr
