@@ -46,7 +46,7 @@ public:
     void process_input_packet(InputPacket&& input_packet);
     bool process_get_info_packet(InputPacket&& input_packet,
                                  dds::xrce::TransportAddress& address,
-                                 OutputPacket& output_packet);
+                                 OutputPacket& output_packet) const;
     void check_heartbeats();
     Root* get_root() { return root_; }
     Server* get_server() { return server_; }

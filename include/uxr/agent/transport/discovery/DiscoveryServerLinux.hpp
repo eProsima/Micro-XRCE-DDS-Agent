@@ -12,33 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_HPP_
-#define _UXR_AGENT_TRANSPORT_DISCOVERY_HPP_
+#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
+#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 
 #include <uxr/agent/message/Packet.hpp>
-#include <stdint.h>
-#include <sys/poll.h>
+
+#include <thread>
+#include <atomic>
+#include <poll.h>
 
 namespace eprosima {
 namespace uxr {
 
-class Discovery
+class Processor;
+
+class DiscoveryServer
 {
 public:
-    Discovery();
+    DiscoveryServer(const Processor& processor, uint16_t port);
+    ~DiscoveryServer() = default;
 
-    bool init(uint16_t port);
-    bool close();
-    bool recv_message(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address);
-    bool send_message(OutputPacket output_packet);
+    bool run();
+    bool stop();
 
 private:
+    bool init();
+    bool close();
+    bool recv_message(InputPacket& input_packet, int timeout);
+    bool send_message(OutputPacket output_packet);
+    void discovery_loop();
+
+private:
+    std::unique_ptr<std::thread> discovery_thread_;
+    std::atomic<bool> running_cond_;
+    const Processor& processor_;
+    dds::xrce::TransportAddress transport_address_;
     struct pollfd poll_fd_;
     uint8_t buffer_[128];
-    dds::xrce::TransportAddress transport_address_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_HPP_
+#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_

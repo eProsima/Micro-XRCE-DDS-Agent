@@ -530,7 +530,7 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
 
 bool Processor::process_get_info_packet(InputPacket&& input_packet,
                                         dds::xrce::TransportAddress& address,
-                                        OutputPacket& output_packet)
+                                        OutputPacket& output_packet) const
 {
     bool rv = false;
 

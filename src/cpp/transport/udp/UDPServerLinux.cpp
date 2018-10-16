@@ -31,7 +31,8 @@ UDPServer::UDPServer(uint16_t port)
       poll_fd_{},
       buffer_{0},
       source_to_client_map_{},
-      client_to_source_map_{}
+      client_to_source_map_{},
+      discovery_server_(*processor_, port_)
 {}
 
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
@@ -117,6 +118,12 @@ bool UDPServer::init()
 {
     bool rv = false;
 
+    /* Init discovery. */
+    if (!discovery_server_.run())
+    {
+        return false;
+    }
+
     /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
 
@@ -132,12 +139,7 @@ bool UDPServer::init()
         {
             /* Poll setup. */
             poll_fd_.events = POLLIN;
-
-            /* Init discovery. */
-            if (discovery_.init(port_))
-            {
-                rv = true;
-            }
+            rv = true;
         }
     }
 
@@ -146,7 +148,7 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    return (0 == ::close(poll_fd_.fd)) && discovery_server_.stop();
 }
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
@@ -212,16 +214,6 @@ bool UDPServer::send_message(OutputPacket output_packet)
 int UDPServer::get_error()
 {
     return errno;
-}
-
-bool UDPServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
-{
-    return discovery_.recv_message(input_packet, timeout, address);
-}
-
-bool UDPServer::send_discovery_response(OutputPacket output_packet)
-{
-    return discovery_.send_message(output_packet);
 }
 
 } // namespace uxr

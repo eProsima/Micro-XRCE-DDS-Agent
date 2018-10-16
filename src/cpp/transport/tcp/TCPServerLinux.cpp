@@ -39,7 +39,8 @@ TCPServer::TCPServer(uint16_t port)
       clients_mtx_(),
       listener_thread_(),
       running_cond_(false),
-      messages_queue_{}
+      messages_queue_{},
+      discovery_server_(*processor_, port_)
 {}
 
 void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
@@ -125,6 +126,11 @@ bool TCPServer::init()
 {
     bool rv = false;
 
+    if (!discovery_server_.run())
+    {
+        return false;
+    }
+
     /* Ignore SIGPIPE signal. */
     signal(SIGPIPE, sigpipe_handler);
 
@@ -161,12 +167,7 @@ bool TCPServer::init()
             {
                 running_cond_ = true;
                 listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
-
-                /* Init discovery. */
-                if (discovery_.init(port_))
-                {
-                    rv = true;
-                }
+                rv = true;
             }
         }
     }
@@ -198,7 +199,7 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
-    return (-1 == listener_poll_.fd) && (active_connections_.empty());
+    return (-1 == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
 }
 
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
@@ -572,16 +573,6 @@ ssize_t TCPServer::send_locking(TCPConnection& connection, void* buffer, size_t 
         rv = send(connection.poll_fd->fd, buffer, len, 0);
     }
     return rv;
-}
-
-bool TCPServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
-{
-    return discovery_.recv_message(input_packet, timeout, address);
-}
-
-bool TCPServer::send_discovery_response(OutputPacket output_packet)
-{
-    return discovery_.send_message(output_packet);
 }
 
 } // namespace uxr

@@ -17,7 +17,7 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
-#include <uxr/agent/transport/discovery/DiscoveryLinux.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>
 #include <cstdint>
 #include <cstddef>
@@ -44,10 +44,6 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    virtual bool recv_discovery_request(InputPacket& input_packet,
-                                        int timeout,
-                                        dds::xrce::TransportAddress& address) override;
-    virtual bool send_discovery_response(OutputPacket output_packet) override;
 
 private:
     uint16_t port_;
@@ -56,7 +52,7 @@ private:
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
     std::mutex clients_mtx_;
-    Discovery discovery_;
+    DiscoveryServer discovery_server_;
 };
 
 } // namespace uxr

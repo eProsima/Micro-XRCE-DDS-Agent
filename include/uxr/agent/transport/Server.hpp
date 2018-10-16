@@ -46,7 +46,7 @@ public:
     virtual ~Server();
 
     microxrcedds_agent_DllAPI bool run();
-    microxrcedds_agent_DllAPI void stop();
+    microxrcedds_agent_DllAPI bool stop();
 
     void push_output_packet(OutputPacket output_packet);
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) = 0;
@@ -63,26 +63,22 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
     virtual bool send_message(OutputPacket output_packet) = 0;
     virtual int get_error() = 0;
-    virtual bool recv_discovery_request(InputPacket& input_packet,
-                                        int timeout,
-                                        dds::xrce::TransportAddress& address) = 0;
-    virtual bool send_discovery_response(OutputPacket output_packet) = 0;
     void receiver_loop();
     void sender_loop();
     void processing_loop();
     void heartbeat_loop();
-    void discovery_loop();
+
+protected:
+    Processor* processor_;
 
 private:
     std::unique_ptr<std::thread> receiver_thread_;
     std::unique_ptr<std::thread> sender_thread_;
     std::unique_ptr<std::thread> processing_thread_;
     std::unique_ptr<std::thread> heartbeat_thread_;
-    std::unique_ptr<std::thread> discovery_thread_;
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket> input_scheduler_;
     FCFSScheduler<OutputPacket> output_scheduler_;
-    Processor* processor_;
 };
 
 } // namespace uxr

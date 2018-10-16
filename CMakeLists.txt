@@ -84,13 +84,12 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         src/cpp/transport/udp/UDPServerLinux.cpp
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
-        src/cpp/transport/discovery/DiscoveryLinux.cpp
+        src/cpp/transport/discovery/DiscoveryServerLinux.cpp
         )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
-        src/cpp/transport/discovery/DiscoveryWindows.cpp
         )
 endif()
 

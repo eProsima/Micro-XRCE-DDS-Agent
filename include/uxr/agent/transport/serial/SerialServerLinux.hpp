@@ -17,7 +17,6 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/serial/SerialLayer.hpp>
-#include <uxr/agent/transport/discovery/DiscoveryLinux.hpp>
 #include <unordered_map>
 #include <cstdint>
 #include <cstddef>
@@ -61,10 +60,6 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    virtual bool recv_discovery_request(InputPacket& input_packet,
-                                        int timeout,
-                                        dds::xrce::TransportAddress& address) override;
-    virtual bool send_discovery_response(OutputPacket output_packet) override;
     static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
@@ -76,7 +71,6 @@ private:
     std::unordered_map<uint8_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint8_t> client_to_source_map_;
     std::mutex clients_mtx_;
-    Discovery discovery_;
 };
 
 } // namespace uxr

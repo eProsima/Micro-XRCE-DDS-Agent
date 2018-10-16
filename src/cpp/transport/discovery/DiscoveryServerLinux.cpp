@@ -12,25 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/discovery/DiscoveryLinux.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/processor/Processor.hpp>
+
+#include <functional>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#define RECEIVE_TIMEOUT 100
 #define DISCOVERY_PORT 7400
 #define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {
 
-Discovery::Discovery()
-    : poll_fd_{},
+DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port)
+    : running_cond_(false),
+      processor_(processor),
+      transport_address_{},
+      poll_fd_{},
       buffer_{0}
-{}
+{
+    dds::xrce::TransportAddressMedium transport_addr;
+    transport_addr.port(port);
+    transport_address_.medium_locator(transport_addr);
+}
 
-bool Discovery::init(uint16_t port)
+bool DiscoveryServer::run()
+{
+    if (!init())
+    {
+        return false;
+    }
+
+    /* Init thread. */
+    running_cond_ = true;
+    discovery_thread_.reset(new std::thread(std::bind(&DiscoveryServer::discovery_loop, this)));
+
+    return true;
+}
+
+bool DiscoveryServer::stop()
+{
+    /* Stop thread. */
+    running_cond_ = false;
+    if (discovery_thread_ && discovery_thread_->joinable())
+    {
+        discovery_thread_->join();
+    }
+    return close();
+}
+
+bool DiscoveryServer::init()
 {
     bool rv = false;
 
@@ -67,13 +103,10 @@ bool Discovery::init(uint16_t port)
                 socklen_t local_addr_len = sizeof(local_addr);
                 if (-1 != getsockname(fd, &local_addr, &local_addr_len))
                 {
-                    dds::xrce::TransportAddressMedium transport_addr;
-                    transport_addr.address({uint8_t(local_addr.sa_data[2]),
-                                            uint8_t(local_addr.sa_data[3]),
-                                            uint8_t(local_addr.sa_data[4]),
-                                            uint8_t(local_addr.sa_data[5])});
-                    transport_addr.port(port);
-                    transport_address_.medium_locator(transport_addr);
+                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+                                                                 uint8_t(local_addr.sa_data[3]),
+                                                                 uint8_t(local_addr.sa_data[4]),
+                                                                 uint8_t(local_addr.sa_data[5])});
                     rv = true;
                 }
                 ::close(fd);
@@ -84,12 +117,12 @@ bool Discovery::init(uint16_t port)
     return rv;
 }
 
-bool Discovery::close()
+bool DiscoveryServer::close()
 {
     return 0 == ::close(poll_fd_.fd);
 }
 
-bool Discovery::recv_message(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
+bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
     struct sockaddr client_addr;
@@ -105,7 +138,6 @@ bool Discovery::recv_message(InputPacket& input_packet, int timeout, dds::xrce::
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
-            address = transport_address_;
         }
     }
     else
@@ -120,7 +152,7 @@ bool Discovery::recv_message(InputPacket& input_packet, int timeout, dds::xrce::
     return rv;
 }
 
-bool Discovery::send_message(OutputPacket output_packet)
+bool DiscoveryServer::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
@@ -148,6 +180,22 @@ bool Discovery::send_message(OutputPacket output_packet)
     }
 
     return rv;
+}
+
+void DiscoveryServer::discovery_loop()
+{
+    InputPacket input_packet;
+    OutputPacket output_packet;
+    while (running_cond_)
+    {
+        if (recv_message(input_packet, RECEIVE_TIMEOUT))
+        {
+            if (processor_.process_get_info_packet(std::move(input_packet), transport_address_, output_packet))
+            {
+                send_message(output_packet);
+            }
+        }
+    }
 }
 
 } // namespace uxr
