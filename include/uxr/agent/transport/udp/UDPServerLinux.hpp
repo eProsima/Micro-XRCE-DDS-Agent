@@ -44,10 +44,6 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    virtual bool recv_discovery_request(InputPacket& input_packet,
-                                        int timeout,
-                                        dds::xrce::TransportAddress& address) override;
-    virtual bool send_discovery_response(OutputPacket output_packet) override;
 
 private:
     uint16_t port_;

@@ -23,18 +23,18 @@
 #include <unistd.h>
 
 #define RECEIVE_TIMEOUT 100
+#define DISCOVERY_PORT 7400
 #define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port, uint16_t discovery_port)
+DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port)
     : running_cond_(false),
       processor_(processor),
       transport_address_{},
       poll_fd_{},
-      buffer_{0},
-      discovery_port_(discovery_port)
+      buffer_{0}
 {
     dds::xrce::TransportAddressMedium transport_addr;
     transport_addr.port(port);
@@ -76,7 +76,7 @@ bool DiscoveryServer::init()
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(discovery_port_);
+    address.sin_port = htons(DISCOVERY_PORT);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))

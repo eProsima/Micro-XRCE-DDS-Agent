@@ -139,12 +139,7 @@ bool UDPServer::init()
         {
             /* Poll setup. */
             poll_fd_.events = POLLIN;
-
-            /* Init discovery. */
-            if (discovery_.init(port_))
-            {
-                rv = true;
-            }
+            rv = true;
         }
     }
 
@@ -219,16 +214,6 @@ bool UDPServer::send_message(OutputPacket output_packet)
 int UDPServer::get_error()
 {
     return errno;
-}
-
-bool UDPServer::recv_discovery_request(InputPacket& input_packet, int timeout, dds::xrce::TransportAddress& address)
-{
-    return discovery_.recv_message(input_packet, timeout, address);
-}
-
-bool UDPServer::send_discovery_response(OutputPacket output_packet)
-{
-    return discovery_.send_message(output_packet);
 }
 
 } // namespace uxr
