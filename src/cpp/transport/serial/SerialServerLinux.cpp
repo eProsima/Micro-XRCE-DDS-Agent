@@ -111,25 +111,13 @@ std::unique_ptr<EndPoint> SerialServer::get_source(const dds::xrce::ClientKey& c
 
 bool SerialServer::init()
 {
-    bool rv = false;
-
     /* Init serial IO. */
-    serial_io_.init();
+    uxr_init_serial_io(&serial_io_, addr_);
 
-    /* Send init flag. */
-    uint8_t flag = UXR_FRAMING_END_FLAG;
-    ssize_t bytes_written = write(poll_fd_.fd, &flag, 1);
-    if (0 < bytes_written && 1 == bytes_written)
-    {
-        /* Poll setup. */
-        poll_fd_.events = POLLIN;
-        rv = true;
-    }
-    else
-    {
-        errno_ = -1;
-    }
-    return rv;
+    /* Poll setup. */
+    poll_fd_.events = POLLIN;
+
+    return true;
 }
 
 bool SerialServer::close()
@@ -140,13 +128,18 @@ bool SerialServer::close()
 bool SerialServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
-    uint8_t src_addr;
-    uint8_t rmt_addr;
-    uint16_t bytes_read = serial_io_.read_serial_msg(read_data, this, buffer_, sizeof(buffer_), &src_addr, &rmt_addr, timeout);
-    if (0 < bytes_read && rmt_addr == addr_)
+    uint8_t remote_addr;
+    size_t bytes_read = uxr_read_serial_msg(&serial_io_,
+                                            read_data,
+                                            this,
+                                            buffer_,
+                                            sizeof(buffer_),
+                                            &remote_addr,
+                                            timeout);
+    if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
-        input_packet.source.reset(new SerialEndPoint(src_addr));
+        input_packet.source.reset(new SerialEndPoint(remote_addr));
     }
     else
     {
@@ -160,17 +153,15 @@ bool SerialServer::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     const SerialEndPoint* destination = static_cast<const SerialEndPoint*>(output_packet.destination.get());
-    uint16_t bytes_written = serial_io_.write_serial_msg(output_packet.message->get_buf(),
-                                                         output_packet.message->get_len(),
-                                                         addr_,
-                                                         destination->get_addr());
-    if (0 < bytes_written)
+    size_t bytes_written = uxr_write_serial_msg(&serial_io_,
+                                                write_data,
+                                                this,
+                                                output_packet.message->get_buf(),
+                                                output_packet.message->get_len(),
+                                                destination->get_addr());
+    if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
-        ssize_t bytes_sent = write(poll_fd_.fd, serial_io_.get_output_buffer(), static_cast<size_t>(bytes_written));
-        if (0 < bytes_sent && bytes_sent == bytes_written)
-        {
-            rv = true;
-        }
+        rv = true;
     }
     errno_ = rv ? 0 : -1;
     return rv;
@@ -181,9 +172,21 @@ int SerialServer::get_error()
     return errno_;
 }
 
-uint16_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
+size_t SerialServer::write_data(void* instance, uint8_t* buf, size_t len)
 {
-    uint16_t rv = 0;
+    size_t rv = 0;
+    SerialServer* server = static_cast<SerialServer*>(instance);
+    ssize_t bytes_written = write(server->poll_fd_.fd, (void*)buf, len);
+    if ((0 < bytes_written)  && size_t(bytes_written) == len)
+    {
+        rv = size_t(bytes_written);
+    }
+    return rv;
+}
+
+size_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
+{
+    size_t rv = 0;
     SerialServer* server = static_cast<SerialServer*>(instance);
     int poll_rv = poll(&server->poll_fd_, 1, timeout);
     if (0 < poll_rv)
@@ -191,7 +194,7 @@ uint16_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int t
         ssize_t bytes_read = read(server->poll_fd_.fd, buf, len);
         if (0 < bytes_read)
         {
-            rv = static_cast<uint16_t>(bytes_read);
+            rv = size_t(bytes_read);
         }
     }
     return rv;

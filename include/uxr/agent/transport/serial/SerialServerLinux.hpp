@@ -16,7 +16,8 @@
 #define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/serial/SerialLayer.hpp>
+#include <uxr/agent/transport/serial/serial_protocol.h>
+#include <uxr/agent/config.hpp>
 #include <unordered_map>
 #include <cstdint>
 #include <cstddef>
@@ -60,13 +61,14 @@ private:
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
-    static uint16_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
+    static size_t write_data(void* instance, uint8_t* buf, size_t len);
+    static size_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
 private:
     uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[SERIAL_TRANSPORT_MTU];
-    SerialIO serial_io_;
+    uxrSerialIO serial_io_;
     int errno_;
     std::unordered_map<uint8_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint8_t> client_to_source_map_;
