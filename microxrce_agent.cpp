@@ -14,7 +14,7 @@
 
 #ifdef _WIN32
 #include <uxr/agent/transport/udp/UDPServerWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPServerBaseWindows.hpp>
 #else
 #include <uxr/agent/transport/serial/SerialServerLinux.hpp>
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>

@@ -16,6 +16,9 @@
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/tcp/TCPEndPoint.hpp>
+
+#include <unordered_map>
 
 namespace eprosima {
 namespace uxr {
@@ -26,12 +29,18 @@ public:
     TCPServerBase(uint16_t port);
     ~TCPServerBase() = default;
 
-    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
-    virtual void on_delete_client(EndPoint* source) override;
-    virtual const dds::xrce::ClientKey get_client_key(EndPoint *source) override;
-    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
+    void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
+    void on_delete_client(EndPoint* source) override;
+    const dds::xrce::ClientKey get_client_key(EndPoint *source) override;
+    std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 protected:
+    uint16_t port_;
+    std::unordered_map<uint64_t, uint32_t> source_to_connection_map_;
+    std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
+    std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
+    std::mutex clients_mtx_;
+
 };
 
 } // namespace uxr
