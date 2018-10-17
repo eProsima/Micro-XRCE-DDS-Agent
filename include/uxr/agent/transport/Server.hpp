@@ -15,10 +15,11 @@
 #ifndef _UXR_AGENT_TRANSPORT_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_SERVER_HPP_
 
-#include <uxr/agent/agent_dll.hpp>
+#include <uxr/agent/transport/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/agent_dll.hpp>
 #include <thread>
 
 namespace eprosima {
@@ -26,19 +27,6 @@ namespace uxr {
 
 class Processor;
 
-/**************************************************************************************************
- * EndPoint interface.
- **************************************************************************************************/
-class EndPoint
-{
-public:
-    EndPoint() = default;
-    virtual ~EndPoint() = default;
-};
-
-/**************************************************************************************************
- * Server interface.
- **************************************************************************************************/
 class Server
 {
 public:
@@ -87,4 +75,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_XRCE_SERVER_HPP_
+#endif //_UXR_AGENT_TRANSPORT_SERVER_HPP_
