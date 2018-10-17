@@ -26,14 +26,19 @@ TopicPubSubType::TopicPubSubType(bool with_key) {
 
 bool TopicPubSubType::serialize(void *data, rtps::SerializedPayload_t *payload)
 {
+    bool rv = false;
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
     payload->data[0] = 0;
     payload->data[1] = 1;
     payload->data[2] = 0;
     payload->data[3] = 0;
-    memcpy(&payload->data[4], buffer->data(), buffer->size());
-    payload->length = (uint32_t)buffer->size() + 4; //Get the serialized length
-    return true;
+    if (buffer->size() <= (payload->max_size - 4))
+    {
+        memcpy(&payload->data[4], buffer->data(), buffer->size());
+        payload->length = uint32_t(buffer->size() + 4); //Get the serialized length
+        rv = true;
+    }
+    return rv;
 }
 
 bool TopicPubSubType::deserialize(rtps::SerializedPayload_t* payload, void* data)
