@@ -104,5 +104,148 @@ std::unique_ptr<EndPoint> TCPServerBase::get_source(const dds::xrce::ClientKey& 
     return source;
 }
 
+uint16_t TCPServerBase::read_data(TCPConnection& connection)
+{
+    uint16_t rv = 0;
+    bool exit_flag = false;
+
+    /* State Machine. */
+    while(!exit_flag)
+    {
+        switch (connection.input_buffer.state)
+        {
+            case TCP_BUFFER_EMPTY:
+            {
+                connection.input_buffer.position = 0;
+                uint8_t size_buf[2];
+                uint8_t errcode;
+                size_t bytes_received = recv_locking(connection, size_buf, 2, errcode);
+                if (0 < bytes_received)
+                {
+                    connection.input_buffer.msg_size = 0;
+                    if (2 == bytes_received)
+                    {
+                        connection.input_buffer.msg_size = uint16_t((uint16_t(size_buf[1]) << 8) | size_buf[0]);
+                        if (connection.input_buffer.msg_size != 0)
+                        {
+                            connection.input_buffer.state = TCP_SIZE_READ;
+                        }
+                    }
+                    else
+                    {
+                        connection.input_buffer.msg_size = uint16_t(size_buf[0]);
+                        connection.input_buffer.state = TCP_SIZE_INCOMPLETE;
+                    }
+                }
+                else
+                {
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        exit_flag = true;
+                    }
+                }
+                break;
+            }
+            case TCP_SIZE_INCOMPLETE:
+            {
+                uint8_t size_msb;
+                uint8_t errcode;
+                size_t bytes_received = recv_locking(connection, &size_msb, 1, errcode);
+                if (0 < bytes_received)
+                {
+                    connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
+                    if (connection.input_buffer.msg_size != 0)
+                    {
+                        connection.input_buffer.state = TCP_SIZE_READ;
+                    }
+                    else
+                    {
+                        connection.input_buffer.state = TCP_BUFFER_EMPTY;
+                    }
+                }
+                else
+                {
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        exit_flag = true;
+                    }
+                }
+                break;
+            }
+            case TCP_SIZE_READ:
+            {
+                connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
+                uint8_t errcode;
+                size_t bytes_received = recv_locking(connection,
+                                                     connection.input_buffer.buffer.data(),
+                                                     connection.input_buffer.buffer.size(),
+                                                     errcode);
+                if (0 < bytes_received)
+                {
+                    if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
+                    {
+                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
+                    }
+                    else
+                    {
+                        connection.input_buffer.position = uint16_t(bytes_received);
+                        connection.input_buffer.state = TCP_MESSAGE_INCOMPLETE;
+                        exit_flag = true;
+                    }
+                }
+                else
+                {
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        exit_flag = true;
+                    }
+                }
+                break;
+            }
+            case TCP_MESSAGE_INCOMPLETE:
+            {
+                uint8_t errcode;
+                size_t bytes_received = recv_locking(connection,
+                                                     connection.input_buffer.buffer.data() + connection.input_buffer.position,
+                                                     connection.input_buffer.buffer.size() - connection.input_buffer.position,
+                                                     errcode);
+                if (0 < bytes_received)
+                {
+                    connection.input_buffer.position += uint16_t(bytes_received);
+                    if (connection.input_buffer.position == connection.input_buffer.msg_size)
+                    {
+                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
+                    }
+                    else
+                    {
+                        exit_flag = true;
+                    }
+                }
+                else
+                {
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        exit_flag = true;
+                    }
+                }
+                break;
+            }
+            case TCP_MESSAGE_AVAILABLE:
+            {
+                rv = connection.input_buffer.msg_size;
+                connection.input_buffer.state = TCP_BUFFER_EMPTY;
+                exit_flag = true;
+                break;
+            }
+        }
+    }
+
+    return rv;
+}
+
 } // namespace uxr
 } // namespace eprosima

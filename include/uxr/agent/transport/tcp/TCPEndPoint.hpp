@@ -42,6 +42,21 @@ struct TCPInputBuffer
     uint16_t msg_size;
 };
 
+class TCPConnection
+{
+public:
+    TCPConnection() = default;
+    ~TCPConnection() = default;
+
+public:
+    TCPInputBuffer input_buffer;
+    uint32_t addr;
+    uint16_t port;
+    uint32_t id;
+    bool active;
+    std::mutex mtx;
+};
+
 class TCPEndPoint : public EndPoint
 {
 public:

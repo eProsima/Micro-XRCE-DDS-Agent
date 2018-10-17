@@ -17,7 +17,6 @@
 
 #include <uxr/agent/transport/tcp/TCPServer.hpp>
 #include <uxr/agent/config.hpp>
-#include <unordered_map>
 #include <winsock2.h>
 #include <vector>
 #include <array>
@@ -27,22 +26,21 @@
 namespace eprosima {
 namespace uxr {
 
-struct TCPConnection
-{
-    struct pollfd* poll_fd;
-    TCPInputBuffer input_buffer;
-    uint32_t addr;
-    uint16_t port;
-    uint32_t id;
-    bool active;
-    std::mutex mtx;
-};
-
-class TCPServerBase : public TCPServerBase
+class TCPConnectionPlatform : public TCPConnection
 {
 public:
-    microxrcedds_agent_DllAPI TCPServerBase(uint16_t port);
-    microxrcedds_agent_DllAPI ~TCPServerBase() = default;
+    TCPConnectionPlatform() = default;
+    ~TCPConnectionPlatform() = default;
+
+public:
+    struct pollfd* poll_fd;
+};
+
+class TCPServer : public TCPServerBase
+{
+public:
+    microxrcedds_agent_DllAPI TCPServer(uint16_t port);
+    microxrcedds_agent_DllAPI ~TCPServer() = default;
 
 private:
     virtual bool init() override;
@@ -51,17 +49,17 @@ private:
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
     bool read_message(int timeout);
-    uint16_t read_data(TCPConnection& connection);
     bool open_connection(SOCKET fd, struct sockaddr_in* sockaddr);
-    bool close_connection(TCPConnection& connection);
     bool connection_available();
     void listener_loop();
     static void init_input_buffer(TCPInputBuffer& buffer);
-    static int recv_locking(TCPConnection& connection, char* buffer, int len);
-    static int send_locking(TCPConnection& connection, char* buffer, int len);
+
+    bool close_connection(TCPConnection& connection) override;
+    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &error) override;
+    size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
 
 private:
-    std::array<TCPConnection, TCP_MAX_CONNECTIONS> connections_;
+    std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
     std::mutex connections_mtx_;

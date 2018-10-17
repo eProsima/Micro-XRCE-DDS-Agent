@@ -23,6 +23,8 @@
 namespace eprosima {
 namespace uxr {
 
+class TCPConnection;
+
 class TCPServerBase : public Server
 {
 public:
@@ -33,6 +35,14 @@ public:
     void on_delete_client(EndPoint* source) override;
     const dds::xrce::ClientKey get_client_key(EndPoint *source) override;
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
+
+private:
+    virtual bool close_connection(TCPConnection& connection) = 0;
+    virtual size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) = 0;
+    virtual size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) = 0;
+
+protected:
+    uint16_t read_data(TCPConnection& connection);
 
 protected:
     uint16_t port_;

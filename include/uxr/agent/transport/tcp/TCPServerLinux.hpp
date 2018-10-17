@@ -27,15 +27,14 @@
 namespace eprosima {
 namespace uxr {
 
-struct TCPConnection
+class TCPConnectionPlatform : public TCPConnection
 {
+public:
+    TCPConnectionPlatform() = default;
+    ~TCPConnectionPlatform() = default;
+
+public:
     struct pollfd* poll_fd;
-    TCPInputBuffer input_buffer;
-    uint32_t addr;
-    uint16_t port;
-    uint32_t id;
-    bool active;
-    std::mutex mtx;
 };
 
 class TCPServer : public TCPServerBase
@@ -51,18 +50,18 @@ private:
     virtual bool send_message(OutputPacket output_packet) override;
     virtual int get_error() override;
     bool read_message(int timeout);
-    uint16_t read_data(TCPConnection& connection);
     bool open_connection(int fd, struct sockaddr_in* sockaddr);
-    bool close_connection(TCPConnection& connection);
     bool connection_available();
     void listener_loop();
     static void init_input_buffer(TCPInputBuffer& buffer);
     static void sigpipe_handler(int fd) { (void)fd; }
-    static ssize_t recv_locking(TCPConnection& connection, void* buffer, size_t len);
-    static ssize_t send_locking(TCPConnection& connection, void* buffer, size_t len);
+
+    bool close_connection(TCPConnection& connection) override;
+    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) override;
+    size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) override;
 
 private:
-    std::array<TCPConnection, TCP_MAX_CONNECTIONS> connections_;
+    std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
     std::mutex connections_mtx_;

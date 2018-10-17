@@ -155,15 +155,19 @@ bool TCPServer::send_message(OutputPacket output_packet)
         msg_size_buf[1] = uint8_t((0xFF00 & output_packet.message->get_len()) >> 8);
         do
         {
-            send_rv = send_locking(connection, msg_size_buf, 2);
-            if (0 <= send_rv)
+            uint8_t errcode;
+            send_rv = send_locking(connection, msg_size_buf, 2, errcode);
+            if (0 < send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
             }
             else
             {
-                close_connection(connection);
-                rv = false;
+                if (0 < errcode)
+                {
+                    close_connection(connection);
+                    rv = false;
+                }
             }
         }
         while (rv && bytes_sent != 2);
@@ -174,17 +178,22 @@ bool TCPServer::send_message(OutputPacket output_packet)
             bytes_sent = 0;
             do
             {
+                uint8_t errcode;
                 send_rv = send_locking(connection,
                                        output_packet.message->get_buf() + bytes_sent,
-                                       output_packet.message->get_len() - bytes_sent);
-                if (0 <= send_rv)
+                                       output_packet.message->get_len() - bytes_sent,
+                                       errcode);
+                if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
                 }
                 else
                 {
-                    close_connection(connection);
-                    rv = false;
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        rv = false;
+                    }
                 }
             }
             while (rv && bytes_sent != uint16_t(output_packet.message->get_len()));
@@ -199,148 +208,6 @@ int TCPServer::get_error()
     return errno;
 }
 
-uint16_t TCPServer::read_data(TCPConnection& connection)
-{
-    uint16_t rv = 0;
-    bool exit_flag = false;
-
-    /* State Machine. */
-    while(!exit_flag)
-    {
-        switch (connection.input_buffer.state)
-        {
-            case TCP_BUFFER_EMPTY:
-            {
-                connection.input_buffer.position = 0;
-                uint8_t size_buf[2];
-                ssize_t bytes_received = recv_locking(connection, size_buf, 2);
-                if (0 < bytes_received)
-                {
-                    connection.input_buffer.msg_size = 0;
-                    if (2 == bytes_received)
-                    {
-                        connection.input_buffer.msg_size = uint16_t((uint16_t(size_buf[1]) << 8) | size_buf[0]);
-                        if (connection.input_buffer.msg_size != 0)
-                        {
-                            connection.input_buffer.state = TCP_SIZE_READ;
-                        }
-                    }
-                    else
-                    {
-                        connection.input_buffer.msg_size = uint16_t(size_buf[0]);
-                        connection.input_buffer.state = TCP_SIZE_INCOMPLETE;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        errno = ENOTCONN;
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_SIZE_INCOMPLETE:
-            {
-                uint8_t size_msb;
-                ssize_t bytes_received = recv_locking(connection, &size_msb, 1);
-                if (0 < bytes_received)
-                {
-                    connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
-                    if (connection.input_buffer.msg_size != 0)
-                    {
-                        connection.input_buffer.state = TCP_SIZE_READ;
-                    }
-                    else
-                    {
-                        connection.input_buffer.state = TCP_BUFFER_EMPTY;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        errno = ENOTCONN;
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                exit_flag = (0 == poll(connection.poll_fd, 1, 0));
-                break;
-            }
-            case TCP_SIZE_READ:
-            {
-                connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
-                ssize_t bytes_received = recv_locking(connection,
-                                                      connection.input_buffer.buffer.data(),
-                                                      connection.input_buffer.buffer.size());
-                if (0 < bytes_received)
-                {
-                    if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
-                    {
-                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
-                    }
-                    else
-                    {
-                        connection.input_buffer.position = uint16_t(bytes_received);
-                        connection.input_buffer.state = TCP_MESSAGE_INCOMPLETE;
-                        exit_flag = true;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        errno = ENOTCONN;
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_MESSAGE_INCOMPLETE:
-            {
-                ssize_t bytes_received = recv_locking(connection,
-                                                      connection.input_buffer.buffer.data() + connection.input_buffer.position,
-                                                      connection.input_buffer.buffer.size() - connection.input_buffer.position);
-                if (0 < bytes_received)
-                {
-                    connection.input_buffer.position += uint16_t(bytes_received);
-                    if (connection.input_buffer.position == connection.input_buffer.msg_size)
-                    {
-                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
-                    }
-                    else
-                    {
-                        exit_flag = true;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        errno = ENOTCONN;
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_MESSAGE_AVAILABLE:
-            {
-                rv = connection.input_buffer.msg_size;
-                connection.input_buffer.state = TCP_BUFFER_EMPTY;
-                exit_flag = true;
-                break;
-            }
-        }
-    }
-
-    return rv;
-}
-
 bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
 {
     bool rv = false;
@@ -348,7 +215,7 @@ bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
     if (!free_connections_.empty())
     {
         uint32_t id = free_connections_.front();
-        TCPConnection& connection = connections_[size_t(id)];
+        TCPConnectionPlatform& connection = connections_[size_t(id)];
         connection.poll_fd->fd = fd;
         connection.addr = sockaddr->sin_addr.s_addr;
         connection.port = sockaddr->sin_port;
@@ -366,6 +233,7 @@ bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
 bool TCPServer::close_connection(TCPConnection& connection)
 {
     bool rv = false;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it_conn = active_connections_.find(connection.id);
     if (it_conn != active_connections_.end())
@@ -373,9 +241,9 @@ bool TCPServer::close_connection(TCPConnection& connection)
         lock.unlock();
         /* Add lock for close. */
         std::unique_lock<std::mutex> conn_lock(connection.mtx);
-        if (0 == ::close(connection.poll_fd->fd))
+        if (0 == ::close(connection_platform.poll_fd->fd))
         {
-            connection.poll_fd->fd = -1;
+            connection_platform.poll_fd->fd = -1;
             connection.active = false;
             conn_lock.unlock();
 
@@ -470,24 +338,44 @@ bool TCPServer::connection_available()
     return !free_connections_.empty();
 }
 
-ssize_t TCPServer::recv_locking(TCPConnection& connection, void* buffer, size_t len)
+size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
 {
-    ssize_t rv = 0;
+    size_t rv = 0;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        rv = recv(connection.poll_fd->fd, buffer, len, 0);
+        ssize_t bytes_received = recv(connection_platform.poll_fd->fd, (void*)buffer, len, 0);
+        if (0 < bytes_received)
+        {
+            rv = size_t(bytes_received);
+            errcode = 0;
+        }
+        else
+        {
+            errcode = 1;
+        }
     }
     return rv;
 }
 
-ssize_t TCPServer::send_locking(TCPConnection& connection, void* buffer, size_t len)
+size_t TCPServer::send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
 {
-    ssize_t rv = 0;
+    size_t rv = 0;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        rv = send(connection.poll_fd->fd, buffer, len, 0);
+        ssize_t bytes_sent = send(connection_platform.poll_fd->fd, (void*)buffer, len, 0);
+        if (0 < bytes_sent)
+        {
+            rv = size_t(bytes_sent);
+            errcode = 0;
+        }
+        else
+        {
+            errcode = 1;
+        }
     }
     return rv;
 }
