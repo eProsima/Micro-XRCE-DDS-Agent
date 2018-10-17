@@ -23,25 +23,74 @@
 #include <fcntl.h>
 #endif //_WIN32
 #include <iostream>
+#include <string>
+#include <limits>
+
+void showHelp()
+{
+    std::cout << "Usage: program <command>" << std::endl;
+    std::cout << "List of commands:" << std::endl;
+    std::cout << "    serial <device_name>" << std::endl;
+    std::cout << "    pseudo-serial" << std::endl;
+    std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
+    std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
+}
+
+void initializationError()
+{
+    std::cout << "Error: Invalid arguments." << std::endl;
+    showHelp();
+    std::exit(EXIT_FAILURE);
+}
+
+uint16_t parsePort(const char* str_port)
+{
+    int valid_port = 0;
+    try
+    {
+        int port = std::stoi(str_port);
+        if(port > std::numeric_limits<uint16_t>::max())
+        {
+            std::cout << "Error: port number '" << port << "out of range." << std::endl;
+            initializationError();
+        }
+        valid_port = uint16_t(port);
+    }
+    catch (const std::invalid_argument& e)
+    {
+        initializationError();
+    }
+    return valid_port;
+}
 
 int main(int argc, char** argv)
 {
     bool initialized = false;
 
-    if(argc ==3 && strcmp(argv[1], "udp") == 0)
+    if(argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
+    {
+        showHelp();
+    }
+    else if(argc >= 3 && strcmp(argv[1], "udp") == 0)
     {
         std::cout << "UDP agent initialization... ";
-        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer((uint16_t)atoi(argv[2]));
+        uint16_t port = parsePort(argv[2]);
+        eprosima::uxr::UDPServer* udp_server = (argc == 4) //discovery port
+                                             ? new eprosima::uxr::UDPServer(port, parsePort(argv[3]))
+                                             : new eprosima::uxr::UDPServer(port);
         if (udp_server->run())
         {
             initialized = true;
         }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
+    else if(argc >= 3 && strcmp(argv[1], "tcp") == 0)
     {
         std::cout << "TCP agent initialization... ";
-        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer((uint16_t)atoi(argv[2]));
+        uint16_t port = parsePort(argv[2]);
+        eprosima::uxr::TCPServer* tcp_server = (argc == 4) //discovery port
+                                             ? new eprosima::uxr::TCPServer(port, parsePort(argv[3]))
+                                             : new eprosima::uxr::TCPServer(port);
         if (tcp_server->run())
         {
             initialized = true;
@@ -149,19 +198,10 @@ int main(int argc, char** argv)
 #endif
     else
     {
-        std::cout << "Error: Invalid arguments." << std::endl;
+        initializationError();
     }
 
-    if(!initialized)
-    {
-        std::cout << "Help: program <command>" << std::endl;
-        std::cout << "List of commands:" << std::endl;
-        std::cout << "    serial <device_name>" << std::endl;
-        std::cout << "    pseudo-serial" << std::endl;
-        std::cout << "    udp <local_port>" << std::endl;
-        std::cout << "    tcp <local_port>" << std::endl;
-    }
-    else
+    if(initialized)
     {
         while (true)
         {
@@ -169,6 +209,6 @@ int main(int argc, char** argv)
         }
     }
 
-
     return 0;
 }
+
