@@ -15,7 +15,7 @@
 #ifndef _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
-#include <uxr/agent/transport/tcp/TCPServer.hpp>
+#include <uxr/agent/transport/tcp/TCPServerBase.hpp>
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>
 #include <netinet/in.h>

@@ -15,7 +15,7 @@
 #ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
-#include <uxr/agent/transport/udp/UDPServer.hpp>
+#include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>

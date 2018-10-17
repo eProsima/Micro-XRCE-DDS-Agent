@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/tcp/TCPServer.hpp>
+#include <uxr/agent/transport/tcp/TCPServerBase.hpp>
 
 namespace eprosima {
 namespace uxr {
