@@ -46,7 +46,7 @@ public:
     void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::OBJK_PARTICIPANT_Representation& representation) const;
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
     void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo info) override;

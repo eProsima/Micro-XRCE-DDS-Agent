@@ -112,30 +112,36 @@ void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*, epros
     }
 }
 
-bool Participant::matched(const dds::xrce::OBJK_PARTICIPANT_Representation& representation) const
+bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
-    bool rv = false;
-    fastrtps::ParticipantAttributes old_attributes = rtps_participant_->getAttributes();
+    /* Check ObjectKind. */
+    if ((get_id().at(1) & 0x0F) != new_object_rep._d())
+    {
+        return false;
+    }
+
+    bool parser_cond = false;
+    const fastrtps::ParticipantAttributes& old_attributes = rtps_participant_->getAttributes();
     fastrtps::ParticipantAttributes new_attributes;
 
-    switch (representation.representation()._d())
+    switch (new_object_rep.participant().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = representation.representation().object_reference();
+            const std::string& ref_rep = new_object_rep.participant().representation().object_reference();
             if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
                 fastrtps::xmlparser::XMLProfileManager::fillParticipantAttributes(ref_rep, new_attributes))
             {
-                rv = (new_attributes == old_attributes);
+                parser_cond = true;
             }
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = representation.representation().xml_string_representation();
+            const std::string& xml_rep = new_object_rep.participant().representation().xml_string_representation();
             if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), new_attributes))
             {
-                rv = (new_attributes == old_attributes);
+                parser_cond = true;
             }
             break;
         }
@@ -143,7 +149,7 @@ bool Participant::matched(const dds::xrce::OBJK_PARTICIPANT_Representation& repr
             break;
     }
 
-    return rv;
+    return parser_cond && (new_attributes == old_attributes);
 }
 
 } // namespace uxr

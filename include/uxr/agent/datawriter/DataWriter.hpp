@@ -51,7 +51,7 @@ public:
     const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
-    bool matched(const dds::xrce::DATAWRITER_Representation& representation) const;
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
     void onPublicationMatched(fastrtps::Publisher* pub, fastrtps::rtps::MatchingInfo& info) override;

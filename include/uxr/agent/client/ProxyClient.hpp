@@ -60,8 +60,6 @@ private:
                            const dds::xrce::DATAWRITER_Representation& representation);
     bool create_datareader(const dds::xrce::ObjectId& object_id,
                            const dds::xrce::DATAREADER_Representation& representation);
-    bool object_matched(std::shared_ptr<XRCEObject>& old_object,
-                        const dds::xrce::ObjectVariant& new_object_rep) const;
 
 private:
     dds::xrce::CLIENT_Representation representation_;

@@ -268,30 +268,36 @@ void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
     cond_var_.notify_one();
 }
 
-bool DataReader::matched(const dds::xrce::DATAREADER_Representation& representation) const
+bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
-    bool rv = false;
-    fastrtps::SubscriberAttributes old_attributes = rtps_subscriber_->getAttributes();
+    /* Check ObjectKind. */
+    if ((get_id().at(1) & 0x0F) != new_object_rep._d())
+    {
+        return false;
+    }
+
+    bool parser_cond = false;
+    const fastrtps::SubscriberAttributes& old_attributes = rtps_subscriber_->getAttributes();
     fastrtps::SubscriberAttributes new_attributes;
 
-    switch (representation.representation()._d())
+    switch (new_object_rep.data_reader().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = representation.representation().object_reference();
+            const std::string& ref_rep = new_object_rep.data_reader().representation().object_reference();
             if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
                 fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(ref_rep, new_attributes))
             {
-                rv = (new_attributes == old_attributes);
+                parser_cond = true;
             }
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = representation.representation().xml_string_representation();
+            const std::string& xml_rep = new_object_rep.data_reader().representation().xml_string_representation();
             if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), new_attributes))
             {
-                rv = (new_attributes == old_attributes);
+                parser_cond = true;
             }
             break;
         }
@@ -299,7 +305,7 @@ bool DataReader::matched(const dds::xrce::DATAREADER_Representation& representat
             break;
     }
 
-    return rv;
+    return parser_cond && (new_attributes == old_attributes);
 }
 
 ReadTimeEvent::ReadTimeEvent()

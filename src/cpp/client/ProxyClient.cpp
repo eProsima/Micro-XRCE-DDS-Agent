@@ -80,7 +80,7 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
         {
             if (!creation_mode.replace())
             {
-                if (object_matched(it->second, object_representation))
+                if (it->second->matched(object_representation))
                 {
                     result.status(dds::xrce::STATUS_OK_MATCHED);
                 }
@@ -91,7 +91,7 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
             }
             else
             {
-                if (object_matched(it->second, object_representation))
+                if (it->second->matched(object_representation))
                 {
                     result.status(dds::xrce::STATUS_OK_MATCHED);
                 }
@@ -323,61 +323,6 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
     }
     return rv;
 }
-
-bool ProxyClient::object_matched(std::shared_ptr<XRCEObject>& old_object,
-                                 const dds::xrce::ObjectVariant& new_object_rep) const
-{
-    bool rv = false;
-
-    /* Check ObjectKind. */
-    if ((old_object->get_id().at(1) & 0x0F) == new_object_rep._d())
-    {
-        switch (new_object_rep._d())
-        {
-            case dds::xrce::OBJK_PARTICIPANT:
-            {
-                std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(old_object);
-                rv = participant->matched(new_object_rep.participant());
-                break;
-            }
-            case dds::xrce::OBJK_TOPIC:
-            {
-                std::shared_ptr<Topic> topic = std::dynamic_pointer_cast<Topic>(old_object);
-                rv = topic->matched(new_object_rep.topic());
-                break;
-            }
-            case dds::xrce::OBJK_PUBLISHER:
-            {
-                std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(old_object);
-                rv = publisher->matched(new_object_rep.publisher());
-                break;
-            }
-            case dds::xrce::OBJK_SUBSCRIBER:
-            {
-                std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(old_object);
-                rv = subscriber->matched(new_object_rep.subscriber());
-                break;
-            }
-            case dds::xrce::OBJK_DATAWRITER:
-            {
-                std::shared_ptr<DataWriter> datawriter = std::dynamic_pointer_cast<DataWriter>(old_object);
-                rv = datawriter->matched(new_object_rep.data_writer());
-                break;
-            }
-            case dds::xrce::OBJK_DATAREADER:
-            {
-                std::shared_ptr<DataReader> datareader = std::dynamic_pointer_cast<DataReader>(old_object);
-                rv = datareader->matched(new_object_rep.data_reader());
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    return rv;
-}
-
 
 } // namespace uxr
 } // namespace eprosima
