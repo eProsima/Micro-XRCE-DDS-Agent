@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 {
     bool initialized = false;
 
-    if(argc ==3 && strcmp(argv[1], "udp") == 0)
+    if(argc >= 3 && strcmp(argv[1], "udp") == 0)
     {
         std::cout << "UDP agent initialization... ";
         uint16_t port = (uint16_t)atoi(argv[2]);
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
         }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
+    else if(argc >= 3 && strcmp(argv[1], "tcp") == 0)
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = (uint16_t)atoi(argv[2]);
