@@ -31,7 +31,10 @@ int main(int argc, char** argv)
     if(argc ==3 && strcmp(argv[1], "udp") == 0)
     {
         std::cout << "UDP agent initialization... ";
-        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer((uint16_t)atoi(argv[2]));
+        uint16_t port = (uint16_t)atoi(argv[2]);
+        eprosima::uxr::UDPServer* udp_server = (argc == 4) //discovery port
+                                             ? new eprosima::uxr::UDPServer(port, (uint16_t)atoi(argv[3]))
+                                             : new eprosima::uxr::UDPServer(port);
         if (udp_server->run())
         {
             initialized = true;
@@ -41,7 +44,10 @@ int main(int argc, char** argv)
     else if(argc ==3 && strcmp(argv[1], "tcp") == 0)
     {
         std::cout << "TCP agent initialization... ";
-        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer((uint16_t)atoi(argv[2]));
+        uint16_t port = (uint16_t)atoi(argv[2]);
+        eprosima::uxr::TCPServer* tcp_server = (argc == 4) //discovery port
+                                             ? new eprosima::uxr::TCPServer(port, (uint16_t)atoi(argv[3]))
+                                             : new eprosima::uxr::TCPServer(port);
         if (tcp_server->run())
         {
             initialized = true;
@@ -158,8 +164,8 @@ int main(int argc, char** argv)
         std::cout << "List of commands:" << std::endl;
         std::cout << "    serial <device_name>" << std::endl;
         std::cout << "    pseudo-serial" << std::endl;
-        std::cout << "    udp <local_port>" << std::endl;
-        std::cout << "    tcp <local_port>" << std::endl;
+        std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
+        std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
     }
     else
     {

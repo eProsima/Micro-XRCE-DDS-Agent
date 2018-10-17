@@ -81,7 +81,7 @@ private:
 class TCPServer : public Server
 {
 public:
-    TCPServer(uint16_t port);
+    TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     ~TCPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;

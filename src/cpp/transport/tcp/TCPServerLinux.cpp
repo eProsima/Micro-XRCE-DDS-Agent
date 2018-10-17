@@ -25,7 +25,7 @@
 namespace eprosima {
 namespace uxr {
 
-TCPServer::TCPServer(uint16_t port)
+TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
     : port_(port),
       connections_{},
       active_connections_(),
@@ -40,7 +40,7 @@ TCPServer::TCPServer(uint16_t port)
       listener_thread_(),
       running_cond_(false),
       messages_queue_{},
-      discovery_server_(*processor_, port_)
+      discovery_server_(*processor_, port_, discovery_port)
 {}
 
 void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)

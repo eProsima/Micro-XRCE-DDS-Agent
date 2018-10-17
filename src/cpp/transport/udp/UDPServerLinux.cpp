@@ -26,13 +26,13 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(uint16_t port)
+UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
     : port_(port),
       poll_fd_{},
       buffer_{0},
       source_to_client_map_{},
       client_to_source_map_{},
-      discovery_server_(*processor_, port_)
+      discovery_server_(*processor_, port_, discovery_port)
 {}
 
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
