@@ -15,6 +15,8 @@
 #ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 
+#define UXR_DEFAULT_DISCOVERY_PORT 7400
+
 #include <uxr/agent/message/Packet.hpp>
 
 #include <thread>
@@ -29,7 +31,7 @@ class Processor;
 class DiscoveryServer
 {
 public:
-    DiscoveryServer(const Processor& processor, uint16_t port);
+    DiscoveryServer(const Processor& processor, uint16_t port, uint16_t discovery_port);
     ~DiscoveryServer() = default;
 
     bool run();
@@ -49,6 +51,7 @@ private:
     dds::xrce::TransportAddress transport_address_;
     struct pollfd poll_fd_;
     uint8_t buffer_[128];
+    uint16_t discovery_port_;
 };
 
 } // namespace uxr

@@ -21,7 +21,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <errno.h>
-#include <ifaddrs.h>
 
 namespace eprosima {
 namespace uxr {
@@ -30,7 +29,7 @@ UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
     : UDPServerBase(port),
       poll_fd_{},
       buffer_{0},
-      discovery_server_(*processor_, discovery_port)
+      discovery_server_(*processor_, port_, discovery_port)
 {}
 
 bool UDPServer::init()
