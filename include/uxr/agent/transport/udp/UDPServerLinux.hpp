@@ -16,6 +16,8 @@
 #define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>
 #include <cstdint>
 #include <cstddef>
@@ -25,30 +27,10 @@
 namespace eprosima {
 namespace uxr {
 
-/**************************************************************************************************
- * UDP EndPoint.
- **************************************************************************************************/
-class UDPEndPoint : public EndPoint
-{
-public:
-    UDPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
-    ~UDPEndPoint() = default;
-
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
-
-private:
-    uint32_t addr_;
-    uint16_t port_;
-};
-
-/**************************************************************************************************
- * UDP Server.
- **************************************************************************************************/
 class UDPServer : public Server
 {
 public:
-    UDPServer(uint16_t port);
+    UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     ~UDPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
@@ -70,6 +52,7 @@ private:
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
     std::mutex clients_mtx_;
+    DiscoveryServer discovery_server_;
 };
 
 } // namespace uxr

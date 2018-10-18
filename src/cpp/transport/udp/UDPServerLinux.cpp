@@ -12,25 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/UDPServerWindows.hpp>
+#include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <string.h>
+#include <errno.h>
 
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(uint16_t port)
+UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
     : port_(port),
       poll_fd_{},
       buffer_{0},
       source_to_client_map_{},
-      client_to_source_map_{}
+      client_to_source_map_{},
+      discovery_server_(*processor_, port_, discovery_port)
 {}
 
 void UDPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
 {
     UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
 
     /* Update maps. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -109,10 +117,16 @@ bool UDPServer::init()
 {
     bool rv = false;
 
+    /* Init discovery. */
+    if (!discovery_server_.run())
+    {
+        return false;
+    }
+
     /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
 
-    if (INVALID_SOCKET != poll_fd_.fd)
+    if (-1 != poll_fd_.fd)
     {
         /* IP and Port setup. */
         struct sockaddr_in address;
@@ -120,7 +134,7 @@ bool UDPServer::init()
         address.sin_port = htons(port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
+        if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
             /* Poll setup. */
             poll_fd_.events = POLLIN;
@@ -133,40 +147,34 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-    return (0 == closesocket(poll_fd_.fd));
+    return (0 == ::close(poll_fd_.fd)) && discovery_server_.stop();
 }
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
     struct sockaddr client_addr;
-    int client_addr_len = sizeof(client_addr);
+    socklen_t client_addr_len = sizeof(client_addr);
 
-    int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
+    int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received = recvfrom(poll_fd_.fd,
-                                      reinterpret_cast<char*>(buffer_),
-                                      sizeof(buffer_),
-                                      0,
-                                      &client_addr,
-                                      &client_addr_len);
-        if (SOCKET_ERROR != bytes_received)
+        ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
+        if (0 < bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-            uint32_t addr = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_addr.s_addr;
-            uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
+            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
+            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
+            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
         }
-    }
-    else if (0 == poll_rv)
-    {
-        WSASetLastError(WAIT_TIMEOUT);
-        rv = false;
     }
     else
     {
         rv = false;
+        if (0 == poll_rv)
+        {
+            errno = ETIME;
+        }
     }
 
     return rv;
@@ -181,15 +189,15 @@ bool UDPServer::send_message(OutputPacket output_packet)
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = destination->get_port();
     client_addr.sin_addr.s_addr = destination->get_addr();
-    int bytes_sent = sendto(poll_fd_.fd,
-                            reinterpret_cast<char*>(output_packet.message->get_buf()),
-                            int(output_packet.message->get_len()),
-                            0,
-                            reinterpret_cast<struct sockaddr*>(&client_addr),
-                            sizeof(client_addr));
-    if (SOCKET_ERROR != bytes_sent)
+    ssize_t bytes_sent = sendto(poll_fd_.fd,
+                                output_packet.message->get_buf(),
+                                output_packet.message->get_len(),
+                                0,
+                                (struct sockaddr*)&client_addr,
+                                sizeof(client_addr));
+    if (0 < bytes_sent)
     {
-        if (size_t(bytes_sent) != output_packet.message->get_len())
+        if ((size_t)bytes_sent != output_packet.message->get_len())
         {
             rv = false;
         }
@@ -204,7 +212,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
 
 int UDPServer::get_error()
 {
-    return WSAGetLastError();
+    return errno;
 }
 
 } // namespace uxr

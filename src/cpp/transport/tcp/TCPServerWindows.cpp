@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/TCPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
 #include <string.h>
 
 namespace eprosima {

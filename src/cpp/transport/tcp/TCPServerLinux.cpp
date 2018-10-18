@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/TCPServerLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -25,7 +25,7 @@
 namespace eprosima {
 namespace uxr {
 
-TCPServer::TCPServer(uint16_t port)
+TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
     : port_(port),
       connections_{},
       active_connections_(),
@@ -39,7 +39,8 @@ TCPServer::TCPServer(uint16_t port)
       clients_mtx_(),
       listener_thread_(),
       running_cond_(false),
-      messages_queue_{}
+      messages_queue_{},
+      discovery_server_(*processor_, port_, discovery_port)
 {}
 
 void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
@@ -125,6 +126,11 @@ bool TCPServer::init()
 {
     bool rv = false;
 
+    if (!discovery_server_.run())
+    {
+        return false;
+    }
+
     /* Ignore SIGPIPE signal. */
     signal(SIGPIPE, sigpipe_handler);
 
@@ -193,7 +199,7 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
-    return (-1 == listener_poll_.fd) && (active_connections_.empty());
+    return (-1 == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
 }
 
 bool TCPServer::recv_message(InputPacket& input_packet, int timeout)

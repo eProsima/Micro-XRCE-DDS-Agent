@@ -32,6 +32,7 @@ public:
 
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
                                           dds::xrce::AGENT_Representation& agent_representation);
+    dds::xrce::ResultStatus get_info(dds::xrce::ObjectInfo& agent_info);
     dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
     std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
     void init_client_iteration();

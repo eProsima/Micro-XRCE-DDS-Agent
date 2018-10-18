@@ -16,7 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/SerialLayer.hpp>
+#include <uxr/agent/transport/serial/SerialLayer.hpp>
 #include <unordered_map>
 #include <cstdint>
 #include <cstddef>

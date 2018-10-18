@@ -16,6 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>
 #include <unordered_map>
 #include <netinet/in.h>
@@ -80,7 +81,7 @@ private:
 class TCPServer : public Server
 {
 public:
-    TCPServer(uint16_t port);
+    TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     ~TCPServer() = default;
 
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
@@ -121,6 +122,7 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+    DiscoveryServer discovery_server_;
 };
 
 } // namespace uxr
