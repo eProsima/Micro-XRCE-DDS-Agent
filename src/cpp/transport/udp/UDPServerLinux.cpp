@@ -21,7 +21,6 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <errno.h>
-#include <ifaddrs.h>
 
 namespace eprosima {
 namespace uxr {

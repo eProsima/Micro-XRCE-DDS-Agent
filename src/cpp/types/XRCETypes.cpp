@@ -5620,17 +5620,17 @@ void dds::xrce::ObjectInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
 
 void dds::xrce::ObjectInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    bool m_config_flag;
-    dcdr >> m_config_flag;
-    if (m_config_flag)
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
     {
         ObjectVariant temp_config;
         dcdr >> temp_config;
         m_config = temp_config;
     }
-    bool m_activity_flag;
-    dcdr >> m_activity_flag;
-    if (m_activity_flag)
+
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
     {
         ActivityInfoVariant temp_activity;
         dcdr >> temp_activity;

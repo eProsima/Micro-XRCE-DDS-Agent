@@ -54,9 +54,6 @@ public:
     virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) = 0;
     virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
 
-protected:
-    dds::xrce::TransportAddress transport_address_;
-
 private:
     virtual bool init() = 0;
     virtual bool close() = 0;
