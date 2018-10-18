@@ -156,6 +156,14 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
     payload.object_id() = {0x45, 0x67};
     payload.read_specification().data_stream_id() = 0x80;
     payload.read_specification().data_format() = 0x89;
+
+    dds::xrce::DataDeliveryControl delivery_control;
+    delivery_control.max_bytes_per_second() = 0xABCD;
+    delivery_control.max_elapsed_time() = 0x2345;
+    delivery_control.max_samples() = 0xABCD;
+    delivery_control.min_pace_period() = 0xEF01;
+    payload.read_specification().delivery_control(delivery_control);
+    payload.read_specification().content_filter_expression("ABCDE");
     output.append_submessage(dds::xrce::READ_DATA, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
