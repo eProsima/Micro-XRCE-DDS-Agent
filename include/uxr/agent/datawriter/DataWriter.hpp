@@ -47,12 +47,11 @@ public:
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init(const ObjectContainer& root_objects);
-    bool init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objects);
-    bool init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects);
+    bool init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects);
     const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
     void onPublicationMatched(fastrtps::Publisher* pub, fastrtps::rtps::MatchingInfo& info) override;

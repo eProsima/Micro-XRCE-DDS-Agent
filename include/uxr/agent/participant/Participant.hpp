@@ -34,12 +34,11 @@ namespace uxr {
 
 class Participant : public XRCEObject, public fastrtps::ParticipantListener
 {
-  public:
+public:
     Participant(const dds::xrce::ObjectId& id);
     virtual ~Participant();
 
-    bool init_by_ref(const std::string& ref_rep);
-    bool init_by_xml(const std::string& xml_rep);
+    bool init(const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
     fastrtps::Participant* get_rtps_participant() { return rtps_participant_; }
     void register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id);
     void unregister_topic(const std::string& topic_name);
@@ -47,8 +46,9 @@ class Participant : public XRCEObject, public fastrtps::ParticipantListener
     void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
-  private:
+private:
     void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo info) override;
     fastrtps::Participant* rtps_participant_ = nullptr;
     std::unordered_map<std::string, dds::xrce::ObjectId> registered_topics_;

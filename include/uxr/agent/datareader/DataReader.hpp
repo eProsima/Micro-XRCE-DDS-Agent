@@ -120,9 +120,7 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    bool init(const ObjectContainer& root_objects);
-    bool init_by_ref(const std::string& ref_rep, const ObjectContainer& root_objcets);
-    bool init_by_xml(const std::string& xml_rep, const ObjectContainer& root_objects);
+    bool init(const dds::xrce::DATAREADER_Representation& representation, const ObjectContainer& root_objects);
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     bool has_message() const;
     void on_max_timeout(const asio::error_code& error) override;
@@ -130,6 +128,7 @@ public:
                                eprosima::fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
     void release(ObjectContainer&) override {}
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
     int start_read(const dds::xrce::DataDeliveryControl& delivery_control,

@@ -47,6 +47,7 @@ class XRCEObject
     virtual ~XRCEObject() = 0;
 
     dds::xrce::ObjectId get_id() const;
+    virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
     virtual void release(ObjectContainer& root_objects) = 0;
 
   private:

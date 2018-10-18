@@ -36,11 +36,11 @@ class Topic : public XRCEObject
     Topic& operator=(const Topic&) = default;
     ~Topic() override;
 
-    bool init_by_ref(const std::string& ref_rep);
-    bool init_by_xml(const std::string& xml_rep);
+    bool init(const dds::xrce::OBJK_TOPIC_Representation& representation);
     virtual void release(ObjectContainer&) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
   private:
     std::string name;

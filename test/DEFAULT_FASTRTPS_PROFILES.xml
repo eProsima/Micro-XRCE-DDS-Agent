@@ -10,6 +10,17 @@
             <name>default_xrce_participant</name>
         </rtps>
     </participant>
+    <participant profile_name="default_xrce_participant_two">
+        <rtps>
+            <builtin>
+                <leaseDuration>
+                    <durationbyname>INFINITE</durationbyname>
+                </leaseDuration>
+                <domainId>0</domainId>
+            </builtin>
+            <name>default_xrce_participant_two</name>
+        </rtps>
+    </participant>
     <data_writer profile_name="shapetype_data_writer">
         <topic>
             <kind>WITH_KEY</kind>
@@ -18,6 +29,20 @@
             <historyQos>
                 <kind>KEEP_LAST</kind>
                 <depth>5</depth>
+            </historyQos>
+            <durability>
+                <kind>TRANSIENT_LOCAL</kind>
+            </durability>
+        </topic>
+    </data_writer>
+    <data_writer profile_name="shapetype_data_writer_two">
+        <topic>
+            <kind>WITH_KEY</kind>
+            <name>Square</name>
+            <dataType>ShapeType</dataType>
+            <historyQos>
+                <kind>KEEP_LAST</kind>
+                <depth>10</depth>
             </historyQos>
             <durability>
                 <kind>TRANSIENT_LOCAL</kind>
@@ -38,9 +63,28 @@
             </durability>
         </topic>
     </data_reader>
+    <data_reader profile_name="shapetype_data_reader_two">
+        <topic>
+            <kind>WITH_KEY</kind>
+            <name>Square</name>
+            <dataType>ShapeType</dataType>
+            <historyQos>
+                <kind>KEEP_LAST</kind>
+                <depth>10</depth>
+            </historyQos>
+            <durability>
+                <kind>TRANSIENT_LOCAL</kind>
+            </durability>
+        </topic>
+    </data_reader>
     <topic profile_name="shapetype_topic">
         <kind>WITH_KEY</kind>
         <name>Square</name>
         <dataType>ShapeType</dataType>
+    </topic>
+    <topic profile_name="helloworld_topic">
+        <kind>NO_KEY</kind>
+        <name>HelloWorldTopic</name>
+        <dataType>HelloWorld</dataType>
     </topic>
 </profiles>
