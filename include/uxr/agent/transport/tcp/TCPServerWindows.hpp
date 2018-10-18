@@ -55,7 +55,7 @@ private:
     static void init_input_buffer(TCPInputBuffer& buffer);
 
     bool close_connection(TCPConnection& connection) override;
-    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &error) override;
+    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
     size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
 
 private:

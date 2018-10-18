@@ -57,7 +57,7 @@ bool UDPServer::close()
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
-    bool rv = true;
+    bool rv = false;
     struct sockaddr client_addr;
     int client_addr_len = sizeof(client_addr);
 
@@ -76,16 +76,15 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_addr.s_addr;
             uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
+            rv = true;
         }
-    }
-    else if (0 == poll_rv)
-    {
-        WSASetLastError(WAIT_TIMEOUT);
-        rv = false;
     }
     else
     {
-        rv = false;
+        if (0 == poll_rv)
+        {
+            WSASetLastError(WAIT_TIMEOUT);
+        }
     }
 
     return rv;
@@ -93,7 +92,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 
 bool UDPServer::send_message(OutputPacket output_packet)
 {
-    bool rv = true;
+    bool rv = false;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
@@ -108,14 +107,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
                             sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
-        if (size_t(bytes_sent) != output_packet.message->get_len())
-        {
-            rv = false;
-        }
-    }
-    else
-    {
-        rv = false;
+        rv = (size_t(bytes_sent) != output_packet.message->get_len());
     }
 
     return rv;

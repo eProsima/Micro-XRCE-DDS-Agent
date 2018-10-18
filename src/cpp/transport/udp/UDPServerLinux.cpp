@@ -72,7 +72,7 @@ bool UDPServer::close()
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {
-    bool rv = true;
+    bool rv = false;
     struct sockaddr client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
@@ -80,17 +80,17 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
     if (0 < poll_rv)
     {
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
-        if (0 < bytes_received)
+        if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
+            rv = true;
         }
     }
     else
     {
-        rv = false;
         if (0 == poll_rv)
         {
             errno = ETIME;
@@ -102,7 +102,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 
 bool UDPServer::send_message(OutputPacket output_packet)
 {
-    bool rv = true;
+    bool rv = false;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
@@ -115,16 +115,9 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 0,
                                 (struct sockaddr*)&client_addr,
                                 sizeof(client_addr));
-    if (0 < bytes_sent)
+    if (-1 != bytes_sent)
     {
-        if ((size_t)bytes_sent != output_packet.message->get_len())
-        {
-            rv = false;
-        }
-    }
-    else
-    {
-        rv = false;
+        rv = ((size_t)bytes_sent == output_packet.message->get_len());
     }
 
     return rv;

@@ -142,8 +142,8 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
                     if (0 < errcode)
                     {
                         close_connection(connection);
-                        exit_flag = true;
                     }
+                    exit_flag = true;
                 }
                 break;
             }
@@ -169,8 +169,8 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
                     if (0 < errcode)
                     {
                         close_connection(connection);
-                        exit_flag = true;
                     }
+                    exit_flag = true;
                 }
                 break;
             }
@@ -200,8 +200,8 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
                     if (0 < errcode)
                     {
                         close_connection(connection);
-                        exit_flag = true;
                     }
+                    exit_flag = true;
                 }
                 break;
             }
@@ -229,8 +229,8 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
                     if (0 < errcode)
                     {
                         close_connection(connection);
-                        exit_flag = true;
                     }
+                    exit_flag = true;
                 }
                 break;
             }

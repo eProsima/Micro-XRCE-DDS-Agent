@@ -332,15 +332,23 @@ size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        int bytes_received = recv(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
-        if (SOCKET_ERROR != bytes_received)
+        int poll_rv = WSAPoll(connection_platform.poll_fd, 1, 0);
+        if (0 < poll_rv)
         {
-            rv = size_t(bytes_received);
-            errcode = 0;
+            int bytes_received = recv(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
+            if (SOCKET_ERROR != bytes_received)
+            {
+                rv = size_t(bytes_received);
+                errcode = 0;
+            }
+            else
+            {
+                errcode = 1;
+            }
         }
         else
         {
-            errcode = 1;
+            errcode = (0 == poll_rv) ? 0 : 1;
         }
     }
     return rv;

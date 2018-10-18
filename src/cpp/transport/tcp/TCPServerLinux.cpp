@@ -138,7 +138,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     uint16_t bytes_sent = 0;
-    ssize_t send_rv = 0;
+    size_t send_rv = 0;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
@@ -345,15 +345,23 @@ size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        ssize_t bytes_received = recv(connection_platform.poll_fd->fd, (void*)buffer, len, 0);
-        if (0 < bytes_received)
+        int poll_rv = poll(connection_platform.poll_fd, 1, 0);
+        if (0 < poll_rv)
         {
-            rv = size_t(bytes_received);
-            errcode = 0;
+            ssize_t bytes_received = recv(connection_platform.poll_fd->fd, (void*)buffer, len, 0);
+            if (0 < bytes_received)
+            {
+                rv = size_t(bytes_received);
+                errcode = 0;
+            }
+            else
+            {
+                errcode = 1;
+            }
         }
         else
         {
-            errcode = 1;
+            errcode = (0 == poll_rv) ? 0 : 1;
         }
     }
     return rv;
@@ -367,7 +375,7 @@ size_t TCPServer::send_locking(TCPConnection& connection, uint8_t* buffer, size_
     if (connection.active)
     {
         ssize_t bytes_sent = send(connection_platform.poll_fd->fd, (void*)buffer, len, 0);
-        if (0 < bytes_sent)
+        if (-1 != bytes_sent)
         {
             rv = size_t(bytes_sent);
             errcode = 0;
