@@ -22,7 +22,7 @@
 namespace dds {
 namespace xrce {
 
-struct TransportAddress;
+class TransportAddress;
 
 }
 }

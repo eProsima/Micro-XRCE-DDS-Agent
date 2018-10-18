@@ -45,18 +45,18 @@ void initializationError()
 
 uint16_t parsePort(const char* str_port)
 {
-    int valid_port = 0;
+    uint16_t valid_port = 0;
     try
     {
         int port = std::stoi(str_port);
-        if(port > std::numeric_limits<uint16_t>::max())
+        if(port > (std::numeric_limits<uint16_t>::max)())
         {
             std::cout << "Error: port number '" << port << "out of range." << std::endl;
             initializationError();
         }
         valid_port = uint16_t(port);
     }
-    catch (const std::invalid_argument& e)
+    catch (const std::invalid_argument& )
     {
         initializationError();
     }
@@ -75,9 +75,13 @@ int main(int argc, char** argv)
     {
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(argv[2]);
+#ifndef _WIN32
         eprosima::uxr::UDPServer* udp_server = (argc == 4) //discovery port
                                              ? new eprosima::uxr::UDPServer(port, parsePort(argv[3]))
                                              : new eprosima::uxr::UDPServer(port);
+#else
+        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer(port);
+#endif
         if (udp_server->run())
         {
             initialized = true;
@@ -88,9 +92,13 @@ int main(int argc, char** argv)
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(argv[2]);
+#ifndef _WIN32
         eprosima::uxr::TCPServer* tcp_server = (argc == 4) //discovery port
                                              ? new eprosima::uxr::TCPServer(port, parsePort(argv[3]))
                                              : new eprosima::uxr::TCPServer(port);
+#else
+        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer(port);
+#endif
         if (tcp_server->run())
         {
             initialized = true;
