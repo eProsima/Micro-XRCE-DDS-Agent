@@ -211,8 +211,13 @@ int main(int argc, char** argv)
 
     if(initialized)
     {
-        std::cout << "Enter 'q' for exit" << std::endl;
-        std::cin >> exit_flag;
+        std::cin.clear();
+        char exit_flag = 0;
+        while ('q' != exit_flag)
+        {
+            std::cout << "Enter 'q' for exit" << std::endl;
+            std::cin >> exit_flag;
+        }
     }
 
     return 0;
