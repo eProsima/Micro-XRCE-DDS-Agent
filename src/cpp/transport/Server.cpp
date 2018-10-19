@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/transport/Server.hpp>
-#include <micrortps/agent/config.hpp>
-#include <micrortps/agent/processor/Processor.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/config.hpp>
+#include <uxr/agent/processor/Processor.hpp>
 #include <functional>
 
+#define RECEIVE_TIMEOUT 100
+
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Server::Server()
-    : running_cond_(false),
-      processor_(new Processor(this))
+    : processor_(new Processor(this)),
+      running_cond_(false)
 {}
 
 Server::~Server()
@@ -51,7 +53,7 @@ bool Server::run()
     return true;
 }
 
-void Server::stop()
+bool Server::stop()
 {
     running_cond_ = false;
     input_scheduler_.deinit();
@@ -73,12 +75,15 @@ void Server::stop()
         heartbeat_thread_->join();
     }
 
-    (void) close();
+    return close();
 }
 
 void Server::push_output_packet(OutputPacket output_packet)
 {
-    output_scheduler_.push(std::move(output_packet), 0);
+    if (output_packet.destination && output_packet.message)
+    {
+        output_scheduler_.push(std::move(output_packet), 0);
+    }
 }
 
 void Server::receiver_loop()
@@ -86,7 +91,7 @@ void Server::receiver_loop()
     InputPacket input_packet;
     while (running_cond_)
     {
-        if (recv_message(input_packet, 100))
+        if (recv_message(input_packet, RECEIVE_TIMEOUT))
         {
             input_scheduler_.push(std::move(input_packet), 0);
         }
@@ -126,5 +131,5 @@ void Server::heartbeat_loop()
     }
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

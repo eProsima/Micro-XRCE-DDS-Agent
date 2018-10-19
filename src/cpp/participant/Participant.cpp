@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/participant/Participant.hpp>
+#include <uxr/agent/participant/Participant.hpp>
 #include <fastrtps/Domain.h>
+#include <fastrtps/participant/Participant.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../xmlobjects/xmlobjects.h"
 
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Participant::Participant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
 
@@ -31,16 +33,39 @@ Participant::~Participant()
     }
 }
 
-bool Participant::init()
+bool Participant::init(const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
-    return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(DEFAULT_XRCE_PARTICIPANT_PROFILE, this)));
-}
-
-bool Participant::init(const std::string& xml_rep)
-{
-    return !(nullptr == rtps_participant_ &&
-             nullptr == (rtps_participant_ = fastrtps::Domain::createParticipant(xml_rep, this)));
+    bool rv = false;
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            if (nullptr == rtps_participant_)
+            {
+                const std::string& ref_rep = representation.representation().object_reference();
+                rtps_participant_ = fastrtps::Domain::createParticipant(ref_rep, this);
+                rv = (nullptr != rtps_participant_);
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            if (nullptr == rtps_participant_)
+            {
+                const std::string& xml_rep = representation.representation().xml_string_representation();
+                fastrtps::ParticipantAttributes attributes;
+                if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), attributes))
+                {
+                    rtps_participant_ = fastrtps::Domain::createParticipant(attributes, this);
+                    rv = (nullptr != rtps_participant_);
+                }
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    return rv;
 }
 
 void Participant::register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id)
@@ -87,5 +112,45 @@ void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*, epros
     }
 }
 
-} // namespace micrortps
+bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
+{
+    /* Check ObjectKind. */
+    if ((get_id().at(1) & 0x0F) != new_object_rep._d())
+    {
+        return false;
+    }
+
+    bool parser_cond = false;
+    const fastrtps::ParticipantAttributes& old_attributes = rtps_participant_->getAttributes();
+    fastrtps::ParticipantAttributes new_attributes;
+
+    switch (new_object_rep.participant().representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref_rep = new_object_rep.participant().representation().object_reference();
+            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+                fastrtps::xmlparser::XMLProfileManager::fillParticipantAttributes(ref_rep, new_attributes))
+            {
+                parser_cond = true;
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml_rep = new_object_rep.participant().representation().xml_string_representation();
+            if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), new_attributes))
+            {
+                parser_cond = true;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return parser_cond && (new_attributes == old_attributes);
+}
+
+} // namespace uxr
 } // namespace eprosima

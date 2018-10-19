@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ###############################################################################
-# CMake build rules for Micro RTPS Agent
+# CMake build rules for Micro XRCE-DDS Agent
 ###############################################################################
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
@@ -35,14 +35,14 @@ endif()
 # Product information
 ###############################################################################
 if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(micrortps_agent C CXX)
+    project(microxrcedds_agent C CXX)
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
     set(PROJECT_VERSION_PATCH 0)
     set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 else()
     cmake_policy(SET CMP0048 NEW)
-    project(micrortps_agent VERSION "1.0.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.0.0" LANGUAGES C CXX)
 endif()
 
 ###############################################################################
@@ -52,6 +52,11 @@ option(EPROSIMA_BUILD "Activate internal building" OFF)
 option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(VERBOSE "Use verbose output" OFF)
+option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
+
+if(EPROSIMA_INSTALLER)
+    set(EPROSIMA_BUILD ON)
+endif()
 
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
@@ -65,6 +70,36 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/check_configuration.cmake)
 if(MSVC OR MSVC_IDE)
     check_msvc_arch()
 endif()
+
+###############################################################################
+# Config
+###############################################################################
+
+# Install path
+set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
+set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
+if(WIN32 AND EPROSIMA_INSTALLER AND IS_TOP_LEVEL)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
+
+# Configuration options.
+set(CONFIG_RELIABLE_STREAM_DEPTH 16 CACHE STRING "Reliable streams depth.")
+set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth.")
+set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
+set(CONFIG_TCP_TRANSPORT_MTU 512 CACHE STRING "TCP transport MTU.")
+set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
+set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
+set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
+set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
+
+# Create source files with the define
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    )
 
 ###############################################################################
 # Load external eProsima projects.
@@ -81,14 +116,15 @@ eprosima_find_thirdparty(Asio asio)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(TRANSPORT_SRCS
-        src/cpp/transport/UDPServerLinux.cpp
-        src/cpp/transport/TCPServerLinux.cpp
-        src/cpp/transport/SerialServerLinux.cpp
+        src/cpp/transport/udp/UDPServerLinux.cpp
+        src/cpp/transport/tcp/TCPServerLinux.cpp
+        src/cpp/transport/serial/SerialServerLinux.cpp
+        src/cpp/transport/discovery/DiscoveryServerLinux.cpp
         )
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(TRANSPORT_SRCS
-        src/cpp/transport/UDPServerWindows.cpp
-        src/cpp/transport/TCPServerWindows.cpp
+        src/cpp/transport/udp/UDPServerWindows.cpp
+        src/cpp/transport/tcp/TCPServerWindows.cpp
         )
 endif()
 
@@ -112,7 +148,10 @@ set(SRCS
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/SerialLayer.cpp
+    src/cpp/transport/udp/UDPServerBase.cpp
+    src/cpp/transport/tcp/TCPServerBase.cpp
+    src/cpp/transport/serial/SerialServerBase.cpp
+    src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
     )
 
@@ -128,8 +167,8 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         ${ASIO_INCLUDE_DIR}
     )
-add_executable(MicroRTPSAgent micrortps_agent.cpp)
-target_link_libraries(MicroRTPSAgent PRIVATE ${PROJECT_NAME})
+add_executable(MicroXRCEAgent microxrce_agent.cpp)
+target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
@@ -163,8 +202,8 @@ set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
 set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
 
 # Create source files with the define
-configure_file(${PROJECT_SOURCE_DIR}/include/micrortps/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
     )
 
 ###############################################################################
@@ -176,7 +215,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
-set_target_properties(MicroRTPSAgent PROPERTIES
+set_target_properties(MicroXRCEAgent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
@@ -229,43 +268,59 @@ endif()
 ###############################################################################
 
 # Install agent lib
-install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}Targets
-    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT libraries
-    )
+if(MSVC OR MSVC_IDE)
+    install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+	COMPONENT libraries_${MSVC_ARCH}
+        )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
+        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+        COMPONENT libraries
+        )
+endif()
 
 # Install includes
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/micrortps/agent/
-    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/uxr/agent/
+    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
     FILES_MATCHING PATTERN "*.hpp"
                    PATTERN "*.h"
     )
 
 # Export library
 install(EXPORT ${PROJECT_NAME}Targets
-    DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
+    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Install agent exec
-install(TARGETS MicroRTPSAgent
-    EXPORT MicroRTPSAgentTargets
+install(TARGETS MicroXRCEAgent
+    EXPORT MicroXRCEAgentTargets
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT libraries
+    COMPONENT executables
     )
 
 # Install config.h
-install(FILES ${PROJECT_BINARY_DIR}/include/micrortps/agent/config.hpp
-    DESTINATION ${INCLUDE_INSTALL_DIR}/micrortps/agent
+install(FILES ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
     )
 
 # Install default profile XML
 install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
     DESTINATION ${BIN_INSTALL_DIR}
+    )
+
+# Install licenses
+install(FILES ${PROJECT_SOURCE_DIR}/LICENSE
+    DESTINATION ${LICENSE_INSTALL_DIR}
+    COMPONENT licenses
     )
 
 # Package configuration
@@ -276,5 +331,79 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake
     PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
 install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-    DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
+
+# Generate Windows Installer.
+if(WIN32 AND EPROSIMA_INSTALLER)
+    set(CPACK_GENERATOR NSIS)
+
+    # Setup generic options.
+    set(CPACK_PACKAGE_NAME "MicroRTPSAgent")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ implementarion of XRCE Root")
+    set(CPACK_PACKAGE_DESCRIPTION "eProsima MicroRTPSAgent is a executable which implement the XRCE Root functionality.")
+    set(CPACK_PACKAGE_VENDOR "eProsima")
+    set(CPACK_PACKAGE_CONTACT "eProsima Support <support@eprosima.com>")
+    set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_MAJOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_MINOR_VERSION})
+    set(CPACK_PACKAGE_VERSION_PATH ${PROJECT_MICRO_VERSION})
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
+    set(CPACK_COMPONENTS_LICENSES_HIDDEN 1)
+
+    # Components display.
+    set(CPACK_COMPONENT_CMAKE_DISPLAY_NAME "CMake files")
+    set(CPACK_COMPONENT_CMAKE_DESCRIPTION "CMake configuration files")
+    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima MicroRTPSAgent C++ Headers")
+    set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Headers")
+    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima MicroRTPSAgent C++ Headers")
+    string(TOUPPER "${MSVC_ARCH}" MSVC_ARCH_UPPER)
+    set(CPACK_COMPONENT_LIBRARIES_${MSVC_ARCH_UPPER}_DISPLAY_NAME "${MSCV_ARCH}")
+    set(CPACK_COMPONENT_LIBRARIES_${MSVC_ARCH_UPPER}_DESCRIPTION "eProsima MicroRTPSAgent libraries form platform ${MSVC_ARCH}")
+    set(CPACK_COMPONENT_LICENSES_DISPLAY_NAME "License")
+    set(CPACK_COMPONENT_LICENSES_DESCRIPTION "eProsima MicroRTPSAgent License")
+
+    # Setup NSIS installer.
+    set(CPACK_NSIS_DISPLAY_NAME "Micro RTPS Agent ${PROJECT_VERSION}")
+    set(CPACK_NSIS_PACKAGE_NAME "eProsima Micro RTPS Agent ${PROJECT_VERSION}")
+    set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
+    set(CPACK_NSIS_CONTACT "support@eprosima.com")
+    set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/utils/images/icon/eprosima_icon.ico")
+    set(CPACK_NSIS_MENU_LINKS 
+        "bin/MicroRTPSAgent.exe" "MicroRTPSAgent"
+        "Uninstall.exe" "Uninstall MicroRTPSAgent"
+        )
+    if(CMAKE_CL_64)
+	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
+    else() 
+	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES(x86)}\\eProsima")
+    endif()
+
+    # Setup configure files for NSIS installer.
+    configure_file(${PROJECT_SOURCE_DIR}/cmake/packaging/windows/NSISPackaging.cmake.in
+        ${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake @ONLY
+        )
+    # Setup redistributables installation nsh.
+    if(${MSVC_ARCH} STREQUAL "x64Win64VS2017")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,amd64,14.0,bundle")
+	set(REDIST_VERSION "14.15.26706.0")
+	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/20ef12bb-5283-41d7-90f7-eb3bb7355de7/8b58fd89f948b2430811db3da92299a6/vc_redist.x64.exe")
+	set(REDIST_EXEC "vc_redist_x64.exe")
+    elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2017")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,x86,14.0,bundle")
+	set(REDIST_VERSION "14.15.26706.0")
+	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/749aa419-f9e4-4578-a417-a43786af205e/d59197078cc425377be301faba7dd87a/vc_redist.x86.exe")
+	set(REDIST_EXEC "vc_redist_i86.exe")
+    endif()
+    configure_file(${PROJECT_SOURCE_DIR}/cmake/packaging/windows/InstallRedistributables.nsh.in
+        ${PROJECT_BINARY_DIR}/cmake/packaging/windows/InstallRedistributables.nsh @ONLY
+        )
+
+    # Setup CPack install script
+    set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
+
+    # Update CMAKE_MODULE_PATH to find NSIS.template.in
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")	
+
+    include(CPack)
+endif()

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/Root.hpp>
-#include <micrortps/agent/libdev/MessageDebugger.h>
-#include <micrortps/agent/libdev/MessageOutput.h>
+#include <uxr/agent/Root.hpp>
+#include <uxr/agent/libdev/MessageDebugger.h>
+#include <uxr/agent/libdev/MessageOutput.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastcdr/Cdr.h>
 #include <memory>
 #include <chrono>
@@ -28,7 +29,7 @@
 const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 
 Root::Root()
     : mtx_(),
@@ -36,6 +37,9 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
+
+    /* Load XML profile file. */
+    fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
@@ -110,6 +114,31 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
     return result_status;
 }
 
+dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
+{
+    dds::xrce::ResultStatus result_status;
+
+    /* Agent config. */
+    auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
+                      (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    dds::xrce::Time_t timestamp;
+    timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
+    timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
+
+    dds::xrce::AGENT_Representation agent_representation;
+    agent_representation.agent_timestamp(timestamp);
+    agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
+    agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
+    agent_representation.xrce_vendor_id(eprosima_vendor_id);
+
+    dds::xrce::ObjectVariant object_varian;
+    object_varian.agent(agent_representation);
+
+    agent_info.config(std::move(object_varian));
+
+    return result_status;
+}
+
 dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
@@ -161,5 +190,5 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
     return rv;
 }
 
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

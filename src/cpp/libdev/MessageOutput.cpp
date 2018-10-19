@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <micrortps/agent/libdev/MessageOutput.h>
-#include <micrortps/agent/types/XRCETypes.hpp>
-#include <micrortps/agent/types/MessageHeader.hpp>
-#include <micrortps/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/types/MessageHeader.hpp>
+#include <uxr/agent/types/SubMessageHeader.hpp>
 
 #include <stdio.h>
 
@@ -26,7 +26,7 @@
 #endif
 
 namespace eprosima {
-namespace micrortps {
+namespace uxr {
 namespace debug {
 
 const std::string GREEN         = "\x1B[1;32m";
@@ -130,10 +130,10 @@ void print_create_submessage(const dds::xrce::CREATE_Payload& payload)
                     printf("    - string_size: " PRIstrsize "\n", payload.object_representation()
                                                                   .data_writer()
                                                                   .representation()
-                                                                  .string_representation()
+                                                                  .xml_string_representation()
                                                                   .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_writer().representation().string_representation().c_str());
+                           payload.object_representation().data_writer().representation().xml_string_representation().c_str());
                     break;
                 case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
@@ -158,10 +158,10 @@ void print_create_submessage(const dds::xrce::CREATE_Payload& payload)
                     printf("    - string_size: " PRIstrsize "\n", payload.object_representation()
                                                               .data_reader()
                                                               .representation()
-                                                              .string_representation()
+                                                              .xml_string_representation()
                                                               .size());
                     printf("    - string: %s\n",
-                           payload.object_representation().data_reader().representation().string_representation().c_str());
+                           payload.object_representation().data_reader().representation().xml_string_representation().c_str());
                     break;
                 case dds::xrce::REPRESENTATION_IN_BINARY:
                     printf(
@@ -348,44 +348,84 @@ void printl_connected_client_submessage(const dds::xrce::CLIENT_Representation& 
            RESTORE_COLOR.data());
 }
 
-void printl_create_submessage(const dds::xrce::ClientKey& client_key, const dds::xrce::CREATE_Payload& payload)
+void printl_create_submessage(const dds::xrce::ClientKey& client_key,
+                              const dds::xrce::ObjectId& object_id,
+                              const dds::xrce::ObjectVariant& representation)
 {
     char content[128];
-    switch (payload.object_representation()._d())
+    switch (representation._d())
     {
         case dds::xrce::OBJK_PARTICIPANT:
             sprintf(content, "PARTICIPANT");
             break;
         case dds::xrce::OBJK_DATAWRITER:
-            sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(payload.object_representation().data_writer().publisher_id()),
-                    payload.object_representation().data_writer().representation().string_representation().size());
+        {
+            const dds::xrce::DATAWRITER_Representation& datawriter_rep = representation.data_writer();
+            switch (datawriter_rep.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datawriter_rep.publisher_id()),
+                                                  datawriter_rep.representation().object_reference().size());
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    sprintf(content, "DATA_WRITER | publisher id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datawriter_rep.publisher_id()),
+                            datawriter_rep.representation().xml_string_representation().size());
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
-
+        }
         case dds::xrce::OBJK_DATAREADER:
-            sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
-                    platform_array_to_num(payload.object_representation().data_reader().subscriber_id()),
-                    payload.object_representation().data_reader().representation().string_representation().size());
+        {
+            const dds::xrce::DATAREADER_Representation& datareader_rep = representation.data_reader();
+            switch (datareader_rep.representation()._d())
+            {
+                case dds::xrce::REPRESENTATION_BY_REFERENCE:
+                {
+                    sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datareader_rep.subscriber_id()),
+                            datareader_rep.representation().object_reference().size());
+                    break;
+                }
+                case dds::xrce::REPRESENTATION_AS_XML_STRING:
+                {
+                    sprintf(content, "DATA_READER | subscriber id: 0x%04X | xml: " PRIstrsize,
+                            platform_array_to_num(datareader_rep.subscriber_id()),
+                            datareader_rep.representation().xml_string_representation().size());
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
-
+        }
         case dds::xrce::OBJK_SUBSCRIBER:
-            sprintf(content, "SUBSCRIBER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().subscriber().participant_id()));
+            sprintf(content, "SUBSCRIBER | participant id: 0x%04X",
+                    platform_array_to_num(representation.subscriber().participant_id()));
             break;
 
         case dds::xrce::OBJK_PUBLISHER:
-            sprintf(content, "PUBLISHER | participant id: 0x%04X", platform_array_to_num(payload.object_representation().publisher().participant_id()));
+            sprintf(content, "PUBLISHER | participant id: 0x%04X",
+                    platform_array_to_num(representation.publisher().participant_id()));
             break;
         case dds::xrce::OBJK_TOPIC:
-            sprintf(content, "TOPIC | participant id: 0x%04X", platform_array_to_num(payload.object_representation().topic().participant_id()));
+            sprintf(content, "TOPIC | participant id: 0x%04X",
+                    platform_array_to_num(representation.topic().participant_id()));
             break;
         default:
             sprintf(content, "UNKNOWN");
     }
-    printf("%s[Create XRCE object | client key: 0x%02X 0x%02X 0x%02X 0x%02X | #0x%04X | id: 0x%04X | %s]%s\n",
+    printf("%s[Create XRCE object | client key: 0x%02X 0x%02X 0x%02X 0x%02X | id: 0x%04X | %s]%s\n",
            YELLOW.data(),
            client_key[0], client_key[1], client_key[2], client_key[3],
-           platform_array_to_num(payload.request_id()),
-           platform_array_to_num(payload.object_id()),
+           platform_array_to_num(object_id),
            content,
            RESTORE_COLOR.data());
 }
@@ -555,5 +595,5 @@ unsigned int objectid_to_uint(const dds::xrce::ObjectId& id)
 }
 
 } // namespace debug
-} // namespace micrortps
+} // namespace uxr
 } // namespace eprosima

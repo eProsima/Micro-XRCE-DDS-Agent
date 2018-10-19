@@ -22,14 +22,14 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     set(SRCS AgentSerialization.cpp)
     add_library(${PROJECT_NAME} STATIC ${SRCS})
 
-    target_link_libraries(${PROJECT_NAME} micrortps_agent)
-    get_target_property(MICRORTPS_AGENT_DIR micrortps_agent SOURCE_DIR)
+    target_link_libraries(${PROJECT_NAME} microxrcedds_agent)
+    get_target_property(MICROXRCEDDS_AGENT_DIR microxrcedds_agent SOURCE_DIR)
     target_include_directories(${PROJECT_NAME}
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
         PRIVATE
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-            $<BUILD_INTERFACE:${MICRORTPS_AGENT_DIR}/src/cpp>
+            $<BUILD_INTERFACE:${MICROXRCEDDS_AGENT_DIR}/src/cpp>
         )
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
