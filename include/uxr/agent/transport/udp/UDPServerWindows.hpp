@@ -15,46 +15,22 @@
 #ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
-#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/config.hpp>
+
 #include <winsock2.h>
-#include <unordered_map>
 #include <cstdint>
 #include <cstddef>
 
 namespace eprosima {
 namespace uxr {
 
-/**************************************************************************************************
- * UDP EndPoint.
- **************************************************************************************************/
-class UDPEndPoint : public EndPoint
-{
-public:
-    UDPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
-    ~UDPEndPoint() = default;
-
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
-
-private:
-    uint32_t addr_;
-    uint16_t port_;
-};
-
-/**************************************************************************************************
- * UDP Server.
- **************************************************************************************************/
-class UDPServer : public Server
+class UDPServer : public UDPServerBase
 {
 public:
     microxrcedds_agent_DllAPI UDPServer(uint16_t port);
     microxrcedds_agent_DllAPI ~UDPServer() = default;
-
-    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
-    virtual void on_delete_client(EndPoint* source) override;
-    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
-    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 private:
     virtual bool init() override;
@@ -64,12 +40,8 @@ private:
     virtual int get_error() override;
 
 private:
-    uint16_t port_;
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[UDP_TRANSPORT_MTU];
-    std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
-    std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
-    std::mutex clients_mtx_;
 };
 
 } // namespace uxr

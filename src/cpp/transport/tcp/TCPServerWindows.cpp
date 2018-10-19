@@ -19,100 +19,17 @@ namespace eprosima {
 namespace uxr {
 
 TCPServer::TCPServer(uint16_t port)
-    : port_(port),
+    : TCPServerBase(port),
       connections_{},
       active_connections_(),
       free_connections_(),
       listener_poll_{},
       poll_fds_{},
       buffer_{0},
-      source_to_connection_map_{},
-      source_to_client_map_{},
-      client_to_source_map_{},
-      clients_mtx_(),
       listener_thread_(),
       running_cond_(false),
       messages_queue_{}
 {}
-
-void TCPServer::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
-{
-    TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
-    uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
-
-    /* Update maps. */
-    std::lock_guard<std::mutex> lock(clients_mtx_);
-    auto it_client = client_to_source_map_.find(client_id);
-    if (it_client != client_to_source_map_.end())
-    {
-        source_to_client_map_.erase(it_client->second);
-        it_client->second = source_id;
-    }
-    else
-    {
-        client_to_source_map_.insert(std::make_pair(client_id, source_id));
-    }
-
-    auto it_source = source_to_client_map_.find(source_id);
-    if (it_source != source_to_client_map_.end())
-    {
-        it_source->second = client_id;
-    }
-    else
-    {
-        source_to_client_map_.insert(std::make_pair(source_id, client_id));
-    }
-}
-
-void TCPServer::on_delete_client(EndPoint* source)
-{
-    TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
-    uint64_t source_id = (endpoint->get_addr() << 16) | endpoint->get_port();
-
-    /* Update maps. */
-    std::lock_guard<std::mutex> lock(clients_mtx_);
-    auto it = source_to_client_map_.find(source_id);
-    if (it != source_to_client_map_.end())
-    {
-        client_to_source_map_.erase(it->second);
-        source_to_client_map_.erase(it->first);
-    }
-}
-
-const dds::xrce::ClientKey TCPServer::get_client_key(EndPoint* source)
-{
-    dds::xrce::ClientKey client_key;
-    TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
-    std::lock_guard<std::mutex> lock(clients_mtx_);
-    auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
-    if (it != source_to_client_map_.end())
-    {
-        client_key.at(0) = uint8_t(it->second & 0x000000FF);
-        client_key.at(1) = uint8_t((it->second & 0x0000FF00) >> 8);
-        client_key.at(2) = uint8_t((it->second & 0x00FF0000) >> 16);
-        client_key.at(3) = uint8_t((it->second & 0xFF000000) >> 24);
-    }
-    else
-    {
-        client_key = dds::xrce::CLIENTKEY_INVALID;
-    }
-    return client_key;
-}
-
-std::unique_ptr<EndPoint> TCPServer::get_source(const dds::xrce::ClientKey& client_key)
-{
-    std::unique_ptr<EndPoint> source;
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
-    std::lock_guard<std::mutex> lock(clients_mtx_);
-    auto it = client_to_source_map_.find(client_id);
-    if (it != client_to_source_map_.end())
-    {
-        uint64_t source_id = it->second;
-        source.reset(new TCPEndPoint(uint32_t(source_id >> 16), uint16_t(source_id & 0xFFFF)));
-    }
-    return source;
-}
 
 bool TCPServer::init()
 {
@@ -208,7 +125,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     uint16_t bytes_sent = 0;
-    int send_rv = 0;
+    size_t send_rv = 0;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
@@ -225,15 +142,19 @@ bool TCPServer::send_message(OutputPacket output_packet)
         msg_size_buf[1] = uint8_t((0xFF00 & output_packet.message->get_len()) >> 8);
         do
         {
-            send_rv = send_locking(connection, reinterpret_cast<char*>(msg_size_buf), 2);
-            if (SOCKET_ERROR != send_rv)
+            uint8_t errcode;
+            send_rv = send_locking(connection, msg_size_buf, size_t(2), errcode);
+            if (0 < send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
             }
             else
             {
-                close_connection(connection);
-                rv = false;
+                if (0 < errcode)
+                {
+                    close_connection(connection);
+                    rv = false;
+                }
             }
         }
         while (rv && bytes_sent != 2);
@@ -244,17 +165,22 @@ bool TCPServer::send_message(OutputPacket output_packet)
             bytes_sent = 0;
             do
             {
+                uint8_t errcode;
                 send_rv = send_locking(connection,
-                                       reinterpret_cast<char*>(output_packet.message->get_buf() + bytes_sent),
-                                       int(output_packet.message->get_len() - bytes_sent));
-                if (SOCKET_ERROR != send_rv)
+                                       (output_packet.message->get_buf() + bytes_sent),
+                                       size_t(output_packet.message->get_len() - bytes_sent),
+                                       errcode);
+                if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
                 }
                 else
                 {
-                    close_connection(connection);
-                    rv = false;
+                    if (0 < errcode)
+                    {
+                        close_connection(connection);
+                        rv = false;
+                    }
                 }
             }
             while (rv && bytes_sent != uint16_t(output_packet.message->get_len()));
@@ -269,150 +195,6 @@ int TCPServer::get_error()
     return WSAGetLastError();
 }
 
-uint16_t TCPServer::read_data(TCPConnection& connection)
-{
-    uint16_t rv = 0;
-    bool exit_flag = false;
-
-    /* State Machine. */
-    while(!exit_flag)
-    {
-        switch (connection.input_buffer.state)
-        {
-            case TCP_BUFFER_EMPTY:
-            {
-                connection.input_buffer.position = 0;
-                uint8_t size_buf[2];
-                int bytes_received = recv_locking(connection, reinterpret_cast<char*>(size_buf), 2);
-                if (SOCKET_ERROR != bytes_received)
-                {
-                    connection.input_buffer.msg_size = 0;
-                    if (2 == bytes_received)
-                    {
-                        connection.input_buffer.msg_size = uint16_t((uint16_t(size_buf[1]) << 8) | size_buf[0]);
-                        if (connection.input_buffer.msg_size != 0)
-                        {
-                            connection.input_buffer.state = TCP_SIZE_READ;
-                        }
-                    }
-                    else
-                    {
-                        connection.input_buffer.msg_size = uint16_t(size_buf[0]);
-                        connection.input_buffer.state = TCP_SIZE_INCOMPLETE;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        WSASetLastError(WSAENOTCONN);
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_SIZE_INCOMPLETE:
-            {
-                uint8_t size_msb;
-                int bytes_received = recv_locking(connection, reinterpret_cast<char*>(&size_msb), 1);
-                if (SOCKET_ERROR != bytes_received)
-                {
-                    connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
-                    if (connection.input_buffer.msg_size != 0)
-                    {
-                        connection.input_buffer.state = TCP_SIZE_READ;
-                    }
-                    else
-                    {
-                        connection.input_buffer.state = TCP_BUFFER_EMPTY;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        WSASetLastError(WSAENOTCONN);
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                exit_flag = (0 == WSAPoll(connection.poll_fd, 1, 0));
-                break;
-            }
-            case TCP_SIZE_READ:
-            {
-                connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
-                int bytes_received = recv_locking(connection,
-                                                  reinterpret_cast<char*>(connection.input_buffer.buffer.data()),
-                                                  int(connection.input_buffer.buffer.size()));
-                if (SOCKET_ERROR != bytes_received)
-                {
-                    if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
-                    {
-                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
-                    }
-                    else
-                    {
-                        connection.input_buffer.position = uint16_t(bytes_received);
-                        connection.input_buffer.state = TCP_MESSAGE_INCOMPLETE;
-                        exit_flag = true;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        WSASetLastError(WSAENOTCONN);
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_MESSAGE_INCOMPLETE:
-            {
-                int bytes_received = recv_locking(connection,
-                                                  reinterpret_cast<char*>(connection.input_buffer.buffer.data() +
-                                                                          connection.input_buffer.position),
-                                                  int(connection.input_buffer.buffer.size() - 
-                                                      connection.input_buffer.position));
-                if (SOCKET_ERROR != bytes_received)
-                {
-                    connection.input_buffer.position += uint16_t(bytes_received);
-                    if (connection.input_buffer.position == connection.input_buffer.msg_size)
-                    {
-                        connection.input_buffer.state = TCP_MESSAGE_AVAILABLE;
-                    }
-                    else
-                    {
-                        exit_flag = true;
-                    }
-                }
-                else
-                {
-                    if (0 == bytes_received)
-                    {
-                        WSASetLastError(WSAENOTCONN);
-                    }
-                    close_connection(connection);
-                    exit_flag = true;
-                }
-                break;
-            }
-            case TCP_MESSAGE_AVAILABLE:
-            {
-                rv = connection.input_buffer.msg_size;
-                connection.input_buffer.state = TCP_BUFFER_EMPTY;
-                exit_flag = true;
-                break;
-            }
-        }
-    }
-
-    return rv;
-}
-
 bool TCPServer::open_connection(SOCKET fd, struct sockaddr_in* sockaddr)
 {
     bool rv = false;
@@ -420,7 +202,7 @@ bool TCPServer::open_connection(SOCKET fd, struct sockaddr_in* sockaddr)
     if (!free_connections_.empty())
     {
         uint32_t id = free_connections_.front();
-        TCPConnection& connection = connections_[id];
+        TCPConnectionPlatform& connection = connections_[id];
         connection.poll_fd->fd = fd;
         connection.addr = sockaddr->sin_addr.s_addr;
         connection.port = sockaddr->sin_port;
@@ -438,6 +220,7 @@ bool TCPServer::open_connection(SOCKET fd, struct sockaddr_in* sockaddr)
 bool TCPServer::close_connection(TCPConnection& connection)
 {
     bool rv = false;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it_conn = active_connections_.find(connection.id);
     if (it_conn != active_connections_.end())
@@ -445,9 +228,9 @@ bool TCPServer::close_connection(TCPConnection& connection)
         lock.unlock();
         /* Add lock for close. */
         std::unique_lock<std::mutex> conn_lock(connection.mtx);
-        if (0 == closesocket(connection.poll_fd->fd))
+        if (0 == closesocket(connection_platform.poll_fd->fd))
         {
-            connection.poll_fd->fd = INVALID_SOCKET;
+            connection_platform.poll_fd->fd = INVALID_SOCKET;
             connection.active = false;
             conn_lock.unlock();
 
@@ -542,24 +325,52 @@ bool TCPServer::connection_available()
     return !free_connections_.empty();
 }
 
-int TCPServer::recv_locking(TCPConnection& connection, char* buffer, int len)
+size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
 {
-    int rv = 0;
+    size_t rv = 0;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        rv = recv(connection.poll_fd->fd, buffer, len, 0);
+        int poll_rv = WSAPoll(connection_platform.poll_fd, 1, 0);
+        if (0 < poll_rv)
+        {
+            int bytes_received = recv(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
+            if (SOCKET_ERROR != bytes_received)
+            {
+                rv = size_t(bytes_received);
+                errcode = 0;
+            }
+            else
+            {
+                errcode = 1;
+            }
+        }
+        else
+        {
+            errcode = (0 == poll_rv) ? 0 : 1;
+        }
     }
     return rv;
 }
 
-int TCPServer::send_locking(TCPConnection& connection, char* buffer, int len)
+size_t TCPServer::send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
 {
-    int rv = 0;
+    size_t rv = 0;
+    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        rv = send(connection.poll_fd->fd, buffer, len, 0);
+        int bytes_sent = send(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
+        if (SOCKET_ERROR != bytes_sent)
+        {
+            rv = size_t(bytes_sent);
+            errcode = 0;
+        }
+        else
+        {
+            errcode = 1;
+        }
     }
     return rv;
 }

@@ -15,10 +15,11 @@
 #ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 #define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
-#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/config.hpp>
+
 #include <cstdint>
 #include <cstddef>
 #include <sys/poll.h>
@@ -27,16 +28,11 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPServer : public Server
+class UDPServer : public UDPServerBase
 {
 public:
     UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     ~UDPServer() = default;
-
-    virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
-    virtual void on_delete_client(EndPoint* source) override;
-    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
-    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 private:
     virtual bool init() override;
@@ -46,12 +42,8 @@ private:
     virtual int get_error() override;
 
 private:
-    uint16_t port_;
     struct pollfd poll_fd_;
     uint8_t buffer_[UDP_TRANSPORT_MTU];
-    std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
-    std::unordered_map<uint32_t, uint64_t> client_to_source_map_;
-    std::mutex clients_mtx_;
     DiscoveryServer discovery_server_;
 };
 

@@ -12,31 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_UDP_ENDPOINT_HPP_
-#define _UXR_AGENT_TRANSPORT_UDP_ENDPOINT_HPP_
-
-#include <uxr/agent/transport/EndPoint.hpp>
-
-#include <stdint.h>
+#ifndef _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
+#define _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
 
 namespace eprosima {
 namespace uxr {
 
-class UDPEndPoint : public EndPoint
+class EndPoint
 {
 public:
-    UDPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
-    ~UDPEndPoint() = default;
-
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
-
-private:
-    uint32_t addr_;
-    uint16_t port_;
+    EndPoint() = default;
+    virtual ~EndPoint() = default;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_UDP_ENDPOINT_HPP_
+#endif //_UXR_AGENT_TRANSPORT_ENDPOINT_HPP_

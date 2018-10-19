@@ -113,7 +113,10 @@ set(SRCS
     src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/libdev/MessageOutput.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/serial/SerialLayer.cpp
+    src/cpp/transport/udp/UDPServerBase.cpp
+    src/cpp/transport/tcp/TCPServerBase.cpp
+    src/cpp/transport/serial/SerialServerBase.cpp
+    src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
     )
 

@@ -21,7 +21,7 @@
 
 #include <thread>
 #include <atomic>
-#include <poll.h>
+#include <sys/poll.h>
 
 namespace eprosima {
 namespace uxr {
