@@ -28,7 +28,12 @@ add_gtest(xrce_test
         fastrtps
         fastcdr
     )
-target_include_directories(xrce_test PRIVATE ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
+target_include_directories(xrce_test
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_BINARY_DIR}/include
+        ${GTEST_INCLUDE_DIRS}
+    )
 target_link_libraries(xrce_test PRIVATE fastrtps fastcdr ${GTEST_BOTH_LIBRARIES})
 set_target_properties(xrce_test PROPERTIES
     CXX_STANDARD 11
