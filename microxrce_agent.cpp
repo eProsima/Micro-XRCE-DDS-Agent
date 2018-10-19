@@ -211,9 +211,12 @@ int main(int argc, char** argv)
 
     if(initialized)
     {
-        while (true)
+        std::cin.clear();
+        char exit_flag = 0;
+        while ('q' != exit_flag)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::cout << "Enter 'q' for exit" << std::endl;
+            std::cin >> exit_flag;
         }
     }
 
