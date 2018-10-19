@@ -17,12 +17,11 @@
 
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/utils/Functions.hpp>
+#include <uxr/agent/config.hpp>
 #include <fastcdr/Cdr.h>
 #include <fastcdr/exceptions/Exception.h>
 #include <iostream>
-
-// TODO (julian): get MTU from transport.
-const size_t mtu_size = 512;
 
 namespace eprosima {
 namespace uxr {
@@ -48,6 +47,7 @@ private:
     template<class T> bool serialize(const T& data);
 
 private:
+    static const size_t mtu_size = max(max(TCP_TRANSPORT_MTU, UDP_TRANSPORT_MTU), SERIAL_TRANSPORT_MTU);
     std::array<uint8_t, mtu_size> buf_;
     fastcdr::FastBuffer fastbuffer_;
     fastcdr::Cdr serializer_;
