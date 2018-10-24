@@ -176,37 +176,6 @@ file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
     )
 
 ###############################################################################
-# Config
-###############################################################################
-
-# Install path
-set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
-set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
-set(DOC_INSTALL_DIR ${DOC_DIR} CACHE PATH "Installation directory for documentation")
-if(WIN32)
-    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
-else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
-endif()
-
-# Configuration options.
-set(CONFIG_RELIABLE_STREAM_DEPTH 16 CACHE STRING "Reliable streams depth.")
-set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth.")
-set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
-set(CONFIG_TCP_TRANSPORT_MTU 512 CACHE STRING "TCP transport MTU.")
-set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
-set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
-set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
-set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
-
-# Create source files with the define
-configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
-    )
-
-###############################################################################
 # Compile options
 ###############################################################################
 
@@ -274,7 +243,7 @@ if(MSVC OR MSVC_IDE)
         RUNTIME DESTINATION ${BIN_INSTALL_DIR}
         LIBRARY DESTINATION ${LIB_INSTALL_DIR}
         ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-	COMPONENT libraries_${MSVC_ARCH}
+        COMPONENT libraries_${MSVC_ARCH}
         )
 else()
     install(TARGETS ${PROJECT_NAME}
@@ -312,11 +281,6 @@ install(FILES ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
     DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
     )
 
-# Install default profile XML
-install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
-    DESTINATION ${BIN_INSTALL_DIR}
-    )
-
 # Install licenses
 install(FILES ${PROJECT_SOURCE_DIR}/LICENSE
     DESTINATION ${LICENSE_INSTALL_DIR}
@@ -327,7 +291,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/LICENSE
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
     ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+    INSTALL_DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
     )
 install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
