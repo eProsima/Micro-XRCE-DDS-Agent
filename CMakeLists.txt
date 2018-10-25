@@ -114,14 +114,14 @@ eprosima_find_thirdparty(Asio asio)
 # Targets
 ###############################################################################
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerLinux.cpp
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
         src/cpp/transport/discovery/DiscoveryServerLinux.cpp
         )
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
@@ -185,7 +185,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RELEASE_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
         RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -295,6 +295,13 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake
 install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
     DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
+
+# Install default profile XML.
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+        DESTINATION ${BIN_INSTALL_DIR}
+        )
+endif()
 
 # Generate Windows Installer.
 if(WIN32 AND EPROSIMA_INSTALLER)
