@@ -67,6 +67,7 @@ int main(int argc, char** argv)
 {
     bool initialized = false;
 
+#ifndef _WIN32
     if(argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
     {
         showHelp();
@@ -75,13 +76,9 @@ int main(int argc, char** argv)
     {
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(argv[2]);
-#ifndef _WIN32
         eprosima::uxr::UDPServer* udp_server = (argc == 4) //discovery port
                                              ? new eprosima::uxr::UDPServer(port, parsePort(argv[3]))
                                              : new eprosima::uxr::UDPServer(port);
-#else
-        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer(port);
-#endif
         if (udp_server->run())
         {
             initialized = true;
@@ -92,20 +89,15 @@ int main(int argc, char** argv)
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(argv[2]);
-#ifndef _WIN32
         eprosima::uxr::TCPServer* tcp_server = (argc == 4) //discovery port
                                              ? new eprosima::uxr::TCPServer(port, parsePort(argv[3]))
                                              : new eprosima::uxr::TCPServer(port);
-#else
-        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer(port);
-#endif
         if (tcp_server->run())
         {
             initialized = true;
         }
         std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-#ifndef _WIN32
     else if(argc == 3 && strcmp(argv[1], "serial") == 0)
     {
         std::cout << "Serial agent initialization... ";
@@ -203,11 +195,52 @@ int main(int argc, char** argv)
             std::cout << "ERROR" << std::endl;
         }
     }
-#endif
     else
     {
         initializationError();
     }
+#else
+    (void) argc;
+    (void) argv;
+
+    std::string server_type = "";
+    std::cout << "Select server type [udp|tcp]: ";
+    std::cin >> server_type;
+
+    if ("udp" == server_type)
+    {
+        uint16_t port = 0;
+        std::cout << "Select port: ";
+        std::cin >> port;
+
+        std::cout << "UDP agent initialization.... ";
+        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer(port);
+        if (udp_server->run())
+        {
+            initialized = true;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+    else if ("tcp" == server_type)
+    {
+        uint16_t port = 0;
+        std::cout << "Select port: ";
+        std::cin >> port;
+
+        std::cout << "UDP agent initialization.... ";
+        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer(port);
+        if (tcp_server->run())
+        {
+            initialized = true;
+        }
+        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
+    }
+    else
+    {
+        std::cout << "Error server type" << std::endl;
+    }
+
+#endif
 
     if(initialized)
     {
