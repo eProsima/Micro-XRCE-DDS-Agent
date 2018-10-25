@@ -55,7 +55,7 @@ option(VERBOSE "Use verbose output" OFF)
 option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
 
 if(EPROSIMA_INSTALLER)
-    set(EPROSIMA_BUILD ON)
+    set(THIRDPARTY ON)
 endif()
 
 if(EPROSIMA_BUILD)
