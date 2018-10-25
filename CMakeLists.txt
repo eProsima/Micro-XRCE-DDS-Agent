@@ -179,11 +179,19 @@ file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
 # Compile options
 ###############################################################################
 
-# Set std
+# Set targets properties.
 set_target_properties(${PROJECT_NAME} PROPERTIES
+    VERSION ${PROJECT_VERSION}
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RELEASE_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        DEBUG_POSTFIX d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        )
+endif()
 set_target_properties(MicroXRCEAgent PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
@@ -237,23 +245,13 @@ endif()
 ###############################################################################
 
 # Install agent lib
-if(MSVC OR MSVC_IDE)
-    install(TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_NAME}Targets
-        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-        COMPONENT libraries_${MSVC_ARCH}
-        )
-else()
-    install(TARGETS ${PROJECT_NAME}
-        EXPORT ${PROJECT_NAME}Targets
-        RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-        LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-        ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-        COMPONENT libraries
-        )
-endif()
+install(TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
+    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+    COMPONENT libraries
+    )
 
 # Install includes
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/uxr/agent/
@@ -300,12 +298,16 @@ install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
 
 # Generate Windows Installer.
 if(WIN32 AND EPROSIMA_INSTALLER)
+    # Set product name.
+    set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
+    set(PRODUCT_NAME_LONG "Micro XRCE-DDS")
+
     set(CPACK_GENERATOR NSIS)
 
     # Setup generic options.
-    set(CPACK_PACKAGE_NAME "MicroRTPSAgent")
+    set(CPACK_PACKAGE_NAME ${PRODUCT_NAME_SHORT})
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C++ implementarion of XRCE Root")
-    set(CPACK_PACKAGE_DESCRIPTION "eProsima MicroRTPSAgent is a executable which implement the XRCE Root functionality.")
+    set(CPACK_PACKAGE_DESCRIPTION "eProsima ${PRODUCT_NAME_SHORT} is a executable which implement the XRCE Root functionality.")
     set(CPACK_PACKAGE_VENDOR "eProsima")
     set(CPACK_PACKAGE_CONTACT "eProsima Support <support@eprosima.com>")
     set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_MAJOR_VERSION})
@@ -318,24 +320,24 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     # Components display.
     set(CPACK_COMPONENT_CMAKE_DISPLAY_NAME "CMake files")
     set(CPACK_COMPONENT_CMAKE_DESCRIPTION "CMake configuration files")
-    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima MicroRTPSAgent C++ Headers")
+    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima ${PRODUCT_NAME_SHORT} C++ Headers")
     set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Headers")
-    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima MicroRTPSAgent C++ Headers")
+    set(CPACK_COMPONENT_HEADERS_DESCRIPTION "eProsima ${PRODUCT_NAME_SHORT} C++ Headers")
     string(TOUPPER "${MSVC_ARCH}" MSVC_ARCH_UPPER)
     set(CPACK_COMPONENT_LIBRARIES_${MSVC_ARCH_UPPER}_DISPLAY_NAME "${MSCV_ARCH}")
-    set(CPACK_COMPONENT_LIBRARIES_${MSVC_ARCH_UPPER}_DESCRIPTION "eProsima MicroRTPSAgent libraries form platform ${MSVC_ARCH}")
+    set(CPACK_COMPONENT_LIBRARIES_${MSVC_ARCH_UPPER}_DESCRIPTION "eProsima ${PRODUCT_NAME_SHORT} libraries form platform ${MSVC_ARCH}")
     set(CPACK_COMPONENT_LICENSES_DISPLAY_NAME "License")
-    set(CPACK_COMPONENT_LICENSES_DESCRIPTION "eProsima MicroRTPSAgent License")
+    set(CPACK_COMPONENT_LICENSES_DESCRIPTION "eProsima ${PRODUCT_NAME_SHORT} License")
 
     # Setup NSIS installer.
-    set(CPACK_NSIS_DISPLAY_NAME "Micro RTPS Agent ${PROJECT_VERSION}")
-    set(CPACK_NSIS_PACKAGE_NAME "eProsima Micro RTPS Agent ${PROJECT_VERSION}")
+    set(CPACK_NSIS_DISPLAY_NAME "${PRODUCT_NAME_LONG} ${PROJECT_VERSION}")
+    set(CPACK_NSIS_PACKAGE_NAME "eProsima ${PRODUCT_NAME_LONG} ${PROJECT_VERSION}")
     set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
     set(CPACK_NSIS_CONTACT "support@eprosima.com")
     set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/utils/images/icon/eprosima_icon.ico")
     set(CPACK_NSIS_MENU_LINKS 
-        "bin/MicroRTPSAgent.exe" "MicroRTPSAgent"
-        "Uninstall.exe" "Uninstall MicroRTPSAgent"
+        "bin/MicroXRCEAgent.exe" "${PRODUCT_NAME_SHORT}"
+        "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
