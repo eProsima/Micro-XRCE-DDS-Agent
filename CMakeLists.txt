@@ -308,7 +308,7 @@ endif()
 if(WIN32 AND EPROSIMA_INSTALLER)
     # Set product name.
     set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
-    set(PRODUCT_NAME_LONG "Micro XRCE-DDS")
+    set(PRODUCT_NAME_LONG "Micro XRCE-DDS Agent")
 
     set(CPACK_GENERATOR NSIS)
 
