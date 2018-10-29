@@ -24,10 +24,10 @@
 int main(int argc, char** argv)
 {
 
-    eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer(2018);
-    eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer(2018);
+    std::unique_ptr<eprosima::uxr::UDPServer> udp_server(new eprosima::uxr::UDPServer(2018));
+    std::unique_ptr<eprosima::uxr::TCPServer> tcp_server(new eprosima::uxr::TCPServer(2018));
 #ifndef _WIN32
-    eprosima::uxr::SerialServer* serial_server = new eprosima::uxr::SerialServer(1, 0);
+    std::unique_ptr<eprosima::uxr::SerialServer> serial_server(new eprosima::uxr::SerialServer(1, 0));
 #endif //_WIN32
     return 0;
 }

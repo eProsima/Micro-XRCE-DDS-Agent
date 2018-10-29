@@ -146,7 +146,7 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/types/TopicPubSubType.cpp
     src/cpp/xmlobjects/xmlobjects.cpp
-    src/cpp/libdev/MessageOutput.cpp
+    $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
     src/cpp/transport/tcp/TCPServerBase.cpp
