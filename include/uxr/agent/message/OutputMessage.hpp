@@ -47,7 +47,7 @@ private:
     template<class T> bool serialize(const T& data);
 
 private:
-    static const size_t mtu_size = max(max(TCP_TRANSPORT_MTU, UDP_TRANSPORT_MTU), SERIAL_TRANSPORT_MTU);
+    static const size_t mtu_size = max_mtu(max_mtu(TCP_TRANSPORT_MTU, UDP_TRANSPORT_MTU), SERIAL_TRANSPORT_MTU);
     std::array<uint8_t, mtu_size> buf_;
     fastcdr::FastBuffer fastbuffer_;
     fastcdr::Cdr serializer_;

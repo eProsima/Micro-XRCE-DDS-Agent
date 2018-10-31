@@ -18,7 +18,7 @@
 namespace eprosima {
 namespace uxr {
 
-template<typename T> constexpr const T max(const T& fe, const T& se)
+template<typename T> constexpr const T& max_mtu(const T& fe, const T& se)
 {
   return fe > se ? fe : se;
 }
