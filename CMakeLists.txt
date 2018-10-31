@@ -350,7 +350,8 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     if(CMAKE_CL_64)
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
     else() 
-	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES(x86)}\\eProsima")
+        set(PF86_STR "PROGRAMFILES(x86)")
+	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
 
     # Setup configure files for NSIS installer.
