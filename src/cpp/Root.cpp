@@ -39,7 +39,10 @@ Root::Root()
     current_client_ = clients_.begin();
 
     /* Load XML profile file. */
-    fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile();
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile())
+    {
+        std::cout << "Error: parsing DEFAULT PROFILE." << std::endl;
+    }
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
