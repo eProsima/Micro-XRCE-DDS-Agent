@@ -24,16 +24,23 @@
 #endif //_WIN32
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <limits>
+#include <iterator>
 
 void showHelp()
 {
     std::cout << "Usage: program <command>" << std::endl;
     std::cout << "List of commands:" << std::endl;
+#ifdef _WIN32
+    std::cout << "    udp <local_port>" << std::endl;
+    std::cout << "    tcp <local_port>" << std::endl;
+#else
     std::cout << "    serial <device_name>" << std::endl;
     std::cout << "    pseudo-serial" << std::endl;
     std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
     std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
+#endif
 }
 
 void initializationError()
@@ -43,7 +50,7 @@ void initializationError()
     std::exit(EXIT_FAILURE);
 }
 
-uint16_t parsePort(const char* str_port)
+uint16_t parsePort(const std::string& str_port)
 {
     uint16_t valid_port = 0;
     try
@@ -65,53 +72,64 @@ uint16_t parsePort(const char* str_port)
 
 int main(int argc, char** argv)
 {
-    bool initialized = false;
+    eprosima::uxr::Server* server = nullptr;
+    std::vector<std::string> cl(0);
 
-    if(argc == 2 && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
+    if (1 == argc)
+    {
+        showHelp();
+        std::cout << std::endl;
+        std::cout << "Enter command: ";
+
+        std::string raw_cl;
+        std::getline(std::cin, raw_cl);
+        std::istringstream iss(raw_cl);
+        cl.insert(cl.begin(), std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>());
+        std::cout << raw_cl << std::endl;
+    }
+    else
+    {
+        for (int i = 1; i < argc; ++i)
+        {
+            cl.push_back(argv[i]);
+        }
+    }
+
+    if((1 == cl.size()) && (("-h" == cl[0]) || ("--help" == cl[0])))
     {
         showHelp();
     }
-    else if(argc >= 3 && strcmp(argv[1], "udp") == 0)
+    else if((2 <= cl.size()) && ("udp" == cl[0]))
     {
         std::cout << "UDP agent initialization... ";
-        uint16_t port = parsePort(argv[2]);
-#ifndef _WIN32
-        eprosima::uxr::UDPServer* udp_server = (argc == 4) //discovery port
-                                             ? new eprosima::uxr::UDPServer(port, parsePort(argv[3]))
-                                             : new eprosima::uxr::UDPServer(port);
+        uint16_t port = parsePort(cl[1]);
+#ifdef _WIN32
+        server = new eprosima::uxr::UDPServer(port);
 #else
-        eprosima::uxr::UDPServer* udp_server = new eprosima::uxr::UDPServer(port);
+        server = (3 == cl.size()) //discovery port
+                 ? new eprosima::uxr::UDPServer(port, parsePort(cl[2]))
+                 : new eprosima::uxr::UDPServer(port);
 #endif
-        if (udp_server->run())
-        {
-            initialized = true;
-        }
-        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if(argc >= 3 && strcmp(argv[1], "tcp") == 0)
+    else if((2 <= cl.size()) && ("tcp" == cl[0]))
     {
         std::cout << "TCP agent initialization... ";
-        uint16_t port = parsePort(argv[2]);
-#ifndef _WIN32
-        eprosima::uxr::TCPServer* tcp_server = (argc == 4) //discovery port
-                                             ? new eprosima::uxr::TCPServer(port, parsePort(argv[3]))
-                                             : new eprosima::uxr::TCPServer(port);
+        uint16_t port = parsePort(cl[1]);
+#ifdef _WIN32
+        server = new eprosima::uxr::TCPServer(port);
 #else
-        eprosima::uxr::TCPServer* tcp_server = new eprosima::uxr::TCPServer(port);
+        server = (3 == cl.size()) //discovery port
+                 ? new eprosima::uxr::TCPServer(port, parsePort(cl[2]))
+                 : new eprosima::uxr::TCPServer(port);
 #endif
-        if (tcp_server->run())
-        {
-            initialized = true;
-        }
-        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
 #ifndef _WIN32
-    else if(argc == 3 && strcmp(argv[1], "serial") == 0)
+    else if((2 == cl.size()) && ("serial" == cl[0]))
     {
         std::cout << "Serial agent initialization... ";
 
         /* Open serial device. */
-        int fd = open(argv[2], O_RDWR | O_NOCTTY);
+        int fd = open(cl[1].c_str(), O_RDWR | O_NOCTTY);
         if (0 < fd)
         {
             struct termios tty_config;
@@ -156,18 +174,12 @@ int main(int argc, char** argv)
 
                 if (0 == tcsetattr(fd, TCSANOW, &tty_config))
                 {
-                    eprosima::uxr::SerialServer* serial_server = new eprosima::uxr::SerialServer(fd, 0);
-                    if (serial_server->run())
-                    {
-                        initialized = true;
-                    }
+                    server = new eprosima::uxr::SerialServer(fd, 0);
                 }
             }
         }
-
-        std::cout << ((!initialized) ? "ERROR" : "OK") << std::endl;
     }
-    else if (argc == 2 && strcmp(argv[1], "pseudo-serial") == 0)
+    else if ((1 == cl.size()) && ("pseudo-serial" == cl[0]))
     {
         std::cout << "Pseudo-Serial initialization... ";
 
@@ -183,25 +195,10 @@ int main(int argc, char** argv)
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
                 tcsetattr(fd, TCSANOW, &attr);
+                std::cout << "Device: " << dev << std::endl;
             }
         }
-
-        /* Launch server. */
-        eprosima::uxr::SerialServer* serial_server = new eprosima::uxr::SerialServer(fd, 0x00);
-        if (serial_server->run())
-        {
-            initialized = true;
-        }
-
-        if (initialized)
-        {
-            std::cout << "OK" << std::endl;
-            std::cout << "Device: " << dev << std::endl;
-        }
-        else
-        {
-            std::cout << "ERROR" << std::endl;
-        }
+        server = new eprosima::uxr::SerialServer(fd, 0x00);
     }
 #endif
     else
@@ -209,14 +206,24 @@ int main(int argc, char** argv)
         initializationError();
     }
 
-    if(initialized)
+    if (nullptr != server)
     {
-        std::cin.clear();
-        char exit_flag = 0;
-        while ('q' != exit_flag)
+        /* Launch server. */
+        if (server->run())
         {
-            std::cout << "Enter 'q' for exit" << std::endl;
-            std::cin >> exit_flag;
+            std::cout << "OK" << std::endl;
+            std::cin.clear();
+            char exit_flag = 0;
+            while ('q' != exit_flag)
+            {
+                std::cout << "Enter 'q' for exit" << std::endl;
+                std::cin >> exit_flag;
+            }
+            server->stop();
+        }
+        else
+        {
+            std::cout << "ERROR" << std::endl;
         }
     }
 

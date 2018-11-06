@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(@PROJECT_NAME@_VERSION @PROJECT_VERSION@)
+cmake_minimum_required(VERSION 2.8.12)
 
-@PACKAGE_INIT@
-
-if(MSVC OR MSVC_IDE)
-    set_and_check(@PROJECT_NAME@_BIN_DIR "@PACKAGE_BIN_INSTALL_DIR@")
+if(NOT CMAKE_VERSION VERSION_LESS 3.0)
+    cmake_policy(SET CMP0048 NEW)
 endif()
-set_and_check(@PROJECT_NAME@_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
-set_and_check(@PROJECT_NAME@_LIB_DIR "@PACKAGE_LIB_INSTALL_DIR@")
-set_and_check(@PROJECT_NAME@_DATA_DIR "@PACKAGE_DATA_INSTALL_DIR@")
 
-include(${@PROJECT_NAME@_DATA_DIR}/@PROJECT_NAME@/cmake/@PROJECT_NAME@Targets.cmake)
+project(PackagingTest)
+
+# Find package.
+find_package(fastcdr REQUIRED)
+find_package(fastrtps REQUIRED)
+find_package(microxrcedds_agent REQUIRED)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC microxrcedds_agent)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )
