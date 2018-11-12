@@ -10374,6 +10374,72 @@ private:
     uint16_t m_last_unacked_seq_nr;
     uint8_t m_stream_id;
 };
+
+#ifdef PERFORMANCE_TESTING
+/*!
+ * @brief This class represents the structure ECHO_Payload.
+ * @ingroup TYPESMOD
+ */
+class ECHO_Payload : public BaseObjectRequest
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    ECHO_Payload() = default;
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~ECHO_Payload() = default;
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0)
+    {
+        size_t initial_aligment = current_alignment;
+        current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
+        return current_alignment - initial_aligment;
+    }
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_aligment = 0) const
+    {
+        size_t initial_aligment = current_aligment;
+        current_aligment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_aligment);
+        return current_aligment - initial_aligment;
+    }
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void serialize(eprosima::fastcdr::Cdr &scdr) const
+    {
+        BaseObjectRequest::serialize(scdr);
+    }
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void deserialize(eprosima::fastcdr::Cdr &dcdr)
+    {
+        BaseObjectRequest::serialize(dcdr);
+    }
+};
+#endif
+
 /*!
  * @brief This class represents the enumeration SubmessageId defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -10394,6 +10460,11 @@ enum SubmessageId : uint8_t
     HEARTBEAT       = 11,
     RESET           = 12,
     FRAGMENT        = 13
+#ifdef PERFORMANCE_TESTING
+    ,
+    ECHO            = 14,
+    THROUGHPUT      = 15
+#endif
 };
 
 } } // namespace 

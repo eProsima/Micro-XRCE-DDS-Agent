@@ -150,6 +150,14 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             // TODO (julian): implement fragment functionality.
             rv = false;
             break;
+#ifdef PERFORMANCE_TESTING
+        case dds::xrce::ECHO:
+            rv = process_echo_submessage(client, input_packet);
+            break;
+        case dds::xrce::THROUGHPUT:
+            rv = process_throughput_submessage(client, input_packet);
+            break;
+#endif
         default:
             rv = false;
             break;
@@ -516,6 +524,30 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
     client.session().reset();
     return true;
 }
+
+#ifdef PERFORMANCE_TESTING
+bool Processor::process_echo_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    /* Set output packet. */
+    OutputPacket output_packet;
+    output_packet.destination = input_packet.source;
+    dds::xrce::ECHO_Payload echo_payload;
+    input_packet.message->get_payload(echo_payload);
+    output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header()));
+    output_packet.message->append_submessage(dds::xrce::ECHO, echo_payload);
+    client.session().push_output_message(input_packet.message->get_header().stream_id(),
+                                         output_packet.message);
+    server_->push_output_packet(output_packet);
+    return true;
+}
+
+bool Processor::process_throughput_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    (void) client;
+    (void) input_packet;
+    return true;
+}
+#endif
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
