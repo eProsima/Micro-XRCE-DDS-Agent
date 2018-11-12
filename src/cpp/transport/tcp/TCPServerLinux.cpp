@@ -25,6 +25,8 @@
 namespace eprosima {
 namespace uxr {
 
+const uint8_t max_attemps = 16;
+
 TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
     : TCPServerBase(port),
       connections_{},
@@ -136,9 +138,7 @@ bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
 
 bool TCPServer::send_message(OutputPacket output_packet)
 {
-    bool rv = true;
-    uint16_t bytes_sent = 0;
-    size_t send_rv = 0;
+    bool rv = false;
     uint8_t msg_size_buf[2];
     const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
@@ -150,53 +150,68 @@ bool TCPServer::send_message(OutputPacket output_packet)
         TCPConnection& connection = connections_.at(it->second);
         lock.unlock();
 
-        /* Send message size. */
         msg_size_buf[0] = uint8_t(0x00FF & output_packet.message->get_len());
         msg_size_buf[1] = uint8_t((0xFF00 & output_packet.message->get_len()) >> 8);
+        uint8_t n_attemps = 0;
+        uint16_t bytes_sent = 0;
+
+        /* Send message size. */
+        bool size_sent = false;
         do
         {
             uint8_t errcode;
-            send_rv = send_locking(connection, msg_size_buf, 2, errcode);
+            size_t send_rv = send_locking(connection, msg_size_buf, 2, errcode);
             if (0 < send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
+                size_sent = (bytes_sent == 2);
             }
             else
             {
                 if (0 < errcode)
                 {
-                    close_connection(connection);
-                    rv = false;
+                    break;
                 }
             }
+            ++n_attemps;
         }
-        while (rv && bytes_sent != 2);
+        while (!size_sent && n_attemps < max_attemps);
 
         /* Send message payload. */
-        if (rv)
+        bool payload_sent = false;
+        if (size_sent)
         {
             bytes_sent = 0;
             do
             {
                 uint8_t errcode;
-                send_rv = send_locking(connection,
-                                       output_packet.message->get_buf() + bytes_sent,
-                                       output_packet.message->get_len() - bytes_sent,
-                                       errcode);
+                size_t send_rv = send_locking(connection,
+                                              output_packet.message->get_buf() + bytes_sent,
+                                              output_packet.message->get_len() - bytes_sent,
+                                              errcode);
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
+                    payload_sent = (bytes_sent == uint16_t(output_packet.message->get_len()));
                 }
                 else
                 {
                     if (0 < errcode)
                     {
-                        close_connection(connection);
-                        rv = false;
+                        break;
                     }
                 }
             }
-            while (rv && bytes_sent != uint16_t(output_packet.message->get_len()));
+            while (!payload_sent && n_attemps < max_attemps);
+        }
+
+        if (size_sent && payload_sent)
+        {
+            rv = true;
+        }
+        else
+        {
+            close_connection(connection);
         }
     }
 
@@ -220,6 +235,7 @@ bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
         connection.addr = sockaddr->sin_addr.s_addr;
         connection.port = sockaddr->sin_port;
         connection.active = true;
+        init_input_buffer(connection.input_buffer);
 
         uint64_t source_id = (uint64_t(connection.addr) << 16) | connection.port;
         source_to_connection_map_[source_id] = connection.id;
