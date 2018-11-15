@@ -52,6 +52,8 @@ public:
     const dds::xrce::MessageHeader& get_header() const { return header_; }
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }
     template<class T> bool get_payload(T& data);
+    bool get_raw_payload(uint8_t* buf, size_t len);
+    bool jump_payload();
     bool prepare_next_submessage();
 
 private:
@@ -99,6 +101,22 @@ template bool InputMessage::get_payload(dds::xrce::READ_DATA_Payload& data);
 template bool InputMessage::get_payload(dds::xrce::WRITE_DATA_Payload_Data& data);
 template bool InputMessage::get_payload(dds::xrce::HEARTBEAT_Payload& data);
 template bool InputMessage::get_payload(dds::xrce::ACKNACK_Payload& data);
+
+inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
+{
+    bool rv = false;
+    if (subheader_.submessage_length() <= len)
+    {
+        deserializer_.deserializeArray(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
+        rv = true;
+    }
+    return rv;
+}
+
+inline bool InputMessage::jump_payload()
+{
+    return deserializer_.jump(size_t(subheader_.submessage_length()));
+}
 
 template<class T> inline bool InputMessage::deserialize(T& data)
 {

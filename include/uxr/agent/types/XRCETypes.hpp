@@ -10435,7 +10435,7 @@ public:
      */
     virtual void deserialize(eprosima::fastcdr::Cdr &dcdr)
     {
-        BaseObjectRequest::serialize(dcdr);
+        BaseObjectRequest::deserialize(dcdr);
     }
 };
 #endif

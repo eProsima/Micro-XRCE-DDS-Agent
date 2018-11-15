@@ -341,10 +341,9 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
     bool rv = true;
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
-    dds::xrce::DataRepresentation data;
     switch (flags)
     {
-        case dds::xrce::FORMAT_DATA_FLAG: ;
+        case dds::xrce::FORMAT_DATA_FLAG:
         {
             dds::xrce::WRITE_DATA_Payload_Data data_payload;
             if (input_packet.message->get_payload(data_payload))
@@ -544,8 +543,7 @@ bool Processor::process_echo_submessage(ProxyClient& client, InputPacket& input_
 bool Processor::process_throughput_submessage(ProxyClient& client, InputPacket& input_packet)
 {
     (void) client;
-    (void) input_packet;
-    return true;
+    return input_packet.message->jump_payload();
 }
 #endif
 
