@@ -32,9 +32,9 @@ Server::~Server()
     delete processor_;
 }
 
-bool Server::run()
+bool Server::run(bool discovery_enabled)
 {
-    if (!init())
+    if (!init(discovery_enabled))
     {
         return false;
     }

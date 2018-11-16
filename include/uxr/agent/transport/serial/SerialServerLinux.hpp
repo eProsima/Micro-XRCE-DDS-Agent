@@ -31,7 +31,7 @@ public:
     ~SerialServer() = default;
 
 private:
-    bool init() override;
+    bool init(bool discovery_enabled) override;
     bool close() override;
     bool recv_message(InputPacket& input_packet, int timeout) override;
     bool send_message(OutputPacket output_packet) override;

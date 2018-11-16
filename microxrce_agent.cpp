@@ -38,8 +38,8 @@ void showHelp()
 #else
     std::cout << "    serial <device_name>" << std::endl;
     std::cout << "    pseudo-serial" << std::endl;
-    std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
-    std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
+    std::cout << "    udp <local_port> [<discovery_port>] [--discovery]" << std::endl;
+    std::cout << "    tcp <local_port> [<discovery_port>] [--discovery]" << std::endl;
 #endif
 }
 
@@ -74,6 +74,7 @@ int main(int argc, char** argv)
 {
     eprosima::uxr::Server* server = nullptr;
     std::vector<std::string> cl(0);
+    bool discovery_flag = false;
 
     if (1 == argc)
     {
@@ -103,25 +104,37 @@ int main(int argc, char** argv)
     {
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
-#ifdef _WIN32
-        server = new eprosima::uxr::UDPServer(port);
-#else
-        server = (3 == cl.size()) //discovery port
+
+        server = 3 <= cl.size() && '-' != cl[2][0] //discovery port
                  ? new eprosima::uxr::UDPServer(port, parsePort(cl[2]))
                  : new eprosima::uxr::UDPServer(port);
-#endif
+
+        if(3 <= cl.size())
+        {
+            discovery_flag = "--discovery" == (4 == cl.size() ?  cl[3] : cl[2]);
+            if(('-' == cl[2][0] || (4 == cl.size() && '-' == cl[3][0])) && !discovery_flag)
+            {
+                initializationError();
+            }
+        }
     }
     else if((2 <= cl.size()) && ("tcp" == cl[0]))
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
-#ifdef _WIN32
-        server = new eprosima::uxr::TCPServer(port);
-#else
-        server = (3 == cl.size()) //discovery port
+
+        server = 3 <= cl.size() && '-' != cl[2][0] //discovery port
                  ? new eprosima::uxr::TCPServer(port, parsePort(cl[2]))
                  : new eprosima::uxr::TCPServer(port);
-#endif
+
+        if(3 <= cl.size())
+        {
+            discovery_flag = "--discovery" == (4 == cl.size() ?  cl[3] : cl[2]);
+            if(('-' == cl[2][0] || (4 == cl.size() && '-' == cl[3][0])) && !discovery_flag)
+            {
+                initializationError();
+            }
+        }
     }
 #ifndef _WIN32
     else if((2 == cl.size()) && ("serial" == cl[0]))
@@ -211,7 +224,7 @@ int main(int argc, char** argv)
     if (nullptr != server)
     {
         /* Launch server. */
-        if (server->run())
+        if (server->run(discovery_flag))
         {
             std::cout << "OK" << std::endl;
             std::cin.clear();

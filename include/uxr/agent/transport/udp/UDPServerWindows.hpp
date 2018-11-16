@@ -28,11 +28,11 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI UDPServer(uint16_t port);
+    microxrcedds_agent_DllAPI UDPServer(uint16_t port, uint16_t discovery_port);
     microxrcedds_agent_DllAPI ~UDPServer() = default;
 
 private:
-    virtual bool init() override;
+    virtual bool init(bool discovery_enabled) override;
     virtual bool close() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;

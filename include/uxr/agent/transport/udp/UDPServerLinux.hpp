@@ -34,7 +34,7 @@ public:
     ~UDPServer() = default;
 
 private:
-    virtual bool init() override;
+    virtual bool init(bool discovery_enabled) override;
     virtual bool close() override;
     virtual bool recv_message(InputPacket& input_packet, int timeout) override;
     virtual bool send_message(OutputPacket output_packet) override;

@@ -18,14 +18,18 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(uint16_t port)
+UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
     : UDPServerBase(port),
       poll_fd_{},
       buffer_{0}
-{}
-
-bool UDPServer::init()
 {
+    (void) discovery_port;
+}
+
+bool UDPServer::init(bool discovery_enabled)
+{
+    (void) discovery_enabled;
+
     bool rv = false;
 
     /* Socker initialization. */

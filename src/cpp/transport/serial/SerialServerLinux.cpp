@@ -28,8 +28,10 @@ SerialServer::SerialServer(int fd, uint8_t addr)
     poll_fd_.fd = fd;
 }
 
-bool SerialServer::init()
+bool SerialServer::init(bool discovery_enabled)
 {
+    (void) discovery_enabled;
+
     /* Init serial IO. */
     uxr_init_serial_io(&serial_io_, addr_);
 
