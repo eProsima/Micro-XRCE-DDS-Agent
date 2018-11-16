@@ -23,13 +23,17 @@ SerialServerBase::SerialServerBase(uint8_t addr)
       client_to_source_map_{}
 {}
 
-void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
+void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
 {
     SerialEndPoint* endpoint = static_cast<SerialEndPoint*>(source);
     uint8_t source_id = endpoint->get_addr();
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    const dds::xrce::ClientKey& client_key = representation.client_key();
+    uint32_t client_id = uint32_t(client_key.at(0) +
+                                  (client_key.at(1) << 8) +
+                                  (client_key.at(2) << 16) +
+                                  (client_key.at(3) << 24));
 
-    /* Update maps. */
+    /* Update source for the client. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it_client = client_to_source_map_.find(client_id);
     if (it_client != client_to_source_map_.end())
@@ -42,14 +46,18 @@ void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::Clien
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
     }
 
-    auto it_source = source_to_client_map_.find(source_id);
-    if (it_source != source_to_client_map_.end())
+    /* Update client for the source. */
+    if (127 < representation.session_id())
     {
-        it_source->second = client_id;
-    }
-    else
-    {
-        source_to_client_map_.insert(std::make_pair(source_id, client_id));
+       auto it_source = source_to_client_map_.find(source_id);
+       if (it_source != source_to_client_map_.end())
+       {
+           it_source->second = client_id;
+       }
+       else
+       {
+           source_to_client_map_.insert(std::make_pair(source_id, client_id));
+       }
     }
 }
 
@@ -91,7 +99,10 @@ const dds::xrce::ClientKey SerialServerBase::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> SerialServerBase::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    uint32_t client_id = uint32_t(client_key.at(0) +
+                                  (client_key.at(1) << 8) +
+                                  (client_key.at(2) << 16) +
+                                  (client_key.at(3) << 24));
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())
