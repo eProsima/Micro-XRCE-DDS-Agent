@@ -49,7 +49,9 @@ void Processor::process_input_packet(InputPacket&& input_packet)
     else
     {
         dds::xrce::MessageHeader header = input_packet.message->get_header();
-        dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
+        dds::xrce::ClientKey client_key = (128 > header.session_id()) ?
+                                          header.client_key() :
+                                          server_->get_client_key(input_packet.source.get());
         std::shared_ptr<ProxyClient> client = root_->get_client(client_key);
         if (nullptr != client)
         {
@@ -162,9 +164,25 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
          (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
           input_packet.message->get_payload(client_payload))
     {
+        /* Check whether there is a client associate with the source. */
         dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
-        if (dds::xrce::CLIENTKEY_INVALID == client_key ||
-            client_payload.client_representation().client_key() == client_key)
+        if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
+            (client_payload.client_representation().client_key() != client_key))
+        {
+            dds::xrce::StatusValue delete_status = root_->delete_client(client_key).status();
+            if ((dds::xrce::STATUS_OK == delete_status) ||
+                (dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE == delete_status))
+            {
+                server_->on_delete_client(input_packet.source.get());
+            }
+            else
+            {
+                rv = false;
+            }
+        }
+
+        /* Create client in case. */
+        if (rv)
         {
             /* STATUS_AGENT header. */
             dds::xrce::MessageHeader output_header = input_packet.message->get_header();
@@ -182,7 +200,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             if (dds::xrce::STATUS_OK == result.status())
             {
                 server_->on_create_client(input_packet.source.get(),
-                                          client_payload.client_representation().client_key());
+                                          client_payload.client_representation());
             }
             status_payload.result(result);
             status_payload.agent_info(agent_representation);
@@ -273,8 +291,12 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             status_header.stream_id(0x00);
 
             /* Set result status. */
-            dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
+            dds::xrce::ClientKey client_key = client.get_client_key();
             status_payload.result(root_->delete_client(client_key));
+            if (dds::xrce::STATUS_OK == status_payload.result().status())
+            {
+                server_->on_delete_client(input_packet.source.get());
+            }
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         }
         else
@@ -357,7 +379,7 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
         {
             /* Set callback args. */
             ReadCallbackArgs cb_args;
-            cb_args.client_key = server_->get_client_key(input_packet.source.get());
+            cb_args.client_key = client.get_client_key();
             cb_args.stream_id = read_payload.read_specification().data_stream_id();
             cb_args.object_id = read_payload.object_id();
             cb_args.request_id = read_payload.request_id();

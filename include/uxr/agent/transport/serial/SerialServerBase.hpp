@@ -31,7 +31,7 @@ public:
     SerialServerBase(uint8_t addr);
     ~SerialServerBase() = default;
 
-    void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) override;
+    void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
     void on_delete_client(EndPoint* source) override;
     const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;

@@ -25,13 +25,17 @@ TCPServerBase::TCPServerBase(uint16_t port)
       clients_mtx_()
 {}
 
-void TCPServerBase::on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key)
+void TCPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
 {
     TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) << 24));
+    const dds::xrce::ClientKey& client_key = representation.client_key();
+    uint32_t client_id = uint32_t(client_key.at(0) +
+                                  (client_key.at(1) << 8) +
+                                  (client_key.at(2) << 16) +
+                                  (client_key.at(3) << 24));
 
-    /* Update maps. */
+    /* Update source for the client. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it_client = client_to_source_map_.find(client_id);
     if (it_client != client_to_source_map_.end())
@@ -44,14 +48,18 @@ void TCPServerBase::on_create_client(EndPoint* source, const dds::xrce::ClientKe
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
     }
 
-    auto it_source = source_to_client_map_.find(source_id);
-    if (it_source != source_to_client_map_.end())
+    /* Update client for the source. */
+    if (127 < representation.session_id())
     {
-        it_source->second = client_id;
-    }
-    else
-    {
-        source_to_client_map_.insert(std::make_pair(source_id, client_id));
+        auto it_source = source_to_client_map_.find(source_id);
+        if (it_source != source_to_client_map_.end())
+        {
+            it_source->second = client_id;
+        }
+        else
+        {
+            source_to_client_map_.insert(std::make_pair(source_id, client_id));
+        }
     }
 }
 
