@@ -63,8 +63,7 @@ private:
     bool process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_reset_submessage(ProxyClient& client, InputPacket&);
 #ifdef PERFORMANCE_TESTING
-    bool process_echo_submessage(ProxyClient& client, InputPacket& input_packet);
-    bool process_throughput_submessage(ProxyClient& client, InputPacket& input_packet);
+    bool process_performance_submessage(ProxyClient& client, InputPacket& input_packet);
 #endif
 
     void read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer);
