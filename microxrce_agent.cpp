@@ -225,6 +225,7 @@ int main(int argc, char** argv)
         {
             std::cout << "ERROR" << std::endl;
         }
+        delete server;
     }
 
     return 0;
