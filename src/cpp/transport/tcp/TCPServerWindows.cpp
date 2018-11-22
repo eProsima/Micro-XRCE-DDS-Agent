@@ -168,6 +168,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
         bool payload_sent = false;
         if (size_sent)
         {
+            n_attemps = 0;
             bytes_sent = 0;
             do
             {
@@ -188,6 +189,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
                         break;
                     }
                 }
+                ++n_attemps;
             }
             while (!payload_sent && n_attemps < max_attemps);
         }

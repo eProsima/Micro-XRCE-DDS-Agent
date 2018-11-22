@@ -194,6 +194,8 @@ int main(int argc, char** argv)
                 tcgetattr(fd, &attr);
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
+                cfsetispeed(&attr, B115200);
+                cfsetospeed(&attr, B115200);
                 tcsetattr(fd, TCSANOW, &attr);
                 std::cout << "Device: " << dev << std::endl;
             }
