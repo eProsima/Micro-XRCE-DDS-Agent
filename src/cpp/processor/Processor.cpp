@@ -68,7 +68,6 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                     process_input_message(*client, input_packet);
                     client = root_->get_client(client_key);
                 }
-
             }
 
             /* Send acknack in case. */
@@ -147,8 +146,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = process_reset_submessage(client, input_packet);
             break;
         case dds::xrce::FRAGMENT:
-            // TODO (julian): implement fragment functionality.
-            rv = false;
+            rv = process_fragment_submessage(client, input_packet);
             break;
         case dds::xrce::PERFORMANCE:
             rv = process_performance_submessage(client, input_packet);
@@ -519,6 +517,18 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
 bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*input_packet*/)
 {
     client.session().reset();
+    return true;
+}
+
+bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
+    client.session().push_input_fragment(stream_id, input_packet.message);
+    InputPacket fragment_packet;
+    if (client.session().pop_input_message(stream_id, fragment_packet.message))
+    {
+        process_input_packet(std::move(fragment_packet));
+    }
     return true;
 }
 

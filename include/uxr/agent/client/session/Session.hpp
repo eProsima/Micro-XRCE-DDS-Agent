@@ -43,6 +43,8 @@ public:
     void update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum first_unacked, SeqNum last_unacked);
     SeqNum get_first_unacked_seq_num(dds::xrce::StreamId stream_id);
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
+    void push_input_fragment(dds::xrce::StreamId stream_id, InputMessagePtr& message);
+    bool pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
 
     /* Output streams functions. */
     bool push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
@@ -161,6 +163,19 @@ inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId
         bitmap = relible_istreams_[stream_id].get_nack_bitmap();
     }
     return bitmap;
+}
+
+inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMessagePtr& message)
+{
+    if (127 < stream_id)
+    {
+        relible_istreams_[stream_id].push_fragment(message);
+    }
+}
+
+inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
+{
+    return relible_istreams_[stream_id].pop_fragment_message(message);
 }
 
 /**************************************************************************************************
