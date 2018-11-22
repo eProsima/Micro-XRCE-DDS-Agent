@@ -45,7 +45,7 @@ public:
     std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
 
     /* Output streams functions. */
-    void push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
+    bool push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
     bool get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_submessage);
     SeqNum get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
     SeqNum get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
@@ -166,18 +166,21 @@ inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId
 /**************************************************************************************************
  * Output Stream Methods.
  **************************************************************************************************/
-inline void Session::push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
+inline bool Session::push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
 {
+    bool rv = false;
     if (128 > stream_id)
     {
         std::lock_guard<std::mutex> bo_lock(bo_mtx_);
         besteffort_ostreams_[stream_id].promote_stream();
+        rv = true;
     }
     else
     {
         std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        relible_ostreams_[stream_id].push_message(output_message);
+        rv = relible_ostreams_[stream_id].push_message(output_message);
     }
+    return rv;
 }
 
 inline bool Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_message)

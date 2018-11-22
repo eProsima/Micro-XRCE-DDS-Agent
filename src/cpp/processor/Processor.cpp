@@ -261,10 +261,11 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
         /* Store message. */
-        client.session().push_output_message(0x80, output_packet.message);
-
-        /* Send status. */
-        server_->push_output_packet(output_packet);
+        if (client.session().push_output_message(0x80, output_packet.message))
+        {
+            /* Send status. */
+            server_->push_output_packet(output_packet);
+        }
     }
     return rv;
 }
@@ -290,11 +291,12 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         output_packet.destination = input_packet.source;
 
         /* Delete object. */
+        uint16_t stream_id = 0x00;
         if ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
         {
             /* Set stream and sequence number. */
             status_header.sequence_nr(0x00);
-            status_header.stream_id(0x00);
+            status_header.stream_id(stream_id);
 
             /* Set result status. */
             dds::xrce::ClientKey client_key = client.get_client_key();
@@ -308,7 +310,7 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         else
         {
             /* Set stream and sequence number. */
-            uint8_t stream_id = 0x80;
+            stream_id = 0x80;
             uint16_t seq_num = client.session().next_output_message(stream_id);
             status_header.sequence_nr(seq_num);
             status_header.stream_id(stream_id);
@@ -318,12 +320,15 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
 
             /* Store message. */
             output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
-            client.session().push_output_message(stream_id, output_packet.message);
         }
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
-        /* Send message. */
-        server_->push_output_packet(output_packet);
+        /* Store message. */
+        if (client.session().push_output_message(stream_id, output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
     else
     {
@@ -417,10 +422,11 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
             /* Store message. */
-            client.session().push_output_message(stream_id, output_packet.message);
-
-            /* Send message. */
-            server_->push_output_packet(output_packet);
+            if (client.session().push_output_message(stream_id, output_packet.message))
+            {
+                /* Send message. */
+                server_->push_output_packet(output_packet);
+            }
         }
     }
     else
@@ -536,12 +542,21 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
     /* Check ECHO. */
     if (dds::xrce::FLAG_ECHO == (dds::xrce::FLAG_ECHO & input_packet.message->get_subheader().flags()))
     {
+        /* PERFORMANCE header. */
+        dds::xrce::MessageHeader output_header;
+        output_header.session_id(input_packet.message->get_header().session_id());
+        output_header.stream_id(input_packet.message->get_header().stream_id());
+        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
+        output_header.client_key(input_packet.message->get_header().client_key());
+
         /* Generate output packect. */
-        output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header()));
+        output_packet.message = OutputMessagePtr(new OutputMessage(output_header));
         output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
-        client.session().push_output_message(input_packet.message->get_header().stream_id(),
-                                             output_packet.message);
-        server_->push_output_packet(output_packet);
+        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
     return true;
 }
@@ -574,10 +589,11 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
         output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
 
         /* Store message. */
-        client->session().push_output_message(cb_args.stream_id, output_packet.message);
-
-        /* Send message. */
-        server_->push_output_packet(output_packet);
+        if (client->session().push_output_message(cb_args.stream_id, output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
 }
 

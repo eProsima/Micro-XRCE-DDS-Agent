@@ -98,8 +98,7 @@ inline ReliableOutputStream::ReliableOutputStream(ReliableOutputStream&& x)
     : last_sent_(x.last_sent_),
       last_acknown_(x.last_acknown_),
       messages_(std::move(messages_))
-{
-}
+{}
 
 inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStream&& x)
 {
