@@ -100,15 +100,16 @@ void Participant::release(ObjectContainer& root_objects)
     }
 }
 
-void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*, eprosima::fastrtps::ParticipantDiscoveryInfo info)
+void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*,
+                                         fastrtps::rtps::ParticipantDiscoveryInfo&& info)
 {
-    if(info.rtps.m_status == eprosima::fastrtps::rtps::DISCOVERED_RTPSPARTICIPANT)
+    if(info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
-        std::cout << "RTPS Participant matched " << info.rtps.m_guid << std::endl;
+        std::cout << "RTPS Participant matched " << info.info.m_guid << std::endl;
     }
     else
     {
-        std::cout << "RTPS Participant unmatched " << info.rtps.m_guid << std::endl;
+        std::cout << "RTPS Participant unmatched " << info.info.m_guid << std::endl;
     }
 }
 
