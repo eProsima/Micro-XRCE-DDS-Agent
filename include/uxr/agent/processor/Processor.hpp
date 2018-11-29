@@ -70,7 +70,7 @@ private:
 private:
     Server* server_;
     Root* root_;
-    std::mutex mtx_;
+    std::recursive_mutex mtx_;
 };
 
 } // namespace uxr

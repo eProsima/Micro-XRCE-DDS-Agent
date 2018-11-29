@@ -108,13 +108,13 @@ inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
     uint8_t rv;
     if (128 > header_.session_id())
     {
-        memcpy(buf.data(), buf_, 4);
-        rv = 4;
+        memcpy(buf.data(), buf_, 8);
+        rv = 8;
     }
     else
     {
-        memcpy(buf.data(), buf_, 8);
-        rv = 8;
+        memcpy(buf.data(), buf_, 4);
+        rv = 4;
     }
     return rv;
 }

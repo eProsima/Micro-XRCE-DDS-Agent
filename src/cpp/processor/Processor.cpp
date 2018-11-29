@@ -114,7 +114,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
-    std::lock_guard<std::mutex> lock(mtx_);
+    mtx_.lock();
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -155,6 +155,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = false;
             break;
     }
+    mtx_.unlock();
     return rv;
 }
 
@@ -525,9 +526,10 @@ bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& in
     dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
     client.session().push_input_fragment(stream_id, input_packet.message);
     InputPacket fragment_packet;
-    if (client.session().pop_input_message(stream_id, fragment_packet.message))
+    if (client.session().pop_input_fragment_message(stream_id, fragment_packet.message))
     {
-        process_input_packet(std::move(fragment_packet));
+        fragment_packet.source = input_packet.source;
+        process_input_message(client, fragment_packet);
     }
     return true;
 }
@@ -567,7 +569,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
 
     /* DATA header. */
@@ -598,6 +600,7 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
             server_->push_output_packet(output_packet);
         }
     }
+    mtx_.unlock();
 }
 
 bool Processor::process_get_info_packet(InputPacket&& input_packet,

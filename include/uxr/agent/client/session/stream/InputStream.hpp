@@ -203,14 +203,14 @@ inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
     {
         std::array<uint8_t, 8> raw_header;
         uint8_t header_size = message->get_raw_header(raw_header);
-        fragment_msg_.insert(fragment_msg_.begin(), raw_header.at(0), raw_header.at(header_size - 1));
+        fragment_msg_.insert(fragment_msg_.begin(), std::begin(raw_header), std::begin(raw_header) + header_size);
     }
 
     /* Append fragment. */
     size_t position = fragment_msg_.size();
     size_t fragment_size = message->get_subheader().submessage_length();
     fragment_msg_.resize(position + fragment_size);
-    message->get_raw_payload(fragment_msg_.data() + fragment_size, fragment_size);
+    message->get_raw_payload(fragment_msg_.data() + position, fragment_size);
 
     /* Check if last message. */
     fragment_message_available_ = (0 < (dds::xrce::FLAG_LAST_FRAGMENT & message->get_subheader().flags()));
@@ -224,6 +224,7 @@ inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
         message.reset(new InputMessage(fragment_msg_.data(), fragment_msg_.size()));
         fragment_msg_.clear();
         fragment_message_available_ = false;
+        return true;
     }
     return rv;
 }
