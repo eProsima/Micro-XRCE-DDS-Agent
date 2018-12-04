@@ -78,13 +78,14 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 dds::xrce::MessageHeader acknack_header;
                 acknack_header.session_id(header.session_id());
                 acknack_header.stream_id(0x00);
-                acknack_header.sequence_nr(header.stream_id());
+                acknack_header.sequence_nr(0x00);
                 acknack_header.client_key(header.client_key());
 
                 /* ACKNACK payload. */
                 dds::xrce::ACKNACK_Payload acknack_payload;
                 acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
                 acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
+                acknack_payload.stream_id(header.stream_id());
 
                 /* Set output packet and serialize ACKNACK. */
                 OutputPacket output_packet;
@@ -435,7 +436,7 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         /* Send missing messages again. */
         uint16_t first_message = acknack_payload.first_unacked_seq_num();
         std::array<uint8_t, 2> nack_bitmap = acknack_payload.nack_bitmap();
-        dds::xrce::SequenceNr seq_num = input_packet.message->get_header().sequence_nr();
+        uint8_t stream_id = acknack_payload.stream_id();
         for (uint16_t i = 0; i < 8; ++i)
         {
             OutputPacket output_packet;
@@ -443,14 +444,14 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
             uint8_t mask = uint8_t(0x01 << i);
             if ((nack_bitmap.at(1) & mask) == mask)
             {
-                if (client.session().get_output_message(uint8_t(seq_num), first_message + i, output_packet.message))
+                if (client.session().get_output_message(stream_id, first_message + i, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
-                if (client.session().get_output_message(uint8_t(seq_num), first_message + i + 8, output_packet.message))
+                if (client.session().get_output_message(stream_id, first_message + i + 8, output_packet.message))
                 {
                     server_->push_output_packet(output_packet);
                 }
@@ -458,7 +459,7 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
         }
 
         /* Update output stream. */
-        client.session().update_from_acknack(uint8_t(seq_num), first_message);
+        client.session().update_from_acknack(stream_id, first_message);
     }
     else
     {
@@ -475,8 +476,7 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
     if (input_packet.message->get_payload(heartbeat_payload))
     {
         /* Update input stream. */
-        dds::xrce::StreamId stream_id;
-        stream_id = static_cast<dds::xrce::StreamId>(input_packet.message->get_header().sequence_nr());
+        uint8_t stream_id = heartbeat_payload.stream_id();
         client.session().update_from_heartbeat(stream_id,
                                                heartbeat_payload.first_unacked_seq_nr(),
                                                heartbeat_payload.last_unacked_seq_nr());
@@ -485,13 +485,14 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
         dds::xrce::MessageHeader acknack_header;
         acknack_header.session_id(input_packet.message->get_header().session_id());
         acknack_header.stream_id(0x00);
-        acknack_header.sequence_nr(stream_id);
+        acknack_header.sequence_nr(0x00);
         acknack_header.client_key(input_packet.message->get_header().client_key());
 
         /* ACKNACK payload. */
         dds::xrce::ACKNACK_Payload acknack_payload;
         acknack_payload.first_unacked_seq_num(client.session().get_first_unacked_seq_num(stream_id));
         acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
+        acknack_payload.stream_id(stream_id);
 
         /* Set output packet and serialize ACKNACK. */
         OutputPacket output_packet;
@@ -610,13 +611,14 @@ void Processor::check_heartbeats()
                 dds::xrce::MessageHeader heartbeat_header;
                 heartbeat_header.session_id(client->get_session_id());
                 heartbeat_header.stream_id(0x00);
-                heartbeat_header.sequence_nr(stream);
+                heartbeat_header.sequence_nr(0x00);
                 heartbeat_header.client_key(client->get_client_key());
 
                 /* Heartbeat message payload. */
                 dds::xrce::HEARTBEAT_Payload heartbeat_payload;
                 heartbeat_payload.first_unacked_seq_nr(client->session().get_first_unacked_seq_nr(stream));
                 heartbeat_payload.last_unacked_seq_nr(client->session().get_last_unacked_seq_nr(stream));
+                heartbeat_payload.stream_id(stream);
 
                 /* Set output packet and serialize HEARTBEAT. */
                 OutputPacket output_packet;
