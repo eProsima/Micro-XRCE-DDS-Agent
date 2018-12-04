@@ -75,11 +75,6 @@ public:
     void push_fragment(InputMessagePtr& message);
     bool pop_fragment_message(InputMessagePtr& message);
 
-
-    bool fragment_init() { return !fragment_msg_.empty(); }
-    uint8_t* prepare_to_append_fragment(size_t len);
-    void get_fragment_msg(InputMessagePtr& message);
-
 private:
     SeqNum last_handled_;
     SeqNum last_announced_;
@@ -227,19 +222,6 @@ inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
         return true;
     }
     return rv;
-}
-
-inline uint8_t* ReliableInputStream::prepare_to_append_fragment(size_t len)
-{
-    size_t position = fragment_msg_.size();
-    fragment_msg_.resize(position + len, 0);
-    return fragment_msg_.data() + position;
-}
-
-inline void ReliableInputStream::get_fragment_msg(InputMessagePtr& message)
-{
-    // TODO
-    (void)message;
 }
 
 } // namespace uxr
