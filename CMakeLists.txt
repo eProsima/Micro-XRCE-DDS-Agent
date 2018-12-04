@@ -38,11 +38,11 @@ if(CMAKE_VERSION VERSION_LESS 3.0)
     project(microxrcedds_agent C CXX)
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
-    set(PROJECT_VERSION_PATCH 0)
+    set(PROJECT_VERSION_PATCH 1)
     set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 else()
     cmake_policy(SET CMP0048 NEW)
-    project(microxrcedds_agent VERSION "1.0.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
 endif()
 
 ###############################################################################
