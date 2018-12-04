@@ -10120,6 +10120,7 @@ public:
     {
         return m_first_unacked_seq_num;
     }
+
     /*!
      * @brief This function copies the value in member nack_bitmap
      * @param _nack_bitmap New value to be copied in member nack_bitmap
@@ -10155,6 +10156,33 @@ public:
     {
         return m_nack_bitmap;
     }
+
+    /*!
+     * @brief This function sets a value in member stream_id
+     * @param _stream_id New value for member stream_id
+     */
+    inline void stream_id(uint8_t _stream_id)
+    {
+        m_stream_id = _stream_id;
+    }
+
+    /*!
+     * @brief This function returns the value of member stream_id
+     * @return Value of member stream_id
+     */
+    inline uint8_t stream_id() const
+    {
+        return m_stream_id;
+    }
+
+    /*!
+     * @brief This function returns a reference to member stream_id
+     * @return Reference to member stream_id
+     */
+    inline uint8_t& stream_id()
+    {
+        return m_stream_id;
+    }
     
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -10187,6 +10215,7 @@ public:
 private:
     uint16_t m_first_unacked_seq_num;
     std::array<uint8_t, 2> m_nack_bitmap;
+    uint8_t m_stream_id;
 };
 
 /*!
@@ -10257,6 +10286,7 @@ public:
     {
         return m_first_unacked_seq_nr;
     }
+
     /*!
      * @brief This function sets a value in member last_unacked_seq_nr
      * @param _last_unacked_seq_nr New value for member last_unacked_seq_nr
@@ -10282,6 +10312,33 @@ public:
     inline uint16_t& last_unacked_seq_nr()
     {
         return m_last_unacked_seq_nr;
+    }
+
+    /*!
+     * @brief This function sets a value in member stream_id
+     * @param _stream_id New value for member stream_id
+     */
+    inline void stream_id(uint8_t _stream_id)
+    {
+        m_stream_id = _stream_id;
+    }
+
+    /*!
+     * @brief This function returns the value of member stream_id
+     * @return Value of member stream_id
+     */
+    inline uint8_t stream_id() const
+    {
+        return m_stream_id;
+    }
+
+    /*!
+     * @brief This function returns a reference to member stream_id
+     * @return Reference to member stream_id
+     */
+    inline uint8_t& stream_id()
+    {
+        return m_stream_id;
     }
     
     /*!
@@ -10315,6 +10372,7 @@ public:
 private:
     uint16_t m_first_unacked_seq_nr;
     uint16_t m_last_unacked_seq_nr;
+    uint8_t m_stream_id;
 };
 /*!
  * @brief This class represents the enumeration SubmessageId defined by the user in the IDL file.

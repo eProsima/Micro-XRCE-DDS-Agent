@@ -8242,6 +8242,7 @@ void dds::xrce::DATA_Payload_PackedSamples::deserialize(eprosima::fastcdr::Cdr &
 dds::xrce::ACKNACK_Payload::ACKNACK_Payload()
 {
     m_first_unacked_seq_num = 0;
+    m_stream_id = 0;
 }
 
 dds::xrce::ACKNACK_Payload::~ACKNACK_Payload()
@@ -8252,18 +8253,21 @@ dds::xrce::ACKNACK_Payload::ACKNACK_Payload(const ACKNACK_Payload &x)
 {
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = x.m_nack_bitmap;
+    m_stream_id = x.m_stream_id;
 }
 
 dds::xrce::ACKNACK_Payload::ACKNACK_Payload(ACKNACK_Payload &&x)
 {
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = std::move(x.m_nack_bitmap);
+    m_stream_id = x.m_stream_id;
 }
 
 dds::xrce::ACKNACK_Payload& dds::xrce::ACKNACK_Payload::operator=(const ACKNACK_Payload &x)
 {
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = x.m_nack_bitmap;
+    m_stream_id = x.m_stream_id;
     
     return *this;
 }
@@ -8272,6 +8276,7 @@ dds::xrce::ACKNACK_Payload& dds::xrce::ACKNACK_Payload::operator=(ACKNACK_Payloa
 {
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = std::move(x.m_nack_bitmap);
+    m_stream_id = x.m_stream_id;
     
     return *this;
 }
@@ -8281,9 +8286,8 @@ size_t dds::xrce::ACKNACK_Payload::getMaxCdrSerializedSize(size_t current_alignm
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -8293,8 +8297,8 @@ size_t dds::xrce::ACKNACK_Payload::getCdrSerializedSize(size_t current_alignment
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -8303,18 +8307,21 @@ void dds::xrce::ACKNACK_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_first_unacked_seq_num;
     scdr << m_nack_bitmap;
+    scdr << m_stream_id;
 }
 
 void dds::xrce::ACKNACK_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_first_unacked_seq_num;
     dcdr >> m_nack_bitmap;
+    dcdr >> m_stream_id;
 }
 
 dds::xrce::HEARTBEAT_Payload::HEARTBEAT_Payload()
 {
     m_first_unacked_seq_nr = 0;
     m_last_unacked_seq_nr = 0;
+    m_stream_id = 0;
 }
 
 dds::xrce::HEARTBEAT_Payload::~HEARTBEAT_Payload()
@@ -8325,18 +8332,21 @@ dds::xrce::HEARTBEAT_Payload::HEARTBEAT_Payload(const HEARTBEAT_Payload &x)
 {
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
+    m_stream_id = x.m_stream_id;
 }
 
 dds::xrce::HEARTBEAT_Payload::HEARTBEAT_Payload(HEARTBEAT_Payload &&x)
 {
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
+    m_stream_id = x.m_stream_id;
 }
 
 dds::xrce::HEARTBEAT_Payload& dds::xrce::HEARTBEAT_Payload::operator=(const HEARTBEAT_Payload &x)
 {
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
+    m_stream_id = x.m_stream_id;
     
     return *this;
 }
@@ -8345,6 +8355,7 @@ dds::xrce::HEARTBEAT_Payload& dds::xrce::HEARTBEAT_Payload::operator=(HEARTBEAT_
 {
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
+    m_stream_id = x.m_stream_id;
     
     return *this;
 }
@@ -8354,9 +8365,8 @@ size_t dds::xrce::HEARTBEAT_Payload::getMaxCdrSerializedSize(size_t current_alig
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -8366,9 +8376,8 @@ size_t dds::xrce::HEARTBEAT_Payload::getCdrSerializedSize(size_t current_alignme
     size_t initial_alignment = current_alignment;
             
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -8377,10 +8386,12 @@ void dds::xrce::HEARTBEAT_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_first_unacked_seq_nr;
     scdr << m_last_unacked_seq_nr;
+    scdr << m_stream_id;
 }
 
 void dds::xrce::HEARTBEAT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_first_unacked_seq_nr;
     dcdr >> m_last_unacked_seq_nr;
+    dcdr >> m_stream_id;
 }
