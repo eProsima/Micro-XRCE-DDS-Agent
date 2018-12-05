@@ -286,6 +286,7 @@ std::vector<uint8_t> AgentSerialization::acknack_payload()
     dds::xrce::ACKNACK_Payload payload;
     payload.first_unacked_seq_num() = (uint16_t)0x0123;
     payload.nack_bitmap() = {0x45, 0x67};
+    payload.stream_id() = (uint8_t)0x89;
     output.append_submessage(dds::xrce::ACKNACK, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -301,6 +302,7 @@ std::vector<uint8_t> AgentSerialization::heartbeat_payload()
     dds::xrce::HEARTBEAT_Payload payload;
     payload.first_unacked_seq_nr() = (uint16_t)0x0123;
     payload.last_unacked_seq_nr() = (uint16_t)0x4567;
+    payload.stream_id() = (uint8_t)0x89;
     output.append_submessage(dds::xrce::HEARTBEAT, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
