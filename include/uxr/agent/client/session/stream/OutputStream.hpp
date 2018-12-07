@@ -24,13 +24,20 @@
 namespace eprosima {
 namespace uxr {
 
-/******************************************************************************
+/****************************************************************************************
  * Best-Effort Output Stream.
- ******************************************************************************/
+ ****************************************************************************************/
 class BestEffortOutputStream
 {
 public:
-    BestEffortOutputStream() : last_send_(~0) {}
+    BestEffortOutputStream(dds::xrce::SessionId session_id,
+                           dds::xrce::StreamId stream_id,
+                           const dds::xrce::ClientKey& client_key)
+        : session_id_(session_id),
+          stream_id_(stream_id),
+          client_key_(client_key),
+          last_send_(~0)
+    {}
 
     bool push_message(OutputMessagePtr&& output_message);
     bool pop_message(OutputMessagePtr& output_message);
@@ -38,7 +45,15 @@ public:
     void promote_stream() { last_send_ += 1; }
     void reset() { last_send_ = ~0; }
 
+    /* Fragment related functions. */
+    template<class T>
+    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool get_next_message(OutputMessagePtr& output_message);
+
 private:
+    dds::xrce::SessionId session_id_;
+    dds::xrce::StreamId stream_id_;
+    dds::xrce::ClientKey client_key_;
     SeqNum last_send_;
     std::queue<OutputMessagePtr> messages_;
 };
@@ -66,13 +81,54 @@ inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message
     return rv;
 }
 
-/******************************************************************************
+/* Fragment related functions. */
+template<class T>
+inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+{
+    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
+    {
+        /* Message header. */
+        dds::xrce::MessageHeader message_header;
+        message_header.session_id(session_id_);
+        message_header.stream_id(stream_id_);
+        message_header.client_key(client_key_);
+
+        /* Create message. */
+        OutputMessagePtr output_message(new OutputMessage(message_header));
+        output_message->append_submessage(id, submessage);
+
+        /* Push message. */
+        messages_.push(std::move(output_message));
+    }
+}
+
+inline bool BestEffortOutputStream::get_next_message(OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (!messages_.empty())
+    {
+        output_message = std::move(messages_.front());
+        messages_.pop();
+    }
+    return rv;
+}
+
+/****************************************************************************************
  * Reliable Output Stream.
- ******************************************************************************/
+ ****************************************************************************************/
 class ReliableOutputStream
 {
 public:
-    ReliableOutputStream() : last_sent_(~0), last_acknown_(~0) {}
+    ReliableOutputStream(dds::xrce::SessionId session_id,
+                         dds::xrce::StreamId stream_id,
+                         const dds::xrce::ClientKey& client_key)
+        : session_id_(session_id),
+          stream_id_(stream_id),
+          client_key_(client_key),
+          last_available_(~0),
+          last_sent_(~0),
+          last_acknown_(~0)
+    {}
 
     ReliableOutputStream(const ReliableOutputStream&) = delete;
     ReliableOutputStream& operator=(const ReliableOutputStream) = delete;
@@ -88,7 +144,16 @@ public:
     bool message_pending() { return !messages_.empty(); }
     void reset();
 
+    /* Fragment related function. */
+    template<class T>
+    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool get_next_message(OutputMessagePtr& output_message);
+
 private:
+    dds::xrce::SessionId session_id_;
+    dds::xrce::StreamId stream_id_;
+    dds::xrce::ClientKey client_key_;
+    SeqNum last_available_;
     SeqNum last_sent_;
     SeqNum last_acknown_;
     std::map<uint16_t, OutputMessagePtr> messages_;
@@ -146,6 +211,40 @@ inline void ReliableOutputStream::reset()
     last_acknown_ = ~0;
     last_sent_ = ~0;
     messages_.clear();
+}
+
+/* Fragment related function. */
+template<class T>
+inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+{
+    if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
+    {
+        /* Message header. */
+        dds::xrce::MessageHeader message_header;
+        message_header.session_id(session_id_);
+        message_header.stream_id(stream_id_);
+        message_header.client_key(client_key_);
+
+        /* Create message. */
+        OutputMessagePtr output_message(new OutputMessage(message_header));
+        output_message->append_submessage(id, submessage);
+
+        /* Push message. */
+        last_available_ += 1;
+        messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+    }
+}
+
+inline bool ReliableOutputStream::get_next_message(OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (last_sent_ < last_available_)
+    {
+        last_sent_ += 1;
+        output_message = messages_.at(last_sent_);
+        rv = true;
+    }
+    return rv;
 }
 
 } // namespace uxr

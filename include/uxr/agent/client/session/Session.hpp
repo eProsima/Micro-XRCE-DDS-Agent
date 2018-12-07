@@ -27,7 +27,27 @@ namespace uxr {
 class Session
 {
 public:
-    Session() = default;
+    Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key)
+    {
+        /* Create Best-Effort output streams. */
+        for (int i = 1; i <= 127; ++i)
+        {
+            dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
+            besteffort_out_streams_.emplace(std::piecewise_construct,
+                                            std::forward_as_tuple(dds::xrce::StreamId(i)),
+                                            std::forward_as_tuple(session_id, stream_id, client_key));
+        }
+
+        /* Create Relaible output streams. */
+        for (int i = 128; i <= 255; ++i)
+        {
+            dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
+            reliable_out_streams_.emplace(std::piecewise_construct,
+                                          std::forward_as_tuple(dds::xrce::StreamId(i)),
+                                          std::forward_as_tuple(session_id, stream_id, client_key));
+        }
+    }
+
     ~Session() = default;
 
     Session(const Session&) = delete;
@@ -56,11 +76,16 @@ public:
     std::vector<uint8_t> get_output_streams();
     bool message_pending(dds::xrce::StreamId stream_id);
 
+    /* Fragment relate function. */
+    template<class T>
+    void push_output_submessage(dds::xrce::StreamId stream_id, dds::xrce::SubmessageId, const T& submessage);
+    bool get_next_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
+
 private:
-    std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_istreams_;
-    std::unordered_map<dds::xrce::StreamId, ReliableInputStream> relible_istreams_;
-    std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> besteffort_ostreams_;
-    std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> relible_ostreams_;
+    std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_in_streams_;
+    std::unordered_map<dds::xrce::StreamId, ReliableInputStream> reliable_in_streams_;
+    std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> besteffort_out_streams_;
+    std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> reliable_out_streams_;
     std::mutex bi_mtx_;
     std::mutex ri_mtx_;
     std::mutex bo_mtx_;
@@ -72,7 +97,7 @@ inline void Session::reset()
 
     /* Reset Best-Effor Input streams. */
     std::unique_lock<std::mutex> bi_lock(bi_mtx_);
-    for (auto& it : besteffort_istreams_)
+    for (auto& it : besteffort_in_streams_)
     {
         it.second.reset();
     }
@@ -80,7 +105,7 @@ inline void Session::reset()
 
     /* Reset Reliable Input streams. */
     std::unique_lock<std::mutex> ri_lock(ri_mtx_);
-    for (auto& it : relible_istreams_)
+    for (auto& it : reliable_in_streams_)
     {
         it.second.reset();
     }
@@ -88,7 +113,7 @@ inline void Session::reset()
 
     /* Reset Best-Effor Output streams. */
     std::unique_lock<std::mutex> bo_lock(bo_mtx_);
-    for (auto& it : besteffort_ostreams_)
+    for (auto& it : besteffort_out_streams_)
     {
         it.second.reset();
     }
@@ -96,7 +121,7 @@ inline void Session::reset()
 
     /* Reset Reliable Output streams. */
     std::unique_lock<std::mutex> ro_lock(ro_mtx_);
-    for (auto& it : relible_ostreams_)
+    for (auto& it : reliable_out_streams_)
     {
         it.second.reset();
     }
@@ -118,12 +143,12 @@ inline bool Session::next_input_message(InputMessagePtr& message)
     else if (128 > stream_id)
     {
         std::lock_guard<std::mutex> bi_lock(bi_mtx_);
-        rv = besteffort_istreams_[stream_id].next_message(seq_num);
+        rv = besteffort_in_streams_[stream_id].next_message(seq_num);
     }
     else
     {
         std::lock_guard<std::mutex> ri_lock(ri_mtx_);
-        rv = relible_istreams_[stream_id].next_message(seq_num, message);
+        rv = reliable_in_streams_[stream_id].next_message(seq_num, message);
     }
     return rv;
 }
@@ -134,7 +159,7 @@ inline bool Session::pop_input_message(dds::xrce::StreamId stream_id, InputMessa
     if (127 < stream_id)
     {
         std::lock_guard<std::mutex> ri_lock(ri_mtx_);
-        rv = relible_istreams_[stream_id].pop_message(message);
+        rv = reliable_in_streams_[stream_id].pop_message(message);
     }
     return rv;
 }
@@ -144,14 +169,14 @@ inline void Session::update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum
     if (127 < stream_id)
     {
         std::lock_guard<std::mutex> ri_lock(ri_mtx_);
-        relible_istreams_[stream_id].update_from_heartbeat(first_unacked, last_unacked);
+        reliable_in_streams_[stream_id].update_from_heartbeat(first_unacked, last_unacked);
     }
 }
 
 inline SeqNum Session::get_first_unacked_seq_num(dds::xrce::StreamId stream_id)
 {
     std::lock_guard<std::mutex> ri_lock(ri_mtx_);
-    return relible_istreams_[stream_id].get_first_unacked();
+    return reliable_in_streams_[stream_id].get_first_unacked();
 }
 
 inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId stream_id)
@@ -160,7 +185,7 @@ inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId
     if (127 < stream_id)
     {
         std::lock_guard<std::mutex> ri_lock(ri_mtx_);
-        bitmap = relible_istreams_[stream_id].get_nack_bitmap();
+        bitmap = reliable_in_streams_[stream_id].get_nack_bitmap();
     }
     return bitmap;
 }
@@ -169,13 +194,13 @@ inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMes
 {
     if (127 < stream_id)
     {
-        relible_istreams_[stream_id].push_fragment(message);
+        reliable_in_streams_[stream_id].push_fragment(message);
     }
 }
 
 inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
 {
-    return relible_istreams_[stream_id].pop_fragment_message(message);
+    return reliable_istreams_[stream_id].pop_fragment_message(message);
 }
 
 /**************************************************************************************************
@@ -187,13 +212,13 @@ inline bool Session::push_output_message(dds::xrce::StreamId stream_id, OutputMe
     if (128 > stream_id)
     {
         std::lock_guard<std::mutex> bo_lock(bo_mtx_);
-        besteffort_ostreams_[stream_id].promote_stream();
+        besteffort_out_streams_.at(stream_id).promote_stream();
         rv = true;
     }
     else
     {
         std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        rv = relible_ostreams_[stream_id].push_message(output_message);
+        rv = reliable_out_streams_.at(stream_id).push_message(output_message);
     }
     return rv;
 }
@@ -204,7 +229,7 @@ inline bool Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum se
     if (127 < stream_id)
     {
         std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        rv = relible_ostreams_[stream_id].get_message(seq_num, output_message);
+        rv = reliable_out_streams_.at(stream_id).get_message(seq_num, output_message);
     }
     return rv;
 }
@@ -212,13 +237,13 @@ inline bool Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum se
 inline SeqNum Session::get_first_unacked_seq_nr(const dds::xrce::StreamId stream_id)
 {
     std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-    return (127 < stream_id) ? relible_ostreams_[stream_id].get_first_available() : SeqNum(0);
+    return (127 < stream_id) ? reliable_out_streams_.at(stream_id).get_first_available() : SeqNum(0);
 }
 
 inline SeqNum Session::get_last_unacked_seq_nr(const dds::xrce::StreamId stream_id)
 {
     std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-    return (127 < stream_id) ? relible_ostreams_[stream_id].get_last_available() : SeqNum(0);
+    return (127 < stream_id) ? reliable_out_streams_.at(stream_id).get_last_available() : SeqNum(0);
 }
 
 inline void Session::update_from_acknack(const dds::xrce::StreamId stream_id, const SeqNum first_unacked)
@@ -226,7 +251,7 @@ inline void Session::update_from_acknack(const dds::xrce::StreamId stream_id, co
     if (127 < stream_id)
     {
         std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        relible_ostreams_[stream_id].update_from_acknack(first_unacked);
+        reliable_out_streams_.at(stream_id).update_from_acknack(first_unacked);
     }
 }
 
@@ -236,12 +261,12 @@ inline SeqNum Session::next_output_message(const dds::xrce::StreamId stream_id)
     if (128 > stream_id)
     {
         std::lock_guard<std::mutex> bo_lock(bo_mtx_);
-        rv = besteffort_ostreams_[stream_id].get_last_handled() + 1;
+        rv = besteffort_out_streams_.at(stream_id).get_last_handled() + 1;
     }
     else
     {
         std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        rv = relible_ostreams_[stream_id].next_message();
+        rv = reliable_out_streams_.at(stream_id).next_message();
     }
     return rv;
 }
@@ -250,8 +275,8 @@ inline std::vector<uint8_t> Session::get_output_streams()
 {
     std::lock_guard<std::mutex> ro_lock(ro_mtx_);
     std::vector<uint8_t> result;
-    result.reserve(relible_ostreams_.size());
-    for (auto it = relible_ostreams_.begin(); it != relible_ostreams_.end(); ++it)
+    result.reserve(reliable_out_streams_.size());
+    for (auto it = reliable_out_streams_.begin(); it != reliable_out_streams_.end(); ++it)
     {
         result.push_back(it->first);
     }
@@ -264,9 +289,43 @@ inline bool Session::message_pending(const dds::xrce::StreamId stream_id)
     bool result = false;
     if (127 < stream_id)
     {
-        result = relible_ostreams_[stream_id].message_pending();
+        result = reliable_out_streams_.at(stream_id).message_pending();
     }
     return result;
+}
+
+/* Fragment relate function. */
+template<class T>
+inline void Session::push_output_submessage(dds::xrce::StreamId stream_id,
+                                            dds::xrce::SubmessageId id,
+                                            const T& submessage)
+{
+    if (128 > stream_id)
+    {
+        std::lock_guard<std::mutex> bo_lock(bo_mtx_);
+        besteffort_out_streams_.at(stream_id).push_submessage(id, submessage);
+    }
+    else
+    {
+        std::lock_guard<std::mutex> ro_lock(ro_mtx_);
+        reliable_out_streams_.at(stream_id).push_submessage(id, submessage);
+    }
+}
+
+inline bool Session::get_next_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (128 > stream_id)
+    {
+        std::lock_guard<std::mutex> bo_lock(bo_mtx_);
+        rv = besteffort_out_streams_.at(stream_id).get_next_message(output_message);
+    }
+    else
+    {
+        std::lock_guard<std::mutex> ro_lock(ro_mtx_);
+        rv = reliable_out_streams_.at(stream_id).get_next_message(output_message);
+    }
+    return rv;
 }
 
 } // namespace uxr
