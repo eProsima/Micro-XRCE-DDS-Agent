@@ -91,6 +91,7 @@ inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
+        message_header.sequence_nr(0x0000);
         message_header.client_key(client_key_);
 
         /* Create message. */
@@ -219,10 +220,13 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
 {
     if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
+        last_available_ += 1;
+
         /* Message header. */
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
+        message_header.sequence_nr(last_available_);
         message_header.client_key(client_key_);
 
         /* Create message. */
@@ -230,7 +234,6 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
         output_message->append_submessage(id, submessage);
 
         /* Push message. */
-        last_available_ += 1;
         messages_.insert(std::make_pair(last_available_, std::move(output_message)));
     }
 }
