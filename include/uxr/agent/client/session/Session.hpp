@@ -30,7 +30,7 @@ public:
     Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key)
     {
         /* Create Best-Effort output streams. */
-        for (int i = 1; i <= 127; ++i)
+        for (int i = 0; i <= 127; ++i)
         {
             dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
             besteffort_out_streams_.emplace(std::piecewise_construct,

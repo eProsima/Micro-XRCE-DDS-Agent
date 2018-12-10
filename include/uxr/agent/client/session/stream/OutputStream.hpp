@@ -209,8 +209,9 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 
 inline void ReliableOutputStream::reset()
 {
-    last_acknown_ = ~0;
+    last_available_ = ~0;
     last_sent_ = ~0;
+    last_acknown_ = ~0;
     messages_.clear();
 }
 

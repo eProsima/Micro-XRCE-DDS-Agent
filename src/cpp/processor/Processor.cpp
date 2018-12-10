@@ -236,13 +236,6 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
     dds::xrce::CREATE_Payload create_payload;
     if (input_packet.message->get_payload(create_payload))
     {
-        /* STATUS header. */
-        dds::xrce::MessageHeader status_header;
-        status_header.session_id(input_packet.message->get_header().session_id());
-        status_header.stream_id(0x80);
-        status_header.sequence_nr(client.session().next_output_message(0x80));
-        status_header.client_key(input_packet.message->get_header().client_key());
-
         /* STATUS payload. */
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(create_payload.request_id());
@@ -251,14 +244,13 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
                                             create_payload.object_id(),
                                             create_payload.object_representation()));
 
-        /* Set output packet and Serialize STATUS. */
+        /* Push submessage into the output stream. */
+        client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
+
+        /* Set output packet. */
         OutputPacket output_packet;
         output_packet.destination = input_packet.source;
-        output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
-        output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
-
-        /* Store message. */
-        if (client.session().push_output_message(0x80, output_packet.message))
+        while (client.session().get_next_output_message(0x80, output_packet.message))
         {
             /* Send status. */
             server_->push_output_packet(output_packet);
@@ -273,11 +265,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
     dds::xrce::DELETE_Payload delete_payload;
     if (input_packet.message->get_payload(delete_payload))
     {
-        /* STATUS header. */
-        dds::xrce::MessageHeader status_header;
-        status_header.session_id(input_packet.message->get_header().session_id());
-        status_header.client_key(input_packet.message->get_header().client_key());
-
         /* STATUS payload. */
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(delete_payload.request_id());
@@ -291,10 +278,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         uint16_t stream_id = 0x00;
         if ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
         {
-            /* Set stream and sequence number. */
-            status_header.sequence_nr(0x00);
-            status_header.stream_id(stream_id);
-
             /* Set result status. */
             dds::xrce::ClientKey client_key = client.get_client_key();
             status_payload.result(root_->delete_client(client_key));
@@ -302,26 +285,25 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             {
                 server_->on_delete_client(input_packet.source.get());
             }
+            client.session().push_output_submessage(0x00, dds::xrce::STATUS, status_payload);
+            if (client.session().get_next_output_message(0x00, output_packet.message))
+            {
+                /* Send message. */
+                server_->push_output_packet(output_packet);
+            }
         }
         else
         {
-            /* Set stream and sequence number. */
-            stream_id = 0x80;
-            uint16_t seq_num = client.session().next_output_message(stream_id);
-            status_header.sequence_nr(seq_num);
-            status_header.stream_id(stream_id);
-
             /* Set result status. */
             status_payload.result(client.delete_object(delete_payload.object_id()));
-        }
-        output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
-        output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
-        /* Store message. */
-        if (client.session().push_output_message(stream_id, output_packet.message))
-        {
-            /* Send message. */
-            server_->push_output_packet(output_packet);
+            /* Store message. */
+            client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
+            while (client.session().get_next_output_message(0x80, output_packet.message))
+            {
+                /* Send message. */
+                server_->push_output_packet(output_packet);
+            }
         }
     }
     else
@@ -394,14 +376,6 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
         }
         else
         {
-            /* STATUS header. */
-            uint8_t stream_id = 0x80;
-            dds::xrce::MessageHeader status_header;
-            status_header.session_id(input_packet.message->get_header().session_id());
-            status_header.stream_id(stream_id);
-            status_header.sequence_nr(client.session().next_output_message(stream_id));
-            status_header.client_key(input_packet.message->get_header().client_key());
-
             /* STATUS payload. */
             dds::xrce::STATUS_Payload status_payload;
             status_payload.related_request().request_id(read_payload.request_id());
@@ -409,14 +383,13 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             status_payload.result().implementation_status(0x00);
             status_payload.result().status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
 
-            /* Set output packet and serialize STATUS. */
+            /* Push submessage into the output stream. */
+            client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
+
+            /* Set output packet. */
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
-            output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
-            output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
-
-            /* Store message. */
-            if (client.session().push_output_message(stream_id, output_packet.message))
+            while (client.session().get_next_output_message(0x80, output_packet.message))
             {
                 /* Send message. */
                 server_->push_output_packet(output_packet);
@@ -485,27 +458,23 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
                                                heartbeat_payload.first_unacked_seq_nr(),
                                                heartbeat_payload.last_unacked_seq_nr());
 
-        /* ACKNACK header. */
-        dds::xrce::MessageHeader acknack_header;
-        acknack_header.session_id(input_packet.message->get_header().session_id());
-        acknack_header.stream_id(0x00);
-        acknack_header.sequence_nr(0x00);
-        acknack_header.client_key(input_packet.message->get_header().client_key());
-
         /* ACKNACK payload. */
         dds::xrce::ACKNACK_Payload acknack_payload;
         acknack_payload.first_unacked_seq_num(client.session().get_first_unacked_seq_num(stream_id));
         acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
         acknack_payload.stream_id(stream_id);
 
-        /* Set output packet and serialize ACKNACK. */
+        /* Push submessage into the output stream. */
+        client.session().push_output_submessage(0x00, dds::xrce::ACKNACK, acknack_payload);
+
+        /* Set output packet. */
         OutputPacket output_packet;
         output_packet.destination = input_packet.source;
-        output_packet.message = OutputMessagePtr(new OutputMessage(acknack_header));
-        output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
-
-        /* Send message. */
-        server_->push_output_packet(output_packet);
+        if (client.session().get_next_output_message(0x00, output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
     else
     {
@@ -572,29 +541,22 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
 
-    /* DATA header. */
-    dds::xrce::MessageHeader message_header;
-    message_header.client_key(client->get_client_key());
-    message_header.session_id(client->get_session_id());
-    message_header.stream_id(cb_args.stream_id);
-    message_header.sequence_nr(client->session().next_output_message(cb_args.stream_id));
-
     /* DATA payload. */
-    dds::xrce::DATA_Payload_Data payload;
-    payload.request_id(cb_args.request_id);
-    payload.object_id(cb_args.object_id);
-    payload.data().serialized_data(buffer);
+    dds::xrce::DATA_Payload_Data data_payload;
+    data_payload.request_id(cb_args.request_id);
+    data_payload.object_id(cb_args.object_id);
+    data_payload.data().serialized_data(buffer);
 
     /* Set output packet and serialize DATA. */
     OutputPacket output_packet;
     output_packet.destination = server_->get_source(cb_args.client_key);
     if (output_packet.destination)
     {
-        output_packet.message = OutputMessagePtr(new OutputMessage(message_header));
-        output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
+        /* Push submessage into the output stream. */
+        client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload);
 
-        /* Store message. */
-        if (client->session().push_output_message(cb_args.stream_id, output_packet.message))
+        /* Set output message. */
+        while (client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
         {
             /* Send message. */
             server_->push_output_packet(output_packet);
@@ -630,16 +592,16 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
                 info_variant.agent(agent_info);
                 object_info.activity(info_variant);
 
-                dds::xrce::INFO_Payload payload;
-                payload.related_request().request_id(get_info_payload.request_id());
-                payload.related_request().object_id(get_info_payload.object_id());
-                payload.result(result_status);
-                payload.object_info(object_info);
+                dds::xrce::INFO_Payload info_payload;
+                info_payload.related_request().request_id(get_info_payload.request_id());
+                info_payload.related_request().object_id(get_info_payload.object_id());
+                info_payload.result(result_status);
+                info_payload.object_info(object_info);
 
                 /* Set output packet and serialize INFO. */
                 output_packet.destination = input_packet.source;
                 output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header()));
-                rv = output_packet.message->append_submessage(dds::xrce::INFO, payload);
+                rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
             }
         }
     }
