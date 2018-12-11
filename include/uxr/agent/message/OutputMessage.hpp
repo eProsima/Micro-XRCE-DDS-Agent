@@ -29,15 +29,21 @@ namespace uxr {
 class OutputMessage
 {
 public:
-    OutputMessage(const dds::xrce::MessageHeader& header)
-        : buf_{},
-          fastbuffer_(reinterpret_cast<char*>(buf_.data()), buf_.size()),
+    OutputMessage(const dds::xrce::MessageHeader& header, size_t size)
+        : buf_(new uint8_t[size]),
+          size_(size),
+          fastbuffer_(reinterpret_cast<char*>(buf_), size_),
           serializer_(fastbuffer_)
     {
         serialize(header);
     }
 
-    uint8_t* get_buf() { return buf_.data(); }
+    ~OutputMessage()
+    {
+        delete[] buf_;
+    }
+
+    uint8_t* get_buf() { return buf_; }
     size_t get_len() { return serializer_.getSerializedDataLength(); }
     template<class T>
     bool append_submessage(dds::xrce::SubmessageId submessage_id, const T& data, uint8_t flags = 0x01);
@@ -48,8 +54,8 @@ private:
     template<class T> bool serialize(const T& data);
 
 private:
-    static const size_t mtu_size = max_mtu(max_mtu(TCP_TRANSPORT_MTU, UDP_TRANSPORT_MTU), SERIAL_TRANSPORT_MTU);
-    std::array<uint8_t, mtu_size> buf_;
+    uint8_t* buf_;
+    size_t size_;
     fastcdr::FastBuffer fastbuffer_;
     fastcdr::Cdr serializer_;
 };

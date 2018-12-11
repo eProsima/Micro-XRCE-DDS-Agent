@@ -81,28 +81,19 @@ size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(size_t current_align
     size_t initial_alignment = current_alignment;
             
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
 
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(const dds::xrce::SubmessageHeader& data, size_t current_alignment)
+size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(size_t current_alignment)
 {
-    // TODO.
-    (void) data;
-
     size_t initial_alignment = current_alignment;
             
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
-
 
     return current_alignment - initial_alignment;
 }

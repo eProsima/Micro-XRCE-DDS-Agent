@@ -20,8 +20,10 @@ dds::xrce::MessageHeader generate_message_header()
 
 std::vector<uint8_t> AgentSerialization::create_client_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::CREATE_CLIENT_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
@@ -32,6 +34,19 @@ std::vector<uint8_t> AgentSerialization::create_client_payload()
     payload.client_representation().client_timestamp().nanoseconds() = 0x01234567;
     payload.client_representation().client_key() = {0x89, 0xAB, 0xCD, 0xEF};
     payload.client_representation().session_id() = 0x01;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::CREATE_CLIENT);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::CREATE_CLIENT, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -42,8 +57,10 @@ std::vector<uint8_t> AgentSerialization::create_client_payload()
 
 std::vector<uint8_t> AgentSerialization::create_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::CREATE_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
@@ -51,6 +68,19 @@ std::vector<uint8_t> AgentSerialization::create_payload()
     payload.object_representation().participant().representation()._d() = dds::xrce::REPRESENTATION_BY_REFERENCE;
     payload.object_representation().participant().representation().object_reference() = "ABCDE";
     payload.object_representation().participant().domain_id() = (uint16_t)0x09AB;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::CREATE);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::CREATE, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -61,12 +91,27 @@ std::vector<uint8_t> AgentSerialization::create_payload()
 
 std::vector<uint8_t> AgentSerialization::get_info_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::GET_INFO_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
     payload.info_mask() = (dds::xrce::InfoMask)0x89ABCDEF;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::GET_INFO);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::GET_INFO, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -77,11 +122,26 @@ std::vector<uint8_t> AgentSerialization::get_info_payload()
 
 std::vector<uint8_t> AgentSerialization::delete_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::DELETE_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::DELETE_ID);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::DELETE_ID, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -92,8 +152,10 @@ std::vector<uint8_t> AgentSerialization::delete_payload()
 
 std::vector<uint8_t> AgentSerialization::status_agent_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::STATUS_AGENT_Payload payload;
     payload.related_request().request_id() = {0x01, 0x23};
     payload.related_request().object_id() = {0x45, 0x67};
@@ -104,6 +166,19 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
     time.seconds(0x89ABCDEF);
     time.nanoseconds(0x01234567);
     payload.agent_info().agent_timestamp(time);
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::STATUS_AGENT);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::STATUS_AGENT, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -114,13 +189,28 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
 
 std::vector<uint8_t> AgentSerialization::status_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::STATUS_Payload payload;
     payload.related_request().request_id() = {0x01, 0x23};
     payload.related_request().object_id() = {0x45, 0x67};
     payload.result().implementation_status() = 0x89;
     payload.result().status() = (dds::xrce::StatusValue)0xAB;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::STATUS);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::STATUS, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -131,8 +221,10 @@ std::vector<uint8_t> AgentSerialization::status_payload()
 
 std::vector<uint8_t> AgentSerialization::info_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::TransportAddressMedium medium;
     medium.address() = {0x01, 0x23, 0x45, 0x67};
     medium.port() = 0x0123;
@@ -166,6 +258,19 @@ std::vector<uint8_t> AgentSerialization::info_payload()
     payload.result().status() = (dds::xrce::StatusValue)0xAB;
     payload.object_info().activity(activity);
     payload.object_info().config(config);
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::INFO);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::INFO, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -176,8 +281,10 @@ std::vector<uint8_t> AgentSerialization::info_payload()
 
 std::vector<uint8_t> AgentSerialization::read_data_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::READ_DATA_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
@@ -191,6 +298,19 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
     delivery_control.min_pace_period() = 0xEF01;
     payload.read_specification().delivery_control(delivery_control);
     payload.read_specification().content_filter_expression("ABCDE");
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::READ_DATA);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::READ_DATA, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -201,12 +321,27 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
 
 std::vector<uint8_t> AgentSerialization::write_data_payload_data()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::WRITE_DATA_Payload_Data payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
     payload.data().serialized_data() = {'B', 'Y', 'T', 'E', 'S'};
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::WRITE_DATA);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::WRITE_DATA, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -241,12 +376,27 @@ std::vector<uint8_t> AgentSerialization::write_data_payload_packed_samples()
 
 std::vector<uint8_t> AgentSerialization::data_payload_data()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::DATA_Payload_Data payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
     payload.data().serialized_data() = {'B', 'Y', 'T', 'E', 'S'};
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::DATA);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::DATA, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -281,12 +431,27 @@ std::vector<uint8_t> AgentSerialization::data_payload_packed_samples()
 
 std::vector<uint8_t> AgentSerialization::acknack_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::ACKNACK_Payload payload;
     payload.first_unacked_seq_num() = (uint16_t)0x0123;
     payload.nack_bitmap() = {0x45, 0x67};
     payload.stream_id() = (uint8_t)0x89;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::ACKNACK);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::ACKNACK, payload, 0x0001);
 
     std::vector<uint8_t> buffer;
@@ -297,12 +462,27 @@ std::vector<uint8_t> AgentSerialization::acknack_payload()
 
 std::vector<uint8_t> AgentSerialization::heartbeat_payload()
 {
-    eprosima::uxr::OutputMessage output(generate_message_header());
+    /* Header. */
+    dds::xrce::MessageHeader header = generate_message_header();
 
+    /* Payload. */
     dds::xrce::HEARTBEAT_Payload payload;
     payload.first_unacked_seq_nr() = (uint16_t)0x0123;
     payload.last_unacked_seq_nr() = (uint16_t)0x4567;
     payload.stream_id() = (uint8_t)0x89;
+
+    /* Subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::HEARTBEAT);
+    subheader.flags(0x01);
+    subheader.submessage_length(uint16_t(payload.getCdrSerializedSize()));
+
+    /* Message size. */
+    size_t message_size = header.getCdrSerializedSize() +
+                          subheader.getCdrSerializedSize() +
+                          payload.getCdrSerializedSize();
+
+    eprosima::uxr::OutputMessage output(header, message_size);
     output.append_submessage(dds::xrce::HEARTBEAT, payload, 0x0001);
 
     std::vector<uint8_t> buffer;

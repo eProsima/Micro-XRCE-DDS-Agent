@@ -32,10 +32,12 @@ class BestEffortOutputStream
 public:
     BestEffortOutputStream(dds::xrce::SessionId session_id,
                            dds::xrce::StreamId stream_id,
-                           const dds::xrce::ClientKey& client_key)
+                           const dds::xrce::ClientKey& client_key,
+                           size_t mtu)
         : session_id_(session_id),
           stream_id_(stream_id),
           client_key_(client_key),
+          mtu_(mtu),
           last_send_(~0)
     {}
 
@@ -54,6 +56,7 @@ private:
     dds::xrce::SessionId session_id_;
     dds::xrce::StreamId stream_id_;
     dds::xrce::ClientKey client_key_;
+    size_t mtu_;
     SeqNum last_send_;
     std::queue<OutputMessagePtr> messages_;
 };
@@ -95,7 +98,7 @@ inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
         message_header.client_key(client_key_);
 
         /* Create message. */
-        OutputMessagePtr output_message(new OutputMessage(message_header));
+        OutputMessagePtr output_message(new OutputMessage(message_header, mtu_));
         output_message->append_submessage(id, submessage);
 
         /* Push message. */
@@ -122,10 +125,12 @@ class ReliableOutputStream
 public:
     ReliableOutputStream(dds::xrce::SessionId session_id,
                          dds::xrce::StreamId stream_id,
-                         const dds::xrce::ClientKey& client_key)
+                         const dds::xrce::ClientKey& client_key,
+                         size_t mtu)
         : session_id_(session_id),
           stream_id_(stream_id),
           client_key_(client_key),
+          mtu_(mtu),
           last_available_(~0),
           last_sent_(~0),
           last_acknown_(~0)
@@ -145,7 +150,7 @@ public:
     bool message_pending() { return !messages_.empty(); }
     void reset();
 
-    /* Fragment related function. */
+    /* Fragment related functions. */
     template<class T>
     void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
@@ -154,6 +159,7 @@ private:
     dds::xrce::SessionId session_id_;
     dds::xrce::StreamId stream_id_;
     dds::xrce::ClientKey client_key_;
+    size_t mtu_;
     SeqNum last_available_;
     SeqNum last_sent_;
     SeqNum last_acknown_;
@@ -215,7 +221,7 @@ inline void ReliableOutputStream::reset()
     messages_.clear();
 }
 
-/* Fragment related function. */
+/* Fragment related functions. */
 template<class T>
 inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
@@ -230,8 +236,39 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
         message_header.sequence_nr(last_available_);
         message_header.client_key(client_key_);
 
+        /* Submessage header. */
+        dds::xrce::SubmessageHeader submessage_header;
+        submessage_header.submessage_id(id);
+        submessage_header.flags(0x01);
+        submessage_header.submessage_length(uint16_t(submessage.getCdrSerializedSize()));
+
+        /* Compute message size. */
+        const size_t header_size = message_header.getCdrSerializedSize();
+        const size_t submessage_size = submessage_header.getCdrSerializedSize() +
+                                       submessage.getCdrSerializedSize();
+
+        /* Push submessage. */
+        if ((header_size + submessage_size) <= mtu_)
+        {
+            /* Create message. */
+            OutputMessagePtr output_message(new OutputMessage(message_header, header_size + submessage_size));
+            output_message->append_submessage(id, submessage);
+
+            /* Push message. */
+            messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+        }
+        else
+        {
+            /* Serialize submessage. */
+            std::unique_ptr<uint8_t> buf(new uint8_t[submessage_size]);
+            fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(buf.get()), submessage_size);
+            fastcdr::Cdr serializer(fastbuffer);
+            submessage_header.serialize(serializer);
+            submessage.serialize(serializer);
+        }
+
         /* Create message. */
-        OutputMessagePtr output_message(new OutputMessage(message_header));
+        OutputMessagePtr output_message(new OutputMessage(message_header, mtu_));
         output_message->append_submessage(id, submessage);
 
         /* Push message. */

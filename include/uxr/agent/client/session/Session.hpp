@@ -27,7 +27,7 @@ namespace uxr {
 class Session
 {
 public:
-    Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key)
+    Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key, size_t mtu)
     {
         /* Create Best-Effort output streams. */
         for (int i = 0; i <= 127; ++i)
@@ -35,7 +35,7 @@ public:
             dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
             besteffort_out_streams_.emplace(std::piecewise_construct,
                                             std::forward_as_tuple(dds::xrce::StreamId(i)),
-                                            std::forward_as_tuple(session_id, stream_id, client_key));
+                                            std::forward_as_tuple(session_id, stream_id, client_key, mtu));
         }
 
         /* Create Relaible output streams. */
@@ -44,7 +44,7 @@ public:
             dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
             reliable_out_streams_.emplace(std::piecewise_construct,
                                           std::forward_as_tuple(dds::xrce::StreamId(i)),
-                                          std::forward_as_tuple(session_id, stream_id, client_key));
+                                          std::forward_as_tuple(session_id, stream_id, client_key, mtu));
         }
     }
 

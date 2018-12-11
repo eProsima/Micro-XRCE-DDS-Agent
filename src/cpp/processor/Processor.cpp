@@ -86,10 +86,21 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
                 acknack_payload.stream_id(header.stream_id());
 
+                /* ACKNACK subheader. */
+                dds::xrce::SubmessageHeader acknack_subheader;
+                acknack_subheader.submessage_id(dds::xrce::ACKNACK);
+                acknack_subheader.flags(0x01);
+                acknack_subheader.submessage_length(uint16_t(acknack_payload.getCdrSerializedSize()));
+
+                /* Compute message size. */
+                const size_t message_size = acknack_header.getCdrSerializedSize() +
+                                            acknack_subheader.getCdrSerializedSize() +
+                                            acknack_payload.getCdrSerializedSize();
+
                 /* Set output packet and serialize ACKNACK. */
                 OutputPacket output_packet;
                 output_packet.destination = input_packet.source;
-                output_packet.message.reset(new OutputMessage(acknack_header));
+                output_packet.message.reset(new OutputMessage(acknack_header, message_size));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 
                 /* Send message. */
@@ -188,8 +199,8 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
         if (rv)
         {
             /* STATUS_AGENT header. */
-            dds::xrce::MessageHeader output_header = input_packet.message->get_header();
-            output_header.session_id(client_payload.client_representation().session_id());
+            dds::xrce::MessageHeader status_header = input_packet.message->get_header();
+            status_header.session_id(client_payload.client_representation().session_id());
 
             /* STATUS_AGENT payload. */
             dds::xrce::STATUS_AGENT_Payload status_payload;
@@ -208,10 +219,21 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             status_payload.result(result);
             status_payload.agent_info(agent_representation);
 
+            /* STATUS_AGENT subheader. */
+            dds::xrce::SubmessageHeader status_subheader;
+            status_subheader.submessage_id(dds::xrce::STATUS_AGENT);
+            status_subheader.flags(0x01);
+            status_subheader.submessage_length(uint16_t(status_payload.getCdrSerializedSize()));
+
+            /* Compute message size. */
+            const size_t message_size = status_header.getCdrSerializedSize() +
+                                        status_subheader.getCdrSerializedSize() +
+                                        status_payload.getCdrSerializedSize();
+
             /* Set output packet and serialize STATUS_AGENT. */
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
-            output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(output_header));
+            output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(status_header, message_size));
             output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_payload);
 
             /* Send message. */
@@ -592,15 +614,28 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
                 info_variant.agent(agent_info);
                 object_info.activity(info_variant);
 
+                /* INFO payload. */
                 dds::xrce::INFO_Payload info_payload;
                 info_payload.related_request().request_id(get_info_payload.request_id());
                 info_payload.related_request().object_id(get_info_payload.object_id());
                 info_payload.result(result_status);
                 info_payload.object_info(object_info);
 
+                /* INFO subheader. */
+                dds::xrce::SubmessageHeader info_subheader;
+                info_subheader.submessage_id(dds::xrce::INFO);
+                info_subheader.flags(0x01);
+                info_subheader.submessage_length(uint16_t(info_payload.getCdrSerializedSize()));
+
+                /* Compute message size. */
+                const size_t message_size = input_packet.message->get_header().getCdrSerializedSize() +
+                                            info_subheader.getCdrSerializedSize() +
+                                            info_payload.getCdrSerializedSize();
+
                 /* Set output packet and serialize INFO. */
                 output_packet.destination = input_packet.source;
-                output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header()));
+                output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header(),
+                                                                           message_size));
                 rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
             }
         }
@@ -621,25 +656,36 @@ void Processor::check_heartbeats()
             /* Get and send pending messages. */
             if (client->session().message_pending(stream))
             {
-                /* Heartbeat message header. */
+                /* HEARTBEAT header. */
                 dds::xrce::MessageHeader heartbeat_header;
                 heartbeat_header.session_id(client->get_session_id());
                 heartbeat_header.stream_id(0x00);
                 heartbeat_header.sequence_nr(0x00);
                 heartbeat_header.client_key(client->get_client_key());
 
-                /* Heartbeat message payload. */
+                /* HEARTBEAT payload. */
                 dds::xrce::HEARTBEAT_Payload heartbeat_payload;
                 heartbeat_payload.first_unacked_seq_nr(client->session().get_first_unacked_seq_nr(stream));
                 heartbeat_payload.last_unacked_seq_nr(client->session().get_last_unacked_seq_nr(stream));
                 heartbeat_payload.stream_id(stream);
+
+                /* HEARTBEAT subheader. */
+                dds::xrce::SubmessageHeader heartbeat_subheader;
+                heartbeat_subheader.submessage_id(dds::xrce::HEARTBEAT);
+                heartbeat_subheader.flags(0x01);
+                heartbeat_subheader.submessage_length(uint16_t(heartbeat_payload.getCdrSerializedSize()));
+
+                /* Compute message size. */
+                const size_t message_size = heartbeat_header.getCdrSerializedSize() +
+                                            heartbeat_subheader.getCdrSerializedSize() +
+                                            heartbeat_payload.getCdrSerializedSize();
 
                 /* Set output packet and serialize HEARTBEAT. */
                 OutputPacket output_packet;
                 output_packet.destination = server_->get_source(client->get_client_key());
                 if (output_packet.destination)
                 {
-                    output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header));
+                    output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header, message_size));
                     output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
 
                     /* Send message. */

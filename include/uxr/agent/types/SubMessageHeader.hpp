@@ -181,8 +181,7 @@ class SubmessageHeader
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    static size_t getCdrSerializedSize(const dds::xrce::SubmessageHeader &data,
-                                                               size_t current_alignment = 0);
+    size_t getCdrSerializedSize(size_t current_alignment = 0);
 
     /*!
      * @brief This function serializes an object using CDR serialization.
