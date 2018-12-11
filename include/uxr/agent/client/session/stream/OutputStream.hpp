@@ -244,8 +244,8 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
 
         /* Compute message size. */
         const size_t header_size = message_header.getCdrSerializedSize();
-        const size_t submessage_size = submessage_header.getCdrSerializedSize() +
-                                       submessage.getCdrSerializedSize();
+        const size_t subheader_size = submessage_header.getCdrSerializedSize();
+        const size_t submessage_size = subheader_size + submessage.getCdrSerializedSize();
 
         /* Push submessage. */
         if ((header_size + submessage_size) <= mtu_)
@@ -265,14 +265,35 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
             fastcdr::Cdr serializer(fastbuffer);
             submessage_header.serialize(serializer);
             submessage.serialize(serializer);
+
+            const size_t max_fragment_size = mtu_ - header_size - subheader_size;
+            dds::xrce::SubmessageHeader fragment_subheader;
+            fragment_subheader.submessage_id(dds::xrce::FRAGMENT);
+            fragment_subheader.flags(0x01);
+            fragment_subheader.submessage_length(uint16_t(max_fragment_size));
+
+            uint16_t serialized_size = 0;
+            while (serialized_size < submessage_size)
+            {
+                uint16_t fragment_size;
+                if (mtu_ < (header_size + subheader_size + (submessage_size - serialized_size)))
+                {
+                    fragment_size = uint16_t(max_fragment_size);
+                }
+                else
+                {
+                    fragment_size = uint16_t(submessage_size - serialized_size);
+                    fragment_subheader.flags(0x01 | dds::xrce::FLAG_LAST_FRAGMENT);
+                }
+                fragment_subheader.submessage_length(fragment_size);
+
+                const size_t current_message_size = header_size + subheader_size + fragment_size;
+                OutputMessagePtr output_message(new OutputMessage(message_header, current_message_size));
+                output_message->append_fragment(fragment_subheader,  buf.get() + serialized_size, fragment_size);
+                messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+                serialized_size += fragment_size;
+            }
         }
-
-        /* Create message. */
-        OutputMessagePtr output_message(new OutputMessage(message_header, mtu_));
-        output_message->append_submessage(id, submessage);
-
-        /* Push message. */
-        messages_.insert(std::make_pair(last_available_, std::move(output_message)));
     }
 }
 

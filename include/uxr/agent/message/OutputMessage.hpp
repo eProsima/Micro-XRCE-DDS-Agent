@@ -48,6 +48,7 @@ public:
     template<class T>
     bool append_submessage(dds::xrce::SubmessageId submessage_id, const T& data, uint8_t flags = 0x01);
     bool append_raw_payload(dds::xrce::SubmessageId submessage_id, const uint8_t* buf, size_t len, uint8_t flags = 0x01);
+    bool append_fragment(const dds::xrce::SubmessageHeader& subheader, uint8_t* buf, size_t len);
 
 private:
     bool append_subheader(dds::xrce::SubmessageId submessage_id, uint8_t flags, size_t submessage_len);
@@ -93,6 +94,26 @@ inline bool OutputMessage::append_raw_payload(dds::xrce::SubmessageId submessage
     {
         rv = false;
     }
+
+inline bool OutputMessage::append_fragment(const dds::xrce::SubmessageHeader& subheader, uint8_t* buf, size_t len)
+{
+    bool rv = false;
+
+    serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
+    if (serialize(subheader))
+    {
+        try
+        {
+            rv = true;
+            serializer_.serializeArray(buf, len);
+        }
+        catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
+        {
+            std::cerr << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+            rv = false;
+        }
+    }
+
     return rv;
 }
 
