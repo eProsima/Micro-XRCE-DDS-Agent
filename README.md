@@ -29,7 +29,7 @@ You can access *Micro XRCE-DDS* documentation online, which is hosted on Read th
 
 ## Dockerfile
 
-There is a *Micro XRCE-DDS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micrortps/).
+There is a *Micro XRCE-DDS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
 ## Getting Help
 
