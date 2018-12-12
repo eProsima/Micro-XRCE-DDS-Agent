@@ -41,7 +41,7 @@ private:
 
 private:
     struct pollfd poll_fd_;
-    uint8_t buffer_[SERIAL_TRANSPORT_MTU];
+    uint8_t buffer_[UINT16_MAX];
     uxrSerialIO serial_io_;
     int errno_;
 };

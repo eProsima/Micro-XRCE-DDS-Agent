@@ -29,7 +29,7 @@ namespace uxr {
 ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
     : representation_(representation),
       objects_(),
-      session_()
+      session_(representation.session_id(), representation.client_key(), representation.mtu())
 {
 }
 
