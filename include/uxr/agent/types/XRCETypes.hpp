@@ -1374,6 +1374,33 @@ public:
     }
 
     /*!
+     * @brief This function sets a value in member mtu
+     * @param _mtu New value for member mtu
+     */
+    inline void mtu(uint16_t _mtu)
+    {
+        m_mtu = _mtu;
+    }
+
+    /*!
+     * @brief This function returns the value of member mtu
+     * @return Value of member mtu
+     */
+    inline uint16_t mtu() const
+    {
+        return m_mtu;
+    }
+
+    /*!
+     * @brief This function returns a reference to member mtu
+     * @return Reference to member mtu
+     */
+    inline uint16_t& mtu()
+    {
+        return m_mtu;
+    }
+
+    /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
@@ -1409,6 +1436,7 @@ private:
     ClientKey m_client_key;
     SessionId m_session_id;
     eprosima::Optional<PropertySeq> m_properties;
+    uint16_t m_mtu;
 };
 
 /*!
