@@ -200,7 +200,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             /* Create client. */
             dds::xrce::AGENT_Representation agent_representation;
             dds::xrce::ResultStatus result = root_->create_client(client_payload.client_representation(),
-                                                                 agent_representation);
+                                                                  agent_representation);
             if (dds::xrce::STATUS_OK == result.status())
             {
                 server_->on_create_client(input_packet.source.get(),

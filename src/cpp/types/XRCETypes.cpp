@@ -945,6 +945,8 @@ dds::xrce::CLIENT_Representation::CLIENT_Representation(const CLIENT_Representat
     m_client_timestamp = x.m_client_timestamp;
     m_client_key = x.m_client_key;
     m_session_id = x.m_session_id;
+    m_properties = x.m_properties;
+    m_mtu = x.m_mtu;
 }
 
 dds::xrce::CLIENT_Representation::CLIENT_Representation(CLIENT_Representation &&x)
@@ -955,6 +957,8 @@ dds::xrce::CLIENT_Representation::CLIENT_Representation(CLIENT_Representation &&
     m_client_timestamp = std::move(x.m_client_timestamp);
     m_client_key = std::move(x.m_client_key);
     m_session_id = x.m_session_id;
+    m_properties = std::move(x.m_properties);
+    m_mtu = x.m_mtu;
 }
 
 dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(const CLIENT_Representation &x)
@@ -965,6 +969,8 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(co
     m_client_timestamp = x.m_client_timestamp;
     m_client_key = x.m_client_key;
     m_session_id = x.m_session_id;
+    m_properties = x.m_properties;
+    m_mtu = x.m_mtu;
     
     return *this;
 }
@@ -977,6 +983,8 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(CL
     m_client_timestamp = std::move(x.m_client_timestamp);
     m_client_key = std::move(x.m_client_key);
     m_session_id = x.m_session_id;
+    m_properties = std::move(x.m_properties);
+    m_mtu = x.m_mtu;
     
     return *this;
 }
@@ -992,6 +1000,7 @@ size_t dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(size_t current_
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -1017,6 +1026,8 @@ size_t dds::xrce::CLIENT_Representation::getCdrSerializedSize(size_t current_ali
         }
     }
 
+    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
     return current_alignment - initial_alignment;
 }
 
@@ -1033,6 +1044,7 @@ void dds::xrce::CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) c
     {
         scdr << (*m_properties);
     }
+    scdr << m_mtu;
 }
 
 void dds::xrce::CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -1051,6 +1063,7 @@ void dds::xrce::CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
         dcdr >> temp_properties;
         m_properties = temp_properties;
     }
+    dcdr >> m_mtu;
 }
 
 dds::xrce::AGENT_Representation::AGENT_Representation()

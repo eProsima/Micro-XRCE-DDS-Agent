@@ -66,7 +66,6 @@ private:
     std::mutex mtx_;
     ObjectContainer objects_;
     Session session_;
-
 };
 
 } // namespace uxr

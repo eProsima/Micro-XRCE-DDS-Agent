@@ -17,7 +17,6 @@
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
-#include <uxr/agent/config.hpp>
 
 #include <winsock2.h>
 #include <cstdint>
@@ -41,7 +40,7 @@ private:
 
 private:
     WSAPOLLFD poll_fd_;
-    uint8_t buffer_[UDP_TRANSPORT_MTU];
+    uint8_t buffer_[UINT16_MAX];
 };
 
 } // namespace uxr

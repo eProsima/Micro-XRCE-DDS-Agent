@@ -18,7 +18,6 @@
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#include <uxr/agent/config.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -43,7 +42,7 @@ private:
 
 private:
     struct pollfd poll_fd_;
-    uint8_t buffer_[UDP_TRANSPORT_MTU];
+    uint8_t buffer_[UINT16_MAX];
     DiscoveryServer discovery_server_;
 };
 
