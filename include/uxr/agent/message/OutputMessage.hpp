@@ -79,7 +79,7 @@ inline bool OutputMessage::append_raw_payload(dds::xrce::SubmessageId submessage
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
         {
-            std::cout << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+            std::cerr << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
             rv = false;
         }
     }
@@ -111,7 +111,7 @@ inline bool OutputMessage::serialize(const T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        std::cout << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+        std::cerr << "serialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         rv = false;
     }
     return rv;

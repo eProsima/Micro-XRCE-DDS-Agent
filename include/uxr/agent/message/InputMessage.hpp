@@ -88,7 +88,7 @@ template<class T> inline bool InputMessage::get_payload(T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        std::cout << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+        std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         rv = false;
     }
     return rv;
@@ -107,8 +107,16 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
     bool rv = false;
     if (subheader_.submessage_length() <= len)
     {
-        deserializer_.deserializeArray(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
         rv = true;
+        try
+        {
+            deserializer_.deserializeArray(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
+        }
+        catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+        {
+            std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+            rv = false;
+        }
     }
     return rv;
 }
@@ -127,7 +135,7 @@ template<class T> inline bool InputMessage::deserialize(T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        std::cout << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+        std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
         rv = false;
     }
     return rv;

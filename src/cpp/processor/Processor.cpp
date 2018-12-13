@@ -150,11 +150,9 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             // TODO (julian): implement fragment functionality.
             rv = false;
             break;
-#ifdef PERFORMANCE_TESTING
         case dds::xrce::PERFORMANCE:
             rv = process_performance_submessage(client, input_packet);
             break;
-#endif
         default:
             rv = false;
             break;
@@ -305,7 +303,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             {
                 server_->on_delete_client(input_packet.source.get());
             }
-            output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         }
         else
         {
@@ -317,10 +314,8 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
 
             /* Set result status. */
             status_payload.result(client.delete_object(delete_payload.object_id()));
-
-            /* Store message. */
-            output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         }
+        output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
         /* Store message. */
@@ -527,7 +522,6 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
     return true;
 }
 
-#ifdef PERFORMANCE_TESTING
 bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
 {
     /* Set output packet. */
@@ -535,7 +529,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
     output_packet.destination = input_packet.source;
 
     /* Get epoch time and array. */
-    uint8_t buf[65536];
+    uint8_t buf[UINT16_MAX];
     uint16_t submessage_len = input_packet.message->get_subheader().submessage_length();
     input_packet.message->get_raw_payload(buf, size_t(submessage_len));
 
@@ -560,7 +554,6 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
     }
     return true;
 }
-#endif
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {

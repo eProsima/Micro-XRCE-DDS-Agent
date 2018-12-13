@@ -10394,11 +10394,8 @@ enum SubmessageId : uint8_t
     ACKNACK         = 10,
     HEARTBEAT       = 11,
     RESET           = 12,
-    FRAGMENT        = 13
-#ifdef PERFORMANCE_TESTING
-    ,
+    FRAGMENT        = 13,
     PERFORMANCE     = 14
-#endif
 };
 
 } } // namespace 

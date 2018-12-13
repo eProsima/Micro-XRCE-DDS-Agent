@@ -194,7 +194,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
             while (!payload_sent && n_attemps < max_attemps);
         }
 
-        if (size_sent && payload_sent)
+        if (payload_sent)
         {
             rv = true;
         }
