@@ -52,6 +52,7 @@ public:
     const dds::xrce::MessageHeader& get_header() const { return header_; }
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }
     template<class T> bool get_payload(T& data);
+    uint8_t get_raw_header(std::array<uint8_t, 8>& buf);
     bool get_raw_payload(uint8_t* buf, size_t len);
     bool jump_payload();
     bool prepare_next_submessage();
@@ -101,6 +102,22 @@ template bool InputMessage::get_payload(dds::xrce::READ_DATA_Payload& data);
 template bool InputMessage::get_payload(dds::xrce::WRITE_DATA_Payload_Data& data);
 template bool InputMessage::get_payload(dds::xrce::HEARTBEAT_Payload& data);
 template bool InputMessage::get_payload(dds::xrce::ACKNACK_Payload& data);
+
+inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
+{
+    uint8_t rv;
+    if (128 > header_.session_id())
+    {
+        memcpy(buf.data(), buf_, 8);
+        rv = 8;
+    }
+    else
+    {
+        memcpy(buf.data(), buf_, 4);
+        rv = 4;
+    }
+    return rv;
+}
 
 inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
 {

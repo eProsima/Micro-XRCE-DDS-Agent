@@ -54,7 +54,12 @@ inline bool BestEffortInputStream::next_message(SeqNum seq_num)
 class ReliableInputStream
 {
 public:
-    ReliableInputStream() : last_handled_(~0), last_announced_(~0) {}
+    ReliableInputStream()
+        : last_handled_(~0),
+          last_announced_(~0),
+          fragment_msg_{},
+          fragment_message_available_(false)
+    {}
 
     ReliableInputStream(const ReliableInputStream&) = delete;
     ReliableInputStream& operator=(const ReliableInputStream) = delete;
@@ -67,11 +72,15 @@ public:
     SeqNum get_first_unacked() const;
     std::array<uint8_t, 2> get_nack_bitmap();
     void reset();
+    void push_fragment(InputMessagePtr& message);
+    bool pop_fragment_message(InputMessagePtr& message);
 
 private:
     SeqNum last_handled_;
     SeqNum last_announced_;
     std::map<uint16_t, InputMessagePtr> messages_;
+    std::vector<uint8_t> fragment_msg_;
+    bool fragment_message_available_;
 };
 
 inline ReliableInputStream::ReliableInputStream(ReliableInputStream&& x)
@@ -112,7 +121,6 @@ inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& m
                 if (it == messages_.end())
                 {
                     messages_.insert(std::make_pair(seq_num, std::move(message)));
-
                 }
             }
         }
@@ -181,6 +189,39 @@ inline void ReliableInputStream::reset()
     last_handled_ = ~0;
     last_announced_ = ~0;
     messages_.clear();
+}
+
+inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
+{
+    /* Add header in case. */
+    if (fragment_msg_.empty())
+    {
+        std::array<uint8_t, 8> raw_header;
+        uint8_t header_size = message->get_raw_header(raw_header);
+        fragment_msg_.insert(fragment_msg_.begin(), std::begin(raw_header), std::begin(raw_header) + header_size);
+    }
+
+    /* Append fragment. */
+    size_t position = fragment_msg_.size();
+    size_t fragment_size = message->get_subheader().submessage_length();
+    fragment_msg_.resize(position + fragment_size);
+    message->get_raw_payload(fragment_msg_.data() + position, fragment_size);
+
+    /* Check if last message. */
+    fragment_message_available_ = (0 != (dds::xrce::FLAG_LAST_FRAGMENT & message->get_subheader().flags()));
+}
+
+inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
+{
+    bool rv = false;
+    if (fragment_message_available_)
+    {
+        message.reset(new InputMessage(fragment_msg_.data(), fragment_msg_.size()));
+        fragment_msg_.clear();
+        fragment_message_available_ = false;
+        return true;
+    }
+    return rv;
 }
 
 } // namespace uxr

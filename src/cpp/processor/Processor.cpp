@@ -68,7 +68,6 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                     process_input_message(*client, input_packet);
                     client = root_->get_client(client_key);
                 }
-
             }
 
             /* Send acknack in case. */
@@ -115,7 +114,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
-    std::lock_guard<std::mutex> lock(mtx_);
+    mtx_.lock();
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -147,8 +146,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = process_reset_submessage(client, input_packet);
             break;
         case dds::xrce::FRAGMENT:
-            // TODO (julian): implement fragment functionality.
-            rv = false;
+            rv = process_fragment_submessage(client, input_packet);
             break;
         case dds::xrce::PERFORMANCE:
             rv = process_performance_submessage(client, input_packet);
@@ -157,6 +155,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = false;
             break;
     }
+    mtx_.unlock();
     return rv;
 }
 
@@ -522,6 +521,19 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
     return true;
 }
 
+bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
+    client.session().push_input_fragment(stream_id, input_packet.message);
+    InputPacket fragment_packet;
+    if (client.session().pop_input_fragment_message(stream_id, fragment_packet.message))
+    {
+        fragment_packet.source = input_packet.source;
+        process_input_message(client, fragment_packet);
+    }
+    return true;
+}
+
 bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
 {
     /* Set output packet. */
@@ -557,7 +569,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
+    mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
 
     /* DATA header. */
@@ -588,6 +600,7 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
             server_->push_output_packet(output_packet);
         }
     }
+    mtx_.unlock();
 }
 
 bool Processor::process_get_info_packet(InputPacket&& input_packet,
