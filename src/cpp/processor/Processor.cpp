@@ -297,7 +297,6 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         output_packet.destination = input_packet.source;
 
         /* Delete object. */
-        uint16_t stream_id = 0x00;
         if ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
         {
             /* Set result status. */
@@ -546,8 +545,18 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
         output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
         output_header.client_key(input_packet.message->get_header().client_key());
 
+        /* PERFORMANCE subheader. */
+        dds::xrce::SubmessageHeader performance_subheader;
+        performance_subheader.submessage_id(dds::xrce::PERFORMANCE);
+        performance_subheader.flags(0x01);
+        performance_subheader.submessage_length(submessage_len);
+
+        const size_t message_size = output_header.getCdrSerializedSize() +
+                                    performance_subheader.getCdrSerializedSize() +
+                                    submessage_len;
+
         /* Generate output packect. */
-        output_packet.message = OutputMessagePtr(new OutputMessage(output_header));
+        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, sizeof(message_size)));
         output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
         if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
         {

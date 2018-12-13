@@ -200,7 +200,7 @@ inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMes
 
 inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
 {
-    return reliable_istreams_[stream_id].pop_fragment_message(message);
+    return reliable_in_streams_[stream_id].pop_fragment_message(message);
 }
 
 /**************************************************************************************************
