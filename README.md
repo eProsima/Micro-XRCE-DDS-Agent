@@ -1,5 +1,12 @@
 # Micro XRCE-DDS Agent
 
+[![Releases](https://img.shields.io/github/release/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/releases)
+[![License](https://img.shields.io/github/license/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/blob/master/LICENSE)
+[![Issues](https://img.shields.io/github/issues/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/issues)
+[![Forks](https://img.shields.io/github/forks/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/network/members)
+[![Stars](https://img.shields.io/github/stars/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/stargazers)
+
+
 <a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
 
 *Micro XRCE-DDS Agent* acts as a server between DDS Network and *Micro XRCE-DDS Clients*.
@@ -22,7 +29,7 @@ You can access *Micro XRCE-DDS* documentation online, which is hosted on Read th
 
 ## Dockerfile
 
-There is a *Micro XRCE-DDS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micrortps/).
+There is a *Micro XRCE-DDS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
 ## Getting Help
 
