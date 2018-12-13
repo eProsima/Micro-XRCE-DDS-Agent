@@ -53,9 +53,6 @@ option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
 option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(VERBOSE "Use verbose output" OFF)
 option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    option(PERFORMANCE_TESTS "Performance testing." OFF)
-endif()
 
 if(EPROSIMA_INSTALLER)
     set(THIRDPARTY ON)
@@ -64,10 +61,6 @@ endif()
 if(EPROSIMA_BUILD)
     set(THIRDPARTY ON)
     set(EPROSIMA_BUILD_TESTS ON)
-endif()
-
-if(EPROSIMA_BUILD_TESTS)
-    set(PERFORMANCE_TESTS ON)
 endif()
 
 ###############################################################################
