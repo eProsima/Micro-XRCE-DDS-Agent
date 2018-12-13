@@ -39,6 +39,7 @@ enum SubmessageHeaderFlags : uint8_t
     FLAG_REUSE = 0x01 << 1,
     FLAG_REPLACE = 0x01 << 2,
     FLAG_LAST_FRAGMENT = 0x01 << 1,
+    FLAG_ECHO = 0x01 << 7,
     FORMAT_DATA_FLAG = 0x00,
     FORMAT_SAMPLE_FLAG = 0x02,
     FORMAT_DATA_SEQ_FLAG = 0x08,

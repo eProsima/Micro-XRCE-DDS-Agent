@@ -150,6 +150,9 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             // TODO (julian): implement fragment functionality.
             rv = false;
             break;
+        case dds::xrce::PERFORMANCE:
+            rv = process_performance_submessage(client, input_packet);
+            break;
         default:
             rv = false;
             break;
@@ -256,10 +259,11 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
         /* Store message. */
-        client.session().push_output_message(0x80, output_packet.message);
-
-        /* Send status. */
-        server_->push_output_packet(output_packet);
+        if (client.session().push_output_message(0x80, output_packet.message))
+        {
+            /* Send status. */
+            server_->push_output_packet(output_packet);
+        }
     }
     return rv;
 }
@@ -285,11 +289,12 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         output_packet.destination = input_packet.source;
 
         /* Delete object. */
+        uint16_t stream_id = 0x00;
         if ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT)
         {
             /* Set stream and sequence number. */
             status_header.sequence_nr(0x00);
-            status_header.stream_id(0x00);
+            status_header.stream_id(stream_id);
 
             /* Set result status. */
             dds::xrce::ClientKey client_key = client.get_client_key();
@@ -298,27 +303,27 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             {
                 server_->on_delete_client(input_packet.source.get());
             }
-            output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         }
         else
         {
             /* Set stream and sequence number. */
-            uint8_t stream_id = 0x80;
+            stream_id = 0x80;
             uint16_t seq_num = client.session().next_output_message(stream_id);
             status_header.sequence_nr(seq_num);
             status_header.stream_id(stream_id);
 
             /* Set result status. */
             status_payload.result(client.delete_object(delete_payload.object_id()));
-
-            /* Store message. */
-            output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
-            client.session().push_output_message(stream_id, output_packet.message);
         }
+        output_packet.message = OutputMessagePtr(new OutputMessage(status_header));
         output_packet.message->append_submessage(dds::xrce::STATUS, status_payload, 0);
 
-        /* Send message. */
-        server_->push_output_packet(output_packet);
+        /* Store message. */
+        if (client.session().push_output_message(stream_id, output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
     else
     {
@@ -333,10 +338,9 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
     bool rv = true;
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
-    dds::xrce::DataRepresentation data;
     switch (flags)
     {
-        case dds::xrce::FORMAT_DATA_FLAG: ;
+        case dds::xrce::FORMAT_DATA_FLAG:
         {
             dds::xrce::WRITE_DATA_Payload_Data data_payload;
             if (input_packet.message->get_payload(data_payload))
@@ -413,10 +417,11 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
             /* Store message. */
-            client.session().push_output_message(stream_id, output_packet.message);
-
-            /* Send message. */
-            server_->push_output_packet(output_packet);
+            if (client.session().push_output_message(stream_id, output_packet.message))
+            {
+                /* Send message. */
+                server_->push_output_packet(output_packet);
+            }
         }
     }
     else
@@ -517,6 +522,39 @@ bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*inp
     return true;
 }
 
+bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    /* Set output packet. */
+    OutputPacket output_packet;
+    output_packet.destination = input_packet.source;
+
+    /* Get epoch time and array. */
+    uint8_t buf[UINT16_MAX];
+    uint16_t submessage_len = input_packet.message->get_subheader().submessage_length();
+    input_packet.message->get_raw_payload(buf, size_t(submessage_len));
+
+    /* Check ECHO. */
+    if (dds::xrce::FLAG_ECHO == (dds::xrce::FLAG_ECHO & input_packet.message->get_subheader().flags()))
+    {
+        /* PERFORMANCE header. */
+        dds::xrce::MessageHeader output_header;
+        output_header.session_id(input_packet.message->get_header().session_id());
+        output_header.stream_id(input_packet.message->get_header().stream_id());
+        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
+        output_header.client_key(input_packet.message->get_header().client_key());
+
+        /* Generate output packect. */
+        output_packet.message = OutputMessagePtr(new OutputMessage(output_header));
+        output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
+        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
+    }
+    return true;
+}
+
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
     std::lock_guard<std::mutex> lock(mtx_);
@@ -544,10 +582,11 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
         output_packet.message->append_submessage(dds::xrce::DATA, payload, dds::xrce::FORMAT_DATA_FLAG | 0x01);
 
         /* Store message. */
-        client->session().push_output_message(cb_args.stream_id, output_packet.message);
-
-        /* Send message. */
-        server_->push_output_packet(output_packet);
+        if (client->session().push_output_message(cb_args.stream_id, output_packet.message))
+        {
+            /* Send message. */
+            server_->push_output_packet(output_packet);
+        }
     }
 }
 

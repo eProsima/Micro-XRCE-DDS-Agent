@@ -10374,6 +10374,7 @@ private:
     uint16_t m_last_unacked_seq_nr;
     uint8_t m_stream_id;
 };
+
 /*!
  * @brief This class represents the enumeration SubmessageId defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -10393,7 +10394,8 @@ enum SubmessageId : uint8_t
     ACKNACK         = 10,
     HEARTBEAT       = 11,
     RESET           = 12,
-    FRAGMENT        = 13
+    FRAGMENT        = 13,
+    PERFORMANCE     = 14
 };
 
 } } // namespace 

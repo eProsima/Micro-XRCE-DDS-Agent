@@ -62,6 +62,7 @@ private:
     bool process_acknack_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet);
     bool process_reset_submessage(ProxyClient& client, InputPacket&);
+    bool process_performance_submessage(ProxyClient& client, InputPacket& input_packet);
 
     void read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer);
 

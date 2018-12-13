@@ -17,7 +17,7 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <functional>
 
-#define RECEIVE_TIMEOUT 100
+#define RECEIVE_TIMEOUT 1
 
 namespace eprosima {
 namespace uxr {

@@ -201,9 +201,9 @@ set_target_properties(MicroXRCEAgent PROPERTIES
 # Definition
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
-        -DBOOST_ASIO_STANDALONE
-        -DASIO_STANDALONE
-        -D$<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
+        BOOST_ASIO_STANDALONE
+        ASIO_STANDALONE
+        $<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
     )
 
 get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
