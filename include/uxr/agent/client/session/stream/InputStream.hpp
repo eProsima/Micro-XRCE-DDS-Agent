@@ -208,7 +208,7 @@ inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
     message->get_raw_payload(fragment_msg_.data() + position, fragment_size);
 
     /* Check if last message. */
-    fragment_message_available_ = (0 < (dds::xrce::FLAG_LAST_FRAGMENT & message->get_subheader().flags()));
+    fragment_message_available_ = (0 != (dds::xrce::FLAG_LAST_FRAGMENT & message->get_subheader().flags()));
 }
 
 inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
