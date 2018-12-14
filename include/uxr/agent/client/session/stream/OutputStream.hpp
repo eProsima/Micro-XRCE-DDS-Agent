@@ -90,11 +90,13 @@ inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
 {
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
+        last_send_ += 1;
+
         /* Message header. */
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
-        message_header.sequence_nr(0x0000);
+        message_header.sequence_nr(last_send_);
         message_header.client_key(client_key_);
 
         /* Create message. */
