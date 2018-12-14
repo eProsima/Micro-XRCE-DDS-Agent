@@ -30,7 +30,7 @@ class OutputMessage
 {
 public:
     OutputMessage(const dds::xrce::MessageHeader& header, size_t size)
-        : buf_(new uint8_t[size]),
+        : buf_(new uint8_t[size]{0}),
           size_(size),
           fastbuffer_(reinterpret_cast<char*>(buf_), size_),
           serializer_(fastbuffer_)
