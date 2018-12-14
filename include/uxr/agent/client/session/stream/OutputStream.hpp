@@ -113,6 +113,7 @@ inline bool BestEffortOutputStream::get_next_message(OutputMessagePtr& output_me
     {
         output_message = std::move(messages_.front());
         messages_.pop();
+        rv = true;
     }
     return rv;
 }

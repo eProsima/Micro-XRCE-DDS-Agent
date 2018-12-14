@@ -34,6 +34,7 @@ std::vector<uint8_t> AgentSerialization::create_client_payload()
     payload.client_representation().client_timestamp().nanoseconds() = 0x01234567;
     payload.client_representation().client_key() = {0x89, 0xAB, 0xCD, 0xEF};
     payload.client_representation().session_id() = 0x01;
+    payload.client_representation().mtu() = 0x2345;
 
     /* Subheader. */
     dds::xrce::SubmessageHeader subheader;
