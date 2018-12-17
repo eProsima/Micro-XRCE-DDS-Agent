@@ -230,8 +230,6 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
 {
     if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
-        last_available_ += 1;
-
         /* Message header. */
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
@@ -254,6 +252,8 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
         if ((header_size + submessage_size) <= mtu_)
         {
             /* Create message. */
+            last_available_ += 1;
+            message_header.sequence_nr(last_available_);
             OutputMessagePtr output_message(new OutputMessage(message_header, header_size + submessage_size));
             output_message->append_submessage(id, submessage);
 
@@ -291,9 +291,16 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
                 fragment_subheader.submessage_length(fragment_size);
 
                 const size_t current_message_size = header_size + subheader_size + fragment_size;
+
+                /* Create message. */
+                last_available_ += 1;
+                message_header.sequence_nr(last_available_);
                 OutputMessagePtr output_message(new OutputMessage(message_header, current_message_size));
                 output_message->append_fragment(fragment_subheader,  buf.get() + serialized_size, fragment_size);
+
+                /* Push message. */
                 messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+
                 serialized_size += fragment_size;
             }
         }
