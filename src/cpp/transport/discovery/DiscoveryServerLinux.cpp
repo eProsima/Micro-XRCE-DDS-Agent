@@ -72,6 +72,17 @@ bool DiscoveryServer::init()
 
     /* Socket initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
+    if (-1 == poll_fd_.fd)
+    {
+        return false;
+    }
+
+    /* Set reuse port. */
+    int reuse = 1;
+    if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
+    {
+        return false;
+    }
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
