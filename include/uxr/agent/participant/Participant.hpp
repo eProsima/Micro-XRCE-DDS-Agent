@@ -26,7 +26,6 @@ class Participant;
 }
 }
 
-#include <fastrtps/participant/ParticipantDiscoveryInfo.h>
 #include <fastrtps/participant/ParticipantListener.h>
 
 namespace eprosima {
@@ -49,7 +48,7 @@ public:
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
-    void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo info) override;
+    void onParticipantDiscovery(fastrtps::Participant* p, fastrtps::ParticipantDiscoveryInfo&& info) override;
     fastrtps::Participant* rtps_participant_ = nullptr;
     std::unordered_map<std::string, dds::xrce::ObjectId> registered_topics_;
     std::set<dds::xrce::ObjectId> tied_objects_;
