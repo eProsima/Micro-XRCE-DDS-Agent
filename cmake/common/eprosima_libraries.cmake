@@ -57,7 +57,7 @@ macro(eprosima_find_package package)
                 endforeach()
                 # Keep temp value in order to avoid call packages' installer.
                 set(EPROSIMA_INSTALLER_TEMP ${EPROSIMA_INSTALLER})
-                set(EPROSIMA_INSTALLER OFF)
+                unset(EPROSIMA_INSTALLER CACHE)
                 add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/${package})
                 set(EPROSIMA_INSTALLER ${EPROSIMA_INSTALLER_TEMP})
                 set(${package}_FOUND TRUE)
