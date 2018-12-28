@@ -64,11 +64,12 @@ void TopicPubSubType::deleteData(void* data) {
     delete((std::vector<unsigned char>*)data);
 }
 
-bool TopicPubSubType::getKey(void *data, rtps::InstanceHandle_t* handle)
+bool TopicPubSubType::getKey(void *data, rtps::InstanceHandle_t* handle, bool force_md5)
 {
     // TODO.
     (void) data;
     (void) handle;
+    (void) force_md5;
     return m_isGetKeyDefined;
 }
 
