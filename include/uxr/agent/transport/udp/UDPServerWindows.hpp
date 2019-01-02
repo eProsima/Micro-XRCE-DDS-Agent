@@ -32,11 +32,11 @@ public:
     microxrcedds_agent_DllAPI ~UDPServer() = default;
 
 private:
-    virtual bool init(bool discovery_enabled) override;
-    virtual bool close() override;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
-    virtual bool send_message(OutputPacket output_packet) override;
-    virtual int get_error() override;
+    bool init(bool discovery_enabled) final;
+    bool close() final;
+    bool recv_message(InputPacket& input_packet, int timeout) final;
+    bool send_message(OutputPacket output_packet) final;
+    int get_error() final;
 
 private:
     WSAPOLLFD poll_fd_;

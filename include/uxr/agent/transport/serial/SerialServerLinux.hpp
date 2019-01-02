@@ -31,11 +31,12 @@ public:
     ~SerialServer() = default;
 
 private:
-    bool init(bool discovery_enabled) override;
-    bool close() override;
-    bool recv_message(InputPacket& input_packet, int timeout) override;
-    bool send_message(OutputPacket output_packet) override;
-    int get_error() override;
+    bool init(bool discovery_enabled) final;
+    bool close() final;
+    bool recv_message(InputPacket& input_packet, int timeout) final;
+    bool send_message(OutputPacket output_packet) final;
+    int get_error() final;
+
     static size_t write_data(void* instance, uint8_t* buf, size_t len);
     static size_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
 
