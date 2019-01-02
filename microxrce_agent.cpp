@@ -22,6 +22,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #endif //_WIN32
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -38,8 +39,8 @@ void showHelp()
 #else
     std::cout << "    serial <device_name>" << std::endl;
     std::cout << "    pseudo-serial" << std::endl;
-    std::cout << "    udp <local_port> [<discovery_port>] [--discovery]" << std::endl;
-    std::cout << "    tcp <local_port> [<discovery_port>] [--discovery]" << std::endl;
+    std::cout << "    udp <local_port> [--discovery [<discovery_port>] ]" << std::endl;
+    std::cout << "    tcp <local_port> [--discovery [<discovery_port>] ]" << std::endl;
 #endif
 }
 
@@ -105,36 +106,44 @@ int main(int argc, char** argv)
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 
-        server = 3 <= cl.size() && '-' != cl[2][0] //discovery port
-                 ? new eprosima::uxr::UDPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::UDPServer(port);
-
+#ifndef _WIN32
         if(3 <= cl.size())
         {
-            discovery_flag = "--discovery" == (4 == cl.size() ?  cl[3] : cl[2]);
-            if(('-' == cl[2][0] || (4 == cl.size() && '-' == cl[3][0])) && !discovery_flag)
+            discovery_flag = "--discovery" == cl[2];
+            if(!discovery_flag)
             {
                 initializationError();
             }
         }
+
+        server = 4 <= cl.size()
+                 ? new eprosima::uxr::UDPServer(port, parsePort(cl[3]))
+                 : new eprosima::uxr::UDPServer(port);
+#else
+        server = new eprosima::uxr::UDPServer(port);
+#endif
     }
     else if((2 <= cl.size()) && ("tcp" == cl[0]))
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 
-        server = 3 <= cl.size() && '-' != cl[2][0] //discovery port
-                 ? new eprosima::uxr::TCPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::TCPServer(port);
-
+#ifndef _WIN32
         if(3 <= cl.size())
         {
-            discovery_flag = "--discovery" == (4 == cl.size() ?  cl[3] : cl[2]);
-            if(('-' == cl[2][0] || (4 == cl.size() && '-' == cl[3][0])) && !discovery_flag)
+            discovery_flag = "--discovery" == cl[2];
+            if(!discovery_flag)
             {
                 initializationError();
             }
         }
+
+        server = 4 <= cl.size()
+                 ? new eprosima::uxr::TCPServer(port, parsePort(cl[3]))
+                 : new eprosima::uxr::TCPServer(port);
+#else
+        server = new eprosima::uxr::TCPServer(port);
+#endif
     }
 #ifndef _WIN32
     else if((2 == cl.size()) && ("serial" == cl[0]))
