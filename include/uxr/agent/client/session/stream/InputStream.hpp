@@ -24,6 +24,23 @@ namespace eprosima {
 namespace uxr {
 
 /**************************************************************************************************
+ * None Input Streams.
+ **************************************************************************************************/
+class NoneInputStream
+{
+public:
+    NoneInputStream() {}
+
+    bool next_message(SeqNum seq_num);
+};
+
+inline bool NoneInputStream::next_message(SeqNum seq_num)
+{
+    (void) seq_num;
+    return true;
+}
+
+/**************************************************************************************************
  * Best-Effort Input Streams.
  **************************************************************************************************/
 class BestEffortInputStream

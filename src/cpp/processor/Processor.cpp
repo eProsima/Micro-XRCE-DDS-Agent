@@ -542,7 +542,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
         dds::xrce::MessageHeader output_header;
         output_header.session_id(input_packet.message->get_header().session_id());
         output_header.stream_id(input_packet.message->get_header().stream_id());
-        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
+//        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
         output_header.client_key(input_packet.message->get_header().client_key());
 
         /* PERFORMANCE subheader. */
@@ -556,7 +556,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
                                     submessage_len;
 
         /* Generate output packect. */
-        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, sizeof(message_size)));
+        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, message_size));
         output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
         if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
         {

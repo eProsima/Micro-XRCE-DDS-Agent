@@ -25,6 +25,67 @@ namespace eprosima {
 namespace uxr {
 
 /****************************************************************************************
+ * None Output Stream.
+ ****************************************************************************************/
+class NoneOutputStream
+{
+public:
+    NoneOutputStream(dds::xrce::SessionId session_id,
+                     const dds::xrce::ClientKey& client_key,
+                     size_t mtu)
+        : session_id_(session_id),
+          stream_id_(0x00),
+          client_key_(client_key),
+          mtu_(mtu)
+    {}
+
+    template<class T>
+    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool get_next_message(OutputMessagePtr& output_message);
+
+private:
+    dds::xrce::SessionId session_id_;
+    dds::xrce::StreamId stream_id_;
+    dds::xrce::ClientKey client_key_;
+    size_t mtu_;
+    std::queue<OutputMessagePtr> messages_;
+};
+
+template<class T>
+inline void NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+{
+    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
+    {
+        /* Message header. */
+        dds::xrce::MessageHeader message_header;
+        message_header.session_id(session_id_);
+        message_header.stream_id(stream_id_);
+        message_header.sequence_nr(0x00);
+        message_header.client_key(client_key_);
+
+        /* Create message. */
+        OutputMessagePtr output_message(new OutputMessage(message_header, mtu_));
+        if (output_message->append_submessage(id, submessage))
+        {
+            /* Push message. */
+            messages_.push(std::move(output_message));
+        }
+    }
+}
+
+inline bool NoneOutputStream::get_next_message(OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (!messages_.empty())
+    {
+        output_message = std::move(messages_.front());
+        messages_.pop();
+        rv = true;
+    }
+    return rv;
+}
+
+/****************************************************************************************
  * Best-Effort Output Stream.
  ****************************************************************************************/
 class BestEffortOutputStream
@@ -41,13 +102,12 @@ public:
           last_send_(~0)
     {}
 
-    bool push_message(OutputMessagePtr&& output_message);
-    bool pop_message(OutputMessagePtr& output_message);
-    SeqNum get_last_handled() const { return last_send_; }
+//    bool push_message(OutputMessagePtr&& output_message);
+//    bool pop_message(OutputMessagePtr& output_message);
+//    SeqNum get_last_handled() const { return last_send_; }
     void promote_stream() { last_send_ += 1; }
     void reset() { last_send_ = ~0; }
 
-    /* Fragment related functions. */
     template<class T>
     void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
@@ -61,50 +121,49 @@ private:
     std::queue<OutputMessagePtr> messages_;
 };
 
-inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
-{
-    bool rv = false;
-    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
-    {
-        messages_.push(std::move(output_message));
-        rv = true;
-    }
-    return rv;
-}
+//inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
+//{
+//    bool rv = false;
+//    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
+//    {
+//        messages_.push(std::move(output_message));
+//        rv = true;
+//    }
+//    return rv;
+//}
+//
+//inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message)
+//{
+//    bool rv = false;
+//    if (!messages_.empty())
+//    {
+//        output_message = std::move(messages_.front());
+//        messages_.pop();
+//        rv = true;
+//    }
+//    return rv;
+//}
 
-inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message)
-{
-    bool rv = false;
-    if (!messages_.empty())
-    {
-        output_message = std::move(messages_.front());
-        messages_.pop();
-        rv = true;
-    }
-    return rv;
-}
-
-/* Fragment related functions. */
 template<class T>
 inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
-        last_send_ += 1;
-
         /* Message header. */
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
-        message_header.sequence_nr(last_send_);
+        message_header.sequence_nr(last_send_ + 1);
         message_header.client_key(client_key_);
 
         /* Create message. */
         OutputMessagePtr output_message(new OutputMessage(message_header, mtu_));
-        output_message->append_submessage(id, submessage);
-
-        /* Push message. */
-        messages_.push(std::move(output_message));
+        if (output_message->append_submessage(id, submessage))
+        {
+            /* Push message. */
+            messages_.push(std::move(output_message));
+            last_send_ += 1;
+        }
     }
 }
 

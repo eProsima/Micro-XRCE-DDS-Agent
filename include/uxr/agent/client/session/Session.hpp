@@ -24,13 +24,29 @@
 namespace eprosima {
 namespace uxr {
 
+inline bool is_none_stream(dds::xrce::StreamId stream_id)
+{
+    return (0x00 == stream_id);
+}
+
+inline bool is_besteffort_stream(dds::xrce::StreamId stream_id)
+{
+    return (128 > stream_id) && (0x00 != stream_id);
+}
+
+inline bool is_relable_stream(dds::xrce::StreamId stream_id)
+{
+    return (127 < stream_id);
+}
+
 class Session
 {
 public:
     Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key, size_t mtu)
+        : none_out_stream_(session_id, client_key, mtu)
     {
         /* Create Best-Effort output streams. */
-        for (int i = 0; i <= 127; ++i)
+        for (int i = 1; i <= 127; ++i)
         {
             dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
             besteffort_out_streams_.emplace(std::piecewise_construct,
@@ -72,7 +88,7 @@ public:
     SeqNum get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
     SeqNum get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
     void update_from_acknack(dds::xrce::StreamId stream_id, SeqNum first_unacked);
-    SeqNum next_output_message(dds::xrce::StreamId stream_id);
+//    SeqNum next_output_message(dds::xrce::StreamId stream_id);
     std::vector<uint8_t> get_output_streams();
     bool message_pending(dds::xrce::StreamId stream_id);
 
@@ -82,8 +98,10 @@ public:
     bool get_next_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
 
 private:
+    NoneInputStream none_in_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_in_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableInputStream> reliable_in_streams_;
+    NoneOutputStream none_out_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> besteffort_out_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> reliable_out_streams_;
     std::mutex bi_mtx_;
@@ -94,7 +112,6 @@ private:
 
 inline void Session::reset()
 {
-
     /* Reset Best-Effor Input streams. */
     std::unique_lock<std::mutex> bi_lock(bi_mtx_);
     for (auto& it : besteffort_in_streams_)
@@ -255,21 +272,21 @@ inline void Session::update_from_acknack(const dds::xrce::StreamId stream_id, co
     }
 }
 
-inline SeqNum Session::next_output_message(const dds::xrce::StreamId stream_id)
-{
-    SeqNum rv;
-    if (128 > stream_id)
-    {
-        std::lock_guard<std::mutex> bo_lock(bo_mtx_);
-        rv = besteffort_out_streams_.at(stream_id).get_last_handled() + 1;
-    }
-    else
-    {
-        std::lock_guard<std::mutex> ro_lock(ro_mtx_);
-        rv = reliable_out_streams_.at(stream_id).next_message();
-    }
-    return rv;
-}
+//inline SeqNum Session::next_output_message(const dds::xrce::StreamId stream_id)
+//{
+//    SeqNum rv;
+//    if (128 > stream_id)
+//    {
+//        std::lock_guard<std::mutex> bo_lock(bo_mtx_);
+//        rv = besteffort_out_streams_.at(stream_id).get_last_handled() + 1;
+//    }
+//    else
+//    {
+//        std::lock_guard<std::mutex> ro_lock(ro_mtx_);
+//        rv = reliable_out_streams_.at(stream_id).next_message();
+//    }
+//    return rv;
+//}
 
 inline std::vector<uint8_t> Session::get_output_streams()
 {
