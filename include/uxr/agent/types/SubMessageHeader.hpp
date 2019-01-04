@@ -35,7 +35,8 @@ namespace xrce {
 
 enum SubmessageHeaderFlags : uint8_t
 {
-    FLAG_ENDIANNESS = 0x01 << 0,
+    FLAG_BIG_ENDIANNESS = 0x00,
+    FLAG_LITTLE_ENDIANNESS = 0x01 << 0,
     FLAG_REUSE = 0x01 << 1,
     FLAG_REPLACE = 0x01 << 2,
     FLAG_LAST_FRAGMENT = 0x01 << 1,

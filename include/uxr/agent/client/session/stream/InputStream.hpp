@@ -47,10 +47,10 @@ inline bool NoneInputStream::next_message(SeqNum seq_num)
 class BestEffortInputStream
 {
 public:
-    BestEffortInputStream() : last_received_(~0) {}
+    BestEffortInputStream() : last_received_(UINT16_MAX) {}
 
     bool next_message(SeqNum seq_num);
-    void reset() { last_received_ = ~0; }
+    void reset() { last_received_ = UINT16_MAX; }
 
 private:
     SeqNum last_received_;
@@ -75,8 +75,8 @@ class ReliableInputStream
 {
 public:
     ReliableInputStream()
-        : last_handled_(~0),
-          last_announced_(~0),
+        : last_handled_(UINT16_MAX),
+          last_announced_(UINT16_MAX),
           fragment_msg_{},
           fragment_message_available_(false)
     {}
@@ -213,8 +213,8 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
 inline void ReliableInputStream::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    last_handled_ = ~0;
-    last_announced_ = ~0;
+    last_handled_ = UINT16_MAX;
+    last_announced_ = UINT16_MAX;
     messages_.clear();
 }
 

@@ -35,7 +35,7 @@ public:
                      const dds::xrce::ClientKey& client_key,
                      size_t mtu)
         : session_id_(session_id),
-          stream_id_(0x00),
+          stream_id_(dds::xrce::STREAMID_NONE),
           client_key_(client_key),
           mtu_(mtu)
     {}
@@ -103,14 +103,14 @@ public:
           stream_id_(stream_id),
           client_key_(client_key),
           mtu_(mtu),
-          last_send_(~0)
+          last_send_(UINT16_MAX)
     {}
 
 //    bool push_message(OutputMessagePtr&& output_message);
 //    bool pop_message(OutputMessagePtr& output_message);
 //    SeqNum get_last_handled() const { return last_send_; }
     void promote_stream() { last_send_ += 1; }
-    void reset() { last_send_ = ~0; }
+    void reset() { last_send_ = UINT16_MAX; }
 
     template<class T>
     void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
@@ -200,9 +200,9 @@ public:
           stream_id_(stream_id),
           client_key_(client_key),
           mtu_(mtu),
-          last_available_(~0),
-          last_sent_(~0),
-          last_acknown_(~0)
+          last_available_(UINT16_MAX),
+          last_sent_(UINT16_MAX),
+          last_acknown_(UINT16_MAX)
     {}
 
     ReliableOutputStream(const ReliableOutputStream&) = delete;
@@ -239,7 +239,7 @@ private:
 inline ReliableOutputStream::ReliableOutputStream(ReliableOutputStream&& x)
     : last_sent_(x.last_sent_),
       last_acknown_(x.last_acknown_),
-      messages_(std::move(messages_))
+      messages_(std::move(x.messages_))
 {}
 
 inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStream&& x)
@@ -289,9 +289,9 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 inline void ReliableOutputStream::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    last_available_ = ~0;
-    last_sent_ = ~0;
-    last_acknown_ = ~0;
+    last_available_ = UINT16_MAX;
+    last_sent_ = UINT16_MAX;
+    last_acknown_ = UINT16_MAX;
     messages_.clear();
 }
 
@@ -306,13 +306,12 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
-        message_header.sequence_nr(last_available_);
         message_header.client_key(client_key_);
 
         /* Submessage header. */
         dds::xrce::SubmessageHeader submessage_header;
         submessage_header.submessage_id(id);
-        submessage_header.flags(0x01);
+        submessage_header.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
         submessage_header.submessage_length(uint16_t(submessage.getCdrSerializedSize()));
 
         /* Compute message size. */
@@ -344,7 +343,7 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
             const size_t max_fragment_size = mtu_ - header_size - subheader_size;
             dds::xrce::SubmessageHeader fragment_subheader;
             fragment_subheader.submessage_id(dds::xrce::FRAGMENT);
-            fragment_subheader.flags(0x01);
+            fragment_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
             fragment_subheader.submessage_length(uint16_t(max_fragment_size));
 
             uint16_t serialized_size = 0;
@@ -358,7 +357,7 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
                 else
                 {
                     fragment_size = uint16_t(submessage_size - serialized_size);
-                    fragment_subheader.flags(0x01 | dds::xrce::FLAG_LAST_FRAGMENT);
+                    fragment_subheader.flags(submessage_header.flags() | dds::xrce::FLAG_LAST_FRAGMENT);
                 }
                 fragment_subheader.submessage_length(fragment_size);
 

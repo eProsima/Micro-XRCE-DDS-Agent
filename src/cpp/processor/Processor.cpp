@@ -76,7 +76,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 /* ACKNACK header. */
                 dds::xrce::MessageHeader acknack_header;
                 acknack_header.session_id(header.session_id());
-                acknack_header.stream_id(0x00);
+                acknack_header.stream_id(dds::xrce::STREAMID_NONE);
                 acknack_header.sequence_nr(0x00);
                 acknack_header.client_key(header.client_key());
 
@@ -89,7 +89,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 /* ACKNACK subheader. */
                 dds::xrce::SubmessageHeader acknack_subheader;
                 acknack_subheader.submessage_id(dds::xrce::ACKNACK);
-                acknack_subheader.flags(0x01);
+                acknack_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
                 acknack_subheader.submessage_length(uint16_t(acknack_payload.getCdrSerializedSize()));
 
                 /* Compute message size. */
@@ -222,7 +222,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             /* STATUS_AGENT subheader. */
             dds::xrce::SubmessageHeader status_subheader;
             status_subheader.submessage_id(dds::xrce::STATUS_AGENT);
-            status_subheader.flags(0x01);
+            status_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
             status_subheader.submessage_length(uint16_t(status_payload.getCdrSerializedSize()));
 
             /* Compute message size. */
@@ -267,12 +267,12 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
                                             create_payload.object_representation()));
 
         /* Push submessage into the output stream. */
-        client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
+        client.session().push_output_submessage(dds::xrce::STREAMID_BUILTIN_RELIABLE, dds::xrce::STATUS, status_payload);
 
         /* Set output packet. */
         OutputPacket output_packet;
         output_packet.destination = input_packet.source;
-        while (client.session().get_next_output_message(0x80, output_packet.message))
+        while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
         {
             /* Send status. */
             server_->push_output_packet(output_packet);
@@ -306,8 +306,8 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             {
                 server_->on_delete_client(input_packet.source.get());
             }
-            client.session().push_output_submessage(0x00, dds::xrce::STATUS, status_payload);
-            if (client.session().get_next_output_message(0x00, output_packet.message))
+            client.session().push_output_submessage(dds::xrce::STREAMID_NONE, dds::xrce::STATUS, status_payload);
+            if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
             {
                 /* Send message. */
                 server_->push_output_packet(output_packet);
@@ -319,8 +319,8 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
             status_payload.result(client.delete_object(delete_payload.object_id()));
 
             /* Store message. */
-            client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
-            while (client.session().get_next_output_message(0x80, output_packet.message))
+            client.session().push_output_submessage(dds::xrce::STREAMID_BUILTIN_RELIABLE, dds::xrce::STATUS, status_payload);
+            while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
                 /* Send message. */
                 server_->push_output_packet(output_packet);
@@ -405,12 +405,12 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
             status_payload.result().status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
 
             /* Push submessage into the output stream. */
-            client.session().push_output_submessage(0x80, dds::xrce::STATUS, status_payload);
+            client.session().push_output_submessage(dds::xrce::STREAMID_BUILTIN_RELIABLE, dds::xrce::STATUS, status_payload);
 
             /* Set output packet. */
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
-            while (client.session().get_next_output_message(0x80, output_packet.message))
+            while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
                 /* Send message. */
                 server_->push_output_packet(output_packet);
@@ -486,12 +486,12 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
         acknack_payload.stream_id(stream_id);
 
         /* Push submessage into the output stream. */
-        client.session().push_output_submessage(0x00, dds::xrce::ACKNACK, acknack_payload);
+        client.session().push_output_submessage(dds::xrce::STREAMID_NONE, dds::xrce::ACKNACK, acknack_payload);
 
         /* Set output packet. */
         OutputPacket output_packet;
         output_packet.destination = input_packet.source;
-        if (client.session().get_next_output_message(0x00, output_packet.message))
+        if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
         {
             /* Send message. */
             server_->push_output_packet(output_packet);
@@ -633,7 +633,7 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
                 /* INFO subheader. */
                 dds::xrce::SubmessageHeader info_subheader;
                 info_subheader.submessage_id(dds::xrce::INFO);
-                info_subheader.flags(0x01);
+                info_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
                 info_subheader.submessage_length(uint16_t(info_payload.getCdrSerializedSize()));
 
                 /* Compute message size. */
@@ -668,7 +668,7 @@ void Processor::check_heartbeats()
                 /* HEARTBEAT header. */
                 dds::xrce::MessageHeader heartbeat_header;
                 heartbeat_header.session_id(client->get_session_id());
-                heartbeat_header.stream_id(0x00);
+                heartbeat_header.stream_id(dds::xrce::STREAMID_NONE);
                 heartbeat_header.sequence_nr(0x00);
                 heartbeat_header.client_key(client->get_client_key());
 
@@ -681,7 +681,7 @@ void Processor::check_heartbeats()
                 /* HEARTBEAT subheader. */
                 dds::xrce::SubmessageHeader heartbeat_subheader;
                 heartbeat_subheader.submessage_id(dds::xrce::HEARTBEAT);
-                heartbeat_subheader.flags(0x01);
+                heartbeat_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
                 heartbeat_subheader.submessage_length(uint16_t(heartbeat_payload.getCdrSerializedSize()));
 
                 /* Compute message size. */

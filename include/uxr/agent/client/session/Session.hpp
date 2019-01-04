@@ -53,7 +53,7 @@ public:
                                             std::forward_as_tuple(session_id, stream_id, client_key, mtu));
         }
 
-        /* Create Relaible output streams. */
+        /* Create Reliable output streams. */
         for (int i = 128; i <= 255; ++i)
         {
             dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);

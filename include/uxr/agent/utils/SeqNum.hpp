@@ -25,7 +25,7 @@ class SeqNum
 public:
     SeqNum() : seq_num_(0) {}
     SeqNum(uint16_t seq_num) : seq_num_(seq_num) {}
-    SeqNum(int seq_num) : seq_num_(static_cast<uint16_t>(seq_num)) {}
+    SeqNum(int seq_num) : seq_num_(uint16_t(seq_num)) {}
 
     /*
      * Operators.
