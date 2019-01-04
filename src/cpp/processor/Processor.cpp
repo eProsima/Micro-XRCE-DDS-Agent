@@ -58,7 +58,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             /* Check whether it is the next message. */
             Session& session = client->session();
             dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
-            if (session.next_input_message(input_packet.message))
+            if (session.is_next_input_message(input_packet.message))
             {
                 /* Process messages. */
                 process_input_message(*client, input_packet);
@@ -71,7 +71,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             }
 
             /* Send acknack in case. */
-            if (127 < stream_id)
+            if (is_reliable_stream(stream_id))
             {
                 /* ACKNACK header. */
                 dds::xrce::MessageHeader acknack_header;
@@ -538,31 +538,31 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
     /* Check ECHO. */
     if (dds::xrce::FLAG_ECHO == (dds::xrce::FLAG_ECHO & input_packet.message->get_subheader().flags()))
     {
-        /* PERFORMANCE header. */
-        dds::xrce::MessageHeader output_header;
-        output_header.session_id(input_packet.message->get_header().session_id());
-        output_header.stream_id(input_packet.message->get_header().stream_id());
+//        /* PERFORMANCE header. */
+//        dds::xrce::MessageHeader output_header;
+//        output_header.session_id(input_packet.message->get_header().session_id());
+//        output_header.stream_id(input_packet.message->get_header().stream_id());
 //        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
-        output_header.client_key(input_packet.message->get_header().client_key());
-
-        /* PERFORMANCE subheader. */
-        dds::xrce::SubmessageHeader performance_subheader;
-        performance_subheader.submessage_id(dds::xrce::PERFORMANCE);
-        performance_subheader.flags(0x01);
-        performance_subheader.submessage_length(submessage_len);
-
-        const size_t message_size = output_header.getCdrSerializedSize() +
-                                    performance_subheader.getCdrSerializedSize() +
-                                    submessage_len;
-
-        /* Generate output packect. */
-        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, message_size));
-        output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
-        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
-        {
-            /* Send message. */
-            server_->push_output_packet(output_packet);
-        }
+//        output_header.client_key(input_packet.message->get_header().client_key());
+//
+//        /* PERFORMANCE subheader. */
+//        dds::xrce::SubmessageHeader performance_subheader;
+//        performance_subheader.submessage_id(dds::xrce::PERFORMANCE);
+//        performance_subheader.flags(0x01);
+//        performance_subheader.submessage_length(submessage_len);
+//
+//        const size_t message_size = output_header.getCdrSerializedSize() +
+//                                    performance_subheader.getCdrSerializedSize() +
+//                                    submessage_len;
+//
+//        /* Generate output packect. */
+//        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, message_size));
+//        output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
+//        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
+//        {
+//            /* Send message. */
+//            server_->push_output_packet(output_packet);
+//        }
     }
     return true;
 }
