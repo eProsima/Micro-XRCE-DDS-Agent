@@ -106,9 +106,7 @@ public:
           last_send_(UINT16_MAX)
     {}
 
-//    bool push_message(OutputMessagePtr&& output_message);
-//    bool pop_message(OutputMessagePtr& output_message);
-//    SeqNum get_last_handled() const { return last_send_; }
+    SeqNum get_last_handled() const { return last_send_; }
     void promote_stream() { last_send_ += 1; }
     void reset() { last_send_ = UINT16_MAX; }
 
@@ -125,29 +123,6 @@ private:
     std::queue<OutputMessagePtr> messages_;
     std::mutex mtx_;
 };
-
-//inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
-//{
-//    bool rv = false;
-//    if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
-//    {
-//        messages_.push(std::move(output_message));
-//        rv = true;
-//    }
-//    return rv;
-//}
-//
-//inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message)
-//{
-//    bool rv = false;
-//    if (!messages_.empty())
-//    {
-//        output_message = std::move(messages_.front());
-//        messages_.pop();
-//        rv = true;
-//    }
-//    return rv;
-//}
 
 template<class T>
 inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
