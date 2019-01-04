@@ -20,6 +20,7 @@
 #include <uxr/agent/utils/SeqNum.hpp>
 #include <map>
 #include <queue>
+#include <mutex>
 
 namespace eprosima {
 namespace uxr {
@@ -49,11 +50,13 @@ private:
     dds::xrce::ClientKey client_key_;
     size_t mtu_;
     std::queue<OutputMessagePtr> messages_;
+    std::mutex mtx_;
 };
 
 template<class T>
 inline void NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
         /* Message header. */
@@ -75,6 +78,7 @@ inline void NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const 
 
 inline bool NoneOutputStream::get_next_message(OutputMessagePtr& output_message)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     bool rv = false;
     if (!messages_.empty())
     {
@@ -119,6 +123,7 @@ private:
     size_t mtu_;
     SeqNum last_send_;
     std::queue<OutputMessagePtr> messages_;
+    std::mutex mtx_;
 };
 
 //inline bool BestEffortOutputStream::push_message(OutputMessagePtr&& output_message)
@@ -147,6 +152,7 @@ private:
 template<class T>
 inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
         /* Message header. */
@@ -169,6 +175,7 @@ inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
 
 inline bool BestEffortOutputStream::get_next_message(OutputMessagePtr& output_message)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     bool rv = false;
     if (!messages_.empty())
     {
@@ -226,6 +233,7 @@ private:
     SeqNum last_sent_;
     SeqNum last_acknown_;
     std::map<uint16_t, OutputMessagePtr> messages_;
+    std::mutex mtx_;
 };
 
 inline ReliableOutputStream::ReliableOutputStream(ReliableOutputStream&& x)
@@ -245,6 +253,7 @@ inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStrea
 inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     if (last_sent_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
         last_sent_ += 1;
@@ -257,6 +266,7 @@ inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 inline bool ReliableOutputStream::get_message(SeqNum seq_num, OutputMessagePtr& output_message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = messages_.find(seq_num);
     if (it != messages_.end())
     {
@@ -268,6 +278,7 @@ inline bool ReliableOutputStream::get_message(SeqNum seq_num, OutputMessagePtr& 
 
 inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     while ((last_acknown_ + 1 < first_unacked) && (last_acknown_ < last_sent_))
     {
         last_acknown_ += 1;
@@ -277,6 +288,7 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 
 inline void ReliableOutputStream::reset()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     last_available_ = ~0;
     last_sent_ = ~0;
     last_acknown_ = ~0;
@@ -287,6 +299,7 @@ inline void ReliableOutputStream::reset()
 template<class T>
 inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
         /* Message header. */
@@ -369,6 +382,7 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
 inline bool ReliableOutputStream::get_next_message(OutputMessagePtr& output_message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     if (last_sent_ < last_available_)
     {
         last_sent_ += 1;
