@@ -19,9 +19,27 @@
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/utils/SeqNum.hpp>
 #include <map>
+#include <mutex>
 
 namespace eprosima {
 namespace uxr {
+
+/**************************************************************************************************
+ * None Input Streams.
+ **************************************************************************************************/
+class NoneInputStream
+{
+public:
+    NoneInputStream() {}
+
+    bool next_message(SeqNum seq_num);
+};
+
+inline bool NoneInputStream::next_message(SeqNum seq_num)
+{
+    (void) seq_num;
+    return true;
+}
 
 /**************************************************************************************************
  * Best-Effort Input Streams.
@@ -29,17 +47,19 @@ namespace uxr {
 class BestEffortInputStream
 {
 public:
-    BestEffortInputStream() : last_received_(~0) {}
+    BestEffortInputStream() : last_received_(UINT16_MAX) {}
 
     bool next_message(SeqNum seq_num);
-    void reset() { last_received_ = ~0; }
+    void reset() { last_received_ = UINT16_MAX; }
 
 private:
     SeqNum last_received_;
+    std::mutex mtx_;
 };
 
 inline bool BestEffortInputStream::next_message(SeqNum seq_num)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     if (seq_num > last_received_)
     {
         last_received_ = seq_num;
@@ -55,8 +75,8 @@ class ReliableInputStream
 {
 public:
     ReliableInputStream()
-        : last_handled_(~0),
-          last_announced_(~0),
+        : last_handled_(UINT16_MAX),
+          last_announced_(UINT16_MAX),
           fragment_msg_{},
           fragment_message_available_(false)
     {}
@@ -69,7 +89,7 @@ public:
     bool next_message(SeqNum seq_num, InputMessagePtr& message);
     bool pop_message(InputMessagePtr& message);
     void update_from_heartbeat(SeqNum first_available, SeqNum last_available);
-    SeqNum get_first_unacked() const;
+    SeqNum get_first_unacked();
     std::array<uint8_t, 2> get_nack_bitmap();
     void reset();
     void push_fragment(InputMessagePtr& message);
@@ -81,6 +101,7 @@ private:
     std::map<uint16_t, InputMessagePtr> messages_;
     std::vector<uint8_t> fragment_msg_;
     bool fragment_message_available_;
+    std::mutex mtx_;
 };
 
 inline ReliableInputStream::ReliableInputStream(ReliableInputStream&& x)
@@ -101,6 +122,7 @@ inline ReliableInputStream& ReliableInputStream::operator=(ReliableInputStream&&
 inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     if (seq_num == last_handled_ + 1)
     {
         last_handled_ += 1;
@@ -131,6 +153,7 @@ inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& m
 inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = messages_.find(last_handled_ + 1);
     if (it != messages_.end())
     {
@@ -144,6 +167,7 @@ inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
 
 inline void ReliableInputStream::update_from_heartbeat(SeqNum first_available, SeqNum last_available)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     if (last_handled_ + 1 < first_available)
     {
         last_handled_ = first_available;
@@ -154,14 +178,16 @@ inline void ReliableInputStream::update_from_heartbeat(SeqNum first_available, S
     }
 }
 
-inline SeqNum ReliableInputStream::get_first_unacked() const
+inline SeqNum ReliableInputStream::get_first_unacked()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     return last_handled_ + 1;
 }
 
 inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
 {
     std::array<uint8_t, 2> bitmap = {0, 0};
+    std::lock_guard<std::mutex> lock(mtx_);
     for (uint16_t i = 0; i < 8; i++)
     {
         if (last_handled_ + SeqNum(i) < last_announced_)
@@ -186,13 +212,16 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
 
 inline void ReliableInputStream::reset()
 {
-    last_handled_ = ~0;
-    last_announced_ = ~0;
+    std::lock_guard<std::mutex> lock(mtx_);
+    last_handled_ = UINT16_MAX;
+    last_announced_ = UINT16_MAX;
     messages_.clear();
 }
 
 inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     /* Add header in case. */
     if (fragment_msg_.empty())
     {
@@ -214,6 +243,7 @@ inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
 inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
 {
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     if (fragment_message_available_)
     {
         message.reset(new InputMessage(fragment_msg_.data(), fragment_msg_.size()));
