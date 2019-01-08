@@ -39,7 +39,7 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI TCPServer(uint16_t port, uint16_t discovery_port);
+    microxrcedds_agent_DllAPI TCPServer(uint16_t port, uint16_t discovery_port = 0);
     microxrcedds_agent_DllAPI ~TCPServer() = default;
 
 private:

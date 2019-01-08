@@ -28,7 +28,7 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI UDPServer(uint16_t port, uint16_t discovery_port);
+    microxrcedds_agent_DllAPI UDPServer(uint16_t port, uint16_t discovery_port = 0);
     microxrcedds_agent_DllAPI ~UDPServer() = default;
 
 private:
