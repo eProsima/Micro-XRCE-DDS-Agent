@@ -55,4 +55,6 @@ RUN tar -xzvf /usr/local/lib/libfastrtps.tar.gz -C /usr/local/lib/ && \
 COPY --from=build /usr/local/include/fastrtps /usr/local/include/fastrtps
 COPY --from=build /usr/local/share/fastrtps/ /usr/local/share/fastrtps/
 
+COPY --from=build /agent/DEFAULT_FASTRTPS_PROFILES.xml .
+
 RUN ldconfig
