@@ -39,7 +39,7 @@ WORKDIR /root
 COPY --from=build /usr/local/lib/libmicroxrcedds_agent.tar.gz  /usr/local/lib/
 RUN tar -xzvf /usr/local/lib/libmicroxrcedds_agent.tar.gz -C /usr/local/lib/ && \
     rm /usr/local/lib/libmicroxrcedds_agent.tar.gz
-COPY --from=build /usr/local/include/uxr /usr/local/include/
+COPY --from=build /usr/local/include/uxr /usr/local/include/uxr
 COPY --from=build /usr/local/share/microxrcedds_agent/ /usr/local/share/microxrcedds_agent/
 COPY --from=build /usr/local/bin/MicroXRCEAgent /usr/local/bin/MicroXRCEAgent
 
