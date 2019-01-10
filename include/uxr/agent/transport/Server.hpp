@@ -33,7 +33,7 @@ public:
     Server();
     virtual ~Server();
 
-    microxrcedds_agent_DllAPI bool run();
+    microxrcedds_agent_DllAPI bool run(bool discovery_enabled = false);
     microxrcedds_agent_DllAPI bool stop();
 
     void push_output_packet(OutputPacket output_packet);
@@ -43,7 +43,7 @@ public:
     virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
 
 private:
-    virtual bool init() = 0;
+    virtual bool init(bool discovery_enabled) = 0;
     virtual bool close() = 0;
     virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
     virtual bool send_message(OutputPacket output_packet) = 0;

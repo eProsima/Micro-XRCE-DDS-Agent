@@ -34,11 +34,11 @@ public:
     ~UDPServer() = default;
 
 private:
-    virtual bool init() override;
-    virtual bool close() override;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
-    virtual bool send_message(OutputPacket output_packet) override;
-    virtual int get_error() override;
+    bool init(bool discovery_enabled) final;
+    bool close() final;
+    bool recv_message(InputPacket& input_packet, int timeout) final;
+    bool send_message(OutputPacket output_packet) final;
+    int get_error() final;
 
 private:
     struct pollfd poll_fd_;

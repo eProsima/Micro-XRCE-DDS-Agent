@@ -41,13 +41,16 @@ TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
       discovery_server_(*processor_, port_, discovery_port)
 {}
 
-bool TCPServer::init()
+bool TCPServer::init(bool discovery_enabled)
 {
     bool rv = false;
 
-    if (!discovery_server_.run())
+    if (discovery_enabled)
     {
-        return false;
+        if (!discovery_server_.run())
+        {
+            return false;
+        }
     }
 
     /* Ignore SIGPIPE signal. */
