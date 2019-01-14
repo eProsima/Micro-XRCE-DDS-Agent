@@ -7515,6 +7515,12 @@ public:
      */
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
+    inline void resize(size_t new_size)
+    {
+        m_serialized_data.clear();
+        m_serialized_data.resize(new_size);
+    }
+
 private:
     std::vector<uint8_t> m_serialized_data;
 };
