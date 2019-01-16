@@ -1,0 +1,54 @@
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef _UXR_AGENT_MIDDLEWARE_HPP_
+#define _UXR_AGENT_MIDDLEWARE_HPP_
+
+#include <cstdint>
+#include <cstddef>
+
+namespace eprosima {
+namespace uxr {
+
+class Middleware
+{
+public:
+    Middleware() = default;
+    virtual ~Middleware() = default;
+
+    /* Creation functions. */
+    virtual bool create_participant(uint16_t participant_id) = 0;
+    virtual bool create_topic(uint16_t topic_id, uint16_t participant_id) = 0;
+    virtual bool create_publisher(uint16_t publisher_id, uint16_t participant_id) = 0;
+    virtual bool create_subcriber(uint16_t subscriber_id, uint16_t participant_id) = 0;
+    virtual bool create_datawriter(uint16_t datawriter_id, uint16_t publisher_id) = 0;
+    virtual bool create_datareader(uint16_t datareader_id, uint16_t subscriber_id) = 0;
+
+    /* Deletion functions. */
+    virtual bool delete_participant(uint16_t participant_id) = 0;
+    virtual bool delete_topic(uint16_t topic_id) = 0;
+    virtual bool delete_publisher(uint16_t publisher_id) = 0;
+    virtual bool delete_subcriber(uint16_t subscriber_id) = 0;
+    virtual bool delete_datawriter(uint16_t datawriter_id) = 0;
+    virtual bool delete_datareader(uint16_t datareader_id) = 0;
+
+    /* Write and read functions. */
+    virtual bool write_data(uint16_t datawriter_id, uint8_t* buf, size_t len) = 0;
+    virtual bool read_data(uint16_t datareader_id) = 0; // TODO (julian).
+};
+
+} // namespace uxr
+} // namespace eprosima
+
+#endif //_UXR_AGENT_MIDDLEWARE_HPP_

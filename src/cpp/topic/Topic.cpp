@@ -21,8 +21,6 @@
 namespace eprosima {
 namespace uxr {
 
-#define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
-
 Topic::Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
     : XRCEObject{object_id},
       participant_(participant),

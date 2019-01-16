@@ -27,7 +27,7 @@ class Publisher : public XRCEObject
 {
 public:
     Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant);
-    virtual ~Publisher();
+    virtual ~Publisher() override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
     virtual void release(ObjectContainer& root_objects) override;

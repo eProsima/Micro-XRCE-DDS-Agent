@@ -18,8 +18,6 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../xmlobjects/xmlobjects.h"
 
-#define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
-
 namespace eprosima {
 namespace uxr {
 

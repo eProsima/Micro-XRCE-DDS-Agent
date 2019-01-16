@@ -24,9 +24,6 @@
 #include <atomic>
 #include "../xmlobjects/xmlobjects.h"
 
-#define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
-#define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"
-
 namespace eprosima {
 namespace uxr {
 

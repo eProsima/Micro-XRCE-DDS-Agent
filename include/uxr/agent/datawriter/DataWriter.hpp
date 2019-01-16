@@ -32,7 +32,6 @@ namespace uxr {
 
 class Publisher;
 class Topic;
-class WRITE_DATA_Payload;
 
 class DataWriter : public XRCEObject, public fastrtps::PublisherListener
 {
