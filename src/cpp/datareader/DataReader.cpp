@@ -130,7 +130,8 @@ bool DataReader::init(const dds::xrce::DATAREADER_Representation& representation
 }
 
 void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
-                      read_callback read_cb, const ReadCallbackArgs& cb_args)
+                      read_callback read_cb,
+                      const ReadCallbackArgs& cb_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -206,11 +207,11 @@ int DataReader::stop_read()
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
-                           read_callback read_cb, ReadCallbackArgs cb_args)
+                           read_callback read_cb,
+                           ReadCallbackArgs cb_args)
 {
     TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
     uint16_t message_count = 0;
-    std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
     {
         std::unique_lock<std::mutex> lock(mtx_);
@@ -226,7 +227,6 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                     std::vector<unsigned char> buffer;
                     if (takeNextData(&buffer))
                     {
-                        last_read = std::chrono::steady_clock::now();
                         read_cb(cb_args, buffer);
                         ++message_count;
                     }
