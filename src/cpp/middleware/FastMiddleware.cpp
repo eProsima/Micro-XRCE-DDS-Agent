@@ -353,6 +353,18 @@ bool FastMiddleware::write_data(uint16_t datawriter_id, uint8_t *buf, size_t len
     return true;
 }
 
+bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& data)
+{
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        it->second->write(&data);
+        rv = true;
+    }
+    return rv;
+}
+
 bool FastMiddleware::read_data(uint16_t datareader_id)
 {
     (void) datareader_id;

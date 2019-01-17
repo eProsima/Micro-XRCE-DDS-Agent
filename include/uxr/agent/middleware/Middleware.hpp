@@ -18,6 +18,7 @@
 #include <string>
 #include <cstdint>
 #include <cstddef>
+#include <vector>
 
 namespace eprosima {
 namespace uxr {
@@ -71,6 +72,7 @@ public:
 
     /* Write and read functions. */
     virtual bool write_data(uint16_t datawriter_id, uint8_t* buf, size_t len) = 0;
+    virtual bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) = 0;
     virtual bool read_data(uint16_t datareader_id) = 0; // TODO (julian).
 };
 

@@ -118,6 +118,7 @@ public:
 
     /* Write and read functions. */
     bool write_data(uint16_t datawriter_id, uint8_t* buf, size_t len) override;
+    bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) override;
     bool read_data(uint16_t datareader_id) override; // TODO (julian).
 
 private:
