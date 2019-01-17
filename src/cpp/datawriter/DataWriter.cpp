@@ -25,12 +25,10 @@ namespace eprosima {
 namespace uxr {
 
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
-                       const std::shared_ptr<Publisher>& publisher,
-                       const std::string& profile_name)
+                       const std::shared_ptr<Publisher>& publisher)
     : XRCEObject{object_id},
       publisher_(publisher),
-      rtps_publisher_(nullptr),
-      rtps_publisher_prof_(profile_name)
+      rtps_publisher_(nullptr)
 
 {
     publisher_->tie_object(object_id);
@@ -109,35 +107,6 @@ bool DataWriter::init(const dds::xrce::DATAWRITER_Representation& representation
             break;
     }
     return rv;
-}
-
-const dds::xrce::ResultStatus& DataWriter::write(dds::xrce::DataRepresentation& data)
-{
-    result_status_.status(dds::xrce::STATUS_OK);
-    result_status_.implementation_status(0x00);
-
-    switch (data._d())
-    {
-        case dds::xrce::FORMAT_DATA:
-            if (rtps_publisher_->write(&(data.data().serialized_data())))
-            {
-                result_status_.status(dds::xrce::STATUS_ERR_DDS_ERROR);
-            }
-            break;
-        case dds::xrce::FORMAT_SAMPLE:
-            break;
-        case dds::xrce::FORMAT_DATA_SEQ:
-            break;
-        case dds::xrce::FORMAT_SAMPLE_SEQ:
-            break;
-        case dds::xrce::FORMAT_PACKED_SAMPLES:
-            break;
-        default:
-            result_status_.status(dds::xrce::STATUS_ERR_INCOMPATIBLE);
-            break;
-    }
-
-    return result_status_;
 }
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)

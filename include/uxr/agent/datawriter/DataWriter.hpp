@@ -37,8 +37,7 @@ class DataWriter : public XRCEObject, public fastrtps::PublisherListener
 {
 public:
     DataWriter(const dds::xrce::ObjectId& object_id,
-               const std::shared_ptr<Publisher>& publisher,
-               const std::string& profile_name = "");
+               const std::shared_ptr<Publisher>& publisher);
     ~DataWriter() override;
 
     DataWriter(DataWriter&&)      = delete;
@@ -47,7 +46,6 @@ public:
     DataWriter& operator=(const DataWriter&) = delete;
 
     bool init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects);
-    const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
@@ -57,7 +55,6 @@ private:
     std::shared_ptr<Publisher> publisher_;
     std::shared_ptr<Topic> topic_;
     fastrtps::Publisher* rtps_publisher_;
-    std::string rtps_publisher_prof_;
     dds::xrce::ResultStatus result_status_;
     std::set<dds::xrce::ObjectId> objects_;
 };
