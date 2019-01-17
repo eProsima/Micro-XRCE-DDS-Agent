@@ -30,8 +30,7 @@ DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
     : XRCEObject{object_id},
       publisher_(publisher),
       rtps_publisher_(nullptr),
-      rtps_publisher_prof_(profile_name),
-      topic_type_(false)
+      rtps_publisher_prof_(profile_name)
 
 {
     publisher_->tie_object(object_id);
@@ -70,12 +69,12 @@ bool DataWriter::init(const dds::xrce::DATAWRITER_Representation& representation
                     topic_->tie_object(get_id());
                     rv = true;
                 }
-            }
-            else
-            {
-                if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                else
                 {
-                    rtps_publisher_ = nullptr;
+                    if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                    {
+                        rtps_publisher_ = nullptr;
+                    }
                 }
             }
             break;
@@ -95,12 +94,12 @@ bool DataWriter::init(const dds::xrce::DATAWRITER_Representation& representation
                         topic_->tie_object(get_id());
                         rv = true;
                     }
-                }
-                else
-                {
-                    if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                    else
                     {
-                        rtps_publisher_ = nullptr;
+                        if (fastrtps::Domain::removePublisher(rtps_publisher_))
+                        {
+                            rtps_publisher_ = nullptr;
+                        }
                     }
                 }
             }

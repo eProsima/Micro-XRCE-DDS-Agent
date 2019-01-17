@@ -58,7 +58,6 @@ private:
     std::shared_ptr<Topic> topic_;
     fastrtps::Publisher* rtps_publisher_;
     std::string rtps_publisher_prof_;
-    TopicPubSubType topic_type_;
     dds::xrce::ResultStatus result_status_;
     std::set<dds::xrce::ObjectId> objects_;
 };

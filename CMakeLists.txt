@@ -150,6 +150,7 @@ set(SRCS
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
+    src/cpp/middleware/FastMiddleware.cpp
     )
 
 # Executable

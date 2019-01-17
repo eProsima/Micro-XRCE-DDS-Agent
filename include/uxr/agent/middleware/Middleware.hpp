@@ -15,6 +15,7 @@
 #ifndef _UXR_AGENT_MIDDLEWARE_HPP_
 #define _UXR_AGENT_MIDDLEWARE_HPP_
 
+#include <string>
 #include <cstdint>
 #include <cstddef>
 
@@ -28,20 +29,45 @@ public:
     virtual ~Middleware() = default;
 
     /* Creation functions. */
-    virtual bool create_participant(uint16_t participant_id) = 0;
-    virtual bool create_topic(uint16_t topic_id, uint16_t participant_id) = 0;
-    virtual bool create_publisher(uint16_t publisher_id, uint16_t participant_id) = 0;
-    virtual bool create_subcriber(uint16_t subscriber_id, uint16_t participant_id) = 0;
-    virtual bool create_datawriter(uint16_t datawriter_id, uint16_t publisher_id) = 0;
-    virtual bool create_datareader(uint16_t datareader_id, uint16_t subscriber_id) = 0;
+    virtual bool create_participant_from_ref(uint16_t participant_id, const std::string& ref) = 0;
+    virtual bool create_participant_from_xml(uint16_t participant_id, const std::string& xml) = 0;
+
+    virtual bool create_topic_from_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref) = 0;
+    virtual bool create_topic_from_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml) = 0;
+
+    virtual bool create_publisher_from_ref(uint16_t publisher_id, uint16_t participant_id, const std::string& ref) = 0;
+    virtual bool create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string& xml) = 0;
+
+    virtual bool create_subcriber_from_ref(uint16_t subscriber_id, uint16_t participant_id, const std::string& ref) = 0;
+    virtual bool create_subcriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string& xml) = 0;
+
+    virtual bool create_datawriter_from_ref(uint16_t datawriter_id,
+                                            uint16_t publisher_id,
+                                            const std::string& ref,
+                                            uint16_t& associated_topic_id) = 0;
+
+    virtual bool create_datawriter_from_xml(uint16_t datawriter_id,
+                                            uint16_t publisher_id,
+                                            const std::string& xml,
+                                            uint16_t& associated_topic_id) = 0;
+
+    virtual bool create_datareader_from_ref(uint16_t datareader_id,
+                                            uint16_t subscriber_id,
+                                            const std::string& ref,
+                                            uint16_t& associated_topic_id) = 0;
+
+    virtual bool create_datareader_from_xml(uint16_t datareader_id,
+                                            uint16_t subscriber_id,
+                                            const std::string& xml,
+                                            uint16_t& associated_topic_id) = 0;
 
     /* Deletion functions. */
     virtual bool delete_participant(uint16_t participant_id) = 0;
-    virtual bool delete_topic(uint16_t topic_id) = 0;
-    virtual bool delete_publisher(uint16_t publisher_id) = 0;
-    virtual bool delete_subcriber(uint16_t subscriber_id) = 0;
-    virtual bool delete_datawriter(uint16_t datawriter_id) = 0;
-    virtual bool delete_datareader(uint16_t datareader_id) = 0;
+    virtual bool delete_topic(uint16_t topic_id, uint16_t participant_id) = 0;
+    virtual bool delete_publisher(uint16_t publisher_id, uint16_t participant_id) = 0;
+    virtual bool delete_subcriber(uint16_t subscriber_id, uint16_t participant_id) = 0;
+    virtual bool delete_datawriter(uint16_t datawriter_id, uint16_t publisher_id) = 0;
+    virtual bool delete_datareader(uint16_t datareader_id, uint16_t subscriber_id) = 0;
 
     /* Write and read functions. */
     virtual bool write_data(uint16_t datawriter_id, uint8_t* buf, size_t len) = 0;
