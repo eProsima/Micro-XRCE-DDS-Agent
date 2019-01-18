@@ -17,10 +17,8 @@
 #define _UXR_AGENT_FAST_MIDDLEWARE_HPP_
 
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/middleware/FastEntities.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
-#include <fastrtps/participant/ParticipantListener.h>
-#include <fastrtps/publisher/PublisherListener.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
 
 #include <cstdint>
 #include <cstddef>
@@ -28,48 +26,9 @@
 #include <memory>
 
 namespace eprosima {
-namespace fastrtps {
-
-//class Participant;
-
-} // namespace fastrtps
-} // namespace eprosima
-
-namespace eprosima {
 namespace uxr {
 
-/*************************************************************************************************
- * Fake Publisher & Subscriber.
- *************************************************************************************************/
-class FakePublisher
-{
-public:
-    FakePublisher(uint16_t participant_id) : participant_id_(participant_id) {}
-
-    uint16_t get_participant_id() { return participant_id_; }
-
-private:
-    uint16_t participant_id_;
-};
-
-class FakeSubscriber
-{
-public:
-    FakeSubscriber(uint16_t participant_id) : participant_id_(participant_id) {}
-
-    uint16_t get_participant_id() { return participant_id_; }
-
-private:
-    uint16_t participant_id_;
-};
-
-/*************************************************************************************************
- * Middleware.
- *************************************************************************************************/
-class FastMiddleware : public Middleware,
-                       public fastrtps::ParticipantListener,
-                       public fastrtps::PublisherListener,
-                       public fastrtps::SubscriberListener
+class FastMiddleware : public Middleware
 {
 public:
     FastMiddleware() = default;
@@ -127,12 +86,12 @@ private:
     bool check_register_topic(const std::string& topic_name, uint16_t& topic_id);
 
 private:
-    std::unordered_map<uint16_t, fastrtps::Participant*> participants_;
-    std::unordered_map<uint16_t, TopicPubSubType*> topics_;
-    std::unordered_map<uint16_t, FakePublisher> publishers_;
-    std::unordered_map<uint16_t, FakeSubscriber> subscribers_;
-    std::unordered_map<uint16_t, fastrtps::Publisher*> datawriters_;
-    std::unordered_map<uint16_t, fastrtps::Subscriber*> datareaders_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
+    std::unordered_map<uint16_t, std::shared_ptr<TopicPubSubType>> topics_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
 
     std::unordered_map<std::string, uint16_t> registered_topics_;
 };
