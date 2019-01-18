@@ -28,45 +28,15 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port, uint16_t discovery_port)
-    : running_cond_(false),
-      processor_(processor),
-      transport_address_{},
+DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port)
+    : DiscoveryServer (processor, port),
       poll_fd_{},
       buffer_{0},
       discovery_port_(discovery_port)
 {
-    dds::xrce::TransportAddressMedium transport_addr;
-    transport_addr.port(port);
-    transport_address_.medium_locator(transport_addr);
 }
 
-bool DiscoveryServer::run()
-{
-    if (!init())
-    {
-        return false;
-    }
-
-    /* Init thread. */
-    running_cond_ = true;
-    discovery_thread_.reset(new std::thread(std::bind(&DiscoveryServer::discovery_loop, this)));
-
-    return true;
-}
-
-bool DiscoveryServer::stop()
-{
-    /* Stop thread. */
-    running_cond_ = false;
-    if (discovery_thread_ && discovery_thread_->joinable())
-    {
-        discovery_thread_->join();
-    }
-    return close();
-}
-
-bool DiscoveryServer::init()
+bool DiscoveryServerLinux::init()
 {
     bool rv = false;
 
@@ -117,12 +87,12 @@ bool DiscoveryServer::init()
     return rv;
 }
 
-bool DiscoveryServer::close()
+bool DiscoveryServerLinux::close()
 {
     return 0 == ::close(poll_fd_.fd);
 }
 
-bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = true;
     struct sockaddr client_addr;
@@ -152,7 +122,7 @@ bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool DiscoveryServer::send_message(OutputPacket output_packet)
+bool DiscoveryServerLinux::send_message(OutputPacket output_packet)
 {
     bool rv = true;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
@@ -180,22 +150,6 @@ bool DiscoveryServer::send_message(OutputPacket output_packet)
     }
 
     return rv;
-}
-
-void DiscoveryServer::discovery_loop()
-{
-    InputPacket input_packet;
-    OutputPacket output_packet;
-    while (running_cond_)
-    {
-        if (recv_message(input_packet, RECEIVE_TIMEOUT))
-        {
-            if (processor_.process_get_info_packet(std::move(input_packet), transport_address_, output_packet))
-            {
-                send_message(output_packet);
-            }
-        }
-    }
 }
 
 } // namespace uxr

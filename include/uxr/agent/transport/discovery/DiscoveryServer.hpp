@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
-#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
+#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
+#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 
 #define UXR_DEFAULT_DISCOVERY_PORT 7400
 
-#include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
 #include <uxr/agent/message/Packet.hpp>
 
 #include <thread>
@@ -29,25 +28,32 @@ namespace uxr {
 
 class Processor;
 
-class DiscoveryServerLinux : public DiscoveryServer
+class DiscoveryServer
 {
 public:
-    DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port);
-    ~DiscoveryServerLinux() override = default;
+    DiscoveryServer(const Processor& processor, uint16_t port);
+    virtual ~DiscoveryServer() = default;
+
+    bool run();
+    bool stop();
 
 private:
-    bool init() override;
-    bool close() override;
-    bool recv_message(InputPacket& input_packet, int timeout) override;
-    bool send_message(OutputPacket output_packet) override;
+    virtual bool init() = 0;
+    virtual bool close() = 0;
+    virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
+    virtual bool send_message(OutputPacket output_packet) = 0;
+    void discovery_loop();
 
 private:
-    struct pollfd poll_fd_;
-    uint8_t buffer_[128];
-    uint16_t discovery_port_;
+    std::unique_ptr<std::thread> discovery_thread_;
+    std::atomic<bool> running_cond_;
+    const Processor& processor_;
+
+protected:
+    dds::xrce::TransportAddress transport_address_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
+#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_

@@ -71,7 +71,7 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
-    DiscoveryServer discovery_server_;
+    DiscoveryServerLinux discovery_server_;
 };
 
 } // namespace uxr
