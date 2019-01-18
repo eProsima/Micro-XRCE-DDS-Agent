@@ -166,11 +166,6 @@ void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
     start_read(delivery_control, read_cb, cb_args);
 }
 
-bool DataReader::has_message() const
-{
-    return msg_;
-}
-
 int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
     std::unique_lock<std::mutex> lock(mtx_);
@@ -349,10 +344,6 @@ size_t DataReader::nextDataSize()
     {
         if (info_.sampleKind == rtps::ALIVE)
         {
-            if (!msg_)
-            {
-                msg_ = true;
-            }
             return buffer.size();
         }
     }
@@ -363,12 +354,10 @@ void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::
 {
     if (info.status == rtps::MATCHED_MATCHING)
     {
-        matched_++;
         std::cout << "RTPS Publisher matched " << info.remoteEndpointGuid << std::endl;
     }
     else
     {
-        matched_--;
         std::cout << "RTPS Publisher unmatched " << info.remoteEndpointGuid << std::endl;
     }
 }

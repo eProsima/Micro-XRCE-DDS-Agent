@@ -97,8 +97,6 @@ class RTPSSubListener : public fastrtps::SubscriberListener
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override = 0;
     void onNewDataMessage(fastrtps::Subscriber* sub) override                                          = 0;
     fastrtps::SampleInfo_t info_;
-    int matched_{0};
-    std::atomic_bool msg_{false};
 
   private:
     using fastrtps::SubscriberListener::onSubscriptionMatched;
@@ -122,20 +120,23 @@ public:
 
     bool init(const dds::xrce::DATAREADER_Representation& representation, const ObjectContainer& root_objects);
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
-    bool has_message() const;
     void on_max_timeout(const asio::error_code& error) override;
-    void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub,
-                               eprosima::fastrtps::rtps::MatchingInfo& info) override;
+    void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
     int start_read(const dds::xrce::DataDeliveryControl& delivery_control,
-                   read_callback read_cb, const ReadCallbackArgs& cb_args);
+                   read_callback read_cb,
+                   const ReadCallbackArgs& cb_args);
+
     int stop_read();
+
     void read_task(dds::xrce::DataDeliveryControl delivery_control,
-                   read_callback read_cb, ReadCallbackArgs cb_args);
+                   read_callback read_cb,
+                   ReadCallbackArgs cb_args);
+
     bool takeNextData(void* data);
     size_t nextDataSize();
 
