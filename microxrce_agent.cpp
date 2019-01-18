@@ -46,35 +46,35 @@ void showHelp()
 speed_t getBaudRate(const char* baudrate_str)
 {
     speed_t rv;
-    if (strcmp(baudrate_str, "1200"))
+    if (0 == strcmp(baudrate_str, "1200"))
     {
         rv = B1200;
     }
-    else if (strcmp(baudrate_str, "2400"))
+    else if (0 == strcmp(baudrate_str, "2400"))
     {
         rv = B2400;
     }
-    else if (strcmp(baudrate_str, "4800"))
+    else if (0 == strcmp(baudrate_str, "4800"))
     {
         rv = B4800;
     }
-    else if (strcmp(baudrate_str, "9600"))
+    else if (0 == strcmp(baudrate_str, "9600"))
     {
         rv = B9600;
     }
-    else if (strcmp(baudrate_str, "19200"))
+    else if (0 == strcmp(baudrate_str, "19200"))
     {
         rv = B19200;
     }
-    else if (strcmp(baudrate_str, "38400"))
+    else if (0 == strcmp(baudrate_str, "38400"))
     {
         rv = B38400;
     }
-    else if (strcmp(baudrate_str, "57600"))
+    else if (0 == strcmp(baudrate_str, "57600"))
     {
         rv = B57600;
     }
-    else if (strcmp(baudrate_str, "115200"))
+    else if (0 == strcmp(baudrate_str, "115200"))
     {
         rv = B115200;
     }
