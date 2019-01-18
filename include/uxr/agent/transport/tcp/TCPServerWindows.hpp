@@ -16,6 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #include <uxr/agent/config.hpp>
 #include <winsock2.h>
 #include <vector>
@@ -69,6 +70,7 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+    DiscoveryServerWindows discovery_server_;
 };
 
 } // namespace uxr

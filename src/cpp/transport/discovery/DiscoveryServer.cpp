@@ -17,10 +17,6 @@
 #include <uxr/agent/processor/Processor.hpp>
 
 #include <functional>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 
 #define RECEIVE_TIMEOUT 100
 #define DISCOVERY_IP "239.255.0.2"

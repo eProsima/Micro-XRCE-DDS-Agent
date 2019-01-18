@@ -30,7 +30,8 @@ TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
       buffer_{0},
       listener_thread_(),
       running_cond_(false),
-      messages_queue_{}
+      messages_queue_{},
+      discovery_server_(*processor_, port_, discovery_port)
 {
     (void) discovery_port;
 }
