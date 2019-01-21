@@ -180,7 +180,8 @@ bool FastMiddleware::create_datawriter_from_xml(uint16_t datawriter_id,
 bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& ref,
-                                                uint16_t& associated_topic_id)
+                                                uint16_t& associated_topic_id,
+                                                OnNewData on_new_data_cb)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -191,7 +192,7 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
         {
             std::shared_ptr<FastDataReader> datareader;
             std::string topic_name;
-            if (datareader->create_by_ref(ref, it_participant->second.get(), topic_name))
+            if (datareader->create_by_ref(ref, it_participant->second.get(), topic_name, on_new_data_cb))
             {
                 if (check_register_topic(topic_name, associated_topic_id))
                 {
@@ -207,7 +208,8 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
 bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& xml,
-                                                uint16_t& associated_topic_id)
+                                                uint16_t& associated_topic_id,
+                                                OnNewData on_new_data_cb)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -221,7 +223,7 @@ bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
             {
                 std::shared_ptr<FastDataReader> datareader;
                 std::string topic_name;
-                if (datareader->create_by_attributes(attributes, it_participant->second.get(), topic_name))
+                if (datareader->create_by_attributes(attributes, it_participant->second.get(), topic_name, on_new_data_cb))
                 {
                     if (check_register_topic(topic_name, associated_topic_id))
                     {
@@ -314,14 +316,6 @@ bool FastMiddleware::delete_datareader(uint16_t datareader_id, uint16_t subscrib
     return rv;
 }
 
-bool FastMiddleware::write_data(uint16_t datawriter_id, uint8_t *buf, size_t len)
-{
-    (void) datawriter_id;
-    (void) buf;
-    (void) len;
-    return true;
-}
-
 bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& data)
 {
     bool rv = false;
@@ -333,10 +327,16 @@ bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& da
     return rv;
 }
 
-bool FastMiddleware::read_data(uint16_t datareader_id)
+bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>& data)
 {
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->read(data);
+    }
     (void) datareader_id;
-    return true;
+    return rv;
 }
 
 void FastMiddleware::register_topic(const std::string& topic_name, uint16_t topic_id)

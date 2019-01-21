@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_FAST_ENTITIES_HPP_
-#define _UXR_AGENT_FAST_ENTITIES_HPP_
+#ifndef _UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
+#define _UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
 
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 namespace eprosima {
 namespace fastrtps {
@@ -110,21 +111,29 @@ public:
     FastDataReader() = default;
     ~FastDataReader() override;
 
-    bool create_by_ref(const std::string& ref, const FastParticipant* participant, std::string& topic_name);
+    bool create_by_ref(const std::string& ref,
+                       const FastParticipant* participant,
+                       std::string& topic_name,
+                       OnNewData on_new_data_cb);
+
     // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(fastrtps::SubscriberAttributes& attrs,
                               const FastParticipant* participant,
-                              std::string& topic_name);
+                              std::string& topic_name,
+                              OnNewData on_new_data_cb);
 
+    bool read(std::vector<uint8_t>& data);
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
+    void onNewDataMessage(fastrtps::Subscriber*) override;
     fastrtps::Subscriber* get_ptr() { return ptr_; }
 
 private:
     fastrtps::Subscriber* ptr_;
+    OnNewData on_new_data_cb_;
 };
 
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_FAST_ENTITIES_HPP_
+#endif //_UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_

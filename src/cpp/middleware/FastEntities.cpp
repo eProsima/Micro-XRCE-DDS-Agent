@@ -17,6 +17,7 @@
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/subscriber/Subscriber.h>
+#include <fastrtps/subscriber/SampleInfo.h>
 
 namespace eprosima {
 namespace uxr {
@@ -97,7 +98,7 @@ bool FastDataWriter::create_by_attributes(PublisherAttributes& attrs,
 
 bool FastDataWriter::write(std::vector<uint8_t>& data)
 {
-    return ptr_->write(&(data));
+    return ptr_->write(&data);
 }
 
 void FastDataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info)
@@ -117,26 +118,43 @@ FastDataReader::~FastDataReader()
     fastrtps::Domain::removeSubscriber(ptr_);
 }
 
-bool FastDataReader::create_by_ref(const std::string& ref, const FastParticipant* participant, std::string& topic_name)
+bool FastDataReader::create_by_ref(const std::string& ref,
+                                   const FastParticipant* participant,
+                                   std::string& topic_name,
+                                   OnNewData on_new_data_cb)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
 }
 
 bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
                                           const FastParticipant* participant,
-                                          std::string& topic_name)
+                                          std::string& topic_name,
+                                          OnNewData on_new_data_cb)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
+}
+
+bool FastDataReader::read(std::vector<uint8_t>& data)
+{
+    bool rv = false;
+    if (ptr_->getUnreadCount() != 0)
+    {
+        fastrtps::SampleInfo_t info;
+        rv = ptr_->takeNextData(&data, &info);
+    }
+    return rv;
 }
 
 void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps::MatchingInfo& info)
@@ -149,6 +167,11 @@ void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps
     {
         std::cout << "RTPS Publisher unmatched " << info.remoteEndpointGuid << std::endl;
     }
+}
+
+void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
+{
+    on_new_data_cb_();
 }
 
 } // namespace uxr
