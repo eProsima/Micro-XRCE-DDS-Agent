@@ -33,15 +33,12 @@ void showHelp()
 {
     std::cout << "Usage: program <command>" << std::endl;
     std::cout << "List of commands:" << std::endl;
-#ifdef _WIN32
-    std::cout << "    udp <local_port>" << std::endl;
-    std::cout << "    tcp <local_port>" << std::endl;
-#else
+#ifndef _WIN32
     std::cout << "    serial <device_name>" << std::endl;
     std::cout << "    pseudo-serial" << std::endl;
+#endif
     std::cout << "    udp <local_port> [--discovery [<discovery_port>] ]" << std::endl;
     std::cout << "    tcp <local_port> [--discovery [<discovery_port>] ]" << std::endl;
-#endif
 }
 
 void initializationError()
@@ -106,7 +103,6 @@ int main(int argc, char** argv)
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 
-#ifndef _WIN32
         if(3 <= cl.size())
         {
             discovery_flag = "--discovery" == cl[2];
@@ -119,16 +115,12 @@ int main(int argc, char** argv)
         server = 4 <= cl.size()
                  ? new eprosima::uxr::UDPServer(port, parsePort(cl[3]))
                  : new eprosima::uxr::UDPServer(port);
-#else
-        server = new eprosima::uxr::UDPServer(port);
-#endif
     }
     else if((2 <= cl.size()) && ("tcp" == cl[0]))
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 
-#ifndef _WIN32
         if(3 <= cl.size())
         {
             discovery_flag = "--discovery" == cl[2];
@@ -141,9 +133,6 @@ int main(int argc, char** argv)
         server = 4 <= cl.size()
                  ? new eprosima::uxr::TCPServer(port, parsePort(cl[3]))
                  : new eprosima::uxr::TCPServer(port);
-#else
-        server = new eprosima::uxr::TCPServer(port);
-#endif
     }
 #ifndef _WIN32
     else if((2 == cl.size()) && ("serial" == cl[0]))

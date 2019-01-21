@@ -39,7 +39,7 @@ bool DiscoveryServerWindows::init()
     bool rv = false;
 
     /* Socket initialization. */
-    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
+    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
@@ -53,11 +53,10 @@ bool DiscoveryServerWindows::init()
         poll_fd_.events = POLLIN;
 
         /* Set up multicast IP. */
-        struct ip_mreq_source mreq;
+        struct ip_mreq mreq;
         mreq.imr_multiaddr.s_addr = inet_addr(DISCOVERY_IP);
-        mreq.imr_sourceaddr.s_addr = inet_addr(DISCOVERY_IP);
         mreq.imr_interface.s_addr = INADDR_ANY;
-        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_SOURCE_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
+        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
             /* Get local address. */
             SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
