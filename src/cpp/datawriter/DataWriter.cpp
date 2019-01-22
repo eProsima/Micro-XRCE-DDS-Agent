@@ -27,8 +27,9 @@ namespace eprosima {
 namespace uxr {
 
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
+                       Middleware* middleware,
                        const std::shared_ptr<Publisher>& publisher)
-    : XRCEObject{object_id},
+    : XRCEObject(object_id, middleware),
       publisher_(publisher),
       rtps_publisher_(nullptr)
 
@@ -50,7 +51,6 @@ DataWriter::~DataWriter()
 }
 
 bool DataWriter::init_middleware(
-        Middleware* middleware,
         const dds::xrce::DATAWRITER_Representation& representation,
         const ObjectContainer& root_objects)
 {
@@ -61,7 +61,7 @@ bool DataWriter::init_middleware(
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t topic_id;
-            if (middleware->create_datawriter_from_ref(get_raw_id(), publisher_->get_raw_id(), ref, topic_id))
+            if (middleware_->create_datawriter_from_ref(get_raw_id(), publisher_->get_raw_id(), ref, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
                 topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
@@ -74,7 +74,7 @@ bool DataWriter::init_middleware(
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t topic_id;
-            if (middleware->create_datawriter_from_xml(get_raw_id(), publisher_->get_raw_id(), xml, topic_id))
+            if (middleware_->create_datawriter_from_xml(get_raw_id(), publisher_->get_raw_id(), xml, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
                 topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));

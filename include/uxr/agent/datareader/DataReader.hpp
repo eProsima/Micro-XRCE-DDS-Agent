@@ -113,8 +113,10 @@ class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListen
 {
 public:
     DataReader(const dds::xrce::ObjectId& object_id,
+               Middleware* middleware,
                const std::shared_ptr<Subscriber>& subscriber,
                const std::string& profile_name = "");
+
     virtual ~DataReader() noexcept override;
 
     DataReader(DataReader&&)      = delete;
@@ -122,9 +124,7 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    bool init_middleware(
-            Middleware* middleware,
-            const dds::xrce::DATAREADER_Representation& representation,
+    bool init_middleware(const dds::xrce::DATAREADER_Representation& representation,
             const ObjectContainer& root_objects);
 
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);

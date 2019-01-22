@@ -22,8 +22,8 @@
 namespace eprosima {
 namespace uxr {
 
-Topic::Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
-    : XRCEObject{object_id},
+Topic::Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant)
+    : XRCEObject(object_id, middleware),
       participant_(participant),
       generic_type_(false)
 {
@@ -35,7 +35,7 @@ Topic::~Topic()
     participant_->untie_object(get_id());
 }
 
-bool Topic::init_middleware(Middleware *middleware, const dds::xrce::OBJK_TOPIC_Representation &representation)
+bool Topic::init_middleware(const dds::xrce::OBJK_TOPIC_Representation &representation)
 {
     bool rv = false;
     switch (representation.representation()._d())
@@ -43,13 +43,13 @@ bool Topic::init_middleware(Middleware *middleware, const dds::xrce::OBJK_TOPIC_
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            rv = middleware->create_topic_from_ref(get_raw_id(), participant_->get_raw_id(), ref);
+            rv = middleware_->create_topic_from_ref(get_raw_id(), participant_->get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            rv = middleware->create_topic_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
+            rv = middleware_->create_topic_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
             break;
         }
         default:

@@ -36,10 +36,10 @@ class Middleware;
 class Participant : public XRCEObject, public fastrtps::ParticipantListener
 {
 public:
-    Participant(const dds::xrce::ObjectId& id);
+    Participant(const dds::xrce::ObjectId& id, Middleware* middleware);
     virtual ~Participant();
 
-    bool init_middleware(Middleware* middleware, const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+    bool init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
     fastrtps::Participant* get_rtps_participant() { return rtps_participant_; }
     void register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id);
     void unregister_topic(const std::string& topic_name);

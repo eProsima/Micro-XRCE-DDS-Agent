@@ -38,6 +38,7 @@ class DataWriter : public XRCEObject, public fastrtps::PublisherListener
 {
 public:
     DataWriter(const dds::xrce::ObjectId& object_id,
+               Middleware* middleware,
                const std::shared_ptr<Publisher>& publisher);
     ~DataWriter() override;
 
@@ -46,9 +47,7 @@ public:
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init_middleware(
-            Middleware* middleware,
-            const dds::xrce::DATAWRITER_Representation& representation,
+    bool init_middleware(const dds::xrce::DATAWRITER_Representation& representation,
             const ObjectContainer& root_objects);
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);

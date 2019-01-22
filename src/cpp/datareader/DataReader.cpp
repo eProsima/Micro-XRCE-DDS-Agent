@@ -32,9 +32,10 @@ namespace uxr {
 using utils::TokenBucket;
 
 DataReader::DataReader(const dds::xrce::ObjectId& object_id,
+                       Middleware* middleware,
                        const std::shared_ptr<Subscriber>& subscriber,
                        const std::string& profile_name)
-    : XRCEObject(object_id),
+    : XRCEObject(object_id, middleware),
       subscriber_(subscriber),
       running_cond_(false),
       rtps_subscriber_prof_(profile_name),
@@ -70,9 +71,8 @@ DataReader::~DataReader() noexcept
 }
 
 bool DataReader::init_middleware(
-        Middleware *middleware,
-        const dds::xrce::DATAREADER_Representation &representation,
-        const ObjectContainer &root_objects)
+        const dds::xrce::DATAREADER_Representation& representation,
+        const ObjectContainer& root_objects)
 {
     bool rv = false;
     switch (representation.representation()._d())
@@ -81,7 +81,7 @@ bool DataReader::init_middleware(
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t topic_id;
-            if (middleware->create_datareader_from_ref(
+            if (middleware_->create_datareader_from_ref(
                         get_raw_id(),
                         subscriber_->get_raw_id(),
                         ref,
@@ -99,7 +99,7 @@ bool DataReader::init_middleware(
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t topic_id;
-            if (middleware->create_datareader_from_xml(
+            if (middleware_->create_datareader_from_xml(
                         get_raw_id(),
                         subscriber_->get_raw_id(),
                         xml,

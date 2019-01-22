@@ -18,6 +18,7 @@
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <unordered_map>
 #include <memory>
 
@@ -38,8 +39,12 @@ typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, Obj
 
 class XRCEObject
 {
-  public:
-    explicit XRCEObject(const dds::xrce::ObjectId& object_id) : id_{object_id} {}
+public:
+    explicit XRCEObject(const dds::xrce::ObjectId& object_id, Middleware* middleware)
+        : id_{object_id},
+          middleware_{middleware}
+    {}
+
     XRCEObject(XRCEObject &&) = default;
     XRCEObject(const XRCEObject &) = default;
     XRCEObject& operator=(XRCEObject &&) = default;
@@ -51,8 +56,11 @@ class XRCEObject
     virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
     virtual void release(ObjectContainer& root_objects) = 0;
 
-  private:
+private:
     dds::xrce::ObjectId id_;
+
+protected:
+    Middleware* middleware_;
 };
 
 } // namespace uxr

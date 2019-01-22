@@ -22,7 +22,7 @@
 namespace eprosima {
 namespace uxr {
 
-Participant::Participant(const dds::xrce::ObjectId& id) : XRCEObject{id} {}
+Participant::Participant(const dds::xrce::ObjectId& id, Middleware* middleware) : XRCEObject(id, middleware) {}
 
 Participant::~Participant()
 {
@@ -32,7 +32,7 @@ Participant::~Participant()
     }
 }
 
-bool Participant::init_middleware(Middleware *middleware, const dds::xrce::OBJK_PARTICIPANT_Representation &representation)
+bool Participant::init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representation &representation)
 {
     bool rv = false;
     switch (representation.representation()._d())
@@ -40,13 +40,13 @@ bool Participant::init_middleware(Middleware *middleware, const dds::xrce::OBJK_
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref_rep = representation.representation().object_reference();
-            rv = middleware->create_participant_from_ref(get_raw_id(), ref_rep);
+            rv = middleware_->create_participant_from_ref(get_raw_id(), ref_rep);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml_rep = representation.representation().xml_string_representation();
-            rv = middleware->create_participant_from_xml(get_raw_id(), xml_rep);
+            rv = middleware_->create_participant_from_xml(get_raw_id(), xml_rep);
             break;
         }
         default:

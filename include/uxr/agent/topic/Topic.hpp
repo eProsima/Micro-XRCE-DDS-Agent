@@ -31,14 +31,14 @@ class Participant;
 class Topic : public XRCEObject
 {
   public:
-    Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant);
+    Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant);
     Topic(Topic&&) = default;
     Topic(const Topic&) = default;
     Topic& operator=(Topic&&) = default;
     Topic& operator=(const Topic&) = default;
     ~Topic() override;
 
-    bool init_middleware(Middleware* middleware, const dds::xrce::OBJK_TOPIC_Representation& representation);
+    bool init_middleware(const dds::xrce::OBJK_TOPIC_Representation& representation);
     virtual void release(ObjectContainer&) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }

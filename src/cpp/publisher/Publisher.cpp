@@ -19,8 +19,8 @@
 namespace eprosima {
 namespace uxr {
 
-Publisher::Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
-    : XRCEObject {object_id},
+Publisher::Publisher(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant)
+    : XRCEObject(object_id, middleware),
       participant_(participant)
 {
     participant_->tie_object(object_id);
@@ -31,7 +31,7 @@ Publisher::~Publisher()
     participant_->untie_object(get_id());
 }
 
-bool Publisher::init_middleware(Middleware *middleware, const dds::xrce::OBJK_PUBLISHER_Representation &representation)
+bool Publisher::init_middleware(const dds::xrce::OBJK_PUBLISHER_Representation &representation)
 {
     bool rv = false;
     switch (representation.representation()._d())
@@ -39,7 +39,7 @@ bool Publisher::init_middleware(Middleware *middleware, const dds::xrce::OBJK_PU
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            rv = middleware->create_publisher_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
+            rv = middleware_->create_publisher_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
