@@ -16,7 +16,6 @@
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
-#include <functional>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
