@@ -32,7 +32,7 @@ class FastMiddleware : public Middleware
 {
 public:
     FastMiddleware() = default;
-    virtual ~FastMiddleware() override = default;
+    ~FastMiddleware() override = default;
 
     /* Creation functions. */
     bool create_participant_from_ref(uint16_t participant_id, const std::string& ref) override;
@@ -41,11 +41,9 @@ public:
     bool create_topic_from_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref) override;
     bool create_topic_from_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml) override;
 
-    bool create_publisher_from_ref(uint16_t publisher_id, uint16_t participant_id, const std::string&) override;
     bool create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&) override;
 
-    bool create_subcriber_from_ref(uint16_t subscriber_id, uint16_t participant_id, const std::string&) override;
-    bool create_subcriber_from_xml(uint16_t subscirber_id, uint16_t participant_id, const std::string&) override;
+    bool create_subscriber_from_xml(uint16_t subscirber_id, uint16_t participant_id, const std::string&) override;
 
     bool create_datawriter_from_ref(uint16_t datawriter_id,
                                     uint16_t publisher_id,
@@ -73,7 +71,7 @@ public:
     bool delete_participant(uint16_t participant_id) override;
     bool delete_topic(uint16_t topic_id, uint16_t participant_id) override;
     bool delete_publisher(uint16_t publisher_id, uint16_t participant_id) override;
-    bool delete_subcriber(uint16_t subscriber_id, uint16_t participant_id) override;
+    bool delete_subscriber(uint16_t subscriber_id, uint16_t participant_id) override;
     bool delete_datawriter(uint16_t datawriter_id, uint16_t publisher_id) override;
     bool delete_datareader(uint16_t datareader_id, uint16_t subscriber_id) override;
 

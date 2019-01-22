@@ -91,13 +91,6 @@ bool FastMiddleware::create_topic_from_xml(uint16_t topic_id, uint16_t participa
     return rv;
 }
 
-bool FastMiddleware::create_publisher_from_ref(uint16_t publisher_id, uint16_t participant_id, const std::string&)
-{
-    std::shared_ptr<FastPublisher> publisher(new FastPublisher(participant_id));
-    publishers_.emplace(std::make_pair(publisher_id, std::move(publisher)));
-    return true;
-}
-
 bool FastMiddleware::create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&)
 {
     std::shared_ptr<FastPublisher> publisher(new FastPublisher(participant_id));
@@ -105,14 +98,7 @@ bool FastMiddleware::create_publisher_from_xml(uint16_t publisher_id, uint16_t p
     return true;
 }
 
-bool FastMiddleware::create_subcriber_from_ref(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
-{
-    std::shared_ptr<FastSubscriber> subscriber(new FastSubscriber(participant_id));
-    subscribers_.emplace(std::make_pair(subscriber_id, std::move(subscriber)));
-    return true;
-}
-
-bool FastMiddleware::create_subcriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
+bool FastMiddleware::create_subscriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
 {
     std::shared_ptr<FastSubscriber> subscriber(new FastSubscriber(participant_id));
     subscribers_.emplace(std::make_pair(subscriber_id, std::move(subscriber)));
@@ -279,7 +265,7 @@ bool FastMiddleware::delete_publisher(uint16_t publisher_id, uint16_t participan
     return rv;
 }
 
-bool FastMiddleware::delete_subcriber(uint16_t subscriber_id, uint16_t participant_id)
+bool FastMiddleware::delete_subscriber(uint16_t subscriber_id, uint16_t participant_id)
 {
     (void) participant_id;
     bool rv = false;

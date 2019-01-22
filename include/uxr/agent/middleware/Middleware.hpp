@@ -39,11 +39,9 @@ public:
     virtual bool create_topic_from_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref) = 0;
     virtual bool create_topic_from_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml) = 0;
 
-    virtual bool create_publisher_from_ref(uint16_t publisher_id, uint16_t participant_id, const std::string& ref) = 0;
     virtual bool create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string& xml) = 0;
 
-    virtual bool create_subcriber_from_ref(uint16_t subscriber_id, uint16_t participant_id, const std::string& ref) = 0;
-    virtual bool create_subcriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string& xml) = 0;
+    virtual bool create_subscriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string& xml) = 0;
 
     virtual bool create_datawriter_from_ref(uint16_t datawriter_id,
                                             uint16_t publisher_id,
@@ -71,7 +69,7 @@ public:
     virtual bool delete_participant(uint16_t participant_id) = 0;
     virtual bool delete_topic(uint16_t topic_id, uint16_t participant_id) = 0;
     virtual bool delete_publisher(uint16_t publisher_id, uint16_t participant_id) = 0;
-    virtual bool delete_subcriber(uint16_t subscriber_id, uint16_t participant_id) = 0;
+    virtual bool delete_subscriber(uint16_t subscriber_id, uint16_t participant_id) = 0;
     virtual bool delete_datawriter(uint16_t datawriter_id, uint16_t publisher_id) = 0;
     virtual bool delete_datareader(uint16_t datareader_id, uint16_t subscriber_id) = 0;
 
