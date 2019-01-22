@@ -31,7 +31,7 @@ namespace uxr {
 class FastMiddleware : public Middleware
 {
 public:
-    FastMiddleware() = default;
+    FastMiddleware();
     ~FastMiddleware() override = default;
 
     /* Creation functions. */

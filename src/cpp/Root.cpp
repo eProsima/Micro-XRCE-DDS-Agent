@@ -17,7 +17,6 @@
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/FastMiddleware.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <memory>
 #include <chrono>
 
@@ -38,13 +37,6 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
-
-    /* Load XML profile file. */
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile())
-    {
-        std::cout << "Error: parsing DEFAULT PROFILE." << std::endl;
-    }
-
     middleware_.reset(new FastMiddleware());
 }
 
