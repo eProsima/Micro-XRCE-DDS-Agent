@@ -32,7 +32,7 @@ FastMiddleware::FastMiddleware()
 bool FastMiddleware::create_participant_from_ref(uint16_t participant_id, const std::string& ref)
 {
     bool rv = false;
-    std::shared_ptr<FastParticipant> participant;
+    std::shared_ptr<FastParticipant> participant(new FastParticipant());
     if (participant->create_by_ref(ref))
     {
         participants_.insert(std::make_pair(participant_id, std::move(participant)));
@@ -67,11 +67,11 @@ bool FastMiddleware::create_topic_from_ref(uint16_t topic_id, uint16_t participa
         if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
                 fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref, attributes))
         {
-            std::shared_ptr<FastTopic> topic;
+            std::shared_ptr<FastTopic> topic(new FastTopic());
             if (topic->create_by_attributes(attributes, it_participant->second.get()))
             {
-                topics_.insert(std::make_pair(topic_id, std::move(topic)));
                 register_topic(topic->getName(), topic_id);
+                topics_.insert(std::make_pair(topic_id, std::move(topic)));
                 rv = true;
             }
         }
@@ -88,11 +88,11 @@ bool FastMiddleware::create_topic_from_xml(uint16_t topic_id, uint16_t participa
         fastrtps::TopicAttributes attributes;
         if (xmlobjects::parse_topic(xml.data(), xml.size(), attributes))
         {
-            std::shared_ptr<FastTopic> topic;
+            std::shared_ptr<FastTopic> topic(new FastTopic());
             if (topic->create_by_attributes(attributes, it_participant->second.get()))
             {
-                topics_.insert(std::make_pair(topic_id, std::move(topic)));
                 register_topic(topic->getName(), topic_id);
+                topics_.insert(std::make_pair(topic_id, std::move(topic)));
                 rv = true;
             }
         }
@@ -126,7 +126,7 @@ bool FastMiddleware::create_datawriter_from_ref(uint16_t datawriter_id,
         auto it_participant = participants_.find(it_publisher->second->get_participant_id());
         if (participants_.end() != it_participant)
         {
-            std::shared_ptr<FastDataWriter> datawriter;
+            std::shared_ptr<FastDataWriter> datawriter(new FastDataWriter());
             std::string topic_name;
             if (datawriter->create_by_ref(ref, it_participant->second.get(), topic_name))
             {
@@ -156,7 +156,7 @@ bool FastMiddleware::create_datawriter_from_xml(uint16_t datawriter_id,
             fastrtps::PublisherAttributes attributes;
             if (xmlobjects::parse_publisher(xml.data(), xml.size(), attributes))
             {
-                std::shared_ptr<FastDataWriter> datawriter;
+                std::shared_ptr<FastDataWriter> datawriter(new FastDataWriter());
                 std::string topic_name;
                 if (datawriter->create_by_attributes(attributes, it_participant->second.get(), topic_name))
                 {
@@ -185,7 +185,7 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
         auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
         if (participants_.end() != it_participant)
         {
-            std::shared_ptr<FastDataReader> datareader;
+            std::shared_ptr<FastDataReader> datareader(new FastDataReader());
             std::string topic_name;
             if (datareader->create_by_ref(ref, it_participant->second.get(), topic_name, on_new_data_cb))
             {
@@ -216,7 +216,7 @@ bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
             fastrtps::SubscriberAttributes attributes;
             if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attributes))
             {
-                std::shared_ptr<FastDataReader> datareader;
+                std::shared_ptr<FastDataReader> datareader(new FastDataReader());
                 std::string topic_name;
                 if (datareader->create_by_attributes(attributes, it_participant->second.get(), topic_name, on_new_data_cb))
                 {
