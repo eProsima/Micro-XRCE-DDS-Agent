@@ -17,8 +17,7 @@
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
+
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
 #include <condition_variable>
@@ -27,19 +26,6 @@
 #include <functional>
 
 namespace eprosima {
-
-namespace fastrtps {
-
-class Participant;
-class Subscriber;
-
-namespace rtps {
-
-class MatchingInfo;
-
-} // namespace rtps
-} // namespace fastrtps
-
 namespace uxr {
 
 class Subscriber;
@@ -85,37 +71,15 @@ class ReadTimeEvent
 };
 
 /**
- * @brief The RTPSSubListener class
- */
-class RTPSSubListener : public fastrtps::SubscriberListener
-{
-  public:
-    RTPSSubListener()           = default;
-    ~RTPSSubListener() override = default;
-
-    RTPSSubListener(RTPSSubListener&&)      = delete;
-    RTPSSubListener(const RTPSSubListener&) = delete;
-    RTPSSubListener& operator=(RTPSSubListener&&) = delete;
-    RTPSSubListener& operator=(const RTPSSubListener&) = delete;
-
-    void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override = 0;
-    void onNewDataMessage(fastrtps::Subscriber* sub) override                                          = 0;
-    fastrtps::SampleInfo_t info_;
-
-  private:
-    using fastrtps::SubscriberListener::onSubscriptionMatched;
-};
-
-/**
  * @brief The DataReader class contains the public API that allows the user to control the reception of message.
  */
-class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
+//class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
+class DataReader : public XRCEObject, public ReadTimeEvent
 {
 public:
     DataReader(const dds::xrce::ObjectId& object_id,
                Middleware* middleware,
-               const std::shared_ptr<Subscriber>& subscriber,
-               const std::string& profile_name = "");
+               const std::shared_ptr<Subscriber>& subscriber);
 
     virtual ~DataReader() noexcept override;
 
@@ -129,8 +93,6 @@ public:
 
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     void on_max_timeout(const asio::error_code& error) override;
-    void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
-    void onNewDataMessage(fastrtps::Subscriber*) override;
     void on_new_message();
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
@@ -146,9 +108,6 @@ private:
                    read_callback read_cb,
                    ReadCallbackArgs cb_args);
 
-    bool takeNextData(void* data);
-    size_t nextDataSize();
-
 private:
     std::shared_ptr<Subscriber> subscriber_;
     std::shared_ptr<Topic> topic_;
@@ -157,9 +116,6 @@ private:
     std::mutex mtx_;
     std::condition_variable cond_var_;
     bool running_cond_;
-    std::string rtps_subscriber_prof_;
-    fastrtps::Subscriber* rtps_subscriber_;
-    TopicPubSubType topic_type_;
 };
 
 } // namespace uxr

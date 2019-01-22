@@ -219,6 +219,29 @@ bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
     return (nullptr != ptr_);
 }
 
+bool FastDataReader::match_from_ref(const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::SubscriberAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(ref, new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
+}
+
+bool FastDataReader::match_from_xml(const std::string& xml)
+{
+    bool rv = false;
+    fastrtps::SubscriberAttributes new_attributes;
+    if (xmlobjects::parse_subscriber(xml.data(), xml.size(), new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
+}
+
 bool FastDataReader::read(std::vector<uint8_t>& data)
 {
     bool rv = false;

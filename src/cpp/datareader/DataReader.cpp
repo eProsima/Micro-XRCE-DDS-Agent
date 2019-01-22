@@ -19,12 +19,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
 
-#include <fastrtps/Domain.h>
-#include <fastrtps/subscriber/SampleInfo.h>
-#include <fastrtps/subscriber/Subscriber.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <atomic>
-#include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
@@ -33,14 +28,10 @@ using utils::TokenBucket;
 
 DataReader::DataReader(const dds::xrce::ObjectId& object_id,
                        Middleware* middleware,
-                       const std::shared_ptr<Subscriber>& subscriber,
-                       const std::string& profile_name)
+                       const std::shared_ptr<Subscriber>& subscriber)
     : XRCEObject(object_id, middleware),
       subscriber_(subscriber),
-      running_cond_(false),
-      rtps_subscriber_prof_(profile_name),
-      rtps_subscriber_(nullptr),
-      topic_type_(false)
+      running_cond_(false)
 {
     subscriber_->tie_object(object_id);
 }
@@ -58,16 +49,13 @@ DataReader::~DataReader() noexcept
         max_timer_thread_.join();
     }
 
-    if (nullptr != rtps_subscriber_)
-    {
-        fastrtps::Domain::removeSubscriber(rtps_subscriber_);
-    }
-
     subscriber_->untie_object(get_id());
     if (topic_)
     {
         topic_->untie_object(get_id());
     }
+
+    middleware_->delete_datareader(get_raw_id(), subscriber_->get_raw_id());
 }
 
 bool DataReader::init_middleware(
@@ -195,43 +183,43 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                            read_callback read_cb,
                            ReadCallbackArgs cb_args)
 {
-    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
-    uint16_t message_count = 0;
-    while (true)
-    {
-        std::unique_lock<std::mutex> lock(mtx_);
-        if (running_cond_ && (message_count < delivery_control.max_samples()))
-        {
-            if (rtps_subscriber_->getUnreadCount() != 0)
-            {
-                lock.unlock();
-                /* Read operation. */
-                size_t next_data_size = nextDataSize();
-                if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
-                {
-                    std::vector<unsigned char> buffer;
-                    if (takeNextData(&buffer))
-                    {
-                        read_cb(cb_args, buffer);
-                        ++message_count;
-                    }
-                }
-            }
-            else
-            {
-                /* Wait for new message or terminate signal. */
-                cond_var_.wait(lock);
-                lock.unlock();
-            }
-        }
-        else
-        {
-            running_cond_ = false;
-            lock.unlock();
-            stop_max_timer();
-            break;
-        }
-    }
+//    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
+//    uint16_t message_count = 0;
+//    while (true)
+//    {
+//        std::unique_lock<std::mutex> lock(mtx_);
+//        if (running_cond_ && (message_count < delivery_control.max_samples()))
+//        {
+//            if (rtps_subscriber_->getUnreadCount() != 0)
+//            {
+//                lock.unlock();
+//                /* Read operation. */
+//                size_t next_data_size = nextDataSize();
+//                if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
+//                {
+//                    std::vector<unsigned char> buffer;
+//                    if (takeNextData(&buffer))
+//                    {
+//                        read_cb(cb_args, buffer);
+//                        ++message_count;
+//                    }
+//                }
+//            }
+//            else
+//            {
+//                /* Wait for new message or terminate signal. */
+//                cond_var_.wait(lock);
+//                lock.unlock();
+//            }
+//        }
+//        else
+//        {
+//            running_cond_ = false;
+//            lock.unlock();
+//            stop_max_timer();
+//            break;
+//        }
+//    }
 }
 
 void DataReader::on_max_timeout(const asio::error_code& error)
@@ -242,12 +230,6 @@ void DataReader::on_max_timeout(const asio::error_code& error)
         running_cond_ = false;
         cond_var_.notify_one();
     }
-}
-
-void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-    cond_var_.notify_one();
 }
 
 void DataReader::on_new_message()
@@ -264,36 +246,25 @@ bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         return false;
     }
 
-    bool parser_cond = false;
-    const fastrtps::SubscriberAttributes& old_attributes = rtps_subscriber_->getAttributes();
-    fastrtps::SubscriberAttributes new_attributes;
-
+    bool rv = false;
     switch (new_object_rep.data_reader().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = new_object_rep.data_reader().representation().object_reference();
-            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-                fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(ref_rep, new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& ref = new_object_rep.data_reader().representation().object_reference();
+            rv = middleware_->matched_datareader_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = new_object_rep.data_reader().representation().xml_string_representation();
-            if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
+            rv = middleware_->matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
-
-    return parser_cond && (new_attributes == old_attributes);
+    return rv;
 }
 
 ReadTimeEvent::ReadTimeEvent()
@@ -319,43 +290,6 @@ void ReadTimeEvent::run_max_timer(int milliseconds)
 {
     init_max_timer(milliseconds);
     m_io_service_max.run();
-}
-
-bool DataReader::takeNextData(void* data)
-{
-    if (nullptr == rtps_subscriber_)
-    {
-        return false;
-    }
-    fastrtps::SampleInfo_t info;
-    return rtps_subscriber_->takeNextData(data, &info);
-}
-
-size_t DataReader::nextDataSize()
-{
-    std::vector<unsigned char> buffer;
-    fastrtps::SampleInfo_t info;
-    // TODO (Borja): review KEE_PALL configuration.
-    if (rtps_subscriber_->readNextData(&buffer, &info))
-    {
-        if (info_.sampleKind == rtps::ALIVE)
-        {
-            return buffer.size();
-        }
-    }
-    return 0;
-}
-
-void DataReader::onSubscriptionMatched(fastrtps::Subscriber* /*sub*/, fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == rtps::MATCHED_MATCHING)
-    {
-        std::cout << "RTPS Publisher matched " << info.remoteEndpointGuid << std::endl;
-    }
-    else
-    {
-        std::cout << "RTPS Publisher unmatched " << info.remoteEndpointGuid << std::endl;
-    }
 }
 
 } // namespace uxr
