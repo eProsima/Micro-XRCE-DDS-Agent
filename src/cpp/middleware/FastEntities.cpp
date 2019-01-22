@@ -18,6 +18,8 @@
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/subscriber/SampleInfo.h>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
@@ -37,6 +39,29 @@ bool FastParticipant::create_by_attributes(fastrtps::ParticipantAttributes& attr
 {
     ptr_ = fastrtps::Domain::createParticipant(attrs, this);
     return (nullptr != ptr_);
+}
+
+bool FastParticipant::match_from_ref(const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::ParticipantAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillParticipantAttributes(ref, new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
+}
+
+bool FastParticipant::match_from_xml(const std::string& xml)
+{
+    bool rv = false;
+    fastrtps::ParticipantAttributes new_attributes;
+    if (xmlobjects::parse_participant(xml.data(), xml.size(), new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
 }
 
 void FastParticipant::onParticipantDiscovery(fastrtps::Participant*, fastrtps::rtps::ParticipantDiscoveryInfo&& info)

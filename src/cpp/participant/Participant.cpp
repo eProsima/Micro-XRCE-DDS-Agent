@@ -14,10 +14,6 @@
 
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <fastrtps/Domain.h>
-#include <fastrtps/participant/Participant.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
@@ -26,10 +22,7 @@ Participant::Participant(const dds::xrce::ObjectId& id, Middleware* middleware) 
 
 Participant::~Participant()
 {
-    if (nullptr != rtps_participant_)
-    {
-        fastrtps::Domain::removeParticipant(rtps_participant_);
-    }
+    middleware_->delete_participant(get_raw_id());
 }
 
 bool Participant::init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representation &representation)
@@ -55,28 +48,6 @@ bool Participant::init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representati
     return rv;
 }
 
-void Participant::register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id)
-{
-    registered_topics_[topic_name] = object_id;
-}
-
-void Participant::unregister_topic(const std::string& topic_name)
-{
-    registered_topics_.erase(topic_name);
-}
-
-bool Participant::check_register_topic(const std::string& topic_name, dds::xrce::ObjectId& object_id)
-{
-    bool rv = false;
-    auto it = registered_topics_.find(topic_name);
-    if (it != registered_topics_.end())
-    {
-        object_id = it->second;
-        rv = true;
-    }
-    return rv;
-}
-
 void Participant::release(ObjectContainer& root_objects)
 {
     while (!tied_objects_.empty())
@@ -84,19 +55,6 @@ void Participant::release(ObjectContainer& root_objects)
         auto obj = tied_objects_.begin();
         root_objects.at(*obj)->release(root_objects);
         root_objects.erase(*obj);
-    }
-}
-
-void Participant::onParticipantDiscovery(eprosima::fastrtps::Participant*,
-                                         fastrtps::rtps::ParticipantDiscoveryInfo&& info)
-{
-    if(info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
-    {
-        std::cout << "RTPS Participant matched " << info.info.m_guid << std::endl;
-    }
-    else
-    {
-        std::cout << "RTPS Participant unmatched " << info.info.m_guid << std::endl;
     }
 }
 
@@ -108,36 +66,25 @@ bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         return false;
     }
 
-    bool parser_cond = false;
-    const fastrtps::ParticipantAttributes& old_attributes = rtps_participant_->getAttributes();
-    fastrtps::ParticipantAttributes new_attributes;
-
+    bool rv = false;
     switch (new_object_rep.participant().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = new_object_rep.participant().representation().object_reference();
-            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-                fastrtps::xmlparser::XMLProfileManager::fillParticipantAttributes(ref_rep, new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& ref = new_object_rep.participant().representation().object_reference();
+            rv = middleware_->matched_participant_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = new_object_rep.participant().representation().xml_string_representation();
-            if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& xml = new_object_rep.participant().representation().xml_string_representation();
+            rv = middleware_->matched_participant_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
-
-    return parser_cond && (new_attributes == old_attributes);
+    return rv;
 }
 
 } // namespace uxr

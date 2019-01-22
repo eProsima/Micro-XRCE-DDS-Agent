@@ -43,6 +43,8 @@ public:
     bool create_by_ref(const std::string& ref);
     // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(fastrtps::ParticipantAttributes& attrs);
+    bool match_from_ref(const std::string& ref);
+    bool match_from_xml(const std::string& xml);
     bool remove();
     void onParticipantDiscovery(fastrtps::Participant*, fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
     fastrtps::Participant* get_ptr() const { return ptr_; }
