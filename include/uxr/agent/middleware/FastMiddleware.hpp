@@ -83,6 +83,9 @@ public:
     bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) override;
     bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) override;
 
+    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) override;
+    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) override;
+
 private:
     void register_topic(const std::string& topic_name, uint16_t topic_id);
     void unregister_topic(const std::string& topic_name);
@@ -90,7 +93,7 @@ private:
 
 private:
     std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
-    std::unordered_map<uint16_t, std::shared_ptr<TopicPubSubType>> topics_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;

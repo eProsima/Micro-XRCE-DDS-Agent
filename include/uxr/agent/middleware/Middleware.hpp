@@ -80,6 +80,9 @@ public:
     /* Matching functions. */
     virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) = 0;
     virtual bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) = 0;
+
+    virtual bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) = 0;
+    virtual bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) = 0;
 };
 
 } // namespace uxr

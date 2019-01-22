@@ -94,6 +94,31 @@ bool FastTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs, Fas
     return rv;
 }
 
+bool FastTopic::match_from_ref(const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::TopicAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref, new_attributes))
+    {
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+             (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+    }
+    return rv;
+}
+
+bool FastTopic::match_from_xml(const std::string& xml)
+{
+    bool rv = false;
+    fastrtps::TopicAttributes new_attributes;
+    if (xmlobjects::parse_topic(xml.data(), xml.size(), new_attributes))
+    {
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+             (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+    }
+    return rv;
+}
+
 FastDataWriter::~FastDataWriter()
 {
     fastrtps::Domain::removePublisher(ptr_);

@@ -15,17 +15,13 @@
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/participant/Participant.hpp>
-#include <fastrtps/Domain.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
 
 Topic::Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant)
     : XRCEObject(object_id, middleware),
-      participant_(participant),
-      generic_type_(false)
+      participant_(participant)
 {
     participant_->tie_object(object_id);
 }
@@ -76,37 +72,25 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         return false;
     }
 
-    bool parser_cond = false;
-    fastrtps::TopicAttributes new_attributes;
-
+    bool rv = false;
     switch (new_object_rep.topic().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = new_object_rep.topic().representation().object_reference();
-            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-                fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref_rep, new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& ref = new_object_rep.topic().representation().object_reference();
+            rv = middleware_->matched_topic_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = new_object_rep.topic().representation().xml_string_representation();
-            if (xmlobjects::parse_topic(xml_rep.data(), xml_rep.size(), new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& xml = new_object_rep.topic().representation().xml_string_representation();
+            rv = middleware_->matched_topic_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
-
-    return parser_cond &&  (0 == std::strcmp(generic_type_.getName(), new_attributes.getTopicDataType().data())) &&
-                           (generic_type_.m_isGetKeyDefined == (new_attributes.getTopicKind() ==
-                                                                fastrtps::rtps::TopicKind_t::WITH_KEY));
+    return rv;
 }
 
 } // namespace uxr

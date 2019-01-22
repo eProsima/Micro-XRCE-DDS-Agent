@@ -16,7 +16,6 @@
 #define _UXR_AGENT_TOPIC_TOPIC_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
 #include <string>
 #include <memory>
 #include <set>
@@ -24,13 +23,12 @@
 namespace eprosima {
 namespace uxr {
 
-class Middleware;
-
 class Participant;
+class Middleware;
 
 class Topic : public XRCEObject
 {
-  public:
+public:
     Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant);
     Topic(Topic&&) = default;
     Topic(const Topic&) = default;
@@ -44,11 +42,8 @@ class Topic : public XRCEObject
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
-  private:
-    std::string name;
-    std::string type_name;
+private:
     std::shared_ptr<Participant> participant_;
-    TopicPubSubType generic_type_;
     std::set<dds::xrce::ObjectId> tied_objects_;
 };
 

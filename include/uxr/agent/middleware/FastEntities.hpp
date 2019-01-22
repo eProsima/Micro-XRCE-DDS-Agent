@@ -60,6 +60,8 @@ public:
     ~FastTopic();
 
     bool create_by_attributes(const fastrtps::TopicAttributes& attrs, FastParticipant* participant);
+    bool match_from_ref(const std::string& ref);
+    bool match_from_xml(const std::string& xml);
 
 private:
     FastParticipant* participant_;
