@@ -146,6 +146,29 @@ bool FastDataWriter::create_by_attributes(PublisherAttributes& attrs,
     return (nullptr != ptr_);
 }
 
+bool FastDataWriter::match_from_ref(const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::PublisherAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(ref, new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
+}
+
+bool FastDataWriter::match_from_xml(const std::string& xml)
+{
+    bool rv = false;
+    fastrtps::PublisherAttributes new_attributes;
+    if (xmlobjects::parse_publisher(xml.data(), xml.size(), new_attributes))
+    {
+        rv = (new_attributes == ptr_->getAttributes());
+    }
+    return rv;
+}
+
 bool FastDataWriter::write(std::vector<uint8_t>& data)
 {
     return ptr_->write(&data);

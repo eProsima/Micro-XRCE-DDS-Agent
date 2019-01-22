@@ -29,6 +29,7 @@ Topic::Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const
 Topic::~Topic()
 {
     participant_->untie_object(get_id());
+    middleware_->delete_topic(get_raw_id(), participant_->get_raw_id());
 }
 
 bool Topic::init_middleware(const dds::xrce::OBJK_TOPIC_Representation &representation)

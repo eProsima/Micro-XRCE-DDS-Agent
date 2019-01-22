@@ -17,24 +17,17 @@
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
-#include <fastrtps/publisher/PublisherListener.h>
 #include <string>
 #include <set>
 
 namespace eprosima {
-
-namespace fastrtps {
-class Participant;
-class Publisher;
-} // namespace fastrtps
-
 namespace uxr {
 
 class Publisher;
 class Topic;
 class Middleware;
 
-class DataWriter : public XRCEObject, public fastrtps::PublisherListener
+class DataWriter : public XRCEObject
 {
 public:
     DataWriter(const dds::xrce::ObjectId& object_id,
@@ -55,10 +48,8 @@ public:
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
-    void onPublicationMatched(fastrtps::Publisher* pub, fastrtps::rtps::MatchingInfo& info) override;
     std::shared_ptr<Publisher> publisher_;
     std::shared_ptr<Topic> topic_;
-    fastrtps::Publisher* rtps_publisher_;
 };
 
 } // namespace uxr

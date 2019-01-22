@@ -29,6 +29,7 @@ Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, Middleware* middlew
 Subscriber::~Subscriber()
 {
     participant_->untie_object(get_id());
+    middleware_->delete_subscriber(get_raw_id(), participant_->get_raw_id());
 }
 
 bool Subscriber::init_middleware(const dds::xrce::OBJK_SUBSCRIBER_Representation &representation)

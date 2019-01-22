@@ -18,11 +18,6 @@
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 
-#include <fastrtps/Domain.h>
-#include <fastrtps/publisher/Publisher.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
-
 namespace eprosima {
 namespace uxr {
 
@@ -30,24 +25,19 @@ DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
                        Middleware* middleware,
                        const std::shared_ptr<Publisher>& publisher)
     : XRCEObject(object_id, middleware),
-      publisher_(publisher),
-      rtps_publisher_(nullptr)
-
+      publisher_(publisher)
 {
     publisher_->tie_object(object_id);
 }
 
 DataWriter::~DataWriter()
 {
-    if (nullptr != rtps_publisher_)
-    {
-        fastrtps::Domain::removePublisher(rtps_publisher_);
-    }
     publisher_->untie_object(get_id());
     if (topic_)
     {
         topic_->untie_object(get_id());
     }
+    middleware_->delete_datawriter(get_raw_id(), publisher_->get_raw_id());
 }
 
 bool DataWriter::init_middleware(
@@ -91,23 +81,7 @@ bool DataWriter::init_middleware(
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    if (nullptr == rtps_publisher_)
-    {
-        return false;
-    }
-    return rtps_publisher_->write(&(write_data.data().serialized_data()));
-}
-
-void DataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == rtps::MATCHED_MATCHING)
-    {
-        std::cout << "RTPS Subscriber matched " << info.remoteEndpointGuid << std::endl;
-    }
-    else
-    {
-        std::cout << "RTPS Subscriber unmatched " << info.remoteEndpointGuid << std::endl;
-    }
+    return middleware_->write_data(get_raw_id(), write_data.data().serialized_data());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -118,36 +92,25 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         return false;
     }
 
-    bool parser_cond = false;
-    const fastrtps::PublisherAttributes& old_attributes = rtps_publisher_->getAttributes();
-    fastrtps::PublisherAttributes new_attributes;
-
+    bool rv = false;
     switch (new_object_rep.data_writer().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = new_object_rep.data_writer().representation().object_reference();
-            if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-                fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(ref_rep, new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& ref = new_object_rep.data_writer().representation().object_reference();
+            rv = middleware_->matched_datawriter_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = new_object_rep.data_writer().representation().xml_string_representation();
-            if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), new_attributes))
-            {
-                parser_cond = true;
-            }
+            const std::string& xml = new_object_rep.data_writer().representation().xml_string_representation();
+            rv = middleware_->matched_datawriter_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
-
-    return parser_cond && (new_attributes == old_attributes);
+    return rv;
 }
 
 } // namespace uxr

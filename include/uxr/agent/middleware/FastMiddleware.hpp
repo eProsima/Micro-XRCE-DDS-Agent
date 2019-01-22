@@ -86,6 +86,9 @@ public:
     bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) override;
     bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) override;
 
+    bool matched_datawriter_from_ref(uint16_t topic_id, const std::string& ref) override;
+    bool matched_datawriter_from_xml(uint16_t topic_id, const std::string& xml) override;
+
 private:
     void register_topic(const std::string& topic_name, uint16_t topic_id);
     void unregister_topic(const std::string& topic_name);

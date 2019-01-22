@@ -391,5 +391,27 @@ bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string
     return rv;
 }
 
+bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref)
+{
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
+}
+
+bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml)
+{
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        rv = it->second->match_from_xml(xml);
+    }
+    return rv;
+}
+
 } // namespace uxr
 } // namespace eprosima

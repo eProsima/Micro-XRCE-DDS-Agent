@@ -28,7 +28,7 @@ class Subscriber : public XRCEObject
 {
 public:
     Subscriber(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant);
-    virtual ~Subscriber();
+    virtual ~Subscriber() override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
     bool init_middleware(const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);

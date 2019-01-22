@@ -29,6 +29,7 @@ Publisher::Publisher(const dds::xrce::ObjectId& object_id, Middleware* middlewar
 Publisher::~Publisher()
 {
     participant_->untie_object(get_id());
+    middleware_->delete_publisher(get_raw_id(), participant_->get_raw_id());
 }
 
 bool Publisher::init_middleware(const dds::xrce::OBJK_PUBLISHER_Representation &representation)

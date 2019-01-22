@@ -103,6 +103,9 @@ public:
                               const FastParticipant* participant,
                               std::string& topic_name);
 
+    bool match_from_ref(const std::string& ref);
+    bool match_from_xml(const std::string& xml);
+
     bool write(std::vector<uint8_t>& data);
     void onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info) override;
     fastrtps::Publisher* get_ptr() { return ptr_; }

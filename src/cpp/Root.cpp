@@ -18,7 +18,6 @@
 #include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/FastMiddleware.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include <fastcdr/Cdr.h>
 #include <memory>
 #include <chrono>
 
