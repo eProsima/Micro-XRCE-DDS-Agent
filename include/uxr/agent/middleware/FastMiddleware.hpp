@@ -77,7 +77,7 @@ public:
 
     /* Write and read functions. */
     bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) override;
-    bool read_data(uint16_t datareader_id, std::vector<uint8_t>& data) override;
+    bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) override;
 
     /* Matching functions. */
     bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) override;

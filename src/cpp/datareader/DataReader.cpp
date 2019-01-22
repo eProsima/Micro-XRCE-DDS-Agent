@@ -183,43 +183,39 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                            read_callback read_cb,
                            ReadCallbackArgs cb_args)
 {
-//    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
-//    uint16_t message_count = 0;
-//    while (true)
-//    {
-//        std::unique_lock<std::mutex> lock(mtx_);
-//        if (running_cond_ && (message_count < delivery_control.max_samples()))
-//        {
-//            if (rtps_subscriber_->getUnreadCount() != 0)
-//            {
-//                lock.unlock();
-//                /* Read operation. */
-//                size_t next_data_size = nextDataSize();
-//                if (next_data_size != 0u && rate_manager.get_tokens(next_data_size))
-//                {
-//                    std::vector<unsigned char> buffer;
-//                    if (takeNextData(&buffer))
-//                    {
-//                        read_cb(cb_args, buffer);
-//                        ++message_count;
-//                    }
-//                }
-//            }
-//            else
-//            {
-//                /* Wait for new message or terminate signal. */
-//                cond_var_.wait(lock);
-//                lock.unlock();
-//            }
-//        }
-//        else
-//        {
-//            running_cond_ = false;
-//            lock.unlock();
-//            stop_max_timer();
-//            break;
-//        }
-//    }
+    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
+    uint16_t message_count = 0;
+    while (true)
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (running_cond_ && (message_count < delivery_control.max_samples()))
+        {
+            std::vector<uint8_t> data;
+            if (middleware_->read_data(get_raw_id(), &data))
+            {
+                lock.unlock();
+                while (!rate_manager.get_tokens(data.size()))
+                {
+                    std::this_thread::sleep_for(std::chrono::microseconds(100));
+                }
+                read_cb(cb_args, data);
+                ++message_count;
+            }
+            else
+            {
+                /* Wait for new message or terminate signal. */
+                cond_var_.wait(lock);
+                lock.unlock();
+            }
+        }
+        else
+        {
+            running_cond_ = false;
+            lock.unlock();
+            stop_max_timer();
+            break;
+        }
+    }
 }
 
 void DataReader::on_max_timeout(const asio::error_code& error)

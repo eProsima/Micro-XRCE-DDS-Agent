@@ -322,7 +322,7 @@ bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& da
     return rv;
 }
 
-bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>& data)
+bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>* data)
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

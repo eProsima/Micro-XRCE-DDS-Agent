@@ -134,7 +134,7 @@ public:
     bool match_from_ref(const std::string& ref);
     bool match_from_xml(const std::string& xml);
 
-    bool read(std::vector<uint8_t>& data);
+    bool read(std::vector<uint8_t>* data);
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
     fastrtps::Subscriber* get_ptr() { return ptr_; }

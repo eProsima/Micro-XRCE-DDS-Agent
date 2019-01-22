@@ -242,13 +242,13 @@ bool FastDataReader::match_from_xml(const std::string& xml)
     return rv;
 }
 
-bool FastDataReader::read(std::vector<uint8_t>& data)
+bool FastDataReader::read(std::vector<uint8_t>* data)
 {
     bool rv = false;
     if (ptr_->getUnreadCount() != 0)
     {
         fastrtps::SampleInfo_t info;
-        rv = ptr_->takeNextData(&data, &info);
+        rv = ptr_->takeNextData(data, &info);
     }
     return rv;
 }

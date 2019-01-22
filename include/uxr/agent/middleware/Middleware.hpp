@@ -75,7 +75,7 @@ public:
 
     /* Write and read functions. */
     virtual bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) = 0;
-    virtual bool read_data(uint16_t datareader_id, std::vector<uint8_t>& data) = 0;
+    virtual bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) = 0;
 
     /* Matching functions. */
     virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) = 0;
