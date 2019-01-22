@@ -16,6 +16,8 @@
 #include <uxr/agent/publisher/Publisher.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
+
 #include <fastrtps/Domain.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -47,59 +49,37 @@ DataWriter::~DataWriter()
     }
 }
 
-bool DataWriter::init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects)
+bool DataWriter::init_middleware(
+        Middleware* middleware,
+        const dds::xrce::DATAWRITER_Representation& representation,
+        const ObjectContainer& root_objects)
 {
     bool rv = false;
-    fastrtps::Participant* rtps_participant = publisher_->get_participant()->get_rtps_participant();
-    dds::xrce::ObjectId topic_id;
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = representation.representation().object_reference();
-            rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, ref_rep, this);
-            if (nullptr != rtps_publisher_)
+            const std::string& ref = representation.representation().object_reference();
+            uint16_t topic_id;
+            if (middleware->create_datawriter_from_ref(get_raw_id(), publisher_->get_raw_id(), ref, topic_id))
             {
-                const std::string& topic_data_type = rtps_publisher_->getAttributes().topic.getTopicDataType();
-                if (publisher_->get_participant()->check_register_topic(topic_data_type, topic_id))
-                {
-                    topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                    topic_->tie_object(get_id());
-                    rv = true;
-                }
-                else
-                {
-                    if (fastrtps::Domain::removePublisher(rtps_publisher_))
-                    {
-                        rtps_publisher_ = nullptr;
-                    }
-                }
+                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic_->tie_object(get_id());
+                rv = true;
             }
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = representation.representation().xml_string_representation();
-            fastrtps::PublisherAttributes attributes;
-            if (xmlobjects::parse_publisher(xml_rep.data(), xml_rep.size(), attributes))
+            const std::string& xml = representation.representation().xml_string_representation();
+            uint16_t topic_id;
+            if (middleware->create_datawriter_from_xml(get_raw_id(), publisher_->get_raw_id(), xml, topic_id))
             {
-                rtps_publisher_ = fastrtps::Domain::createPublisher(rtps_participant, attributes, this);
-                if (nullptr != rtps_publisher_)
-                {
-                    if (publisher_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-                    {
-                        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                        topic_->tie_object(get_id());
-                        rv = true;
-                    }
-                    else
-                    {
-                        if (fastrtps::Domain::removePublisher(rtps_publisher_))
-                        {
-                            rtps_publisher_ = nullptr;
-                        }
-                    }
-                }
+                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic_->tie_object(get_id());
+                rv = true;
             }
             break;
         }

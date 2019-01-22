@@ -29,10 +29,14 @@
 namespace eprosima {
 
 namespace fastrtps {
+
 class Participant;
 class Subscriber;
+
 namespace rtps {
+
 class MatchingInfo;
+
 } // namespace rtps
 } // namespace fastrtps
 
@@ -40,7 +44,7 @@ namespace uxr {
 
 class Subscriber;
 class Topic;
-class Processor;
+class Middleware;
 
 /**
  * Callback data structure.
@@ -118,11 +122,16 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    bool init(const dds::xrce::DATAREADER_Representation& representation, const ObjectContainer& root_objects);
+    bool init_middleware(
+            Middleware* middleware,
+            const dds::xrce::DATAREADER_Representation& representation,
+            const ObjectContainer& root_objects);
+
     void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
     void on_max_timeout(const asio::error_code& error) override;
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;
+    void on_new_message();
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 

@@ -22,6 +22,7 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class Middleware;
 
 class Publisher : public XRCEObject
 {
@@ -30,6 +31,7 @@ public:
     virtual ~Publisher() override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
+    bool init_middleware(Middleware* middleware, const dds::xrce::OBJK_PUBLISHER_Representation& representation);
     virtual void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }

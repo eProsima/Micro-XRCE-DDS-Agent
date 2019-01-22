@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -31,33 +32,21 @@ Participant::~Participant()
     }
 }
 
-bool Participant::init(const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
+bool Participant::init_middleware(Middleware *middleware, const dds::xrce::OBJK_PARTICIPANT_Representation &representation)
 {
     bool rv = false;
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            if (nullptr == rtps_participant_)
-            {
-                const std::string& ref_rep = representation.representation().object_reference();
-                rtps_participant_ = fastrtps::Domain::createParticipant(ref_rep, this);
-                rv = (nullptr != rtps_participant_);
-            }
+            const std::string& ref_rep = representation.representation().object_reference();
+            rv = middleware->create_participant_from_ref(get_raw_id(), ref_rep);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            if (nullptr == rtps_participant_)
-            {
-                const std::string& xml_rep = representation.representation().xml_string_representation();
-                fastrtps::ParticipantAttributes attributes;
-                if (xmlobjects::parse_participant(xml_rep.data(), xml_rep.size(), attributes))
-                {
-                    rtps_participant_ = fastrtps::Domain::createParticipant(attributes, this);
-                    rv = (nullptr != rtps_participant_);
-                }
-            }
+            const std::string& xml_rep = representation.representation().xml_string_representation();
+            rv = middleware->create_participant_from_xml(get_raw_id(), xml_rep);
             break;
         }
         default:

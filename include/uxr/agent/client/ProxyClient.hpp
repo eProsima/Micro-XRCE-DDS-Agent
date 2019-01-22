@@ -23,10 +23,12 @@
 namespace eprosima {
 namespace uxr {
 
+class Middleware;
+
 class ProxyClient
 {
 public:
-    explicit ProxyClient(const dds::xrce::CLIENT_Representation& representation);
+    explicit ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware* middleware);
     ~ProxyClient() = default;
 
     ProxyClient(const ProxyClient&) = delete;
@@ -63,6 +65,7 @@ private:
 
 private:
     dds::xrce::CLIENT_Representation representation_;
+    Middleware* middleware_;
     std::mutex mtx_;
     ObjectContainer objects_;
     Session session_;

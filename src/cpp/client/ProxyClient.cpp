@@ -26,8 +26,9 @@
 namespace eprosima {
 namespace uxr {
 
-ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
+ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware* middleware)
     : representation_(representation),
+      middleware_(middleware),
       objects_(),
       session_(representation.session_id(), representation.client_key(), representation.mtu())
 {
@@ -212,10 +213,10 @@ bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
                                      const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
     bool rv = false;
-    if (dds::xrce::OBJK_PARTICIPANT == (object_id.at(1) & 0x0F))
+    if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
     {
         std::shared_ptr<Participant> participant(new Participant(object_id));
-        if (participant->init(representation))
+        if (participant->init_middleware(middleware_, representation))
         {
             rv = objects_.insert(std::make_pair(object_id, std::move(participant))).second;
         }
@@ -228,14 +229,14 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
 {
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_TOPIC == (object_id.at(1) & 0x0F))
+        dds::xrce::OBJK_TOPIC == (object_id[1] & 0x0F))
     {
         auto it = objects_.find(representation.participant_id());
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             std::shared_ptr<Topic> topic(new Topic(object_id, participant));
-            if (topic->init(representation))
+            if (topic->init_middleware(middleware_, representation))
             {
                 rv = objects_.insert(std::make_pair(object_id, std::move(topic))).second;
             }
@@ -257,7 +258,10 @@ bool ProxyClient::create_publisher(const dds::xrce::ObjectId& object_id,
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             std::shared_ptr<Publisher> publisher(new Publisher(object_id, participant));
-            rv = objects_.insert(std::make_pair(object_id, std::move(publisher))).second;
+            if (publisher->init_middleware(middleware_, representation))
+            {
+                rv = objects_.insert(std::make_pair(object_id, std::move(publisher))).second;
+            }
         }
     }
     return rv;
@@ -269,14 +273,17 @@ bool ProxyClient::create_subscriber(const dds::xrce::ObjectId& object_id,
     /* Check whether participant exists. */
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_SUBSCRIBER == (object_id.at(1) & 0x0F))
+        dds::xrce::OBJK_SUBSCRIBER == (object_id[1] & 0x0F))
     {
         auto it = objects_.find(representation.participant_id());
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             std::shared_ptr<Subscriber> subscriber(new Subscriber(object_id, participant));
-            rv = objects_.insert(std::make_pair(object_id, std::move(subscriber))).second;
+            if (subscriber->init_middleware(middleware_, representation))
+            {
+                rv = objects_.insert(std::make_pair(object_id, std::move(subscriber))).second;
+            }
         }
     }
     return rv;
@@ -287,14 +294,14 @@ bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
 {
     bool rv = false;
     if (dds::xrce::OBJK_PUBLISHER == (representation.publisher_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_DATAWRITER == (object_id.at(1) & 0x0F))
+        dds::xrce::OBJK_DATAWRITER == (object_id[1] & 0x0F))
     {
         auto it = objects_.find(representation.publisher_id());
         if (it != objects_.end())
         {
             std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
             std::shared_ptr<DataWriter> datawriter(new DataWriter(object_id, publisher));
-            if (datawriter->init(representation, objects_))
+            if (datawriter->init_middleware(middleware_, representation, objects_))
             {
                 rv = objects_.insert(std::make_pair(object_id, std::move(datawriter))).second;
             }
@@ -308,14 +315,14 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
 {
     bool rv = false;
     if (dds::xrce::OBJK_SUBSCRIBER == (representation.subscriber_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_DATAREADER == (object_id.at(1) & 0x0F))
+        dds::xrce::OBJK_DATAREADER == (object_id[1] & 0x0F))
     {
         auto it = objects_.find(representation.subscriber_id());
         if (it != objects_.end())
         {
             std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
             std::shared_ptr<DataReader> datareader(new DataReader(object_id, subscriber));
-            if (datareader->init(representation, objects_))
+            if (datareader->init_middleware(middleware_, representation, objects_))
             {
                 rv = objects_.insert(std::make_pair(object_id, std::move(datareader))).second;
             }

@@ -31,13 +31,15 @@ class Participant;
 namespace eprosima {
 namespace uxr {
 
+class Middleware;
+
 class Participant : public XRCEObject, public fastrtps::ParticipantListener
 {
 public:
     Participant(const dds::xrce::ObjectId& id);
     virtual ~Participant();
 
-    bool init(const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+    bool init_middleware(Middleware* middleware, const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
     fastrtps::Participant* get_rtps_participant() { return rtps_participant_; }
     void register_topic(const std::string& topic_name, const dds::xrce::ObjectId& object_id);
     void unregister_topic(const std::string& topic_name);

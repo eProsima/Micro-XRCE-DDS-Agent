@@ -25,6 +25,11 @@ dds::xrce::ObjectId XRCEObject::get_id() const
     return id_;
 }
 
+uint16_t XRCEObject::get_raw_id() const
+{
+    return uint16_t((id_[0] << 8) + id_[1]);
+}
+
 } // namespace uxr
 } // namespace eprosima
 

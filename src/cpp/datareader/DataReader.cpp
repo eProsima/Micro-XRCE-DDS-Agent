@@ -16,7 +16,9 @@
 #include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
+
 #include <fastrtps/Domain.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/subscriber/Subscriber.h>
@@ -67,59 +69,47 @@ DataReader::~DataReader() noexcept
     }
 }
 
-bool DataReader::init(const dds::xrce::DATAREADER_Representation& representation, const ObjectContainer& root_objects)
+bool DataReader::init_middleware(
+        Middleware *middleware,
+        const dds::xrce::DATAREADER_Representation &representation,
+        const ObjectContainer &root_objects)
 {
     bool rv = false;
-    fastrtps::Participant* rtps_participant = subscriber_->get_participant()->get_rtps_participant();
-    dds::xrce::ObjectId topic_id;
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
-            const std::string& ref_rep = representation.representation().object_reference();
-            rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, ref_rep, this);
-            if (nullptr != rtps_subscriber_)
+            const std::string& ref = representation.representation().object_reference();
+            uint16_t topic_id;
+            if (middleware->create_datareader_from_ref(
+                        get_raw_id(),
+                        subscriber_->get_raw_id(),
+                        ref,
+                        topic_id,
+                        std::bind(&DataReader::on_new_message, this)))
             {
-                const std::string& topic_data_type = rtps_subscriber_->getAttributes().topic.getTopicDataType();
-                if (subscriber_->get_participant()->check_register_topic(topic_data_type, topic_id))
-                {
-                    topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                    topic_->tie_object(get_id());
-                    rv = true;
-                }
-            }
-            else
-            {
-                if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
-                {
-                    rtps_subscriber_ = nullptr;
-                }
+                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic_->tie_object(get_id());
+                rv = true;
             }
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml_rep = representation.representation().xml_string_representation();
-            fastrtps::SubscriberAttributes attributes;
-            if (xmlobjects::parse_subscriber(xml_rep.data(), xml_rep.size(), attributes))
+            const std::string& xml = representation.representation().xml_string_representation();
+            uint16_t topic_id;
+            if (middleware->create_datareader_from_xml(
+                        get_raw_id(),
+                        subscriber_->get_raw_id(),
+                        xml,
+                        topic_id,
+                        std::bind(&DataReader::on_new_message, this)))
             {
-                rtps_subscriber_ = fastrtps::Domain::createSubscriber(rtps_participant, attributes, this);
-                if (nullptr != rtps_subscriber_)
-                {
-                    if (subscriber_->get_participant()->check_register_topic(attributes.topic.getTopicDataType(), topic_id))
-                    {
-                        topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                        topic_->tie_object(get_id());
-                        rv = true;
-                    }
-                }
-                else
-                {
-                    if (fastrtps::Domain::removeSubscriber(rtps_subscriber_))
-                    {
-                        rtps_subscriber_ = nullptr;
-                    }
-                }
+                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic_->tie_object(get_id());
+                rv = true;
             }
             break;
         }
@@ -255,6 +245,12 @@ void DataReader::on_max_timeout(const asio::error_code& error)
 }
 
 void DataReader::onNewDataMessage(eprosima::fastrtps::Subscriber* /*sub*/)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    cond_var_.notify_one();
+}
+
+void DataReader::on_new_message()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     cond_var_.notify_one();

@@ -150,8 +150,8 @@ set(SRCS
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
-    src/cpp/middleware/FastMiddleware.cpp
     src/cpp/middleware/FastEntities.cpp
+    src/cpp/middleware/FastMiddleware.cpp
     )
 
 # Executable
@@ -232,10 +232,10 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     enable_testing()
     include(CTest)
     if(GTEST_FOUND)
-        add_subdirectory(test/unittest/root)
-        add_subdirectory(test/unittest/util)
-        add_subdirectory(test/unittest/xrce)
-        add_subdirectory(test/blackbox/tree)
+#        add_subdirectory(test/unittest/root)
+#        add_subdirectory(test/unittest/util)
+#        add_subdirectory(test/unittest/xrce)
+#        add_subdirectory(test/blackbox/tree)
     endif()
     add_subdirectory(test/integration/cross_serialization)
 endif()

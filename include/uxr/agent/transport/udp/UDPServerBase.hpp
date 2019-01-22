@@ -27,7 +27,7 @@ class UDPServerBase : public Server
 {
 public:
     UDPServerBase(uint16_t port);
-    ~UDPServerBase() = default;
+    ~UDPServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
     void on_delete_client(EndPoint* source) override;

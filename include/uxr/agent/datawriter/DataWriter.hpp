@@ -32,6 +32,7 @@ namespace uxr {
 
 class Publisher;
 class Topic;
+class Middleware;
 
 class DataWriter : public XRCEObject, public fastrtps::PublisherListener
 {
@@ -40,12 +41,16 @@ public:
                const std::shared_ptr<Publisher>& publisher);
     ~DataWriter() override;
 
-    DataWriter(DataWriter&&)      = delete;
+    DataWriter(DataWriter&&) = delete;
     DataWriter(const DataWriter&) = delete;
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects);
+    bool init_middleware(
+            Middleware* middleware,
+            const dds::xrce::DATAWRITER_Representation& representation,
+            const ObjectContainer& root_objects);
+
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
@@ -55,8 +60,6 @@ private:
     std::shared_ptr<Publisher> publisher_;
     std::shared_ptr<Topic> topic_;
     fastrtps::Publisher* rtps_publisher_;
-    dds::xrce::ResultStatus result_status_;
-    std::set<dds::xrce::ObjectId> objects_;
 };
 
 } // namespace uxr

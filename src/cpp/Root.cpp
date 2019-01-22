@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #include <uxr/agent/Root.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/middleware/FastMiddleware.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastcdr/Cdr.h>
 #include <memory>
@@ -43,7 +45,11 @@ Root::Root()
     {
         std::cout << "Error: parsing DEFAULT PROFILE." << std::endl;
     }
+
+    middleware_.reset(new FastMiddleware());
 }
+
+Root::~Root() = default;
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
                                              dds::xrce::AGENT_Representation& agent_representation)
@@ -68,7 +74,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation);
+                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation, middleware_.get());
                 if (clients_.insert(std::make_pair(client_key, std::move(new_client))).second)
                 {
 #ifdef VERBOSE_OUTPUT
@@ -86,7 +92,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 std::shared_ptr<ProxyClient> client = clients_.at(client_key);
                 if (session_id != client->get_session_id())
                 {
-                    it->second = std::make_shared<ProxyClient>(client_representation);
+                    it->second = std::make_shared<ProxyClient>(client_representation, middleware_.get());
                 }
                 else
                 {
