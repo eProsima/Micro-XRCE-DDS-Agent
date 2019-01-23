@@ -47,7 +47,7 @@ bool FastMiddleware::create_participant_from_xml(uint16_t participant_id, const 
     fastrtps::ParticipantAttributes attributes;
     if (xmlobjects::parse_participant(xml.data(), xml.size(), attributes))
     {
-        std::shared_ptr<FastParticipant> participant;
+        std::shared_ptr<FastParticipant> participant(new FastParticipant());
         if (participant->create_by_attributes(attributes))
         {
             participants_.insert(std::make_pair(participant_id, std::move(participant)));

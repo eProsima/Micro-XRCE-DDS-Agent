@@ -41,10 +41,10 @@ public:
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
 private:
+    std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;
-    std::unique_ptr<Middleware> middleware_;
 };
 
 } // uxr
