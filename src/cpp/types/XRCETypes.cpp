@@ -6154,7 +6154,7 @@ size_t dds::xrce::SampleInfoDelta::getCdrSerializedSize(size_t current_alignment
 
 void dds::xrce::SampleInfoDelta::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << (uint8_t)m_state;
+    scdr << uint8_t(m_state);
     scdr << m_seq_number_delta;
     scdr << m_timestamp_delta;
 }
@@ -6167,6 +6167,7 @@ void dds::xrce::SampleInfoDelta::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::SampleData::SampleData()
+    : m_serialized_data{}
 {
 }
 
@@ -6201,10 +6202,8 @@ dds::xrce::SampleData& dds::xrce::SampleData::operator=(SampleData &&x)
 size_t dds::xrce::SampleData::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (100 * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
+    current_alignment += (100 * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -6212,22 +6211,20 @@ size_t dds::xrce::SampleData::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::SampleData::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (m_serialized_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
+    current_alignment += (m_serialized_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::SampleData::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_serialized_data;
+    scdr.serializeArray(m_serialized_data.data(), m_serialized_data.size());
 }
 
 void dds::xrce::SampleData::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_serialized_data;
+    dcdr.deserializeArray(m_serialized_data.data(), m_serialized_data.size());
 }
 
 dds::xrce::Sample::Sample()

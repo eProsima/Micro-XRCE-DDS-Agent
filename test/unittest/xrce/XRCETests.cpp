@@ -211,6 +211,7 @@ TEST_F(SerializerDeserializerTests, WriteDataSubmessage)
     output.append_submessage(dds::xrce::WRITE_DATA, write_payload);
 
     dds::xrce::WRITE_DATA_Payload_Data deserialized_write_data;
+    deserialized_write_data.data().resize(write_payload.data().getCdrSerializedSize(0));
     InputMessage input(output.get_buf(), output.get_len());
     ASSERT_TRUE(input.prepare_next_submessage());
     ASSERT_TRUE(input.get_payload(deserialized_write_data));
@@ -234,6 +235,7 @@ TEST_F(SerializerDeserializerTests, DataSubmessage)
     output.append_submessage(dds::xrce::DATA, data_payload);
 
     dds::xrce::DATA_Payload_Data deserialized_data;
+    deserialized_data.data().resize(data_payload.data().getCdrSerializedSize(0));
     InputMessage input(output.get_buf(), output.get_len());
     ASSERT_TRUE(input.prepare_next_submessage());
     ASSERT_TRUE(input.get_payload(deserialized_data));

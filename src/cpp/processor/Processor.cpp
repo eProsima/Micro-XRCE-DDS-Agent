@@ -340,19 +340,21 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
     bool rv = true;
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
+    uint16_t submessage_length = input_packet.message->get_subheader().submessage_length();
     switch (flags)
     {
         case dds::xrce::FORMAT_DATA_FLAG:
         {
             dds::xrce::WRITE_DATA_Payload_Data data_payload;
+            data_payload.data().resize(submessage_length - data_payload.BaseObjectRequest::getCdrSerializedSize(0));
             if (input_packet.message->get_payload(data_payload))
             {
-                deserialized = true;
                 DataWriter* data_writer = dynamic_cast<DataWriter*>(client.get_object(data_payload.object_id()));
                 if (nullptr != data_writer)
                 {
                     written = data_writer->write(data_payload);
                 }
+                deserialized = true;
             }
             break;
         }
