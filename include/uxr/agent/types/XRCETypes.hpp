@@ -7517,7 +7517,6 @@ public:
 
     inline void resize(size_t new_size)
     {
-        m_serialized_data.clear();
         m_serialized_data.resize(new_size);
     }
 
