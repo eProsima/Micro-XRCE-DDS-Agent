@@ -43,6 +43,7 @@ void showHelp()
 #endif
 }
 
+#ifndef _WIN32
 speed_t getBaudRate(const char* baudrate_str)
 {
     speed_t rv;
@@ -84,6 +85,7 @@ speed_t getBaudRate(const char* baudrate_str)
     }
     return rv;
 }
+#endif
 
 void initializationError()
 {
