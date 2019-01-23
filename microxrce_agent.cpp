@@ -116,7 +116,7 @@ uint16_t parsePort(const std::string& str_port)
 
 int main(int argc, char** argv)
 {
-    eprosima::uxr::Server* server = nullptr;
+    std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
 
     if (1 == argc)
@@ -148,11 +148,11 @@ int main(int argc, char** argv)
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 #ifdef _WIN32
-        server = new eprosima::uxr::UDPServer(port);
+        server.reset(new eprosima::uxr::UDPServer(port));
 #else
-        server = (3 == cl.size()) //discovery port
+        server.reset((3 == cl.size()) //discovery port
                  ? new eprosima::uxr::UDPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::UDPServer(port);
+                 : new eprosima::uxr::UDPServer(port));
 #endif
     }
     else if((2 <= cl.size()) && ("tcp" == cl[0]))
@@ -160,11 +160,11 @@ int main(int argc, char** argv)
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 #ifdef _WIN32
-        server = new eprosima::uxr::TCPServer(port);
+        server.reset(new eprosima::uxr::TCPServer(port));
 #else
-        server = (3 == cl.size()) //discovery port
+        server.reset((3 == cl.size()) //discovery port
                  ? new eprosima::uxr::TCPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::TCPServer(port);
+                 : new eprosima::uxr::TCPServer(port));
 #endif
     }
 #ifndef _WIN32
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
 
                     if (0 == tcsetattr(fd, TCSANOW, &tty_config))
                     {
-                        server = new eprosima::uxr::SerialServer(fd, 0);
+                        server.reset(new eprosima::uxr::SerialServer(fd, 0));
                     }
                 }
             }
@@ -253,7 +253,7 @@ int main(int argc, char** argv)
                     if (0 == tcsetattr(fd, TCSANOW, &attr))
                     {
                         std::cout << "Device: " << dev << std::endl;
-                        server = new eprosima::uxr::SerialServer(fd, 0x00);
+                        server.reset(new eprosima::uxr::SerialServer(fd, 0x00));
                     }
                 }
             }
@@ -284,7 +284,6 @@ int main(int argc, char** argv)
         {
             std::cout << "ERROR" << std::endl;
         }
-        delete server;
     }
 
     return 0;
