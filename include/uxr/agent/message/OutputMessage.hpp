@@ -94,14 +94,12 @@ inline bool OutputMessage::append_raw_payload(dds::xrce::SubmessageId submessage
     {
         rv = false;
     }
-
     return rv;
 }
 
 inline bool OutputMessage::append_fragment(const dds::xrce::SubmessageHeader& subheader, uint8_t* buf, size_t len)
 {
     bool rv = false;
-
     serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
     if (serialize(subheader))
     {
@@ -116,7 +114,6 @@ inline bool OutputMessage::append_fragment(const dds::xrce::SubmessageHeader& su
             rv = false;
         }
     }
-
     return rv;
 }
 

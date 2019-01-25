@@ -30,18 +30,38 @@ public:
     /*
      * Operators.
      */
-    operator uint16_t() const { return seq_num_; }
-    operator int() const { return seq_num_; }
+    inline operator uint16_t() const { return seq_num_; }
+
+    friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
+    {
+        return (lhs.seq_num_ != rhs.seq_num_) &&
+               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (seq_num_add_range_ + 1))) ||
+                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_ + 1))));
+    }
+
+    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
+    friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
+    friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
+    friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
+    friend bool operator==(const SeqNum& lhs, const int& rhs) { return lhs.seq_num_ == uint16_t(rhs); }
+    friend bool operator==(const int& lhs, const SeqNum& rhs) { return uint16_t(lhs) == rhs.seq_num_; }
+    friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
 
     SeqNum& operator+=(const int& rhs)
     {
-        seq_num_ = (seq_num_ + uint16_t(rhs)) % seq_num_limits_;
+        if ((rhs >= 0) && (rhs <= (seq_num_add_range_)))
+        {
+            seq_num_ = (seq_num_ + uint16_t(rhs)) % seq_num_limits_;
+        }
         return *this;
     }
 
     SeqNum& operator+=(const SeqNum& rhs)
     {
-        seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
+        if ((rhs >= SeqNum(0)) && (rhs <= SeqNum(seq_num_add_range_)))
+        {
+            seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
+        }
         return *this;
     }
 
@@ -103,23 +123,10 @@ public:
         return rhs;
     }
 
-    friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
-    {
-        return (lhs.seq_num_ != rhs.seq_num_) &&
-               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (seq_num_add_range_))) ||
-                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_))));
-    }
-
-    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
-    friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
-    friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
-    friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
-    friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
-
 private:
     uint16_t seq_num_;
-    static constexpr int32_t seq_num_limits_ = UINT16_MAX + 1;
-    static constexpr int32_t seq_num_add_range_ = INT16_MAX;
+    static const uint32_t seq_num_limits_ = (1 << 16);
+    static const uint16_t seq_num_add_range_ = (1 << 15) - 1;
 };
 
 } // namespace uxr

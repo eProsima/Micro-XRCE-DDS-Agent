@@ -40,8 +40,10 @@ public:
           mtu_(mtu)
     {}
 
+    ~NoneOutputStream() = default;
+
     template<class T>
-    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
@@ -54,8 +56,9 @@ private:
 };
 
 template<class T>
-inline void NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+inline bool NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
@@ -72,8 +75,10 @@ inline void NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const 
         {
             /* Push message. */
             messages_.push(std::move(output_message));
+            rv = true;
         }
     }
+    return rv;
 }
 
 inline bool NoneOutputStream::get_next_message(OutputMessagePtr& output_message)
@@ -111,7 +116,7 @@ public:
     void reset() { last_send_ = UINT16_MAX; }
 
     template<class T>
-    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
@@ -125,8 +130,9 @@ private:
 };
 
 template<class T>
-inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+inline bool BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if (BEST_EFFORT_STREAM_DEPTH > messages_.size())
     {
@@ -144,8 +150,10 @@ inline void BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
             /* Push message. */
             messages_.push(std::move(output_message));
             last_send_ += 1;
+            rv = true;
         }
     }
+    return rv;
 }
 
 inline bool BestEffortOutputStream::get_next_message(OutputMessagePtr& output_message)
@@ -189,14 +197,14 @@ public:
     bool get_message(SeqNum seq_num, OutputMessagePtr& output_message);
     void update_from_acknack(SeqNum first_unacked);
     SeqNum get_first_available() { return last_acknown_ + 1; }
-    SeqNum get_last_available() { return last_sent_; }
+    SeqNum get_last_available() { return last_available_; }
     SeqNum next_message() { return last_sent_ + 1; }
     bool message_pending() { return !messages_.empty(); }
     void reset();
 
     /* Fragment related functions. */
     template<class T>
-    void push_submessage(dds::xrce::SubmessageId id, const T& submessage);
+    bool push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
@@ -254,10 +262,14 @@ inline bool ReliableOutputStream::get_message(SeqNum seq_num, OutputMessagePtr& 
 inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    while ((last_acknown_ + 1 < first_unacked) && (last_acknown_ < last_sent_))
+
+    if ((last_acknown_ + 1 < first_unacked) && (last_sent_ + 1 >= first_unacked))
     {
-        last_acknown_ += 1;
-        messages_.erase(last_acknown_);
+        while (last_acknown_ + 1 < first_unacked)
+        {
+            last_acknown_ += 1;
+            messages_.erase(last_acknown_);
+        }
     }
 }
 
@@ -272,8 +284,9 @@ inline void ReliableOutputStream::reset()
 
 /* Fragment related functions. */
 template<class T>
-inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
+inline bool ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, const T& submessage)
 {
+    bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
     {
@@ -301,10 +314,12 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
             last_available_ += 1;
             message_header.sequence_nr(last_available_);
             OutputMessagePtr output_message(new OutputMessage(message_header, header_size + submessage_size));
-            output_message->append_submessage(id, submessage);
-
-            /* Push message. */
-            messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+            if (output_message->append_submessage(id, submessage))
+            {
+                /* Push message. */
+                messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+                rv = true;
+            }
         }
         else
         {
@@ -322,7 +337,7 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
             fragment_subheader.submessage_length(uint16_t(max_fragment_size));
 
             uint16_t serialized_size = 0;
-            while (serialized_size < submessage_size)
+            do
             {
                 uint16_t fragment_size;
                 if (mtu_ < (header_size + subheader_size + (submessage_size - serialized_size)))
@@ -342,15 +357,22 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
                 last_available_ += 1;
                 message_header.sequence_nr(last_available_);
                 OutputMessagePtr output_message(new OutputMessage(message_header, current_message_size));
-                output_message->append_fragment(fragment_subheader,  buf.get() + serialized_size, fragment_size);
+                if (output_message->append_fragment(fragment_subheader,  buf.get() + serialized_size, fragment_size))
+                {
+                    /* Push message. */
+                    messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+                    serialized_size += fragment_size;
+                }
+                else
+                {
+                    break;
+                }
 
-                /* Push message. */
-                messages_.insert(std::make_pair(last_available_, std::move(output_message)));
-
-                serialized_size += fragment_size;
-            }
+            } while (serialized_size < submessage_size);
+            rv = (serialized_size == submessage_size);
         }
     }
+    return rv;
 }
 
 inline bool ReliableOutputStream::get_next_message(OutputMessagePtr& output_message)
