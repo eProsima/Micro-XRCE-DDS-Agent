@@ -17,6 +17,7 @@
 #include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
 #else
 #include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #include <termios.h>
@@ -36,58 +37,14 @@ void showHelp()
     std::cout << "    udp <local_port>" << std::endl;
     std::cout << "    tcp <local_port>" << std::endl;
 #else
-    std::cout << "    serial <device_name> [baudrate=<1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200>]" << std::endl;
-    std::cout << "    pseudo-serial [baudrate=<1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200>]" << std::endl;
+    std::cout << "    serial <device_name> [<baudrate>]" << std::endl;
+    std::cout << "    pseudo-serial [<baudrate>]" << std::endl;
     std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
     std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
 #endif
 }
 
-#ifndef _WIN32
-speed_t getBaudRate(const char* baudrate_str)
-{
-    speed_t rv;
-    if (0 == strcmp(baudrate_str, "1200"))
-    {
-        rv = B1200;
-    }
-    else if (0 == strcmp(baudrate_str, "2400"))
-    {
-        rv = B2400;
-    }
-    else if (0 == strcmp(baudrate_str, "4800"))
-    {
-        rv = B4800;
-    }
-    else if (0 == strcmp(baudrate_str, "9600"))
-    {
-        rv = B9600;
-    }
-    else if (0 == strcmp(baudrate_str, "19200"))
-    {
-        rv = B19200;
-    }
-    else if (0 == strcmp(baudrate_str, "38400"))
-    {
-        rv = B38400;
-    }
-    else if (0 == strcmp(baudrate_str, "57600"))
-    {
-        rv = B57600;
-    }
-    else if (0 == strcmp(baudrate_str, "115200"))
-    {
-        rv = B115200;
-    }
-    else
-    {
-        rv = 0;
-    }
-    return rv;
-}
-#endif
-
-void initializationError()
+[[ noreturn ]] void initializationError()
 {
     std::cout << "Error: Invalid arguments." << std::endl;
     showHelp();
@@ -183,30 +140,30 @@ int main(int argc, char** argv)
                 /* Setting CONTROL OPTIONS. */
                 tty_config.c_cflag |= CREAD;    // Enable read.
                 tty_config.c_cflag |= CLOCAL;   // Set local mode.
-                tty_config.c_cflag &= ~PARENB;  // Disable parity.
-                tty_config.c_cflag &= ~CSTOPB;  // Set one stop bit.
-                tty_config.c_cflag &= ~CSIZE;   // Mask the character size bits.
+                tty_config.c_cflag &= tcflag_t(~PARENB);  // Disable parity.
+                tty_config.c_cflag &= tcflag_t(~CSTOPB);  // Set one stop bit.
+                tty_config.c_cflag &= tcflag_t(~CSIZE);   // Mask the character size bits.
                 tty_config.c_cflag |= CS8;      // Set 8 data bits.
                 tty_config.c_cflag &= ~CRTSCTS; // Disable hardware flow control.
 
                 /* Setting LOCAL OPTIONS. */
-                tty_config.c_lflag &= ~ICANON;  // Set non-canonical input.
-                tty_config.c_lflag &= ~ECHO;    // Disable echoing of input characters.
-                tty_config.c_lflag &= ~ECHOE;   // Disable echoing the erase character.
-                tty_config.c_lflag &= ~ISIG;    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+                tty_config.c_lflag &= tcflag_t(~ICANON);  // Set non-canonical input.
+                tty_config.c_lflag &= tcflag_t(~ECHO);    // Disable echoing of input characters.
+                tty_config.c_lflag &= tcflag_t(~ECHOE);   // Disable echoing the erase character.
+                tty_config.c_lflag &= tcflag_t(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
 
                 /* Setting INPUT OPTIONS. */
-                tty_config.c_iflag &= ~IXON;    // Disable output software flow control.
-                tty_config.c_iflag &= ~IXOFF;   // Disable input software flow control.
-                tty_config.c_iflag &= ~INPCK;   // Disable parity check.
-                tty_config.c_iflag &= ~ISTRIP;  // Disable strip parity bits.
-                tty_config.c_iflag &= ~IGNBRK;  // No ignore break condition.
-                tty_config.c_iflag &= ~IGNCR;   // No ignore carrier return.
-                tty_config.c_iflag &= ~INLCR;   // No map NL to CR.
-                tty_config.c_iflag &= ~ICRNL;   // No map CR to NL.
+                tty_config.c_iflag &= tcflag_t(~IXON);    // Disable output software flow control.
+                tty_config.c_iflag &= tcflag_t(~IXOFF);   // Disable input software flow control.
+                tty_config.c_iflag &= tcflag_t(~INPCK);   // Disable parity check.
+                tty_config.c_iflag &= tcflag_t(~ISTRIP);  // Disable strip parity bits.
+                tty_config.c_iflag &= tcflag_t(~IGNBRK);  // No ignore break condition.
+                tty_config.c_iflag &= tcflag_t(~IGNCR);   // No ignore carrier return.
+                tty_config.c_iflag &= tcflag_t(~INLCR);   // No map NL to CR.
+                tty_config.c_iflag &= tcflag_t(~ICRNL);   // No map CR to NL.
 
                 /* Setting OUTPUT OPTIONS. */
-                tty_config.c_oflag &= ~OPOST;   // Set raw output.
+                tty_config.c_oflag &= tcflag_t(~OPOST);   // Set raw output.
 
                 /* Setting OUTPUT CHARACTERS. */
                 tty_config.c_cc[VMIN] = 10;
@@ -288,4 +245,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
