@@ -36,7 +36,7 @@ DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port)
 
 bool DiscoveryServer::run()
 {
-    if (!init())
+    if (running_cond_ || !init())
     {
         return false;
     }
@@ -69,7 +69,7 @@ void DiscoveryServer::discovery_loop()
         {
             if (processor_.process_get_info_packet(std::move(input_packet), transport_address_, output_packet))
             {
-                send_message(output_packet);
+                send_message(std::move(output_packet));
             }
         }
     }

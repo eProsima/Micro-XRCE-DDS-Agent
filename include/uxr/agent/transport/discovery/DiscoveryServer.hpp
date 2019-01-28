@@ -40,7 +40,7 @@ private:
     virtual bool init() = 0;
     virtual bool close() = 0;
     virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
-    virtual bool send_message(OutputPacket output_packet) = 0;
+    virtual bool send_message(OutputPacket&& output_packet) = 0;
     void discovery_loop();
 
 private:

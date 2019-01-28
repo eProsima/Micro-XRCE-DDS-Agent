@@ -121,7 +121,7 @@ bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool DiscoveryServerLinux::send_message(OutputPacket output_packet)
+bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
 {
     bool rv = true;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
