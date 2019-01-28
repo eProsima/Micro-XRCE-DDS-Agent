@@ -253,8 +253,8 @@ bool FastMiddleware::delete_topic(uint16_t topic_id, uint16_t participant_id)
         auto it_topic = topics_.find(topic_id);
         if (topics_.end() != it_topic)
         {
-            topics_.erase(it_topic);
             unregister_topic(it_topic->second->getName());
+            topics_.erase(it_topic);
             rv = true;
         }
     }
