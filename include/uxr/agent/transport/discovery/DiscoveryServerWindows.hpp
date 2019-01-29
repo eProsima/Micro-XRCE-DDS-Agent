@@ -39,7 +39,7 @@ private:
     bool init() override;
     bool close() override;
     bool recv_message(InputPacket& input_packet, int timeout) override;
-    bool send_message(OutputPacket output_packet) override;
+    bool send_message(OutputPacket&& output_packet) override;
 
 private:
     struct pollfd poll_fd_;

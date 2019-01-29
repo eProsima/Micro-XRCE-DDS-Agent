@@ -120,7 +120,7 @@ bool DiscoveryServerWindows::recv_message(InputPacket& input_packet, int timeout
     return rv;
 }
 
-bool DiscoveryServerWindows::send_message(OutputPacket output_packet)
+bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
 {
     bool rv = false;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
