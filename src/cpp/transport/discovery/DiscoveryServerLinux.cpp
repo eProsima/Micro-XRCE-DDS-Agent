@@ -93,7 +93,7 @@ bool DiscoveryServerLinux::close()
 
 bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
 {
-    bool rv = true;
+    bool rv = false;
     struct sockaddr client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
@@ -107,11 +107,11 @@ bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
+            rv = true;
         }
     }
     else
     {
-        rv = false;
         if (0 == poll_rv)
         {
             errno = ETIME;
@@ -123,7 +123,7 @@ bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
 
 bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
 {
-    bool rv = true;
+    bool rv = false;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
@@ -138,14 +138,7 @@ bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
                                 sizeof(client_addr));
     if (0 < bytes_sent)
     {
-        if ((size_t)bytes_sent != output_packet.message->get_len())
-        {
-            rv = false;
-        }
-    }
-    else
-    {
-        rv = false;
+        rv = (size_t(bytes_sent) != output_packet.message->get_len());
     }
 
     return rv;
