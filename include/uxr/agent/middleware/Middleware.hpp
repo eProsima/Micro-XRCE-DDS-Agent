@@ -56,14 +56,12 @@ public:
     virtual bool create_datareader_from_ref(uint16_t datareader_id,
                                             uint16_t subscriber_id,
                                             const std::string& ref,
-                                            uint16_t& associated_topic_id,
-                                            OnNewData on_new_data_cb) = 0;
+                                            uint16_t& associated_topic_id) = 0;
 
     virtual bool create_datareader_from_xml(uint16_t datareader_id,
                                             uint16_t subscriber_id,
                                             const std::string& xml,
-                                            uint16_t& associated_topic_id,
-                                            OnNewData on_new_data_cb) = 0;
+                                            uint16_t& associated_topic_id) = 0;
 
     /* Deletion functions. */
     virtual bool delete_participant(uint16_t participant_id) = 0;
@@ -75,6 +73,8 @@ public:
 
     /* Write and read functions. */
     virtual bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) = 0;
+    virtual bool set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb) = 0;
+    virtual bool unset_read_cb(uint16_t datareader_id) = 0;
     virtual bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) = 0;
 
     /* Matching functions. */

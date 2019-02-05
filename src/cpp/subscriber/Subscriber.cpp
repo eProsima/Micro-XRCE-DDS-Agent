@@ -19,28 +19,21 @@
 namespace eprosima {
 namespace uxr {
 
-Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id, middleware),
-      participant_(participant)
+Subscriber* Subscriber::create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation,
+        Middleware* middleware)
 {
-    participant_->tie_object(object_id);
-}
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
 
-Subscriber::~Subscriber()
-{
-    participant_->untie_object(get_id());
-    middleware_->delete_subscriber(get_raw_id(), participant_->get_raw_id());
-}
-
-bool Subscriber::init_middleware(const dds::xrce::OBJK_SUBSCRIBER_Representation &representation)
-{
-    bool rv = false;
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            rv = middleware_->create_subscriber_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
+            created_entity = middleware->create_subscriber_from_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
@@ -49,7 +42,24 @@ bool Subscriber::init_middleware(const dds::xrce::OBJK_SUBSCRIBER_Representation
             break;
         }
     }
-    return rv;
+
+    return (created_entity ? new Subscriber(object_id, participant, middleware) : nullptr);
+}
+
+Subscriber::Subscriber(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        Middleware* middleware)
+    : XRCEObject(object_id, middleware)
+    , participant_(participant)
+{
+    participant_->tie_object(object_id);
+}
+
+Subscriber::~Subscriber()
+{
+    participant_->untie_object(get_id());
+    middleware_->delete_subscriber(get_raw_id(), participant_->get_raw_id());
 }
 
 void Subscriber::release(ObjectContainer& root_objects)

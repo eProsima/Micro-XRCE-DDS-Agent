@@ -19,9 +19,42 @@
 namespace eprosima {
 namespace uxr {
 
-Topic::Topic(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id, middleware),
-      participant_(participant)
+Topic* Topic::create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        const dds::xrce::OBJK_TOPIC_Representation& representation,
+        Middleware* middleware)
+{
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref = representation.representation().object_reference();
+            created_entity = middleware->create_topic_from_ref(raw_object_id, participant->get_raw_id(), ref);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml = representation.representation().xml_string_representation();
+            created_entity = middleware->create_topic_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            break;
+        }
+        default:
+            break;
+    }
+
+    return (created_entity ? new Topic(object_id, participant, middleware) : nullptr);
+}
+
+Topic::Topic(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        Middleware* middleware)
+    : XRCEObject(object_id, middleware)
+    , participant_(participant)
 {
     participant_->tie_object(object_id);
 }
@@ -30,29 +63,6 @@ Topic::~Topic()
 {
     participant_->untie_object(get_id());
     middleware_->delete_topic(get_raw_id(), participant_->get_raw_id());
-}
-
-bool Topic::init_middleware(const dds::xrce::OBJK_TOPIC_Representation &representation)
-{
-    bool rv = false;
-    switch (representation.representation()._d())
-    {
-        case dds::xrce::REPRESENTATION_BY_REFERENCE:
-        {
-            const std::string& ref = representation.representation().object_reference();
-            rv = middleware_->create_topic_from_ref(get_raw_id(), participant_->get_raw_id(), ref);
-            break;
-        }
-        case dds::xrce::REPRESENTATION_AS_XML_STRING:
-        {
-            const std::string& xml = representation.representation().xml_string_representation();
-            rv = middleware_->create_topic_from_xml(get_raw_id(), participant_->get_raw_id(), xml);
-            break;
-        }
-        default:
-            break;
-    }
-    return rv;
 }
 
 void Topic::release(ObjectContainer& root_objects)

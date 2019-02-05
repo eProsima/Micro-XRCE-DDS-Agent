@@ -117,23 +117,23 @@ private:
 class FastDataReader : public fastrtps::SubscriberListener
 {
 public:
-    FastDataReader() = default;
+    FastDataReader();
     ~FastDataReader() override;
 
     bool create_by_ref(const std::string& ref,
                        const FastParticipant* participant,
-                       std::string& topic_name,
-                       OnNewData on_new_data_cb);
+                       std::string& topic_name);
 
     // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(fastrtps::SubscriberAttributes& attrs,
                               const FastParticipant* participant,
-                              std::string& topic_name,
-                              OnNewData on_new_data_cb);
+                              std::string& topic_name);
 
     bool match_from_ref(const std::string& ref);
     bool match_from_xml(const std::string& xml);
 
+    bool set_on_new_data_cb(OnNewData on_new_data_cb);
+    bool unset_on_new_data_cb();
     bool read(std::vector<uint8_t>* data);
     void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
     void onNewDataMessage(fastrtps::Subscriber*) override;

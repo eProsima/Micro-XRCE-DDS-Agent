@@ -45,11 +45,12 @@ public:
           middleware_{middleware}
     {}
 
-    XRCEObject(XRCEObject &&) = default;
-    XRCEObject(const XRCEObject &) = default;
-    XRCEObject& operator=(XRCEObject &&) = default;
-    XRCEObject& operator=(const XRCEObject &) = default;
     virtual ~XRCEObject() = 0;
+
+    XRCEObject(XRCEObject &&) = delete;
+    XRCEObject(const XRCEObject &) = delete;
+    XRCEObject& operator=(XRCEObject &&) = delete;
+    XRCEObject& operator=(const XRCEObject &) = delete;
 
     dds::xrce::ObjectId get_id() const;
     uint16_t get_raw_id() const;

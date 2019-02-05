@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
-#define _UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
+#ifndef UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
+#define UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <set>
@@ -27,15 +27,31 @@ class Middleware;
 class Subscriber : public XRCEObject
 {
 public:
-    Subscriber(const dds::xrce::ObjectId& object_id, Middleware* middleware, const std::shared_ptr<Participant>& participant);
+    static Subscriber* create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>&participant,
+        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation,
+        Middleware* middleware);
+
     virtual ~Subscriber() override;
 
-    const std::shared_ptr<Participant>& get_participant() { return participant_; }
-    bool init_middleware(const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
-    virtual void release(ObjectContainer& root_objects) override;
+    Subscriber(Subscriber&&) = delete;
+    Subscriber(const Subscriber&) = delete;
+    Subscriber& operator=(Subscriber&&) = delete;
+    Subscriber& operator=(const Subscriber&) = delete;
+
+    void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
+
+    const std::shared_ptr<Participant>& get_participant() { return participant_; }
+
+private:
+    Subscriber(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        Middleware* middleware);
 
 private:
     std::shared_ptr<Participant> participant_;
@@ -45,4 +61,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_
+#endif // UXR_AGENT_SUBSCRIBER_SUBSCRIBER_HPP_

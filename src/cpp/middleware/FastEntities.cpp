@@ -186,6 +186,11 @@ void FastDataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::
     }
 }
 
+FastDataReader::FastDataReader()
+    : ptr_(nullptr)
+    , on_new_data_cb_(nullptr)
+{}
+
 FastDataReader::~FastDataReader()
 {
     fastrtps::Domain::removeSubscriber(ptr_);
@@ -193,28 +198,24 @@ FastDataReader::~FastDataReader()
 
 bool FastDataReader::create_by_ref(const std::string& ref,
                                    const FastParticipant* participant,
-                                   std::string& topic_name,
-                                   OnNewData on_new_data_cb)
+                                   std::string& topic_name)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
-        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
 }
 
 bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
                                           const FastParticipant* participant,
-                                          std::string& topic_name,
-                                          OnNewData on_new_data_cb)
+                                          std::string& topic_name)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
-        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
 }
@@ -242,6 +243,18 @@ bool FastDataReader::match_from_xml(const std::string& xml)
     return rv;
 }
 
+bool FastDataReader::set_on_new_data_cb(OnNewData on_new_data_cb)
+{
+    on_new_data_cb_ = on_new_data_cb;
+    return true;
+}
+
+bool FastDataReader::unset_on_new_data_cb()
+{
+    on_new_data_cb_ = nullptr;
+    return true;
+}
+
 bool FastDataReader::read(std::vector<uint8_t>* data)
 {
     bool rv = false;
@@ -267,7 +280,10 @@ void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
-    on_new_data_cb_();
+    if (nullptr != on_new_data_cb_)
+    {
+        on_new_data_cb_();
+    }
 }
 
 } // namespace uxr

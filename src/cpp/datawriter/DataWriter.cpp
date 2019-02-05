@@ -21,42 +21,28 @@
 namespace eprosima {
 namespace uxr {
 
-DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
-                       Middleware* middleware,
-                       const std::shared_ptr<Publisher>& publisher)
-    : XRCEObject(object_id, middleware),
-      publisher_(publisher)
-{
-    publisher_->tie_object(object_id);
-}
-
-DataWriter::~DataWriter()
-{
-    publisher_->untie_object(get_id());
-    if (topic_)
-    {
-        topic_->untie_object(get_id());
-    }
-    middleware_->delete_datawriter(get_raw_id(), publisher_->get_raw_id());
-}
-
-bool DataWriter::init_middleware(
+DataWriter* DataWriter::create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
         const dds::xrce::DATAWRITER_Representation& representation,
-        const ObjectContainer& root_objects)
+        const ObjectContainer& root_objects,
+        Middleware* middleware)
 {
-    bool rv = false;
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    std::shared_ptr<Topic> topic;
+
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t topic_id;
-            if (middleware_->create_datawriter_from_ref(get_raw_id(), publisher_->get_raw_id(), ref, topic_id))
+            if (middleware->create_datawriter_from_ref(raw_object_id, publisher->get_raw_id(), ref, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
-                topic_->tie_object(get_id());
-                rv = true;
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                created_entity = true;
             }
             break;
         }
@@ -64,24 +50,38 @@ bool DataWriter::init_middleware(
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t topic_id;
-            if (middleware_->create_datawriter_from_xml(get_raw_id(), publisher_->get_raw_id(), xml, topic_id))
+            if (middleware->create_datawriter_from_xml(raw_object_id, publisher->get_raw_id(), xml, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
-                topic_->tie_object(get_id());
-                rv = true;
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                created_entity = true;
             }
             break;
         }
         default:
             break;
     }
-    return rv;
+
+    return (created_entity ? new DataWriter(object_id, publisher, topic, middleware) : nullptr);
 }
 
-bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
+DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
+        const std::shared_ptr<Topic>& topic,
+        Middleware* middleware)
+    : XRCEObject(object_id, middleware)
+    , publisher_(publisher)
+    , topic_(topic)
 {
-    return middleware_->write_data(get_raw_id(), write_data.data().serialized_data());
+    publisher_->tie_object(object_id);
+    topic_->tie_object(object_id);
+}
+
+DataWriter::~DataWriter()
+{
+    publisher_->untie_object(get_id());
+    topic_->untie_object(get_id());
+    middleware_->delete_datawriter(get_raw_id(), publisher_->get_raw_id());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -112,6 +112,12 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
     }
     return rv;
 }
+
+bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
+{
+    return middleware_->write_data(get_raw_id(), write_data.data().serialized_data());
+}
+
 
 } // namespace uxr
 } // namespace eprosima

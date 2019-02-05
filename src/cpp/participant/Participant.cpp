@@ -18,34 +18,44 @@
 namespace eprosima {
 namespace uxr {
 
-Participant::Participant(const dds::xrce::ObjectId& id, Middleware* middleware) : XRCEObject(id, middleware) {}
-
-Participant::~Participant()
+Participant* Participant::create(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
+        Middleware* middleware)
 {
-    middleware_->delete_participant(get_raw_id());
-}
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
 
-bool Participant::init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representation &representation)
-{
-    bool rv = false;
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref_rep = representation.representation().object_reference();
-            rv = middleware_->create_participant_from_ref(get_raw_id(), ref_rep);
+            created_entity = middleware->create_participant_from_ref(raw_object_id, ref_rep);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml_rep = representation.representation().xml_string_representation();
-            rv = middleware_->create_participant_from_xml(get_raw_id(), xml_rep);
+            created_entity = middleware->create_participant_from_xml(raw_object_id, xml_rep);
             break;
         }
         default:
             break;
     }
-    return rv;
+
+    return (created_entity ? new Participant(object_id, middleware) : nullptr);
+}
+
+Participant::Participant(
+        const dds::xrce::ObjectId& id,
+        Middleware* middleware)
+    : XRCEObject(id, middleware)
+{}
+
+Participant::~Participant()
+{
+    middleware_->delete_participant(get_raw_id());
 }
 
 void Participant::release(ObjectContainer& root_objects)

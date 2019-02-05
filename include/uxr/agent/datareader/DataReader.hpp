@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_DATAREADER_DATAREADER_HPP_
-#define _UXR_AGENT_DATAREADER_DATAREADER_HPP_
+#ifndef UXR_AGENT_DATAREADER_DATAREADER_HPP_
+#define UXR_AGENT_DATAREADER_DATAREADER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
@@ -51,10 +51,11 @@ typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)
  */
 class ReadTimeEvent
 {
-  public:
+public:
     ReadTimeEvent();
-    virtual ~ReadTimeEvent()            = default;
-    ReadTimeEvent(ReadTimeEvent&&)      = delete;
+    virtual ~ReadTimeEvent() = default;
+
+    ReadTimeEvent(ReadTimeEvent&&) = delete;
     ReadTimeEvent(const ReadTimeEvent&) = delete;
     ReadTimeEvent& operator=(ReadTimeEvent&&) = delete;
     ReadTimeEvent& operator=(const ReadTimeEvent&) = delete;
@@ -65,7 +66,7 @@ class ReadTimeEvent
 
     virtual void on_max_timeout(const asio::error_code& error) = 0;
 
-  protected:
+protected:
     asio::io_service m_io_service_max;
     asio::steady_timer m_timer_max;
 };
@@ -77,36 +78,45 @@ class ReadTimeEvent
 class DataReader : public XRCEObject, public ReadTimeEvent
 {
 public:
-    DataReader(const dds::xrce::ObjectId& object_id,
-               Middleware* middleware,
-               const std::shared_ptr<Subscriber>& subscriber);
+    static DataReader* create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Subscriber>& subscriber,
+        const dds::xrce::DATAREADER_Representation& representation,
+        const ObjectContainer& root_objects,
+        Middleware* middleware);
 
     virtual ~DataReader() noexcept override;
 
-    DataReader(DataReader&&)      = delete;
+    DataReader(DataReader&&) = delete;
     DataReader(const DataReader&) = delete;
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    bool init_middleware(const dds::xrce::DATAREADER_Representation& representation,
-            const ObjectContainer& root_objects);
-
-    void read(const dds::xrce::READ_DATA_Payload& read_data, read_callback read_cb, const ReadCallbackArgs& cb_args);
-    void on_max_timeout(const asio::error_code& error) override;
-    void on_new_message();
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
+    void read(
+        const dds::xrce::READ_DATA_Payload& read_data,
+        read_callback read_cb,
+        const ReadCallbackArgs& cb_args);
+    void on_max_timeout(const asio::error_code& error) override;
+    void on_new_message();
+
 private:
-    int start_read(const dds::xrce::DataDeliveryControl& delivery_control,
-                   read_callback read_cb,
-                   const ReadCallbackArgs& cb_args);
+    DataReader(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Subscriber>& subscriber,
+        const std::shared_ptr<Topic>& topic,
+        Middleware* middleware);
 
+    int start_read(
+        const dds::xrce::DataDeliveryControl& delivery_control,
+        read_callback read_cb,
+        const ReadCallbackArgs& cb_args);
     int stop_read();
-
-    void read_task(dds::xrce::DataDeliveryControl delivery_control,
-                   read_callback read_cb,
-                   ReadCallbackArgs cb_args);
+    void read_task(
+        dds::xrce::DataDeliveryControl delivery_control,
+        read_callback read_cb,
+        ReadCallbackArgs cb_args);
 
 private:
     std::shared_ptr<Subscriber> subscriber_;
@@ -121,4 +131,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_DATAREADER_DATAREADER_HPP_
+#endif // UXR_AGENT_DATAREADER_DATAREADER_HPP_

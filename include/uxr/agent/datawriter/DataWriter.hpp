@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
-#define _UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#ifndef UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#define UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
@@ -30,9 +30,13 @@ class Middleware;
 class DataWriter : public XRCEObject
 {
 public:
-    DataWriter(const dds::xrce::ObjectId& object_id,
-               Middleware* middleware,
-               const std::shared_ptr<Publisher>& publisher);
+    static DataWriter* create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
+        const dds::xrce::DATAWRITER_Representation& representation,
+        const ObjectContainer& root_objects,
+        Middleware* middleware);
+
     ~DataWriter() override;
 
     DataWriter(DataWriter&&) = delete;
@@ -40,12 +44,17 @@ public:
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init_middleware(const dds::xrce::DATAWRITER_Representation& representation,
-            const ObjectContainer& root_objects);
-
-    bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+
+    bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
+
+private:
+    DataWriter(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
+        const std::shared_ptr<Topic>& topic,
+        Middleware* middleware);
 
 private:
     std::shared_ptr<Publisher> publisher_;
@@ -55,4 +64,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#endif // UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
