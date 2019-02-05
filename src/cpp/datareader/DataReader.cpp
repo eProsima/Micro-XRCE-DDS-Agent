@@ -104,7 +104,7 @@ DataReader::~DataReader() noexcept
     middleware_->delete_datareader(get_raw_id(), subscriber_->get_raw_id());
 }
 
-void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
+bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
                       read_callback read_cb,
                       const ReadCallbackArgs& cb_args)
 {
@@ -137,15 +137,14 @@ void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
             break;
     }
 
-    stop_read();
-    start_read(delivery_control, read_cb, cb_args);
+    return (stop_read() && start_read(delivery_control, read_cb, cb_args));
 }
 
-int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
+bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
     if (!middleware_->set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
     {
-        return -1;
+        return false;
     }
 
     std::unique_lock<std::mutex> lock(mtx_);
@@ -158,10 +157,10 @@ int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_contro
     }
     read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
 
-    return 0;
+    return true;
 }
 
-int DataReader::stop_read()
+bool DataReader::stop_read()
 {
     std::unique_lock<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -179,9 +178,7 @@ int DataReader::stop_read()
         max_timer_thread_.join();
     }
 
-    middleware_->unset_read_cb(get_raw_id());
-
-    return 0;
+    return middleware_->unset_read_cb(get_raw_id());
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,

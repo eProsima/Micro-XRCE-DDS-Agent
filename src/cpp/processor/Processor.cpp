@@ -384,7 +384,9 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
     if (input_packet.message->get_payload(read_payload))
     {
         DataReader* data_reader = dynamic_cast<DataReader*>(client.get_object(read_payload.object_id()));
-        if (nullptr != data_reader)
+        dds::xrce::StatusValue status = (nullptr != data_reader) ? dds::xrce::STATUS_OK
+                                                                 : dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+        if (dds::xrce::STATUS_OK == status)
         {
             /* Set callback args. */
             ReadCallbackArgs cb_args;
@@ -395,16 +397,20 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
 
             /* Launch read data. */
             using namespace std::placeholders;
-            data_reader->read(read_payload, std::bind(&Processor::read_data_callback, this, _1, _2), cb_args);
+            if (!data_reader->read(read_payload, std::bind(&Processor::read_data_callback, this, _1, _2), cb_args))
+            {
+                status = dds::xrce::STATUS_ERR_RESOURCES;
+            }
         }
-        else
+
+        if (dds::xrce::STATUS_OK != status)
         {
             /* STATUS payload. */
             dds::xrce::STATUS_Payload status_payload;
             status_payload.related_request().request_id(read_payload.request_id());
             status_payload.related_request().object_id(read_payload.object_id());
             status_payload.result().implementation_status(0x00);
-            status_payload.result().status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+            status_payload.result().status(status);
 
             /* Push submessage into the output stream. */
             client.session().push_output_submessage(dds::xrce::STREAMID_BUILTIN_RELIABLE, dds::xrce::STATUS, status_payload);

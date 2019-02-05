@@ -95,7 +95,7 @@ public:
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
 
-    void read(
+    bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
@@ -108,11 +108,11 @@ private:
         const std::shared_ptr<Topic>& topic,
         Middleware* middleware);
 
-    int start_read(
+    bool start_read(
         const dds::xrce::DataDeliveryControl& delivery_control,
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
-    int stop_read();
+    bool stop_read();
     void read_task(
         dds::xrce::DataDeliveryControl delivery_control,
         read_callback read_cb,
