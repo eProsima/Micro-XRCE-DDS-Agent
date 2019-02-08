@@ -40,6 +40,7 @@ Root::Root()
     middleware_.reset(new FastMiddleware());
 }
 
+/* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
 Root::~Root() = default;
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
