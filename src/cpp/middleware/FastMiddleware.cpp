@@ -376,7 +376,7 @@ bool FastMiddleware::check_register_topic(const std::string& topic_name, uint16_
     return rv;
 }
 
-bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const std::string& ref)
+bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
@@ -387,7 +387,7 @@ bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const
     return rv;
 }
 
-bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const std::string& xml)
+bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
@@ -398,7 +398,7 @@ bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref)
+bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -409,7 +409,7 @@ bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml)
+bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -420,7 +420,7 @@ bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref)
+bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -431,7 +431,7 @@ bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml)
+bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -442,7 +442,7 @@ bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref)
+bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);
@@ -453,7 +453,7 @@ bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml)
+bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

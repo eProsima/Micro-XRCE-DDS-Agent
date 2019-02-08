@@ -26,7 +26,7 @@
 namespace eprosima {
 namespace uxr {
 
-ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware* middleware)
+ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware& middleware)
     : representation_(representation),
       middleware_(middleware),
       objects_(),

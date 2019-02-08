@@ -78,17 +78,17 @@ public:
     virtual bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) = 0;
 
     /* Matching functions. */
-    virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) = 0;
-    virtual bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) = 0;
+    virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const = 0;
+    virtual bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const = 0;
 
-    virtual bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) = 0;
-    virtual bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) = 0;
+    virtual bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const = 0;
+    virtual bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const = 0;
 
-    virtual bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) = 0;
-    virtual bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) = 0;
+    virtual bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const = 0;
+    virtual bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const = 0;
 
-    virtual bool matched_datareader_from_ref(uint16_t datawriter_id, const std::string& ref) = 0;
-    virtual bool matched_datareader_from_xml(uint16_t datawriter_id, const std::string& xml) = 0;
+    virtual bool matched_datareader_from_ref(uint16_t datawriter_id, const std::string& ref) const = 0;
+    virtual bool matched_datareader_from_xml(uint16_t datawriter_id, const std::string& xml) const = 0;
 };
 
 } // namespace uxr

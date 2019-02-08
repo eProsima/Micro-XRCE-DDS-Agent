@@ -27,13 +27,13 @@ Publisher* Publisher::create(
     bool created_entity = false;
     uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
 
-    Middleware* middleware = participant->get_middleware();
+    Middleware& middleware = participant->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            created_entity = middleware->create_publisher_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_publisher_from_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
@@ -58,7 +58,7 @@ Publisher::Publisher(
 Publisher::~Publisher()
 {
     participant_->untie_object(get_id());
-    get_middleware()->delete_publisher(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_publisher(get_raw_id(), participant_->get_raw_id());
 }
 
 void Publisher::release(ObjectContainer& root_objects)
@@ -71,7 +71,7 @@ void Publisher::release(ObjectContainer& root_objects)
     }
 }
 
-Middleware* Publisher::get_middleware() const
+Middleware& Publisher::get_middleware() const
 {
     return participant_->get_middleware();
 }

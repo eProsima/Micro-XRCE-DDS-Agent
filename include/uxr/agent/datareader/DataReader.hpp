@@ -93,7 +93,7 @@ public:
 
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
-    Middleware* get_middleware() const override;
+    Middleware& get_middleware() const override;
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,

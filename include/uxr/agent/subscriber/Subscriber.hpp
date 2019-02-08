@@ -42,7 +42,7 @@ public:
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
-    Middleware* get_middleware() const override;
+    Middleware& get_middleware() const override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
 

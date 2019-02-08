@@ -80,17 +80,17 @@ public:
     bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) override;
 
     /* Matching functions. */
-    bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) override;
-    bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) override;
+    bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const override;
+    bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const override;
 
-    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) override;
-    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) override;
+    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const override;
+    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const override;
 
-    bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) override;
-    bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) override;
+    bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const override;
+    bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const override;
 
-    bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) override;
-    bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) override;
+    bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const override;
+    bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const override;
 
 private:
     void register_topic(const std::string& topic_name, uint16_t topic_id);

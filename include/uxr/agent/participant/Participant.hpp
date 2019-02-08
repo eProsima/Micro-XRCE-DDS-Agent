@@ -28,10 +28,9 @@ class Middleware;
 class Participant : public XRCEObject
 {
 public:
-    static Participant* create(
-        const dds::xrce::ObjectId& object_id,
+    static Participant* create(const dds::xrce::ObjectId& object_id,
         const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
-        Middleware* middleware);
+        Middleware& middleware);
 
     virtual ~Participant() override;
 
@@ -44,16 +43,16 @@ public:
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
-    Middleware* get_middleware() const override { return middleware_; }
+    Middleware& get_middleware() const override { return middleware_; }
 
 private:
     Participant(
         const dds::xrce::ObjectId& id,
-        Middleware* middleware);
+        Middleware& middleware);
 
 private:
     std::set<dds::xrce::ObjectId> tied_objects_;
-    Middleware* middleware_;
+    Middleware& middleware_;
 };
 
 } // namespace uxr

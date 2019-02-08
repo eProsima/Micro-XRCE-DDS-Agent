@@ -31,14 +31,14 @@ DataWriter* DataWriter::create(
     uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
     std::shared_ptr<Topic> topic;
 
-    Middleware* middleware = publisher->get_middleware();
+    Middleware& middleware = publisher->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t topic_id;
-            if (middleware->create_datawriter_from_ref(raw_object_id, publisher->get_raw_id(), ref, topic_id))
+            if (middleware.create_datawriter_from_ref(raw_object_id, publisher->get_raw_id(), ref, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
@@ -50,7 +50,7 @@ DataWriter* DataWriter::create(
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t topic_id;
-            if (middleware->create_datawriter_from_xml(raw_object_id, publisher->get_raw_id(), xml, topic_id))
+            if (middleware.create_datawriter_from_xml(raw_object_id, publisher->get_raw_id(), xml, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
@@ -80,7 +80,7 @@ DataWriter::~DataWriter()
 {
     publisher_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware()->delete_datawriter(get_raw_id(), publisher_->get_raw_id());
+    get_middleware().delete_datawriter(get_raw_id(), publisher_->get_raw_id());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -97,13 +97,13 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_writer().representation().object_reference();
-            rv = get_middleware()->matched_datawriter_from_ref(get_raw_id(), ref);
+            rv = get_middleware().matched_datawriter_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_writer().representation().xml_string_representation();
-            rv = get_middleware()->matched_datawriter_from_xml(get_raw_id(), xml);
+            rv = get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -114,10 +114,10 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    return get_middleware()->write_data(get_raw_id(), write_data.data().serialized_data());
+    return get_middleware().write_data(get_raw_id(), write_data.data().serialized_data());
 }
 
-Middleware* DataWriter::get_middleware() const
+Middleware& DataWriter::get_middleware() const
 {
     return publisher_->get_middleware();
 }

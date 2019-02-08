@@ -41,7 +41,7 @@ bool FastParticipant::create_by_attributes(fastrtps::ParticipantAttributes& attr
     return (nullptr != ptr_);
 }
 
-bool FastParticipant::match_from_ref(const std::string& ref)
+bool FastParticipant::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::ParticipantAttributes new_attributes;
@@ -53,7 +53,7 @@ bool FastParticipant::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastParticipant::match_from_xml(const std::string& xml)
+bool FastParticipant::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::ParticipantAttributes new_attributes;
@@ -94,7 +94,7 @@ bool FastTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs, Fas
     return rv;
 }
 
-bool FastTopic::match_from_ref(const std::string& ref)
+bool FastTopic::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::TopicAttributes new_attributes;
@@ -107,7 +107,7 @@ bool FastTopic::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastTopic::match_from_xml(const std::string& xml)
+bool FastTopic::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::TopicAttributes new_attributes;
@@ -146,7 +146,7 @@ bool FastDataWriter::create_by_attributes(PublisherAttributes& attrs,
     return (nullptr != ptr_);
 }
 
-bool FastDataWriter::match_from_ref(const std::string& ref)
+bool FastDataWriter::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::PublisherAttributes new_attributes;
@@ -158,7 +158,7 @@ bool FastDataWriter::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastDataWriter::match_from_xml(const std::string& xml)
+bool FastDataWriter::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::PublisherAttributes new_attributes;
@@ -220,7 +220,7 @@ bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
     return (nullptr != ptr_);
 }
 
-bool FastDataReader::match_from_ref(const std::string& ref)
+bool FastDataReader::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::SubscriberAttributes new_attributes;
@@ -232,7 +232,7 @@ bool FastDataReader::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastDataReader::match_from_xml(const std::string& xml)
+bool FastDataReader::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::SubscriberAttributes new_attributes;

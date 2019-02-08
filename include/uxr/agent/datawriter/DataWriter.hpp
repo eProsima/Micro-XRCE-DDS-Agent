@@ -44,7 +44,7 @@ public:
 
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
-    Middleware* get_middleware() const override;
+    Middleware& get_middleware() const override;
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 

@@ -27,19 +27,19 @@ Topic* Topic::create(
     bool created_entity = false;
     uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
 
-    Middleware* middleware = participant->get_middleware();
+    Middleware& middleware = participant->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            created_entity = middleware->create_topic_from_ref(raw_object_id, participant->get_raw_id(), ref);
+            created_entity = middleware.create_topic_from_ref(raw_object_id, participant->get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            created_entity = middleware->create_topic_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_topic_from_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         default:
@@ -61,7 +61,7 @@ Topic::Topic(
 Topic::~Topic()
 {
     participant_->untie_object(get_id());
-    get_middleware()->delete_topic(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_topic(get_raw_id(), participant_->get_raw_id());
 }
 
 void Topic::release(ObjectContainer& root_objects)
@@ -88,13 +88,13 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.topic().representation().object_reference();
-            rv = get_middleware()->matched_topic_from_ref(get_raw_id(), ref);
+            rv = get_middleware().matched_topic_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.topic().representation().xml_string_representation();
-            rv = get_middleware()->matched_topic_from_xml(get_raw_id(), xml);
+            rv = get_middleware().matched_topic_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -103,7 +103,7 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
     return rv;
 }
 
-Middleware* Topic::get_middleware() const
+Middleware& Topic::get_middleware() const
 {
     return participant_->get_middleware();
 }

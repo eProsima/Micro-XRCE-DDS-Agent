@@ -43,8 +43,8 @@ public:
     bool create_by_ref(const std::string& ref);
     // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(fastrtps::ParticipantAttributes& attrs);
-    bool match_from_ref(const std::string& ref);
-    bool match_from_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
     bool remove();
     void onParticipantDiscovery(fastrtps::Participant*, fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
     fastrtps::Participant* get_ptr() const { return ptr_; }
@@ -60,8 +60,8 @@ public:
     ~FastTopic();
 
     bool create_by_attributes(const fastrtps::TopicAttributes& attrs, FastParticipant* participant);
-    bool match_from_ref(const std::string& ref);
-    bool match_from_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
 
 private:
     FastParticipant* participant_;
@@ -103,8 +103,8 @@ public:
                               const FastParticipant* participant,
                               std::string& topic_name);
 
-    bool match_from_ref(const std::string& ref);
-    bool match_from_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
 
     bool write(std::vector<uint8_t>& data);
     void onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info) override;
@@ -129,8 +129,8 @@ public:
                               const FastParticipant* participant,
                               std::string& topic_name);
 
-    bool match_from_ref(const std::string& ref);
-    bool match_from_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
 
     bool set_on_new_data_cb(OnNewData on_new_data_cb);
     bool unset_on_new_data_cb();
