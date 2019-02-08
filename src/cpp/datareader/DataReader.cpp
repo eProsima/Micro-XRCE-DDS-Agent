@@ -44,7 +44,7 @@ DataReader* DataReader::create(const dds::xrce::ObjectId& object_id,
             uint16_t topic_id;
             if (middleware.create_datareader_from_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);;
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
                 topic->tie_object(object_id);
                 created_entity = true;
@@ -57,7 +57,7 @@ DataReader* DataReader::create(const dds::xrce::ObjectId& object_id,
             uint16_t topic_id;
             if (middleware.create_datareader_from_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
+                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
                 topic->tie_object(object_id);
                 created_entity = true;

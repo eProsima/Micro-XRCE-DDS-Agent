@@ -67,7 +67,7 @@ private:
     dds::xrce::CLIENT_Representation representation_;
     Middleware& middleware_;
     std::mutex mtx_;
-    ObjectContainer objects_;
+    XRCEObject::ObjectContainer objects_;
     Session session_;
 };
 
