@@ -31,7 +31,7 @@ struct ObjectIdHash
 {
     uint16_t operator()(const dds::xrce::ObjectId& object_id) const
     {
-        return object_id.at(1) + (object_id.at(0) << 8);
+        return uint16_t(object_id.at(1) + (object_id.at(0) << 8));
     }
 };
 
@@ -40,9 +40,8 @@ typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, Obj
 class XRCEObject
 {
 public:
-    explicit XRCEObject(const dds::xrce::ObjectId& object_id, Middleware* middleware)
-        : id_{object_id},
-          middleware_{middleware}
+    explicit XRCEObject(const dds::xrce::ObjectId& object_id)
+        : id_{object_id}
     {}
 
     virtual ~XRCEObject() = 0;
@@ -56,12 +55,10 @@ public:
     uint16_t get_raw_id() const;
     virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
     virtual void release(ObjectContainer& root_objects) = 0;
+    virtual Middleware* get_middleware() const = 0;
 
 private:
     dds::xrce::ObjectId id_;
-
-protected:
-    Middleware* middleware_;
 };
 
 } // namespace uxr

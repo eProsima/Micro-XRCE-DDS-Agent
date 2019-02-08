@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef _UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
-#define _UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
 
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/middleware/FastEntities.hpp>
@@ -111,4 +111,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_

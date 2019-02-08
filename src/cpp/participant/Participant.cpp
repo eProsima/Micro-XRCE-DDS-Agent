@@ -50,7 +50,8 @@ Participant* Participant::create(
 Participant::Participant(
         const dds::xrce::ObjectId& id,
         Middleware* middleware)
-    : XRCEObject(id, middleware)
+    : XRCEObject(id),
+      middleware_(middleware)
 {}
 
 Participant::~Participant()

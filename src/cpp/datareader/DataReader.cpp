@@ -26,17 +26,16 @@ namespace uxr {
 
 using utils::TokenBucket;
 
-DataReader* DataReader::create(
-        const dds::xrce::ObjectId& object_id,
+DataReader* DataReader::create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const dds::xrce::DATAREADER_Representation& representation,
-        const ObjectContainer& root_objects,
-        Middleware* middleware)
+        const ObjectContainer& root_objects)
 {
     bool created_entity = false;
     uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
     std::shared_ptr<Topic> topic;
 
+    Middleware* middleware = subscriber->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
@@ -69,15 +68,13 @@ DataReader* DataReader::create(
             break;
     }
 
-    return (created_entity ? new DataReader(object_id, subscriber, topic, middleware) : nullptr);
+    return (created_entity ? new DataReader(object_id, subscriber, topic) : nullptr);
 }
 
-DataReader::DataReader(
-        const dds::xrce::ObjectId& object_id,
+DataReader::DataReader(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
-        const std::shared_ptr<Topic>& topic,
-        Middleware* middleware)
-    : XRCEObject(object_id, middleware)
+        const std::shared_ptr<Topic>& topic)
+    : XRCEObject(object_id)
     , subscriber_(subscriber)
     , topic_(topic)
     , running_cond_(false)
@@ -101,7 +98,7 @@ DataReader::~DataReader() noexcept
 
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
-    middleware_->delete_datareader(get_raw_id(), subscriber_->get_raw_id());
+    get_middleware()->delete_datareader(get_raw_id(), subscriber_->get_raw_id());
 }
 
 bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
@@ -142,7 +139,7 @@ bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
 
 bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    if (!middleware_->set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
+    if (!get_middleware()->set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
     {
         return false;
     }
@@ -178,7 +175,7 @@ bool DataReader::stop_read()
         max_timer_thread_.join();
     }
 
-    return middleware_->unset_read_cb(get_raw_id());
+    return get_middleware()->unset_read_cb(get_raw_id());
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
@@ -193,7 +190,7 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
         if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
             std::vector<uint8_t> data;
-            if (middleware_->read_data(get_raw_id(), &data))
+            if (get_middleware()->read_data(get_raw_id(), &data))
             {
                 lock.unlock();
                 while (!rate_manager.get_tokens(data.size()))
@@ -250,19 +247,24 @@ bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_reader().representation().object_reference();
-            rv = middleware_->matched_datareader_from_ref(get_raw_id(), ref);
+            rv = get_middleware()->matched_datareader_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
-            rv = middleware_->matched_datareader_from_xml(get_raw_id(), xml);
+            rv = get_middleware()->matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
     return rv;
+}
+
+Middleware* DataReader::get_middleware() const
+{
+    return subscriber_->get_middleware();
 }
 
 ReadTimeEvent::ReadTimeEvent()

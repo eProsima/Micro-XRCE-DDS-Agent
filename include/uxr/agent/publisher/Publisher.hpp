@@ -30,8 +30,7 @@ public:
     static Publisher* create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
-        const dds::xrce::OBJK_PUBLISHER_Representation& representation,
-        Middleware* middleware);
+        const dds::xrce::OBJK_PUBLISHER_Representation& representation);
 
     virtual ~Publisher() override;
 
@@ -44,14 +43,13 @@ public:
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
+    Middleware* get_middleware() const override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
 
 private:
-    Publisher(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
-        Middleware* middleware);
+    Publisher(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant);
 
 private:
     std::shared_ptr<Participant> participant_;

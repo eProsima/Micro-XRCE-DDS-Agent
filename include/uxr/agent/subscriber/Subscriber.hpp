@@ -27,11 +27,9 @@ class Middleware;
 class Subscriber : public XRCEObject
 {
 public:
-    static Subscriber* create(
-        const dds::xrce::ObjectId& object_id,
+    static Subscriber* create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>&participant,
-        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation,
-        Middleware* middleware);
+        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
 
     virtual ~Subscriber() override;
 
@@ -44,14 +42,13 @@ public:
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
+    Middleware* get_middleware() const override;
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
 
 private:
-    Subscriber(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
-        Middleware* middleware);
+    Subscriber(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant);
 
 private:
     std::shared_ptr<Participant> participant_;

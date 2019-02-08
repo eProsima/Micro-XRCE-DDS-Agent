@@ -30,12 +30,10 @@ class Middleware;
 class DataWriter : public XRCEObject
 {
 public:
-    static DataWriter* create(
-        const dds::xrce::ObjectId& object_id,
+    static DataWriter* create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Publisher>& publisher,
         const dds::xrce::DATAWRITER_Representation& representation,
-        const ObjectContainer& root_objects,
-        Middleware* middleware);
+        const ObjectContainer& root_objects);
 
     ~DataWriter() override;
 
@@ -46,15 +44,14 @@ public:
 
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware* get_middleware() const override;
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
 private:
-    DataWriter(
-        const dds::xrce::ObjectId& object_id,
+    DataWriter(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Publisher>& publisher,
-        const std::shared_ptr<Topic>& topic,
-        Middleware* middleware);
+        const std::shared_ptr<Topic>& topic);
 
 private:
     std::shared_ptr<Publisher> publisher_;

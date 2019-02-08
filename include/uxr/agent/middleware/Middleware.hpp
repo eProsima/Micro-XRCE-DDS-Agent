@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_MIDDLEWARE_HPP_
-#define _UXR_AGENT_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
 #include <string>
 #include <cstdint>
@@ -94,4 +94,4 @@ public:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_

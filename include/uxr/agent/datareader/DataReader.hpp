@@ -82,8 +82,7 @@ public:
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const dds::xrce::DATAREADER_Representation& representation,
-        const ObjectContainer& root_objects,
-        Middleware* middleware);
+        const ObjectContainer& root_objects);
 
     virtual ~DataReader() noexcept override;
 
@@ -94,6 +93,7 @@ public:
 
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware* get_middleware() const override;
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
@@ -105,8 +105,7 @@ public:
 private:
     DataReader(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
-        const std::shared_ptr<Topic>& topic,
-        Middleware* middleware);
+        const std::shared_ptr<Topic>& topic);
 
     bool start_read(
         const dds::xrce::DataDeliveryControl& delivery_control,

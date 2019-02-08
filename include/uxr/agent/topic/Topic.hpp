@@ -29,11 +29,9 @@ class Middleware;
 class Topic : public XRCEObject
 {
 public:
-    static Topic* create(
-        const dds::xrce::ObjectId& object_id,
+    static Topic* create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
-        const dds::xrce::OBJK_TOPIC_Representation& representation,
-        Middleware* middleware);
+        const dds::xrce::OBJK_TOPIC_Representation& representation);
 
     ~Topic() override;
 
@@ -46,12 +44,12 @@ public:
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware* get_middleware() const override;
 
 private:
     Topic(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
-        Middleware* middleware);
+        const std::shared_ptr<Participant>& participant);
 
 private:
     std::shared_ptr<Participant> participant_;

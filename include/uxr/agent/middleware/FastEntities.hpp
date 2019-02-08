@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
-#define _UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
+#define UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
 
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/publisher/PublisherListener.h>
@@ -148,4 +148,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_FAST_ENTITIES_HPP_

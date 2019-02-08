@@ -235,7 +235,7 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Topic* topic = Topic::create(object_id, participant, representation, middleware_);
+            Topic* topic = Topic::create(object_id, participant, representation);
             if (nullptr != topic)
             {
                 rv = objects_.emplace(std::make_pair(object_id, topic)).second;
@@ -257,7 +257,7 @@ bool ProxyClient::create_publisher(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Publisher* publisher = Publisher::create(object_id, participant, representation, middleware_);
+            Publisher* publisher = Publisher::create(object_id, participant, representation);
             if (nullptr != publisher)
             {
                 rv = objects_.emplace(std::make_pair(object_id, publisher)).second;
@@ -279,7 +279,7 @@ bool ProxyClient::create_subscriber(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Subscriber* subscriber = Subscriber::create(object_id, participant, representation, middleware_);
+            Subscriber* subscriber = Subscriber::create(object_id, participant, representation);
             if (nullptr != subscriber)
             {
                 rv = objects_.emplace(std::make_pair(object_id, subscriber)).second;
@@ -300,7 +300,7 @@ bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-            DataWriter* datawriter = DataWriter::create(object_id, publisher, representation, objects_, middleware_);
+            DataWriter* datawriter = DataWriter::create(object_id, publisher, representation, objects_);
             if (nullptr != datawriter) {
                 rv = objects_.emplace(std::make_pair(object_id, datawriter)).second;
             }
@@ -320,7 +320,7 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-            DataReader* datareader = DataReader::create(object_id, subscriber, representation, objects_, middleware_);
+            DataReader* datareader = DataReader::create(object_id, subscriber, representation, objects_);
             if (nullptr != datareader) {
                 rv = objects_.emplace(std::make_pair(object_id, datareader)).second;
             }
