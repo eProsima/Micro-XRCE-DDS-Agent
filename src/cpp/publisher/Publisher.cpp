@@ -19,7 +19,7 @@
 namespace eprosima {
 namespace uxr {
 
-Publisher* Publisher::create(
+std::unique_ptr<Publisher> Publisher::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation)
@@ -43,7 +43,7 @@ Publisher* Publisher::create(
         }
     }
 
-    return (created_entity ? new Publisher(object_id, participant) : nullptr);
+    return (created_entity ? std::unique_ptr<Publisher>(new Publisher(object_id, participant)) : nullptr);
 }
 
 Publisher::Publisher(

@@ -21,7 +21,7 @@
 namespace eprosima {
 namespace uxr {
 
-DataWriter* DataWriter::create(
+std::unique_ptr<DataWriter> DataWriter::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Publisher>& publisher,
         const dds::xrce::DATAWRITER_Representation& representation,
@@ -62,7 +62,7 @@ DataWriter* DataWriter::create(
             break;
     }
 
-    return (created_entity ? new DataWriter(object_id, publisher, topic) : nullptr);
+    return (created_entity ? std::unique_ptr<DataWriter>(new DataWriter(object_id, publisher, topic)) : nullptr);
 }
 
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,

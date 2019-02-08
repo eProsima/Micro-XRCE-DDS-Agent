@@ -215,10 +215,9 @@ bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
     {
-        Participant* participant = Participant::create(object_id, representation, middleware_);
-        if (nullptr != participant)
+        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, middleware_))
         {
-            rv = objects_.emplace(std::make_pair(object_id, participant)).second;
+            rv = objects_.emplace(std::make_pair(object_id, std::move(participant))).second;
         }
     }
     return rv;
@@ -235,10 +234,9 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Topic* topic = Topic::create(object_id, participant, representation);
-            if (nullptr != topic)
+            if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, topic)).second;
+                rv = objects_.emplace(std::make_pair(object_id, std::move(topic))).second;
             }
         }
     }
@@ -257,10 +255,9 @@ bool ProxyClient::create_publisher(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Publisher* publisher = Publisher::create(object_id, participant, representation);
-            if (nullptr != publisher)
+            if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, publisher)).second;
+                rv = objects_.emplace(std::make_pair(object_id, std::move(publisher))).second;
             }
         }
     }
@@ -279,10 +276,9 @@ bool ProxyClient::create_subscriber(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            Subscriber* subscriber = Subscriber::create(object_id, participant, representation);
-            if (nullptr != subscriber)
+            if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, subscriber)).second;
+                rv = objects_.emplace(std::make_pair(object_id, std::move(subscriber))).second;
             }
         }
     }
@@ -300,9 +296,9 @@ bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-            DataWriter* datawriter = DataWriter::create(object_id, publisher, representation, objects_);
-            if (nullptr != datawriter) {
-                rv = objects_.emplace(std::make_pair(object_id, datawriter)).second;
+            if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation, objects_))
+            {
+                rv = objects_.emplace(std::make_pair(object_id, std::move(datawriter))).second;
             }
         }
     }
@@ -320,9 +316,9 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
         if (it != objects_.end())
         {
             std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-            DataReader* datareader = DataReader::create(object_id, subscriber, representation, objects_);
-            if (nullptr != datareader) {
-                rv = objects_.emplace(std::make_pair(object_id, datareader)).second;
+            if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation, objects_))
+            {
+                rv = objects_.emplace(std::make_pair(object_id, std::move(datareader))).second;
             }
         }
     }

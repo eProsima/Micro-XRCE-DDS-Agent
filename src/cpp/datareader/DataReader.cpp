@@ -26,7 +26,7 @@ namespace uxr {
 
 using utils::TokenBucket;
 
-DataReader* DataReader::create(const dds::xrce::ObjectId& object_id,
+std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const dds::xrce::DATAREADER_Representation& representation,
         const ObjectContainer& root_objects)
@@ -68,7 +68,7 @@ DataReader* DataReader::create(const dds::xrce::ObjectId& object_id,
             break;
     }
 
-    return (created_entity ? new DataReader(object_id, subscriber, topic) : nullptr);
+    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber, topic)) : nullptr);
 }
 
 DataReader::DataReader(const dds::xrce::ObjectId& object_id,

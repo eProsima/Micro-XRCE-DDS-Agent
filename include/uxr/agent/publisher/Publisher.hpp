@@ -27,7 +27,7 @@ class Middleware;
 class Publisher : public XRCEObject
 {
 public:
-    static Publisher* create(
+    static std::unique_ptr<Publisher> create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation);

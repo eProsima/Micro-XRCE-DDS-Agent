@@ -19,7 +19,7 @@
 namespace eprosima {
 namespace uxr {
 
-Topic* Topic::create(
+std::unique_ptr<Topic> Topic::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
         const dds::xrce::OBJK_TOPIC_Representation& representation)
@@ -46,7 +46,7 @@ Topic* Topic::create(
             break;
     }
 
-    return (created_entity ? new Topic(object_id, participant) : nullptr);
+    return (created_entity ? std::unique_ptr<Topic>(new Topic(object_id, participant)) : nullptr);
 }
 
 Topic::Topic(

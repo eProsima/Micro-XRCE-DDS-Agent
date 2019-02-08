@@ -30,7 +30,7 @@ class Middleware;
 class DataWriter : public XRCEObject
 {
 public:
-    static DataWriter* create(const dds::xrce::ObjectId& object_id,
+    static std::unique_ptr<DataWriter> create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Publisher>& publisher,
         const dds::xrce::DATAWRITER_Representation& representation,
         const ObjectContainer& root_objects);

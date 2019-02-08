@@ -28,7 +28,7 @@ class Middleware;
 class Participant : public XRCEObject
 {
 public:
-    static Participant* create(const dds::xrce::ObjectId& object_id,
+    static std::unique_ptr<Participant> create(const dds::xrce::ObjectId& object_id,
         const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
         Middleware& middleware);
 

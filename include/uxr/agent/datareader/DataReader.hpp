@@ -78,7 +78,7 @@ protected:
 class DataReader : public XRCEObject, public ReadTimeEvent
 {
 public:
-    static DataReader* create(
+    static std::unique_ptr<DataReader> create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const dds::xrce::DATAREADER_Representation& representation,

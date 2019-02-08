@@ -18,7 +18,7 @@
 namespace eprosima {
 namespace uxr {
 
-Participant* Participant::create(
+std::unique_ptr<Participant> Participant::create(
         const dds::xrce::ObjectId& object_id,
         const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
         Middleware& middleware)
@@ -44,7 +44,7 @@ Participant* Participant::create(
             break;
     }
 
-    return (created_entity ? new Participant(object_id, middleware) : nullptr);
+    return (created_entity ? std::unique_ptr<Participant>(new Participant(object_id, middleware)) : nullptr);
 }
 
 Participant::Participant(const dds::xrce::ObjectId& id,

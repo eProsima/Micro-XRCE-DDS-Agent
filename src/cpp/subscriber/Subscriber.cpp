@@ -19,7 +19,7 @@
 namespace eprosima {
 namespace uxr {
 
-Subscriber* Subscriber::create(
+std::unique_ptr<Subscriber> Subscriber::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
@@ -43,7 +43,7 @@ Subscriber* Subscriber::create(
         }
     }
 
-    return (created_entity ? new Subscriber(object_id, participant) : nullptr);
+    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, participant)) : nullptr);
 }
 
 Subscriber::Subscriber(

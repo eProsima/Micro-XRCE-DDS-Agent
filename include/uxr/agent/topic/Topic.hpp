@@ -29,7 +29,7 @@ class Middleware;
 class Topic : public XRCEObject
 {
 public:
-    static Topic* create(const dds::xrce::ObjectId& object_id,
+    static std::unique_ptr<Topic> create(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
         const dds::xrce::OBJK_TOPIC_Representation& representation);
 
