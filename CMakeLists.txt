@@ -152,8 +152,8 @@ set(SRCS
     src/cpp/transport/serial/serial_protocol.c
     src/cpp/transport/discovery/DiscoveryServer.cpp
     ${TRANSPORT_SRCS}
-    src/cpp/middleware/FastEntities.cpp
-    src/cpp/middleware/FastMiddleware.cpp
+    src/cpp/middleware/fast/FastEntities.cpp
+    src/cpp/middleware/fast/FastMiddleware.cpp
     )
 
 # Executable

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/middleware/FastEntities.hpp>
+#include <uxr/agent/middleware/fast/FastEntities.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
+#include "../../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {

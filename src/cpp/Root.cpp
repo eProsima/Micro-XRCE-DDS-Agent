@@ -16,7 +16,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
-#include <uxr/agent/middleware/FastMiddleware.hpp>
+#include <uxr/agent/middleware/fast/FastMiddleware.hpp>
 #include <memory>
 #include <chrono>
 

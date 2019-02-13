@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/middleware/FastMiddleware.hpp>
+#include <uxr/agent/middleware/fast/FastMiddleware.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
+#include "../../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
