@@ -33,7 +33,7 @@ std::unique_ptr<Publisher> Publisher::create(
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            created_entity = middleware.create_publisher_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_publisher_by_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:

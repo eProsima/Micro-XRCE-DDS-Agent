@@ -155,6 +155,7 @@ set(SRCS
     src/cpp/middleware/fast/FastEntities.cpp
     src/cpp/middleware/fast/FastMiddleware.cpp
     src/cpp/middleware/ced/CedEntities.cpp
+#    src/cpp/middleware/ced/CedMiddleware.cpp
     )
 
 # Executable

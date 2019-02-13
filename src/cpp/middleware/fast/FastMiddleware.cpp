@@ -24,8 +24,9 @@ FastMiddleware::FastMiddleware()
 {
 }
 
-bool FastMiddleware::create_participant_from_ref(uint16_t participant_id, const std::string& ref)
+bool FastMiddleware::create_participant_by_ref(uint16_t participant_id, int16_t domain_id, const std::string& ref)
 {
+    (void) domain_id;
     bool rv = false;
     std::shared_ptr<FastParticipant> participant(new FastParticipant());
     if (participant->create_by_ref(ref))
@@ -36,12 +37,14 @@ bool FastMiddleware::create_participant_from_ref(uint16_t participant_id, const 
     return rv;
 }
 
-bool FastMiddleware::create_participant_from_xml(uint16_t participant_id, const std::string& xml)
+bool FastMiddleware::create_participant_by_xml(uint16_t participant_id, int16_t domain_id, const std::string& xml)
 {
+    (void) domain_id;
     bool rv = false;
     fastrtps::ParticipantAttributes attributes;
     if (xmlobjects::parse_participant(xml.data(), xml.size(), attributes))
     {
+        attributes.rtps.builtin.domainId = uint32_t(domain_id);
         std::shared_ptr<FastParticipant> participant(new FastParticipant());
         if (participant->create_by_attributes(attributes))
         {
@@ -52,7 +55,7 @@ bool FastMiddleware::create_participant_from_xml(uint16_t participant_id, const 
     return rv;
 }
 
-bool FastMiddleware::create_topic_from_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref)
+bool FastMiddleware::create_topic_by_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -74,7 +77,7 @@ bool FastMiddleware::create_topic_from_ref(uint16_t topic_id, uint16_t participa
     return rv;
 }
 
-bool FastMiddleware::create_topic_from_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml)
+bool FastMiddleware::create_topic_by_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -95,21 +98,21 @@ bool FastMiddleware::create_topic_from_xml(uint16_t topic_id, uint16_t participa
     return rv;
 }
 
-bool FastMiddleware::create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&)
+bool FastMiddleware::create_publisher_by_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&)
 {
     std::shared_ptr<FastPublisher> publisher(new FastPublisher(participant_id));
     publishers_.emplace(std::make_pair(publisher_id, std::move(publisher)));
     return true;
 }
 
-bool FastMiddleware::create_subscriber_from_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
+bool FastMiddleware::create_subscriber_by_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
 {
     std::shared_ptr<FastSubscriber> subscriber(new FastSubscriber(participant_id));
     subscribers_.emplace(std::make_pair(subscriber_id, std::move(subscriber)));
     return true;
 }
 
-bool FastMiddleware::create_datawriter_from_ref(uint16_t datawriter_id,
+bool FastMiddleware::create_datawriter_by_ref(uint16_t datawriter_id,
                                                 uint16_t publisher_id,
                                                 const std::string& ref,
                                                 uint16_t& associated_topic_id)
@@ -136,7 +139,7 @@ bool FastMiddleware::create_datawriter_from_ref(uint16_t datawriter_id,
     return rv;
 }
 
-bool FastMiddleware::create_datawriter_from_xml(uint16_t datawriter_id,
+bool FastMiddleware::create_datawriter_by_xml(uint16_t datawriter_id,
                                                 uint16_t publisher_id,
                                                 const std::string& xml,
                                                 uint16_t& associated_topic_id)
@@ -167,7 +170,7 @@ bool FastMiddleware::create_datawriter_from_xml(uint16_t datawriter_id,
     return rv;
 }
 
-bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
+bool FastMiddleware::create_datareader_by_ref(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& ref,
                                                 uint16_t& associated_topic_id)
@@ -194,7 +197,7 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
     return rv;
 }
 
-bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
+bool FastMiddleware::create_datareader_by_xml(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& xml,
                                                 uint16_t& associated_topic_id)

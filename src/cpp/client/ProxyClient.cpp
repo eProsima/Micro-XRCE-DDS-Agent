@@ -209,8 +209,9 @@ bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds:
     return rv;
 }
 
-bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
-                                     const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
+bool ProxyClient::create_participant(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
@@ -223,8 +224,9 @@ bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
     return rv;
 }
 
-bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
-                               const dds::xrce::OBJK_TOPIC_Representation& representation)
+bool ProxyClient::create_topic(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_TOPIC_Representation& representation)
 {
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&

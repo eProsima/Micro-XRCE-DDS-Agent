@@ -31,13 +31,13 @@ std::unique_ptr<Participant> Participant::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref_rep = representation.representation().object_reference();
-            created_entity = middleware.create_participant_from_ref(raw_object_id, ref_rep);
+            created_entity = middleware.create_participant_by_ref(raw_object_id, representation.domain_id(), ref_rep);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml_rep = representation.representation().xml_string_representation();
-            created_entity = middleware.create_participant_from_xml(raw_object_id, xml_rep);
+            created_entity = middleware.create_participant_by_xml(raw_object_id, representation.domain_id(), xml_rep);
             break;
         }
         default:

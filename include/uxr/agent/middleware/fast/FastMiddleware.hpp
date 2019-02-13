@@ -35,67 +35,141 @@ public:
     ~FastMiddleware() override = default;
 
     /* Creation functions. */
-    bool create_participant_from_ref(uint16_t participant_id, const std::string& ref) override;
-    bool create_participant_from_xml(uint16_t participant_id, const std::string& xml) override;
+    bool create_participant_by_ref(
+            uint16_t participant_id,
+            int16_t domain_id,
+            const std::string& ref) override;
 
-    bool create_topic_from_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref) override;
-    bool create_topic_from_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml) override;
+    bool create_participant_by_xml(
+            uint16_t participant_id,
+            int16_t domain_id,
+            const std::string& xml) override;
 
-    bool create_publisher_from_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&) override;
+    bool create_topic_by_ref(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
 
-    bool create_subscriber_from_xml(uint16_t subscirber_id, uint16_t participant_id, const std::string&) override;
+    bool create_topic_by_xml(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
 
-    bool create_datawriter_from_ref(uint16_t datawriter_id,
-                                    uint16_t publisher_id,
-                                    const std::string& ref,
-                                    uint16_t& associated_topic_id) override;
+    bool create_publisher_by_xml(
+            uint16_t publisher_id,
+            uint16_t participant_id,
+            const std::string&) override;
 
-    bool create_datawriter_from_xml(uint16_t datawriter_id,
-                                    uint16_t publisher_id,
-                                    const std::string& xml,
-                                    uint16_t& associated_topic_id) override;
+    bool create_subscriber_by_xml(
+            uint16_t subscirber_id,
+            uint16_t participant_id,
+            const std::string&) override;
 
-    bool create_datareader_from_ref(uint16_t datareader_id,
-                                    uint16_t subscriber_id,
-                                    const std::string& ref,
-                                    uint16_t& associated_topic_id) override;
+    bool create_datawriter_by_ref(
+            uint16_t datawriter_id,
+            uint16_t publisher_id,
+            const std::string& ref,
+            uint16_t& associated_topic_id) override;
 
-    bool create_datareader_from_xml(uint16_t datareader_id,
-                                    uint16_t subscriber_id,
-                                    const std::string& xml,
-                                    uint16_t& associated_topic_id) override;
+    bool create_datawriter_by_xml(
+            uint16_t datawriter_id,
+            uint16_t publisher_id,
+            const std::string& xml,
+            uint16_t& associated_topic_id) override;
+
+    bool create_datareader_by_ref(
+            uint16_t datareader_id,
+            uint16_t subscriber_id,
+            const std::string& ref,
+            uint16_t& associated_topic_id) override;
+
+    bool create_datareader_by_xml(
+            uint16_t datareader_id,
+            uint16_t subscriber_id,
+            const std::string& xml,
+            uint16_t& associated_topic_id) override;
 
     /* Deletion functions. */
     bool delete_participant(uint16_t participant_id) override;
-    bool delete_topic(uint16_t topic_id, uint16_t participant_id) override;
-    bool delete_publisher(uint16_t publisher_id, uint16_t participant_id) override;
-    bool delete_subscriber(uint16_t subscriber_id, uint16_t participant_id) override;
-    bool delete_datawriter(uint16_t datawriter_id, uint16_t publisher_id) override;
-    bool delete_datareader(uint16_t datareader_id, uint16_t subscriber_id) override;
+
+    bool delete_topic(
+            uint16_t topic_id,
+            uint16_t participant_id) override;
+
+    bool delete_publisher(
+            uint16_t publisher_id,
+            uint16_t participant_id) override;
+
+    bool delete_subscriber(
+            uint16_t subscriber_id,
+            uint16_t participant_id) override;
+
+    bool delete_datawriter(
+            uint16_t datawriter_id,
+            uint16_t publisher_id) override;
+
+    bool delete_datareader(
+            uint16_t datareader_id,
+            uint16_t subscriber_id) override;
 
     /* Write and read functions. */
-    bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) override;
-    bool set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb) override;
+    bool write_data(
+            uint16_t datawriter_id,
+            std::vector<uint8_t>& data) override;
+
+    bool set_read_cb(
+            uint16_t datareader_id,
+            OnNewData on_new_data_cb) override;
+
     bool unset_read_cb(uint16_t datareader_id) override;
-    bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) override;
+
+    bool read_data(
+            uint16_t datareader_id,
+            std::vector<uint8_t>* data) override;
 
     /* Matching functions. */
-    bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const override;
-    bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const override;
+    bool matched_participant_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
 
-    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const override;
-    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const override;
+    bool matched_participant_from_xml(
+            uint16_t participant_id,
+            const std::string& xml) const override;
 
-    bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const override;
-    bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const override;
+    bool matched_topic_from_ref(
+            uint16_t topic_id,
+            const std::string& ref) const override;
 
-    bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const override;
-    bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const override;
+    bool matched_topic_from_xml(
+            uint16_t topic_id,
+            const std::string& xml) const override;
+
+    bool matched_datawriter_from_ref(
+            uint16_t datawriter_id,
+            const std::string& ref) const override;
+
+    bool matched_datawriter_from_xml(
+            uint16_t datawriter_id,
+            const std::string& xml) const override;
+
+    bool matched_datareader_from_ref(
+            uint16_t datareader_id,
+            const std::string& ref) const override;
+
+    bool matched_datareader_from_xml(
+            uint16_t datareader_id,
+            const std::string& xml) const override;
 
 private:
-    void register_topic(const std::string& topic_name, uint16_t topic_id);
+    void register_topic(
+            const std::string& topic_name,
+            uint16_t topic_id);
+
     void unregister_topic(const std::string& topic_name);
-    bool check_register_topic(const std::string& topic_name, uint16_t& topic_id);
+
+    bool check_register_topic(
+            const std::string& topic_name,
+            uint16_t& topic_id);
 
 private:
     std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
