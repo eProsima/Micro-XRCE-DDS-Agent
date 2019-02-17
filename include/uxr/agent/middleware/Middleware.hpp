@@ -32,9 +32,9 @@ public:
     Middleware() = default;
     virtual ~Middleware() = default;
 
-    /*
-     * Creation functions.
-     */
+/**********************************************************************************************************************
+ * Create functions.
+ **********************************************************************************************************************/
     virtual bool create_participant_by_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -89,34 +89,24 @@ public:
             const std::string& xml,
             uint16_t& associated_topic_id) = 0;
 
-    /*
-     * Deletion functions.
-     */
+/**********************************************************************************************************************
+ * Delete functions.
+ **********************************************************************************************************************/
     virtual bool delete_participant(uint16_t participant_id) = 0;
 
-    virtual bool delete_topic(
-            uint16_t topic_id,
-            uint16_t participant_id) = 0;
+    virtual bool delete_topic(uint16_t topic_id) = 0;
 
-    virtual bool delete_publisher(
-            uint16_t publisher_id,
-            uint16_t participant_id) = 0;
+    virtual bool delete_publisher(uint16_t publisher_id) = 0;
 
-    virtual bool delete_subscriber(
-            uint16_t subscriber_id,
-            uint16_t participant_id) = 0;
+    virtual bool delete_subscriber(uint16_t subscriber_id) = 0;
 
-    virtual bool delete_datawriter(
-            uint16_t datawriter_id,
-            uint16_t publisher_id) = 0;
+    virtual bool delete_datawriter(uint16_t datawriter_id) = 0;
 
-    virtual bool delete_datareader(
-            uint16_t datareader_id,
-            uint16_t subscriber_id) = 0;
+    virtual bool delete_datareader(uint16_t datareader_id) = 0;
 
-    /*
-     * Write and read functions.
-     */
+/**********************************************************************************************************************
+ * Write/Read functions.
+ **********************************************************************************************************************/
     virtual bool write_data(
             uint16_t datawriter_id,
             std::vector<uint8_t>& data) = 0;
@@ -131,9 +121,9 @@ public:
             uint16_t datareader_id,
             std::vector<uint8_t>* data) = 0;
 
-    /*
-     * Matching functions.
-     */
+/**********************************************************************************************************************
+ * Matched functions.
+ **********************************************************************************************************************/
     virtual bool matched_participant_from_ref(
             uint16_t participant_id,
             const std::string& ref) const = 0;

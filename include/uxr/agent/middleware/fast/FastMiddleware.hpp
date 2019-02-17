@@ -34,7 +34,9 @@ public:
     FastMiddleware();
     ~FastMiddleware() override = default;
 
-    /* Creation functions. */
+/**********************************************************************************************************************
+ * Create functions.
+ **********************************************************************************************************************/
     bool create_participant_by_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -89,30 +91,24 @@ public:
             const std::string& xml,
             uint16_t& associated_topic_id) override;
 
-    /* Deletion functions. */
+/**********************************************************************************************************************
+ * Delete functions.
+ **********************************************************************************************************************/
     bool delete_participant(uint16_t participant_id) override;
 
-    bool delete_topic(
-            uint16_t topic_id,
-            uint16_t participant_id) override;
+    bool delete_topic(uint16_t topic_id) override;
 
-    bool delete_publisher(
-            uint16_t publisher_id,
-            uint16_t participant_id) override;
+    bool delete_publisher(uint16_t publisher_id) override;
 
-    bool delete_subscriber(
-            uint16_t subscriber_id,
-            uint16_t participant_id) override;
+    bool delete_subscriber(uint16_t subscriber_id) override;
 
-    bool delete_datawriter(
-            uint16_t datawriter_id,
-            uint16_t publisher_id) override;
+    bool delete_datawriter(uint16_t datawriter_id) override;
 
-    bool delete_datareader(
-            uint16_t datareader_id,
-            uint16_t subscriber_id) override;
+    bool delete_datareader(uint16_t datareader_id) override;
 
-    /* Write and read functions. */
+/**********************************************************************************************************************
+ * Write/Read functions.
+ **********************************************************************************************************************/
     bool write_data(
             uint16_t datawriter_id,
             std::vector<uint8_t>& data) override;
@@ -127,7 +123,9 @@ public:
             uint16_t datareader_id,
             std::vector<uint8_t>* data) override;
 
-    /* Matching functions. */
+/**********************************************************************************************************************
+ * Matched functions.
+ **********************************************************************************************************************/
     bool matched_participant_from_ref(
             uint16_t participant_id,
             const std::string& ref) const override;
@@ -161,25 +159,12 @@ public:
             const std::string& xml) const override;
 
 private:
-    void register_topic(
-            const std::string& topic_name,
-            uint16_t topic_id);
-
-    void unregister_topic(const std::string& topic_name);
-
-    bool check_register_topic(
-            const std::string& topic_name,
-            uint16_t& topic_id);
-
-private:
     std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
-
-    std::unordered_map<std::string, uint16_t> registered_topics_;
 };
 
 } // namespace uxr

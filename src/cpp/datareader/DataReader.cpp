@@ -98,7 +98,7 @@ DataReader::~DataReader() noexcept
 
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware().delete_datareader(get_raw_id(), subscriber_->get_raw_id());
+    get_middleware().delete_datareader(get_raw_id());
 }
 
 bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,

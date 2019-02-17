@@ -58,7 +58,7 @@ Subscriber::Subscriber(
 Subscriber::~Subscriber()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_subscriber(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_subscriber(get_raw_id());
 }
 
 void Subscriber::release(ObjectContainer& root_objects)

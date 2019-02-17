@@ -80,7 +80,7 @@ DataWriter::~DataWriter()
 {
     publisher_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware().delete_datawriter(get_raw_id(), publisher_->get_raw_id());
+    get_middleware().delete_datawriter(get_raw_id());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const

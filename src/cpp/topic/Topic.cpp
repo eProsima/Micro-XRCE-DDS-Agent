@@ -61,7 +61,7 @@ Topic::Topic(
 Topic::~Topic()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_topic(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_topic(get_raw_id());
 }
 
 void Topic::release(ObjectContainer& root_objects)
