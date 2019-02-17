@@ -29,83 +29,46 @@ namespace uxr {
 
 typedef std::function<void (const uint8_t* buf, size_t len)> ReadCallback;
 
-class CedTopic;
+class CedTopicImpl;
 
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
 class CedTopicManager
 {
-public:
+    friend class CedParticipant;
+private:
     CedTopicManager() = default;
     ~CedTopicManager() = default;
 
-    std::shared_ptr<CedTopic> register_topic(
+    static bool register_topic(
+        const std::string& topic_name,
+        int16_t domain_id,
+        std::shared_ptr<CedTopicImpl>& topic);
+
+    static bool unregister_topic(
         const std::string& topic_name,
         int16_t domain_id);
 
-    bool unregister_topic(
-        const std::string& topic_name,
-        int16_t domain_id);
-
 private:
-    std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopic>>> topics_;
+    static std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> topics_;
 };
 
 /**********************************************************************************************************************
- * CedDataReader
+ * CedTopicCloud
  **********************************************************************************************************************/
-class CedDataReader
-{
-    CedDataReader(std::shared_ptr<CedTopic> topic)
-        : last_read_(UINT16_MAX)
-        , topic_(topic)
-    {}
-    ~CedDataReader() = default;
-
-    bool read(
-        ReadCallback read_cb,
-        int timeout,
-        uint8_t& errcode);
-
-private:
-    uint16_t last_read_;
-    std::shared_ptr<CedTopic> topic_;
-};
-
-/**********************************************************************************************************************
- * CedDataWriter
- **********************************************************************************************************************/
-class CedDataWriter
-{
-public:
-    CedDataWriter(std::shared_ptr<CedTopic> topic)
-        : topic_(topic)
-    {}
-    ~CedDataWriter() = default;
-
-    bool write(
-        const uint8_t* buf,
-        size_t len,
-        uint8_t& errcode);
-
-private:
-    std::shared_ptr<CedTopic> topic_;
-};
-
-/**********************************************************************************************************************
- * CedTopic
- **********************************************************************************************************************/
-class CedTopic
+class CedTopicImpl
 {
     friend class CedDataReader;
     friend class CedDataWriter;
 public:
-    CedTopic(
+    CedTopicImpl(
         const std::string& topic_name,
         int16_t domain_id);
 
-    ~CedTopic() = default;
+    ~CedTopicImpl() = default;
+
+    const std::string& name();
 
 private:
     bool write(
@@ -129,6 +92,141 @@ private:
     std::array<std::vector<uint8_t>, 16> history_; // TODO (review history size)
 };
 
+/**********************************************************************************************************************
+ * CedParticipant
+ **********************************************************************************************************************/
+class CedParticipant
+{
+public:
+    CedParticipant(int16_t domain_id)
+        : domain_id_(domain_id)
+    {}
+    ~CedParticipant() = default;
+
+    bool register_topic(
+            const std::string& topic_name,
+            uint16_t topic_id,
+            std::shared_ptr<CedTopicImpl>& topic_impl);
+
+    bool unregister_topic(const std::string& topic_name);
+
+    bool find_topic(
+            const std::string& topic_name,
+            uint16_t& topic_id) const;
+
+private:
+    int16_t domain_id_;
+    std::unordered_map<std::string, uint16_t> topics_;
+};
+
+/**********************************************************************************************************************
+ * CedTopic
+ **********************************************************************************************************************/
+class CedTopic
+{
+public:
+    CedTopic(
+            const std::shared_ptr<CedParticipant>& participant,
+            const std::shared_ptr<CedTopicImpl>& topic_impl)
+        : participant_(participant)
+        , topic_impl_(topic_impl)
+    {}
+    ~CedTopic();
+
+    const std::shared_ptr<CedTopicImpl>& topic_impl() const;
+
+private:
+    std::shared_ptr<CedParticipant> participant_;
+    std::shared_ptr<CedTopicImpl> topic_impl_;
+};
+
+/**********************************************************************************************************************
+ * CedPublisher
+ **********************************************************************************************************************/
+class CedPublisher
+{
+    friend class CedDataWriter;
+public:
+    CedPublisher(const std::shared_ptr<CedParticipant>& participant)
+        : participant_(participant)
+    {}
+    ~CedPublisher() = default;
+
+private:
+    const std::shared_ptr<CedParticipant>& participant() const;
+
+private:
+    const std::shared_ptr<CedParticipant> participant_;
+};
+
+/**********************************************************************************************************************
+ * CedSubscriber
+ **********************************************************************************************************************/
+class CedSubscriber
+{
+    friend class CedDataReader;
+public:
+    CedSubscriber(const std::shared_ptr<CedParticipant>& participant)
+        : participant_(participant)
+    {}
+    ~CedSubscriber() = default;
+
+private:
+    const std::shared_ptr<CedParticipant>& participant() const;
+
+private:
+    const std::shared_ptr<CedParticipant>& participant_;
+};
+
+/**********************************************************************************************************************
+ * CedDataWriter
+ **********************************************************************************************************************/
+class CedDataWriter
+{
+public:
+    CedDataWriter(
+            const std::shared_ptr<CedPublisher>& publisher,
+            const std::shared_ptr<CedTopic>& topic)
+        : publisher_(publisher)
+        , topic_(topic)
+    {}
+    ~CedDataWriter() = default;
+
+    bool write(
+        const uint8_t* buf,
+        size_t len,
+        uint8_t& errcode) const;
+
+private:
+    const std::shared_ptr<CedPublisher> publisher_;
+    const std::shared_ptr<CedTopic> topic_;
+};
+
+/**********************************************************************************************************************
+ * CedDataReader
+ **********************************************************************************************************************/
+class CedDataReader
+{
+public:
+    CedDataReader(
+            const std::shared_ptr<CedSubscriber> subscriber,
+            const std::shared_ptr<CedTopic> topic)
+        : subscriber_(subscriber)
+        , topic_(topic)
+        , last_read_(UINT16_MAX)
+    {}
+    ~CedDataReader() = default;
+
+    bool read(
+            ReadCallback read_cb,
+            int timeout,
+            uint8_t& errcode);
+
+private:
+    const std::shared_ptr<CedSubscriber> subscriber_;
+    const std::shared_ptr<CedTopic> topic_;
+    uint16_t last_read_;
+};
 
 } // namespace uxr
 } // namespace eprosima

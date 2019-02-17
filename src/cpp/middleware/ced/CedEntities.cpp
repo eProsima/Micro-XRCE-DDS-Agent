@@ -21,58 +21,60 @@ namespace uxr {
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
-std::shared_ptr<CedTopic> CedTopicManager::register_topic(
+std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> CedTopicManager::topics_;
+
+bool CedTopicManager::register_topic(
         const std::string& topic_name,
-        int16_t domain_id)
+        int16_t domain_id,
+        std::shared_ptr<CedTopicImpl>& topic)
 {
-    return topics_[domain_id][topic_name];
+    auto it = topics_[domain_id].find(topic_name);
+    if (topics_[domain_id].end() == it)
+    {
+        topic = std::shared_ptr<CedTopicImpl>(new CedTopicImpl(topic_name, domain_id));
+        topics_[domain_id][topic_name] = topic;
+    }
+    else
+    {
+        topic = topics_[domain_id][topic_name];
+    }
+    return true;
 }
 
 bool CedTopicManager::unregister_topic(
         const std::string& topic_name,
         int16_t domain_id)
 {
-    (void) topic_name;
-    (void) domain_id;
-    return true;
+    bool rv = false;
+    auto it_domain = topics_.find(domain_id);
+    if (topics_.end() != it_domain)
+    {
+        auto it_topic = topics_[domain_id].find(topic_name);
+        if (topics_[domain_id].end() != it_topic)
+        {
+            rv = true; // TODO
+        }
+    }
+    return rv;
 }
 
 /**********************************************************************************************************************
- * CedDataReader
+ * CedTopicCloud
  **********************************************************************************************************************/
-bool CedDataReader::read(
-        ReadCallback read_cb,
-        int timeout,
-        uint8_t& errcode)
-{
-    return topic_->read(read_cb, timeout, last_read_, errcode);
-}
-
-/**********************************************************************************************************************
- * CedDataWriter
- **********************************************************************************************************************/
-bool CedDataWriter::write(
-        const uint8_t* buf,
-        size_t len,
-        uint8_t& errcode)
-{
-    return topic_->write(buf, len, errcode);
-}
-
-/**********************************************************************************************************************
- * CedTopic
- **********************************************************************************************************************/
-CedTopic::CedTopic(
+CedTopicImpl::CedTopicImpl(
         const std::string& topic_name,
         int16_t domain_id)
     : name_(topic_name)
     , domain_id_(domain_id)
     , last_write_(UINT16_MAX)
-{
+{}
 
+const std::string& CedTopicImpl::name()
+{
+    return name_;
 }
 
-bool CedTopic::write(
+bool CedTopicImpl::write(
         const uint8_t* buf,
         size_t len,
         uint8_t& errcode)
@@ -87,7 +89,7 @@ bool CedTopic::write(
     return true;
 }
 
-bool CedTopic::read(
+bool CedTopicImpl::read(
         ReadCallback read_cb,
         int timeout,
         uint16_t last_read,
@@ -115,6 +117,92 @@ bool CedTopic::read(
         }
     }
     return rv;
+}
+
+
+/**********************************************************************************************************************
+ * CedParticipant
+ **********************************************************************************************************************/
+bool CedParticipant::register_topic(
+        const std::string& topic_name,
+        uint16_t topic_id,
+        std::shared_ptr<CedTopicImpl>& topic_impl)
+{
+    bool rv = false;
+    auto it = topics_.find(topic_name);
+    if (topics_.end() == it)
+    {
+        if (CedTopicManager::register_topic(topic_name, domain_id_, topic_impl))
+        {
+            topics_.emplace(topic_name, topic_id);
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+bool CedParticipant::unregister_topic(const std::string &topic_name)
+{
+    bool rv = false;
+    auto it = topics_.find(topic_name);
+    if (topics_.end() != it)
+    {
+        if (CedTopicManager::unregister_topic(topic_name, domain_id_))
+        {
+            topics_.erase(topic_name);
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+bool CedParticipant::find_topic(
+        const std::string& topic_name,
+        uint16_t& topic_id) const
+{
+    bool rv = false;
+    auto it = topics_.find(topic_name);
+    if (topics_.end() != it)
+    {
+        topic_id = it->second;
+        rv = true;
+    }
+    return rv;
+}
+
+/**********************************************************************************************************************
+ * CedTopic
+ **********************************************************************************************************************/
+CedTopic::~CedTopic()
+{
+    participant_->unregister_topic(topic_impl_->name());
+}
+
+const std::shared_ptr<CedTopicImpl>& CedTopic::topic_impl() const
+{
+    return topic_impl_;
+}
+
+/**********************************************************************************************************************
+ * CedDataWriter
+ **********************************************************************************************************************/
+bool CedDataWriter::write(
+        const uint8_t* buf,
+        size_t len,
+        uint8_t& errcode) const
+{
+    return topic_->topic_impl()->write(buf, len, errcode);
+}
+
+/**********************************************************************************************************************
+ * CedDataReader
+ **********************************************************************************************************************/
+bool CedDataReader::read(
+        ReadCallback read_cb,
+        int timeout,
+        uint8_t &errcode)
+{
+    return topic_->topic_impl()->read(read_cb, timeout, last_read_, errcode);
 }
 
 } // namespace uxr
