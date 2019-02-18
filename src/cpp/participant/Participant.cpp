@@ -82,13 +82,15 @@ bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.participant().representation().object_reference();
-            rv = middleware_.matched_participant_from_ref(get_raw_id(), ref);
+            const int16_t domain_id = new_object_rep.participant().domain_id();
+            rv = middleware_.matched_participant_from_ref(get_raw_id(), domain_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.participant().representation().xml_string_representation();
-            rv = middleware_.matched_participant_from_xml(get_raw_id(), xml);
+            const int16_t domain_id = new_object_rep.participant().domain_id();
+            rv = middleware_.matched_participant_from_xml(get_raw_id(), domain_id, xml);
             break;
         }
         default:

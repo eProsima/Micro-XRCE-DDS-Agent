@@ -13,26 +13,20 @@
 // limitations under the License.
 
 
-#ifndef UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
-#define UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_CED_CED_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_CED_CED_MIDDLEWARE_HPP_
 
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/middleware/fast/FastEntities.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
-
-#include <cstdint>
-#include <cstddef>
-#include <unordered_map>
-#include <memory>
+#include <uxr/agent/middleware/ced/CedEntities.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-class FastMiddleware : public Middleware
+class CedMiddleware : public Middleware
 {
 public:
-    FastMiddleware();
-    ~FastMiddleware() override = default;
+    CedMiddleware() = default;
+    ~CedMiddleware() override = default;
 
 /**********************************************************************************************************************
  * Create functions.
@@ -161,15 +155,15 @@ public:
             const std::string& xml) const override;
 
 private:
-    std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedParticipant>> participants_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedTopic>> topics_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedPublisher>> publishers_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedSubscriber>> subscribers_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedDataWriter>> datawriters_;
+    std::unordered_map<uint16_t, std::shared_ptr<CedDataReader>> datareaders_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_CED_CED_MIDDLEWARE_HPP_

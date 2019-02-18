@@ -114,6 +114,8 @@ public:
             const std::string& topic_name,
             uint16_t& topic_id) const;
 
+    int16_t domain_id() const { return domain_id_; }
+
 private:
     int16_t domain_id_;
     std::unordered_map<std::string, uint16_t> topics_;
@@ -135,6 +137,8 @@ public:
 
     const std::shared_ptr<CedTopicImpl>& topic_impl() const;
 
+    const std::string& name() { return topic_impl_->name(); }
+
 private:
     std::shared_ptr<CedParticipant> participant_;
     std::shared_ptr<CedTopicImpl> topic_impl_;
@@ -152,8 +156,7 @@ public:
     {}
     ~CedPublisher() = default;
 
-private:
-    const std::shared_ptr<CedParticipant>& participant() const;
+    const std::shared_ptr<CedParticipant>& participant() const { return participant_; };
 
 private:
     const std::shared_ptr<CedParticipant> participant_;
@@ -171,8 +174,7 @@ public:
     {}
     ~CedSubscriber() = default;
 
-private:
-    const std::shared_ptr<CedParticipant>& participant() const;
+    const std::shared_ptr<CedParticipant>& participant() const { return  participant_; }
 
 private:
     const std::shared_ptr<CedParticipant>& participant_;
@@ -196,6 +198,8 @@ public:
         const uint8_t* buf,
         size_t len,
         uint8_t& errcode) const;
+
+    const std::string& topic_name() const { return topic_->topic_impl()->name(); }
 
 private:
     const std::shared_ptr<CedPublisher> publisher_;
@@ -221,6 +225,8 @@ public:
             ReadCallback read_cb,
             int timeout,
             uint8_t& errcode);
+
+    const std::string& topic_name() const { return topic_->topic_impl()->name(); }
 
 private:
     const std::shared_ptr<CedSubscriber> subscriber_;

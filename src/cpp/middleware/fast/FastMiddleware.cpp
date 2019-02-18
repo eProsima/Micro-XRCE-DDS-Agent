@@ -29,9 +29,8 @@ FastMiddleware::FastMiddleware()
  **********************************************************************************************************************/
 bool FastMiddleware::create_participant_by_ref(uint16_t participant_id, int16_t domain_id, const std::string& ref)
 {
-    (void) domain_id;
     bool rv = false;
-    std::shared_ptr<FastParticipant> participant(new FastParticipant());
+    std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
     if (participant->create_by_ref(ref))
     {
         participants_.emplace(participant_id, std::move(participant));
@@ -48,7 +47,7 @@ bool FastMiddleware::create_participant_by_xml(uint16_t participant_id, int16_t 
     if (xmlobjects::parse_participant(xml.data(), xml.size(), attributes))
     {
         attributes.rtps.builtin.domainId = uint32_t(domain_id);
-        std::shared_ptr<FastParticipant> participant(new FastParticipant());
+        std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
         if (participant->create_by_attributes(attributes))
         {
             participants_.emplace(participant_id, std::move(participant));
@@ -298,24 +297,30 @@ bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>* dat
 /**********************************************************************************************************************
  * Matched functions.
  **********************************************************************************************************************/
-bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const
+bool FastMiddleware::matched_participant_from_ref(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const std::string& ref) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = it->second->match_from_ref(ref);
+        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
     return rv;
 }
 
-bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const
+bool FastMiddleware::matched_participant_from_xml(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const std::string& xml) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = it->second->match_from_xml(xml);
+        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_xml(xml));
     }
     return rv;
 }

@@ -126,10 +126,12 @@ public:
  **********************************************************************************************************************/
     virtual bool matched_participant_from_ref(
             uint16_t participant_id,
+            int16_t domain_id,
             const std::string& ref) const = 0;
 
     virtual bool matched_participant_from_xml(
             uint16_t participant_id,
+            int16_t domain_id,
             const std::string& xml) const = 0;
 
     virtual bool matched_topic_from_ref(

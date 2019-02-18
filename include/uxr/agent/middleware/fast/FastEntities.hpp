@@ -44,7 +44,11 @@ class FastTopic;
 class FastParticipant : public fastrtps::ParticipantListener
 {
 public:
-    FastParticipant() : ptr_(nullptr), topics_register_{} {}
+    FastParticipant(int16_t domain_id)
+        : domain_id_(domain_id)
+        , ptr_(nullptr)
+        , topics_register_{}
+    {}
 
     ~FastParticipant() override;
 
@@ -75,7 +79,10 @@ public:
             const std::string& topic_name,
             uint16_t& topic_id);
 
+    int16_t domain_id() { return domain_id_; }
+
 private:
+    int16_t domain_id_;
     fastrtps::Participant* ptr_;
     std::unordered_map<std::string, uint16_t> topics_register_;
 };
