@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
-#define _UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
+#ifndef UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
+#define UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <uxr/agent/client/session/Session.hpp>
@@ -28,7 +28,7 @@ class Middleware;
 class ProxyClient
 {
 public:
-    explicit ProxyClient(const dds::xrce::CLIENT_Representation&, Middleware&) {}
+    explicit ProxyClient(const dds::xrce::CLIENT_Representation&) {}
     ~ProxyClient() = default;
 
     ProxyClient(const ProxyClient&) = delete;
@@ -43,4 +43,4 @@ public:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
+#endif // UXR_AGENT_CLIENT_PROXYCLIENT_HPP_

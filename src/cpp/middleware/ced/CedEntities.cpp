@@ -22,12 +22,14 @@ namespace uxr {
  * CedTopicManager
  **********************************************************************************************************************/
 std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> CedTopicManager::topics_;
+std::mutex CedTopicManager::mtx_;
 
 bool CedTopicManager::register_topic(
         const std::string& topic_name,
         int16_t domain_id,
         std::shared_ptr<CedTopicImpl>& topic)
 {
+    std::unique_lock<std::mutex> lock(mtx_);
     auto it = topics_[domain_id].find(topic_name);
     if (topics_[domain_id].end() == it)
     {
@@ -46,6 +48,7 @@ bool CedTopicManager::unregister_topic(
         int16_t domain_id)
 {
     bool rv = false;
+    std::unique_lock<std::mutex> lock(mtx_);
     auto it_domain = topics_.find(domain_id);
     if (topics_.end() != it_domain)
     {

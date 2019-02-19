@@ -32,6 +32,8 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastEntities.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastMiddleware.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedEntities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedMiddleware.cpp
         )
     add_executable(tree_test ${SRCS})
     add_gtest(tree_test

@@ -141,9 +141,8 @@ bool FastTopic::create_by_attributes(
     bool rv = false;
     setName(attrs.getTopicDataType().data());
     m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    if (fastrtps::Domain::registerType(participant_->get_ptr(), this))
+    if (participant_->register_topic(this, topic_id))
     {
-        participant_->register_topic(this, topic_id);
         rv = true;
     }
     return rv;
@@ -320,10 +319,11 @@ bool FastDataReader::match_from_xml(const std::string& xml) const
 bool FastDataReader::read(std::vector<uint8_t>* data, uint32_t timeout)
 {
     auto now = std::chrono::steady_clock::now();
-    std::unique_lock<std::mutex> lock(mtx_);
     bool rv = false;
+    std::unique_lock<std::mutex> lock(mtx_);
     if (ptr_->getUnreadCount() != 0)
     {
+        lock.unlock();
         fastrtps::SampleInfo_t info;
         rv = ptr_->takeNextData(data, &info);
     }
@@ -331,6 +331,7 @@ bool FastDataReader::read(std::vector<uint8_t>* data, uint32_t timeout)
     {
         if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){ return  ptr_->getUnreadCount() != 0; }))
         {
+            lock.unlock();
             fastrtps::SampleInfo_t info;
             rv = ptr_->takeNextData(data, &info);
         }

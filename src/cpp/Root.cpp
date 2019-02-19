@@ -16,7 +16,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
-#include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+
 #include <memory>
 #include <chrono>
 
@@ -37,7 +37,6 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
-    middleware_.reset(new FastMiddleware());
 }
 
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
@@ -66,8 +65,8 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation, *middleware_);
-                if (clients_.insert(std::make_pair(client_key, std::move(new_client))).second)
+                std::shared_ptr<ProxyClient> new_client(new ProxyClient(client_representation));
+                if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
 #ifdef VERBOSE_OUTPUT
                     std::cout << "<== ";
@@ -84,7 +83,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 std::shared_ptr<ProxyClient> client = clients_.at(client_key);
                 if (session_id != client->get_session_id())
                 {
-                    it->second = std::make_shared<ProxyClient>(client_representation, *middleware_);
+                    it->second = std::make_shared<ProxyClient>(client_representation);
                 }
                 else
                 {

@@ -18,6 +18,8 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 #include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#include <uxr/agent/middleware/ced/CedMiddleware.hpp>
 #ifdef VERBOSE_OUTPUT
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
@@ -26,12 +28,13 @@
 namespace eprosima {
 namespace uxr {
 
-ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware& middleware)
+ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
     : representation_(representation),
-      middleware_(middleware),
       objects_(),
       session_(representation.session_id(), representation.client_key(), representation.mtu())
 {
+//    middleware_.reset(new FastMiddleware());
+    middleware_.reset(new CedMiddleware());
 }
 
 dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
@@ -216,7 +219,7 @@ bool ProxyClient::create_participant(
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
     {
-        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, middleware_))
+        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, *middleware_))
         {
             rv = objects_.emplace(object_id, std::move(participant)).second;
         }

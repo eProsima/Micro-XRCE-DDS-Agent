@@ -52,6 +52,7 @@ private:
 
 private:
     static std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> topics_;
+    static std::mutex mtx_;
 };
 
 /**********************************************************************************************************************
