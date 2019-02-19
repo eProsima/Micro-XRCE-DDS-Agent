@@ -16,7 +16,6 @@
 #define UXR_AGENT_DATAREADER_DATAREADER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
 
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>

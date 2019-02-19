@@ -19,6 +19,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
 
+#include <iostream>
 #include <atomic>
 
 namespace eprosima {

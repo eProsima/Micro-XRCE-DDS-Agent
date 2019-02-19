@@ -142,8 +142,6 @@ set(SRCS
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
     src/cpp/types/SubMessageHeader.cpp
-    src/cpp/types/TopicPubSubType.cpp
-    src/cpp/xmlobjects/xmlobjects.cpp
     $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
@@ -152,6 +150,8 @@ set(SRCS
     src/cpp/transport/serial/serial_protocol.c
     src/cpp/transport/discovery/DiscoveryServer.cpp
     ${TRANSPORT_SRCS}
+    src/cpp/types/TopicPubSubType.cpp
+    src/cpp/xmlobjects/xmlobjects.cpp
     src/cpp/middleware/fast/FastEntities.cpp
     src/cpp/middleware/fast/FastMiddleware.cpp
     src/cpp/middleware/ced/CedEntities.cpp
@@ -159,7 +159,7 @@ set(SRCS
     )
 
 # Executable
-add_library(${PROJECT_NAME} SHARED ${SRCS})
+add_library(${PROJECT_NAME} ${SRCS})
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
 target_include_directories(${PROJECT_NAME}
     PUBLIC
