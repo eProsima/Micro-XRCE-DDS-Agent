@@ -15,6 +15,8 @@
 #ifndef UXR_AGENT_MIDDLEWARE_CED_CED_ENTITIES_HPP_
 #define UXR_AGENT_MIDDLEWARE_CED_CED_ENTITIES_HPP_
 
+#include <uxr/agent/utils/SeqNum.hpp>
+
 #include <string>
 #include <array>
 #include <vector>
@@ -77,16 +79,17 @@ private:
         uint8_t& errcode
     );
 
-    bool read(ReadCallback read_cb,
+    bool read(
+        ReadCallback read_cb,
         int timeout,
-        uint16_t last_read,
+        SeqNum& last_read,
         uint8_t& errcode
     );
 
 private:
     const std::string name_;
     int16_t domain_id_;
-    uint16_t last_write_;
+    SeqNum last_write_;
     std::mutex mtx_;
     std::condition_variable cv_;
     std::array<std::vector<uint8_t>, 16> history_; // TODO (review history size)
@@ -156,7 +159,7 @@ public:
     {}
     ~CedPublisher() = default;
 
-    const std::shared_ptr<CedParticipant>& participant() const { return participant_; };
+    const std::shared_ptr<CedParticipant>& participant() const { return participant_; }
 
 private:
     const std::shared_ptr<CedParticipant> participant_;
@@ -231,7 +234,7 @@ public:
 private:
     const std::shared_ptr<CedSubscriber> subscriber_;
     const std::shared_ptr<CedTopic> topic_;
-    uint16_t last_read_;
+    SeqNum last_read_;
 };
 
 } // namespace uxr

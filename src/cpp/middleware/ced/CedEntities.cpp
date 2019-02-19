@@ -92,21 +92,29 @@ bool CedTopicImpl::write(
 bool CedTopicImpl::read(
         ReadCallback read_cb,
         int timeout,
-        uint16_t last_read,
+        SeqNum& last_read,
         uint8_t& errcode)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
     if (last_read != last_write_)
     {
-        // TODO (add SeqNum)
+        if ((last_read <= (last_write_ - int(history_.size()))) || (last_read > last_write_))
+        {
+            last_read = last_write_ - int(history_.size()) + 1;
+        }
+        size_t index = uint16_t(last_read) % history_.size();
+        const std::vector<uint8_t> message = history_[index];
+        read_cb(message.data(), message.size());
+        rv = true;
     }
     else
     {
         auto now = std::chrono::steady_clock::now();
         if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){ return last_read != last_write_; }))
         {
-            size_t index = uint16_t(last_read + 1) % history_.size();
+            ++last_read;
+            size_t index = uint16_t(last_read) % history_.size();
             const std::vector<uint8_t> message = history_[index];
             read_cb(message.data(), message.size());
             rv = true;
@@ -116,6 +124,7 @@ bool CedTopicImpl::read(
             errcode = 1;
         }
     }
+
     return rv;
 }
 
