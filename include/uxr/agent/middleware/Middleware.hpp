@@ -24,8 +24,6 @@
 namespace eprosima {
 namespace uxr {
 
-typedef std::function<void ()> OnNewData;
-
 class Middleware
 {
 public:
@@ -111,15 +109,10 @@ public:
             uint16_t datawriter_id,
             std::vector<uint8_t>& data) = 0;
 
-    virtual bool set_read_cb(
-            uint16_t datareader_id,
-            OnNewData on_new_data_cb) = 0;
-
-    virtual bool unset_read_cb(uint16_t datareader_id) = 0;
-
     virtual bool read_data(
             uint16_t datareader_id,
-            std::vector<uint8_t>* data) = 0;
+            std::vector<uint8_t>* data,
+            uint32_t timeout) = 0;
 
 /**********************************************************************************************************************
  * Matched functions.

@@ -198,13 +198,13 @@ public:
 
     bool match_from_xml(const std::string& xml) const;
 
-    bool set_on_new_data_cb(OnNewData on_new_data_cb);
+    bool read(
+            std::vector<uint8_t>* data,
+            uint32_t timeout);
 
-    bool unset_on_new_data_cb();
-
-    bool read(std::vector<uint8_t>* data);
-
-    void onSubscriptionMatched(fastrtps::Subscriber* sub, fastrtps::rtps::MatchingInfo& info) override;
+    void onSubscriptionMatched(
+            fastrtps::Subscriber* sub,
+            fastrtps::rtps::MatchingInfo& info) override;
 
     void onNewDataMessage(fastrtps::Subscriber*) override;
 
@@ -213,7 +213,8 @@ public:
 private:
     std::shared_ptr<FastParticipant> participant_;
     fastrtps::Subscriber* ptr_;
-    OnNewData on_new_data_cb_;
+    std::mutex mtx_;
+    std::condition_variable cv_;
 };
 
 

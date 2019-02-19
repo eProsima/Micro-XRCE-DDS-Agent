@@ -75,13 +75,12 @@ const std::string& CedTopicImpl::name()
 }
 
 bool CedTopicImpl::write(
-        const uint8_t* buf,
-        size_t len,
+        const std::vector<uint8_t>& data,
         uint8_t& errcode)
 {
     std::unique_lock<std::mutex> lock(mtx_);
     size_t index = uint16_t(last_write_ + 1) % history_.size();
-    history_[index] = std::vector<uint8_t>(buf, buf + len);
+    history_[index] = data;
     ++last_write_;
     lock.unlock();
     cv_.notify_all();
@@ -90,8 +89,8 @@ bool CedTopicImpl::write(
 }
 
 bool CedTopicImpl::read(
-        ReadCallback read_cb,
-        int timeout,
+        std::vector<uint8_t>* const data,
+        uint32_t timeout,
         SeqNum& last_read,
         uint8_t& errcode)
 {
@@ -104,8 +103,7 @@ bool CedTopicImpl::read(
             last_read = last_write_ - int(history_.size()) + 1;
         }
         size_t index = uint16_t(last_read) % history_.size();
-        const std::vector<uint8_t> message = history_[index];
-        read_cb(message.data(), message.size());
+        data->assign(history_[index].data(), history_[index].data() + history_[index].size());
         rv = true;
     }
     else
@@ -115,8 +113,7 @@ bool CedTopicImpl::read(
         {
             ++last_read;
             size_t index = uint16_t(last_read) % history_.size();
-            const std::vector<uint8_t> message = history_[index];
-            read_cb(message.data(), message.size());
+            data->assign(history_[index].data(), history_[index].data() + history_[index].size());
             rv = true;
         }
         else
@@ -196,22 +193,21 @@ const std::shared_ptr<CedTopicImpl>& CedTopic::topic_impl() const
  * CedDataWriter
  **********************************************************************************************************************/
 bool CedDataWriter::write(
-        const uint8_t* buf,
-        size_t len,
+        const std::vector<uint8_t>& data,
         uint8_t& errcode) const
 {
-    return topic_->topic_impl()->write(buf, len, errcode);
+    return topic_->topic_impl()->write(data, errcode);
 }
 
 /**********************************************************************************************************************
  * CedDataReader
  **********************************************************************************************************************/
 bool CedDataReader::read(
-        ReadCallback read_cb,
-        int timeout,
+        std::vector<uint8_t>* const data,
+        uint32_t timeout,
         uint8_t &errcode)
 {
-    return topic_->topic_impl()->read(read_cb, timeout, last_read_, errcode);
+    return topic_->topic_impl()->read(data, timeout, last_read_, errcode);
 }
 
 } // namespace uxr

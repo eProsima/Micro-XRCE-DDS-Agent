@@ -29,8 +29,6 @@
 namespace eprosima {
 namespace uxr {
 
-typedef std::function<void (const uint8_t* buf, size_t len)> ReadCallback;
-
 class CedTopicImpl;
 
 /**********************************************************************************************************************
@@ -74,14 +72,13 @@ public:
 
 private:
     bool write(
-        const uint8_t* buf,
-        size_t len,
+        const std::vector<uint8_t>& data,
         uint8_t& errcode
     );
 
     bool read(
-        ReadCallback read_cb,
-        int timeout,
+        std::vector<uint8_t>* const data,
+        uint32_t timeout,
         SeqNum& last_read,
         uint8_t& errcode
     );
@@ -198,8 +195,7 @@ public:
     ~CedDataWriter() = default;
 
     bool write(
-        const uint8_t* buf,
-        size_t len,
+        const std::vector<uint8_t>& data,
         uint8_t& errcode) const;
 
     const std::string& topic_name() const { return topic_->topic_impl()->name(); }
@@ -225,8 +221,8 @@ public:
     ~CedDataReader() = default;
 
     bool read(
-            ReadCallback read_cb,
-            int timeout,
+            std::vector<uint8_t>* const data,
+            uint32_t timeout,
             uint8_t& errcode);
 
     const std::string& topic_name() const { return topic_->topic_impl()->name(); }

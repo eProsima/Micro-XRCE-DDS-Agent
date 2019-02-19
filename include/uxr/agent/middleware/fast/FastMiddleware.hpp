@@ -113,15 +113,10 @@ public:
             uint16_t datawriter_id,
             std::vector<uint8_t>& data) override;
 
-    bool set_read_cb(
-            uint16_t datareader_id,
-            OnNewData on_new_data_cb) override;
-
-    bool unset_read_cb(uint16_t datareader_id) override;
-
     bool read_data(
             uint16_t datareader_id,
-            std::vector<uint8_t>* data) override;
+            std::vector<uint8_t>* data,
+            uint32_t timeout) override;
 
 /**********************************************************************************************************************
  * Matched functions.

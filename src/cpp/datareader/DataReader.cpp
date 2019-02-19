@@ -139,11 +139,6 @@ bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
 
 bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    if (!get_middleware().set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
-    {
-        return false;
-    }
-
     std::unique_lock<std::mutex> lock(mtx_);
     running_cond_ = true;
     lock.unlock();
@@ -174,8 +169,7 @@ bool DataReader::stop_read()
     {
         max_timer_thread_.join();
     }
-
-    return get_middleware().unset_read_cb(get_raw_id());
+    return true;
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
@@ -190,7 +184,7 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
         if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
             std::vector<uint8_t> data;
-            if (get_middleware().read_data(get_raw_id(), &data))
+            if (get_middleware().read_data(get_raw_id(), &data, 100))
             {
                 lock.unlock();
                 while (!rate_manager.get_tokens(data.size()))
@@ -199,12 +193,6 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                 }
                 read_cb(cb_args, data);
                 ++message_count;
-            }
-            else
-            {
-                /* Wait for new message or terminate signal. */
-                cond_var_.wait(lock);
-                lock.unlock();
             }
         }
         else
@@ -225,12 +213,6 @@ void DataReader::on_max_timeout(const asio::error_code& error)
         running_cond_ = false;
         cond_var_.notify_one();
     }
-}
-
-void DataReader::on_new_message()
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-    cond_var_.notify_one();
 }
 
 bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const

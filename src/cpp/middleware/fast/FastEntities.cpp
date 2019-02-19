@@ -261,7 +261,6 @@ void FastDataWriter::onPublicationMatched(
 FastDataReader::FastDataReader(const std::shared_ptr<FastParticipant>& participant)
     : participant_(participant)
     , ptr_(nullptr)
-    , on_new_data_cb_(nullptr)
 {}
 
 FastDataReader::~FastDataReader()
@@ -318,25 +317,23 @@ bool FastDataReader::match_from_xml(const std::string& xml) const
     return rv;
 }
 
-bool FastDataReader::set_on_new_data_cb(OnNewData on_new_data_cb)
+bool FastDataReader::read(std::vector<uint8_t>* data, uint32_t timeout)
 {
-    on_new_data_cb_ = on_new_data_cb;
-    return true;
-}
-
-bool FastDataReader::unset_on_new_data_cb()
-{
-    on_new_data_cb_ = nullptr;
-    return true;
-}
-
-bool FastDataReader::read(std::vector<uint8_t>* data)
-{
+    auto now = std::chrono::steady_clock::now();
+    std::unique_lock<std::mutex> lock(mtx_);
     bool rv = false;
     if (ptr_->getUnreadCount() != 0)
     {
         fastrtps::SampleInfo_t info;
         rv = ptr_->takeNextData(data, &info);
+    }
+    else
+    {
+        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){ return  ptr_->getUnreadCount() != 0; }))
+        {
+            fastrtps::SampleInfo_t info;
+            rv = ptr_->takeNextData(data, &info);
+        }
     }
     return rv;
 }
@@ -357,10 +354,8 @@ void FastDataReader::onSubscriptionMatched(
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
-    if (nullptr != on_new_data_cb_)
-    {
-        on_new_data_cb_();
-    }
+    std::unique_lock<std::mutex> lock(mtx_);
+    cv_.notify_one();
 }
 
 } // namespace uxr

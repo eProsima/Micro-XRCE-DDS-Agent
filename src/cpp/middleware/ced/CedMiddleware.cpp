@@ -273,26 +273,24 @@ bool CedMiddleware::write_data(
     if (datawriters_.end() != it)
     {
         uint8_t errcode;
-        rv = it->second->write(data.data(), data.size(), errcode);
+        rv = it->second->write(data, errcode);
     }
     return rv;
 }
 
-bool CedMiddleware::set_read_cb(
-        uint16_t /*datareader_id*/,
-        OnNewData /*on_new_data_cb*/)
+bool CedMiddleware::read_data(
+        uint16_t datareader_id,
+        std::vector<uint8_t>* data,
+        uint32_t timeout)
 {
-    return true; // TODO: change read policy.
-}
-
-bool CedMiddleware::unset_read_cb(uint16_t /*datareader_id*/)
-{
-    return true; // TODO: change read policy.
-}
-
-bool CedMiddleware::read_data(uint16_t /*datareader_id*/, std::vector<uint8_t>* /*data*/)
-{
-    return false; // TODO: change read policy.
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        uint8_t errcode;
+        rv = it->second->read(data, timeout, errcode);
+    }
+    return rv;
 }
 
 /**********************************************************************************************************************

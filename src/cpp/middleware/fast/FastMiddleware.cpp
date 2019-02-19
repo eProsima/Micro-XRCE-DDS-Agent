@@ -249,7 +249,9 @@ bool FastMiddleware::delete_datareader(uint16_t datareader_id)
 /**********************************************************************************************************************
  * Write/Read functions.
  **********************************************************************************************************************/
-bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& data)
+bool FastMiddleware::write_data(
+        uint16_t datawriter_id,
+        std::vector<uint8_t>& data)
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -260,35 +262,15 @@ bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& da
     return rv;
 }
 
-bool FastMiddleware::set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb)
+bool FastMiddleware::read_data(uint16_t datareader_id,
+        std::vector<uint8_t>* data,
+        uint32_t timeout)
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);
     if (datareaders_.end() != it)
     {
-        rv = it->second->set_on_new_data_cb(on_new_data_cb);
-    }
-    return rv;
-}
-
-bool FastMiddleware::unset_read_cb(uint16_t datareader_id)
-{
-    bool rv = false;
-    auto it = datareaders_.find(datareader_id);
-    if (datareaders_.end() != it)
-    {
-        rv = it->second->unset_on_new_data_cb();
-    }
-    return rv;
-}
-
-bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>* data)
-{
-    bool rv = false;
-    auto it = datareaders_.find(datareader_id);
-    if (datareaders_.end() != it)
-    {
-        rv = it->second->read(data);
+        rv = it->second->read(data, timeout);
     }
     (void) datareader_id;
     return rv;
