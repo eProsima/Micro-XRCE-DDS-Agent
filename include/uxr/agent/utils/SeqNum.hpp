@@ -71,27 +71,17 @@ public:
 
     SeqNum& operator-=(const int& rhs)
     {
-        if (0 > (seq_num_ - uint16_t(rhs)))
-        {
-            seq_num_ = uint16_t(seq_num_ - uint16_t(rhs) + seq_num_limits_);
-        }
-        else
-        {
-            seq_num_ = seq_num_ - uint16_t(rhs);
-        }
+        seq_num_ = (uint16_t(rhs) > seq_num_)
+                ? uint16_t(seq_num_ - uint16_t(rhs) + seq_num_limits_)
+                : uint16_t(seq_num_ - uint16_t(rhs));
         return *this;
     }
 
     SeqNum& operator-=(const SeqNum& rhs)
     {
-        if (0 > (seq_num_ - rhs.seq_num_))
-        {
-            seq_num_ = uint16_t(seq_num_ - rhs.seq_num_ + seq_num_limits_);
-        }
-        else
-        {
-            seq_num_ = seq_num_ - rhs.seq_num_;
-        }
+        seq_num_ = (rhs.seq_num_ > seq_num_)
+                ? uint16_t(seq_num_ - rhs.seq_num_ + seq_num_limits_)
+                : uint16_t(seq_num_ - rhs.seq_num_);
         return *this;
     }
 
@@ -125,32 +115,6 @@ public:
     friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
     friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
     friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
-
-    friend int16_t operator-(const SeqNum& lhs, const SeqNum& rhs)
-    {
-        int16_t rv;
-        if (lhs == rhs)
-        {
-            rv = 0;
-        }
-        else if (lhs < rhs)
-        {
-            rv = (lhs.seq_num_ < rhs.seq_num_) ?
-                        int16_t(lhs.seq_num_ - rhs.seq_num_) :
-                        int16_t(lhs.seq_num_ - rhs.seq_num_ - seq_num_limits_);
-        }
-        else if (lhs > rhs)
-        {
-            rv = (lhs.seq_num_ > rhs.seq_num_) ?
-                        int16_t(lhs.seq_num_ - rhs.seq_num_) :
-                        int16_t(lhs.seq_num_ - rhs.seq_num_ + seq_num_limits_);
-        }
-        else
-        {
-            rv = INT16_MAX;
-        }
-        return rv;
-    }
 
 private:
     uint16_t seq_num_;
