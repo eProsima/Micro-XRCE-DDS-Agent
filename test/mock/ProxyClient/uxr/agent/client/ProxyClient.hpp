@@ -28,7 +28,7 @@ class Middleware;
 class ProxyClient
 {
 public:
-    explicit ProxyClient(const dds::xrce::CLIENT_Representation&, Middleware*) {}
+    explicit ProxyClient(const dds::xrce::CLIENT_Representation&, Middleware&) {}
     ~ProxyClient() = default;
 
     ProxyClient(const ProxyClient&) = delete;

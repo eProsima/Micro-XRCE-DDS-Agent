@@ -13,8 +13,8 @@
 // limitations under the License.
 
 
-#ifndef _UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
-#define _UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
 
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/middleware/FastEntities.hpp>
@@ -58,14 +58,12 @@ public:
     bool create_datareader_from_ref(uint16_t datareader_id,
                                     uint16_t subscriber_id,
                                     const std::string& ref,
-                                    uint16_t& associated_topic_id,
-                                    OnNewData on_new_data_cb) override;
+                                    uint16_t& associated_topic_id) override;
 
     bool create_datareader_from_xml(uint16_t datareader_id,
                                     uint16_t subscriber_id,
                                     const std::string& xml,
-                                    uint16_t& associated_topic_id,
-                                    OnNewData on_new_data_cb) override;
+                                    uint16_t& associated_topic_id) override;
 
     /* Deletion functions. */
     bool delete_participant(uint16_t participant_id) override;
@@ -77,20 +75,22 @@ public:
 
     /* Write and read functions. */
     bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) override;
+    bool set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb) override;
+    bool unset_read_cb(uint16_t datareader_id) override;
     bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) override;
 
     /* Matching functions. */
-    bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) override;
-    bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) override;
+    bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const override;
+    bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const override;
 
-    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) override;
-    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) override;
+    bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const override;
+    bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const override;
 
-    bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) override;
-    bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) override;
+    bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const override;
+    bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const override;
 
-    bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) override;
-    bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) override;
+    bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const override;
+    bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const override;
 
 private:
     void register_topic(const std::string& topic_name, uint16_t topic_id);
@@ -111,4 +111,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_FAST_MIDDLEWARE_HPP_

@@ -41,7 +41,7 @@ bool FastParticipant::create_by_attributes(fastrtps::ParticipantAttributes& attr
     return (nullptr != ptr_);
 }
 
-bool FastParticipant::match_from_ref(const std::string& ref)
+bool FastParticipant::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::ParticipantAttributes new_attributes;
@@ -53,7 +53,7 @@ bool FastParticipant::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastParticipant::match_from_xml(const std::string& xml)
+bool FastParticipant::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::ParticipantAttributes new_attributes;
@@ -94,7 +94,7 @@ bool FastTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs, Fas
     return rv;
 }
 
-bool FastTopic::match_from_ref(const std::string& ref)
+bool FastTopic::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::TopicAttributes new_attributes;
@@ -107,7 +107,7 @@ bool FastTopic::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastTopic::match_from_xml(const std::string& xml)
+bool FastTopic::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::TopicAttributes new_attributes;
@@ -146,7 +146,7 @@ bool FastDataWriter::create_by_attributes(PublisherAttributes& attrs,
     return (nullptr != ptr_);
 }
 
-bool FastDataWriter::match_from_ref(const std::string& ref)
+bool FastDataWriter::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::PublisherAttributes new_attributes;
@@ -158,7 +158,7 @@ bool FastDataWriter::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastDataWriter::match_from_xml(const std::string& xml)
+bool FastDataWriter::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::PublisherAttributes new_attributes;
@@ -186,6 +186,11 @@ void FastDataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::
     }
 }
 
+FastDataReader::FastDataReader()
+    : ptr_(nullptr)
+    , on_new_data_cb_(nullptr)
+{}
+
 FastDataReader::~FastDataReader()
 {
     fastrtps::Domain::removeSubscriber(ptr_);
@@ -193,33 +198,29 @@ FastDataReader::~FastDataReader()
 
 bool FastDataReader::create_by_ref(const std::string& ref,
                                    const FastParticipant* participant,
-                                   std::string& topic_name,
-                                   OnNewData on_new_data_cb)
+                                   std::string& topic_name)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
-        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
 }
 
 bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
                                           const FastParticipant* participant,
-                                          std::string& topic_name,
-                                          OnNewData on_new_data_cb)
+                                          std::string& topic_name)
 {
     ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
         topic_name = ptr_->getAttributes().topic.getTopicDataType();
-        on_new_data_cb_ = on_new_data_cb;
     }
     return (nullptr != ptr_);
 }
 
-bool FastDataReader::match_from_ref(const std::string& ref)
+bool FastDataReader::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
     fastrtps::SubscriberAttributes new_attributes;
@@ -231,7 +232,7 @@ bool FastDataReader::match_from_ref(const std::string& ref)
     return rv;
 }
 
-bool FastDataReader::match_from_xml(const std::string& xml)
+bool FastDataReader::match_from_xml(const std::string& xml) const
 {
     bool rv = false;
     fastrtps::SubscriberAttributes new_attributes;
@@ -240,6 +241,18 @@ bool FastDataReader::match_from_xml(const std::string& xml)
         rv = (new_attributes == ptr_->getAttributes());
     }
     return rv;
+}
+
+bool FastDataReader::set_on_new_data_cb(OnNewData on_new_data_cb)
+{
+    on_new_data_cb_ = on_new_data_cb;
+    return true;
+}
+
+bool FastDataReader::unset_on_new_data_cb()
+{
+    on_new_data_cb_ = nullptr;
+    return true;
 }
 
 bool FastDataReader::read(std::vector<uint8_t>* data)
@@ -267,7 +280,10 @@ void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
-    on_new_data_cb_();
+    if (nullptr != on_new_data_cb_)
+    {
+        on_new_data_cb_();
+    }
 }
 
 } // namespace uxr

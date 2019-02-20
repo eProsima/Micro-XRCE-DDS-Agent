@@ -175,8 +175,7 @@ bool FastMiddleware::create_datawriter_from_xml(uint16_t datawriter_id,
 bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& ref,
-                                                uint16_t& associated_topic_id,
-                                                OnNewData on_new_data_cb)
+                                                uint16_t& associated_topic_id)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -187,7 +186,7 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
         {
             std::shared_ptr<FastDataReader> datareader(new FastDataReader());
             std::string topic_name;
-            if (datareader->create_by_ref(ref, it_participant->second.get(), topic_name, on_new_data_cb))
+            if (datareader->create_by_ref(ref, it_participant->second.get(), topic_name))
             {
                 if (check_register_topic(topic_name, associated_topic_id))
                 {
@@ -203,8 +202,7 @@ bool FastMiddleware::create_datareader_from_ref(uint16_t datareader_id,
 bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& xml,
-                                                uint16_t& associated_topic_id,
-                                                OnNewData on_new_data_cb)
+                                                uint16_t& associated_topic_id)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -218,7 +216,7 @@ bool FastMiddleware::create_datareader_from_xml(uint16_t datareader_id,
             {
                 std::shared_ptr<FastDataReader> datareader(new FastDataReader());
                 std::string topic_name;
-                if (datareader->create_by_attributes(attributes, it_participant->second.get(), topic_name, on_new_data_cb))
+                if (datareader->create_by_attributes(attributes, it_participant->second.get(), topic_name))
                 {
                     if (check_register_topic(topic_name, associated_topic_id))
                     {
@@ -322,6 +320,28 @@ bool FastMiddleware::write_data(uint16_t datawriter_id, std::vector<uint8_t>& da
     return rv;
 }
 
+bool FastMiddleware::set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb)
+{
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->set_on_new_data_cb(on_new_data_cb);
+    }
+    return rv;
+}
+
+bool FastMiddleware::unset_read_cb(uint16_t datareader_id)
+{
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->unset_on_new_data_cb();
+    }
+    return rv;
+}
+
 bool FastMiddleware::read_data(uint16_t datareader_id, std::vector<uint8_t>* data)
 {
     bool rv = false;
@@ -356,7 +376,7 @@ bool FastMiddleware::check_register_topic(const std::string& topic_name, uint16_
     return rv;
 }
 
-bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const std::string& ref)
+bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
@@ -367,7 +387,7 @@ bool FastMiddleware::matched_participant_from_ref(uint16_t participant_id, const
     return rv;
 }
 
-bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const std::string& xml)
+bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = participants_.find(participant_id);
@@ -378,7 +398,7 @@ bool FastMiddleware::matched_participant_from_xml(uint16_t participant_id, const
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref)
+bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -389,7 +409,7 @@ bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml)
+bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -400,7 +420,7 @@ bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref)
+bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -411,7 +431,7 @@ bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml)
+bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -422,7 +442,7 @@ bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref)
+bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);
@@ -433,7 +453,7 @@ bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml)
+bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

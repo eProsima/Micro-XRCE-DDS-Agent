@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_MIDDLEWARE_HPP_
-#define _UXR_AGENT_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
 #include <string>
 #include <cstdint>
@@ -56,14 +56,12 @@ public:
     virtual bool create_datareader_from_ref(uint16_t datareader_id,
                                             uint16_t subscriber_id,
                                             const std::string& ref,
-                                            uint16_t& associated_topic_id,
-                                            OnNewData on_new_data_cb) = 0;
+                                            uint16_t& associated_topic_id) = 0;
 
     virtual bool create_datareader_from_xml(uint16_t datareader_id,
                                             uint16_t subscriber_id,
                                             const std::string& xml,
-                                            uint16_t& associated_topic_id,
-                                            OnNewData on_new_data_cb) = 0;
+                                            uint16_t& associated_topic_id) = 0;
 
     /* Deletion functions. */
     virtual bool delete_participant(uint16_t participant_id) = 0;
@@ -75,23 +73,25 @@ public:
 
     /* Write and read functions. */
     virtual bool write_data(uint16_t datawriter_id, std::vector<uint8_t>& data) = 0;
+    virtual bool set_read_cb(uint16_t datareader_id, OnNewData on_new_data_cb) = 0;
+    virtual bool unset_read_cb(uint16_t datareader_id) = 0;
     virtual bool read_data(uint16_t datareader_id, std::vector<uint8_t>* data) = 0;
 
     /* Matching functions. */
-    virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) = 0;
-    virtual bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) = 0;
+    virtual bool matched_participant_from_ref(uint16_t participant_id, const std::string& ref) const = 0;
+    virtual bool matched_participant_from_xml(uint16_t participant_id, const std::string& xml) const = 0;
 
-    virtual bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) = 0;
-    virtual bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) = 0;
+    virtual bool matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const = 0;
+    virtual bool matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const = 0;
 
-    virtual bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) = 0;
-    virtual bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) = 0;
+    virtual bool matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const = 0;
+    virtual bool matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const = 0;
 
-    virtual bool matched_datareader_from_ref(uint16_t datawriter_id, const std::string& ref) = 0;
-    virtual bool matched_datareader_from_xml(uint16_t datawriter_id, const std::string& xml) = 0;
+    virtual bool matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const = 0;
+    virtual bool matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const = 0;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_

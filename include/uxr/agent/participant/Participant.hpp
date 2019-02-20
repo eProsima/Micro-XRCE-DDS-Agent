@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_PARTICIPANT_HPP_
-#define _UXR_AGENT_PARTICIPANT_HPP_
+#ifndef UXR_AGENT_PARTICIPANT_HPP_
+#define UXR_AGENT_PARTICIPANT_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <unordered_map>
@@ -28,20 +28,34 @@ class Middleware;
 class Participant : public XRCEObject
 {
 public:
-    Participant(const dds::xrce::ObjectId& id, Middleware* middleware);
+    static std::unique_ptr<Participant> create(const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
+        Middleware& middleware);
+
     virtual ~Participant() override;
 
-    bool init_middleware(const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+    Participant(Participant&&) = delete;
+    Participant(const Participant&) = delete;
+    Participant& operator=(Participant&&) = delete;
+    Participant& operator=(const Participant&) = delete;
+
     void release(ObjectContainer& root_objects) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware& get_middleware() const override { return middleware_; }
+
+private:
+    Participant(
+        const dds::xrce::ObjectId& id,
+        Middleware& middleware);
 
 private:
     std::set<dds::xrce::ObjectId> tied_objects_;
+    Middleware& middleware_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_PARTICIPANT_HPP_
+#endif // UXR_AGENT_PARTICIPANT_HPP_

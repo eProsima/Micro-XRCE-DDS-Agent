@@ -26,14 +26,61 @@ namespace uxr {
 
 using utils::TokenBucket;
 
+std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Subscriber>& subscriber,
+        const dds::xrce::DATAREADER_Representation& representation,
+        const ObjectContainer& root_objects)
+{
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    std::shared_ptr<Topic> topic;
+
+    Middleware& middleware = subscriber->get_middleware();
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref = representation.representation().object_reference();
+            uint16_t topic_id;
+            if (middleware.create_datareader_from_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
+            {
+                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);;
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic->tie_object(object_id);
+                created_entity = true;
+            }
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml = representation.representation().xml_string_representation();
+            uint16_t topic_id;
+            if (middleware.create_datareader_from_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
+            {
+                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                topic->tie_object(object_id);
+                created_entity = true;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber, topic)) : nullptr);
+}
+
 DataReader::DataReader(const dds::xrce::ObjectId& object_id,
-                       Middleware* middleware,
-                       const std::shared_ptr<Subscriber>& subscriber)
-    : XRCEObject(object_id, middleware),
-      subscriber_(subscriber),
-      running_cond_(false)
+        const std::shared_ptr<Subscriber>& subscriber,
+        const std::shared_ptr<Topic>& topic)
+    : XRCEObject(object_id)
+    , subscriber_(subscriber)
+    , topic_(topic)
+    , running_cond_(false)
 {
     subscriber_->tie_object(object_id);
+    topic_->tie_object(object_id);
 }
 
 DataReader::~DataReader() noexcept
@@ -50,64 +97,11 @@ DataReader::~DataReader() noexcept
     }
 
     subscriber_->untie_object(get_id());
-    if (topic_)
-    {
-        topic_->untie_object(get_id());
-    }
-
-    middleware_->delete_datareader(get_raw_id(), subscriber_->get_raw_id());
+    topic_->untie_object(get_id());
+    get_middleware().delete_datareader(get_raw_id(), subscriber_->get_raw_id());
 }
 
-bool DataReader::init_middleware(
-        const dds::xrce::DATAREADER_Representation& representation,
-        const ObjectContainer& root_objects)
-{
-    bool rv = false;
-    switch (representation.representation()._d())
-    {
-        case dds::xrce::REPRESENTATION_BY_REFERENCE:
-        {
-            const std::string& ref = representation.representation().object_reference();
-            uint16_t topic_id;
-            if (middleware_->create_datareader_from_ref(
-                        get_raw_id(),
-                        subscriber_->get_raw_id(),
-                        ref,
-                        topic_id,
-                        std::bind(&DataReader::on_new_message, this)))
-            {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
-                topic_->tie_object(get_id());
-                rv = true;
-            }
-            break;
-        }
-        case dds::xrce::REPRESENTATION_AS_XML_STRING:
-        {
-            const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t topic_id;
-            if (middleware_->create_datareader_from_xml(
-                        get_raw_id(),
-                        subscriber_->get_raw_id(),
-                        xml,
-                        topic_id,
-                        std::bind(&DataReader::on_new_message, this)))
-            {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic_ = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
-                topic_->tie_object(get_id());
-                rv = true;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-    return rv;
-}
-
-void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
+bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
                       read_callback read_cb,
                       const ReadCallbackArgs& cb_args)
 {
@@ -140,12 +134,16 @@ void DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
             break;
     }
 
-    stop_read();
-    start_read(delivery_control, read_cb, cb_args);
+    return (stop_read() && start_read(delivery_control, read_cb, cb_args));
 }
 
-int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
+bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
+    if (!get_middleware().set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
+    {
+        return false;
+    }
+
     std::unique_lock<std::mutex> lock(mtx_);
     running_cond_ = true;
     lock.unlock();
@@ -156,10 +154,10 @@ int DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_contro
     }
     read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
 
-    return 0;
+    return true;
 }
 
-int DataReader::stop_read()
+bool DataReader::stop_read()
 {
     std::unique_lock<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -176,7 +174,8 @@ int DataReader::stop_read()
     {
         max_timer_thread_.join();
     }
-    return 0;
+
+    return get_middleware().unset_read_cb(get_raw_id());
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
@@ -191,7 +190,7 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
         if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
             std::vector<uint8_t> data;
-            if (middleware_->read_data(get_raw_id(), &data))
+            if (get_middleware().read_data(get_raw_id(), &data))
             {
                 lock.unlock();
                 while (!rate_manager.get_tokens(data.size()))
@@ -248,19 +247,24 @@ bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_reader().representation().object_reference();
-            rv = middleware_->matched_datareader_from_ref(get_raw_id(), ref);
+            rv = get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
-            rv = middleware_->matched_datareader_from_xml(get_raw_id(), xml);
+            rv = get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
     return rv;
+}
+
+Middleware& DataReader::get_middleware() const
+{
+    return subscriber_->get_middleware();
 }
 
 ReadTimeEvent::ReadTimeEvent()
