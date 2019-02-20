@@ -106,6 +106,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
 eprosima_find_package(fastrtps REQUIRED)
+eprosima_find_package(uxrclient)
 eprosima_find_thirdparty(Asio asio)
 
 ###############################################################################
@@ -158,11 +159,15 @@ set(SRCS
     src/cpp/middleware/fast/FastMiddleware.cpp
     src/cpp/middleware/ced/CedEntities.cpp
     src/cpp/middleware/ced/CedMiddleware.cpp
+    src/cpp/p2p_agent/InternalClient.cpp
+    src/cpp/p2p_agent/DiscoveryClient.cpp
+    src/cpp/p2p_agent/InternalClientManager.cpp
+    src/cpp/p2p_agent/P2PAgentCommunication.cpp
     )
 
 # Executable
 add_library(${PROJECT_NAME} ${SRCS})
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
+target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr microxrcedds_client)
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -350,13 +355,13 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
     set(CPACK_NSIS_CONTACT "support@eprosima.com")
     set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/utils/images/icon/eprosima_icon.ico")
-    set(CPACK_NSIS_MENU_LINKS 
+    set(CPACK_NSIS_MENU_LINKS
         "bin/MicroXRCEAgent.exe" "${PRODUCT_NAME_SHORT}"
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
-    else() 
+    else()
         set(PF86_STR "PROGRAMFILES(x86)")
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
@@ -385,7 +390,7 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")	
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
 
     include(CPack)
 endif()
