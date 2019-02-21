@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _XRCE_OBJECT_H_
-#define _XRCE_OBJECT_H_
+#ifndef XRCE_OBJECT_HPP_
+#define XRCE_OBJECT_HPP_
 
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <uxr/agent/types/MessageHeader.hpp>
@@ -24,9 +24,6 @@
 
 namespace eprosima {
 namespace uxr {
-
-class XRCEObject;
-
 
 class XRCEObject
 {
@@ -78,4 +75,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_XRCE_OBJECT_H_
+#endif // XRCE_OBJECT_HPP_
