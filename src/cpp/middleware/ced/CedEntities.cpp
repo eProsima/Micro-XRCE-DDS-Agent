@@ -105,6 +105,10 @@ bool CedTopicImpl::read(
         {
             last_read = last_write_ - int(history_.size()) + 1;
         }
+        else
+        {
+            ++last_read;
+        }
         size_t index = uint16_t(last_read) % history_.size();
         data->assign(history_[index].data(), history_[index].data() + history_[index].size());
         rv = true;

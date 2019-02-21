@@ -22,6 +22,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 
 #include <unordered_map>
+#include <condition_variable>
 
 namespace eprosima {
 namespace fastrtps {

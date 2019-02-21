@@ -240,7 +240,7 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
         add_subdirectory(test/unittest/util)
         add_subdirectory(test/unittest/xrce)
         add_subdirectory(test/unittest/transport/serial)
-        # TODO (#5047): enable when XML is available
+        add_subdirectory(test/unittest/middleware/ced)
         #add_subdirectory(test/blackbox/tree)
     endif()
     add_subdirectory(test/integration/cross_serialization)
