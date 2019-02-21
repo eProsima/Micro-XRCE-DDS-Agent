@@ -31,6 +31,7 @@ if(GMOCK_FOUND)
         )
     target_include_directories(root_unit_test PRIVATE
         ${PROJECT_SOURCE_DIR}/test/mock/ProxyClient
+        ${PROJECT_SOURCE_DIR}/test/mock/Middleware
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}

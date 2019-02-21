@@ -29,13 +29,13 @@ public:
     typedef std::vector<unsigned char> type;
 
     explicit TopicPubSubType(bool with_key);
-    virtual ~TopicPubSubType() override = default;
+    ~TopicPubSubType() override = default;
     bool serialize(void* data, rtps::SerializedPayload_t* payload) override;
     bool deserialize(rtps::SerializedPayload_t* payload, void* data) override;
     std::function<uint32_t()> getSerializedSizeProvider(void* data) override;
     bool getKey(void* data, rtps::InstanceHandle_t* ihandle, bool force_md5 = false) override;
-    void* createData();
-    void deleteData(void* data);
+    void* createData() override;
+    void deleteData(void* data) override;
 };
 
 } // namespace uxr

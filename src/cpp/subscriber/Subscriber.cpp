@@ -14,13 +14,43 @@
 
 #include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
-    : XRCEObject{object_id},
-      participant_(participant)
+std::unique_ptr<Subscriber> Subscriber::create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
+{
+    bool created_entity = false;
+    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+
+    Middleware& middleware = participant->get_middleware();
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml = representation.representation().string_representation();
+            created_entity = middleware.create_subscriber_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            // TODO (julian ???)
+            break;
+        }
+    }
+
+    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, participant)) : nullptr);
+}
+
+Subscriber::Subscriber(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant)
+    : XRCEObject(object_id)
+    , participant_(participant)
 {
     participant_->tie_object(object_id);
 }
@@ -28,6 +58,7 @@ Subscriber::Subscriber(const dds::xrce::ObjectId& object_id, const std::shared_p
 Subscriber::~Subscriber()
 {
     participant_->untie_object(get_id());
+    get_middleware().delete_subscriber(get_raw_id(), participant_->get_raw_id());
 }
 
 void Subscriber::release(ObjectContainer& root_objects)
@@ -38,6 +69,11 @@ void Subscriber::release(ObjectContainer& root_objects)
         root_objects.at(*obj)->release(root_objects);
         root_objects.erase(*obj);
     }
+}
+
+Middleware& Subscriber::get_middleware() const
+{
+    return participant_->get_middleware();
 }
 
 } // namespace uxr

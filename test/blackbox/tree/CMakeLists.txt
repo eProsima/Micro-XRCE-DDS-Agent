@@ -30,6 +30,8 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/object/XRCEObject.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/TopicPubSubType.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/FastEntities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/FastMiddleware.cpp
         )
     add_executable(tree_test ${SRCS})
     add_gtest(tree_test

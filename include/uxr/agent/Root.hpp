@@ -24,11 +24,13 @@
 namespace eprosima{
 namespace uxr{
 
+class Middleware;
+
 class Root
 {
 public:
     Root();
-    ~Root() = default;
+    ~Root();
 
     dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
                                           dds::xrce::AGENT_Representation& agent_representation);
@@ -39,6 +41,7 @@ public:
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
 private:
+    std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;

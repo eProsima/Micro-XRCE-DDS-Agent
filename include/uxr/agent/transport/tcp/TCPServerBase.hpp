@@ -29,7 +29,7 @@ class TCPServerBase : public Server
 {
 public:
     TCPServerBase(uint16_t port);
-    ~TCPServerBase() = default;
+    ~TCPServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
     void on_delete_client(EndPoint* source) override;

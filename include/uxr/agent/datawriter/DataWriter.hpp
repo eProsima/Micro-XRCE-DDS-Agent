@@ -12,59 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
-#define _UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#ifndef UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#define UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
-#include <fastrtps/publisher/PublisherListener.h>
 #include <string>
 #include <set>
 
 namespace eprosima {
-
-namespace fastrtps {
-class Participant;
-class Publisher;
-} // namespace fastrtps
-
 namespace uxr {
 
 class Publisher;
 class Topic;
-class WRITE_DATA_Payload;
+class Middleware;
 
-class DataWriter : public XRCEObject, public fastrtps::PublisherListener
+class DataWriter : public XRCEObject
 {
 public:
-    DataWriter(const dds::xrce::ObjectId& object_id,
-               const std::shared_ptr<Publisher>& publisher,
-               const std::string& profile_name = "");
+    static std::unique_ptr<DataWriter> create(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
+        const dds::xrce::DATAWRITER_Representation& representation,
+        const ObjectContainer& root_objects);
+
     ~DataWriter() override;
 
-    DataWriter(DataWriter&&)      = delete;
+    DataWriter(DataWriter&&) = delete;
     DataWriter(const DataWriter&) = delete;
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    bool init(const dds::xrce::DATAWRITER_Representation& representation, const ObjectContainer& root_objects);
-    const dds::xrce::ResultStatus& write(dds::xrce::DataRepresentation& data);
-    bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware& get_middleware() const override;
+
+    bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
 private:
-    void onPublicationMatched(fastrtps::Publisher* pub, fastrtps::rtps::MatchingInfo& info) override;
+    DataWriter(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Publisher>& publisher,
+        const std::shared_ptr<Topic>& topic);
+
+private:
     std::shared_ptr<Publisher> publisher_;
     std::shared_ptr<Topic> topic_;
-    fastrtps::Publisher* rtps_publisher_;
-    std::string rtps_publisher_prof_;
-    TopicPubSubType topic_type_;
-    dds::xrce::ResultStatus result_status_;
-    std::set<dds::xrce::ObjectId> objects_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
+#endif // UXR_AGENT_DATAWRITER_DATAWRITER_HPP_

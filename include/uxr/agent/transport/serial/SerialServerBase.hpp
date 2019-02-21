@@ -28,7 +28,7 @@ class SerialServerBase : public Server
 {
 public:
     SerialServerBase(uint8_t addr);
-    ~SerialServerBase() = default;
+    ~SerialServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
     void on_delete_client(EndPoint* source) override;
