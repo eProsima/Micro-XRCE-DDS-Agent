@@ -21,16 +21,22 @@ namespace uxr {
 UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
     : UDPServerBase(port),
       poll_fd_{},
-      buffer_{0}
-{
-    (void) discovery_port;
-}
+      buffer_{0},
+      discovery_server_(*processor_, port_, discovery_port)
+{}
 
 bool UDPServer::init(bool discovery_enabled)
 {
-    (void) discovery_enabled;
-
     bool rv = false;
+
+    /* Init discovery. */
+    if (discovery_enabled)
+    {
+        if (!discovery_server_.run())
+        {
+            return false;
+        }
+    }
 
     /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);

@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include <ws2ipdef.h>
+#include <MSWSock.h>
+#include <functional>
 
 #define RECEIVE_TIMEOUT 100
 #define DISCOVERY_IP "239.255.0.2"
@@ -27,7 +26,7 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port)
+DiscoveryServerWindows::DiscoveryServerWindows(const Processor& processor, uint16_t port, uint16_t discovery_port)
     : DiscoveryServer (processor, port),
       poll_fd_{},
       buffer_{0},
@@ -35,12 +34,12 @@ DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor, uint16_t 
 {
 }
 
-bool DiscoveryServerLinux::init()
+bool DiscoveryServerWindows::init()
 {
     bool rv = false;
 
     /* Socket initialization. */
-    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
+    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
@@ -57,10 +56,10 @@ bool DiscoveryServerLinux::init()
         struct ip_mreq mreq;
         mreq.imr_multiaddr.s_addr = inet_addr(DISCOVERY_IP);
         mreq.imr_interface.s_addr = INADDR_ANY;
-        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
+        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
             /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
+            SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
             struct sockaddr_in temp_addr;
             temp_addr.sin_family = AF_INET;
             temp_addr.sin_port = htons(80);
@@ -69,7 +68,7 @@ bool DiscoveryServerLinux::init()
             if (0 == connected)
             {
                 struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
+                int local_addr_len = sizeof(local_addr);
                 if (-1 != getsockname(fd, &local_addr, &local_addr_len))
                 {
                     transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
@@ -78,7 +77,7 @@ bool DiscoveryServerLinux::init()
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
                 }
-                ::close(fd);
+                closesocket(fd);
             }
         }
     }
@@ -86,22 +85,22 @@ bool DiscoveryServerLinux::init()
     return rv;
 }
 
-bool DiscoveryServerLinux::close()
+bool DiscoveryServerWindows::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    return (0 == closesocket(poll_fd_.fd));
 }
 
-bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerWindows::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    int client_addr_len = sizeof(client_addr);
 
-    int poll_rv = poll(&poll_fd_, 1, timeout);
+    int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
-        if (0 < bytes_received)
+        int bytes_received = recvfrom(poll_fd_.fd, (char*)buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
+        if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
@@ -114,14 +113,14 @@ bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
     {
         if (0 == poll_rv)
         {
-            errno = ETIME;
+            WSASetLastError(WAIT_TIMEOUT);
         }
     }
 
     return rv;
 }
 
-bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
+bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
 {
     bool rv = false;
     const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
@@ -130,13 +129,13 @@ bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = destination->get_port();
     client_addr.sin_addr.s_addr = destination->get_addr();
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                (struct sockaddr*)&client_addr,
-                                sizeof(client_addr));
-    if (0 < bytes_sent)
+    int bytes_sent = sendto(poll_fd_.fd,
+                            (char*)output_packet.message->get_buf(),
+                            output_packet.message->get_len(),
+                            0,
+                            (struct sockaddr*)&client_addr,
+                            sizeof(client_addr));
+    if (SOCKET_ERROR != bytes_sent)
     {
         rv = (size_t(bytes_sent) != output_packet.message->get_len());
     }

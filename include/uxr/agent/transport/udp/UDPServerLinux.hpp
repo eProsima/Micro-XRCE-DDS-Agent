@@ -43,7 +43,7 @@ private:
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    DiscoveryServer discovery_server_;
+    DiscoveryServerLinux discovery_server_;
 };
 
 } // namespace uxr

@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
-#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
+#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
 
 #define UXR_DEFAULT_DISCOVERY_PORT 7400
 
 #include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
 #include <uxr/agent/message/Packet.hpp>
 
+#include <winsock2.h>
 #include <thread>
 #include <atomic>
-#include <sys/poll.h>
 
 namespace eprosima {
 namespace uxr {
 
 class Processor;
 
-class DiscoveryServerLinux : public DiscoveryServer
+class DiscoveryServerWindows : public DiscoveryServer
 {
 public:
-    DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port);
-    ~DiscoveryServerLinux() override = default;
+    DiscoveryServerWindows(const Processor& processor, uint16_t port, uint16_t discovery_port);
+    ~DiscoveryServerWindows() override = default;
 
 private:
     bool init() override;
@@ -50,4 +50,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_LINUX_HPP_
+#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_

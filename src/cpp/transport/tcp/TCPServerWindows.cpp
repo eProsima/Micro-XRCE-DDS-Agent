@@ -30,16 +30,22 @@ TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
       buffer_{0},
       listener_thread_(),
       running_cond_(false),
-      messages_queue_{}
-{
-    (void) discovery_port;
-}
+      messages_queue_{},
+      discovery_server_(*processor_, port_, discovery_port)
+{}
 
 bool TCPServer::init(bool discovery_enabled)
 {
-    (void) discovery_enabled;
-
     bool rv = false;
+
+    /* Init discovery. */
+    if (discovery_enabled)
+    {
+        if (!discovery_server_.run())
+        {
+            return false;
+        }
+    }
 
     /* Socket initialization. */
     poll_fds_[0].fd = socket(PF_INET, SOCK_STREAM, 0);

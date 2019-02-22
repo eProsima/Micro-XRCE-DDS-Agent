@@ -17,6 +17,7 @@
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 
 #include <winsock2.h>
 #include <cstdint>
@@ -28,7 +29,7 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI UDPServer(uint16_t port, uint16_t discovery_port = 0);
+    microxrcedds_agent_DllAPI UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     microxrcedds_agent_DllAPI ~UDPServer() = default;
 
 private:
@@ -41,6 +42,7 @@ private:
 private:
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[UINT16_MAX];
+    DiscoveryServerWindows discovery_server_;
 };
 
 } // namespace uxr

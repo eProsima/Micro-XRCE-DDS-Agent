@@ -16,6 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #include <uxr/agent/config.hpp>
 #include <winsock2.h>
 #include <vector>
@@ -39,7 +40,7 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI TCPServer(uint16_t port, uint16_t discovery_port = 0);
+    microxrcedds_agent_DllAPI TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
     microxrcedds_agent_DllAPI ~TCPServer() = default;
 
 private:
@@ -69,6 +70,7 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+    DiscoveryServerWindows discovery_server_;
 };
 
 } // namespace uxr

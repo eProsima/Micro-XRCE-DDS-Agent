@@ -122,6 +122,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
+        src/cpp/transport/discovery/DiscoveryServerWindows.cpp
         )
 endif()
 
@@ -149,6 +150,7 @@ set(SRCS
     src/cpp/transport/tcp/TCPServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
+    src/cpp/transport/discovery/DiscoveryServer.cpp
     ${TRANSPORT_SRCS}
     src/cpp/middleware/FastEntities.cpp
     src/cpp/middleware/FastMiddleware.cpp
