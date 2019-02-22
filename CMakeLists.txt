@@ -128,6 +128,7 @@ endif()
 
 # Set source files
 set(SRCS
+    src/cpp/Agent.cpp
     src/cpp/Root.cpp
     src/cpp/processor/Processor.cpp
     src/cpp/client/ProxyClient.cpp
