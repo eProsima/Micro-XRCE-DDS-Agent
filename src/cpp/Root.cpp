@@ -48,8 +48,9 @@ Root::Root()
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
 Root::~Root() = default;
 
-dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& agent_representation)
+dds::xrce::ResultStatus Root::create_client(
+        const dds::xrce::CLIENT_Representation& client_representation,
+        dds::xrce::AGENT_Representation& agent_representation)
 {
     if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
     {

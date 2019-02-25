@@ -22,23 +22,28 @@
 namespace eprosima{
 namespace uxr{
 
-class Middleware;
-
 class Agent
 {
 public:
     Agent() = delete;
     ~Agent() = delete;
 
+    /**********************************************************************************************
+     * Client.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_client(
             uint32_t key,
             uint8_t session,
+            uint16_t mtu,
             uint8_t& errcode);
 
     microxrcedds_agent_DllAPI static bool delete_client(
             uint32_t key,
             uint8_t& errcode);
 
+    /**********************************************************************************************
+     * Participant.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_participant_by_ref(
             uint32_t client_key,
             uint16_t participant_id,
@@ -53,6 +58,9 @@ public:
             const char* xml,
             uint8_t& errcode);
 
+    /**********************************************************************************************
+     * Topic.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_topic_by_ref(
             uint32_t client_key,
             uint16_t topic_id,
@@ -67,13 +75,9 @@ public:
             const char* xml,
             uint8_t& errcode);
 
-    microxrcedds_agent_DllAPI static bool create_publisher_by_ref(
-            uint32_t client_key,
-            uint16_t publisher_id,
-            uint16_t participant_id,
-            const char* ref,
-            uint8_t& errcode);
-
+    /**********************************************************************************************
+     * Publisher.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_publisher_by_xml(
             uint32_t client_key,
             uint16_t publisher_id,
@@ -81,13 +85,9 @@ public:
             const char* xml,
             uint8_t& errcode);
 
-    microxrcedds_agent_DllAPI static bool create_subscriber_by_ref(
-            uint32_t client_key,
-            uint16_t subscriber_id,
-            uint16_t participant_id,
-            const char* ref,
-            uint8_t& errcode);
-
+    /**********************************************************************************************
+     * Subscriber.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_subscriber_by_xml(
             uint32_t client_key,
             uint16_t subscriber_id,
@@ -95,6 +95,9 @@ public:
             const char* xml,
             uint8_t& errcode);
 
+    /**********************************************************************************************
+     * DataWriter.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_datawriter_by_ref(
             uint32_t client_key,
             uint16_t datawriter_id,
@@ -109,6 +112,9 @@ public:
             const char* xml,
             uint8_t& errcode);
 
+    /**********************************************************************************************
+     * DataReader.
+     **********************************************************************************************/
     microxrcedds_agent_DllAPI static bool create_datareader_by_ref(
             uint32_t client_key,
             uint16_t datareader_id,
