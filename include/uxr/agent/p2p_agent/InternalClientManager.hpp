@@ -20,7 +20,7 @@
 
 #include <string>
 #include <utility>
-#include <vector>
+#include <map>
 
 namespace eprosima {
 namespace uxr {
@@ -38,7 +38,23 @@ public:
     void topic_register_event_change(/* event_type and topic */);
 
 private:
-    std::vector<InternalClient> internal_clients_;
+    struct InternalClientKey
+    {
+        std::string ip_;
+        int port_;
+
+        InternalClientKey(const std::string& ip, int port)
+           : ip_(ip)
+           , port_(port)
+        {}
+
+        bool operator < (const InternalClientKey& other) const
+        {
+           return ip_ < other.ip_ && port_ < other.port_;
+        }
+    };
+
+    std::map<InternalClientKey, InternalClient> internal_clients_;
 };
 
 } // namespace uxr

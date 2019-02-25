@@ -38,9 +38,9 @@ public:
 
 private:
     AgentDiscoveryCallback agent_discovery_callback_;
-    std::vector<uxrAgentAddress> discovery_addresses_;
+    std::vector<std::pair<std::string, int>> discovery_addresses_;
 
-    static bool on_agent_found(const uxrAgentAddress* address, int64_t timestamp, void* args);
+    static void on_agent_found(const uxrAgentAddress* address, int64_t timestamp, void* args);
 };
 
 } // namespace uxr

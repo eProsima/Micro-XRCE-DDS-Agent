@@ -20,34 +20,41 @@
 #include <utility>
 #include <vector>
 #include <functional>
+#include <thread>
 
 namespace eprosima {
 namespace uxr {
 
-typedef std::function<void(const std::string& ip, int port)> ReadTopicCallback;
 
 class InternalClient
 {
 public:
-    InternalClient(const std::string& ip, int port, ReadTopicCallback callback)
+    InternalClient(const std::string& ip, int port)
         : ip_(ip)
         , port_(port)
-        , read_topic_callback_(callback)
     {}
 
     virtual ~InternalClient() = default;
 
     void connect();
     void add_topic(/* topic */);
-    void listen();
+
+    std::string get_ip() const { return ip_; }
+    int get_port() const { return port_; }
 
 private:
     std::string ip_;
     int port_;
-    ReadTopicCallback read_topic_callback_;
+    std::thread main_thread_;
+    std::thread subscription_thread_;
+    //topi synchronized queue
+
+    /* XRCE stuffs */
+    void run();
+    void subscribe();
+    void read_topic_callback();
 
     /* Middleware publisher */
-    /* XRCE stuffs */
 };
 
 } // namespace uxr

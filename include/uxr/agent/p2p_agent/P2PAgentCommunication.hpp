@@ -51,8 +51,8 @@ public:
 private:
     Mode mode_;
     int period_;
-    DiscoveryClient discovery_client_;
     std::thread discovery_thread_;
+    DiscoveryClient discovery_client_;
     InternalClientManager client_manager_;
 
     void on_discover_agent(const std::string& ip, int port);

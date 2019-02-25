@@ -4,11 +4,10 @@
 
 using namespace eprosima::uxr;
 
-bool DiscoveryClient::on_agent_found(const uxrAgentAddress* address, int64_t timestamp, void* args)
+void DiscoveryClient::on_agent_found(const uxrAgentAddress* address, int64_t /*timestamp*/, void* args)
 {
     DiscoveryClient* discovery_client = static_cast<DiscoveryClient*>(args);
     discovery_client->agent_discovery_callback_(address->ip, address->port);
-    return false;
 }
 
 DiscoveryClient::DiscoveryClient(AgentDiscoveryCallback callback)
@@ -19,13 +18,18 @@ DiscoveryClient::~DiscoveryClient() = default;
 
 void DiscoveryClient::discover(int timeout)
 {
-    uxrAgentAddress* data = discovery_addresses_.data();
-    size_t size = discovery_addresses_.size();
-    uxr_discovery_agents_unicast(1, timeout, on_agent_found, this, &uxrAgentAddress(), data, size))
+    std::vector<uxrAgentAddress> addresses(discovery_addresses_.size());
+    for(size_t i = 0; i < addresses.size(); ++i)
+    {
+        addresses[i].ip = discovery_addresses_[i].first.c_str();
+        addresses[i].port = discovery_addresses_[i].second;
+    }
+
+    uxr_discovery_agents(1, timeout, on_agent_found, this, addresses.data(), addresses.size());
 }
 
 void DiscoveryClient::add_discovery_address(const std::string& ip, int port)
 {
-    discovery_addresses_.emplace_back(uxrAgentAddress{ip.c_str(), port});
+    discovery_addresses_.emplace_back(std::make_pair(ip, port));
 }
 
