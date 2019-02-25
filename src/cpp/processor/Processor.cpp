@@ -23,12 +23,11 @@ namespace uxr {
 
 Processor::Processor(Server* server)
     : server_(server),
-      root_(new Root())
+      root_(Root::instance())
 {}
 
 Processor::~Processor()
 {
-    delete root_;
 }
 
 void Processor::process_input_packet(InputPacket&& input_packet)
@@ -52,7 +51,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         dds::xrce::ClientKey client_key = (128 > header.session_id()) ?
                                           header.client_key() :
                                           server_->get_client_key(input_packet.source.get());
-        std::shared_ptr<ProxyClient> client = root_->get_client(client_key);
+        std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
             /* Check whether it is the next message. */
@@ -62,11 +61,11 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             {
                 /* Process messages. */
                 process_input_message(*client, input_packet);
-                client = root_->get_client(client_key);
+                client = root_.get_client(client_key);
                 while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
                 {
                     process_input_message(*client, input_packet);
-                    client = root_->get_client(client_key);
+                    client = root_.get_client(client_key);
                 }
             }
 
@@ -183,7 +182,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
         if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
             (client_payload.client_representation().client_key() != client_key))
         {
-            dds::xrce::StatusValue delete_status = root_->delete_client(client_key).status();
+            dds::xrce::StatusValue delete_status = root_.delete_client(client_key).status();
             if ((dds::xrce::STATUS_OK == delete_status) ||
                 (dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE == delete_status))
             {
@@ -209,7 +208,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
 
             /* Create client. */
             dds::xrce::AGENT_Representation agent_representation;
-            dds::xrce::ResultStatus result = root_->create_client(client_payload.client_representation(),
+            dds::xrce::ResultStatus result = root_.create_client(client_payload.client_representation(),
                                                                   agent_representation);
             if (dds::xrce::STATUS_OK == result.status())
             {
@@ -301,7 +300,7 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
         {
             /* Set result status. */
             dds::xrce::ClientKey client_key = client.get_client_key();
-            status_payload.result(root_->delete_client(client_key));
+            status_payload.result(root_.delete_client(client_key));
             if (dds::xrce::STATUS_OK == status_payload.result().status())
             {
                 server_->on_delete_client(input_packet.source.get());
@@ -578,7 +577,7 @@ bool Processor::process_performance_submessage(ProxyClient& client, InputPacket&
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
     mtx_.lock();
-    std::shared_ptr<ProxyClient> client = root_->get_client(cb_args.client_key);
+    std::shared_ptr<ProxyClient> client = root_.get_client(cb_args.client_key);
 
     /* DATA payload. */
     dds::xrce::DATA_Payload_Data data_payload;
@@ -620,7 +619,7 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
 
             /* Get info from root. */
             dds::xrce::ObjectInfo object_info;
-            dds::xrce::ResultStatus result_status = root_->get_info(object_info);
+            dds::xrce::ResultStatus result_status = root_.get_info(object_info);
             if (dds::xrce::STATUS_OK == result_status.status())
             {
                 dds::xrce::AGENT_ActivityInfo agent_info;
@@ -663,9 +662,9 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
 
 void Processor::check_heartbeats()
 {
-    root_->init_client_iteration();
+    root_.init_client_iteration();
     std::shared_ptr<ProxyClient> client;
-    while (root_->get_next_client(client))
+    while (root_.get_next_client(client))
     {
         /* Get reliable streams. */
         for (auto stream : client->session().get_output_streams())

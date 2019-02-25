@@ -24,14 +24,16 @@ class TreeTests : public ::testing::Test
 {
 protected:
     TreeTests()
-        : root_{}
     {
         root_.load_config_file("./agent.refs");
     }
 
-    virtual ~TreeTests() = default;
+    ~TreeTests()
+    {
+        root_.reset();
+    }
 
-    eprosima::uxr::Root root_;
+    eprosima::uxr::Root& root_ = eprosima::uxr::Root::instance();
     const dds::xrce::ClientKey client_key_      = {{0xF1, 0xF2, 0xF3, 0xF4}};
     const dds::xrce::XrceVendorId vendor_id_    = {{0x00, 0x01}};
 };

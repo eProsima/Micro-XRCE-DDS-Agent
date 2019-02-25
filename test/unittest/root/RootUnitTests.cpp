@@ -27,12 +27,15 @@ namespace testing {
 
 class RootUnitTests : public CommonData, public ::testing::Test
 {
-    protected:
-        RootUnitTests() = default;
+protected:
+    RootUnitTests() = default;
 
-        virtual ~RootUnitTests() = default;
+    ~RootUnitTests()
+    {
+        root_.reset();
+    }
 
-        eprosima::uxr::Root root_;
+    eprosima::uxr::Root& root_ = eprosima::uxr::Root::instance();
 };
 
 TEST_F(RootUnitTests, CreateClientOk)

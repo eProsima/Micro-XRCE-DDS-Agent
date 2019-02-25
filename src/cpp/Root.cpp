@@ -15,6 +15,7 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 #include <memory>
 #include <chrono>
@@ -29,6 +30,12 @@ const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
 
 namespace eprosima {
 namespace uxr {
+
+Root& Root::instance()
+{
+    static Root root;
+    return root;
+}
 
 Root::Root()
     : mtx_(),
@@ -194,6 +201,13 @@ bool Root::load_config_file(const std::string& path)
     // TODO (#5047): XML Parser.
     (void) path;
     return false;
+}
+
+void Root::reset()
+{
+    std::unique_lock<std::mutex> lock(mtx_);
+    clients_.clear();
+    current_client_ = clients_.begin();
 }
 
 } // namespace uxr
