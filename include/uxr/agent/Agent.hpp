@@ -71,6 +71,7 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const char* ref,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_participant_by_xml(
@@ -78,6 +79,7 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -88,6 +90,7 @@ public:
             uint16_t topic_id,
             uint16_t participant_id,
             const char* ref,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_topic_by_xml(
@@ -95,6 +98,7 @@ public:
             uint16_t topic_id,
             uint16_t participant_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -105,6 +109,7 @@ public:
             uint16_t publisher_id,
             uint16_t participant_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -115,6 +120,7 @@ public:
             uint16_t subscriber_id,
             uint16_t participant_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -125,6 +131,7 @@ public:
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* ref,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datawriter_by_xml(
@@ -132,6 +139,7 @@ public:
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -142,6 +150,7 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* ref,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datareader_by_xml(
@@ -149,6 +158,7 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* xml,
+            CreationFlag flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -158,6 +168,11 @@ public:
             uint32_t client_key,
             uint16_t object_id,
             ErrorCode& errcode);
+
+    /**********************************************************************************************
+     * Reset.
+     **********************************************************************************************/
+    microxrcedds_agent_DllAPI static void reset();
 };
 
 } // uxr

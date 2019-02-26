@@ -39,7 +39,8 @@ static dds::xrce::ClientKey raw_to_clientkey(uint32_t key)
 /**********************************************************************************************************************
  * Client.
  **********************************************************************************************************************/
-bool Agent::create_client(uint32_t key,
+bool Agent::create_client(
+        uint32_t key,
         uint8_t session,
         uint16_t mtu,
         ErrorCode& errcode)
@@ -60,7 +61,8 @@ bool Agent::create_client(uint32_t key,
     return (dds::xrce::STATUS_OK == result.status());
 }
 
-bool Agent::delete_client(uint32_t key,
+bool Agent::delete_client(
+        uint32_t key,
         ErrorCode& errcode)
 {
     Root& root = Root::instance();
@@ -77,10 +79,12 @@ bool Agent::delete_client(uint32_t key,
 /**********************************************************************************************************************
  * Participant.
  **********************************************************************************************************************/
-bool Agent::create_participant_by_ref(uint32_t client_key,
+bool Agent::create_participant_by_ref(
+        uint32_t client_key,
         uint16_t participant_id,
         int16_t domain_id,
         const char* ref,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -93,6 +97,8 @@ bool Agent::create_participant_by_ref(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         participant.domain_id(domain_id);
         participant.representation().object_reference(ref);
         object_variant.participant(participant);
@@ -109,10 +115,12 @@ bool Agent::create_participant_by_ref(uint32_t client_key,
     return rv;
 }
 
-bool Agent::create_participant_by_xml(uint32_t client_key,
+bool Agent::create_participant_by_xml(
+        uint32_t client_key,
         uint16_t participant_id,
         int16_t domain_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -125,6 +133,8 @@ bool Agent::create_participant_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         participant.domain_id(domain_id);
         participant.representation().xml_string_representation(xml);
         object_variant.participant(participant);
@@ -144,10 +154,12 @@ bool Agent::create_participant_by_xml(uint32_t client_key,
 /**********************************************************************************************************************
  * Topic.
  **********************************************************************************************************************/
-bool Agent::create_topic_by_ref(uint32_t client_key,
+bool Agent::create_topic_by_ref(
+        uint32_t client_key,
         uint16_t topic_id,
         uint16_t participant_id,
         const char* ref,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -160,6 +172,8 @@ bool Agent::create_topic_by_ref(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_TOPIC_Representation topic;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
         topic.representation().object_reference(ref);
         object_variant.topic(topic);
@@ -176,10 +190,12 @@ bool Agent::create_topic_by_ref(uint32_t client_key,
     return rv;
 }
 
-bool Agent::create_topic_by_xml(uint32_t client_key,
+bool Agent::create_topic_by_xml(
+        uint32_t client_key,
         uint16_t topic_id,
         uint16_t participant_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -192,6 +208,8 @@ bool Agent::create_topic_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_TOPIC_Representation topic;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
         topic.representation().xml_string_representation(xml);
         object_variant.topic(topic);
@@ -211,10 +229,12 @@ bool Agent::create_topic_by_xml(uint32_t client_key,
 /**********************************************************************************************************************
  * Publisher.
  **********************************************************************************************************************/
-bool Agent::create_publisher_by_xml(uint32_t client_key,
+bool Agent::create_publisher_by_xml(
+        uint32_t client_key,
         uint16_t publisher_id,
         uint16_t participant_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -227,6 +247,8 @@ bool Agent::create_publisher_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_PUBLISHER_Representation publisher;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         publisher.participant_id(XRCEObject::raw_to_objectid(participant_id));
         publisher.representation().string_representation(xml);
         object_variant.publisher(publisher);
@@ -246,10 +268,12 @@ bool Agent::create_publisher_by_xml(uint32_t client_key,
 /**********************************************************************************************************************
  * Subscriber.
  **********************************************************************************************************************/
-bool Agent::create_subscriber_by_xml(uint32_t client_key,
+bool Agent::create_subscriber_by_xml(
+        uint32_t client_key,
         uint16_t subscriber_id,
         uint16_t participant_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -262,6 +286,8 @@ bool Agent::create_subscriber_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         subscriber.participant_id(XRCEObject::raw_to_objectid(participant_id));
         subscriber.representation().string_representation(xml);
         object_variant.subscriber(subscriber);
@@ -281,10 +307,12 @@ bool Agent::create_subscriber_by_xml(uint32_t client_key,
 /**********************************************************************************************************************
  * DataWriter.
  **********************************************************************************************************************/
-bool Agent::create_datawriter_by_ref(uint32_t client_key,
+bool Agent::create_datawriter_by_ref(
+        uint32_t client_key,
         uint16_t datawriter_id,
         uint16_t publisher_id,
         const char* ref,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -297,6 +325,8 @@ bool Agent::create_datawriter_by_ref(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::DATAWRITER_Representation datawriter;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
         datawriter.representation().object_reference(ref);
         object_variant.data_writer(datawriter);
@@ -313,10 +343,12 @@ bool Agent::create_datawriter_by_ref(uint32_t client_key,
     return rv;
 }
 
-bool Agent::create_datawriter_by_xml(uint32_t client_key,
+bool Agent::create_datawriter_by_xml(
+        uint32_t client_key,
         uint16_t datawriter_id,
         uint16_t publisher_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -329,6 +361,8 @@ bool Agent::create_datawriter_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::DATAWRITER_Representation datawriter;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
         datawriter.representation().xml_string_representation(xml);
         object_variant.data_writer(datawriter);
@@ -348,10 +382,12 @@ bool Agent::create_datawriter_by_xml(uint32_t client_key,
 /**********************************************************************************************************************
  * DataReader.
  **********************************************************************************************************************/
-bool Agent::create_datareader_by_ref(uint32_t client_key,
+bool Agent::create_datareader_by_ref(
+        uint32_t client_key,
         uint16_t datareader_id,
         uint16_t subscriber_id,
         const char* ref,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -364,6 +400,8 @@ bool Agent::create_datareader_by_ref(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::DATAREADER_Representation datareader;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
         datareader.representation().object_reference(ref);
         object_variant.data_reader(datareader);
@@ -380,10 +418,12 @@ bool Agent::create_datareader_by_ref(uint32_t client_key,
     return rv;
 }
 
-bool Agent::create_datareader_by_xml(uint32_t client_key,
+bool Agent::create_datareader_by_xml(
+        uint32_t client_key,
         uint16_t datareader_id,
         uint16_t subscriber_id,
         const char* xml,
+        CreationFlag flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -396,6 +436,8 @@ bool Agent::create_datareader_by_xml(uint32_t client_key,
         dds::xrce::ObjectVariant object_variant;
         dds::xrce::DATAREADER_Representation datareader;
 
+        creation_mode.reuse(flag & REUSE_MODE);
+        creation_mode.replace(flag & REPLACE_MODE);
         datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
         datareader.representation().xml_string_representation(xml);
         object_variant.data_reader(datareader);
@@ -435,6 +477,14 @@ bool Agent::delete_object(
     }
 
     return rv;
+}
+
+/**********************************************************************************************************************
+ * Reset.
+ **********************************************************************************************************************/
+void Agent::reset()
+{
+    Root::instance().reset();
 }
 
 } // namespace uxr
