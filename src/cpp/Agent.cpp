@@ -296,7 +296,30 @@ bool Agent::create_datawriter_by_ref(
         const char* ref,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::DATAWRITER_Representation datawriter;
+
+        datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
+        datawriter.representation().object_reference(ref);
+        object_variant.data_writer(datawriter);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 bool Agent::create_datawriter_by_xml(
@@ -306,7 +329,30 @@ bool Agent::create_datawriter_by_xml(
         const char* xml,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::DATAWRITER_Representation datawriter;
+
+        datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
+        datawriter.representation().xml_string_representation(xml);
+        object_variant.data_writer(datawriter);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 /**********************************************************************************************************************
