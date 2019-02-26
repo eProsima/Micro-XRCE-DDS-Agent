@@ -48,11 +48,14 @@ bool Agent::create_client(
     Root& root = Root::instance();
     dds::xrce::CLIENT_Representation client_representation;
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus result = root.create_client(client_representation, agent_representation);
+    dds::xrce::ResultStatus result;
 
     client_representation.client_key(raw_to_clientkey(key));
+    client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
+    client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.session_id(session);
     client_representation.mtu(mtu);
+    result = root.create_client(client_representation, agent_representation);
     if (dds::xrce::STATUS_OK != result.status())
     {
         errcode = ErrorCode(result.status());
@@ -84,7 +87,7 @@ bool Agent::create_participant_by_ref(
         uint16_t participant_id,
         int16_t domain_id,
         const char* ref,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -92,20 +95,27 @@ bool Agent::create_participant_by_ref(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_PARTICIPANT_Representation participant;
+        if (dds::xrce::OBJK_PARTICIPANT == (participant_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        participant.domain_id(domain_id);
-        participant.representation().object_reference(ref);
-        object_variant.participant(participant);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            participant.domain_id(domain_id);
+            participant.representation().object_reference(ref);
+            object_variant.participant(participant);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -120,7 +130,7 @@ bool Agent::create_participant_by_xml(
         uint16_t participant_id,
         int16_t domain_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -128,20 +138,27 @@ bool Agent::create_participant_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_PARTICIPANT_Representation participant;
+        if (dds::xrce::OBJK_PARTICIPANT == (participant_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        participant.domain_id(domain_id);
-        participant.representation().xml_string_representation(xml);
-        object_variant.participant(participant);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            participant.domain_id(domain_id);
+            participant.representation().xml_string_representation(xml);
+            object_variant.participant(participant);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -159,7 +176,7 @@ bool Agent::create_topic_by_ref(
         uint16_t topic_id,
         uint16_t participant_id,
         const char* ref,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -167,20 +184,27 @@ bool Agent::create_topic_by_ref(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_TOPIC_Representation topic;
+        if (dds::xrce::OBJK_TOPIC == (topic_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_TOPIC_Representation topic;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
-        topic.representation().object_reference(ref);
-        object_variant.topic(topic);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
+            topic.representation().object_reference(ref);
+            object_variant.topic(topic);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -195,7 +219,7 @@ bool Agent::create_topic_by_xml(
         uint16_t topic_id,
         uint16_t participant_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -203,20 +227,27 @@ bool Agent::create_topic_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_TOPIC_Representation topic;
+        if (dds::xrce::OBJK_TOPIC == (topic_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_TOPIC_Representation topic;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
-        topic.representation().xml_string_representation(xml);
-        object_variant.topic(topic);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
+            topic.representation().xml_string_representation(xml);
+            object_variant.topic(topic);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -234,7 +265,7 @@ bool Agent::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -242,20 +273,27 @@ bool Agent::create_publisher_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(publisher_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_PUBLISHER_Representation publisher;
+        if (dds::xrce::OBJK_PUBLISHER == (publisher_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(publisher_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_PUBLISHER_Representation publisher;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        publisher.participant_id(XRCEObject::raw_to_objectid(participant_id));
-        publisher.representation().string_representation(xml);
-        object_variant.publisher(publisher);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            publisher.participant_id(XRCEObject::raw_to_objectid(participant_id));
+            publisher.representation().string_representation(xml);
+            object_variant.publisher(publisher);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -273,7 +311,7 @@ bool Agent::create_subscriber_by_xml(
         uint16_t subscriber_id,
         uint16_t participant_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -281,20 +319,27 @@ bool Agent::create_subscriber_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(subscriber_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
+        if (dds::xrce::OBJK_SUBSCRIBER == (subscriber_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(subscriber_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        subscriber.participant_id(XRCEObject::raw_to_objectid(participant_id));
-        subscriber.representation().string_representation(xml);
-        object_variant.subscriber(subscriber);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            subscriber.participant_id(XRCEObject::raw_to_objectid(participant_id));
+            subscriber.representation().string_representation(xml);
+            object_variant.subscriber(subscriber);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -312,7 +357,7 @@ bool Agent::create_datawriter_by_ref(
         uint16_t datawriter_id,
         uint16_t publisher_id,
         const char* ref,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -320,20 +365,27 @@ bool Agent::create_datawriter_by_ref(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::DATAWRITER_Representation datawriter;
+        if (dds::xrce::OBJK_DATAWRITER == (datawriter_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::DATAWRITER_Representation datawriter;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
-        datawriter.representation().object_reference(ref);
-        object_variant.data_writer(datawriter);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
+            datawriter.representation().object_reference(ref);
+            object_variant.data_writer(datawriter);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -348,7 +400,7 @@ bool Agent::create_datawriter_by_xml(
         uint16_t datawriter_id,
         uint16_t publisher_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -356,20 +408,27 @@ bool Agent::create_datawriter_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::DATAWRITER_Representation datawriter;
+        if (dds::xrce::OBJK_DATAWRITER == (datawriter_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::DATAWRITER_Representation datawriter;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
-        datawriter.representation().xml_string_representation(xml);
-        object_variant.data_writer(datawriter);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
+            datawriter.representation().xml_string_representation(xml);
+            object_variant.data_writer(datawriter);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -387,7 +446,7 @@ bool Agent::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
         const char* ref,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -395,20 +454,27 @@ bool Agent::create_datareader_by_ref(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::DATAREADER_Representation datareader;
+        if (dds::xrce::OBJK_DATAREADER == (datareader_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::DATAREADER_Representation datareader;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
-        datareader.representation().object_reference(ref);
-        object_variant.data_reader(datareader);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
+            datareader.representation().object_reference(ref);
+            object_variant.data_reader(datareader);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {
@@ -423,7 +489,7 @@ bool Agent::create_datareader_by_xml(
         uint16_t datareader_id,
         uint16_t subscriber_id,
         const char* xml,
-        CreationFlag flag,
+        uint8_t flag,
         ErrorCode& errcode)
 {
     bool rv = false;
@@ -431,20 +497,27 @@ bool Agent::create_datareader_by_xml(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
-        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
-        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
-        dds::xrce::ObjectVariant object_variant;
-        dds::xrce::DATAREADER_Representation datareader;
+        if (dds::xrce::OBJK_DATAREADER == (datareader_id & 0x000F))
+        {
+            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
+            dds::xrce::ObjectVariant object_variant;
+            dds::xrce::DATAREADER_Representation datareader;
 
-        creation_mode.reuse(flag & REUSE_MODE);
-        creation_mode.replace(flag & REPLACE_MODE);
-        datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
-        datareader.representation().xml_string_representation(xml);
-        object_variant.data_reader(datareader);
+            creation_mode.reuse(flag & REUSE_MODE);
+            creation_mode.replace(flag & REPLACE_MODE);
+            datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
+            datareader.representation().xml_string_representation(xml);
+            object_variant.data_reader(datareader);
 
-        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-        errcode = ErrorCode(result.status());
-        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            errcode = ErrorCode(result.status());
+            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
+        }
+        else
+        {
+            errcode = ErrorCode(dds::xrce::STATUS_ERR_INVALID_DATA);
+        }
     }
     else
     {

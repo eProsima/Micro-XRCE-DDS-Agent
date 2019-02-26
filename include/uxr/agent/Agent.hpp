@@ -22,9 +22,10 @@
 namespace eprosima{
 namespace uxr{
 
+
 class Agent
 {
-private:
+public:
     enum ErrorCode : uint8_t
     {
         OK_ERRCODE                  = 0x00,
@@ -37,7 +38,6 @@ private:
         INVALID_DATA_ERRCODE        = 0x85,
         INCOMPATIBLE_ERRCODE        = 0x86,
         RESOURCES_ERRCODE           = 0x87
-
     };
 
     enum CreationFlag : uint8_t
@@ -46,7 +46,21 @@ private:
         REPLACE_MODE    = 0x01 << 2
     };
 
-public:
+    enum ObjectKind : uint8_t
+    {
+        PARTICIPANT_OBJK    = 0x01,
+        TOPIC_OBJK          = 0x02,
+        PUBLISHER_OBJK      = 0x03,
+        SUBSCRIBER_OBJK     = 0x04,
+        DATAWRITER_OBJK     = 0x05,
+        DATAREADER_OBJK     = 0x06
+    };
+
+    static uint16_t get_object_id(uint16_t prefix, ObjectKind object_kind)
+    {
+        return uint16_t((uint16_t(prefix) << 4) + object_kind);
+    }
+
     Agent() = delete;
     ~Agent() = delete;
 
@@ -71,7 +85,7 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const char* ref,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_participant_by_xml(
@@ -79,7 +93,7 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -90,7 +104,7 @@ public:
             uint16_t topic_id,
             uint16_t participant_id,
             const char* ref,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_topic_by_xml(
@@ -98,7 +112,7 @@ public:
             uint16_t topic_id,
             uint16_t participant_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -109,7 +123,7 @@ public:
             uint16_t publisher_id,
             uint16_t participant_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -120,7 +134,7 @@ public:
             uint16_t subscriber_id,
             uint16_t participant_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -131,7 +145,7 @@ public:
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* ref,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datawriter_by_xml(
@@ -139,7 +153,7 @@ public:
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
@@ -150,7 +164,7 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* ref,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datareader_by_xml(
@@ -158,7 +172,7 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* xml,
-            CreationFlag flag,
+            uint8_t flag,
             ErrorCode& errcode);
 
     /**********************************************************************************************
