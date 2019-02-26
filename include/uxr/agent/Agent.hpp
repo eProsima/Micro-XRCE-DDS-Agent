@@ -128,6 +128,14 @@ public:
             uint16_t subscriber_id,
             const char* xml,
             uint8_t& errcode);
+
+    /**********************************************************************************************
+     * Delete Object.
+     **********************************************************************************************/
+    microxrcedds_agent_DllAPI static bool delete_object(
+            uint32_t client_key,
+            uint16_t object_id,
+            uint8_t& errcode);
 };
 
 } // uxr

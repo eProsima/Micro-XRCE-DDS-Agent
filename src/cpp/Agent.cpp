@@ -424,5 +424,30 @@ bool Agent::create_datareader_by_xml(
     return rv;
 }
 
+/**********************************************************************************************************************
+ * Delete Object.
+ **********************************************************************************************************************/
+bool Agent::delete_object(
+        uint32_t client_key,
+        uint16_t object_id,
+        uint8_t& errcode)
+{
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::ResultStatus result = client->delete_object(XRCEObject::raw_to_objectid(object_id));
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
+}
+
 } // namespace uxr
 } // namespace eprosima
