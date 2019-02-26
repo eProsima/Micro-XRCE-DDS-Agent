@@ -24,6 +24,28 @@ namespace uxr{
 
 class Agent
 {
+private:
+    enum ErrorCode : uint8_t
+    {
+        OK_ERRCODE                  = 0x00,
+        OK_MATCHED_ERRCODE          = 0x01,
+        DDS_ERROR_ERRCODE           = 0x80,
+        MISMATCH_ERRCODE            = 0x81,
+        ALREADY_EXISTS_ERRCODE      = 0x82,
+        DENIED_ERRCODE              = 0x83,
+        UNKNOWN_REFERENCE_ERRCODE   = 0x84,
+        INVALID_DATA_ERRCODE        = 0x85,
+        INCOMPATIBLE_ERRCODE        = 0x86,
+        RESOURCES_ERRCODE           = 0x87
+
+    };
+
+    enum CreationFlag : uint8_t
+    {
+        REUSE_MODE      = 0x01 << 1,
+        REPLACE_MODE    = 0x01 << 2
+    };
+
 public:
     Agent() = delete;
     ~Agent() = delete;
@@ -35,11 +57,11 @@ public:
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool delete_client(
             uint32_t key,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * Participant.
@@ -49,14 +71,14 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const char* ref,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_participant_by_xml(
             uint32_t client_key,
             uint16_t participant_id,
             int16_t domain_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * Topic.
@@ -66,14 +88,14 @@ public:
             uint16_t topic_id,
             uint16_t participant_id,
             const char* ref,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_topic_by_xml(
             uint32_t client_key,
             uint16_t topic_id,
             uint16_t participant_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * Publisher.
@@ -83,7 +105,7 @@ public:
             uint16_t publisher_id,
             uint16_t participant_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * Subscriber.
@@ -93,7 +115,7 @@ public:
             uint16_t subscriber_id,
             uint16_t participant_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * DataWriter.
@@ -103,14 +125,14 @@ public:
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* ref,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datawriter_by_xml(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * DataReader.
@@ -120,14 +142,14 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* ref,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     microxrcedds_agent_DllAPI static bool create_datareader_by_xml(
             uint32_t client_key,
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const char* xml,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 
     /**********************************************************************************************
      * Delete Object.
@@ -135,7 +157,7 @@ public:
     microxrcedds_agent_DllAPI static bool delete_object(
             uint32_t client_key,
             uint16_t object_id,
-            uint8_t& errcode);
+            ErrorCode& errcode);
 };
 
 } // uxr
