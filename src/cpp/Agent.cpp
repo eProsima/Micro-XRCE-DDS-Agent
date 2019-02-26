@@ -224,7 +224,30 @@ bool Agent::create_publisher_by_xml(
         const char* xml,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(publisher_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::OBJK_PUBLISHER_Representation publisher;
+
+        publisher.participant_id(XRCEObject::raw_to_objectid(participant_id));
+        publisher.representation().string_representation(xml);
+        object_variant.publisher(publisher);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 /**********************************************************************************************************************
@@ -237,7 +260,30 @@ bool Agent::create_subscriber_by_xml(
         const char* xml,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(subscriber_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
+
+        subscriber.participant_id(XRCEObject::raw_to_objectid(participant_id));
+        subscriber.representation().string_representation(xml);
+        object_variant.subscriber(subscriber);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 /**********************************************************************************************************************
