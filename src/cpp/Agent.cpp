@@ -18,13 +18,13 @@
 namespace eprosima {
 namespace uxr {
 
-static uint32_t clientkey_to_raw(const dds::xrce::ClientKey& client_key)
-{
-    return uint32_t(client_key[0] << 24)
-         + uint32_t(client_key[1] << 16)
-         + uint32_t(client_key[2] << 8)
-         + uint32_t(client_key[3]);
-}
+//static uint32_t clientkey_to_raw(const dds::xrce::ClientKey& client_key)
+//{
+//    return uint32_t(client_key[0] << 24)
+//         + uint32_t(client_key[1] << 16)
+//         + uint32_t(client_key[2] << 8)
+//         + uint32_t(client_key[3]);
+//}
 
 static dds::xrce::ClientKey raw_to_clientkey(uint32_t key)
 {
@@ -365,7 +365,30 @@ bool Agent::create_datareader_by_ref(
         const char* ref,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::DATAREADER_Representation datareader;
+
+        datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
+        datareader.representation().object_reference(ref);
+        object_variant.data_reader(datareader);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 bool Agent::create_datareader_by_xml(
@@ -375,7 +398,30 @@ bool Agent::create_datareader_by_xml(
         const char* xml,
         uint8_t& errcode)
 {
-    return false;
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+        dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+        dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
+        dds::xrce::ObjectVariant object_variant;
+        dds::xrce::DATAREADER_Representation datareader;
+
+        datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
+        datareader.representation().xml_string_representation(xml);
+        object_variant.data_reader(datareader);
+
+        dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+        errcode = result.status();
+        rv = (dds::xrce::STATUS_OK == result.status());
+    }
+    else
+    {
+        errcode = dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+    }
+
+    return rv;
 }
 
 } // namespace uxr
