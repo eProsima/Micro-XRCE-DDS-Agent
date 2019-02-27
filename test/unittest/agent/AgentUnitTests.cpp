@@ -525,6 +525,424 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
     EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
+TEST_F(AgentUnitTests, CreateDataWriterByRef)
+{
+    Agent::ErrorCode errcode;
+    Agent::create_client(client_key_, 0x01, 512, errcode);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* topic_ref = "shapetype_topic";
+    const char* publisher_xml = "publisher";
+    const char* ref_one = "shapetype_data_writer";
+    const char* ref_two = "shapetype_data_writer_two";
+
+    int16_t domain_id = 0x00;
+    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    uint16_t publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
+    uint16_t datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create DataWriter.
+     */
+    Agent::create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, errcode);
+    Agent::create_topic_by_ref(client_key_, topic_id, participant_id, topic_ref, flag, errcode);
+    Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, publisher_xml, flag, errcode);
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+
+    /*
+     * Create DataWriter over an existing with 0x00 flag.
+     */
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REUSE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::MISMATCH_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REUSE & REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Delete DataWriter.
+     */
+    EXPECT_TRUE(Agent::delete_object(client_key_, datawriter_id, errcode));
+
+    /*
+     * Create DataWriter with invalid REF.
+     */
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, "error", flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+
+    /*
+     * Create DataWriter with invalid ObjectId.
+     */
+    datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::INVALID_DATA_ERRCODE);
+
+    /*
+     * Create DataWriter with invalid Participant Id.
+     */
+    datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+    publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+}
+
+TEST_F(AgentUnitTests, CreateDataWriterByXml)
+{
+    Agent::ErrorCode errcode;
+    Agent::create_client(client_key_, 0x01, 512, errcode);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* topic_ref = "helloworld_topic";
+    const char* publisher_xml = "publisher";
+    const char* xml_one = "<dds>"
+                              "<data_writer>"
+                                  "<topic>"
+                                      "<kind>NO_KEY</kind>"
+                                      "<name>HelloWorldTopic</name>"
+                                      "<dataType>HelloWorld</dataType>"
+                                      "<historyQos>"
+                                          "<kind>KEEP_LAST</kind>"
+                                          "<depth>5</depth>"
+                                      "</historyQos>"
+                                      "<durability>"
+                                          "<kind>TRANSIENT_LOCAL</kind>"
+                                      "</durability>"
+                                  "</topic>"
+                              "</data_writer>"
+                          "</dds>";
+    const char* xml_two = "<dds>"
+                              "<data_writer>"
+                                  "<topic>"
+                                      "<kind>NO_KEY</kind>"
+                                      "<name>HelloWorldTopic</name>"
+                                      "<dataType>HelloWorld</dataType>"
+                                      "<historyQos>"
+                                          "<kind>KEEP_LAST</kind>"
+                                          "<depth>10</depth>"
+                                      "</historyQos>"
+                                      "<durability>"
+                                          "<kind>TRANSIENT_LOCAL</kind>"
+                                      "</durability>"
+                                  "</topic>"
+                              "</data_writer>"
+                          "</dds>";
+
+    int16_t domain_id = 0x00;
+    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    uint16_t publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
+    uint16_t datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create DataWriter.
+     */
+    Agent::create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, errcode);
+    Agent::create_topic_by_ref(client_key_, topic_id, participant_id, topic_ref, flag, errcode);
+    Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, publisher_xml, flag, errcode);
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+
+    /*
+     * Create DataWriter over an existing with 0x00 flag.
+     */
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REUSE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::MISMATCH_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Create DataWriter over an existing with REUSE & REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Delete DataWriter.
+     */
+    EXPECT_TRUE(Agent::delete_object(client_key_, datawriter_id, errcode));
+
+    /*
+     * Create DataWriter with invalid REF.
+     */
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, "error", flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+
+    /*
+     * Create DataWriter with invalid ObjectId.
+     */
+    datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::INVALID_DATA_ERRCODE);
+
+    /*
+     * Create DataWriter with invalid Participant Id.
+     */
+    datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+    publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+}
+
+TEST_F(AgentUnitTests, CreateDataReaderByRef)
+{
+    Agent::ErrorCode errcode;
+    Agent::create_client(client_key_, 0x01, 512, errcode);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* topic_ref = "shapetype_topic";
+    const char* subscriber_xml = "subscriber";
+    const char* ref_one = "shapetype_data_reader";
+    const char* ref_two = "shapetype_data_reader_two";
+
+    int16_t domain_id = 0x00;
+    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    uint16_t subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
+    uint16_t datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create DataReader.
+     */
+    Agent::create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, errcode);
+    Agent::create_topic_by_ref(client_key_, topic_id, participant_id, topic_ref, flag, errcode);
+    Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, subscriber_xml, flag, errcode);
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+
+    /*
+     * Create DataReader over an existing with 0x00 flag.
+     */
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REUSE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::MISMATCH_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REUSE & REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Delete DataReader.
+     */
+    EXPECT_TRUE(Agent::delete_object(client_key_, datareader_id, errcode));
+
+    /*
+     * Create DataReader with invalid REF.
+     */
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, "error", flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+
+    /*
+     * Create DataReader with invalid ObjectId.
+     */
+    datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::INVALID_DATA_ERRCODE);
+
+    /*
+     * Create DataReader with invalid Participant Id.
+     */
+    datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+    subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+}
+
+
+TEST_F(AgentUnitTests, CreateDataReaderByXml)
+{
+    Agent::ErrorCode errcode;
+    Agent::create_client(client_key_, 0x01, 512, errcode);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* topic_ref = "helloworld_topic";
+    const char* subscriber_xml = "subscriber";
+    const char* xml_one = "<dds>"
+                              "<data_reader>"
+                                  "<topic>"
+                                      "<kind>NO_KEY</kind>"
+                                      "<name>HelloWorldTopic</name>"
+                                      "<dataType>HelloWorld</dataType>"
+                                      "<historyQos>"
+                                          "<kind>KEEP_LAST</kind>"
+                                          "<depth>5</depth>"
+                                      "</historyQos>"
+                                      "<durability>"
+                                          "<kind>TRANSIENT_LOCAL</kind>"
+                                      "</durability>"
+                                  "</topic>"
+                              "</data_reader>"
+                          "</dds>";
+    const char* xml_two = "<dds>"
+                              "<data_reader>"
+                                  "<topic>"
+                                      "<kind>NO_KEY</kind>"
+                                      "<name>HelloWorldTopic</name>"
+                                      "<dataType>HelloWorld</dataType>"
+                                      "<historyQos>"
+                                          "<kind>KEEP_LAST</kind>"
+                                          "<depth>10</depth>"
+                                      "</historyQos>"
+                                      "<durability>"
+                                          "<kind>TRANSIENT_LOCAL</kind>"
+                                      "</durability>"
+                                  "</topic>"
+                              "</data_reader>"
+                          "</dds>";
+
+    int16_t domain_id = 0x00;
+    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    uint16_t subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
+    uint16_t datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create DataReader.
+     */
+    Agent::create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, errcode);
+    Agent::create_topic_by_ref(client_key_, topic_id, participant_id, topic_ref, flag, errcode);
+    Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, subscriber_xml, flag, errcode);
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+
+    /*
+     * Create DataReader over an existing with 0x00 flag.
+     */
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::ALREADY_EXISTS_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REUSE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::MISMATCH_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Create DataReader over an existing with REUSE & REPLACE flag.
+     */
+    flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_MATCHED_ERRCODE);
+    EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::OK_ERRCODE);
+
+    /*
+     * Delete DataReader.
+     */
+    EXPECT_TRUE(Agent::delete_object(client_key_, datareader_id, errcode));
+
+    /*
+     * Create DataReader with invalid REF.
+     */
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, "error", flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+
+    /*
+     * Create DataReader with invalid ObjectId.
+     */
+    datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::INVALID_DATA_ERRCODE);
+
+    /*
+     * Create DataReader with invalid Participant Id.
+     */
+    datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+    subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, errcode));
+    EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
+}
+
+
 } // namespace testing
 } // namespace uxr
 } // namespace eprosima
