@@ -102,8 +102,8 @@ bool Agent::create_participant_by_ref(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             participant.domain_id(domain_id);
             participant.representation().object_reference(ref);
             object_variant.participant(participant);
@@ -145,8 +145,8 @@ bool Agent::create_participant_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PARTICIPANT_Representation participant;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             participant.domain_id(domain_id);
             participant.representation().xml_string_representation(xml);
             object_variant.participant(participant);
@@ -191,8 +191,8 @@ bool Agent::create_topic_by_ref(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_TOPIC_Representation topic;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
             topic.representation().object_reference(ref);
             object_variant.topic(topic);
@@ -234,8 +234,8 @@ bool Agent::create_topic_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_TOPIC_Representation topic;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
             topic.representation().xml_string_representation(xml);
             object_variant.topic(topic);
@@ -280,8 +280,8 @@ bool Agent::create_publisher_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PUBLISHER_Representation publisher;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             publisher.participant_id(XRCEObject::raw_to_objectid(participant_id));
             publisher.representation().string_representation(xml);
             object_variant.publisher(publisher);
@@ -326,8 +326,8 @@ bool Agent::create_subscriber_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             subscriber.participant_id(XRCEObject::raw_to_objectid(participant_id));
             subscriber.representation().string_representation(xml);
             object_variant.subscriber(subscriber);
@@ -372,8 +372,8 @@ bool Agent::create_datawriter_by_ref(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAWRITER_Representation datawriter;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
             datawriter.representation().object_reference(ref);
             object_variant.data_writer(datawriter);
@@ -415,8 +415,8 @@ bool Agent::create_datawriter_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAWRITER_Representation datawriter;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             datawriter.publisher_id(XRCEObject::raw_to_objectid(publisher_id));
             datawriter.representation().xml_string_representation(xml);
             object_variant.data_writer(datawriter);
@@ -461,8 +461,8 @@ bool Agent::create_datareader_by_ref(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAREADER_Representation datareader;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
             datareader.representation().object_reference(ref);
             object_variant.data_reader(datareader);
@@ -504,8 +504,8 @@ bool Agent::create_datareader_by_xml(
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAREADER_Representation datareader;
 
-            creation_mode.reuse(flag & REUSE_MODE);
-            creation_mode.replace(flag & REPLACE_MODE);
+            creation_mode.reuse(0 != (flag & REUSE_MODE));
+            creation_mode.replace(0 != (flag & REPLACE_MODE));
             datareader.subscriber_id(XRCEObject::raw_to_objectid(subscriber_id));
             datareader.representation().xml_string_representation(xml);
             object_variant.data_reader(datareader);
