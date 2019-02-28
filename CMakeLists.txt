@@ -93,6 +93,7 @@ set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds."
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
 option(PROFILE_DISCOVERY "Activate the Discovery Profile." ON)
+set(PROFILE_P2P FALSE CACHE BOOL "Activate the P2P discovery.")
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -113,6 +114,7 @@ eprosima_find_thirdparty(Asio asio)
 # Targets
 ###############################################################################
 
+# Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerLinux.cpp
@@ -159,10 +161,13 @@ set(SRCS
     src/cpp/middleware/fast/FastMiddleware.cpp
     src/cpp/middleware/ced/CedEntities.cpp
     src/cpp/middleware/ced/CedMiddleware.cpp
-    src/cpp/p2p_agent/InternalClient.cpp
-    src/cpp/p2p_agent/DiscoveryClient.cpp
-    src/cpp/p2p_agent/InternalClientManager.cpp
-    src/cpp/p2p_agent/P2PAgentCommunication.cpp
+#    src/cpp/p2p_agent/InternalClient.cpp
+#    src/cpp/p2p_agent/DiscoveryClient.cpp
+#    src/cpp/p2p_agent/InternalClientManager.cpp
+#    src/cpp/p2p_agent/P2PAgentCommunication.cpp
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/AgentDiscoverer.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
 # Executable
