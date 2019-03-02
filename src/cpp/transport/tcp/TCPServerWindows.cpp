@@ -20,32 +20,25 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
-TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
-    : TCPServerBase(port),
-      connections_{},
-      active_connections_(),
-      free_connections_(),
-      listener_poll_{},
-      poll_fds_{},
-      buffer_{0},
-      listener_thread_(),
-      running_cond_(false),
-      messages_queue_{},
-      discovery_server_(*processor_, port_, discovery_port)
+TCPServer::TCPServer(uint16_t agent_port)
+    : TCPServerBase(agent_port)
+    , connections_{}
+    , active_connections_()
+    , free_connections_()
+    , listener_poll_{}
+    , poll_fds_{}
+    , buffer_{0}
+    , listener_thread_()
+    , running_cond_(false)
+    , messages_queue_{}
+#ifdef PROFILE_DISCOVERY
+    , discovery_server_(*processor_, agent_port_)
+#endif
 {}
 
-bool TCPServer::init(bool discovery_enabled)
+bool TCPServer::init()
 {
     bool rv = false;
-
-    /* Init discovery. */
-    if (discovery_enabled)
-    {
-        if (!discovery_server_.run())
-        {
-            return false;
-        }
-    }
 
     /* Socket initialization. */
     poll_fds_[0].fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -58,7 +51,7 @@ bool TCPServer::init(bool discovery_enabled)
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(port_);
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
@@ -115,10 +108,28 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
+#ifdef PROFILE_DISCOVERY
+    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
+#else
     return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty());
+#endif
 }
 
-bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
+#ifdef PROFILE_DISCOVERY
+bool TCPServer::init_discovery(uint16_t discovery)
+{
+    return discovery_server_.run(discovery_port)
+}
+
+bool TCPServer::close_discovery()
+{
+    return discovery_server_.close();
+}
+#endif
+
+bool TCPServer::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
     bool rv = true;
     if (messages_queue_.empty() && !read_message(timeout))
@@ -222,7 +233,9 @@ int TCPServer::get_error()
     return WSAGetLastError();
 }
 
-bool TCPServer::open_connection(SOCKET fd, struct sockaddr_in* sockaddr)
+bool TCPServer::open_connection(
+        SOCKET fd,
+        struct sockaddr_in* sockaddr)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(connections_mtx_);
@@ -353,7 +366,11 @@ bool TCPServer::connection_available()
     return !free_connections_.empty();
 }
 
-size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
+size_t TCPServer::recv_locking(
+        TCPConnection& connection,
+        uint8_t* buffer,
+        size_t len,
+        uint8_t& errcode)
 {
     size_t rv = 0;
     TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
@@ -382,7 +399,11 @@ size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_
     return rv;
 }
 
-size_t TCPServer::send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
+size_t TCPServer::send_locking(
+        TCPConnection& connection,
+        uint8_t* buffer,
+        size_t len,
+        uint8_t& errcode)
 {
     size_t rv = 0;
     TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);

@@ -34,13 +34,34 @@ void showHelp()
 {
     std::cout << "Usage: program <command>" << std::endl;
     std::cout << "List of commands:" << std::endl;
+
+    /*
+     * UDP commands.
+     */
+    std::cout << "    --udp <local_port> ";
+#ifdef PROFILE_DISCOVERY
+    std::cout << "[--discovery [<discovery_port>] ]";
+#endif
+    std::cout << std::endl;
+
+    /*
+     * TCP commands.
+     */
+    std::cout << "    --tcp <local_port> ";
+#ifdef PROFILE_DISCOVERY
+    std::cout << "[--discovery [<discovery_port>] ]";
+#endif
+    std::cout << std::endl;
+
+    /*
+     * Serial commands.
+     */
 #ifndef _WIN32
     std::cout << "    --serial <device-name> [--baudrate <baudrate>] [--refs <refs-file>]" << std::endl;
     std::cout << "    --pseudo-serial        [--baudrate <baudrate>] [--refs <refs-file>]" << std::endl;
 #endif
     std::cout << "    --udp <local-port> [--discovery <discovery-port>] [--refs <refs-file>]" << std::endl;
     std::cout << "    --tcp <local-port> [--discovery <discovery-port>] [--refs <refs-file>]" << std::endl;
- 
 }
 
 [[ noreturn ]] void initializationError()
@@ -74,7 +95,6 @@ int main(int argc, char** argv)
 {
     std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
-    bool discovery_flag = false;
 
     if (1 == argc)
     {
@@ -114,9 +134,18 @@ int main(int argc, char** argv)
         {
             initializationError();
         }
-#ifdef _WIN32
         server.reset(new eprosima::uxr::UDPServer(port));
-#else
+        if (server->run())
+        {
+            std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
+        }
+        else
+        {
+            std::cerr << "--> ERROR: failed to start UDP Agent" << std::endl;
+            return 1;
+        }
+
+#ifdef PROFILE_DISCOVERY
         /*
          * Parse Discovery.
          */
@@ -124,17 +153,30 @@ int main(int argc, char** argv)
         {
             if (cl.end() != ++it_cl)
             {
-                server.reset(new eprosima::uxr::UDPServer(port, parsePort(*(it_cl++))));
+                bool discovery_launch = false;
+                if (4 <= cl.size())
+                {
+                    discovery_launch = server->enable_discovery(parsePort(*(it_cl++)));
+                }
+                else
+                {
+                    discovery_launch = server->enable_discovery();
+                }
+                if (discovery_launch)
+                {
+                    std::cout << "--> OK: Discovery Server enable" << std::endl;
+                }
+                else
+                {
+                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
+                }
             }
             else
             {
                 initializationError();
             }
         }
-        else
-        {
-            server.reset(new eprosima::uxr::UDPServer(port));
-        }
+#endif
 
         /*
          * Parse Refs File.
@@ -146,7 +188,6 @@ int main(int argc, char** argv)
                 initializationError();
             }
         }
-#endif
     }
     else if ((cl.end() != it_cl) && ("--tcp" == *it_cl))
     {
@@ -160,9 +201,18 @@ int main(int argc, char** argv)
         {
             initializationError();
         }
-#ifdef _WIN32
         server.reset(new eprosima::uxr::TCPServer(port));
-#else
+        if (server->run())
+        {
+            std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
+        }
+        else
+        {
+            std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
+            return 1;
+        }
+
+#ifdef PROFILE_DISCOVERY
         /*
          * Parse Discovery.
          */
@@ -170,17 +220,30 @@ int main(int argc, char** argv)
         {
             if (cl.end() != ++it_cl)
             {
-                server.reset(new eprosima::uxr::TCPServer(port, parsePort(*(it_cl++))));
+                bool discovery_launch = false;
+                if (4 <= cl.size())
+                {
+                    discovery_launch = server->enable_discovery(parsePort(*(it_cl++)));
+                }
+                else
+                {
+                    discovery_launch = server->enable_discovery();
+                }
+                if (discovery_launch)
+                {
+                    std::cout << "--> OK: Discovery Server enable" << std::endl;
+                }
+                else
+                {
+                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
+                }
             }
             else
             {
                 initializationError();
             }
         }
-        else
-        {
-            server.reset(new eprosima::uxr::TCPServer(port));
-        }
+#endif
 
         /*
          * Parse Refs File.
@@ -192,13 +255,10 @@ int main(int argc, char** argv)
                 initializationError();
             }
         }
-#endif
     }
 #ifndef _WIN32
     else if((cl.end() != it_cl) && ("--serial" == *it_cl))
     {
-        std::cout << "Serial agent initialization... ";
-
         /* Open serial device. */
         if (cl.end() != ++it_cl)
         {
@@ -264,6 +324,15 @@ int main(int argc, char** argv)
                     if (0 == tcsetattr(fd, TCSANOW, &attr))
                     {
                         server.reset(new eprosima::uxr::SerialServer(fd, 0));
+                        if (server->run())
+                        {
+                            std::cout << "--> Serial Agent running at device " << cl[1] << std::endl;
+                        }
+                        else
+                        {
+                            std::cerr << "--> Serial Agent initialization ERROR" << std::endl;
+                            return 1;
+                        }
                     }
 
                     /*
@@ -329,6 +398,15 @@ int main(int argc, char** argv)
                 {
                     std::cout << "Device: " << dev << std::endl;
                     server.reset(new eprosima::uxr::SerialServer(fd, 0));
+                    if (server->run())
+                    {
+                        std::cout << "--> Pseudo-Serial Agent running at device " << dev << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "--> Pseudo-Serial Agent initialization ERROR" << std::endl;
+                        return 1;
+                    }
                 }
 
                 /*
@@ -350,26 +428,15 @@ int main(int argc, char** argv)
         initializationError();
     }
 
-    if (nullptr != server)
+    /* Waiting until exit. */
+    std::cin.clear();
+    char exit_flag = 0;
+    while ('q' != exit_flag)
     {
-        /* Launch server. */
-        if (server->run(discovery_flag))
-        {
-            std::cout << "OK" << std::endl;
-            std::cin.clear();
-            char exit_flag = 0;
-            while ('q' != exit_flag)
-            {
-                std::cout << "Enter 'q' for exit" << std::endl;
-                std::cin >> exit_flag;
-            }
-            server->stop();
-        }
-        else
-        {
-            std::cout << "ERROR" << std::endl;
-        }
+        std::cout << "Enter 'q' for exit" << std::endl;
+        std::cin >> exit_flag;
     }
+    server->stop();
 
     return 0;
 }

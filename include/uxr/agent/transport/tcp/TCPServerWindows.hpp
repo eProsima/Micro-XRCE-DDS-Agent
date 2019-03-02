@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
+#endif
 #include <uxr/agent/config.hpp>
 #include <winsock2.h>
 #include <vector>
@@ -40,24 +42,54 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    UXR_AGENT_EXPORT TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_EXPORT TCPServer(uint16_t agent_port);
+
     UXR_AGENT_EXPORT ~TCPServer() = default;
 
 private:
     bool init(bool discovery_enabled) final;
+
     bool close() final;
-    bool recv_message(InputPacket& input_packet, int timeout) final;
+
+#ifdef PROFILE_DISCOVERY
+    bool init_discovery(uint16_t discovery_port) final;
+
+    bool close_discovery() final;
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
     bool send_message(OutputPacket output_packet) final;
+
     int get_error() final;
+
     bool read_message(int timeout);
-    bool open_connection(SOCKET fd, struct sockaddr_in* sockaddr);
+
+    bool open_connection(
+            SOCKET fd,
+            struct sockaddr_in* sockaddr);
+
     bool connection_available();
+
     void listener_loop();
+
     static void init_input_buffer(TCPInputBuffer& buffer);
 
     bool close_connection(TCPConnection& connection) override;
-    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
-    size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
+
+    size_t recv_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
+
+    size_t send_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
 
 private:
     std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
@@ -70,10 +102,12 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+#ifdef PROFILE_DISCOVERY
     DiscoveryServerWindows discovery_server_;
+#endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_

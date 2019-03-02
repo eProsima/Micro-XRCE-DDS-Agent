@@ -17,10 +17,10 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServerBase::UDPServerBase(uint16_t port)
-    : port_(port),
-      source_to_client_map_{},
-      client_to_source_map_{}
+UDPServerBase::UDPServerBase(uint16_t agent_port)
+    : agent_port_(agent_port)
+    , source_to_client_map_{}
+    , client_to_source_map_{}
 {}
 
 void UDPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)

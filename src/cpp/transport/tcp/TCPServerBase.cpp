@@ -17,15 +17,17 @@
 namespace eprosima {
 namespace uxr {
 
-TCPServerBase::TCPServerBase(uint16_t port)
-    : port_(port),
-      source_to_connection_map_{},
-      source_to_client_map_{},
-      client_to_source_map_{},
-      clients_mtx_()
+TCPServerBase::TCPServerBase(uint16_t agent_port)
+    : agent_port_(agent_port)
+    , source_to_connection_map_{}
+    , source_to_client_map_{}
+    , client_to_source_map_{}
+    , clients_mtx_()
 {}
 
-void TCPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
+void TCPServerBase::on_create_client(
+        EndPoint* source,
+        const dds::xrce::CLIENT_Representation& representation)
 {
     TCPEndPoint* endpoint = static_cast<TCPEndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();

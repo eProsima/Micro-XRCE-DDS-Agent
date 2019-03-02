@@ -20,6 +20,8 @@
 namespace eprosima {
 namespace uxr {
 
+#cmakedefine PROFILE_DISCOVERY
+
 const uint16_t RELIABLE_STREAM_DEPTH = @CONFIG_RELIABLE_STREAM_DEPTH@;
 static_assert (RELIABLE_STREAM_DEPTH > 0, "RELIABLE_STREAM_DEPTH shall be greater than 0.");
 

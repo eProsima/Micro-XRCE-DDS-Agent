@@ -33,9 +33,10 @@ Server::~Server()
     delete processor_;
 }
 
-bool Server::run(bool discovery_enabled)
+bool Server::run()
 {
-    if (!init(discovery_enabled))
+    /* Init server. */
+    if (!init())
     {
         return false;
     }
@@ -76,13 +77,34 @@ bool Server::stop()
         heartbeat_thread_->join();
     }
 
+#ifdef PROFILE_DISCOVERY
+    return close_discovery() && close();
+#else
     return close();
+#endif
 }
 
 bool Server::load_config_file(const std::string& path)
 {
     return Root::instance().load_config_file(path);
 }
+
+#ifdef PROFILE_DISCOVERY
+bool Server::enable_discovery(uint16_t discovery_port)
+{
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_discovery(discovery_port);
+    }
+    return rv;
+}
+
+bool Server::disable_discovery()
+{
+    return close_discovery();
+}
+#endif
 
 void Server::push_output_packet(OutputPacket output_packet)
 {

@@ -92,6 +92,7 @@ set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth."
 set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
+option(PROFILE_DISCOVERY "Activate the Discovery Profile." ON)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -116,13 +117,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/udp/UDPServerLinux.cpp
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
-        src/cpp/transport/discovery/DiscoveryServerLinux.cpp
+        $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
-        src/cpp/transport/discovery/DiscoveryServerWindows.cpp
+        $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
 
@@ -149,7 +150,7 @@ set(SRCS
     src/cpp/transport/tcp/TCPServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
-    src/cpp/transport/discovery/DiscoveryServer.cpp
+    $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     ${TRANSPORT_SRCS}
     src/cpp/types/TopicPubSubType.cpp
     src/cpp/xmlobjects/xmlobjects.cpp

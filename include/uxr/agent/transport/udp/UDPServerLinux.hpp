@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
+#endif
 
 #include <cstdint>
 #include <cstddef>
@@ -30,23 +32,38 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UDPServer(uint16_t port);
+
     ~UDPServer() = default;
 
 private:
-    bool init(bool discovery_enabled) final;
+    bool init() final;
+
     bool close() final;
-    bool recv_message(InputPacket& input_packet, int timeout) final;
+
+#ifdef PROFILE_DISCOVERY
+    bool init_discovery(uint16_t discovery_port) final;
+
+    bool close_discovery() final;
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
     bool send_message(OutputPacket output_packet) final;
+
     int get_error() final;
 
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
+#ifdef PROFILE_DISCOVERY
     DiscoveryServerLinux discovery_server_;
+#endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_

@@ -25,25 +25,18 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(uint16_t port, uint16_t discovery_port)
-    : UDPServerBase(port),
-      poll_fd_{},
-      buffer_{0},
-      discovery_server_(*processor_, port_, discovery_port)
+UDPServer::UDPServer(uint16_t agent_port)
+    : UDPServerBase(agent_port)
+    , poll_fd_{}
+    , buffer_{0}
+#ifdef PROFILE_DISCOVERY
+    , discovery_server_(*processor_, agent_port_)
+#endif
 {}
 
-bool UDPServer::init(bool discovery_enabled)
+bool UDPServer::init()
 {
     bool rv = false;
-
-    /* Init discovery. */
-    if (discovery_enabled)
-    {
-        if (!discovery_server_.run())
-        {
-            return false;
-        }
-    }
 
     /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -53,7 +46,7 @@ bool UDPServer::init(bool discovery_enabled)
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(port_);
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
@@ -69,8 +62,24 @@ bool UDPServer::init(bool discovery_enabled)
 
 bool UDPServer::close()
 {
+#ifdef PROFILE_DISCOVERY
     return (0 == ::close(poll_fd_.fd)) && discovery_server_.stop();
+#else
+    return (0 == ::close(poll_fd_.fd));
+#endif
 }
+
+#ifdef PROFILE_DISCOVERY
+bool UDPServer::init_discovery(uint16_t discovery_port)
+{
+    return discovery_server_.run(discovery_port);
+}
+
+bool UDPServer::close_discovery()
+{
+    return discovery_server_.stop();
+}
+#endif
 
 bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 {

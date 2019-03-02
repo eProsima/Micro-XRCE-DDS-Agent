@@ -27,15 +27,16 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port)
-    : DiscoveryServer (processor, port),
-      poll_fd_{},
-      buffer_{0},
-      discovery_port_(discovery_port)
+DiscoveryServerLinux::DiscoveryServerLinux(
+        const Processor& processor,
+        uint16_t agent_port)
+    : DiscoveryServer (processor, agent_port)
+    , poll_fd_{}
+    , buffer_{0}
 {
 }
 
-bool DiscoveryServerLinux::init()
+bool DiscoveryServerLinux::init(uint16_t discovery_port)
 {
     bool rv = false;
 
@@ -56,7 +57,7 @@ bool DiscoveryServerLinux::init()
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(discovery_port_);
+    address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
@@ -102,7 +103,9 @@ bool DiscoveryServerLinux::close()
     return 0 == ::close(poll_fd_.fd);
 }
 
-bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerLinux::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
