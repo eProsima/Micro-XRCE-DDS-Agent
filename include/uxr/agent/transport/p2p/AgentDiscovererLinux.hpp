@@ -12,44 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_HPP_
-#define UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_
+#define UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_
 
-#include <thread>
-#include <atomic>
+#include <uxr/agent/transport/p2p/AgentDiscoverer.hpp>
+
+#include <poll.h>
 
 namespace eprosima {
 namespace uxr {
 
-class AgentDiscoverer
+class AgentDiscovererLinux : public AgentDiscoverer
 {
 public:
-    AgentDiscoverer();
+    AgentDiscovererLinux();
 
-    virtual ~AgentDiscoverer() = default;
-
-    AgentDiscoverer(AgentDiscoverer&&) = delete;
-    AgentDiscoverer(const AgentDiscoverer&) = delete;
-    AgentDiscoverer& operator=(AgentDiscoverer&&) = delete;
-    AgentDiscoverer& operator=(const AgentDiscoverer&) = delete;
-
-    bool run(uint16_t p2p_port);
-
-    bool stop();
+    ~AgentDiscovererLinux() = default;
 
 private:
-    virtual bool init(uint16_t p2p_port) = 0;
+    bool init(uint16_t p2p_port) final;
 
-    virtual bool close() = 0;
-
-    void loop();
+    bool close() final;
 
 private:
-    std::thread thread_;
-    std::atomic<bool> running_cond_;
+    struct pollfd poll_fd_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_HPP_
+#endif // UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_

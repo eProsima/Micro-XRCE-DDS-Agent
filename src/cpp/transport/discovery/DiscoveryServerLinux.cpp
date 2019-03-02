@@ -29,8 +29,8 @@ namespace uxr {
 DiscoveryServerLinux::DiscoveryServerLinux(
         const Processor& processor,
         uint16_t agent_port)
-    : DiscoveryServer (processor, agent_port)
-    , poll_fd_{}
+    : DiscoveryServer(processor, agent_port)
+    , poll_fd_{-1, 0, 0}
     , buffer_{0}
 {
 }
@@ -99,7 +99,7 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
 
 bool DiscoveryServerLinux::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
 
 bool DiscoveryServerLinux::recv_message(

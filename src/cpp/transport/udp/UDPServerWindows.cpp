@@ -20,7 +20,7 @@ namespace uxr {
 
 UDPServer::UDPServer(uint16_t agent_port)
     : UDPServerBase(agent_port)
-    , poll_fd_{}
+    , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef PROFILE_DISCOVERY
     , discovery_server_(*processor_, agent_port_)
@@ -55,11 +55,10 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-#ifdef DISCOVERY_PROFILE
-    return (0 == closesocket(poll_fd_.fd)) && discovery_server_.stop();
-#else
-    return (0 == closesocket(poll_fd_.fd));
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.stop();
 #endif
+    return (INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd));
 }
 
 #ifdef PROFILE_DISCOVERY

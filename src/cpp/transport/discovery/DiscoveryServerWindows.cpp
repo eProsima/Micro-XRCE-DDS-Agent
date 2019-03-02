@@ -28,8 +28,8 @@ namespace uxr {
 DiscoveryServerWindows::DiscoveryServerWindows(
         const Processor& processor,
         uint16_t agent_port)
-    : DiscoveryServer (processor, port)
-    , poll_fd_{}
+    : DiscoveryServer(processor, port)
+    , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 {
 }
@@ -40,6 +40,10 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
 
     /* Socket initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (INVALID_SOCKET == poll_fd_.fd)
+    {
+        return false;
+    }
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
@@ -47,7 +51,7 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
     address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-    if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+    if (SOCKET_ERROR != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
         /* Poll setup. */
         poll_fd_.events = POLLIN;
@@ -56,7 +60,7 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
         struct ip_mreq mreq;
         mreq.imr_multiaddr.s_addr = inet_addr(DISCOVERY_IP);
         mreq.imr_interface.s_addr = INADDR_ANY;
-        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
+        if (SOCKET_ERROR != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
             /* Get local address. */
             SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -69,7 +73,7 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
             {
                 struct sockaddr local_addr;
                 int local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
+                if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
                 {
                     transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
                                                                  uint8_t(local_addr.sa_data[3]),
@@ -87,7 +91,7 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
 
 bool DiscoveryServerWindows::close()
 {
-    return (0 == closesocket(poll_fd_.fd));
+    return (INVALID (0 == closesocket(poll_fd_.fd));
 }
 
 bool DiscoveryServerWindows::recv_message(

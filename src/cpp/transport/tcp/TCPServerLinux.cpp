@@ -39,7 +39,10 @@ TCPServer::TCPServer(uint16_t agent_port)
     , running_cond_(false)
     , messages_queue_{}
 #ifdef PROFILE_DISCOVERY
-    , discovery_server_(*processor_, agent_port_)
+    , discovery_server_{*processor_, agent_port_}
+#endif
+#ifdef PROFILE_P2P
+    , agent_discoverer_{}
 #endif
 {}
 
@@ -115,11 +118,15 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
+
 #ifdef PROFILE_DISCOVERY
-    return (-1 == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
-#else
-    return (-1 == listener_poll_.fd) && (active_connections_.empty());
+    discovery_server_.stop();
 #endif
+#ifdef PROFILE_P2P
+    agent_discoverer_.stop();
+#endif
+
+    return (-1 == listener_poll_.fd) && (active_connections_.empty());
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -131,6 +138,18 @@ bool TCPServer::init_discovery(uint16_t discovery_port)
 bool TCPServer::close_discovery()
 {
     return discovery_server_.stop();
+}
+#endif
+
+#ifdef PROFILE_P2P
+bool TCPServer::init_p2p(uint16_t p2p_port)
+{
+    return agent_discoverer_.run(p2p_port);
+}
+
+bool TCPServer::close_p2p()
+{
+    return agent_discoverer_.stop();
 }
 #endif
 

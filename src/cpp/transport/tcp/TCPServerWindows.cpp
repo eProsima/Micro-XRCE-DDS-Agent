@@ -109,10 +109,9 @@ bool TCPServer::close()
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
 #ifdef PROFILE_DISCOVERY
-    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
-#else
-    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty());
+    discovery_server_.stop();
 #endif
+    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty());
 }
 
 #ifdef PROFILE_DISCOVERY

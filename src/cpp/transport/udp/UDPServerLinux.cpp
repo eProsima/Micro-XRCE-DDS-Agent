@@ -27,10 +27,13 @@ namespace uxr {
 
 UDPServer::UDPServer(uint16_t agent_port)
     : UDPServerBase(agent_port)
-    , poll_fd_{}
+    , poll_fd_{-1, 0, 0}
     , buffer_{0}
 #ifdef PROFILE_DISCOVERY
-    , discovery_server_(*processor_, agent_port_)
+    , discovery_server_{*processor_, agent_port_}
+#endif
+#ifdef PROFILE_P2P
+    , agent_discoverer_{}
 #endif
 {}
 
@@ -63,10 +66,13 @@ bool UDPServer::init()
 bool UDPServer::close()
 {
 #ifdef PROFILE_DISCOVERY
-    return (0 == ::close(poll_fd_.fd)) && discovery_server_.stop();
-#else
-    return (0 == ::close(poll_fd_.fd));
+    discovery_server_.stop();
 #endif
+#ifdef PROFILE_P2P
+    agent_discoverer_.stop();
+#endif
+
+    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -78,6 +84,18 @@ bool UDPServer::init_discovery(uint16_t discovery_port)
 bool UDPServer::close_discovery()
 {
     return discovery_server_.stop();
+}
+#endif
+
+#ifdef PROFILE_P2P
+bool UDPServer::init_p2p(uint16_t p2p_port)
+{
+    return agent_discoverer_.run(p2p_port);
+}
+
+bool UDPServer::close_p2p()
+{
+    return agent_discoverer_.stop();
 }
 #endif
 

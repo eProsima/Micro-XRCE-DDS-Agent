@@ -19,6 +19,9 @@
 #ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
+#ifdef PROFILE_P2P
+#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
+#endif
 #include <uxr/agent/config.hpp>
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -58,9 +61,9 @@ private:
 #endif
 
 #ifdef PROFILE_P2P
-    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+    bool init_p2p(uint16_t p2p_port) final;
 
-    bool close_p2p() final { return false; } // TODO
+    bool close_p2p() final;
 #endif
 
     bool recv_message(
@@ -112,6 +115,9 @@ private:
     std::queue<InputPacket> messages_queue_;
 #ifdef PROFILE_DISCOVERY
     DiscoveryServerLinux discovery_server_;
+#endif
+#ifdef PROFILE_P2P
+    AgentDiscovererLinux agent_discoverer_;
 #endif
 };
 

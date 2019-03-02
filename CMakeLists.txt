@@ -121,6 +121,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
         $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
+        $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
