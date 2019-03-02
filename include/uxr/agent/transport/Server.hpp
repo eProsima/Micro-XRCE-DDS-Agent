@@ -22,10 +22,6 @@
 #include <uxr/agent/agent_dll.hpp>
 #include <thread>
 
-#ifdef PROFILE_DISCOVERY
-#define UXR_DEFAULT_DISCOVERY_PORT 7400
-#endif
-
 namespace eprosima {
 namespace uxr {
 
@@ -44,13 +40,12 @@ public:
     UXR_AGENT_EXPORT bool load_config_file(const std::string& path);
 
 #ifdef PROFILE_DISCOVERY
-    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DEFAULT_DISCOVERY_PORT);
     UXR_AGENT_EXPORT bool disable_discovery();
 #endif
 
 #ifdef PROFILE_P2P
     UXR_AGENT_EXPORT bool enable_p2p(uint16_t p2p_port);
-
     UXR_AGENT_EXPORT bool disable_p2p();
 #endif
 

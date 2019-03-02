@@ -21,7 +21,6 @@
 #include <functional>
 
 #define RECEIVE_TIMEOUT 100
-#define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {

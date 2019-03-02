@@ -154,6 +154,7 @@ set(SRCS
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
     ${TRANSPORT_SRCS}
     src/cpp/types/TopicPubSubType.cpp
     src/cpp/xmlobjects/xmlobjects.cpp
@@ -165,9 +166,9 @@ set(SRCS
 #    src/cpp/p2p_agent/DiscoveryClient.cpp
 #    src/cpp/p2p_agent/InternalClientManager.cpp
 #    src/cpp/p2p_agent/P2PAgentCommunication.cpp
-    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/AgentDiscoverer.cpp>
-    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
-    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
+#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/AgentDiscoverer.cpp>
+#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
+#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
 # Executable
