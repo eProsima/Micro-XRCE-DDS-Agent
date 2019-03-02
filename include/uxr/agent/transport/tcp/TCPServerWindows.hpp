@@ -57,6 +57,12 @@ private:
     bool close_discovery() final;
 #endif
 
+#ifdef PROFILE_P2P
+    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+
+    bool close_p2p() final { return false; } // TODO
+#endif
+
     bool recv_message(
             InputPacket& input_packet,
             int timeout) final;

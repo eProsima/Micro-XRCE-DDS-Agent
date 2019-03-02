@@ -93,7 +93,7 @@ set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds."
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
 option(PROFILE_DISCOVERY "Activate the Discovery Profile." ON)
-set(PROFILE_P2P FALSE CACHE BOOL "Activate the P2P discovery.")
+option(PROFILE_P2P "Activate the P2P discovery." OFF)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -107,7 +107,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
 eprosima_find_package(fastrtps REQUIRED)
-eprosima_find_package(uxrclient)
+eprosima_find_package(uxrclient REQUIRED)
 eprosima_find_thirdparty(Asio asio)
 
 ###############################################################################

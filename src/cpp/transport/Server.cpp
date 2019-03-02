@@ -77,11 +77,15 @@ bool Server::stop()
         heartbeat_thread_->join();
     }
 
+    bool rv = true;
 #ifdef PROFILE_DISCOVERY
-    return close_discovery() && close();
-#else
-    return close();
+    rv &= close_discovery();
 #endif
+#ifdef PROFILE_P2P
+    rv &= close_p2p();
+#endif
+    rv &= close();
+    return rv;
 }
 
 bool Server::load_config_file(const std::string& path)
@@ -103,6 +107,23 @@ bool Server::enable_discovery(uint16_t discovery_port)
 bool Server::disable_discovery()
 {
     return close_discovery();
+}
+#endif
+
+#ifdef PROFILE_P2P
+bool Server::enable_p2p(uint16_t p2p_port)
+{
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_p2p(p2p_port);
+    }
+    return rv;
+}
+
+bool Server::disable_p2p()
+{
+    return close_p2p();
 }
 #endif
 
