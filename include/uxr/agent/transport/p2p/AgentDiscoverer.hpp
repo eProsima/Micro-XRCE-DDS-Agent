@@ -48,7 +48,7 @@ private:
             InputMessagePtr& input_message,
             int timeout) = 0;
 
-    virtual bool send_message(const OutputMessagePtr& output_message) = 0;
+    virtual bool send_message(const OutputMessage& output_message) = 0;
 
     void loop();
 

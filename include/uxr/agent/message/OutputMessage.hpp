@@ -43,8 +43,8 @@ public:
         delete[] buf_;
     }
 
-    uint8_t* get_buf() { return buf_; }
-    size_t get_len() { return serializer_.getSerializedDataLength(); }
+    uint8_t* get_buf() const { return buf_; }
+    size_t get_len() const { return serializer_.getSerializedDataLength(); }
     template<class T>
     bool append_submessage(dds::xrce::SubmessageId submessage_id, const T& data, uint8_t flags = 0x01);
     bool append_raw_payload(dds::xrce::SubmessageId submessage_id, const uint8_t* buf, size_t len, uint8_t flags = 0x01);

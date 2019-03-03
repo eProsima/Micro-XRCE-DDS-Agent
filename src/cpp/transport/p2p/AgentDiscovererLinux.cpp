@@ -77,7 +77,7 @@ bool AgentDiscovererLinux::recv_message(
     return rv;
 }
 
-bool AgentDiscovererLinux::send_message(const OutputMessagePtr& output_message)
+bool AgentDiscovererLinux::send_message(const OutputMessage& output_message)
 {
     bool rv = false;
 
@@ -86,14 +86,14 @@ bool AgentDiscovererLinux::send_message(const OutputMessagePtr& output_message)
     address.sin_addr.s_addr = inet_addr(DISCOVERY_IP);
     address.sin_port = htons(DISCOVERY_PORT);
     ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_message->get_buf(),
-                                output_message->get_len(),
+                                output_message.get_buf(),
+                                output_message.get_len(),
                                 0,
                                 (struct sockaddr*)&address,
                                 sizeof(address));
     if (0 < bytes_sent)
     {
-        rv = (size_t(bytes_sent) == output_message->get_len());
+        rv = (size_t(bytes_sent) == output_message.get_len());
     }
 
     return rv;
