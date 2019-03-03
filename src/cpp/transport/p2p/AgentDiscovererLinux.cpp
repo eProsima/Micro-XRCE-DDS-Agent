@@ -55,5 +55,49 @@ bool AgentDiscovererLinux::close()
     return (-1 == poll_fd_.fd) || ::close(poll_fd_.fd);
 }
 
+bool AgentDiscovererLinux::recv_message(
+        InputMessagePtr& input_message,
+        int timeout)
+{
+    bool rv = false;
+
+    struct sockaddr address;
+    socklen_t address_len = sizeof(address);
+    int poll_rv = poll(&poll_fd_, 1, timeout);
+    if (0 < poll_rv)
+    {
+        ssize_t bytes_received = recvfrom(poll_fd_.fd, buf_, sizeof(buf_), 0, &address, &address_len);
+        if (0 < bytes_received)
+        {
+            input_message.reset(new InputMessage(buf_, size_t(bytes_received)));
+            rv = true;
+        }
+    }
+
+    return rv;
+}
+
+bool AgentDiscovererLinux::send_message(const OutputMessagePtr& output_message)
+{
+    bool rv = false;
+
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr(DISCOVERY_IP);
+    address.sin_port = htons(DISCOVERY_PORT);
+    ssize_t bytes_sent = sendto(poll_fd_.fd,
+                                output_message->get_buf(),
+                                output_message->get_len(),
+                                0,
+                                (struct sockaddr*)&address,
+                                sizeof(address));
+    if (0 < bytes_sent)
+    {
+        rv = (size_t(bytes_sent) == output_message->get_len());
+    }
+
+    return rv;
+}
+
 } // namespace eprosima
 } // namespace uxr

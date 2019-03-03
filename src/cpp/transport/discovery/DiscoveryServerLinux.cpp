@@ -116,7 +116,7 @@ bool DiscoveryServerLinux::recv_message(
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (0 < bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
+            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
@@ -151,7 +151,7 @@ bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
                                 sizeof(client_addr));
     if (0 < bytes_sent)
     {
-        rv = (size_t(bytes_sent) != output_packet.message->get_len());
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 
     return rv;

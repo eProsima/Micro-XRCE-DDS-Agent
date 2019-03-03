@@ -40,7 +40,7 @@ public:
     UXR_AGENT_EXPORT bool load_config_file(const std::string& path);
 
 #ifdef PROFILE_DISCOVERY
-    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);
     UXR_AGENT_EXPORT bool disable_discovery();
 #endif
 

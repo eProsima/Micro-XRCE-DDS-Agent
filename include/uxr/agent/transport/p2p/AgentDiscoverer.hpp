@@ -15,6 +15,8 @@
 #ifndef UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_HPP_
 #define UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_HPP_
 
+#include <uxr/agent/message/Packet.hpp>
+
 #include <thread>
 #include <atomic>
 
@@ -41,6 +43,12 @@ private:
     virtual bool init(uint16_t p2p_port) = 0;
 
     virtual bool close() = 0;
+
+    virtual bool recv_message(
+            InputMessagePtr& input_message,
+            int timeout) = 0;
+
+    virtual bool send_message(const OutputMessagePtr& output_message) = 0;
 
     void loop();
 

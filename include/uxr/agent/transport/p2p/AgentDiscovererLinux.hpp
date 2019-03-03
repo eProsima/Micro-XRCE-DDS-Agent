@@ -34,8 +34,15 @@ private:
 
     bool close() final;
 
+    bool recv_message(
+            InputMessagePtr& input_message,
+            int timeout) final;
+
+    bool send_message(const OutputMessagePtr& output_message) final;
+
 private:
     struct pollfd poll_fd_;
+    uint8_t buf_[128];
 };
 
 } // namespace uxr
