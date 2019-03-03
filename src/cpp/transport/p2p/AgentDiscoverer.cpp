@@ -71,6 +71,7 @@ void AgentDiscoverer::loop()
             payload.getCdrSerializedSize();
 
     OutputMessage output_message{header, message_size};
+    output_message.append_submessage(dds::xrce::GET_INFO, payload);
     InputMessagePtr input_message;
 
     while (running_cond_)
@@ -86,9 +87,11 @@ void AgentDiscoverer::loop()
                 input_message->prepare_next_submessage();
                 input_message->get_payload(info_payload);
                 // TODO (julian): call InternalClientManager ...
+                std::cout << "Agent discovered at port: ";
+                std::cout << info_payload.object_info().activity().agent().address_seq()[0].medium_locator().port() << std::endl;
             }
         } while(message_received);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

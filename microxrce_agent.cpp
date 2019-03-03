@@ -40,7 +40,10 @@ void showHelp()
      */
     std::cout << "    --udp <local_port> ";
 #ifdef PROFILE_DISCOVERY
-    std::cout << "[--discovery [<discovery_port>] ]";
+    std::cout << "[--discovery [<discovery_port>] ] ";
+#endif
+#ifdef PROFILE_P2P
+    std::cout << "[--p2p <p2p_port> ]";
 #endif
     std::cout << std::endl;
 
@@ -49,7 +52,10 @@ void showHelp()
      */
     std::cout << "    --tcp <local_port> ";
 #ifdef PROFILE_DISCOVERY
-    std::cout << "[--discovery [<discovery_port>] ]";
+    std::cout << "[--discovery [<discovery_port>] ] ";
+#endif
+#ifdef PROFILE_P2P
+    std::cout << "[--p2p <p2p_port> ]";
 #endif
     std::cout << std::endl;
 
@@ -95,6 +101,7 @@ int main(int argc, char** argv)
 {
     std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
+    uint8_t cl_counter = 1;
 
     if (1 == argc)
     {
@@ -144,6 +151,7 @@ int main(int argc, char** argv)
             std::cerr << "--> ERROR: failed to start UDP Agent" << std::endl;
             return 1;
         }
+        cl_counter += 2;
 
 #ifdef PROFILE_DISCOVERY
         /*
@@ -211,6 +219,7 @@ int main(int argc, char** argv)
             std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
             return 1;
         }
+        cl_counter += 2;
 
 #ifdef PROFILE_DISCOVERY
         /*
