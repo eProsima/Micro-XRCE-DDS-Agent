@@ -53,6 +53,13 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
         return false;
     }
 
+    /* Set reuse port. */
+    int reuse = 1;
+    if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
+    {
+        return false;
+    }
+
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
@@ -116,11 +123,23 @@ bool DiscoveryServerLinux::recv_message(
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (0 < bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new UDPEndPoint(addr, port));
-            rv = true;
+            std::array<uint8_t, 4> remote_addr{
+                uint8_t(client_addr.sa_data[2]),
+                uint8_t(client_addr.sa_data[3]),
+                uint8_t(client_addr.sa_data[4]),
+                uint8_t(client_addr.sa_data[5])
+            };
+            uint16_t remote_port = ((struct sockaddr_in*)&client_addr)->sin_port;
+
+            if (remote_addr != transport_address_.medium_locator().address() ||
+                remote_port != htons(filter_port_))
+            {
+                input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
+                uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
+                uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+                input_packet.source.reset(new UDPEndPoint(addr, port));
+                rv = true;
+            }
         }
     }
     else

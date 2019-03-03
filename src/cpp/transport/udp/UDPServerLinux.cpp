@@ -90,11 +90,17 @@ bool UDPServer::close_discovery()
 #ifdef PROFILE_P2P
 bool UDPServer::init_p2p(uint16_t p2p_port)
 {
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(p2p_port);
+#endif
     return agent_discoverer_.run(p2p_port);
 }
 
 bool UDPServer::close_p2p()
 {
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(0);
+#endif
     return agent_discoverer_.stop();
 }
 #endif

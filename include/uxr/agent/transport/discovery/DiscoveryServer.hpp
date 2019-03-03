@@ -38,6 +38,8 @@ public:
 
     bool stop();
 
+    void set_filter_port(uint16_t filter_port) { filter_port_ = filter_port; }
+
 private:
     virtual bool init(uint16_t discovery_port) = 0;
 
@@ -58,6 +60,7 @@ private:
 
 protected:
     dds::xrce::TransportAddress transport_address_;
+    uint16_t filter_port_;
 };
 
 } // namespace uxr
