@@ -52,7 +52,9 @@ public:
         /** Indicates a failure in the operation due to an incompatibility between the Client and the Agent. */
         INCOMPATIBLE_ERROR      = 0x86,
         /** Indicates a failure in the operation due to a resource error on the Agent. */
-        RESOURCES_ERROR         = 0x87
+        RESOURCES_ERROR         = 0x87,
+        /** Indicates a failure in a write operation. */
+        WRITE_ERROR             = 0xF0
     };
 
     /**
@@ -347,6 +349,17 @@ public:
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
      */
     UXR_AGENT_EXPORT static void reset();
+
+    /**********************************************************************************************
+     * Write Data.
+     **********************************************************************************************/
+    UXR_AGENT_EXPORT static bool write(
+            uint32_t client_key,
+            uint16_t datawriter_id,
+            uint8_t* buf,
+            size_t len,
+            OpResult& op_result);
+
 };
 
 } // uxr

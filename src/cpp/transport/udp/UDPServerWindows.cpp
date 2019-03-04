@@ -23,7 +23,7 @@ UDPServer::UDPServer(uint16_t agent_port)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef PROFILE_DISCOVERY
-    , discovery_server_(*processor_, agent_port_)
+    , discovery_server_(*processor_)
 #endif
 {}
 
@@ -39,14 +39,35 @@ bool UDPServer::init()
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(agent_port_);
+        address.sin_port = htons(transport_address_.medium_locator().port());
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
             /* Poll setup. */
             poll_fd_.events = POLLIN;
-            rv = true;
+
+            /* Get local address. */
+            SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
+            struct sockaddr_in temp_addr;
+            temp_addr.sin_family = AF_INET;
+            temp_addr.sin_port = htons(80);
+            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
+            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
+            if (0 == connected)
+            {
+                struct sockaddr local_addr;
+                int local_addr_len = sizeof(local_addr);
+                if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
+                {
+                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+                                                                 uint8_t(local_addr.sa_data[3]),
+                                                                 uint8_t(local_addr.sa_data[4]),
+                                                                 uint8_t(local_addr.sa_data[5])});
+                    rv = true;
+                }
+                closesocket(fd);
+            }
         }
     }
 
@@ -64,7 +85,7 @@ bool UDPServer::close()
 #ifdef PROFILE_DISCOVERY
 bool UDPServer::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port);
+    return discovery_server_.run(discovery_port, transport_address_);
 }
 
 bool UDPServer::close_discovery()

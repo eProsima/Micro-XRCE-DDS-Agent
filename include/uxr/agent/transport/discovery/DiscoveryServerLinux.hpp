@@ -30,9 +30,7 @@ class Processor;
 class DiscoveryServerLinux : public DiscoveryServer
 {
 public:
-    DiscoveryServerLinux(
-            const Processor& processor,
-            uint16_t agent_port);
+    DiscoveryServerLinux(const Processor& processor);
 
     ~DiscoveryServerLinux() override = default;
 

@@ -14,6 +14,7 @@
 
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/Root.hpp>
+#include <uxr/agent/datawriter/DataWriter.hpp>
 
 
 namespace eprosima {
@@ -418,6 +419,41 @@ bool Agent::delete_object(
 bool Agent::load_config_file(const std::string& file_path)
 {
     return Root::instance().load_config_file(file_path);
+}
+
+/**********************************************************************************************************************
+ * Write Data.
+ **********************************************************************************************************************/
+bool Agent::write(
+        uint32_t client_key,
+        uint16_t datawriter_id,
+        uint8_t* buf,
+        size_t len,
+        OpResult& op_result)
+{
+    bool rv = false;
+    Root& root = Root::instance();
+
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    {
+         DataWriter* datawriter = dynamic_cast<DataWriter*>(client->get_object(XRCEObject::raw_to_objectid(datawriter_id)));
+         if (datawriter)
+         {
+             std::vector<uint8_t> data(buf, buf + len);
+             rv = datawriter->write(data);
+             op_result = rv ? OpResult::OK : OpResult::WRITE_ERROR;
+         }
+        else
+        {
+            op_result = OpResult::UNKNOWN_REFERENCE_ERROR;
+        }
+    }
+    else
+    {
+        op_result = OpResult::UNKNOWN_REFERENCE_ERROR;
+    }
+
+    return rv;
 }
 
 /**********************************************************************************************************************

@@ -25,6 +25,7 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <set>
 
 namespace eprosima {
 namespace uxr {
@@ -34,10 +35,25 @@ class CedGlobalTopic;
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
+typedef const std::function<void (int16_t)> OnNewDomain;
+typedef const std::function<void (int16_t, const std::string&)> OnNewTopic;
+
 class CedTopicManager
 {
     friend class CedGlobalTopic;
 public:
+    static void register_on_new_domain_cb(
+            uint32_t key,
+            OnNewDomain on_new_domain_cb);
+
+    static void unregister_on_new_domain_cb(uint32_t key);
+
+    static void register_on_new_topic_cb(
+            uint32_t key,
+            OnNewTopic on_new_topic_cb);
+
+    static void unregister_on_new_topic_cb(uint32_t key);
+
     static bool register_topic(
         const std::string& topic_name,
         int16_t domain_id,
@@ -52,6 +68,8 @@ private:
         int16_t domain_id);
 
 private:
+    static std::unordered_map<uint32_t, OnNewDomain> on_new_domain_map_;
+    static std::unordered_map<uint32_t, OnNewTopic> on_new_topic_map_;
     static std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> topics_;
     static std::mutex mtx_;
 };

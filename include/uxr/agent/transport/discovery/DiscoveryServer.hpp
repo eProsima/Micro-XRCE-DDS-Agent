@@ -28,13 +28,13 @@ class Processor;
 class DiscoveryServer
 {
 public:
-    DiscoveryServer(
-            const Processor& processor,
-            uint16_t agent_port);
+    DiscoveryServer(const Processor& processor);
 
     virtual ~DiscoveryServer() = default;
 
-    bool run(uint16_t discovery_port);
+    bool run(
+            uint16_t discovery_port,
+            const dds::xrce::TransportAddress& transport_address_);
 
     bool stop();
 

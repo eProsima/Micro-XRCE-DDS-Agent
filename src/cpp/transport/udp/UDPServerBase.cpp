@@ -18,10 +18,14 @@ namespace eprosima {
 namespace uxr {
 
 UDPServerBase::UDPServerBase(uint16_t agent_port)
-    : agent_port_(agent_port)
+    : transport_address_{}
     , source_to_client_map_{}
     , client_to_source_map_{}
-{}
+{
+    dds::xrce::TransportAddressMedium medium_locator;
+    medium_locator.port(agent_port);
+    transport_address_.medium_locator(medium_locator);
+}
 
 void UDPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
 {

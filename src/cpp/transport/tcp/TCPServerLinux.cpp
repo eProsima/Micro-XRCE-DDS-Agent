@@ -39,7 +39,7 @@ TCPServer::TCPServer(uint16_t agent_port)
     , running_cond_(false)
     , messages_queue_{}
 #ifdef PROFILE_DISCOVERY
-    , discovery_server_{*processor_, agent_port_}
+    , discovery_server_{*processor_}
 #endif
 #ifdef PROFILE_P2P
     , agent_discoverer_{}
@@ -61,7 +61,7 @@ bool TCPServer::init()
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(agent_port_);
+        address.sin_port = htons(transport_address_.medium_locator().port());
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(listener_poll_.fd, (struct sockaddr*)&address, sizeof(address)))
@@ -86,7 +86,28 @@ bool TCPServer::init()
             {
                 running_cond_ = true;
                 listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
-                rv = true;
+
+                /* Get local address. */
+                int fd = socket(PF_INET, SOCK_DGRAM, 0);
+                struct sockaddr_in temp_addr;
+                temp_addr.sin_family = AF_INET;
+                temp_addr.sin_port = htons(80);
+                temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
+                int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
+                if (0 == connected)
+                {
+                    struct sockaddr local_addr;
+                    socklen_t local_addr_len = sizeof(local_addr);
+                    if (-1 != getsockname(fd, &local_addr, &local_addr_len))
+                    {
+                        transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+                                                                     uint8_t(local_addr.sa_data[3]),
+                                                                     uint8_t(local_addr.sa_data[4]),
+                                                                     uint8_t(local_addr.sa_data[5])});
+                        rv = true;
+                    }
+                    ::close(fd);
+                }
             }
         }
     }
@@ -132,7 +153,7 @@ bool TCPServer::close()
 #ifdef PROFILE_DISCOVERY
 bool TCPServer::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port);
+    return discovery_server_.run(discovery_port, transport_address_);
 }
 
 bool TCPServer::close_discovery()
@@ -144,11 +165,17 @@ bool TCPServer::close_discovery()
 #ifdef PROFILE_P2P
 bool TCPServer::init_p2p(uint16_t p2p_port)
 {
-    return agent_discoverer_.run(p2p_port);
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(p2p_port);
+#endif
+    return agent_discoverer_.run(p2p_port, transport_address_);
 }
 
 bool TCPServer::close_p2p()
 {
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(0);
+#endif
     return agent_discoverer_.stop();
 }
 #endif
@@ -302,6 +329,7 @@ bool TCPServer::close_connection(TCPConnection& connection)
             conn_lock.unlock();
 
             uint64_t source_id = (uint64_t(connection.addr) << 16) | connection.port;
+
             /* Clear connections map and lists. */
             lock.lock();
             source_to_connection_map_.erase(source_id);

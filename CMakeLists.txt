@@ -168,8 +168,8 @@ set(SRCS
 #    src/cpp/p2p_agent/InternalClientManager.cpp
 #    src/cpp/p2p_agent/P2PAgentCommunication.cpp
 #    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/AgentDiscoverer.cpp>
-#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
-#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
 # Executable

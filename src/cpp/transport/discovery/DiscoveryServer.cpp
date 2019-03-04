@@ -23,24 +23,24 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServer::DiscoveryServer(
-        const Processor& processor,
-        uint16_t agent_port)
+DiscoveryServer::DiscoveryServer(const Processor& processor)
     : running_cond_(false)
     , processor_(processor)
     , transport_address_{}
 {
-    dds::xrce::TransportAddressMedium transport_addr;
-    transport_addr.port(agent_port);
-    transport_address_.medium_locator(transport_addr);
 }
 
-bool DiscoveryServer::run(uint16_t discovery_port)
+bool DiscoveryServer::run(
+        uint16_t discovery_port,
+        const dds::xrce::TransportAddress& local_address)
 {
     if (running_cond_ || !init(discovery_port))
     {
         return false;
     }
+
+    /* Set transport address. */
+    transport_address_ = local_address;
 
     /* Init thread. */
     running_cond_ = true;

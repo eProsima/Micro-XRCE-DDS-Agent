@@ -26,10 +26,8 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerLinux::DiscoveryServerLinux(
-        const Processor& processor,
-        uint16_t agent_port)
-    : DiscoveryServer(processor, agent_port)
+DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor)
+    : DiscoveryServer(processor)
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
 {
@@ -42,13 +40,6 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     /* Socket initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
     if (-1 == poll_fd_.fd)
-    {
-        return false;
-    }
-
-    /* Set reuse port. */
-    int reuse = 1;
-    if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
         return false;
     }
@@ -77,27 +68,7 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
-            /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
-            struct sockaddr_in temp_addr;
-            temp_addr.sin_family = AF_INET;
-            temp_addr.sin_port = htons(80);
-            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-            if (0 == connected)
-            {
-                struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-                {
-                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                 uint8_t(local_addr.sa_data[3]),
-                                                                 uint8_t(local_addr.sa_data[4]),
-                                                                 uint8_t(local_addr.sa_data[5])});
-                    rv = true;
-                }
-                ::close(fd);
-            }
+            rv = true;
         }
     }
 

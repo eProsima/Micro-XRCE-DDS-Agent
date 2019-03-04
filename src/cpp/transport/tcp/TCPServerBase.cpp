@@ -18,12 +18,16 @@ namespace eprosima {
 namespace uxr {
 
 TCPServerBase::TCPServerBase(uint16_t agent_port)
-    : agent_port_(agent_port)
+    : transport_address_{}
     , source_to_connection_map_{}
     , source_to_client_map_{}
     , client_to_source_map_{}
     , clients_mtx_()
-{}
+{
+    dds::xrce::TransportAddressMedium medium_locator;
+    medium_locator.port(agent_port);
+    transport_address_.medium_locator().port() = agent_port;
+}
 
 void TCPServerBase::on_create_client(
         EndPoint* source,

@@ -33,8 +33,8 @@ ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
       objects_(),
       session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
 {
-    middleware_.reset(new FastMiddleware());
-//    middleware_.reset(new CedMiddleware());
+//    middleware_.reset(new FastMiddleware());
+    middleware_.reset(new CedMiddleware());
 }
 
 dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,

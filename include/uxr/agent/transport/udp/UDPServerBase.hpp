@@ -35,7 +35,7 @@ public:
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 protected:
-    uint16_t agent_port_;
+    dds::xrce::TransportAddress transport_address_;
 
 private:
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;

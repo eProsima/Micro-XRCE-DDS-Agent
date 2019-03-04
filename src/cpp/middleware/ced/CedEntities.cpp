@@ -1,5 +1,3 @@
-#include <memory>
-
 // Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +14,7 @@
 
 #include <uxr/agent/middleware/ced/CedEntities.hpp>
 #include <chrono>
+#include <memory>
 
 namespace eprosima {
 namespace uxr {
@@ -23,25 +22,80 @@ namespace uxr {
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
+std::unordered_map<uint32_t, OnNewDomain> CedTopicManager::on_new_domain_map_;
+std::unordered_map<uint32_t, OnNewTopic> CedTopicManager::on_new_topic_map_;
 std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> CedTopicManager::topics_;
 std::mutex CedTopicManager::mtx_;
+
+void CedTopicManager::register_on_new_domain_cb(
+        uint32_t key,
+        OnNewDomain on_new_domain_cb)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    for (auto& topic : topics_)
+    {
+        on_new_domain_cb(topic.first);
+    }
+    on_new_domain_map_.emplace(key, on_new_domain_cb);
+}
+
+void CedTopicManager::unregister_on_new_domain_cb(uint32_t key)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    on_new_domain_map_.erase(key);
+}
+
+void CedTopicManager::register_on_new_topic_cb(
+        uint32_t key,
+        OnNewTopic on_new_topic_cb)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    for (auto& topic : topics_)
+    {
+        for (auto& t : topic.second)
+        {
+            on_new_topic_cb(topic.first, t.first);
+        }
+    }
+    on_new_topic_map_.emplace(key, on_new_topic_cb);
+}
+
+void CedTopicManager::unregister_on_new_topic_cb(uint32_t key)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    on_new_topic_map_.erase(key);
+}
 
 bool CedTopicManager::register_topic(
         const std::string& topic_name,
         int16_t domain_id,
         std::shared_ptr<CedGlobalTopic>& topic)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
-    auto it = topics_[domain_id].find(topic_name);
-    if (topics_[domain_id].end() == it)
+    std::unique_lock<std::mutex> lock(mtx_);
+    auto it_domain = topics_.find(domain_id);
+    if (topics_.end() == it_domain)
     {
-        topic = std::make_shared<CedGlobalTopic>(topic_name, domain_id);
-        topics_[domain_id].emplace(topic_name, topic);
+        /* Call to callbacks. */
+        for (auto& cb_domain : on_new_domain_map_)
+        {
+            cb_domain.second(domain_id);
+        }
+
+        auto it_topic = topics_[domain_id].find(topic_name);
+        if (topics_[domain_id].end() == it_topic)
+        {
+            /* Call to callbacks. */
+            for (auto& cb_topic : on_new_topic_map_)
+            {
+                cb_topic.second(domain_id, topic_name);
+            }
+            topic = std::make_shared<CedGlobalTopic>(topic_name, domain_id);
+            topics_[domain_id].emplace(topic_name, topic);
+        }
     }
-    else
-    {
-        topic = topics_[domain_id][topic_name].lock();
-    }
+
+    topic = topics_[domain_id][topic_name].lock();
+
     return true;
 }
 

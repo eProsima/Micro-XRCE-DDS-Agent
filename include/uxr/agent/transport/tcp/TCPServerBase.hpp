@@ -61,7 +61,7 @@ protected:
     uint16_t read_data(TCPConnection& connection);
 
 protected:
-    uint16_t agent_port_;
+    dds::xrce::TransportAddress transport_address_;
     std::unordered_map<uint64_t, uint32_t> source_to_connection_map_;
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
     std::unordered_map<uint32_t, uint64_t> client_to_source_map_;

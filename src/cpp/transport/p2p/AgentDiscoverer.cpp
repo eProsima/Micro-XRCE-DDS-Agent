@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/p2p/AgentDiscoverer.hpp>
+#include <uxr/agent/p2p/InternalClientManager.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -22,18 +23,30 @@ AgentDiscoverer::AgentDiscoverer()
 {
 }
 
-bool AgentDiscoverer::run(uint16_t discovery_port)
+bool AgentDiscoverer::run(
+        uint16_t p2p_port,
+        const dds::xrce::TransportAddress& local_address)
 {
-    if (running_cond_ || !init(discovery_port))
+    if (running_cond_ || !init(p2p_port))
     {
         return false;
     }
 
-    /* Init thread. */
-    running_cond_ = true;
-    thread_ = std::thread(&AgentDiscoverer::loop, this);
+    bool rv = false;
 
-    return true;
+    /* Set local address in InternalClientManager. */
+    InternalClientManager& manager = InternalClientManager::instance();
+    if (dds::xrce::ADDRESS_FORMAT_MEDIUM == local_address._d())
+    {
+        manager.set_local_address(local_address.medium_locator().address(), local_address.medium_locator().port());
+
+        /* Init thread. */
+        running_cond_ = true;
+        thread_ = std::thread(&AgentDiscoverer::loop, this);
+        rv = true;
+    }
+
+    return rv;
 }
 
 bool AgentDiscoverer::stop()
@@ -45,6 +58,14 @@ bool AgentDiscoverer::stop()
         thread_.join();
     }
     return close();
+}
+
+void AgentDiscoverer::set_local_address(
+        const std::array<uint8_t, 4>& ip,
+        uint16_t port)
+{
+    InternalClientManager& manager = InternalClientManager::instance();
+    manager.set_local_address(ip, port);
 }
 
 void AgentDiscoverer::loop()
@@ -86,9 +107,10 @@ void AgentDiscoverer::loop()
                 dds::xrce::INFO_Payload info_payload;
                 input_message->prepare_next_submessage();
                 input_message->get_payload(info_payload);
-                // TODO (julian): call InternalClientManager ...
-                std::cout << "Agent discovered at port: ";
-                std::cout << info_payload.object_info().activity().agent().address_seq()[0].medium_locator().port() << std::endl;
+                dds::xrce::TransportAddressMedium address =
+                        info_payload.object_info().activity().agent().address_seq()[0].medium_locator();
+                InternalClientManager& manager = InternalClientManager::instance();
+                manager.create_client(address.address(), address.port());
             }
         } while(message_received);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

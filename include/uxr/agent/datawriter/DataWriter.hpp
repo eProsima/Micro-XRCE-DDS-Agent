@@ -46,6 +46,7 @@ public:
     Middleware& get_middleware() const override;
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
+    bool write(std::vector<uint8_t>& data);
 
 private:
     DataWriter(const dds::xrce::ObjectId& object_id,
