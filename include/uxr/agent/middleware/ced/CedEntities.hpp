@@ -30,11 +30,38 @@
 namespace eprosima {
 namespace uxr {
 
-class CedGlobalTopic;
+const uint32_t INTERNAL_CLIENT_KEY = 0xEAEAEAEA;
+const uint8_t EXTERNAL_CLIENT_KEY_PREFIX = 0xEA;
+
+/**********************************************************************************************************************
+ * CedController
+ **********************************************************************************************************************/
+enum TopicSource : uint8_t
+{
+    INTERNAL_TOPIC_SOURCE = 0,
+    EXTERNAL_TOPIC_SOURCE = 1
+};
+
+enum WriteAccess : uint8_t
+{
+    NULL_WRITE_ACESS = 0,
+    INTERNAL_WRITE_ACCESS = 1,
+    EXTERNAL_WRITE_ACCESS = 2,
+    COMPLETE_WRITE_ACCESS = 3
+};
+
+enum ReadAccess : uint8_t
+{
+    NULL_READ_ACESS = 0,
+    INTERNAL_READ_ACCESS = 1,
+    EXTERNAL_READ_ACCESS = 2,
+    COMPLETE_READ_ACCESS = 3
+};
 
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
+class CedGlobalTopic;
 typedef const std::function<void (int16_t)> OnNewDomain;
 typedef const std::function<void (int16_t, const std::string&)> OnNewTopic;
 
@@ -93,15 +120,29 @@ public:
 private:
     bool write(
         const std::vector<uint8_t>& data,
-        uint8_t& errcode
-    );
+        WriteAccess write_access,
+        TopicSource topic_src,
+        uint8_t& errcode);
 
     bool read(
     std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout,
         SeqNum& last_read,
-        uint8_t& errcode
-    );
+        ReadAccess read_access,
+        uint8_t& errcode);
+
+    bool check_write_access(
+            WriteAccess write_access,
+            TopicSource topic_src);
+
+    bool check_read_access(
+            ReadAccess read_access,
+            size_t index);
+
+    bool get_data(
+            std::vector<uint8_t>& data,
+            SeqNum& last_read,
+            ReadAccess read_access);
 
 private:
     const std::string name_;
@@ -110,6 +151,7 @@ private:
     std::mutex mtx_;
     std::condition_variable cv_;
     std::array<std::vector<uint8_t>, 16> history_; // TODO (review history size)
+    std::array<TopicSource, 16> srcs_; // TODO (review history size)
 };
 
 /**********************************************************************************************************************
@@ -208,9 +250,13 @@ class CedDataWriter
 public:
     CedDataWriter(
             const std::shared_ptr<CedPublisher>& publisher,
-            const std::shared_ptr<CedTopic>& topic)
+            const std::shared_ptr<CedTopic>& topic,
+            const WriteAccess write_access,
+            const TopicSource topic_src)
         : publisher_(publisher)
         , topic_(topic)
+        , write_access_(write_access)
+        , topic_src_(topic_src)
     {}
     ~CedDataWriter() = default;
 
@@ -223,6 +269,8 @@ public:
 private:
     const std::shared_ptr<CedPublisher> publisher_;
     const std::shared_ptr<CedTopic> topic_;
+    const WriteAccess write_access_;
+    const TopicSource topic_src_;
 };
 
 /**********************************************************************************************************************
@@ -233,10 +281,12 @@ class CedDataReader
 public:
     CedDataReader(
             const std::shared_ptr<CedSubscriber> subscriber,
-            const std::shared_ptr<CedTopic> topic)
+            const std::shared_ptr<CedTopic> topic,
+            const ReadAccess read_access)
         : subscriber_(subscriber)
         , topic_(topic)
         , last_read_(UINT16_MAX)
+        , read_access_(read_access)
     {}
     ~CedDataReader() = default;
 
@@ -251,6 +301,7 @@ private:
     const std::shared_ptr<CedSubscriber> subscriber_;
     const std::shared_ptr<CedTopic> topic_;
     SeqNum last_read_;
+    const ReadAccess read_access_;
 };
 
 } // namespace uxr

@@ -30,27 +30,22 @@ void InternalClientManager::set_local_address(
         const std::array<uint8_t, 4>& ip,
         uint16_t port)
 {
-    internal_client_key_ = port + (uint32_t(ip[3]) << 16) + (uint32_t(0xEA) << 24);
+    local_client_key_ = port + (uint32_t(ip[3]) << 16) + (uint32_t(0xEA) << 24);
 }
 
 void InternalClientManager::create_client(
         const std::array<uint8_t, 4>& ip,
         uint16_t port)
 {
-    uint64_t key =
-            (uint64_t(ip[0]) << 40) +
-            (uint64_t(ip[1]) << 32) +
-            (uint64_t(ip[2]) << 24) +
-            (uint64_t(ip[3]) << 16) +
-            port;
+    uint32_t remote_client_key = port + (uint32_t(ip[3]) << 16) + (uint32_t(0xEA) << 24);
     std::lock_guard<std::mutex> lock(mtx_);
-    auto it = clients_.find(key);
+    auto it = clients_.find(remote_client_key);
     if (clients_.end() == it)
     {
-        std::unique_ptr<InternalClient> client(new InternalClient(ip, port, internal_client_key_));
+        std::unique_ptr<InternalClient> client(new InternalClient(ip, port, remote_client_key, local_client_key_));
         if (client->run())
         {
-            clients_.emplace(key, std::move(client));
+            clients_.emplace(remote_client_key, std::move(client));
         }
     }
 }

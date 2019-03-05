@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/ced/CedEntities.hpp>
+
 #include <chrono>
 #include <memory>
 
@@ -71,7 +72,7 @@ bool CedTopicManager::register_topic(
         int16_t domain_id,
         std::shared_ptr<CedGlobalTopic>& topic)
 {
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it_domain = topics_.find(domain_id);
     if (topics_.end() == it_domain)
     {
@@ -149,48 +150,57 @@ const std::string& CedGlobalTopic::name() const
 
 bool CedGlobalTopic::write(
         const std::vector<uint8_t>& data,
+        WriteAccess write_access,
+        TopicSource topic_src,
         uint8_t& errcode)
 {
-    std::unique_lock<std::mutex> lock(mtx_);
-    size_t index = uint16_t(last_write_ + 1) % history_.size();
-    history_.at(index) = data;
-    ++last_write_;
-    lock.unlock();
-    cv_.notify_all();
-    errcode = 0;
-    return true;
+    bool rv = false;
+    if (check_write_access(write_access, topic_src))
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        size_t index = uint16_t(last_write_ + 1) % history_.size();
+        history_[index] = data;
+        srcs_[index] = topic_src;
+        ++last_write_;
+        lock.unlock();
+        cv_.notify_all();
+        errcode = 0;
+        rv = true;
+    }
+    return rv;
 }
 
 bool CedGlobalTopic::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout,
         SeqNum& last_read,
+        ReadAccess read_access,
         uint8_t& errcode)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
     if (last_read != last_write_)
     {
+        /* Fix last_read. */
         if ((last_read <= (last_write_ - int(history_.size()))) || (last_read > last_write_))
         {
-            last_read = last_write_ - int(history_.size()) + 1;
+            last_read = last_write_ - int(history_.size());
         }
-        else
+
+        /* Try to read data without timeout. */
+        do
         {
-            ++last_read;
-        }
-        size_t index = uint16_t(last_read) % history_.size();
-        data.assign(history_.at(index).begin(), history_.at(index).end());
-        rv = true;
+            get_data(data, last_read, read_access);
+        } while(!rv && (last_read != last_write_));
     }
-    else
+
+    if (!rv && (last_read == last_write_))
     {
+        /* Try to read data with timeout in case. */
         auto now = std::chrono::steady_clock::now();
-        if (cv_.wait_until(lock, now + timeout, [&](){ return last_read != last_write_; }))
+        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){
+                           return last_read != last_write_ && get_data(data, last_read, read_access); }))
         {
-            ++last_read;
-            size_t index = uint16_t(last_read) % history_.size();
-            data.assign(history_.at(index).begin(), history_.at(index).end());
             rv = true;
         }
         else
@@ -199,6 +209,39 @@ bool CedGlobalTopic::read(
         }
     }
 
+    return rv;
+}
+
+bool CedGlobalTopic::check_write_access(
+        WriteAccess write_access,
+        TopicSource topic_src)
+{
+    return (COMPLETE_WRITE_ACCESS == write_access) ||
+           ((INTERNAL_WRITE_ACCESS == write_access) && (INTERNAL_TOPIC_SOURCE == topic_src)) ||
+           ((EXTERNAL_WRITE_ACCESS == write_access) && (EXTERNAL_TOPIC_SOURCE == topic_src));
+}
+
+bool CedGlobalTopic::check_read_access(
+        ReadAccess read_access,
+        size_t index)
+{
+    return (COMPLETE_READ_ACCESS == read_access) ||
+           ((INTERNAL_READ_ACCESS == read_access) && (INTERNAL_TOPIC_SOURCE == srcs_[index])) ||
+           ((EXTERNAL_READ_ACCESS == read_access) && (EXTERNAL_TOPIC_SOURCE == srcs_[index]));
+}
+
+bool CedGlobalTopic::get_data(
+        std::vector<uint8_t>& data,
+        SeqNum& last_read,
+        ReadAccess read_access)
+{
+    bool rv = false;
+    size_t index = uint16_t(++last_read) % history_.size();
+    if (check_read_access(read_access, index))
+    {
+        data.assign(history_[index].data(), history_[index].data() + history_[index].size());
+        rv = true;
+    }
     return rv;
 }
 
@@ -270,7 +313,7 @@ bool CedDataWriter::write(
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const
 {
-    return topic_->global_topic()->write(data, errcode);
+    return topic_->global_topic()->write(data, write_access_, topic_src_, errcode);
 }
 
 /**********************************************************************************************************************
@@ -281,7 +324,7 @@ bool CedDataReader::read(
         std::chrono::milliseconds timeout,
         uint8_t &errcode)
 {
-    return topic_->global_topic()->read(data, timeout, last_read_, errcode);
+    return topic_->global_topic()->read(data, timeout, last_read_, read_access_, errcode);
 }
 
 } // namespace uxr

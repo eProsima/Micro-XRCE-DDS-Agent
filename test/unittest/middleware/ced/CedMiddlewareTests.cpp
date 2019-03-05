@@ -23,7 +23,10 @@ namespace testing {
 class CedMiddlewareUnitTests : public ::testing::Test
 {
 public:
-    CedMiddlewareUnitTests() = default;
+    CedMiddlewareUnitTests()
+        : middleware_(0xAABBCCDD)
+    {}
+
     ~CedMiddlewareUnitTests() = default;
 
 protected:

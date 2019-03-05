@@ -50,8 +50,8 @@ private:
 
 private:
     std::mutex mtx_;
-    uint32_t internal_client_key_;
-    std::map<uint64_t, std::unique_ptr<InternalClient>> clients_;
+    uint32_t local_client_key_;
+    std::map<uint32_t, std::unique_ptr<InternalClient>> clients_;
 };
 
 } // namespace uxr

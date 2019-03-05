@@ -33,7 +33,8 @@ public:
     InternalClient(
             const std::array<uint8_t, 4>& ip,
             uint16_t port,
-            uint32_t client_key);
+            uint32_t remote_client_key,
+            uint32_t local_client_key);
 
     ~InternalClient() = default;
 
@@ -70,7 +71,8 @@ private:
     uxrUDPPlatform platform_;
 
     /* Client. */
-    uint32_t client_key_;
+    uint32_t remote_client_key_;
+    uint32_t local_client_key_;
     uxrSession session_;
     uint8_t out_buffer_[UXR_CONFIG_UDP_TRANSPORT_MTU * internal_client_history];
     uint8_t in_buffer_[UXR_CONFIG_UDP_TRANSPORT_MTU * internal_client_history];

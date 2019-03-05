@@ -23,12 +23,11 @@
 namespace eprosima {
 namespace uxr {
 
-const uint32_t agent_key = 0xEAEAEAEA;
-
 InternalClient::InternalClient(
         const std::array<uint8_t, 4>& ip,
         uint16_t port,
-        uint32_t client_key)
+        uint32_t remote_client_key,
+        uint32_t local_client_key)
     : ip_{ip}
     , port_{port}
     , domains_{}
@@ -36,7 +35,8 @@ InternalClient::InternalClient(
     , topic_counter_{0}
     , transport_{}
     , platform_{}
-    , client_key_{client_key}
+    , remote_client_key_{remote_client_key}
+    , local_client_key_{local_client_key}
     , session_{}
     , out_buffer_{0}
     , in_buffer_{0}
@@ -45,21 +45,31 @@ InternalClient::InternalClient(
     , running_cond_{false}
     , thread_{}
 {
-    std::cout << "--> OK: created InternalClient at address: ";
+    std::cout << "--> OK: created InternalClient at address ";
     std::cout << int(ip[0]) << ".";
     std::cout << int(ip[1]) << ".";
     std::cout << int(ip[2]) << ".";
-    std::cout << int(ip[3]);
-    std::cout << " and port: " << port << std::endl;
+    std::cout << int(ip[3]) << ":";
+    std::cout << port << std::endl;
 }
 
-static void on_topic(uxrSession* session, uxrObjectId object_id, uint16_t request_id, uxrStreamId stream_id, struct ucdrBuffer* ub, void* args)
+static void on_topic(
+        uxrSession* session,
+        uxrObjectId object_id,
+        uint16_t request_id,
+        uxrStreamId stream_id,
+        struct ucdrBuffer* ub,
+        void* args)
 {
     (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub; (void) args;
 
     Agent::ErrorCode errcode;
-    Agent::write(agent_key, Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK), ub->iterator, ucdr_buffer_remaining(ub), errcode);
-    std::cout << "Topic received" << std::endl;
+    Agent::write(
+                INTERNAL_CLIENT_KEY,
+                Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK),
+                ub->iterator,
+                ucdr_buffer_remaining(ub),
+                errcode);
 }
 
 bool InternalClient::run()
@@ -68,11 +78,11 @@ bool InternalClient::run()
 
     /* Set callbacks. */
     CedTopicManager::register_on_new_domain_cb(
-                client_key_,
+                remote_client_key_,
                 std::bind(&InternalClient::on_new_domain, this, std::placeholders::_1));
 
     CedTopicManager::register_on_new_topic_cb(
-                client_key_,
+                remote_client_key_,
                 std::bind(&InternalClient::on_new_topic, this, std::placeholders::_1, std::placeholders::_2));
 
     /* Compute IP. */
@@ -83,13 +93,13 @@ bool InternalClient::run()
 
     /* Create ProxyClient. */
     Agent::ErrorCode errcode;
-    if (Agent::create_client(agent_key, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, errcode))
+    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, errcode))
     {
         /* Transport. */
         if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))
         {
             /* Session. */
-            uxr_init_session(&session_, &transport_.comm, client_key_);
+            uxr_init_session(&session_, &transport_.comm, local_client_key_);
             if (uxr_create_session(&session_))
             {
                 /* Set callback. */
@@ -150,22 +160,47 @@ void InternalClient::create_domain_entities()
             bool entities_created = false;
 
             /* Create local entities. */
-            uint16_t agent_par_id = Agent::get_object_id(uint16_t(*it), Agent::PARTICIPANT_OBJK);
-            uint16_t agent_pub_id = Agent::get_object_id(uint16_t(*it), Agent::PUBLISHER_OBJK);
+            uint16_t internal_participant_id = Agent::get_object_id(uint16_t(*it), Agent::PARTICIPANT_OBJK);
+            uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(*it), Agent::PUBLISHER_OBJK);
             const char* ref = "";
             Agent::ErrorCode errcode;
-            if (Agent::create_participant_by_ref(agent_key, agent_par_id, *it, ref, Agent::REUSE_MODE, errcode) &&
-                Agent::create_publisher_by_xml(agent_key, agent_pub_id, agent_par_id, ref, Agent::REUSE_MODE, errcode))
+            if (Agent::create_participant_by_ref(
+                        INTERNAL_CLIENT_KEY,
+                        internal_participant_id,
+                        *it,
+                        ref,
+                        Agent::REUSE_MODE,
+                        errcode)
+                    &&
+                Agent::create_publisher_by_xml(
+                        INTERNAL_CLIENT_KEY,
+                        internal_publisher_id,
+                        internal_participant_id,
+                        ref,
+                        Agent::REUSE_MODE,
+                        errcode))
             {
                 /* Create remote entities. */
-                uxrObjectId par_id = uxr_object_id(uint16_t(*it), UXR_PARTICIPANT_ID);
-                uxrObjectId sub_id = uxr_object_id(uint16_t(*it), UXR_SUBSCRIBER_ID);
+                uxrObjectId external_participant_id = uxr_object_id(uint16_t(*it), UXR_PARTICIPANT_ID);
+                uxrObjectId external_subscriber_id = uxr_object_id(uint16_t(*it), UXR_SUBSCRIBER_ID);
 
-                uint16_t par_req = uxr_buffer_create_participant_ref(&session_, out_stream_id_, par_id, 0, ref, UXR_REUSE);
-                uint16_t sub_req = uxr_buffer_create_subscriber_xml(&session_, out_stream_id_, sub_id, par_id, ref, UXR_REUSE);
+                uint16_t participant_request = uxr_buffer_create_participant_ref(
+                            &session_,
+                            out_stream_id_,
+                            external_participant_id,
+                            0,
+                            ref,
+                            UXR_REUSE);
+                uint16_t subscriber_request = uxr_buffer_create_subscriber_xml(
+                            &session_,
+                            out_stream_id_,
+                            external_subscriber_id,
+                            external_participant_id,
+                            ref,
+                            UXR_REUSE);
 
                 uint8_t status[2];
-                uint16_t request[2] = {par_req, sub_req};
+                uint16_t request[2] = {participant_request, subscriber_request};
 
                 if (uxr_run_session_until_all_status(&session_, 1000, request, status, sizeof(status)))
                 {
@@ -194,6 +229,7 @@ void InternalClient::create_domain_entities()
         {
             domains_.erase(d);
         }
+        lock.unlock();
     }
 }
 
@@ -211,31 +247,60 @@ void InternalClient::create_topic_entities()
 
             /* Create local entities. */
             Agent::ErrorCode errcode;
-            uint16_t agent_par_id = Agent::get_object_id(uint16_t(it->first), Agent::PARTICIPANT_OBJK);
-            uint16_t agent_top_id = Agent::get_object_id(topic_counter_, Agent::TOPIC_OBJK);
-            uint16_t agent_pub_id = Agent::get_object_id(uint16_t(it->first), Agent::PUBLISHER_OBJK);
-            uint16_t agent_dwt_id = Agent::get_object_id(topic_counter_, Agent::DATAWRITER_OBJK);
-            if (Agent::create_topic_by_ref(agent_key, agent_top_id, agent_par_id, it->second.c_str(), Agent::REUSE_MODE, errcode) &&
-                Agent::create_datawriter_by_ref(agent_key, agent_dwt_id, agent_pub_id, it->second.c_str(), Agent::REUSE_MODE, errcode))
+            uint16_t internal_paraticipant_id = Agent::get_object_id(uint16_t(it->first), Agent::PARTICIPANT_OBJK);
+            uint16_t internal_topic_id = Agent::get_object_id(topic_counter_, Agent::TOPIC_OBJK);
+            uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(it->first), Agent::PUBLISHER_OBJK);
+            uint16_t internal_datawriter_id = Agent::get_object_id(topic_counter_, Agent::DATAWRITER_OBJK);
+            if (Agent::create_topic_by_ref(
+                        INTERNAL_CLIENT_KEY,
+                        internal_topic_id,
+                        internal_paraticipant_id,
+                        it->second.c_str(),
+                        Agent::REUSE_MODE,
+                        errcode)
+                    &&
+                Agent::create_datawriter_by_ref(
+                        INTERNAL_CLIENT_KEY,
+                        internal_datawriter_id,
+                        internal_publisher_id,
+                        it->second.c_str(),
+                        Agent::REUSE_MODE,
+                        errcode))
             {
-                uxrObjectId par_id = uxr_object_id(uint16_t(it->first), UXR_PARTICIPANT_ID);
-                uxrObjectId top_id = uxr_object_id(uint16_t(topic_counter_), UXR_TOPIC_ID);
-
-                uxrObjectId sub_id = uxr_object_id(uint16_t(it->first), UXR_SUBSCRIBER_ID);
-                uxrObjectId drd_id = uxr_object_id(uint16_t(topic_counter_), UXR_DATAREADER_ID);
+                uxrObjectId external_participant_id = uxr_object_id(uint16_t(it->first), UXR_PARTICIPANT_ID);
+                uxrObjectId external_topic_id = uxr_object_id(uint16_t(topic_counter_), UXR_TOPIC_ID);
+                uxrObjectId external_subscriber_id = uxr_object_id(uint16_t(it->first), UXR_SUBSCRIBER_ID);
+                uxrObjectId external_datareader_id = uxr_object_id(uint16_t(topic_counter_), UXR_DATAREADER_ID);
 
                 const char* ref = it->second.c_str();
 
-                uint16_t top_req = uxr_buffer_create_topic_ref(&session_, out_stream_id_, top_id, par_id, ref, UXR_REUSE);
-                uint16_t drd_req = uxr_buffer_create_datareader_ref(&session_, out_stream_id_, drd_id, sub_id, ref, UXR_REUSE);
+                uint16_t topic_request = uxr_buffer_create_topic_ref(
+                            &session_,
+                            out_stream_id_,
+                            external_topic_id,
+                            external_participant_id,
+                            ref,
+                            UXR_REUSE);
+                uint16_t datareader_request = uxr_buffer_create_datareader_ref(
+                            &session_,
+                            out_stream_id_,
+                            external_datareader_id,
+                            external_subscriber_id,
+                            ref,
+                            UXR_REUSE);
 
                 /* Request data. */
                 uxrDeliveryControl delivery_control = {0, 0, 0, 0};
                 delivery_control.max_samples = UXR_MAX_SAMPLES_UNLIMITED;
-                uxr_buffer_request_data(&session_, out_stream_id_, drd_id, in_stream_id_, &delivery_control);
+                uxr_buffer_request_data(
+                            &session_,
+                            out_stream_id_,
+                            external_datareader_id,
+                            in_stream_id_,
+                            &delivery_control);
 
                 uint8_t status[2];
-                uint16_t request[2] = {top_req, drd_req};
+                uint16_t request[2] = {topic_request, datareader_request};
 
                 if (uxr_run_session_until_all_status(&session_, 1000, request, status, sizeof(status)))
                 {
@@ -265,6 +330,7 @@ void InternalClient::create_topic_entities()
         {
             topics_.erase(t);
         }
+        lock.unlock();
     }
 }
 
@@ -280,10 +346,8 @@ void InternalClient::loop()
         create_topic_entities();
 
         /* Run session. */
-        uxr_run_session_until_timeout(&session_, 1000);
-//        uxr_run_session_time(&session_, 1000);
+        uxr_run_session_time(&session_, 1000);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
