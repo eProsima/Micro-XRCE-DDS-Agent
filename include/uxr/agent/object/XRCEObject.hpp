@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef XRCE_OBJECT_HPP_
-#define XRCE_OBJECT_HPP_
+#ifndef XRC_OBJECT_HPP_
+#define XRC_OBJECT_HPP_
 
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/utils/Convertion.hpp>
+
 #include <unordered_map>
 #include <memory>
 
@@ -32,21 +34,11 @@ private:
     {
         uint16_t operator()(const dds::xrce::ObjectId& object_id) const
         {
-            return objectid_to_raw(object_id);
+            return convertion::objectid_to_raw(object_id);
         }
     };
 
 public:
-    static uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
-    {
-        return uint16_t(object_id[1] + (object_id[0] << 8));
-    }
-
-    static dds::xrce::ObjectId raw_to_objectid(uint16_t raw)
-    {
-        return dds::xrce::ObjectId{uint8_t(raw >> 8), uint8_t(raw & 0XFF)};
-    }
-
     typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, ObjectIdHash> ObjectContainer;
 
     explicit XRCEObject(const dds::xrce::ObjectId& object_id)
@@ -61,11 +53,10 @@ public:
     XRCEObject& operator=(const XRCEObject &) = delete;
 
     dds::xrce::ObjectId get_id() const;
-    uint16_t get_raw_id() const { return objectid_to_raw(id_); }
+    uint16_t get_raw_id() const { return convertion::objectid_to_raw(id_); }
     virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
     virtual void release(ObjectContainer& root_objects) = 0;
     virtual Middleware& get_middleware() const = 0;
-
 
 private:
     dds::xrce::ObjectId id_;
@@ -74,4 +65,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // XRCE_OBJECT_HPP_
+#endif // XRC_OBJECT_HPP_
