@@ -20,6 +20,8 @@
 namespace eprosima {
 namespace uxr {
 
+#cmakedefine PROFILE_FAST_MIDDLEWARE
+#cmakedefine PROFILE_CED_MIDDLEWARE
 #cmakedefine PROFILE_DISCOVERY
 #cmakedefine PROFILE_P2P
 

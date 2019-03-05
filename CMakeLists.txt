@@ -92,8 +92,10 @@ set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth."
 set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
-option(PROFILE_DISCOVERY "Activate the Discovery Profile." ON)
-option(PROFILE_P2P "Activate the P2P discovery." OFF)
+option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
+option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." OFF)
+option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
+option(PROFILE_P2P "Activate the P2P discovery profile." OFF)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -157,17 +159,12 @@ set(SRCS
     $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
     ${TRANSPORT_SRCS}
-    src/cpp/types/TopicPubSubType.cpp
-    src/cpp/xmlobjects/xmlobjects.cpp
-    src/cpp/middleware/fast/FastEntities.cpp
-    src/cpp/middleware/fast/FastMiddleware.cpp
-    src/cpp/middleware/ced/CedEntities.cpp
-    src/cpp/middleware/ced/CedMiddleware.cpp
-#    src/cpp/p2p_agent/InternalClient.cpp
-#    src/cpp/p2p_agent/DiscoveryClient.cpp
-#    src/cpp/p2p_agent/InternalClientManager.cpp
-#    src/cpp/p2p_agent/P2PAgentCommunication.cpp
-#    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/AgentDiscoverer.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/types/TopicPubSubType.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/xmlobjects/xmlobjects.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastEntities.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
+    $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedEntities.cpp>
+    $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
@@ -249,14 +246,20 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     check_gmock()
     enable_testing()
     include(CTest)
-    add_subdirectory(test/unittest/agent)
-    add_subdirectory(test/unittest)
-    add_subdirectory(test/unittest/utils)
-    add_subdirectory(test/unittest/types)
-    add_subdirectory(test/unittest/transport/serial)
-    add_subdirectory(test/unittest/middleware/ced)
-    add_subdirectory(test/unittest/client/session/stream)
-    add_subdirectory(test/blackbox/tree)
+    if(GTEST_FOUND)
+        if(PROFILE_FAST_MIDDLEWARE)
+            add_subdirectory(test/unittest)
+            add_subdirectory(test/unittest/agent)
+            add_subdirectory(test/blackbox/tree)
+        endif()
+        if(PROFILE_CED_MIDDLEWARE)
+            add_subdirectory(test/unittest/middleware/ced)
+        endif()
+        add_subdirectory(test/unittest/utils)
+        add_subdirectory(test/unittest/types)
+        add_subdirectory(test/unittest/transport/serial)
+        add_subdirectory(test/unittest/client/session/stream)
+    endif()
     add_subdirectory(test/integration/cross_serialization)
 endif()
 

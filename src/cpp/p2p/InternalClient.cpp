@@ -63,13 +63,13 @@ static void on_topic(
 {
     (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub; (void) args;
 
-    Agent::ErrorCode errcode;
+    Agent::OpResult result;
     Agent::write(
                 INTERNAL_CLIENT_KEY,
                 Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK),
                 ub->iterator,
                 ucdr_buffer_remaining(ub),
-                errcode);
+                result);
 }
 
 bool InternalClient::run()
@@ -92,8 +92,8 @@ bool InternalClient::run()
     ip += std::to_string(ip_[3]);
 
     /* Create ProxyClient. */
-    Agent::ErrorCode errcode;
-    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, errcode))
+    Agent::OpResult result;
+    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, result))
     {
         /* Transport. */
         if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))
@@ -163,14 +163,14 @@ void InternalClient::create_domain_entities()
             uint16_t internal_participant_id = Agent::get_object_id(uint16_t(*it), Agent::PARTICIPANT_OBJK);
             uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(*it), Agent::PUBLISHER_OBJK);
             const char* ref = "";
-            Agent::ErrorCode errcode;
+            Agent::OpResult result;
             if (Agent::create_participant_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_participant_id,
                         *it,
                         ref,
                         Agent::REUSE_MODE,
-                        errcode)
+                        result)
                     &&
                 Agent::create_publisher_by_xml(
                         INTERNAL_CLIENT_KEY,
@@ -178,7 +178,7 @@ void InternalClient::create_domain_entities()
                         internal_participant_id,
                         ref,
                         Agent::REUSE_MODE,
-                        errcode))
+                        result))
             {
                 /* Create remote entities. */
                 uxrObjectId external_participant_id = uxr_object_id(uint16_t(*it), UXR_PARTICIPANT_ID);
@@ -246,7 +246,7 @@ void InternalClient::create_topic_entities()
             bool entities_created = false;
 
             /* Create local entities. */
-            Agent::ErrorCode errcode;
+            Agent::OpResult result;
             uint16_t internal_paraticipant_id = Agent::get_object_id(uint16_t(it->first), Agent::PARTICIPANT_OBJK);
             uint16_t internal_topic_id = Agent::get_object_id(topic_counter_, Agent::TOPIC_OBJK);
             uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(it->first), Agent::PUBLISHER_OBJK);
@@ -257,7 +257,7 @@ void InternalClient::create_topic_entities()
                         internal_paraticipant_id,
                         it->second.c_str(),
                         Agent::REUSE_MODE,
-                        errcode)
+                        result)
                     &&
                 Agent::create_datawriter_by_ref(
                         INTERNAL_CLIENT_KEY,
@@ -265,7 +265,7 @@ void InternalClient::create_topic_entities()
                         internal_publisher_id,
                         it->second.c_str(),
                         Agent::REUSE_MODE,
-                        errcode))
+                        result))
             {
                 uxrObjectId external_participant_id = uxr_object_id(uint16_t(it->first), UXR_PARTICIPANT_ID);
                 uxrObjectId external_topic_id = uxr_object_id(uint16_t(topic_counter_), UXR_TOPIC_ID);
