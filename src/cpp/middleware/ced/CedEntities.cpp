@@ -73,29 +73,36 @@ bool CedTopicManager::register_topic(
         std::shared_ptr<CedGlobalTopic>& topic)
 {
     std::lock_guard<std::mutex> lock(mtx_);
+
+    /* Register domain. */
     auto it_domain = topics_.find(domain_id);
     if (topics_.end() == it_domain)
     {
+        topics_[domain_id] = {};
+
         /* Call to callbacks. */
         for (auto& cb_domain : on_new_domain_map_)
         {
             cb_domain.second(domain_id);
         }
-
-        auto it_topic = topics_[domain_id].find(topic_name);
-        if (topics_[domain_id].end() == it_topic)
-        {
-            /* Call to callbacks. */
-            for (auto& cb_topic : on_new_topic_map_)
-            {
-                cb_topic.second(domain_id, topic_name);
-            }
-            topic = std::make_shared<CedGlobalTopic>(topic_name, domain_id);
-            topics_[domain_id].emplace(topic_name, topic);
-        }
     }
 
-    topic = topics_[domain_id][topic_name].lock();
+    /* Register topic. */
+    auto it_topic = topics_[domain_id].find(topic_name);
+    if (topics_[domain_id].end() == it_topic)
+    {
+        /* Call to callbacks. */
+        for (auto& cb_topic : on_new_topic_map_)
+        {
+            cb_topic.second(domain_id, topic_name);
+        }
+        topic = std::make_shared<CedGlobalTopic>(topic_name, domain_id);
+        topics_[domain_id].emplace(topic_name, topic);
+    }
+    else
+    {
+        topic = it_topic->second.lock();
+    }
 
     return true;
 }
@@ -190,7 +197,7 @@ bool CedGlobalTopic::read(
         /* Try to read data without timeout. */
         do
         {
-            get_data(data, last_read, read_access);
+            rv = get_data(data, last_read, read_access);
         } while(!rv && (last_read != last_write_));
     }
 
