@@ -93,9 +93,9 @@ set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds."
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
 option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
-option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." OFF)
+option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
 option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
-option(PROFILE_P2P "Activate the P2P discovery profile." OFF)
+option(PROFILE_P2P "Activate the P2P discovery profile." ON)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in

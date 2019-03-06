@@ -129,15 +129,22 @@ void parseMiddleware(
             ++cl_counter;
             if (cl_counter <= cl.size())
             {
+                bool middleware_set = false;
+#ifdef PROFILE_CED_MIDDLEWARE
                 if ("ced" == cl[cl_counter - 1])
                 {
                     middleware_kind = eprosima::uxr::CED_MIDDLEWARE;
+                    middleware_set = true;
                 }
-                else if("dds" == cl[cl_counter - 1])
+#endif
+#ifdef PROFILE_FAST_MIDDLEWARE
+                if("dds" == cl[cl_counter - 1])
                 {
                     middleware_kind = eprosima::uxr::FAST_MIDDLEWARE;
+                    middleware_set = true;
                 }
-                else
+#endif
+                if (!middleware_set)
                 {
                     initializationError();
                 }
