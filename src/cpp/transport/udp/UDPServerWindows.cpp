@@ -13,13 +13,16 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerWindows.hpp>
+
 #include <string.h>
 
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(uint16_t agent_port)
-    : UDPServerBase(agent_port)
+UDPServer::UDPServer(
+        uint16_t agent_port,
+        MiddlewareKind middleware_kind)
+    : UDPServerBase(agent_port, middleware_kind)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef PROFILE_DISCOVERY

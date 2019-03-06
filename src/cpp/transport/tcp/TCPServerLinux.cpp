@@ -30,7 +30,7 @@ const uint8_t max_attemps = 16;
 TCPServer::TCPServer(
         uint16_t agent_port,
         MiddlewareKind middleware_kind)
-    : TCPServerBase(agent_port, middleware_kind)
+    : TCPServerBase{agent_port, middleware_kind}
     , connections_{}
     , active_connections_()
     , free_connections_()

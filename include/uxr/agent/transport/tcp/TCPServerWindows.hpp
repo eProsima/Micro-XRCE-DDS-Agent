@@ -19,7 +19,7 @@
 #ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
-#include <uxr/agent/config.hpp>
+
 #include <winsock2.h>
 #include <vector>
 #include <array>
@@ -42,12 +42,14 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    UXR_AGENT_EXPORT TCPServer(uint16_t agent_port);
+    UXR_AGENT_EXPORT TCPServer(
+            uint16_t agent_port,
+            MiddlewareKind middleware_kind);
 
     UXR_AGENT_EXPORT ~TCPServer() = default;
 
 private:
-    bool init(bool discovery_enabled) final;
+    bool init() final;
 
     bool close() final;
 
