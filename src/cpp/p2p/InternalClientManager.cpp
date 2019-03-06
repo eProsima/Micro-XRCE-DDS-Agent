@@ -50,6 +50,15 @@ void InternalClientManager::create_client(
     }
 }
 
+void InternalClientManager::delete_clients()
+{
+    for (auto it = clients_.begin(); it != clients_.end(); )
+    {
+        it->second->stop();
+        it = clients_.erase(it);
+    }
+}
+
 InternalClientManager::InternalClientManager() = default;
 InternalClientManager::~InternalClientManager() = default;
 

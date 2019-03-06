@@ -55,7 +55,6 @@ private:
     Root operator=(const Root&) = delete;
 
 private:
-    std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;

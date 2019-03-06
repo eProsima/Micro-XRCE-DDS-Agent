@@ -342,7 +342,8 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
             data_payload.data().resize(submessage_length - data_payload.BaseObjectRequest::getCdrSerializedSize(0));
             if (input_packet.message->get_payload(data_payload))
             {
-                DataWriter* data_writer = dynamic_cast<DataWriter*>(client.get_object(data_payload.object_id()));
+                std::shared_ptr<DataWriter> data_writer =
+                        std::dynamic_pointer_cast<DataWriter>(client.get_object(data_payload.object_id()));
                 if (nullptr != data_writer)
                 {
                     written = data_writer->write(data_payload);
@@ -376,7 +377,8 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
     dds::xrce::READ_DATA_Payload read_payload;
     if (input_packet.message->get_payload(read_payload))
     {
-        DataReader* data_reader = dynamic_cast<DataReader*>(client.get_object(read_payload.object_id()));
+        std::shared_ptr<DataReader> data_reader =
+                std::dynamic_pointer_cast<DataReader>(client.get_object(read_payload.object_id()));
         dds::xrce::StatusValue status = (nullptr != data_reader) ? dds::xrce::STATUS_OK
                                                                  : dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
         if (dds::xrce::STATUS_OK == status)

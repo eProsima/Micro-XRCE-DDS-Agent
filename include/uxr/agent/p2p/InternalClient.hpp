@@ -40,6 +40,8 @@ public:
 
     bool run();
 
+    bool stop();
+
 private:
     void set_callback();
 

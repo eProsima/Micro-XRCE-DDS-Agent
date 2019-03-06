@@ -39,6 +39,8 @@ public:
             const std::array<uint8_t, 4>& ip,
             uint16_t port);
 
+    void delete_clients();
+
 private:
     InternalClientManager();
     ~InternalClientManager();

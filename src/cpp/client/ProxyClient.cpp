@@ -155,14 +155,14 @@ dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_
     return dds::xrce::ObjectInfo{};
 }
 
-XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
+std::shared_ptr<XRCEObject> ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 {
-    XRCEObject* object = nullptr;
+    std::shared_ptr<XRCEObject> object;
     std::lock_guard<std::mutex> lock(mtx_);
     auto object_it = objects_.find(object_id);
     if (object_it != objects_.end())
     {
-        object = object_it->second.get();
+        object = object_it->second;
     }
     return object;
 }

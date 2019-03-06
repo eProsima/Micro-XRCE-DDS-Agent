@@ -437,7 +437,8 @@ bool Agent::write(
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(convertion::raw_to_clientkey(client_key)))
     {
-         DataWriter* datawriter = dynamic_cast<DataWriter*>(client->get_object(convertion::raw_to_objectid(datawriter_id)));
+         std::shared_ptr<DataWriter> datawriter =
+                 std::dynamic_pointer_cast<DataWriter>(client->get_object(convertion::raw_to_objectid(datawriter_id)));
          if (datawriter)
          {
              std::vector<uint8_t> data(buf, buf + len);

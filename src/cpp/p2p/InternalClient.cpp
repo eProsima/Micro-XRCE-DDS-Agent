@@ -74,6 +74,11 @@ static void on_topic(
 
 bool InternalClient::run()
 {
+    if (running_cond_)
+    {
+        return false;
+    }
+
     bool rv = false;
 
     /* Set callbacks. */
@@ -125,6 +130,17 @@ bool InternalClient::run()
     }
 
     return rv;
+}
+
+bool InternalClient::stop()
+{
+    /* Stop thread. */
+    running_cond_ = false;
+    if (thread_.joinable())
+    {
+        thread_.join();
+    }
+    return true;
 }
 
 void InternalClient::set_callback()
@@ -347,7 +363,6 @@ void InternalClient::loop()
 
         /* Run session. */
         uxr_run_session_time(&session_, 1000);
-
     }
 }
 

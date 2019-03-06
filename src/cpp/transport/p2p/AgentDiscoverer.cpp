@@ -57,6 +57,10 @@ bool AgentDiscoverer::stop()
     {
         thread_.join();
     }
+
+    InternalClientManager& manager = InternalClientManager::instance();
+    manager.delete_clients();
+
     return close();
 }
 
