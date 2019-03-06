@@ -26,7 +26,10 @@ namespace uxr {
 class UDPServerBase : public Server
 {
 public:
-    UDPServerBase(uint16_t agent_port);
+    UDPServerBase(
+            uint16_t agent_port,
+            MiddlewareKind middleware_kind);
+
     ~UDPServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;

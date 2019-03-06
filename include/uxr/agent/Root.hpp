@@ -16,6 +16,7 @@
 #define UXR_AGENT_ROOT_HPP_
 
 #include <uxr/agent/client/ProxyClient.hpp>
+
 #include <thread>
 #include <memory>
 #include <map>
@@ -31,7 +32,8 @@ public:
 
     dds::xrce::ResultStatus create_client(
             const dds::xrce::CLIENT_Representation& client_representation,
-            dds::xrce::AGENT_Representation& agent_representation);
+            dds::xrce::AGENT_Representation& agent_representation,
+            MiddlewareKind middleware_kind);
 
     dds::xrce::ResultStatus get_info(dds::xrce::ObjectInfo& agent_info);
 

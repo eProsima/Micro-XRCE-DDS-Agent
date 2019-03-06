@@ -17,10 +17,13 @@
 namespace eprosima {
 namespace uxr {
 
-SerialServerBase::SerialServerBase(uint8_t addr)
-    : addr_(addr),
-      source_to_client_map_{},
-      client_to_source_map_{}
+SerialServerBase::SerialServerBase(
+        uint8_t addr,
+        MiddlewareKind middleware_kind)
+    : Server(middleware_kind)
+    , addr_(addr)
+    , source_to_client_map_{}
+    , client_to_source_map_{}
 {}
 
 void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)

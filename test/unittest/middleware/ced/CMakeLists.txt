@@ -24,6 +24,7 @@ add_executable(${TEST_NAME} ${SRCS})
 add_gtest(${TEST_NAME} SOURCES ${SRCS})
 target_include_directories(${TEST_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/include
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )

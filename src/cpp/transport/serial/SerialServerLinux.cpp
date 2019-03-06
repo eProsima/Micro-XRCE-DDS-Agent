@@ -18,12 +18,15 @@
 namespace eprosima {
 namespace uxr {
 
-SerialServer::SerialServer(int fd, uint8_t addr)
-    : SerialServerBase(addr),
-      poll_fd_(),
-      buffer_{0},
-      serial_io_(),
-      errno_(0)
+SerialServer::SerialServer(
+        int fd,
+        uint8_t addr,
+        MiddlewareKind middleware_kind)
+    : SerialServerBase(addr, middleware_kind)
+    , poll_fd_()
+    , buffer_{0}
+    , serial_io_()
+    , errno_(0)
 {
     poll_fd_.fd = fd;
 }

@@ -15,6 +15,7 @@
 #ifndef UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 #define UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/client/session/Session.hpp>
 #include <unordered_map>
@@ -23,12 +24,12 @@
 namespace eprosima {
 namespace uxr {
 
-class Middleware;
-
 class ProxyClient
 {
 public:
-    explicit ProxyClient(const dds::xrce::CLIENT_Representation& representation);
+    explicit ProxyClient(
+            const dds::xrce::CLIENT_Representation& representation,
+            MiddlewareKind middleware_kind = MiddlewareKind(0));
 
     ~ProxyClient() = default;
 

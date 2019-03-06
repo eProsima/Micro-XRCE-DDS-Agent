@@ -14,6 +14,7 @@
 
 #include "Common.h"
 
+#include <uxr/agent/config.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/types/MessageHeader.hpp>
@@ -41,8 +42,10 @@ protected:
 TEST_F(RootTests, CreateClientOk)
 {
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response = root_.create_client(generate_create_client_payload().client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                generate_create_client_payload().client_representation(),
+                agent_representation,
+                eprosima::uxr::FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -51,8 +54,10 @@ TEST_F(RootTests, CreateClientBadCookie)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
     create_data.client_representation().xrce_cookie({0x00, 0x00});
-    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                create_data.client_representation(),
+                agent_representation,
+                eprosima::uxr::FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
@@ -61,8 +66,10 @@ TEST_F(RootTests, CreateClientCompatibleVersion)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{dds::xrce::XRCE_VERSION_MAJOR, 0x20}});
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                create_data.client_representation(),
+                agent_representation,
+                FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -71,8 +78,10 @@ TEST_F(RootTests, CreateClientIncompatibleVersion)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{0x02, dds::xrce::XRCE_VERSION_MINOR}});
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                create_data.client_representation(),
+                agent_representation,
+                eprosima::uxr::FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
@@ -80,8 +89,10 @@ TEST_F(RootTests, DeleteExistingClient)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(),
-            agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                create_data.client_representation(),
+                agent_representation,
+                eprosima::uxr::FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(client_key);
@@ -100,7 +111,10 @@ TEST_F(RootTests, DeleteNoExistingClient)
 
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
-    dds::xrce::ResultStatus response = root_.create_client(create_data.client_representation(), agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                create_data.client_representation(),
+                agent_representation,
+                eprosima::uxr::FAST_MIDDLEWARE);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(fake_client_key);

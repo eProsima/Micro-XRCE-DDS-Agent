@@ -35,7 +35,9 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    UDPServer(uint16_t port);
+    UDPServer(
+            uint16_t port,
+            MiddlewareKind middleware_kind);
 
     ~UDPServer() = default;
 

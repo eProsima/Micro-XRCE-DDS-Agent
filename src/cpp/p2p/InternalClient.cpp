@@ -98,7 +98,7 @@ bool InternalClient::run()
 
     /* Create ProxyClient. */
     Agent::OpResult result;
-    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, result))
+    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, CED_MIDDLEWARE, result))
     {
         /* Transport. */
         if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))

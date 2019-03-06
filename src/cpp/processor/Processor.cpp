@@ -21,9 +21,12 @@
 namespace eprosima {
 namespace uxr {
 
-Processor::Processor(Server* server)
-    : server_(server),
-      root_(Root::instance())
+Processor::Processor(
+        Server* server,
+        MiddlewareKind middleware_kind)
+    : server_(server)
+    , middleware_kind_{middleware_kind}
+    , root_(Root::instance())
 {}
 
 Processor::~Processor()
@@ -202,8 +205,11 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
 
             /* Create client. */
             dds::xrce::AGENT_Representation agent_representation;
-            dds::xrce::ResultStatus result = root_.create_client(client_payload.client_representation(),
-                                                                  agent_representation);
+            dds::xrce::ResultStatus result = root_.create_client(
+                        client_payload.client_representation(),
+                        agent_representation,
+                        middleware_kind_);
+
             if (dds::xrce::STATUS_OK == result.status())
             {
                 server_->on_create_client(input_packet.source.get(),

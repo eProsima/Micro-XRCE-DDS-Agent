@@ -15,6 +15,8 @@
 #ifndef UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
 #define UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
 
+#include <uxr/agent/middleware/Middleware.hpp>
+
 #include <cstdint>
 #include <vector>
 #include <mutex>
@@ -40,7 +42,10 @@ struct ReadCallbackArgs;
 class Processor
 {
 public:
-    Processor(Server* server);
+    Processor(
+            Server* server,
+            MiddlewareKind middleware_kind);
+
     ~Processor();
 
     void process_input_packet(
@@ -107,6 +112,7 @@ private:
 
 private:
     Server* server_;
+    MiddlewareKind middleware_kind_;
     Root& root_;
     std::recursive_mutex mtx_;
 };

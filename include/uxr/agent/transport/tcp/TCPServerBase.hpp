@@ -28,7 +28,9 @@ class TCPConnection;
 class TCPServerBase : public Server
 {
 public:
-    TCPServerBase(uint16_t agent_port);
+    TCPServerBase(
+            uint16_t agent_port,
+            MiddlewareKind middleware_kind);
 
     ~TCPServerBase() override = default;
 

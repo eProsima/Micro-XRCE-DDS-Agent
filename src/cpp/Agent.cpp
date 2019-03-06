@@ -218,6 +218,7 @@ bool Agent::create_client(
         uint32_t key,
         uint8_t session,
         uint16_t mtu,
+        MiddlewareKind middleware_kind,
         OpResult& op_result)
 {
     Root& root = Root::instance();
@@ -230,7 +231,7 @@ bool Agent::create_client(
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.session_id(session);
     client_representation.mtu(mtu);
-    result = root.create_client(client_representation, agent_representation);
+    result = root.create_client(client_representation, agent_representation, middleware_kind);
     op_result = OpResult(result.status());
 
     return (dds::xrce::STATUS_OK == result.status());

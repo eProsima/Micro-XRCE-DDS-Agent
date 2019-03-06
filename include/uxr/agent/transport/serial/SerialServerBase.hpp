@@ -27,7 +27,10 @@ namespace uxr {
 class SerialServerBase : public Server
 {
 public:
-    SerialServerBase(uint8_t addr);
+    SerialServerBase(
+            uint8_t addr,
+            MiddlewareKind middleware_kind);
+
     ~SerialServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;

@@ -16,6 +16,7 @@
 #define UXR_AGENT_AGENT_HPP_
 
 #include <uxr/agent/agent_dll.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 #include <cstdint>
 #include <string>
@@ -110,16 +111,18 @@ public:
 
     /**
      * @brief Creates a ProxyClient which can be reused by an external Client.
-     * @param key       The identifier of the ProxyClient.
-     * @param session   The identifier of the Session attached to the ProxyClient.
-     * @param mtu       The Maximum Transmission Unit (MTU) of the Session.
-     * @param op_result The result status of the operation.
+     * @param key               The identifier of the ProxyClient.
+     * @param session           The identifier of the Session attached to the ProxyClient.
+     * @param mtu               The Maximum Transmission Unit (MTU) of the Session.
+     * @param middleware_kind   The middleware used by the Client. It could be DDS or Centralized Data middleware.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_EXPORT static bool create_client(
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
+            MiddlewareKind middleware_kind,
             OpResult& op_result);
 
     /**

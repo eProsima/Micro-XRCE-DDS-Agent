@@ -24,6 +24,17 @@
 namespace eprosima {
 namespace uxr {
 
+enum MiddlewareKind : uint8_t
+{
+#ifdef PROFILE_FAST_MIDDLEWARE
+    FAST_MIDDLEWARE,
+#endif
+
+#ifdef PROFILE_CED_MIDDLEWARE
+    CED_MIDDLEWARE,
+#endif
+};
+
 typedef std::function<void ()> OnNewData;
 
 class Middleware

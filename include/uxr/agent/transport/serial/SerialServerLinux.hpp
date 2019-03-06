@@ -29,7 +29,8 @@ class SerialServer : public SerialServerBase
 public:
     SerialServer(
             int fd,
-            uint8_t addr);
+            uint8_t addr,
+            MiddlewareKind middleware_kind);
 
     ~SerialServer() = default;
 

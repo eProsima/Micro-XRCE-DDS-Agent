@@ -17,8 +17,11 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServerBase::UDPServerBase(uint16_t agent_port)
-    : transport_address_{}
+UDPServerBase::UDPServerBase(
+        uint16_t agent_port,
+        MiddlewareKind middleware_kind)
+    : Server(middleware_kind)
+    , transport_address_{}
     , source_to_client_map_{}
     , client_to_source_map_{}
 {

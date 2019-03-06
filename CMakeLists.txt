@@ -171,7 +171,12 @@ set(SRCS
 
 # Executable
 add_library(${PROJECT_NAME} ${SRCS})
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr microxrcedds_client)
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
+        fastcdr
+        microxrcedds_client
+    )
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

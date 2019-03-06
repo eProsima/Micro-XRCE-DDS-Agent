@@ -23,9 +23,9 @@
 namespace eprosima {
 namespace uxr {
 
-Server::Server()
-    : processor_(new Processor(this)),
-      running_cond_(false)
+Server::Server(MiddlewareKind middleware_kind)
+    : processor_(new Processor(this, middleware_kind))
+    , running_cond_(false)
 {}
 
 Server::~Server()
