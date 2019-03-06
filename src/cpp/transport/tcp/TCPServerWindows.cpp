@@ -138,14 +138,14 @@ bool TCPServer::close()
 }
 
 #ifdef PROFILE_DISCOVERY
-bool TCPServer::init_discovery(uint16_t discovery)
+bool TCPServer::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port, transport_address_)
+    return discovery_server_.run(discovery_port, transport_address_);
 }
 
 bool TCPServer::close_discovery()
 {
-    return discovery_server_.close();
+    return discovery_server_.stop();
 }
 #endif
 

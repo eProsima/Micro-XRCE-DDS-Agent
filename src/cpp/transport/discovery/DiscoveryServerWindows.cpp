@@ -69,7 +69,7 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
 
 bool DiscoveryServerWindows::close()
 {
-    return (INVALID (0 == closesocket(poll_fd_.fd));
+    return (INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd));
 }
 
 bool DiscoveryServerWindows::recv_message(
