@@ -88,13 +88,6 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-#ifdef PROFILE_DISCOVERY
-    discovery_server_.stop();
-#endif
-#ifdef PROFILE_P2P
-    agent_discoverer_.stop();
-#endif
-
     return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
 

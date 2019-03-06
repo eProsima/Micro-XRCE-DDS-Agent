@@ -52,7 +52,7 @@ bool AgentDiscovererLinux::init(uint16_t p2p_port)
 
 bool AgentDiscovererLinux::close()
 {
-    return (-1 == poll_fd_.fd) || ::close(poll_fd_.fd);
+    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
 
 bool AgentDiscovererLinux::recv_message(

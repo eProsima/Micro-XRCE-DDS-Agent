@@ -558,7 +558,10 @@ int main(int argc, char** argv)
         std::cout << "Enter 'q' for exit" << std::endl;
         std::cin >> exit_flag;
     }
-    server->stop();
+    if (server)
+    {
+        server->stop();
+    }
 
     return 0;
 }
