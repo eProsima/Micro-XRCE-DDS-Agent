@@ -24,8 +24,10 @@ namespace eprosima {
 namespace uxr {
 
 DiscoveryServer::DiscoveryServer(const Processor& processor)
-    : running_cond_(false)
-    , processor_(processor)
+    : mtx_{}
+    , thread_{}
+    , running_cond_{false}
+    , processor_{processor}
     , transport_address_{}
     , filter_port_{}
 {
@@ -35,6 +37,8 @@ bool DiscoveryServer::run(
         uint16_t discovery_port,
         const dds::xrce::TransportAddress& local_address)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     if (running_cond_ || !init(discovery_port))
     {
         return false;
@@ -45,18 +49,20 @@ bool DiscoveryServer::run(
 
     /* Init thread. */
     running_cond_ = true;
-    discovery_thread_.reset(new std::thread(std::bind(&DiscoveryServer::discovery_loop, this)));
+    thread_ = std::thread(&DiscoveryServer::discovery_loop, this);
 
     return true;
 }
 
 bool DiscoveryServer::stop()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     /* Stop thread. */
     running_cond_ = false;
-    if (discovery_thread_ && discovery_thread_->joinable())
+    if (thread_.joinable())
     {
-        discovery_thread_->join();
+        thread_.join();
     }
     return close();
 }

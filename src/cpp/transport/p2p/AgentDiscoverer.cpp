@@ -19,7 +19,9 @@ namespace eprosima {
 namespace uxr {
 
 AgentDiscoverer::AgentDiscoverer()
-    : running_cond_{false}
+    : mtx_{}
+    , thread_{}
+    , running_cond_{false}
 {
 }
 
@@ -27,6 +29,8 @@ bool AgentDiscoverer::run(
         uint16_t p2p_port,
         const dds::xrce::TransportAddress& local_address)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     if (running_cond_ || !init(p2p_port))
     {
         return false;
@@ -51,6 +55,8 @@ bool AgentDiscoverer::run(
 
 bool AgentDiscoverer::stop()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     /* Stop thread. */
     running_cond_ = false;
     if (thread_.joinable())
