@@ -35,6 +35,8 @@ Server::~Server()
 
 bool Server::run()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
     /* Init server. */
     if (!init())
     {
@@ -47,36 +49,42 @@ bool Server::run()
 
     /* Thread initialization. */
     running_cond_ = true;
-    receiver_thread_.reset(new std::thread(std::bind(&Server::receiver_loop, this)));
-    sender_thread_.reset(new std::thread(std::bind(&Server::sender_loop, this)));
-    processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
-    heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
+    receiver_thread_ = std::thread(&Server::receiver_loop, this);
+    sender_thread_ = std::thread(&Server::sender_loop, this);
+    processing_thread_ = std::thread(&Server::processing_loop, this);
+    heartbeat_thread_ = std::thread(&Server::heartbeat_loop, this);
 
     return true;
 }
 
 bool Server::stop()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
+
+    /* Stop input and output queues. */
     input_scheduler_.deinit();
     output_scheduler_.deinit();
-    if (receiver_thread_ && receiver_thread_->joinable())
+
+    /* Join threads. */
+    if (receiver_thread_.joinable())
     {
-        receiver_thread_->join();
+        receiver_thread_.join();
     }
-    if (sender_thread_ && sender_thread_->joinable())
+    if (sender_thread_.joinable())
     {
-        sender_thread_->join();
+        sender_thread_.join();
     }
-    if (processing_thread_ && processing_thread_->joinable())
+    if (processing_thread_.joinable())
     {
-        processing_thread_->join();
+        processing_thread_.join();
     }
-    if (heartbeat_thread_ && heartbeat_thread_->joinable())
+    if (heartbeat_thread_.joinable())
     {
-        heartbeat_thread_->join();
+        heartbeat_thread_.join();
     }
 
+    /* Close servers. */
     bool rv = true;
 #ifdef PROFILE_DISCOVERY
     rv &= close_discovery();

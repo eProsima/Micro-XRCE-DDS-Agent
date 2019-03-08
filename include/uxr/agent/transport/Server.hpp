@@ -98,10 +98,11 @@ protected:
     Processor* processor_;
 
 private:
-    std::unique_ptr<std::thread> receiver_thread_;
-    std::unique_ptr<std::thread> sender_thread_;
-    std::unique_ptr<std::thread> processing_thread_;
-    std::unique_ptr<std::thread> heartbeat_thread_;
+    std::mutex mtx_;
+    std::thread receiver_thread_;
+    std::thread sender_thread_;
+    std::thread processing_thread_;
+    std::thread heartbeat_thread_;
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket> input_scheduler_;
     FCFSScheduler<OutputPacket> output_scheduler_;
