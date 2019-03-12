@@ -17,6 +17,7 @@
 #include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
 #else
 #include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #include <termios.h>
@@ -41,7 +42,7 @@ void showHelp()
     std::cout << "    tcp <local_port> [--discovery [<discovery_port>] ]" << std::endl;
 }
 
-void initializationError()
+[[ noreturn ]] void initializationError()
 {
     std::cout << "Error: Invalid arguments." << std::endl;
     showHelp();
@@ -70,7 +71,7 @@ uint16_t parsePort(const std::string& str_port)
 
 int main(int argc, char** argv)
 {
-    eprosima::uxr::Server* server = nullptr;
+    std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
     bool discovery_flag = false;
 
@@ -112,9 +113,9 @@ int main(int argc, char** argv)
             }
         }
 
-        server = 4 <= cl.size()
+        server.reset((4 <= cl.size())
                  ? new eprosima::uxr::UDPServer(port, parsePort(cl[3]))
-                 : new eprosima::uxr::UDPServer(port);
+                 : new eprosima::uxr::UDPServer(port));
     }
     else if((2 <= cl.size()) && ("tcp" == cl[0]))
     {
@@ -130,12 +131,12 @@ int main(int argc, char** argv)
             }
         }
 
-        server = 4 <= cl.size()
+        server.reset((4 <= cl.size())
                  ? new eprosima::uxr::TCPServer(port, parsePort(cl[3]))
-                 : new eprosima::uxr::TCPServer(port);
+                 : new eprosima::uxr::TCPServer(port));
     }
 #ifndef _WIN32
-    else if((2 == cl.size()) && ("serial" == cl[0]))
+    else if((2 <= cl.size()) && ("serial" == cl[0]))
     {
         std::cout << "Serial agent initialization... ";
 
@@ -150,52 +151,56 @@ int main(int argc, char** argv)
                 /* Setting CONTROL OPTIONS. */
                 tty_config.c_cflag |= CREAD;    // Enable read.
                 tty_config.c_cflag |= CLOCAL;   // Set local mode.
-                tty_config.c_cflag &= ~PARENB;  // Disable parity.
-                tty_config.c_cflag &= ~CSTOPB;  // Set one stop bit.
-                tty_config.c_cflag &= ~CSIZE;   // Mask the character size bits.
+                tty_config.c_cflag &= tcflag_t(~PARENB);  // Disable parity.
+                tty_config.c_cflag &= tcflag_t(~CSTOPB);  // Set one stop bit.
+                tty_config.c_cflag &= tcflag_t(~CSIZE);   // Mask the character size bits.
                 tty_config.c_cflag |= CS8;      // Set 8 data bits.
                 tty_config.c_cflag &= ~CRTSCTS; // Disable hardware flow control.
 
                 /* Setting LOCAL OPTIONS. */
-                tty_config.c_lflag &= ~ICANON;  // Set non-canonical input.
-                tty_config.c_lflag &= ~ECHO;    // Disable echoing of input characters.
-                tty_config.c_lflag &= ~ECHOE;   // Disable echoing the erase character.
-                tty_config.c_lflag &= ~ISIG;    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+                tty_config.c_lflag &= tcflag_t(~ICANON);  // Set non-canonical input.
+                tty_config.c_lflag &= tcflag_t(~ECHO);    // Disable echoing of input characters.
+                tty_config.c_lflag &= tcflag_t(~ECHOE);   // Disable echoing the erase character.
+                tty_config.c_lflag &= tcflag_t(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
 
                 /* Setting INPUT OPTIONS. */
-                tty_config.c_iflag &= ~IXON;    // Disable output software flow control.
-                tty_config.c_iflag &= ~IXOFF;   // Disable input software flow control.
-                tty_config.c_iflag &= ~INPCK;   // Disable parity check.
-                tty_config.c_iflag &= ~ISTRIP;  // Disable strip parity bits.
-                tty_config.c_iflag &= ~IGNBRK;  // No ignore break condition.
-                tty_config.c_iflag &= ~IGNCR;   // No ignore carrier return.
-                tty_config.c_iflag &= ~INLCR;   // No map NL to CR.
-                tty_config.c_iflag &= ~ICRNL;   // No map CR to NL.
+                tty_config.c_iflag &= tcflag_t(~IXON);    // Disable output software flow control.
+                tty_config.c_iflag &= tcflag_t(~IXOFF);   // Disable input software flow control.
+                tty_config.c_iflag &= tcflag_t(~INPCK);   // Disable parity check.
+                tty_config.c_iflag &= tcflag_t(~ISTRIP);  // Disable strip parity bits.
+                tty_config.c_iflag &= tcflag_t(~IGNBRK);  // No ignore break condition.
+                tty_config.c_iflag &= tcflag_t(~IGNCR);   // No ignore carrier return.
+                tty_config.c_iflag &= tcflag_t(~INLCR);   // No map NL to CR.
+                tty_config.c_iflag &= tcflag_t(~ICRNL);   // No map CR to NL.
 
                 /* Setting OUTPUT OPTIONS. */
-                tty_config.c_oflag &= ~OPOST;   // Set raw output.
+                tty_config.c_oflag &= tcflag_t(~OPOST);   // Set raw output.
 
                 /* Setting OUTPUT CHARACTERS. */
                 tty_config.c_cc[VMIN] = 10;
                 tty_config.c_cc[VTIME] = 1;
 
                 /* Setting BAUD RATE. */
-                cfsetispeed(&tty_config, B115200);
-                cfsetospeed(&tty_config, B115200);
-
-                if (0 == tcsetattr(fd, TCSANOW, &tty_config))
+                speed_t baudrate = (3 == cl.size()) ? getBaudRate(cl[2].c_str()) : B115200;
+                if (0 != baudrate)
                 {
-                    server = new eprosima::uxr::SerialServer(fd, 0);
+                    cfsetispeed(&tty_config, baudrate);
+                    cfsetospeed(&tty_config, baudrate);
+
+                    if (0 == tcsetattr(fd, TCSANOW, &tty_config))
+                    {
+                        server.reset(new eprosima::uxr::SerialServer(fd, 0));
+                    }
                 }
             }
         }
     }
-    else if ((1 == cl.size()) && ("pseudo-serial" == cl[0]))
+    else if ((1 <= cl.size()) && ("pseudo-serial" == cl[0]))
     {
         std::cout << "Pseudo-Serial initialization... ";
 
         /* Open pseudo-terminal. */
-        char* dev = NULL;
+        char* dev = nullptr;
         int fd = posix_openpt(O_RDWR | O_NOCTTY);
         if (-1 != fd)
         {
@@ -205,13 +210,22 @@ int main(int argc, char** argv)
                 tcgetattr(fd, &attr);
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
-                cfsetispeed(&attr, B115200);
-                cfsetospeed(&attr, B115200);
-                tcsetattr(fd, TCSANOW, &attr);
-                std::cout << "Device: " << dev << std::endl;
+
+                /* Setting BAUD RATE. */
+                speed_t baudrate = (2 == cl.size()) ? getBaudRate(cl[1].c_str()) : B115200;
+                if (0 != baudrate)
+                {
+                    cfsetispeed(&attr, baudrate);
+                    cfsetospeed(&attr, baudrate);
+
+                    if (0 == tcsetattr(fd, TCSANOW, &attr))
+                    {
+                        std::cout << "Device: " << dev << std::endl;
+                        server.reset(new eprosima::uxr::SerialServer(fd, 0x00));
+                    }
+                }
             }
         }
-        server = new eprosima::uxr::SerialServer(fd, 0x00);
     }
 #endif
     else
@@ -242,4 +256,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
