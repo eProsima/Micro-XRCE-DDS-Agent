@@ -15,6 +15,7 @@
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/Root.hpp>
 #include <functional>
 
 #define RECEIVE_TIMEOUT 100
@@ -76,6 +77,11 @@ bool Server::stop()
     }
 
     return close();
+}
+
+bool Server::load_config_file(const std::string& path)
+{
+    return processor_->get_root()->load_config_file(path);
 }
 
 void Server::push_output_packet(OutputPacket output_packet)

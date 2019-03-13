@@ -35,6 +35,7 @@ public:
 
     microxrcedds_agent_DllAPI bool run();
     microxrcedds_agent_DllAPI bool stop();
+    microxrcedds_agent_DllAPI bool load_config_file(const std::string& path);
 
     void push_output_packet(OutputPacket output_packet);
     virtual void on_create_client(EndPoint* source, const dds::xrce::ClientKey& client_key) = 0;

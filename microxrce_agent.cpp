@@ -34,13 +34,13 @@ void showHelp()
     std::cout << "Usage: program <command>" << std::endl;
     std::cout << "List of commands:" << std::endl;
 #ifdef _WIN32
-    std::cout << "    udp <local_port>" << std::endl;
-    std::cout << "    tcp <local_port>" << std::endl;
+    std::cout << "    --udp <local_port> [--refs <refs-file>]" << std::endl;
+    std::cout << "    --tcp <local_port> [--refs <refs-file>]" << std::endl;
 #else
-    std::cout << "    serial <device_name> [<baudrate>]" << std::endl;
-    std::cout << "    pseudo-serial [<baudrate>]" << std::endl;
-    std::cout << "    udp <local_port> [<discovery_port>]" << std::endl;
-    std::cout << "    tcp <local_port> [<discovery_port>]" << std::endl;
+    std::cout << "    --serial <device-name> [--baudrate <baudrate>] [--refs <refs-file>]" << std::endl;
+    std::cout << "    --pseudo-serial        [--baudrate <baudrate>] [--refs <refs-file>]" << std::endl;
+    std::cout << "    --udp <local-port> [--discovery <discovery-port>] [--refs <refs-file>]" << std::endl;
+    std::cout << "    --tcp <local-port> [--discovery <discovery-port>] [--refs <refs-file>]" << std::endl;
 #endif
 }
 
@@ -75,6 +75,7 @@ int main(int argc, char** argv)
 {
     std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
+    uint8_t cl_counter = 1;
 
     if (1 == argc)
     {
@@ -100,33 +101,103 @@ int main(int argc, char** argv)
     {
         showHelp();
     }
-    else if((2 <= cl.size()) && ("udp" == cl[0]))
+    else if((2 <= cl.size()) && ("--udp" == cl[0]))
     {
         std::cout << "UDP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
+        cl_counter += 2;
 #ifdef _WIN32
         server.reset(new eprosima::uxr::UDPServer(port));
 #else
-        server.reset((3 == cl.size()) //discovery port
-                 ? new eprosima::uxr::UDPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::UDPServer(port));
+        /*
+         * Parse Discovery.
+         */
+        if ((cl_counter <= cl.size()) && ("--discovery" == cl[cl_counter - 1]))
+        {
+            cl_counter++;
+            if (cl_counter <= cl.size())
+            {
+                server.reset(new eprosima::uxr::UDPServer(port, parsePort(cl[cl_counter - 1])));
+                cl_counter++;
+            }
+            else
+            {
+                initializationError();
+            }
+        }
+        else
+        {
+            server.reset(new eprosima::uxr::UDPServer(port));
+        }
+
+        /*
+         * Parse Refs File.
+         */
+        if ((cl_counter <= cl.size()) && ("--refs" == cl[cl_counter - 1]))
+        {
+            cl_counter++;
+            if (cl_counter <= cl.size())
+            {
+                server->load_config_file(cl[cl_counter -1]);
+                cl_counter++;
+            }
+            else
+            {
+                initializationError();
+            }
+        }
 #endif
     }
-    else if((2 <= cl.size()) && ("tcp" == cl[0]))
+    else if((2 <= cl.size()) && ("--tcp" == cl[0]))
     {
         std::cout << "TCP agent initialization... ";
         uint16_t port = parsePort(cl[1]);
 #ifdef _WIN32
         server.reset(new eprosima::uxr::TCPServer(port));
 #else
-        server.reset((3 == cl.size()) //discovery port
-                 ? new eprosima::uxr::TCPServer(port, parsePort(cl[2]))
-                 : new eprosima::uxr::TCPServer(port));
+        /*
+         * Parse Discovery.
+         */
+        if ((cl_counter <= cl.size()) && ("--discovery" == cl[cl_counter - 1]))
+        {
+            cl_counter++;
+            if (cl_counter <= cl.size())
+            {
+                server.reset(new eprosima::uxr::TCPServer(port, parsePort(cl[cl_counter - 1])));
+                cl_counter++;
+            }
+            else
+            {
+                initializationError();
+            }
+        }
+        else
+        {
+            server.reset(new eprosima::uxr::TCPServer(port));
+        }
+
+        /*
+         * Parse Refs File.
+         */
+        if ((cl_counter <= cl.size()) && ("--refs" == cl[cl_counter - 1]))
+        {
+            cl_counter++;
+            if (cl_counter <= cl.size())
+            {
+                server->load_config_file(cl[cl_counter -1]);
+                cl_counter++;
+            }
+            else
+            {
+                initializationError();
+            }
+        }
 #endif
     }
 #ifndef _WIN32
-    else if((2 <= cl.size()) && ("serial" == cl[0]))
+    else if((2 <= cl.size()) && ("--serial" == cl[0]))
     {
+        cl_counter += 2;
         std::cout << "Serial agent initialization... ";
 
         /* Open serial device. */
@@ -169,23 +240,51 @@ int main(int argc, char** argv)
                 tty_config.c_cc[VMIN] = 10;
                 tty_config.c_cc[VTIME] = 1;
 
-                /* Setting BAUD RATE. */
-                speed_t baudrate = (3 == cl.size()) ? getBaudRate(cl[2].c_str()) : B115200;
-                if (0 != baudrate)
+                /*
+                 * Parse Baudrate.
+                 */
+                speed_t baudrate = B115200;
+                if ((cl_counter <= cl.size()) && ("--baudrate" == cl[cl_counter -1]))
                 {
-                    cfsetispeed(&tty_config, baudrate);
-                    cfsetospeed(&tty_config, baudrate);
-
-                    if (0 == tcsetattr(fd, TCSANOW, &tty_config))
+                    cl_counter++;
+                    if (cl_counter <= cl.size())
                     {
-                        server.reset(new eprosima::uxr::SerialServer(fd, 0));
+                        baudrate = getBaudRate(cl[cl_counter - 1].c_str());
+                        cl_counter++;
+                    }
+                }
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&tty_config, baudrate);
+                cfsetospeed(&tty_config, baudrate);
+
+                if (0 == tcsetattr(fd, TCSANOW, &tty_config))
+                {
+                    server.reset(new eprosima::uxr::SerialServer(fd, 0));
+                }
+
+                /*
+                 * Parse Refs File.
+                 */
+                if ((cl_counter <= cl.size()) && ("--refs" == cl[cl_counter - 1]))
+                {
+                    cl_counter++;
+                    if (cl_counter <= cl.size())
+                    {
+                        server->load_config_file(cl[cl_counter -1]);
+                        cl_counter++;
+                    }
+                    else
+                    {
+                        initializationError();
                     }
                 }
             }
         }
     }
-    else if ((1 <= cl.size()) && ("pseudo-serial" == cl[0]))
+    else if ((1 <= cl.size()) && ("--pseudo-serial" == cl[0]))
     {
+        cl_counter++;
         std::cout << "Pseudo-Serial initialization... ";
 
         /* Open pseudo-terminal. */
@@ -200,17 +299,44 @@ int main(int argc, char** argv)
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
 
-                /* Setting BAUD RATE. */
-                speed_t baudrate = (2 == cl.size()) ? getBaudRate(cl[1].c_str()) : B115200;
-                if (0 != baudrate)
+                /*
+                 * Parse Baudrate.
+                 */
+                speed_t baudrate = B115200;
+                if ((cl_counter <= cl.size()) && ("--baudrate" == cl[cl_counter -1]))
                 {
-                    cfsetispeed(&attr, baudrate);
-                    cfsetospeed(&attr, baudrate);
-
-                    if (0 == tcsetattr(fd, TCSANOW, &attr))
+                    cl_counter++;
+                    if (cl_counter <= cl.size())
                     {
-                        std::cout << "Device: " << dev << std::endl;
-                        server.reset(new eprosima::uxr::SerialServer(fd, 0x00));
+                        baudrate = getBaudRate(cl[cl_counter - 1].c_str());
+                        cl_counter++;
+                    }
+                }
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&attr, baudrate);
+                cfsetospeed(&attr, baudrate);
+
+                if (0 == tcsetattr(fd, TCSANOW, &attr))
+                {
+                    std::cout << "Device: " << dev << std::endl;
+                    server.reset(new eprosima::uxr::SerialServer(fd, 0x00));
+                }
+
+                /*
+                 * Parse Refs File.
+                 */
+                if ((cl_counter <= cl.size()) && ("--refs" == cl[cl_counter - 1]))
+                {
+                    cl_counter++;
+                    if (cl_counter <= cl.size())
+                    {
+                        server->load_config_file(cl[cl_counter -1]);
+                        cl_counter++;
+                    }
+                    else
+                    {
+                        initializationError();
                     }
                 }
             }
