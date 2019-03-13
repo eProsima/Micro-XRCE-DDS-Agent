@@ -2,9 +2,7 @@
     <participant profile_name="default_xrce_participant">
         <rtps>
             <builtin>
-                <leaseDuration>
-                    <durationbyname>INFINITE</durationbyname>
-                </leaseDuration>
+                <leaseDuration>INFINITE</leaseDuration>
                 <domainId>0</domainId>
             </builtin>
             <name>default_xrce_participant</name>
@@ -13,9 +11,7 @@
     <participant profile_name="default_xrce_participant_two">
         <rtps>
             <builtin>
-                <leaseDuration>
-                    <durationbyname>INFINITE</durationbyname>
-                </leaseDuration>
+                <leaseDuration>INFINITE</leaseDuration>
                 <domainId>0</domainId>
             </builtin>
             <name>default_xrce_participant_two</name>
@@ -30,10 +26,12 @@
                 <kind>KEEP_LAST</kind>
                 <depth>5</depth>
             </historyQos>
+        </topic>
+        <qos>
             <durability>
                 <kind>TRANSIENT_LOCAL</kind>
             </durability>
-        </topic>
+        </qos>
     </data_writer>
     <data_writer profile_name="shapetype_data_writer_two">
         <topic>
@@ -44,10 +42,12 @@
                 <kind>KEEP_LAST</kind>
                 <depth>10</depth>
             </historyQos>
+        </topic>
+        <qos>
             <durability>
                 <kind>TRANSIENT_LOCAL</kind>
             </durability>
-        </topic>
+        </qos>
     </data_writer>
     <data_reader profile_name="shapetype_data_reader">
         <topic>
@@ -58,10 +58,12 @@
                 <kind>KEEP_LAST</kind>
                 <depth>5</depth>
             </historyQos>
+        </topic>
+        <qos>
             <durability>
                 <kind>TRANSIENT_LOCAL</kind>
             </durability>
-        </topic>
+        </qos>
     </data_reader>
     <data_reader profile_name="shapetype_data_reader_two">
         <topic>
@@ -72,10 +74,12 @@
                 <kind>KEEP_LAST</kind>
                 <depth>10</depth>
             </historyQos>
+        </topic>
+        <qos>
             <durability>
                 <kind>TRANSIENT_LOCAL</kind>
             </durability>
-        </topic>
+        </qos>
     </data_reader>
     <topic profile_name="shapetype_topic">
         <kind>WITH_KEY</kind>
