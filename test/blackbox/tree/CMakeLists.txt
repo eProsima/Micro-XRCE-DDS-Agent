@@ -56,7 +56,7 @@ if(GMOCK_FOUND)
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         )
-    file(COPY ${PROJECT_SOURCE_DIR}/test/DEFAULT_FASTRTPS_PROFILES.xml
+    file(COPY ${PROJECT_SOURCE_DIR}/test/agent.refs
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
         )
 endif()

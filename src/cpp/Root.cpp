@@ -37,12 +37,6 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
-
-    /* Load XML profile file. */
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile())
-    {
-        std::cout << "Error: parsing DEFAULT PROFILE." << std::endl;
-    }
 }
 
 dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
@@ -189,6 +183,18 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
         next_client = current_client_->second;
         ++current_client_;
         rv = true;
+    }
+    return rv;
+}
+
+bool Root::load_config_file(const std::string& path)
+{
+    bool rv = true;
+    /* Load XML profile file. */
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadXMLFile(path))
+    {
+        std::cout << "Error: parsing config file." << std::endl;
+        rv = false;
     }
     return rv;
 }

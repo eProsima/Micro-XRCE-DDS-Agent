@@ -23,7 +23,11 @@ namespace testing {
 class TreeTests : public ::testing::Test
 {
 protected:
-    TreeTests() = default;
+    TreeTests()
+        : root_{}
+    {
+        root_.load_config_file("./agent.refs");
+    }
 
     virtual ~TreeTests() = default;
 
@@ -274,9 +278,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                       "<participant>"
                                           "<rtps>"
                                               "<builtin>"
-                                                  "<leaseDuration>"
-                                                      "<durationbyname>INFINITE</durationbyname>"
-                                                  "</leaseDuration>"
+                                                  "<leaseDuration>INFINITE</leaseDuration>"
                                                   "<domainId>0</domainId>"
                                               "</builtin>"
                                               "<name>default_xrce_participant</name>"
@@ -288,9 +290,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                           "<participant>"
                                               "<rtps>"
                                                   "<builtin>"
-                                                      "<leaseDuration>"
-                                                          "<durationbyname>INFINITE</durationbyname>"
-                                                      "</leaseDuration>"
+                                                      "<leaseDuration>INFINITE</leaseDuration>"
                                                       "<domainId>0</domainId>"
                                                   "</builtin>"
                                                   "<name>default_xrce_participant_two</name>"
@@ -324,10 +324,12 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                                  "<kind>KEEP_LAST</kind>"
                                                  "<depth>5</depth>"
                                              "</historyQos>"
+                                         "</topic>"
+                                         "<qos>"
                                              "<durability>"
                                                  "<kind>TRANSIENT_LOCAL</kind>"
                                              "</durability>"
-                                         "</topic>"
+                                         "</qos>"
                                      "</data_writer>"
                                  "</dds>";
     std::string datawriter_xml_two = "<dds>"
@@ -340,10 +342,12 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                                      "<kind>KEEP_LAST</kind>"
                                                      "<depth>10</depth>"
                                                  "</historyQos>"
+                                             "</topic>"
+                                             "<qos>"
                                                  "<durability>"
                                                      "<kind>TRANSIENT_LOCAL</kind>"
                                                  "</durability>"
-                                             "</topic>"
+                                             "</qos>"
                                          "</data_writer>"
 
                                      "</dds>";
@@ -358,10 +362,12 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                                  "<kind>KEEP_LAST</kind>"
                                                  "<depth>5</depth>"
                                              "</historyQos>"
+                                         "</topic>"
+                                         "<qos>"
                                              "<durability>"
                                                  "<kind>TRANSIENT_LOCAL</kind>"
                                              "</durability>"
-                                         "</topic>"
+                                         "</qos>"
                                      "</data_reader>"
                                  "</dds>";
     std::string datareader_xml_two = "<dds>"
@@ -374,10 +380,12 @@ TEST_F(TreeTests, CreationModeXMLTree)
                                                      "<kind>KEEP_LAST</kind>"
                                                      "<depth>10</depth>"
                                                  "</historyQos>"
+                                             "</topic>"
+                                             "<qos>"
                                                  "<durability>"
                                                      "<kind>TRANSIENT_LOCAL</kind>"
                                                  "</durability>"
-                                             "</topic>"
+                                             "</qos>"
                                          "</data_reader>"
                                      "</dds>";
 
