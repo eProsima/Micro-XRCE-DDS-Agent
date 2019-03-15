@@ -40,6 +40,8 @@ public:
     void init_client_iteration();
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
+    bool load_config_file(const std::string& path);
+
 private:
     std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;

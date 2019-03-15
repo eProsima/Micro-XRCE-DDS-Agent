@@ -172,7 +172,7 @@ add_executable(MicroXRCEAgent microxrce_agent.cpp)
 target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
 
 # XML default profile used to launch exec in the building folder
-file(COPY ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
     DESTINATION ${PROJECT_BINARY_DIR}
     )
 
@@ -301,7 +301,7 @@ install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
 
 # Install default profile XML.
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    install(FILES ${PROJECT_SOURCE_DIR}/DEFAULT_FASTRTPS_PROFILES.xml
+    install(FILES ${PROJECT_SOURCE_DIR}/agent.refs
         DESTINATION ${BIN_INSTALL_DIR}
         )
 endif()
