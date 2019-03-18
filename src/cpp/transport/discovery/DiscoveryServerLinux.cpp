@@ -15,6 +15,7 @@
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -41,6 +42,7 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
     if (-1 == poll_fd_.fd)
     {
+        logger::error("DiscoveryServer (port: {}): failed to open socket", discovery_port);
         return false;
     }
 
@@ -48,6 +50,7 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     int reuse = 1;
     if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
+        logger::error("DiscoveryServer (port: {}): failed to set socket options", discovery_port);
         return false;
     }
 
@@ -59,6 +62,9 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
+        /* Log. */
+        logger::debug("DiscoveryServer (port: {}): opened port", discovery_port);
+
         /* Poll setup. */
         poll_fd_.events = POLLIN;
 
@@ -68,7 +74,12 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
+            logger::info("DiscoveryServer (port: {}): launched", discovery_port);
             rv = true;
+        }
+        else
+        {
+            logger::error("DiscoveryServer (port: {}): failed to set socket options", discovery_port);
         }
     }
 

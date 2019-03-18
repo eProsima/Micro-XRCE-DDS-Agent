@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -24,6 +25,7 @@ namespace uxr {
 
 AgentDiscovererLinux::AgentDiscovererLinux()
     : poll_fd_{-1, 0, 0}
+    , buf_{0}
 {
 }
 
@@ -42,9 +44,17 @@ bool AgentDiscovererLinux::init(uint16_t p2p_port)
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
+        /* Log. */
+        logger::debug("AgentDiscoverer (port: {}): opened port", p2p_port);
+        logger::info("AgentDiscoverer (port: {}): launched", p2p_port);
+
         /* Poll setup. */
         poll_fd_.events = POLLIN;
         rv = true;
+    }
+    else
+    {
+        logger::error("AgentDiscoverer (port: {}): failed to open port", p2p_port);
     }
 
     return rv;

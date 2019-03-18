@@ -82,7 +82,7 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
-                    logger::info("UDPServer (port: {}): launched server", transport_address_.medium_locator().port());
+                    logger::info("UDPServer (port: {}): launched", transport_address_.medium_locator().port());
                 }
                 ::close(fd);
             }
@@ -200,7 +200,6 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        rv = (size_t(bytes_sent) == output_packet.message->get_len());
         logger::trace(
             "UDPServer (port: {}): sent message to \"{}.{}.{}.{}:{}\"",
             port_,
@@ -209,6 +208,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
             uint8_t(destination->get_addr() >> 16),
             uint8_t(destination->get_addr() >> 24),
             htons(destination->get_port()));
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 
     return rv;

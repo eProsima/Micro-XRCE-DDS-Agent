@@ -54,8 +54,6 @@ bool Server::run()
     processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
     heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
 
-    logger::debug("Launched threads in server");
-
     return true;
 }
 
