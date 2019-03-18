@@ -24,6 +24,7 @@ namespace uxr {
 #cmakedefine PROFILE_CED_MIDDLEWARE
 #cmakedefine PROFILE_DISCOVERY
 #cmakedefine PROFILE_P2P
+#cmakedefine PROFILE_LOGGER
 
 const uint16_t DISCOVERY_PORT = 7400;
 const char* const DISCOVERY_IP = "239.255.0.2";

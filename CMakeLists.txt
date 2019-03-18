@@ -186,6 +186,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
         $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         microxrcedds_client
+        pthread
     )
 target_include_directories(${PROJECT_NAME}
     PUBLIC

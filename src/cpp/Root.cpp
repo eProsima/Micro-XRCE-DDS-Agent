@@ -16,6 +16,7 @@
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 // TODO (#5047): replace Fast RTPS dependency by XML parser library.
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -40,6 +41,10 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
+#ifdef PROFILE_LOGGER
+    spdlog::set_level(spdlog::level::trace); // Set specific logger's log level
+    spdlog::set_pattern("[%E.%f] %^%L: %v%$");
+#endif
 }
 
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */

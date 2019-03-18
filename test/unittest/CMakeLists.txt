@@ -40,7 +40,14 @@ target_include_directories(test-root PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-root PRIVATE fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+target_link_libraries(test-root
+    PRIVATE
+        fastrtps
+        fastcdr
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        ${GTEST_LIBRARIES}
+        ${GMOCK_LIBRARIES}
+    )
 set_target_properties(test-root PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES

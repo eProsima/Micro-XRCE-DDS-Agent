@@ -16,6 +16,8 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/Root.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <functional>
 
 #define RECEIVE_TIMEOUT 1
@@ -51,6 +53,8 @@ bool Server::run()
     sender_thread_.reset(new std::thread(std::bind(&Server::sender_loop, this)));
     processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
     heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
+
+    logger::debug("Launched threads in server");
 
     return true;
 }
