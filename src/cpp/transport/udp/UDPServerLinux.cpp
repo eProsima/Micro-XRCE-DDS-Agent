@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -56,6 +57,9 @@ bool UDPServer::init()
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
+            /* Log. */
+            logger::debug("UDPServer (port: {}): opened port", transport_address_.medium_locator().port());
+
             /* Poll setup. */
             poll_fd_.events = POLLIN;
 
@@ -77,10 +81,19 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
+                    logger::info("UDPServer (port: {}): launched server", transport_address_.medium_locator().port());
                 }
                 ::close(fd);
             }
         }
+        else
+        {
+            logger::error("UDPServer (port: {}): failed to open port", transport_address_.medium_locator().port());
+        }
+    }
+    else
+    {
+        logger::error("UDPServer (port: {}): failed to open socket", transport_address_.medium_locator().port());
     }
 
     return rv;
@@ -88,7 +101,17 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
+    bool rv = false;
+    if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
+    {
+        logger::info("UDPServer (port: {}): closed port", transport_address_.medium_locator().port());
+        rv = true;
+    }
+    else
+    {
+        logger::error("UDPServer (port: {}): failed to close socket", transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -137,6 +160,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
+            logger::trace("UDPServer (port: {}): received message", transport_address_.medium_locator().port());
             rv = true;
         }
     }
@@ -169,6 +193,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
     if (-1 != bytes_sent)
     {
         rv = ((size_t)bytes_sent == output_packet.message->get_len());
+        logger::trace("UDPServer (port: {}): sent message", transport_address_.medium_locator().port());
     }
 
     return rv;
