@@ -96,6 +96,7 @@ option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
 option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
 option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
 option(PROFILE_P2P "Activate the P2P discovery profile." ON)
+option(PROFILE_LOGGER "Active logger profile." ON)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -108,9 +109,16 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_package(fastrtps REQUIRED)
-eprosima_find_package(uxrclient REQUIRED)
 eprosima_find_thirdparty(Asio asio)
+if(PROFILE_P2P)
+    eprosima_find_package(uxrclient)
+endif()
+if(PROFILE_FAST_MIDDLEWARE)
+    eprosima_find_package(fastrtps REQUIRED)
+endif()
+if(PROFILE_LOGGER)
+    eprosima_find_thirdparty(spdlog spdlog REQUIRED)
+endif()
 
 ###############################################################################
 # Targets
@@ -176,6 +184,7 @@ target_link_libraries(${PROJECT_NAME}
         fastcdr
     PRIVATE
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         microxrcedds_client
     )
 target_include_directories(${PROJECT_NAME}
