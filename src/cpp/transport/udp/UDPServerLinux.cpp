@@ -32,6 +32,7 @@ UDPServer::UDPServer(
     : UDPServerBase{agent_port, middleware_kind}
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
+    , port_{agent_port}
 #ifdef PROFILE_DISCOVERY
     , discovery_server_{*processor_}
 #endif
@@ -160,7 +161,14 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
-            logger::trace("UDPServer (port: {}): received message", transport_address_.medium_locator().port());
+            logger::trace(
+                "UDPServer (port: {}): received message from \"{}.{}.{}.{}:{}\"",
+                port_,
+                uint8_t(addr),
+                uint8_t(addr >> 8),
+                uint8_t(addr >> 16),
+                uint8_t(addr >> 24),
+                htons(port));
             rv = true;
         }
     }
@@ -192,8 +200,15 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        rv = ((size_t)bytes_sent == output_packet.message->get_len());
-        logger::trace("UDPServer (port: {}): sent message", transport_address_.medium_locator().port());
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
+        logger::trace(
+            "UDPServer (port: {}): sent message to \"{}.{}.{}.{}:{}\"",
+            port_,
+            uint8_t(destination->get_addr()),
+            uint8_t(destination->get_addr() >> 8),
+            uint8_t(destination->get_addr() >> 16),
+            uint8_t(destination->get_addr() >> 24),
+            htons(destination->get_port()));
     }
 
     return rv;

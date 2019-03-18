@@ -69,6 +69,7 @@ private:
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
+    uint16_t port_;
 #ifdef PROFILE_DISCOVERY
     DiscoveryServerLinux discovery_server_;
 #endif
