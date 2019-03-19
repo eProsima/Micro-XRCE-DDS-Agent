@@ -23,7 +23,9 @@ namespace uxr {
 #cmakedefine PROFILE_FAST_MIDDLEWARE
 #cmakedefine PROFILE_CED_MIDDLEWARE
 #cmakedefine PROFILE_DISCOVERY
+#ifdef PROFILE_CED_MIDDLEWARE
 #cmakedefine PROFILE_P2P
+#endif
 #cmakedefine PROFILE_LOGGER
 
 const uint16_t DISCOVERY_PORT = 7400;
