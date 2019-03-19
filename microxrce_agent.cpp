@@ -131,16 +131,16 @@ class BaudrateOpt
 {
 public:
     BaudrateOpt(CLI::App& subcommand)
-        : baudrate_(115200)
+        : baudrate_("115200")
         , cli_opt_{subcommand.add_option("-b,--baudrate", baudrate_, "Select the baudrate", true)}
     {
     }
 
     bool is_enable() const { return bool(cli_opt_); }
-    speed_t get_baudrate() const { return baudrate_; }
+    const std::string& get_baudrate() const { return baudrate_; }
 
 protected:
-    speed_t baudrate_;
+    std::string baudrate_;
     CLI::Option* cli_opt_;
 };
 
@@ -313,9 +313,12 @@ private:
                 attr.c_cc[VMIN] = 10;
                 attr.c_cc[VTIME] = 1;
 
+                /* Get baudrate. */
+                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+
                 /* Setting BAUD RATE. */
-                cfsetispeed(&attr, B115200);
-                cfsetospeed(&attr, B115200);
+                cfsetispeed(&attr, baudrate);
+                cfsetospeed(&attr, baudrate);
 
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
@@ -376,9 +379,14 @@ private:
                 tcgetattr(fd, &attr);
                 cfmakeraw(&attr);
                 tcflush(fd, TCIOFLUSH);
-                cfsetispeed(&attr, B115200);
-                cfsetospeed(&attr, B115200);
                 tcsetattr(fd, TCSANOW, &attr);
+
+                /* Get baudrate. */
+                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&attr, baudrate);
+                cfsetospeed(&attr, baudrate);
 
                 /* Log. */
                 std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
