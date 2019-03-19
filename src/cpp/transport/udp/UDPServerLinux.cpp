@@ -42,6 +42,11 @@ UDPServer::UDPServer(
 #endif
 {}
 
+UDPServer::~UDPServer()
+{
+    stop();
+}
+
 bool UDPServer::init()
 {
     bool rv = false;

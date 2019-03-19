@@ -109,9 +109,10 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_thirdparty(Asio asio)
+eprosima_find_thirdparty(Asio asio REQUIRED)
+eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
 if(PROFILE_P2P)
-    eprosima_find_package(uxrclient)
+    eprosima_find_package(uxrclient REQUIRED)
 endif()
 if(PROFILE_FAST_MIDDLEWARE)
     eprosima_find_package(fastrtps REQUIRED)
@@ -166,15 +167,15 @@ set(SRCS
     src/cpp/transport/tcp/TCPServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
-    $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
-    $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
     ${TRANSPORT_SRCS}
+    $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/types/TopicPubSubType.cpp>
     $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/xmlobjects/xmlobjects.cpp>
     $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastEntities.cpp>
     $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
     $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedEntities.cpp>
     $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
@@ -206,6 +207,7 @@ target_link_libraries(MicroXRCEAgent
     PRIVATE
         ${PROJECT_NAME}
         $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        CLI11::CLI11
     )
 
 # XML default profile used to launch exec in the building folder
