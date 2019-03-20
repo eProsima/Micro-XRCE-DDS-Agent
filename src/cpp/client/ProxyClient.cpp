@@ -40,6 +40,13 @@ ProxyClient::ProxyClient(
 {
     switch (middleware_kind)
     {
+        case Middleware::Kind::NONE:
+        {
+            UXR_AGENT_LOG_CRITICAL(
+                UXR_CLIENT_KEY_PATTERN,
+                UXR_DECORATE_RED("no Middleware selected"),
+                conversion::clientkey_to_raw(representation.client_key()));
+        }
 #ifdef PROFILE_FAST_MIDDLEWARE
         case Middleware::Kind::FAST:
         {

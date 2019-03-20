@@ -41,17 +41,18 @@ class MiddlewareOpt
 {
 public:
     MiddlewareOpt(CLI::App& subcommand)
-        : kind_{}
+        : kind_{"none"}
         , set_{}
         , cli_opt_{}
     {
-#ifdef PROFILE_FAST_MIDDLEWARE
-        set_.insert("dds");
-#endif
 #ifdef PROFILE_CED_MIDDLEWARE
         set_.insert("ced");
+        kind_ = "ced";
 #endif
-        kind_ = *(set_.rbegin());
+#ifdef PROFILE_FAST_MIDDLEWARE
+        set_.insert("dds");
+        kind_ = "dds";
+#endif
         cli_opt_ = subcommand.add_set("-m,--middleware", kind_, set_, "Select the kind of Middleware", true);
     }
 
