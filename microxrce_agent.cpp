@@ -86,8 +86,8 @@ class DiscoveryOpt
 public:
     DiscoveryOpt(CLI::App& subcommand)
         : port_(eprosima::uxr::DISCOVERY_PORT)
-        , cli_flag_{subcommand.add_flag("-d,--discovery", "Active the Discovery server")}
-        , cli_opt_{subcommand.add_option("--discovery-port", port_, "Select the port for the Discovery server", true)}
+        , cli_flag_{subcommand.add_flag("--discovery", "Active the Discovery server")}
+        , cli_opt_{subcommand.add_option("--disport", port_, "Select the port for the Discovery server", true)}
     {
         cli_opt_->needs(cli_flag_);
     }
@@ -145,135 +145,184 @@ protected:
 };
 
 /*************************************************************************************************
- * UDP CLI Subcommand
+ * Baudrate CLI Option
  *************************************************************************************************/
-class UDPSubcommand
+class ReferenceOpt
 {
 public:
-    UDPSubcommand(CLI::App& app)
-        : cli_subcommand_{app.add_subcommand("udp", "Launch a UDP server")}
-        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
-        , middleware_opt_{*cli_subcommand_}
-#ifdef PROFILE_DISCOVERY
-        , discovery_opt_{*cli_subcommand_}
-#endif
-#ifdef PROFILE_P2P
-        , p2p_opt_{*cli_subcommand_}
-#endif
+    ReferenceOpt(CLI::App& subcommand)
+        : file_{}
+        , cli_opt_{subcommand.add_option("-r,--refs", file_, "Load a reference file", true)}
     {
-        cli_subcommand_->callback(std::bind(&UDPSubcommand::launch_server, this));
-        cli_opt_->required(true);
+        cli_opt_->check(CLI::ExistingFile);
     }
 
-private:
-    void launch_server()
-    {
-        server_.reset(new eprosima::uxr::UDPServer(port_, middleware_opt_.get_kind()));
-        server_->run();
+    bool is_enable() const { return bool(cli_opt_); }
+    const std::string& get_file() const { return file_; }
 
-        if (discovery_opt_.is_enable())
-        {
-            server_->enable_discovery(discovery_opt_.get_port());
-        }
-
-#ifdef PROFILE_P2P
-        if (eprosima::uxr::Middleware::Kind::CED == middleware_opt_.get_kind() && p2p_opt_.is_enable())
-        {
-            server_->enable_p2p(p2p_opt_.get_port());
-        }
-#endif
-    }
-
-private:
-    uint16_t port_;
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
+protected:
+    std::string file_;
     CLI::Option* cli_opt_;
+};
+
+/*************************************************************************************************
+ * Common CLI Opts
+ *************************************************************************************************/
+class CommonOpts
+{
+public:
+    CommonOpts(CLI::App& subcommand)
+        : middleware_opt_{subcommand}
+        , reference_opt_{subcommand}
+#ifdef PROFILE_DISCOVERY
+        , discovery_opt_{subcommand}
+#endif
+#ifdef PROFILE_P2P
+        , p2p_opt_{subcommand}
+#endif
+    {}
+
     MiddlewareOpt middleware_opt_;
+    ReferenceOpt reference_opt_;
 #ifdef PROFILE_DISCOVERY
     DiscoveryOpt discovery_opt_;
 #endif
 #ifdef PROFILE_P2P
     P2POpt p2p_opt_;
 #endif
+};
+
+/*************************************************************************************************
+ * CLI Subcommand
+ *************************************************************************************************/
+class Subcommand
+{
+public:
+    Subcommand(
+            CLI::App& app,
+            const std::string& name,
+            const std::string& description,
+            const CommonOpts& common_opts)
+        : cli_subcommand_{app.add_subcommand(name, description)}
+        , opts_ref_{common_opts}
+    {
+        cli_subcommand_->callback(std::bind(&Subcommand::server_callback, this));
+    }
+
+    virtual ~Subcommand() = default;
+
+private:
+    void server_callback()
+    {
+        if (launch_server())
+        {
+#ifdef PROFILE_DISCOVERY
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef PROFILE_P2P
+            if (eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind() && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+        }
+    }
+
+    virtual bool launch_server() = 0;
+
+protected:
+    std::unique_ptr<eprosima::uxr::Server> server_;
+    CLI::App* cli_subcommand_;
+    const CommonOpts& opts_ref_;
+};
+
+
+/*************************************************************************************************
+ * UDP CLI Subcommand
+ *************************************************************************************************/
+class UDPSubcommand : public Subcommand
+{
+public:
+    UDPSubcommand(CLI::App& app)
+        : Subcommand{app, "udp", "Launch a UDP server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~UDPSubcommand() final = default;
+
+private:
+    bool launch_server()
+    {
+        server_.reset(new eprosima::uxr::UDPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        return server_->run();
+    }
+
+private:
+    uint16_t port_;
+    CLI::Option* cli_opt_;
+    CommonOpts common_opts_;
 };
 
 /*************************************************************************************************
  * TCP CLI Subcommand
  *************************************************************************************************/
-class TCPSubcommand
+class TCPSubcommand : public Subcommand
 {
 public:
     TCPSubcommand(CLI::App& app)
-        : cli_subcommand_{app.add_subcommand("tcp", "Launch a TCP server")}
+        : Subcommand{app, "tcp", "Launch a TCP server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
-        , middleware_opt_{*cli_subcommand_}
-#ifdef PROFILE_DISCOVERY
-        , discovery_opt_{*cli_subcommand_}
-#endif
-#ifdef PROFILE_P2P
-        , p2p_opt_{*cli_subcommand_}
-#endif
+        , common_opts_{*cli_subcommand_}
     {
-        cli_subcommand_->callback(std::bind(&TCPSubcommand::launch_server, this));
         cli_opt_->required(true);
     }
 
+    ~TCPSubcommand() final = default;
+
 private:
-    void launch_server()
+    bool launch_server()
     {
-        server_.reset(new eprosima::uxr::TCPServer(port_, middleware_opt_.get_kind()));
-        server_->run();
-
-        if (discovery_opt_.is_enable())
-        {
-            server_->enable_discovery(discovery_opt_.get_port());
-        }
-
-#ifdef PROFILE_P2P
-        if (eprosima::uxr::Middleware::Kind::CED == middleware_opt_.get_kind() && p2p_opt_.is_enable())
-        {
-            server_->enable_p2p(p2p_opt_.get_port());
-        }
-#endif
+        server_.reset(new eprosima::uxr::UDPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        return server_->run();
     }
 
 private:
     uint16_t port_;
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
     CLI::Option* cli_opt_;
-    MiddlewareOpt middleware_opt_;
-#ifdef PROFILE_DISCOVERY
-    DiscoveryOpt discovery_opt_;
-#endif
-#ifdef PROFILE_P2P
-    P2POpt p2p_opt_;
-#endif
+    CommonOpts common_opts_;
 };
 
 /*************************************************************************************************
  * Serial CLI Subcommand
  *************************************************************************************************/
-class SerialSubcommand
+class SerialSubcommand : public Subcommand
 {
 public:
     SerialSubcommand(CLI::App& app)
-        : cli_subcommand_{app.add_subcommand("serial", "Launch a Serial server")}
+        : Subcommand{app, "serial", "Launch a Serial server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-d,--dev", dev_, "Select the serial device")}
-        , middleware_opt_{*cli_subcommand_}
         , baudrate_opt_{*cli_subcommand_}
-#ifdef PROFILE_P2P
-        , p2p_opt_{*cli_subcommand_}
-#endif
+        , common_opts_{*cli_subcommand_}
     {
-        cli_subcommand_->callback(std::bind(&SerialSubcommand::launch_server, this));
         cli_opt_->required(true);
+        cli_opt_->check(CLI::ExistingFile);
     }
 
 private:
-    void launch_server()
+    bool launch_server() final
     {
+        bool rv = false;
         int fd = open(dev_.c_str(), O_RDWR | O_NOCTTY);
         if (0 < fd)
         {
@@ -322,52 +371,40 @@ private:
 
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
-                    server_.reset(new eprosima::uxr::SerialServer(fd, 0, middleware_opt_.get_kind()));
-                    server_->run();
-
-#ifdef PROFILE_P2P
-                    if (eprosima::uxr::Middleware::Kind::CED == middleware_opt_.get_kind() && p2p_opt_.is_enable())
-                    {
-                        server_->enable_p2p(p2p_opt_.get_port());
-                    }
-#endif
+                    server_.reset(new eprosima::uxr::SerialServer(fd, 0, common_opts_.middleware_opt_.get_kind()));
+                    rv = server_->run();
                 }
             }
         }
+        return rv;
     }
 
 private:
     std::string dev_;
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
     CLI::Option* cli_opt_;
-    MiddlewareOpt middleware_opt_;
     BaudrateOpt baudrate_opt_;
-#ifdef PROFILE_P2P
-    P2POpt p2p_opt_;
-#endif
+    CommonOpts common_opts_;
 };
 
 /*************************************************************************************************
  * Pseudo-Serial CLI Subcommand
  *************************************************************************************************/
-class PseudoSerialSubcommand
+class PseudoSerialSubcommand : public Subcommand
 {
 public:
     PseudoSerialSubcommand(CLI::App& app)
-        : cli_subcommand_{app.add_subcommand("pseudo-serial", "Launch a Pseudo-Serial server")}
-        , middleware_opt_{*cli_subcommand_}
+        : Subcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
         , baudrate_opt_{*cli_subcommand_}
-#ifdef PROFILE_P2P
-        , p2p_opt_{*cli_subcommand_}
-#endif
+        , common_opts_{*cli_subcommand_}
     {
         cli_subcommand_->callback(std::bind(&PseudoSerialSubcommand::launch_server, this));
     }
 
 private:
-    void launch_server()
+    bool launch_server() final
     {
+        bool rv = false;
+
         /* Open pseudo-terminal. */
         char* dev = nullptr;
         int fd = posix_openpt(O_RDWR | O_NOCTTY);
@@ -390,28 +427,19 @@ private:
 
                 /* Log. */
                 std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
+
+                /* Run server. */
+                server_.reset(new eprosima::uxr::SerialServer(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
+                rv = server_->run();
             }
         }
 
-        server_.reset(new eprosima::uxr::SerialServer(fd, 0x00, middleware_opt_.get_kind()));
-        server_->run();
-
-#ifdef PROFILE_P2P
-        if (eprosima::uxr::Middleware::Kind::CED == middleware_opt_.get_kind() && p2p_opt_.is_enable())
-        {
-            server_->enable_p2p(p2p_opt_.get_port());
-        }
-#endif
+        return rv;
     }
 
 private:
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
-    MiddlewareOpt middleware_opt_;
     BaudrateOpt baudrate_opt_;
-#ifdef PROFILE_P2P
-    P2POpt p2p_opt_;
-#endif
+    CommonOpts common_opts_;
 };
 
 int main(int argc, char** argv)
@@ -421,7 +449,7 @@ int main(int argc, char** argv)
     /* CLI application. */
     CLI::App app("eProsima Micro XRCE-DDS Agent");
     app.require_subcommand(0, 1);
-    app.get_formatter()->column_width(4);
+    app.get_formatter()->column_width(42);
 
     /* CLI subcommands. */
     UDPSubcommand udp_subcommand(app);
