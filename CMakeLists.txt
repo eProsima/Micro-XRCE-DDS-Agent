@@ -98,6 +98,10 @@ option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
 option(PROFILE_P2P "Activate the P2P discovery profile." ON)
 option(PROFILE_LOGGER "Active logger profile." ON)
 
+if(NOT PROFILE_CED_MIDDLEWARE)
+    set(PROFILE_P2P OFF)
+endif()
+
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
     ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
@@ -188,7 +192,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
         $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
-        microxrcedds_client
+        $<$<BOOL:${PROFILE_P2P}>:microxrcedds_client>
         $<$<PLATFORM_ID:Linux>:pthread>
     )
 target_include_directories(${PROJECT_NAME}
