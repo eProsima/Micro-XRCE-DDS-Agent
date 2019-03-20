@@ -28,6 +28,8 @@
 #include <fcntl.h>
 #endif //_WIN32
 
+#include <uxr/agent/Agent.hpp>
+
 #include <CLI/CLI.hpp>
 
 namespace eprosima{
@@ -168,6 +170,27 @@ protected:
 };
 
 /*************************************************************************************************
+ * Logger CLI Option
+ *************************************************************************************************/
+class VerboseOpt
+{
+public:
+    VerboseOpt(CLI::App& subcommand)
+        : level_{3}
+        , set_{0, 1, 2, 3, 4, 5, 6}
+        , cli_opt_{subcommand.add_set("-v,--verbose", level_, set_, "Select log level from less to more verbose", true)}
+    {}
+
+    bool is_enable() const { return bool(cli_opt_); }
+    uint8_t get_level() const { return uint8_t(level_); }
+
+protected:
+    uint16_t level_;
+    std::set<uint16_t> set_;
+    CLI::Option* cli_opt_;
+};
+
+/*************************************************************************************************
  * Common CLI Opts
  *************************************************************************************************/
 class CommonOpts
@@ -176,6 +199,7 @@ public:
     CommonOpts(CLI::App& subcommand)
         : middleware_opt_{subcommand}
         , reference_opt_{subcommand}
+        , verbose_opt_{subcommand}
 #ifdef PROFILE_DISCOVERY
         , discovery_opt_{subcommand}
 #endif
@@ -186,6 +210,7 @@ public:
 
     MiddlewareOpt middleware_opt_;
     ReferenceOpt reference_opt_;
+    VerboseOpt verbose_opt_;
 #ifdef PROFILE_DISCOVERY
     DiscoveryOpt discovery_opt_;
 #endif
@@ -234,7 +259,12 @@ private:
 #endif
             if (opts_ref_.reference_opt_.is_enable())
             {
-                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+                Agent::load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                Agent::set_verbose_level(opts_ref_.verbose_opt_.get_level());
             }
         }
     }

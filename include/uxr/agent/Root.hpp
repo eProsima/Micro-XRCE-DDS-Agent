@@ -45,6 +45,8 @@ public:
 
     bool load_config_file(const std::string& file_path);
 
+    void set_verbose_level(uint8_t verbose_level);
+
     void reset();
 
 private:

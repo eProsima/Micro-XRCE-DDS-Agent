@@ -482,6 +482,11 @@ bool Agent::load_config_file(const std::string& file_path)
     return Root::instance().load_config_file(file_path);
 }
 
+void Agent::set_verbose_level(uint8_t verbose_level)
+{
+    Root::instance().set_verbose_level(verbose_level);
+}
+
 /**********************************************************************************************************************
  * Write Data.
  **********************************************************************************************************************/

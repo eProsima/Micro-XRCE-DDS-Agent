@@ -90,11 +90,6 @@ bool Server::stop()
     return rv;
 }
 
-bool Server::load_config_file(const std::string& path)
-{
-    return Root::instance().load_config_file(path);
-}
-
 #ifdef PROFILE_DISCOVERY
 bool Server::enable_discovery(uint16_t discovery_port)
 {
