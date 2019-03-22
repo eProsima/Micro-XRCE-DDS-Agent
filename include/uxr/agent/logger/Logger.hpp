@@ -65,9 +65,9 @@ namespace logger {
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOGGER_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
+#define UXR_AGENT_LOG_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
 #else
-#define UXR_AGENT_LOFFER_TO_HEX(...) void(0)
+#define UXR_AGENT_LOG_TO_HEX(...) void(0)
 #endif
 
 } // namespace logger

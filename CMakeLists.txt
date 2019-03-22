@@ -177,7 +177,7 @@ set(SRCS
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
-# Executable
+# Library
 add_library(${PROJECT_NAME} ${SRCS})
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -197,8 +197,14 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         ${ASIO_INCLUDE_DIR}
     )
+
+# Executable
 add_executable(MicroXRCEAgent microxrce_agent.cpp)
-target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
+target_link_libraries(MicroXRCEAgent
+    PRIVATE
+        ${PROJECT_NAME}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog> #TODO (Julian): to remove
+    )
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/agent.refs

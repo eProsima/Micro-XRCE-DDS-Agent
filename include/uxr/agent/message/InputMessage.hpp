@@ -17,8 +17,11 @@
 
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <fastcdr/Cdr.h>
 #include <fastcdr/exceptions/Exception.h>
+
 #include <iostream>
 
 namespace eprosima {
@@ -50,11 +53,17 @@ public:
     InputMessage& operator=(const InputMessage&) = delete;
 
     const dds::xrce::MessageHeader& get_header() const { return header_; }
+
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }
+
     template<class T> bool get_payload(T& data);
+
     uint8_t get_raw_header(std::array<uint8_t, 8>& buf);
+
     bool get_raw_payload(uint8_t* buf, size_t len);
+
     bool jump_payload();
+
     bool prepare_next_submessage();
 
 private:
@@ -89,19 +98,11 @@ template<class T> inline bool InputMessage::get_payload(T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+        UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
         rv = false;
     }
     return rv;
 }
-
-template bool InputMessage::get_payload(dds::xrce::CREATE_CLIENT_Payload& data);
-template bool InputMessage::get_payload(dds::xrce::CREATE_Payload& data);
-template bool InputMessage::get_payload(dds::xrce::DELETE_Payload& data);
-template bool InputMessage::get_payload(dds::xrce::READ_DATA_Payload& data);
-template bool InputMessage::get_payload(dds::xrce::WRITE_DATA_Payload_Data& data);
-template bool InputMessage::get_payload(dds::xrce::HEARTBEAT_Payload& data);
-template bool InputMessage::get_payload(dds::xrce::ACKNACK_Payload& data);
 
 inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
 {
@@ -131,7 +132,7 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
         {
-            std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+            UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
             rv = false;
         }
     }
@@ -152,14 +153,11 @@ template<class T> inline bool InputMessage::deserialize(T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        std::cerr << "deserialize eprosima::fastcdr::exception::NotEnoughMemoryException" << std::endl;
+        UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
         rv = false;
     }
     return rv;
 }
-
-template bool InputMessage::deserialize(dds::xrce::MessageHeader& data);
-template bool InputMessage::deserialize(dds::xrce::SubmessageHeader& data);
 
 } // namespace uxr
 } // namespace eprosima
