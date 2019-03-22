@@ -59,7 +59,7 @@ bool UDPServer::init()
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
             /* Log. */
-            logger::debug("UDPServer (port: {}): opened port", transport_address_.medium_locator().port());
+            UXR_AGENT_LOG_DEBUG("Port: {}, Status: OPENED_PORT", transport_address_.medium_locator().port());
 
             /* Poll setup. */
             poll_fd_.events = POLLIN;
@@ -82,19 +82,19 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
-                    logger::info("UDPServer (port: {}): launched", transport_address_.medium_locator().port());
+                    UXR_AGENT_LOG_INFO("Port: {}, Status: LAUNCHED", transport_address_.medium_locator().port());
                 }
                 ::close(fd);
             }
         }
         else
         {
-            logger::error("UDPServer (port: {}): failed to open port", transport_address_.medium_locator().port());
+            UXR_AGENT_LOG_ERROR("Port: {}, Status: BIND_ERROR", transport_address_.medium_locator().port());
         }
     }
     else
     {
-        logger::error("UDPServer (port: {}): failed to open socket", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_ERROR("Port: {}, Status: SOCKET_ERROR", transport_address_.medium_locator().port());
     }
 
     return rv;
@@ -105,12 +105,12 @@ bool UDPServer::close()
     bool rv = false;
     if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
     {
-        logger::info("UDPServer (port: {}): closed port", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_INFO("Port: {}, Status: CLOSED", transport_address_.medium_locator().port());
         rv = true;
     }
     else
     {
-        logger::error("UDPServer (port: {}): failed to close socket", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_ERROR("Port: {}, Status: SOCKET_ERROR", transport_address_.medium_locator().port());
     }
     return rv;
 }
@@ -161,14 +161,14 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
-            logger::trace(
-                "UDPServer (port: {}): received message from \"{}.{}.{}.{}:{}\"",
-                port_,
-                uint8_t(addr),
-                uint8_t(addr >> 8),
-                uint8_t(addr >> 16),
-                uint8_t(addr >> 24),
-                htons(port));
+//            logger::trace(
+//                "UDPServer (port: {}): received message from \"{}.{}.{}.{}:{}\"",
+//                port_,
+//                uint8_t(addr),
+//                uint8_t(addr >> 8),
+//                uint8_t(addr >> 16),
+//                uint8_t(addr >> 24),
+//                htons(port));
             rv = true;
         }
     }
@@ -200,14 +200,14 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        logger::trace(
-            "UDPServer (port: {}): sent message to \"{}.{}.{}.{}:{}\"",
-            port_,
-            uint8_t(destination->get_addr()),
-            uint8_t(destination->get_addr() >> 8),
-            uint8_t(destination->get_addr() >> 16),
-            uint8_t(destination->get_addr() >> 24),
-            htons(destination->get_port()));
+//        logger::trace(
+//            "UDPServer (port: {}): sent message to \"{}.{}.{}.{}:{}\"",
+//            port_,
+//            uint8_t(destination->get_addr()),
+//            uint8_t(destination->get_addr() >> 8),
+//            uint8_t(destination->get_addr() >> 16),
+//            uint8_t(destination->get_addr() >> 24),
+//            htons(destination->get_port()));
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 

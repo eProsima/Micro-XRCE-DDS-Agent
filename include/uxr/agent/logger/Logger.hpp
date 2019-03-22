@@ -18,83 +18,50 @@
 #include <uxr/agent/config.hpp>
 
 #ifdef PROFILE_LOGGER
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 #endif
-
-#include <typeinfo>
 
 namespace eprosima {
 namespace uxr {
 namespace logger {
 
-template<typename... Args>
-inline void sink(Args const& ...) {}
-
-template<typename... Args>
-inline void trace(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::trace(fmt, args...);
+#define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_TRACE(...) void(0)
 #endif
-}
 
-template<typename... Args>
-inline void debug(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::debug(fmt, args...);
+#define UXR_AGENT_LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_DEBUG(...) void(0)
 #endif
-}
 
-template<typename... Args>
-inline void info(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::info(fmt, args...);
+#define UXR_AGENT_LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_INFO(...) void(0)
 #endif
-}
 
-template<typename... Args>
-inline void warn(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::warn(fmt, args...);
+#define UXR_AGENT_LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_WARN(...) (void)0
 #endif
-}
 
-template<typename... Args>
-inline void error(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::error(fmt, args...);
+#define UXR_AGENT_LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_ERROR(...) (void)0
 #endif
-}
 
-template<typename... Args>
-inline void critical(const char* fmt, const Args&... args)
-{
 #ifdef PROFILE_LOGGER
-    spdlog::critical(fmt, args...);
+#define UXR_AGENT_LOG_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
 #else
-    (void) fmt;
-    sink(args...);
+#define UXR_AGENT_LOG_CRITICAL(...) (void)0
 #endif
-}
 
 } // namespace logger
 } // namespace uxr

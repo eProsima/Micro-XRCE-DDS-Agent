@@ -146,14 +146,10 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     {
         it->second->release(objects_);
         objects_.erase(object_id);
-        logger::debug(
-            "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): delete object 0x{4:02X}{5:02X}",
-            representation_.client_key()[0],
-            representation_.client_key()[1],
-            representation_.client_key()[2],
-            representation_.client_key()[3],
-            object_id[0],
-            object_id[1]);
+        UXR_AGENT_LOG_DEBUG(
+            "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: DELETED",
+            convertion::clientkey_to_raw(representation_.client_key()),
+            convertion::objectid_to_raw(object_id));
     }
     else
     {
@@ -242,14 +238,11 @@ bool ProxyClient::create_participant(
         {
             if (objects_.emplace(object_id, std::move(participant)).second)
             {
-                logger::debug(
-                    "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created Participant 0x{4:02X}{5:02X}",
-                    representation_.client_key()[0],
-                    representation_.client_key()[1],
-                    representation_.client_key()[2],
-                    representation_.client_key()[3],
-                    object_id[0],
-                    object_id[1]);
+
+                UXR_AGENT_LOG_DEBUG(
+                    "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id));
                 rv = true;
             }
         }
@@ -273,14 +266,10 @@ bool ProxyClient::create_topic(
             {
                 if (objects_.emplace(object_id, std::move(topic)).second)
                 {
-                    logger::debug(
-                        "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created Topic 0x{4:02X}{5:02X}",
-                        representation_.client_key()[0],
-                        representation_.client_key()[1],
-                        representation_.client_key()[2],
-                        representation_.client_key()[3],
-                        object_id[0],
-                        object_id[1]);
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                     rv = true;
                 }
             }
@@ -306,14 +295,10 @@ bool ProxyClient::create_publisher(
             {
                 if (objects_.emplace(object_id, std::move(publisher)).second)
                 {
-                    logger::debug(
-                        "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created Publisher 0x{4:02X}{5:02X}",
-                        representation_.client_key()[0],
-                        representation_.client_key()[1],
-                        representation_.client_key()[2],
-                        representation_.client_key()[3],
-                        object_id[0],
-                        object_id[1]);
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                     rv = true;
                 }
             }
@@ -339,14 +324,10 @@ bool ProxyClient::create_subscriber(
             {
                 if (objects_.emplace(object_id, std::move(subscriber)).second)
                 {
-                    logger::debug(
-                        "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created Subscriber 0x{4:02X}{5:02X}",
-                        representation_.client_key()[0],
-                        representation_.client_key()[1],
-                        representation_.client_key()[2],
-                        representation_.client_key()[3],
-                        object_id[0],
-                        object_id[1]);
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                     rv = true;
                 }
             }
@@ -371,14 +352,10 @@ bool ProxyClient::create_datawriter(
             {
                 if (objects_.emplace(object_id, std::move(datawriter)).second)
                 {
-                    logger::debug(
-                        "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created DataWriter 0x{4:02X}{5:02X}",
-                        representation_.client_key()[0],
-                        representation_.client_key()[1],
-                        representation_.client_key()[2],
-                        representation_.client_key()[3],
-                        object_id[0],
-                        object_id[1]);
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                     rv = true;
                 }
             }
@@ -403,14 +380,10 @@ bool ProxyClient::create_datareader(
             {
                 if (objects_.emplace(object_id, std::move(datareader)).second)
                 {
-                    logger::debug(
-                        "Client (key: 0x{0:02X}{1:02X}{2:02X}{3:02X}): created DataReader 0x{4:02X}{5:02X}",
-                        representation_.client_key()[0],
-                        representation_.client_key()[1],
-                        representation_.client_key()[2],
-                        representation_.client_key()[3],
-                        object_id[0],
-                        object_id[1]);
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                     rv = true;
                 }
             }

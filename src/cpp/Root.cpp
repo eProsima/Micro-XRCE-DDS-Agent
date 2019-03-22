@@ -43,7 +43,8 @@ Root::Root()
     current_client_ = clients_.begin();
 #ifdef PROFILE_LOGGER
     spdlog::set_level(spdlog::level::trace);
-    spdlog::set_pattern("[%E.%f] %^%-8l %v%$");
+//    spdlog::set_pattern("[%E.%f] %^%-8l %v%$");
+    spdlog::set_pattern("[%E.%f] %^%-8l | %-18s | %-24! | %v %$");
 #endif
 }
 
@@ -79,13 +80,10 @@ dds::xrce::ResultStatus Root::create_client(
                         = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
-                    logger::debug(
-                            "Root: created Client 0x{0:02X}{1:02X}{2:02X}{3:02X} with Session 0x{4:02X}",
-                            client_representation.client_key()[0],
-                            client_representation.client_key()[1],
-                            client_representation.client_key()[2],
-                            client_representation.client_key()[3],
-                            client_representation.session_id());
+                    UXR_AGENT_LOG_DEBUG(
+                        "ClientKey: 0x{0:08X}, SessionID: 0x{1:02X}, Status: CREATED",
+                        convertion::clientkey_to_raw(client_key),
+                        session_id);
                 }
                 else
                 {
@@ -165,12 +163,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         }
         clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
-        logger::debug(
-                "Root: delete Client 0x{0:02X}{1:02X}{2:02X}{3:02X}",
-                client_key[0],
-                client_key[1],
-                client_key[2],
-                client_key[3]);
+        UXR_AGENT_LOG_DEBUG("ClientKey: 0x{0:08X}, Status: DELETED", convertion::clientkey_to_raw(client_key));
     }
     else
     {
