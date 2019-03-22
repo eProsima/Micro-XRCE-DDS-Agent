@@ -30,7 +30,9 @@ namespace uxr {
 class InputMessage
 {
 public:
-    InputMessage(uint8_t* buf, size_t len)
+    InputMessage(
+            uint8_t* buf,
+            size_t len)
         : buf_(new uint8_t[len]),
           len_(len),
           header_(),
