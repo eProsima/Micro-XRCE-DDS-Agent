@@ -238,7 +238,7 @@ int main(int argc, char** argv)
     }
     else if ((cl.end() != it_cl) && ("--udp" == *it_cl))
     {
-        std::cout << "UDP agent initialization... ";
+//        std::cout << "UDP agent initialization... ";
         uint16_t port = 0;
         if (cl.end() != ++it_cl)
         {
@@ -251,7 +251,7 @@ int main(int argc, char** argv)
         server.reset(new eprosima::uxr::UDPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
-            std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
+//            std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
         }
         else
         {
@@ -277,11 +277,11 @@ int main(int argc, char** argv)
                 }
                 if (discovery_launch)
                 {
-                    std::cout << "--> OK: Discovery Server enable" << std::endl;
+//                    std::cout << "--> OK: Discovery Server enable" << std::endl;
                 }
                 else
                 {
-                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
+//                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
                 }
             }
             else
@@ -317,11 +317,11 @@ int main(int argc, char** argv)
         server.reset(new eprosima::uxr::TCPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
-            std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
+//            std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
         }
         else
         {
-            std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
+//            std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
             return 1;
         }
 

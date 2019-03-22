@@ -98,10 +98,11 @@ inline bool OutputMessage::append_submessage(
     return rv;
 }
 
-inline bool OutputMessage::append_raw_payload(dds::xrce::SubmessageId submessage_id,
-                                              const uint8_t* buf,
-                                              size_t len,
-                                              uint8_t flags)
+inline bool OutputMessage::append_raw_payload(
+        dds::xrce::SubmessageId submessage_id,
+        const uint8_t* buf,
+        size_t len,
+        uint8_t flags)
 {
     bool rv = true;
     if (append_subheader(submessage_id, flags, len))
@@ -123,7 +124,10 @@ inline bool OutputMessage::append_raw_payload(dds::xrce::SubmessageId submessage
     return rv;
 }
 
-inline bool OutputMessage::append_fragment(const dds::xrce::SubmessageHeader& subheader, uint8_t* buf, size_t len)
+inline bool OutputMessage::append_fragment(
+        const dds::xrce::SubmessageHeader& subheader,
+        uint8_t* buf,
+        size_t len)
 {
     bool rv = false;
     serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
@@ -143,7 +147,10 @@ inline bool OutputMessage::append_fragment(const dds::xrce::SubmessageHeader& su
     return rv;
 }
 
-inline bool OutputMessage::append_subheader(dds::xrce::SubmessageId submessage_id, uint8_t flags, size_t submessage_len)
+inline bool OutputMessage::append_subheader(
+        dds::xrce::SubmessageId submessage_id,
+        uint8_t flags,
+        size_t submessage_len)
 {
     dds::xrce::SubmessageHeader subheader;
     subheader.submessage_id(submessage_id);

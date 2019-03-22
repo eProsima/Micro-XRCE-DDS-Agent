@@ -17,6 +17,7 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -43,7 +44,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         {
             if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
             {
-                process_create_client_submessage(input_packet);
+                process_create_client(input_packet);
             }
         }
     }
@@ -125,7 +126,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
-            rv = process_create_client_submessage(input_packet);
+            rv = process_create_client(input_packet);
             break;
         case dds::xrce::CREATE:
             rv = process_create_submessage(client, input_packet);
@@ -166,7 +167,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
     return rv;
 }
 
-bool Processor::process_create_client_submessage(InputPacket& input_packet)
+bool Processor::process_create_client(InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::CREATE_CLIENT_Payload client_payload;
@@ -174,6 +175,12 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
          (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
           input_packet.message->get_payload(client_payload))
     {
+        /* Log. */
+        UXR_AGENT_LOG_DEBUG(
+            "client_key: 0x{0:08X}, session_id: {1:02X}, status: PROCESSING",
+            convertion::clientkey_to_raw(client_payload.client_representation().client_key()),
+            client_payload.client_representation().session_id());
+
         /* Check whether there is a client associate with the source. */
         dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
         if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
@@ -241,9 +248,9 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
     }
     else
     {
-        std::cerr << "Error processing CREATE_CLIENT submessage." << std::endl;
         rv = false;
     }
+
     return rv;
 }
 
