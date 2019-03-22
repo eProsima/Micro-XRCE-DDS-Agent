@@ -21,6 +21,7 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#include <spdlog/fmt/bin_to_hex.h>
 #endif
 
 namespace eprosima {
@@ -61,6 +62,12 @@ namespace logger {
 #define UXR_AGENT_LOG_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_CRITICAL(...) (void)0
+#endif
+
+#ifdef PROFILE_LOGGER
+#define UXR_AGENT_LOGGER_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
+#else
+#define UXR_AGENT_LOFFER_TO_HEX(...) void(0)
 #endif
 
 } // namespace logger
