@@ -41,6 +41,10 @@ public:
         deserialize(header_);
     }
 
+    uint8_t* get_buf() const { return buf_; }
+
+    size_t get_len() const { return len_; }
+
     ~InputMessage()
     {
         delete[] buf_;

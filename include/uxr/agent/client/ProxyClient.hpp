@@ -89,7 +89,7 @@ private:
             const dds::xrce::DATAREADER_Representation& representation);
 
 private:
-    dds::xrce::CLIENT_Representation representation_;
+    const dds::xrce::CLIENT_Representation representation_;
     std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     XRCEObject::ObjectContainer objects_;

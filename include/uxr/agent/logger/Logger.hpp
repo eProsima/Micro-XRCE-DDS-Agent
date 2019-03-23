@@ -64,12 +64,49 @@
 #ifdef PROFILE_LOGGER
 #define UXR_AGENT_LOG_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
 #else
-#define UXR_AGENT_LOG_TO_HEX(...) void(0)
+#define UXR_AGENT_LOG_HEX(...) void(0)
+#endif
+
+#ifdef PROFILE_LOGGER
+#define UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_input_message(__VA_ARGS__)
+#else
+#define UXR_AGENT_LOG_INPUT_MESSAGE(...) void(0)
+#endif
+
+#ifdef PROFILE_LOGGER
+#define UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_output_message(__VA_ARGS__)
+#else
+#define UXR_AGENT_LOG_OUTPUT_MESSAGE(...) void(0)
 #endif
 
 namespace eprosima {
 namespace uxr {
-namespace logger {
+
+class Logger
+{
+public:
+    static Logger& instance();
+
+    void log_input_message(
+            uint32_t client_key,
+            uint8_t* buf,
+            size_t len);
+
+    void log_output_message(
+            uint32_t client_key,
+            uint8_t* buf,
+            size_t len);
+private:
+    Logger();
+    ~Logger() = default;
+
+    Logger(Logger&&) = delete;
+    Logger(const Logger&) = delete;
+    Logger operator=(Logger&&) = delete;
+    Logger operator=(const Logger&) = delete;
+
+private:
+    std::shared_ptr<spdlog::logger> message_logger_;
 
 //class Message;
 //
@@ -127,7 +164,8 @@ namespace logger {
 //    message_loger->info("info");
 //}
 
-} // namespace logger
+};
+
 } // namespace uxr
 } // namespace eprosima
 

@@ -160,6 +160,7 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
+    $<$<BOOL:${PROFILE_LOGGER}>:src/cpp/logger/Logger.cpp>
     $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
