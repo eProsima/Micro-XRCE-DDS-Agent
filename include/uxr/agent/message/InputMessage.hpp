@@ -56,18 +56,18 @@ public:
 
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }
 
-    template<class T> bool get_payload(T& data);
+    template<class T>
+    bool get_payload(T& data);
 
     uint8_t get_raw_header(std::array<uint8_t, 8>& buf);
 
     bool get_raw_payload(uint8_t* buf, size_t len);
 
-    bool jump_payload();
-
     bool prepare_next_submessage();
 
 private:
-    template<class T> bool deserialize(T& data);
+    template<class T>
+    bool deserialize(T& data);
 
 private:
     uint8_t* buf_;
@@ -89,7 +89,8 @@ inline bool InputMessage::prepare_next_submessage()
     return rv;
 }
 
-template<class T> inline bool InputMessage::get_payload(T& data)
+template<class T>
+inline bool InputMessage::get_payload(T& data)
 {
     bool rv = true;
     try
@@ -139,12 +140,8 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
     return rv;
 }
 
-inline bool InputMessage::jump_payload()
-{
-    return deserializer_.jump(size_t(subheader_.submessage_length()));
-}
-
-template<class T> inline bool InputMessage::deserialize(T& data)
+template<class T>
+inline bool InputMessage::deserialize(T& data)
 {
     bool rv = true;
     try
