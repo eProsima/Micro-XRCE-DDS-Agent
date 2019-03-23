@@ -176,12 +176,6 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
          (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
           input_packet.message->get_payload(client_payload))
     {
-        /* Log. */
-        UXR_AGENT_LOG_DEBUG(
-            "client_key: 0x{0:08X}, session_id: {1:02X}, status: PROCESSING",
-            convertion::clientkey_to_raw(client_payload.client_representation().client_key()),
-            client_payload.client_representation().session_id());
-
         /* Check whether there is a client associate with the source. */
         dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
         if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&

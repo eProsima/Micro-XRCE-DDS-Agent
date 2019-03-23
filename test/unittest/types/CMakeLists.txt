@@ -19,6 +19,8 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/OutputMessage.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-xrce-types ${SRCS})
 add_gtest(test-xrce-types

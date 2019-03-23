@@ -18,7 +18,6 @@
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
 #include <uxr/agent/utils/Functions.hpp>
-#include <uxr/agent/logger/Logger.hpp>
 
 #include <fastcdr/Cdr.h>
 #include <fastcdr/exceptions/Exception.h>
@@ -75,6 +74,8 @@ private:
     template<class T>
     bool serialize(const T& data);
 
+    void log_error();
+
 private:
     uint8_t* buf_;
     size_t len_;
@@ -111,7 +112,7 @@ inline bool OutputMessage::append_raw_payload(
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
         {
-            UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
+            log_error();
             rv = false;
         }
     }
@@ -138,7 +139,7 @@ inline bool OutputMessage::append_fragment(
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
         {
-            UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
+            log_error();
             rv = false;
         }
     }
@@ -169,7 +170,7 @@ inline bool OutputMessage::serialize(const T& data)
     }
     catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
     {
-        UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
+        log_error();
         rv = false;
     }
     return rv;
