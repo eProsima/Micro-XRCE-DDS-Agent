@@ -78,7 +78,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.participant(participant_representation);
 
     dds::xrce::ObjectPrefix participant_id = {0x00, 0x01};
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -96,7 +96,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.topic(topic_representation);
 
     dds::xrce::ObjectPrefix topic_id = {0x00, 0x22};
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -109,7 +109,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.publisher(publisher_representation);
 
     dds::xrce::ObjectPrefix publisher_id = {0x00, 0x13};
-    response = client->create(creation_mode, publisher_id, object_variant);
+    response = client->create_object(creation_mode, publisher_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -130,7 +130,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.data_writer(datawriter_representation);
 
     dds::xrce::ObjectPrefix datawriter_id = {0x00, 0x15};
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -143,7 +143,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.subscriber(subscriber_representation);
 
     dds::xrce::ObjectPrefix subscriber_id = {0x00, 0x14};
-    response = client->create(creation_mode, subscriber_id, object_variant);
+    response = client->create_object(creation_mode, subscriber_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -164,7 +164,7 @@ TEST_F(TreeTests, XMLTree)
     object_variant.data_reader(datareader_representation);
 
     dds::xrce::ObjectPrefix datareader_id = {0x00, 0x16};
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /* Participant destruction. */
@@ -206,7 +206,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.participant(participant_representation);
 
     dds::xrce::ObjectPrefix participant_id = {0x00, 0x01};
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -219,7 +219,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.topic(topic_representation);
 
     dds::xrce::ObjectPrefix topic_id = {0x00, 0x22};
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -232,7 +232,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.publisher(publisher_representation);
 
     dds::xrce::ObjectPrefix publisher_id = {0x00, 0x13};
-    response = client->create(creation_mode, publisher_id, object_variant);
+    response = client->create_object(creation_mode, publisher_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -245,7 +245,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.data_writer(datawriter_representation);
 
     dds::xrce::ObjectPrefix datawriter_id = {0x00, 0x15};
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -258,7 +258,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.subscriber(subscriber_representation);
 
     dds::xrce::ObjectPrefix subscriber_id = {0x00, 0x14};
-    response = client->create(creation_mode, subscriber_id, object_variant);
+    response = client->create_object(creation_mode, subscriber_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -271,7 +271,7 @@ TEST_F(TreeTests, REFTree)
     object_variant.data_reader(datareader_representation);
 
     dds::xrce::ObjectPrefix datareader_id = {0x00, 0x16};
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /* Participant destruction. */
@@ -429,51 +429,51 @@ TEST_F(TreeTests, CreationModeXMLTree)
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     participant_representation.representation().xml_string_representation(participant_xml_two);
     object_variant.participant(participant_representation);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -487,51 +487,51 @@ TEST_F(TreeTests, CreationModeXMLTree)
     creation_mode.reuse(false);
     creation_mode.replace(false);
     dds::xrce::ObjectPrefix topic_id = {0x00, 0x22};
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     topic_representation.representation().xml_string_representation(helloworld_topic_xml);
     object_variant.topic(topic_representation);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -544,7 +544,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
     object_variant.publisher(publisher_representation);
 
     dds::xrce::ObjectPrefix publisher_id = {0x00, 0x13};
-    response = client->create(creation_mode, publisher_id, object_variant);
+    response = client->create_object(creation_mode, publisher_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -556,51 +556,51 @@ TEST_F(TreeTests, CreationModeXMLTree)
     object_variant.data_writer(datawriter_representation);
 
     dds::xrce::ObjectPrefix datawriter_id = {0x00, 0x15};
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     datawriter_representation.representation().xml_string_representation(datawriter_xml_two);
     object_variant.data_writer(datawriter_representation);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -613,7 +613,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
     object_variant.subscriber(subscriber_representation);
 
     dds::xrce::ObjectPrefix subscriber_id = {0x00, 0x14};
-    response = client->create(creation_mode, subscriber_id, object_variant);
+    response = client->create_object(creation_mode, subscriber_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -625,51 +625,51 @@ TEST_F(TreeTests, CreationModeXMLTree)
     object_variant.data_reader(datareader_representation);
 
     dds::xrce::ObjectPrefix datareader_id = {0x00, 0x16};
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     datareader_representation.representation().xml_string_representation(datareader_xml_two);
     object_variant.data_reader(datareader_representation);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 }
 
@@ -708,52 +708,52 @@ TEST_F(TreeTests, CreationModeREFTree)
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(participant_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     participant_ref = "default_xrce_participant_two";
     participant_representation.representation().object_reference(participant_ref);
     object_variant.participant(participant_representation);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, participant_id, object_variant);
+    response = client->create_object(creation_mode, participant_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -768,52 +768,52 @@ TEST_F(TreeTests, CreationModeREFTree)
     creation_mode.reuse(false);
     creation_mode.replace(false);
     dds::xrce::ObjectPrefix topic_id = {0x00, 0x22};
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(topic_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     topic_ref = "shapetype_topic";
     topic_representation.representation().object_reference(topic_ref);
     object_variant.topic(topic_representation);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, topic_id, object_variant);
+    response = client->create_object(creation_mode, topic_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -826,7 +826,7 @@ TEST_F(TreeTests, CreationModeREFTree)
     object_variant.publisher(publisher_representation);
 
     dds::xrce::ObjectPrefix publisher_id = {0x00, 0x13};
-    response = client->create(creation_mode, publisher_id, object_variant);
+    response = client->create_object(creation_mode, publisher_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -839,52 +839,52 @@ TEST_F(TreeTests, CreationModeREFTree)
     object_variant.data_writer(datawriter_representation);
 
     dds::xrce::ObjectPrefix datawriter_id = {0x00, 0x15};
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datawriter_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     datawriter_ref = "shapetype_data_writer_two";
     datawriter_representation.representation().object_reference(datawriter_ref);
     object_variant.data_writer(datawriter_representation);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, datawriter_id, object_variant);
+    response = client->create_object(creation_mode, datawriter_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 
     /*
@@ -897,7 +897,7 @@ TEST_F(TreeTests, CreationModeREFTree)
     object_variant.subscriber(subscriber_representation);
 
     dds::xrce::ObjectPrefix subscriber_id = {0x00, 0x14};
-    response = client->create(creation_mode, subscriber_id, object_variant);
+    response = client->create_object(creation_mode, subscriber_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /*
@@ -910,52 +910,52 @@ TEST_F(TreeTests, CreationModeREFTree)
     object_variant.data_reader(datareader_representation);
 
     dds::xrce::ObjectPrefix datareader_id = {0x00, 0x16};
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = client->delete_object(datareader_id);
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_ALREADY_EXISTS, response.status());
 
     creation_mode.reuse(false);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(false);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
     datareader_ref = "shapetype_data_reader_two";
     datareader_representation.representation().object_reference(datareader_ref);
     object_variant.data_reader(datareader_representation);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_ERR_MISMATCH, response.status());
 
     creation_mode.reuse(true);
     creation_mode.replace(true);
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
-    response = client->create(creation_mode, datareader_id, object_variant);
+    response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
 }
 

@@ -271,9 +271,9 @@ bool Processor::process_create_submessage(
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(create_payload.request_id());
         status_payload.related_request().object_id(create_payload.object_id());
-        status_payload.result(client.create(creation_mode,
-                                            create_payload.object_id(),
-                                            create_payload.object_representation()));
+        status_payload.result(client.create_object(creation_mode,
+                                                   create_payload.object_id(),
+                                                   create_payload.object_representation()));
 
         /* Push submessage into the output stream. */
         client.session().push_output_submessage(dds::xrce::STREAMID_BUILTIN_RELIABLE, dds::xrce::STATUS, status_payload);

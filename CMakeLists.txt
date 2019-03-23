@@ -182,9 +182,9 @@ add_library(${PROJECT_NAME} ${SRCS})
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog> #TODO (Julian): move to private
     PRIVATE
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
-        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         microxrcedds_client
         pthread
     )

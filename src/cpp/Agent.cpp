@@ -192,7 +192,7 @@ bool create_object(
             fill_object_variant<object_kind, U, T>(parent_id, rep, object_variant);
 
             dds::xrce::ObjectId object_id = conversion::raw_to_objectid(raw_id);
-            dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
+            dds::xrce::ResultStatus result = client->create_object(creation_mode, object_id, object_variant);
             op_result = Agent::OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }

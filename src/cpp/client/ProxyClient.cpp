@@ -57,9 +57,10 @@ ProxyClient::ProxyClient(
     }
 }
 
-dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
-                                            const dds::xrce::ObjectPrefix& objectid_prefix,
-                                            const dds::xrce::ObjectVariant& object_representation)
+dds::xrce::ResultStatus ProxyClient::create_object(
+        const dds::xrce::CreationMode& creation_mode,
+        const dds::xrce::ObjectPrefix& objectid_prefix,
+        const dds::xrce::ObjectVariant& object_representation)
 {
     dds::xrce::ResultStatus result;
     result.status(dds::xrce::STATUS_OK);
@@ -90,6 +91,11 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
             if (!creation_mode.replace())
             {
                 result.status(dds::xrce::STATUS_ERR_ALREADY_EXISTS);
+
+                UXR_AGENT_LOG_WARN(
+                    "client_key: 0x{0:08X}, object_id: 0x{1:04X}, error: ALREADY_EXISTS",
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id));
             }
             else
             {
@@ -97,6 +103,11 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
                 if (!create_object(object_id, object_representation))
                 {
                     result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+                    UXR_AGENT_LOG_WARN(
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}, error: UNKNOWN_REFERENCE",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                 }
             }
         }
@@ -111,6 +122,11 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
                 else
                 {
                     result.status(dds::xrce::STATUS_ERR_MISMATCH);
+
+                    UXR_AGENT_LOG_WARN(
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}, error: MISMATCH",
+                        convertion::clientkey_to_raw(representation_.client_key()),
+                        convertion::objectid_to_raw(object_id));
                 }
             }
             else
@@ -125,6 +141,11 @@ dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creat
                     if (!create_object(object_id, object_representation))
                     {
                         result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+                        UXR_AGENT_LOG_WARN(
+                            "client_key: 0x{0:08X}, object_id: 0x{1:04X}, error: UNKNOWN_REFERENCE",
+                            convertion::clientkey_to_raw(representation_.client_key()),
+                            convertion::objectid_to_raw(object_id));
                     }
                 }
             }
@@ -146,21 +167,28 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     {
         it->second->release(objects_);
         objects_.erase(object_id);
+
         UXR_AGENT_LOG_DEBUG(
-            "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: DELETED",
+            "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
             convertion::clientkey_to_raw(representation_.client_key()),
             convertion::objectid_to_raw(object_id));
     }
     else
     {
         result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+        UXR_AGENT_LOG_WARN(
+            "client_key: 0x{0:08X}, object_id: 0x{1:04X}, error: UNKNOWN_REFERENCE",
+            convertion::clientkey_to_raw(representation_.client_key()),
+            convertion::objectid_to_raw(object_id));
     }
 
     return result;
 }
 
-dds::xrce::ResultStatus ProxyClient::update(const dds::xrce::ObjectId& /*object_id*/,
-                                            const dds::xrce::ObjectVariant& /*representation*/)
+dds::xrce::ResultStatus ProxyClient::update(
+        const dds::xrce::ObjectId& /*object_id*/,
+        const dds::xrce::ObjectVariant& /*representation*/)
 {
     // TODO (Borja):
     return dds::xrce::ResultStatus{};
@@ -189,7 +217,9 @@ Session& ProxyClient::session()
     return session_;
 }
 
-bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds::xrce::ObjectVariant& representation)
+bool ProxyClient::create_object(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::ObjectVariant& representation)
 {
     bool rv = false;
     switch (representation._d())
@@ -240,7 +270,7 @@ bool ProxyClient::create_participant(
             {
 
                 UXR_AGENT_LOG_DEBUG(
-                    "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                    "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                     convertion::clientkey_to_raw(representation_.client_key()),
                     convertion::objectid_to_raw(object_id));
                 rv = true;
@@ -267,7 +297,7 @@ bool ProxyClient::create_topic(
                 if (objects_.emplace(object_id, std::move(topic)).second)
                 {
                     UXR_AGENT_LOG_DEBUG(
-                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                         convertion::clientkey_to_raw(representation_.client_key()),
                         convertion::objectid_to_raw(object_id));
                     rv = true;
@@ -296,7 +326,7 @@ bool ProxyClient::create_publisher(
                 if (objects_.emplace(object_id, std::move(publisher)).second)
                 {
                     UXR_AGENT_LOG_DEBUG(
-                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                         convertion::clientkey_to_raw(representation_.client_key()),
                         convertion::objectid_to_raw(object_id));
                     rv = true;
@@ -325,7 +355,7 @@ bool ProxyClient::create_subscriber(
                 if (objects_.emplace(object_id, std::move(subscriber)).second)
                 {
                     UXR_AGENT_LOG_DEBUG(
-                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                         convertion::clientkey_to_raw(representation_.client_key()),
                         convertion::objectid_to_raw(object_id));
                     rv = true;
@@ -353,7 +383,7 @@ bool ProxyClient::create_datawriter(
                 if (objects_.emplace(object_id, std::move(datawriter)).second)
                 {
                     UXR_AGENT_LOG_DEBUG(
-                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                         convertion::clientkey_to_raw(representation_.client_key()),
                         convertion::objectid_to_raw(object_id));
                     rv = true;
@@ -381,7 +411,7 @@ bool ProxyClient::create_datareader(
                 if (objects_.emplace(object_id, std::move(datareader)).second)
                 {
                     UXR_AGENT_LOG_DEBUG(
-                        "ClientKey: 0x{0:08X}, ObjectId: 0x{1:04X}, Status: CREATED",
+                        "client_key: 0x{0:08X}, object_id: 0x{1:04X}",
                         convertion::clientkey_to_raw(representation_.client_key()),
                         convertion::objectid_to_raw(object_id));
                     rv = true;

@@ -38,7 +38,7 @@ public:
     ProxyClient& operator=(ProxyClient&&) = delete;
     ProxyClient& operator=(const ProxyClient&) = delete;
 
-    dds::xrce::ResultStatus create(
+    dds::xrce::ResultStatus create_object(
             const dds::xrce::CreationMode& creation_mode,
             const dds::xrce::ObjectPrefix& objectid_prefix,
             const dds::xrce::ObjectVariant& object_representation);
