@@ -203,7 +203,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
-    const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
+    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
@@ -373,7 +373,7 @@ bool TCPServer::read_message(int timeout)
                 {
                     InputPacket input_packet;
                     input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
-                    input_packet.source.reset(new TCPEndPoint(conn.addr, conn.port));
+                    input_packet.source.reset(new IPv4EndPoint(conn.addr, conn.port));
                     messages_queue_.push(std::move(input_packet));
                     rv = true;
                 }

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
-#define _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
+#ifndef UXR_AGENT_TRANSPORT_ENDPOINT_ENDPOINT_HPP_
+#define UXR_AGENT_TRANSPORT_ENDPOINT_ENDPOINT_HPP_
+
+#include <iostream>
 
 namespace eprosima {
 namespace uxr {
@@ -23,9 +25,16 @@ class EndPoint
 public:
     EndPoint() = default;
     virtual ~EndPoint() = default;
+
+    virtual std::ostream& print(std::ostream& os) const = 0;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const EndPoint& endpoint)
+{
+    return endpoint.print(os);
+}
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
+#endif // UXR_AGENT_TRANSPORT_ENDPOINT_ENDPOINT_HPP_

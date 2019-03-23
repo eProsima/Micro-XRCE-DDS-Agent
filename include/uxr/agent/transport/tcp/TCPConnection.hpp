@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_TCP_ENDPOINT_HPP_
-#define _UXR_AGENT_TRANSPORT_TCP_ENDPOINT_HPP_
-
-#include <uxr/agent/transport/EndPoint.hpp>
+#ifndef UXR_AGENT_TRANSPORT_TCP_CONNECTION_HPP_
+#define UXR_AGENT_TRANSPORT_TCP_CONNECTION_HPP_
 
 #include <stdint.h>
 #include <vector>
@@ -57,21 +55,7 @@ public:
     std::mutex mtx;
 };
 
-class TCPEndPoint : public EndPoint
-{
-public:
-    TCPEndPoint(uint32_t addr, uint16_t port) : addr_(addr), port_(port) {}
-    ~TCPEndPoint() = default;
-
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
-
-private:
-    uint32_t addr_;
-    uint16_t port_;
-};
-
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_TCP_ENDPOINT_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCP_CONNECTION_HPP_

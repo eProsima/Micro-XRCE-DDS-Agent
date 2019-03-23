@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -30,9 +31,11 @@ UDPServerBase::UDPServerBase(
     transport_address_.medium_locator(medium_locator);
 }
 
-void UDPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
+void UDPServerBase::on_create_client(
+        EndPoint* source,
+        const dds::xrce::CLIENT_Representation& representation)
 {
-    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
     const dds::xrce::ClientKey& client_key = representation.client_key();
     uint32_t client_id = uint32_t(client_key.at(0) +
@@ -66,12 +69,11 @@ void UDPServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_R
             source_to_client_map_.insert(std::make_pair(source_id, client_id));
         }
     }
-
 }
 
 void UDPServerBase::on_delete_client(EndPoint* source)
 {
-    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     uint64_t source_id = (endpoint->get_addr() << 16) | endpoint->get_port();
 
     /* Update maps. */
@@ -87,7 +89,7 @@ void UDPServerBase::on_delete_client(EndPoint* source)
 const dds::xrce::ClientKey UDPServerBase::get_client_key(EndPoint* source)
 {
     dds::xrce::ClientKey client_key;
-    UDPEndPoint* endpoint = static_cast<UDPEndPoint*>(source);
+    IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
@@ -113,7 +115,7 @@ std::unique_ptr<EndPoint> UDPServerBase::get_source(const dds::xrce::ClientKey& 
     if (it != client_to_source_map_.end())
     {
         uint64_t source_id = it->second;
-        source.reset(new UDPEndPoint(uint32_t(source_id >> 16), uint16_t(source_id & 0xFFFF)));
+        source.reset(new IPv4EndPoint(uint32_t(source_id >> 16), uint16_t(source_id & 0xFFFF)));
     }
     return source;
 }

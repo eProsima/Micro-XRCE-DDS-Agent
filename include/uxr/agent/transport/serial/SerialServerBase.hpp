@@ -16,7 +16,7 @@
 #define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/serial/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
 #include <uxr/agent/transport/serial/serial_protocol.h>
 
 #include <unordered_map>

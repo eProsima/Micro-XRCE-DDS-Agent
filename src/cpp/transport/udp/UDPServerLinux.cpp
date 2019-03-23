@@ -160,14 +160,8 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new UDPEndPoint(addr, port));
-            UXR_AGENT_LOG_TRACE(
-                "[==>> ** <<==] source_address: \"{}.{}.{}.{}:{}\"",
-                uint8_t(addr),
-                uint8_t(addr >> 8),
-                uint8_t(addr >> 16),
-                uint8_t(addr >> 24),
-                htons(port));
+            input_packet.source.reset(new IPv4EndPoint(addr, port));
+            UXR_AGENT_LOG_TRACE("[==>> ** <<==] source_address: {}", *input_packet.source);
             rv = true;
         }
     }
@@ -185,7 +179,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 bool UDPServer::send_message(OutputPacket output_packet)
 {
     bool rv = false;
-    const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
+    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
@@ -199,13 +193,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        UXR_AGENT_LOG_TRACE(
-            "[* <<====>> *] remote_address: \"{}.{}.{}.{}:{}\"",
-            uint8_t(destination->get_addr()),
-            uint8_t(destination->get_addr() >> 8),
-            uint8_t(destination->get_addr() >> 16),
-            uint8_t(destination->get_addr() >> 24),
-            htons(destination->get_port()));
+        UXR_AGENT_LOG_TRACE("[* <<====>> *] remote_address: {}", *output_packet.destination);
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 

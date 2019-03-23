@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
-#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
 #include <functional>
