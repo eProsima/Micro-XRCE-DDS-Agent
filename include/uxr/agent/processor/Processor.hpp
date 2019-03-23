@@ -67,7 +67,7 @@ private:
             ProxyClient& client,
             InputPacket& input_packet);
 
-    bool process_create_client(
+    bool process_create_client_submessage(
             InputPacket& input_packet);
 
     bool process_create_submessage(

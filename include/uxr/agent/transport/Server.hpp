@@ -20,6 +20,7 @@
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/agent_dll.hpp>
+
 #include <thread>
 
 namespace eprosima {

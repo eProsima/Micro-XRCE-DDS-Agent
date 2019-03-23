@@ -17,7 +17,6 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -44,7 +43,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         {
             if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
             {
-                process_create_client(input_packet);
+                process_create_client_submessage(input_packet);
             }
         }
     }
@@ -111,7 +110,9 @@ void Processor::process_input_packet(InputPacket&& input_packet)
     }
 }
 
-void Processor::process_input_message(ProxyClient& client, InputPacket& input_packet)
+void Processor::process_input_message(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     while (input_packet.message->prepare_next_submessage() && process_submessage(client, input_packet))
     {
@@ -126,7 +127,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
-            rv = process_create_client(input_packet);
+            rv = process_create_client_submessage(input_packet);
             break;
         case dds::xrce::CREATE:
             rv = process_create_submessage(client, input_packet);
@@ -167,7 +168,7 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
     return rv;
 }
 
-bool Processor::process_create_client(InputPacket& input_packet)
+bool Processor::process_create_client_submessage(InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::CREATE_CLIENT_Payload client_payload;
@@ -254,7 +255,9 @@ bool Processor::process_create_client(InputPacket& input_packet)
     return rv;
 }
 
-bool Processor::process_create_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_create_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::CreationMode creation_mode;
@@ -287,7 +290,9 @@ bool Processor::process_create_submessage(ProxyClient& client, InputPacket& inpu
     return rv;
 }
 
-bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_delete_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::DELETE_Payload delete_payload;
@@ -341,7 +346,9 @@ bool Processor::process_delete_submessage(ProxyClient& client, InputPacket& inpu
     return rv;
 }
 
-bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_write_data_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     bool deserialized = false, written = false;
@@ -384,7 +391,9 @@ bool Processor::process_write_data_submessage(ProxyClient& client, InputPacket& 
     return rv;
 }
 
-bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_read_data_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::READ_DATA_Payload read_payload;
@@ -441,7 +450,9 @@ bool Processor::process_read_data_submessage(ProxyClient& client, InputPacket& i
     return rv;
 }
 
-bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_acknack_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::ACKNACK_Payload acknack_payload;
@@ -483,7 +494,9 @@ bool Processor::process_acknack_submessage(ProxyClient& client, InputPacket& inp
     return rv;
 }
 
-bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_heartbeat_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     bool rv = true;
     dds::xrce::HEARTBEAT_Payload heartbeat_payload;
@@ -520,13 +533,17 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
     return rv;
 }
 
-bool Processor::process_reset_submessage(ProxyClient& client, InputPacket& /*input_packet*/)
+bool Processor::process_reset_submessage(
+        ProxyClient& client,
+        InputPacket& /*input_packet*/)
 {
     client.session().reset();
     return true;
 }
 
-bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& input_packet)
+bool Processor::process_fragment_submessage(
+        ProxyClient& client,
+        InputPacket& input_packet)
 {
     dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
     client.session().push_input_fragment(stream_id, input_packet.message);
@@ -582,7 +599,9 @@ bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& in
 //    return true;
 //}
 
-void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
+void Processor::read_data_callback(
+        const ReadCallbackArgs& cb_args,
+        const std::vector<uint8_t>& buffer)
 {
     mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_.get_client(cb_args.client_key);
@@ -611,9 +630,10 @@ void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::v
     mtx_.unlock();
 }
 
-bool Processor::process_get_info_packet(InputPacket&& input_packet,
-                                        dds::xrce::TransportAddress& address,
-                                        OutputPacket& output_packet) const
+bool Processor::process_get_info_packet(
+        InputPacket&& input_packet,
+        dds::xrce::TransportAddress& address,
+        OutputPacket& output_packet) const
 {
     bool rv = false;
 

@@ -35,7 +35,12 @@ target_include_directories(test-output-stream PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-output-stream PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-output-stream
+    PRIVATE
+        fastcdr
+        ${GTEST_BOTH_LIBRARIES}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+    )
 set_target_properties(test-output-stream PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
@@ -64,7 +69,12 @@ target_include_directories(test-input-stream PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-input-stream PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-input-stream
+    PRIVATE
+        fastcdr
+        ${GTEST_BOTH_LIBRARIES}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+    )
 set_target_properties(test-input-stream PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES

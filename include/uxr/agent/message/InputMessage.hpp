@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
-#define _UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
+#ifndef UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
+#define UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
 
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
@@ -21,8 +21,6 @@
 
 #include <fastcdr/Cdr.h>
 #include <fastcdr/exceptions/Exception.h>
-
-#include <iostream>
 
 namespace eprosima {
 namespace uxr {
@@ -164,4 +162,4 @@ template<class T> inline bool InputMessage::deserialize(T& data)
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
+#endif // UXR_AGENT_MESSAGE_INPUT_MESSAGE_HPP_
