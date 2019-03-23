@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/utils/Convertion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
@@ -38,10 +39,7 @@ void UDPServerBase::on_create_client(
     IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
     const dds::xrce::ClientKey& client_key = representation.client_key();
-    uint32_t client_id = uint32_t(client_key.at(0) +
-                                  (client_key.at(1) << 8) +
-                                  (client_key.at(2) << 16) +
-                                  (client_key.at(3) << 24));
+    uint32_t client_id = convertion::clientkey_to_raw(client_key);
 
     /* Update source for the client. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -54,6 +52,7 @@ void UDPServerBase::on_create_client(
     else
     {
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
+        UXR_AGENT_LOG_INFO("client_key: 0x{0:08X} -> endpoint: {1}, status: SESSION_ESTABLISHED", client_id, *source);
     }
 
     /* Update client for the source. */
@@ -63,6 +62,7 @@ void UDPServerBase::on_create_client(
         if (it_source != source_to_client_map_.end())
         {
             it_source->second = client_id;
+            UXR_AGENT_LOG_INFO("client_key: 0x{0:08X} -> endpoint: {1}, status: ENDPOINT_UPDATED", client_id, *source);
         }
         else
         {
@@ -74,13 +74,14 @@ void UDPServerBase::on_create_client(
 void UDPServerBase::on_delete_client(EndPoint* source)
 {
     IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
-    uint64_t source_id = (endpoint->get_addr() << 16) | endpoint->get_port();
+    uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
 
     /* Update maps. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = source_to_client_map_.find(source_id);
     if (it != source_to_client_map_.end())
     {
+        UXR_AGENT_LOG_INFO("client_key: 0x{0:08X} -> endpoint: {1}, status: SESSION_DESTROID", it->second, *source);
         client_to_source_map_.erase(it->second);
         source_to_client_map_.erase(it->first);
     }
@@ -94,10 +95,7 @@ const dds::xrce::ClientKey UDPServerBase::get_client_key(EndPoint* source)
     auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = uint8_t(it->second & 0x000000FF);
-        client_key.at(1) = uint8_t((it->second & 0x0000FF00) >> 8);
-        client_key.at(2) = uint8_t((it->second & 0x00FF0000) >> 16);
-        client_key.at(3) = uint8_t((it->second & 0xFF000000) >> 24);
+        client_key = convertion::raw_to_clientkey(it->second);
     }
     else
     {
@@ -109,7 +107,7 @@ const dds::xrce::ClientKey UDPServerBase::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> UDPServerBase::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = uint32_t(client_key.at(0) + (client_key.at(1) << 8) + (client_key.at(2) << 16) + (client_key.at(3) <<24));
+    uint32_t client_id = convertion::clientkey_to_raw(client_key);
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())

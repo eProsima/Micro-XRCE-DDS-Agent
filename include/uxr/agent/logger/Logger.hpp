@@ -71,16 +71,16 @@ namespace eprosima {
 namespace uxr {
 namespace logger {
 
-class Message;
-
-enum Direction : uint8_t
-{
-    INPUT,
-    OUTPUT
-};
-
-static void message()
-{
+//class Message;
+//
+//enum Direction : uint8_t
+//{
+//    INPUT,
+//    OUTPUT
+//};
+//
+//static void message()
+//{
 //    const std::string reset = "\033[m";
 //    const std::string bold = "\033[1m";
 //    const std::string dark = "\033[2m";
@@ -125,7 +125,7 @@ static void message()
 //
 //    color_sink->set_color(spdlog::level::info, magenta);
 //    message_loger->info("info");
-}
+//}
 
 } // namespace logger
 } // namespace uxr

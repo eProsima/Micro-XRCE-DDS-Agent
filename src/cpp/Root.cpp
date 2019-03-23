@@ -43,7 +43,7 @@ Root::Root()
 {
     current_client_ = clients_.begin();
 #ifdef PROFILE_LOGGER
-    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::debug);
 //    spdlog::set_pattern("[%E.%f] %^%-8l %v%$");
 //    spdlog::set_pattern("[%E.%f] %^%-8l [%n] | %-18s | %-24! | %v %$");
     spdlog::set_pattern("[%E.%f] %^%L | %-18s | %-24! | %v %$");
