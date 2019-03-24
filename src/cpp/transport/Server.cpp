@@ -144,10 +144,14 @@ void Server::receiver_loop()
     {
         if (recv_message(input_packet, RECEIVE_TIMEOUT))
         {
-            UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(
+            UXR_AGENT_LOG_TRACE(
+                "client_key: 0x{:08X} {:X}",
+                logger::status_info("[==>> ** <<==]"),
                 convertion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-                input_packet.message->get_buf(),
-                input_packet.message->get_len());
+                UXR_AGENT_LOG_TO_HEX(
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_buf() + input_packet.message->get_len())
+                );
             input_scheduler_.push(std::move(input_packet), 0);
         }
     }
@@ -160,10 +164,14 @@ void Server::sender_loop()
     {
         if (output_scheduler_.pop(output_packet))
         {
-            UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(
+            UXR_AGENT_LOG_TRACE(
+                "client_key: 0x{:08X} {:X}",
+                logger::status_info("[* <<====>> *]"),
                 convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-                output_packet.message->get_buf(),
-                output_packet.message->get_len());
+                UXR_AGENT_LOG_TO_HEX(
+                    output_packet.message->get_buf(),
+                    output_packet.message->get_buf() + output_packet.message->get_len())
+                );
             send_message(output_packet);
         }
     }

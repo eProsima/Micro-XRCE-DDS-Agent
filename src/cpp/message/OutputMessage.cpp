@@ -20,7 +20,10 @@ namespace uxr {
 
 void OutputMessage::log_error()
 {
-    UXR_AGENT_LOG_ERROR("status: NOT_ENOUGH_MEMORY {}", UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
+    UXR_AGENT_LOG_ERROR(
+        "buffer: {:X}",
+        logger::status_error("serialization error"),
+        UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
 }
 
 } // namespace uxr

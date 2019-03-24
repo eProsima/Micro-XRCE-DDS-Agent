@@ -26,46 +26,40 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
 
-#define UXR_AGENT_LOG_STATUS "{:<30} |"
+#define UXR_AGENT_LOG_STATUS "{:<26} | "
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_TRACE(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
+#define UXR_AGENT_LOG_DEBUG(...) SPDLOG_DEBUG(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_DEBUG(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define UXR_AGENT_LOG_INFO(...) SPDLOG_INFO(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_INFO(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_INFO_M(...) SPDLOG_INFO(UXR_AGENT_LOG_STATUS __VA_ARGS__)
-#else
-#define UXR_AGENT_LOG_INFO_M(...) void(0)
-#endif
-
-#ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)
+#define UXR_AGENT_LOG_WARN(...) SPDLOG_WARN(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_WARN(...) (void)0
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
+#define UXR_AGENT_LOG_ERROR(...) SPDLOG_ERROR(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_ERROR(...) (void)0
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_CRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
+#define UXR_AGENT_LOG_CRITICAL(...) SPDLOG_CRITICAL(UXR_AGENT_LOG_STATUS __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_CRITICAL(...) (void)0
 #endif
@@ -76,20 +70,31 @@
 #define UXR_AGENT_LOG_HEX(...) void(0)
 #endif
 
-#ifndef PROFILE_LOGGER
-#define UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_input_message(__VA_ARGS__)
-#else
-#define UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(...) void(0)
-#endif
-
-#ifndef PROFILE_LOGGER
-#define UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_output_message(__VA_ARGS__)
-#else
-#define UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(...) void(0)
-#endif
-
 namespace eprosima {
 namespace uxr {
+namespace logger {
+
+inline std::string status_ok(const std::string& message)
+{
+    return color::green + message + color::reset;
+}
+
+inline std::string status_warning(const std::string& message)
+{
+    return  color::yellow + message + color::reset;
+}
+
+inline std::string status_error(const std::string& message)
+{
+    return  color::red + message + color::reset;
+}
+
+inline std::string status_info(const std::string& message)
+{
+    return  color::white + message + color::reset;
+}
+
+}
 
 class Logger
 {

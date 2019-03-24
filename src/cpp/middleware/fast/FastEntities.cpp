@@ -76,14 +76,16 @@ void FastParticipant::onParticipantDiscovery(
     if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: MATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("matched"),
             info.info.m_guid.guidPrefix,
             info.info.m_guid.entityId);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: UNMATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("unmatched"),
             info.info.m_guid.guidPrefix,
             info.info.m_guid.entityId);
     }
@@ -256,14 +258,16 @@ void FastDataWriter::onPublicationMatched(
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: MATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("matched"),
             info.remoteEndpointGuid.guidPrefix,
             info.remoteEndpointGuid.entityId);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: MATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("unmatched"),
             info.remoteEndpointGuid.guidPrefix,
             info.remoteEndpointGuid.entityId);
     }
@@ -363,14 +367,16 @@ void FastDataReader::onSubscriptionMatched(
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: MATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("matched"),
             info.remoteEndpointGuid.guidPrefix,
             info.remoteEndpointGuid.entityId);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
-            "GUIDPrefix: {}, EntityId: {}, Status: UNMATCHED",
+            "GUIDPrefix: {}, EntityId: {}",
+            logger::status_info("unmatched"),
             info.remoteEndpointGuid.guidPrefix,
             info.remoteEndpointGuid.entityId);
     }

@@ -103,10 +103,6 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 server_->push_output_packet(output_packet);
             }
         }
-        else
-        {
-            std::cerr << "Error client unknown." << std::endl;
-        }
     }
 }
 
