@@ -18,6 +18,7 @@
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <iostream>
 #include <atomic>
@@ -173,6 +174,14 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
+            UXR_AGENT_LOG_DEBUG(
+                "datareader: 0x{:04}",
+                logger::status_warning("[==>> XRCE <<==]"),
+                get_raw_id());
+            UXR_AGENT_LOG_TRACE(
+                "data: {:X}",
+                logger::status_info("[==>> XRCE <<==]"),
+                UXR_AGENT_LOG_TO_HEX(data));
             read_cb(cb_args, data);
             ++message_count;
         }

@@ -146,7 +146,7 @@ void Server::receiver_loop()
         {
             UXR_AGENT_LOG_TRACE(
                 "client_key: 0x{:08X} {:X}",
-                logger::status_info("[==>> ** <<==]"),
+                logger::status_info("[==>> **** <<==]"),
                 convertion::clientkey_to_raw(get_client_key(input_packet.source.get())),
                 UXR_AGENT_LOG_TO_HEX(
                     input_packet.message->get_buf(),
@@ -166,7 +166,7 @@ void Server::sender_loop()
         {
             UXR_AGENT_LOG_TRACE(
                 "client_key: 0x{:08X} {:X}",
-                logger::status_info("[* <<====>> *]"),
+                logger::status_info("[** <<====>> **]"),
                 convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
                 UXR_AGENT_LOG_TO_HEX(
                     output_packet.message->get_buf(),

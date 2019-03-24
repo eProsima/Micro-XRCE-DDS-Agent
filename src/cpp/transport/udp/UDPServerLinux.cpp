@@ -182,7 +182,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             input_packet.source.reset(new IPv4EndPoint(addr, port));
             UXR_AGENT_LOG_DEBUG(
                 "client_key: 0x{:08X}",
-                logger::status_warning("[==>> ** <<==]"),
+                logger::status_warning("[==>> **** <<==]"),
                 convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
             rv = true;
         }
@@ -217,7 +217,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
     {
         UXR_AGENT_LOG_DEBUG(
             "client_key: 0x{:08X}",
-            logger::status_warning("[* <<====>> *]"),
+            logger::status_warning("[** <<====>> **]"),
             convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
