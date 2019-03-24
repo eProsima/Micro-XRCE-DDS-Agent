@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+#include <uxr/agent/utils/Convertion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <unistd.h>
@@ -59,7 +60,7 @@ bool UDPServer::init()
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
             /* Log. */
-            UXR_AGENT_LOG_DEBUG("Port: {}, Status: OPENED_PORT", transport_address_.medium_locator().port());
+            UXR_AGENT_LOG_DEBUG("port: {}, status: PORT_OPENED", transport_address_.medium_locator().port());
 
             /* Poll setup. */
             poll_fd_.events = POLLIN;
@@ -82,19 +83,19 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
-                    UXR_AGENT_LOG_INFO("Port: {}, Status: LAUNCHED", transport_address_.medium_locator().port());
+                    UXR_AGENT_LOG_INFO("port: {}, status: LAUNCHED", transport_address_.medium_locator().port());
                 }
                 ::close(fd);
             }
         }
         else
         {
-            UXR_AGENT_LOG_ERROR("Port: {}, Status: BIND_ERROR", transport_address_.medium_locator().port());
+            UXR_AGENT_LOG_ERROR("port: {}, status: BIND_ERROR", transport_address_.medium_locator().port());
         }
     }
     else
     {
-        UXR_AGENT_LOG_ERROR("Port: {}, Status: SOCKET_ERROR", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_ERROR("port: {}, status: SOCKET_ERROR", transport_address_.medium_locator().port());
     }
 
     return rv;
@@ -105,12 +106,12 @@ bool UDPServer::close()
     bool rv = false;
     if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
     {
-        UXR_AGENT_LOG_INFO("Port: {}, Status: CLOSED", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_INFO("port: {}, status: CLOSED", transport_address_.medium_locator().port());
         rv = true;
     }
     else
     {
-        UXR_AGENT_LOG_ERROR("Port: {}, Status: SOCKET_ERROR", transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_ERROR("port: {}, status: SOCKET_ERROR", transport_address_.medium_locator().port());
     }
     return rv;
 }
@@ -161,7 +162,9 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
-            UXR_AGENT_LOG_TRACE("[==>> ** <<==] source_address: {}", *input_packet.source);
+            UXR_AGENT_LOG_DEBUG(
+                "client_key: 0x{0:08X} [==>> ** <<==]",
+                convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
             rv = true;
         }
     }
@@ -193,7 +196,9 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        UXR_AGENT_LOG_TRACE("[* <<====>> *] remote_address: {}", *output_packet.destination);
+        UXR_AGENT_LOG_DEBUG(
+            "client_key: 0x{0:08X} [* <<====>> *]",
+            convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 

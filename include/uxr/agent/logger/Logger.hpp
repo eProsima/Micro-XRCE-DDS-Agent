@@ -16,6 +16,7 @@
 #define UXR_AGENT_LOGGER_LOGGER_HPP_
 
 #include <uxr/agent/config.hpp>
+#include <uxr/agent/utils/Color.hpp>
 
 #ifdef PROFILE_LOGGER
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
@@ -24,6 +25,8 @@
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
+
+#define UXR_AGENT_LOG_STATUS "{:<30} |"
 
 #ifdef PROFILE_LOGGER
 #define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
@@ -41,6 +44,12 @@
 #define UXR_AGENT_LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_INFO(...) void(0)
+#endif
+
+#ifdef PROFILE_LOGGER
+#define UXR_AGENT_LOG_INFO_M(...) SPDLOG_INFO(UXR_AGENT_LOG_STATUS __VA_ARGS__)
+#else
+#define UXR_AGENT_LOG_INFO_M(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
@@ -67,16 +76,16 @@
 #define UXR_AGENT_LOG_HEX(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifndef PROFILE_LOGGER
 #define UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_input_message(__VA_ARGS__)
 #else
-#define UXR_AGENT_LOG_INPUT_MESSAGE(...) void(0)
+#define UXR_AGENT_LOG_DEBUG_INPUT_MESSAGE(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifndef PROFILE_LOGGER
 #define UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(...) eprosima::uxr::Logger::instance().log_output_message(__VA_ARGS__)
 #else
-#define UXR_AGENT_LOG_OUTPUT_MESSAGE(...) void(0)
+#define UXR_AGENT_LOG_DEBUG_OUTPUT_MESSAGE(...) void(0)
 #endif
 
 namespace eprosima {
