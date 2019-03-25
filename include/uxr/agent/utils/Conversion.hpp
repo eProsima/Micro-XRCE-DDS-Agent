@@ -23,12 +23,12 @@ namespace conversion {
 
 inline uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
 {
-    return uint16_t(object_id[1] + (object_id[0] << 8));
+    return uint16_t((object_id[1] >> 4) + (object_id[0] << 4));
 }
 
-inline dds::xrce::ObjectId raw_to_objectid(uint16_t raw)
+inline dds::xrce::ObjectId raw_to_objectid(uint16_t raw, dds::xrce::ObjectKind kind)
 {
-    return dds::xrce::ObjectId{uint8_t(raw >> 8), uint8_t(raw & 0xFF)};
+    return dds::xrce::ObjectId{uint8_t(raw >> 4), uint8_t((raw << 4) | kind)};
 }
 
 inline dds::xrce::ObjectId raw_to_objectprefix(uint16_t raw)

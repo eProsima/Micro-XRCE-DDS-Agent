@@ -29,7 +29,7 @@ std::unique_ptr<DataWriter> DataWriter::create(
         const ObjectContainer& root_objects)
 {
     bool created_entity = false;
-    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    uint16_t raw_object_id = convertion::objectid_to_raw(object_id);
     std::shared_ptr<Topic> topic;
 
     Middleware& middleware = publisher->get_middleware();
@@ -38,11 +38,11 @@ std::unique_ptr<DataWriter> DataWriter::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            uint16_t topic_id;
-            if (middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = convertion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 created_entity = true;
             }
             break;
@@ -50,11 +50,11 @@ std::unique_ptr<DataWriter> DataWriter::create(
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t topic_id;
-            if (middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = convertion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 created_entity = true;
             }
             break;
