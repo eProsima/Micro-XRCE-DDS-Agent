@@ -31,7 +31,7 @@ TCPServerBase::TCPServerBase(
 {
     dds::xrce::TransportAddressMedium medium_locator;
     medium_locator.port(agent_port);
-    transport_address_.medium_locator().port() = agent_port;
+    transport_address_.medium_locator(medium_locator);
 }
 
 void TCPServerBase::on_create_client(

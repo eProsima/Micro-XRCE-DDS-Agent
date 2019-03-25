@@ -118,10 +118,10 @@ bool UDPServer::close()
     bool rv = false;
     if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
     {
-       UXR_AGENT_LOG_INFO(
-           "port: {}",
-           logger::status_ok("server stoped"),
-           transport_address_.medium_locator().port());
+        UXR_AGENT_LOG_INFO(
+            "port: {}",
+            logger::status_ok("server stoped"),
+            transport_address_.medium_locator().port());
         rv = true;
     }
     else
