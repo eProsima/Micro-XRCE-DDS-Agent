@@ -74,7 +74,7 @@
 #define UXR_AGENT_LOG_MESSAGE(BUF, LEN, FORMAT, ...) \
     if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
     { \
-        SPDLOG_DEBUG(UXR_AGENT_LOG_STATUS FORMAT "{}", __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+        SPDLOG_DEBUG(UXR_AGENT_LOG_STATUS FORMAT "{:X}", __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     else \
     { \

@@ -262,19 +262,16 @@ bool ProxyClient::create_participant(
         const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
     bool rv = false;
-    if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
+    if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, *middleware_))
     {
-        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, *middleware_))
+        if (objects_.emplace(object_id, std::move(participant)).second)
         {
-            if (objects_.emplace(object_id, std::move(participant)).second)
-            {
-                UXR_AGENT_LOG_DEBUG(
-                    "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                    logger::status_ok("created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
-                rv = true;
-            }
+            UXR_AGENT_LOG_DEBUG(
+                "client_key: 0x{:08X}, participant_id: 0x{:04X}",
+                logger::status_ok("participant created"),
+                convertion::clientkey_to_raw(representation_.client_key()),
+                convertion::objectid_to_raw(object_id));
+            rv = true;
         }
     }
     return rv;
@@ -285,27 +282,29 @@ bool ProxyClient::create_topic(
         const dds::xrce::OBJK_TOPIC_Representation& representation)
 {
     bool rv = false;
-    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_TOPIC == (object_id[1] & 0x0F))
+    dds::xrce::ObjectId participant_id;
+    participant_id[0] = representation.participant_id()[0];
+    participant_id[1] = (representation.participant_id()[1] & 0xF0) | dds::xrce::OBJK_PARTICIPANT;
+
+    auto it = objects_.find(participant_id);
+    if (it != objects_.end())
     {
-        auto it = objects_.find(representation.participant_id());
-        if (it != objects_.end())
+        std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, representation))
         {
-            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, representation))
+            if (objects_.emplace(object_id, std::move(topic)).second)
             {
-                if (objects_.emplace(object_id, std::move(topic)).second)
-                {
-                    UXR_AGENT_LOG_DEBUG(
-                        "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                        logger::status_ok("created"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
-                    rv = true;
-                }
+                UXR_AGENT_LOG_DEBUG(
+                    "client_key: 0x{:08X}, topic_id: 0x{:04X}, participant_id: 0x{:04X}",
+                    logger::status_ok("topic created"),
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id),
+                    convertion::objectid_to_raw(participant_id));
+                rv = true;
             }
         }
     }
+
     return rv;
 }
 
@@ -313,29 +312,30 @@ bool ProxyClient::create_publisher(
         const dds::xrce::ObjectId& object_id,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation)
 {
-    /* Check whether participant exists. */
     bool rv = false;
-    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_PUBLISHER == (object_id[1] & 0x0F))
+    dds::xrce::ObjectId participant_id;
+    participant_id[0] = representation.participant_id()[0];
+    participant_id[1] = (representation.participant_id()[1] & 0xF0) | dds::xrce::OBJK_PARTICIPANT;
+
+    auto it = objects_.find(participant_id);
+    if (it != objects_.end())
     {
-        auto it = objects_.find(representation.participant_id());
-        if (it != objects_.end())
+        std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant, representation))
         {
-            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant, representation))
+            if (objects_.emplace(object_id, std::move(publisher)).second)
             {
-                if (objects_.emplace(object_id, std::move(publisher)).second)
-                {
-                    UXR_AGENT_LOG_DEBUG(
-                        "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                        logger::status_ok("created"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
-                    rv = true;
-                }
+                UXR_AGENT_LOG_DEBUG(
+                    "client_key: 0x{:08X}, publisher_id: 0x{:04X}, participant_id: 0x{:04X}",
+                    logger::status_ok("publisher created"),
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id),
+                    convertion::objectid_to_raw(participant_id));
+                rv = true;
             }
         }
     }
+
     return rv;
 }
 
@@ -343,29 +343,30 @@ bool ProxyClient::create_subscriber(
         const dds::xrce::ObjectId& object_id,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
 {
-    /* Check whether participant exists. */
     bool rv = false;
-    if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_SUBSCRIBER == (object_id[1] & 0x0F))
+    dds::xrce::ObjectId participant_id;
+    participant_id[0] = representation.participant_id()[0];
+    participant_id[1] = (representation.participant_id()[1] & 0xF0) | dds::xrce::OBJK_PARTICIPANT;
+
+    auto it = objects_.find(participant_id);
+    if (it != objects_.end())
     {
-        auto it = objects_.find(representation.participant_id());
-        if (it != objects_.end())
+        std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant, representation))
         {
-            std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-            if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant, representation))
+            if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
-                if (objects_.emplace(object_id, std::move(subscriber)).second)
-                {
-                    UXR_AGENT_LOG_DEBUG(
-                        "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                        logger::status_ok("created"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
-                    rv = true;
-                }
+                UXR_AGENT_LOG_DEBUG(
+                    "client_key: 0x{:08X}, subscriber_id: 0x{:04X}, participant_id: 0x{:04X}",
+                    logger::status_ok("subscriber created"),
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id),
+                    convertion::objectid_to_raw(participant_id));
+                rv = true;
             }
         }
     }
+
     return rv;
 }
 
@@ -374,27 +375,29 @@ bool ProxyClient::create_datawriter(
         const dds::xrce::DATAWRITER_Representation& representation)
 {
     bool rv = false;
-    if (dds::xrce::OBJK_PUBLISHER == (representation.publisher_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_DATAWRITER == (object_id[1] & 0x0F))
+    dds::xrce::ObjectId publisher_id;
+    publisher_id[0] = representation.publisher_id()[0];
+    publisher_id[1] = (representation.publisher_id()[1] & 0xF0) | dds::xrce::OBJK_PUBLISHER;
+
+    auto it = objects_.find(publisher_id);
+    if (it != objects_.end())
     {
-        auto it = objects_.find(representation.publisher_id());
-        if (it != objects_.end())
+        std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation, objects_))
         {
-            std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-            if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation, objects_))
+            if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
-                if (objects_.emplace(object_id, std::move(datawriter)).second)
-                {
-                    UXR_AGENT_LOG_DEBUG(
-                        "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                        logger::status_ok("created"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
-                    rv = true;
-                }
+                UXR_AGENT_LOG_DEBUG(
+                    "client_key: 0x{:08X}, datawriter_id: 0x{:04X}, publisher_id: 0x{:04X}",
+                    logger::status_ok("datawriter created"),
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id),
+                    convertion::objectid_to_raw(publisher_id));
+                rv = true;
             }
         }
     }
+
     return rv;
 }
 
@@ -403,27 +406,29 @@ bool ProxyClient::create_datareader(
         const dds::xrce::DATAREADER_Representation& representation)
 {
     bool rv = false;
-    if (dds::xrce::OBJK_SUBSCRIBER == (representation.subscriber_id()[1] & 0x0F) &&
-        dds::xrce::OBJK_DATAREADER == (object_id[1] & 0x0F))
+    dds::xrce::ObjectId subscriber_id;
+    subscriber_id[0] = representation.subscriber_id()[0];
+    subscriber_id[1] = (representation.subscriber_id()[1] & 0xF0) | dds::xrce::OBJK_SUBSCRIBER;
+
+    auto it = objects_.find(subscriber_id);
+    if (it != objects_.end())
     {
-        auto it = objects_.find(representation.subscriber_id());
-        if (it != objects_.end())
+        std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation, objects_))
         {
-            std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-            if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation, objects_))
+            if (objects_.emplace(object_id, std::move(datareader)).second)
             {
-                if (objects_.emplace(object_id, std::move(datareader)).second)
-                {
-                    UXR_AGENT_LOG_DEBUG(
-                        "client_key: 0x{:08X}, object_id: 0x{:04X}",
-                        logger::status_ok("created"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
-                    rv = true;
-                }
+                UXR_AGENT_LOG_DEBUG(
+                    "client_key: 0x{:08X}, datareader_id: 0x{:04X}, subscriber_id: 0x{:04X}",
+                    logger::status_ok("datareader created"),
+                    convertion::clientkey_to_raw(representation_.client_key()),
+                    convertion::objectid_to_raw(object_id),
+                    convertion::objectid_to_raw(subscriber_id));
+                rv = true;
             }
         }
     }
+
     return rv;
 }
 
