@@ -117,7 +117,7 @@ if(PROFILE_FAST_MIDDLEWARE)
     eprosima_find_package(fastrtps REQUIRED)
 endif()
 if(PROFILE_LOGGER)
-    eprosima_find_thirdparty(spdlog spdlog REQUIRED)
+    eprosima_find_package(spdlog REQUIRED)
 endif()
 
 ###############################################################################
@@ -188,7 +188,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
         $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         microxrcedds_client
-        pthread
+        $<$<PLATFORM_ID:Linux>:pthread>
     )
 target_include_directories(${PROJECT_NAME}
     PUBLIC
@@ -205,6 +205,7 @@ add_executable(MicroXRCEAgent microxrce_agent.cpp)
 target_link_libraries(MicroXRCEAgent
     PRIVATE
         ${PROJECT_NAME}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
     )
 
 # XML default profile used to launch exec in the building folder

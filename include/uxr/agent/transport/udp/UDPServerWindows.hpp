@@ -16,7 +16,6 @@
 #define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
-#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
 #ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
