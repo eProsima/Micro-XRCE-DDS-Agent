@@ -44,13 +44,7 @@ Root::Root()
     current_client_ = clients_.begin();
 #ifdef PROFILE_LOGGER
     spdlog::set_level(spdlog::level::trace);
-//    spdlog::set_pattern("[%E.%f] %^%-8l %v%$");
-//    spdlog::set_pattern("[%E.%f] %^%-8l [%n] | %-18s | %-24! | %v %$");
-    spdlog::set_pattern(color::magenta + "[%E.%f]" + color::reset +
-                        " %^%-8l%$ | " +
-                        color::blue +  "%-18s" + color::reset +  " | " +
-                        color::white + "%-24!" + color::reset + " | "
-                        "%v");
+    spdlog::set_pattern(UXR_LOG_PATTERN);
 #endif
 }
 
@@ -68,7 +62,7 @@ dds::xrce::ResultStatus Root::create_client(
         invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
 
         UXR_AGENT_LOG_WARN(
-            "client_key: 0x{:08X}",
+            UXR_CLIENT_KEY_PATTERN,
             logger::status_error("invalid client key"),
             convertion::clientkey_to_raw(client_representation.client_key()));
 
@@ -93,7 +87,7 @@ dds::xrce::ResultStatus Root::create_client(
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
                     UXR_AGENT_LOG_INFO(
-                        "client_key: 0x{:08X}, session_id: 0x{:02X}",
+                        UXR_CREATE_SESSION_PATTERN,
                         logger::status_ok("created"),
                         convertion::clientkey_to_raw(client_key),
                         session_id);
@@ -103,7 +97,7 @@ dds::xrce::ResultStatus Root::create_client(
                     result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
 
                     UXR_AGENT_LOG_INFO(
-                        "client_key: 0x{0:08X}",
+                        UXR_CLIENT_KEY_PATTERN,
                         logger::status_error("resources error"),
                         convertion::clientkey_to_raw(client_representation.client_key()));
                 }
@@ -126,7 +120,7 @@ dds::xrce::ResultStatus Root::create_client(
             result_status.status(dds::xrce::STATUS_ERR_INCOMPATIBLE);
 
             UXR_AGENT_LOG_INFO(
-                "client_key: 0x{:08X}",
+                UXR_CLIENT_KEY_PATTERN,
                 logger::status_error("incompatible version"),
                 convertion::clientkey_to_raw(client_representation.client_key()));
         }
@@ -136,7 +130,7 @@ dds::xrce::ResultStatus Root::create_client(
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
 
         UXR_AGENT_LOG_INFO(
-            "client_key: 0x{:08X}",
+            UXR_CLIENT_KEY_PATTERN,
             logger::status_error("invalid cookie"),
             convertion::clientkey_to_raw(client_representation.client_key()));
     }
@@ -195,7 +189,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
         UXR_AGENT_LOG_INFO(
-            "client_key: 0x{:08X}",
+            UXR_CLIENT_KEY_PATTERN,
             logger::status_ok("deleted"),
             convertion::clientkey_to_raw(client_key));
     }
@@ -204,7 +198,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
 
         UXR_AGENT_LOG_INFO(
-            "client_key: 0x{:08X}",
+            UXR_CLIENT_KEY_PATTERN,
             logger::status_error("unknown client"),
             convertion::clientkey_to_raw(client_key));
     }

@@ -177,7 +177,6 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
             UXR_AGENT_LOG_MESSAGE(
                 data.data(),
                 data.size(),
-                "datareader: 0x{:04X}, len: {}",
                 logger::status_warning("[==>> DDS <<==]"),
             get_raw_id());
             read_cb(cb_args, data);
