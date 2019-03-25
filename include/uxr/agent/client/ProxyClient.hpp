@@ -62,31 +62,38 @@ public:
 private:
     bool create_object(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::ObjectVariant& representation);
+            const dds::xrce::ObjectVariant& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_participant(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+            const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_topic(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_TOPIC_Representation& representation);
+            const dds::xrce::OBJK_TOPIC_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_publisher(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_PUBLISHER_Representation& representation);
+            const dds::xrce::OBJK_PUBLISHER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_subscriber(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
+            const dds::xrce::OBJK_SUBSCRIBER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_datawriter(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::DATAWRITER_Representation& representation);
+            const dds::xrce::DATAWRITER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_datareader(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::DATAREADER_Representation& representation);
+            const dds::xrce::DATAREADER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
 private:
     const dds::xrce::CLIENT_Representation representation_;
