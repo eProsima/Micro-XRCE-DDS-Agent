@@ -63,8 +63,8 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
     const char* ref_one = "default_xrce_participant";
     const char* ref_two = "default_xrce_participant_two";
 
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -110,20 +110,14 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
     /*
      * Delete Participant.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, participant_id, result));
+    EXPECT_TRUE(Agent::delete_participant(client_key_, participant_id, result));
 
     /*
      * Create Participant with invalid REF.
      */
     EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
-
-    /*
-     * Create Participant with invalid ObjectId.
-     */
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
 TEST_F(AgentUnitTests, CreateParticipantByXml)
@@ -146,8 +140,8 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
                               "</participant>"
                           "</dds>";
 
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -193,20 +187,14 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
     /*
      * Delete Participant.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, participant_id, result));
+    EXPECT_TRUE(Agent::delete_participant(client_key_, participant_id, result));
 
     /*
      * Create Participant with invalid XML.
      */
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
-
-    /*
-     * Create Participant with invalid ObjectId.
-     */
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
 TEST_F(AgentUnitTests, CreateTopicByRef)
@@ -218,9 +206,9 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
     const char* ref_one = "shapetype_topic";
     const char* ref_two = "helloworld_topic";
 
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -267,27 +255,19 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
     /*
      * Delete Topic.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, topic_id, result));
+    EXPECT_TRUE(Agent::delete_topic(client_key_, topic_id, result));
 
     /*
      * Create Topic with invalid REF.
      */
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create Topic with invalid ObjectId.
+     * Create Topic with unknown Participant.
      */
-    topic_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create Topic with invalid Participant Id.
-     */
-    topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
+    EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, 0x01, ref_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
@@ -311,9 +291,9 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
                               "</topic>"
                           "</dds>";
 
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -360,27 +340,19 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
     /*
      * Delete Topic.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, topic_id, result));
+    EXPECT_TRUE(Agent::delete_topic(client_key_, topic_id, result));
 
     /*
      * Create Topic with invalid XML.
      */
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create Topic with invalid ObjectId.
+     * Create Topic with unknown Participant.
      */
-    topic_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create Topic with invalid Participant Id.
-     */
-    topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
+    EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, 0x01, xml_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
@@ -393,9 +365,9 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
     const char* xml_one = "publisher_one";
     const char* xml_two = "publisher_two";
 
-    uint16_t publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t publisher_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -438,22 +410,14 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
     /*
      * Delete Publisher.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, publisher_id, result));
+    EXPECT_TRUE(Agent::delete_publisher(client_key_, publisher_id, result));
 
     /*
-     * Create Publisher with invalid ObjectId.
+     * Create Publisher with unknown Participant.
      */
-    publisher_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create Publisher with invalid Participant Id.
-     */
-    publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, 0x01, xml_one, flag, result));
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
 TEST_F(AgentUnitTests, CreateSubscriberByXml)
@@ -465,9 +429,9 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
     const char* xml_one = "subscriber_one";
     const char* xml_two = "subscriber_two";
 
-    uint16_t subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    int16_t domain_id = 0x00;
+    const uint16_t subscriber_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const int16_t domain_id = 0x00;
     uint8_t flag = 0x00;
 
     /*
@@ -510,22 +474,14 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
     /*
      * Delete Subscriber.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, subscriber_id, result));
+    EXPECT_TRUE(Agent::delete_subscriber(client_key_, subscriber_id, result));
 
     /*
-     * Create Subscriber with invalid ObjectId.
+     * Create Subscriber with unknown Participant.
      */
-    subscriber_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create Subscriber with invalid Participant Id.
-     */
-    subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
-    participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, 0x01, xml_one, flag, result));
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
 TEST_F(AgentUnitTests, CreateDataWriterByRef)
@@ -539,11 +495,11 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
     const char* ref_one = "shapetype_data_writer";
     const char* ref_two = "shapetype_data_writer_two";
 
-    int16_t domain_id = 0x00;
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
-    uint16_t datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t publisher_id = 0x00;
+    const uint16_t datawriter_id = 0x00;
 
     uint8_t flag = 0x00;
 
@@ -593,27 +549,19 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
     /*
      * Delete DataWriter.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, datawriter_id, result));
+    EXPECT_TRUE(Agent::delete_datawriter(client_key_, datawriter_id, result));
 
     /*
      * Create DataWriter with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create DataWriter with invalid ObjectId.
+     * Create DataWriter with unknown Publisher.
      */
-    datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create DataWriter with invalid Participant Id.
-     */
-    datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
-    publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
+    EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, 0x01, ref_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
@@ -662,11 +610,11 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
                               "</data_writer>"
                           "</dds>";
 
-    int16_t domain_id = 0x00;
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
-    uint16_t datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t publisher_id = 0x00;
+    const uint16_t datawriter_id = 0x00;
 
     uint8_t flag = 0x00;
 
@@ -716,27 +664,19 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
     /*
      * Delete DataWriter.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, datawriter_id, result));
+    EXPECT_TRUE(Agent::delete_datawriter(client_key_, datawriter_id, result));
 
     /*
      * Create DataWriter with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create DataWriter with invalid ObjectId.
+     * Create DataWriter with unknown Publisher.
      */
-    datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create DataWriter with invalid Participant Id.
-     */
-    datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
-    publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
+    EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, 0x01, xml_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
@@ -751,11 +691,11 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
     const char* ref_one = "shapetype_data_reader";
     const char* ref_two = "shapetype_data_reader_two";
 
-    int16_t domain_id = 0x00;
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
-    uint16_t datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t subscriber_id = 0x00;
+    const uint16_t datareader_id = 0x00;
 
     uint8_t flag = 0x00;
 
@@ -805,27 +745,19 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
     /*
      * Delete DataReader.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, datareader_id, result));
+    EXPECT_TRUE(Agent::delete_datareader(client_key_, datareader_id, result));
 
     /*
      * Create DataReader with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create DataReader with invalid ObjectId.
+     * Create DataReader with unknown Subscriber.
      */
-    datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create DataReader with invalid Participant Id.
-     */
-    datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
-    subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
+    EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, 0x01, ref_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
@@ -875,11 +807,11 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
                               "</data_reader>"
                           "</dds>";
 
-    int16_t domain_id = 0x00;
-    uint16_t participant_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    uint16_t topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    uint16_t subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
-    uint16_t datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t topic_id = 0x00;
+    const uint16_t subscriber_id = 0x00;
+    const uint16_t datareader_id = 0x00;
 
     uint8_t flag = 0x00;
 
@@ -929,27 +861,19 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
     /*
      * Delete DataReader.
      */
-    EXPECT_TRUE(Agent::delete_object(client_key_, datareader_id, result));
+    EXPECT_TRUE(Agent::delete_datareader(client_key_, datareader_id, result));
 
     /*
      * Create DataReader with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
+    // TODO (Julian): add when the reference data base is done.
+    //EXPECT_EQ(errcode, Agent::ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 
     /*
-     * Create DataReader with invalid ObjectId.
+     * Create DataReader with unknown Subscriber.
      */
-    datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
-    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
-
-    /*
-     * Create DataReader with invalid Participant Id.
-     */
-    datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
-    subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
-    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
+    EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, 0x01, xml_one, flag, result));
     EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
