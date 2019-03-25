@@ -26,7 +26,7 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
 
-#define UXR_AGENT_LOG_STATUS "{:<26} | "
+#define UXR_AGENT_LOG_STATUS "{:<30} | "
 
 #ifdef PROFILE_LOGGER
 #define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(UXR_AGENT_LOG_STATUS __VA_ARGS__)
@@ -68,6 +68,21 @@
 #define UXR_AGENT_LOG_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_HEX(...) void(0)
+#endif
+
+#ifdef PROFILE_LOGGER
+#define UXR_AGENT_LOG_MESSAGE(BUF, LEN, FORMAT, ...) \
+    if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
+    { \
+        SPDLOG_DEBUG(UXR_AGENT_LOG_STATUS FORMAT "{}", __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+    } \
+    else \
+    { \
+        SPDLOG_DEBUG(UXR_AGENT_LOG_STATUS FORMAT, __VA_ARGS__, LEN); \
+    } \
+    void(0)
+#else
+#define UXR_AGENT_LOG_MESSAGE(...) void(0)
 #endif
 
 namespace eprosima {

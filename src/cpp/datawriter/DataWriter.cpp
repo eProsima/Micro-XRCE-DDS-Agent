@@ -118,14 +118,12 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
     bool rv = false;
     if (get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
     {
-        UXR_AGENT_LOG_DEBUG(
-            "datawriter: 0x{:04}",
-            logger::status_warning("[** <<XRCE>> **]"),
+        UXR_AGENT_LOG_MESSAGE(
+            write_data.data().serialized_data().data(),
+            write_data.data().serialized_data().size(),
+            "datawriter: 0x{:04X}, len: {}",
+            logger::status_warning("[** <<DDS>> **]"),
             get_raw_id());
-        UXR_AGENT_LOG_TRACE(
-            "data: {:X}",
-            logger::status_info("[** <<XRCE>> **]"),
-            UXR_AGENT_LOG_TO_HEX(write_data.data().serialized_data()));
         rv = true;
     }
     return rv;
@@ -136,14 +134,12 @@ bool DataWriter::write(const std::vector<uint8_t>& data)
     bool rv = false;
     if (get_middleware().write_data(get_raw_id(), data))
     {
-        UXR_AGENT_LOG_DEBUG(
-            "datawriter: 0x{:04}",
-            logger::status_warning("[** <<XRCE>> **]"),
-            get_raw_id());
-        UXR_AGENT_LOG_TRACE(
-            "data: {:X}",
-            logger::status_info("[** <<XRCE>> **]"),
-            UXR_AGENT_LOG_TO_HEX(data));
+        UXR_AGENT_LOG_MESSAGE(
+            data.data(),
+            data.size(),
+            "datawriter: 0x{:04X}, len: {}",
+            logger::status_warning("[** <<DDS>> **]"),
+        get_raw_id());
         rv = true;
     }
     return rv;
