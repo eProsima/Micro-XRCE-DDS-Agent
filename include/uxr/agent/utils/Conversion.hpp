@@ -28,7 +28,12 @@ inline uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
 
 inline dds::xrce::ObjectId raw_to_objectid(uint16_t raw)
 {
-    return dds::xrce::ObjectId{uint8_t(raw >> 8), uint8_t(raw & 0XFF)};
+    return dds::xrce::ObjectId{uint8_t(raw >> 8), uint8_t(raw & 0xFF)};
+}
+
+inline dds::xrce::ObjectId raw_to_objectprefix(uint16_t raw)
+{
+    return dds::xrce::ObjectId{uint8_t(raw >> 4), uint8_t(raw << 4)};
 }
 
 inline uint32_t clientkey_to_raw(const dds::xrce::ClientKey& client_key)
