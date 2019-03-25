@@ -184,7 +184,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
                 input_packet.message->get_buf(),
                 input_packet.message->get_len(),
                 "client_key: 0x{:08X}, len: {}",
-                logger::status_warning("[** <<UDP>> **]"),
+                logger::status_warning("[==>> UDP <<==]"),
                 convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
             rv = true;
         }
