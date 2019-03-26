@@ -176,7 +176,7 @@ class VerboseOpt
 {
 public:
     VerboseOpt(CLI::App& subcommand)
-        : level_{3}
+        : level_{4}
         , set_{0, 1, 2, 3, 4, 5, 6}
         , cli_opt_{subcommand.add_set("-v,--verbose", level_, set_, "Select log level from less to more verbose", true)}
     {}
