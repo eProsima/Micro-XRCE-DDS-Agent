@@ -22,7 +22,7 @@ void InputMessage::log_error()
 {
     UXR_AGENT_LOG_ERROR(
         "buffer: {:X}",
-        logger::status_error("deserialization error"),
+        UXR_DECORATE_RED("deserialization error"),
         UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
 }
 

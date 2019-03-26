@@ -138,26 +138,6 @@ namespace eprosima {
 namespace uxr {
 namespace logger {
 
-inline std::string status_ok(const std::string& message)
-{
-    return color::green + message + color::reset;
-}
-
-inline std::string status_warning(const std::string& message)
-{
-    return  color::yellow + message + color::reset;
-}
-
-inline std::string status_error(const std::string& message)
-{
-    return  color::red + message + color::reset;
-}
-
-inline std::string status_info(const std::string& message)
-{
-    return  color::white + message + color::reset;
-}
-
 } // namespace logger
 } // namespace uxr
 } // namespace eprosima

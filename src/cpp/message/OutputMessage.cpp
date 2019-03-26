@@ -22,7 +22,7 @@ void OutputMessage::log_error()
 {
     UXR_AGENT_LOG_ERROR(
         "buffer: {:X}",
-        logger::status_error("serialization error"),
+        UXR_DECORATE_RED("serialization error"),
         UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
 }
 

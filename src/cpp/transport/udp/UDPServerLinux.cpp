@@ -62,7 +62,7 @@ bool UDPServer::init()
             /* Log. */
             UXR_AGENT_LOG_DEBUG(
                 "port: {}",
-                logger::status_ok("port opened"),
+                UXR_DECORATE_GREEN("port opened"),
                 transport_address_.medium_locator().port());
 
             /* Poll setup. */
@@ -88,7 +88,7 @@ bool UDPServer::init()
                     rv = true;
                     UXR_AGENT_LOG_INFO(
                         "port: {}",
-                        logger::status_ok("running..."),
+                        UXR_DECORATE_GREEN("running..."),
                         transport_address_.medium_locator().port());
                 }
                 ::close(fd);
@@ -98,7 +98,7 @@ bool UDPServer::init()
         {
             UXR_AGENT_LOG_ERROR(
                 "port: {}",
-                logger::status_error("bind error"),
+                UXR_DECORATE_RED("bind error"),
                 transport_address_.medium_locator().port());
         }
     }
@@ -106,7 +106,7 @@ bool UDPServer::init()
     {
         UXR_AGENT_LOG_ERROR(
             "port: {}",
-            logger::status_error("socket error"),
+            UXR_DECORATE_RED("socket error"),
             transport_address_.medium_locator().port());
     }
 
@@ -120,7 +120,7 @@ bool UDPServer::close()
     {
         UXR_AGENT_LOG_INFO(
             "port: {}",
-            logger::status_ok("server stoped"),
+            UXR_DECORATE_GREEN("server stoped"),
             transport_address_.medium_locator().port());
         rv = true;
     }
@@ -128,7 +128,7 @@ bool UDPServer::close()
     {
         UXR_AGENT_LOG_ERROR(
             "port: {}",
-            logger::status_error("socket error"),
+            UXR_DECORATE_RED("socket error"),
             transport_address_.medium_locator().port());
     }
     return rv;
@@ -183,7 +183,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             UXR_AGENT_LOG_MESSAGE(
                 input_packet.message->get_buf(),
                 input_packet.message->get_len(),
-                logger::status_warning("[==>> UDP <<==]"),
+                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
                 convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
             rv = true;
         }
@@ -221,7 +221,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
             UXR_AGENT_LOG_MESSAGE(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
-                logger::status_warning("[** <<UDP>> **]"),
+                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
                 convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
             rv = true;
         }

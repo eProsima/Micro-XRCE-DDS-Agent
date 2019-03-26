@@ -121,7 +121,7 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
         UXR_AGENT_LOG_MESSAGE(
             write_data.data().serialized_data().data(),
             write_data.data().serialized_data().size(),
-            logger::status_warning("[** <<DDS>> **]"),
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
             get_raw_id());
         rv = true;
     }
@@ -136,7 +136,7 @@ bool DataWriter::write(const std::vector<uint8_t>& data)
         UXR_AGENT_LOG_MESSAGE(
             data.data(),
             data.size(),
-            logger::status_warning("[** <<DDS>> **]"),
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
         get_raw_id());
         rv = true;
     }

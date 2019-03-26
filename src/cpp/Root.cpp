@@ -63,7 +63,7 @@ dds::xrce::ResultStatus Root::create_client(
 
         UXR_AGENT_LOG_WARN(
             UXR_CLIENT_KEY_PATTERN,
-            logger::status_error("invalid client key"),
+            UXR_DECORATE_RED("invalid client key"),
             convertion::clientkey_to_raw(client_representation.client_key()));
 
         return invalid_result;
@@ -88,7 +88,7 @@ dds::xrce::ResultStatus Root::create_client(
                 {
                     UXR_AGENT_LOG_INFO(
                         UXR_CREATE_SESSION_PATTERN,
-                        logger::status_ok("created"),
+                        UXR_DECORATE_GREEN("create"),
                         convertion::clientkey_to_raw(client_key),
                         session_id);
                 }
@@ -98,7 +98,7 @@ dds::xrce::ResultStatus Root::create_client(
 
                     UXR_AGENT_LOG_INFO(
                         UXR_CLIENT_KEY_PATTERN,
-                        logger::status_error("resources error"),
+                        UXR_DECORATE_RED("resources error"),
                         convertion::clientkey_to_raw(client_representation.client_key()));
                 }
             }
@@ -121,7 +121,7 @@ dds::xrce::ResultStatus Root::create_client(
 
             UXR_AGENT_LOG_INFO(
                 UXR_CLIENT_KEY_PATTERN,
-                logger::status_error("incompatible version"),
+                UXR_DECORATE_RED("incompatible version"),
                 convertion::clientkey_to_raw(client_representation.client_key()));
         }
     }
@@ -131,7 +131,7 @@ dds::xrce::ResultStatus Root::create_client(
 
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
-            logger::status_error("invalid cookie"),
+            UXR_DECORATE_RED("invalid cookie"),
             convertion::clientkey_to_raw(client_representation.client_key()));
     }
 
@@ -190,7 +190,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         result_status.status(dds::xrce::STATUS_OK);
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
-            logger::status_ok("deleted"),
+            UXR_DECORATE_GREEN("delete"),
             convertion::clientkey_to_raw(client_key));
     }
     else
@@ -199,7 +199,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
 
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
-            logger::status_error("unknown client"),
+            UXR_DECORATE_RED("unknown client"),
             convertion::clientkey_to_raw(client_key));
     }
     return result_status;

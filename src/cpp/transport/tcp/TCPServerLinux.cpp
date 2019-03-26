@@ -74,7 +74,7 @@ bool TCPServer::init()
             /* Log. */
             UXR_AGENT_LOG_DEBUG(
                 "port: {}",
-                logger::status_ok("port opened"),
+                UXR_DECORATE_GREEN("port opened"),
                 transport_address_.medium_locator().port());
 
             /* Setup listener poll. */
@@ -118,7 +118,7 @@ bool TCPServer::init()
                         rv = true;
                         UXR_AGENT_LOG_INFO(
                             "port: {}",
-                            logger::status_ok("running..."),
+                            UXR_DECORATE_GREEN("running..."),
                             transport_address_.medium_locator().port());
                     }
                     ::close(fd);
@@ -128,7 +128,7 @@ bool TCPServer::init()
             {
                 UXR_AGENT_LOG_ERROR(
                     "port: {}",
-                    logger::status_error("listen error"),
+                    UXR_DECORATE_RED("listen error"),
                     transport_address_.medium_locator().port());
             }
         }
@@ -136,7 +136,7 @@ bool TCPServer::init()
         {
             UXR_AGENT_LOG_ERROR(
                 "port: {}",
-                logger::status_error("bind error"),
+                UXR_DECORATE_RED("bind error"),
                 transport_address_.medium_locator().port());
         }
     }
@@ -144,7 +144,7 @@ bool TCPServer::init()
     {
         UXR_AGENT_LOG_ERROR(
             "port: {}",
-            logger::status_error("socket error"),
+            UXR_DECORATE_RED("socket error"),
             transport_address_.medium_locator().port());
     }
     return rv;
@@ -188,14 +188,14 @@ bool TCPServer::close()
     {
         UXR_AGENT_LOG_INFO(
             "port: {}",
-            logger::status_ok("server stoped"),
+            UXR_DECORATE_GREEN("server stoped"),
             transport_address_.medium_locator().port());
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             "port: {}",
-            logger::status_error("socket error"),
+            UXR_DECORATE_RED("socket error"),
             transport_address_.medium_locator().port());
     }
     return rv;
@@ -247,7 +247,7 @@ bool TCPServer::recv_message(
         UXR_AGENT_LOG_MESSAGE(
             input_packet.message->get_buf(),
             input_packet.message->get_len(),
-            logger::status_warning("[==>> TCP <<==]"),
+            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
             convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
     }
     return rv;
@@ -329,7 +329,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
             UXR_AGENT_LOG_MESSAGE(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
-                logger::status_warning("[** <<TCP>> **]"),
+                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
                 convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
             rv = true;
         }

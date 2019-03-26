@@ -77,7 +77,7 @@ void FastParticipant::onParticipantDiscovery(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("matched"),
+            "matched",
             info.info.m_guid.entityId,
             info.info.m_guid.guidPrefix);
     }
@@ -85,7 +85,7 @@ void FastParticipant::onParticipantDiscovery(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("unmatched"),
+            "unmatched",
             info.info.m_guid.entityId,
             info.info.m_guid.guidPrefix);
     }
@@ -259,7 +259,7 @@ void FastDataWriter::onPublicationMatched(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("matched"),
+            "matched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
@@ -267,7 +267,7 @@ void FastDataWriter::onPublicationMatched(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("unmatched"),
+            "unmatched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
@@ -368,7 +368,7 @@ void FastDataReader::onSubscriptionMatched(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("matched"),
+            "matched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
@@ -376,7 +376,7 @@ void FastDataReader::onSubscriptionMatched(
     {
         UXR_AGENT_LOG_TRACE(
             "entity_id: {}, guid_prefix: {}",
-            logger::status_info("unmatched"),
+            "unmatched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }

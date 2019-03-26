@@ -54,7 +54,7 @@ void UDPServerBase::on_create_client(
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
         UXR_AGENT_LOG_INFO(
             "client_key: 0x{:08X}, address: {}",
-            logger::status_ok("session established"),
+            UXR_DECORATE_GREEN("session established"),
             client_id,
             *source);
     }
@@ -68,7 +68,7 @@ void UDPServerBase::on_create_client(
             it_source->second = client_id;
             UXR_AGENT_LOG_INFO(
                 "client_key: 0x{:08X}, address: {}",
-                logger::status_ok("address updated"),
+                UXR_DECORATE_GREEN("address updated"),
                 client_id,
                 *source);
         }
@@ -91,7 +91,7 @@ void UDPServerBase::on_delete_client(EndPoint* source)
     {
         UXR_AGENT_LOG_INFO(
             "client_key: 0x{:08X}, address: {}",
-            logger::status_ok("session closed"),
+            UXR_DECORATE_GREEN("session closed"),
             it->second,
             *source);
         client_to_source_map_.erase(it->second);
