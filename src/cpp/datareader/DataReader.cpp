@@ -26,6 +26,12 @@
 namespace eprosima {
 namespace uxr {
 
+const int READ_TIMEOUT = 100;
+const uint8_t MAX_SLEEP_TIME = 100;
+const uint16_t MAX_SAMPLES_ZERO = 0;
+const uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
+const uint16_t MAX_ELAPSED_TIME_UNLIMITED = 0;
+
 using utils::TokenBucket;
 
 std::unique_ptr<DataReader> DataReader::create(
@@ -139,7 +145,7 @@ bool DataReader::start_read(
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
-    if (delivery_control.max_elapsed_time() > 0)
+    if (MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time())
     {
         max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
     }
@@ -169,25 +175,31 @@ void DataReader::read_task(
         read_callback read_cb,
         ReadCallbackArgs cb_args)
 {
-    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
+    TokenBucket token_bucket{delivery_control.max_bytes_per_second()};
     uint16_t message_count = 0;
 
     while (running_cond_ && (message_count < delivery_control.max_samples()))
     {
         std::vector<uint8_t> data;
-        if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
+        if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(READ_TIMEOUT)))
         {
-            while (!rate_manager.get_tokens(data.size()))
+            std::chrono::milliseconds wait_time = token_bucket.wait_time(data.size());
+            while (running_cond_ && wait_time.count())
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::min(std::chrono::milliseconds(MAX_SLEEP_TIME), wait_time));
+                wait_time = token_bucket.wait_time(data.size());
             }
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-                get_raw_id(),
-                data.data(),
-                data.size());
-            read_cb(cb_args, data);
-            ++message_count;
+
+            if (token_bucket.get_tokens(data.size()))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+                    get_raw_id(),
+                    data.data(),
+                    data.size());
+                read_cb(cb_args, data);
+                ++message_count;
+            }
         }
     }
 }
