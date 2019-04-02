@@ -158,7 +158,6 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
-    src/cpp/datareader/TokenBucket.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
