@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_DLL_HPP_
-#define _UXR_AGENT_DLL_HPP_
+#ifndef UXR_AGENT_DLL_HPP_
+#define UXR_AGENT_DLL_HPP_
 
 #if defined(_WIN32)
 #if defined(microxrcedds_agent_SHARED)
 #if defined(microxrcedds_agent_EXPORTS)
-#define microxrcedds_agent_DllAPI __declspec( dllexport )
+#define UXR_AGENT_DLLAPI __declspec( dllexport )
 #else
-#define microxrcedds_agent_DllAPI __declspec( dllimport )
+#define UXR_AGENT_DLLAPI __declspec( dllimport )
 #endif // microxrcedds_agent_EXPORTS
 #else
-#define microxrcedds_agent_DllAPI
+#define UXR_AGENT_DLLAPI
 #endif // microxrcedds_agent_SHARED
 #else
-#define microxrcedds_agent_DllAPI
-#endif //_WIN32
+#define UXR_AGENT_DLLAPI
+#endif // WIN32
 
-#endif //_UXR_AGENT_DLL_HPP_
+#endif // UXR_AGENT_DLL_HPP_

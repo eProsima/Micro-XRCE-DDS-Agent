@@ -40,8 +40,8 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
-    microxrcedds_agent_DllAPI ~TCPServer() = default;
+    UXR_AGENT_DLLAPI TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_DLLAPI ~TCPServer() = default;
 
 private:
     bool init(bool discovery_enabled) final;

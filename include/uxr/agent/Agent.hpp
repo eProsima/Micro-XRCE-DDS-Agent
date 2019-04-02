@@ -113,7 +113,7 @@ public:
      * @param errcode   The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_client(
+    UXR_AGENT_DLLAPI static bool create_client(
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
@@ -125,7 +125,7 @@ public:
      * @param errcode   The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool delete_client(
+    UXR_AGENT_DLLAPI static bool delete_client(
             uint32_t key,
             ResultStatus& errcode);
 
@@ -139,7 +139,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_participant_by_ref(
+    UXR_AGENT_DLLAPI static bool create_participant_by_ref(
             uint32_t client_key,
             uint16_t participant_id,
             int16_t domain_id,
@@ -157,7 +157,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_participant_by_xml(
+    UXR_AGENT_DLLAPI static bool create_participant_by_xml(
             uint32_t client_key,
             uint16_t participant_id,
             int16_t domain_id,
@@ -176,7 +176,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_topic_by_ref(
+    UXR_AGENT_DLLAPI static bool create_topic_by_ref(
             uint32_t client_key,
             uint16_t topic_id,
             uint16_t participant_id,
@@ -195,7 +195,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_topic_by_xml(
+    UXR_AGENT_DLLAPI static bool create_topic_by_xml(
             uint32_t client_key,
             uint16_t topic_id,
             uint16_t participant_id,
@@ -214,7 +214,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_publisher_by_xml(
+    UXR_AGENT_DLLAPI static bool create_publisher_by_xml(
             uint32_t client_key,
             uint16_t publisher_id,
             uint16_t participant_id,
@@ -233,7 +233,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_subscriber_by_xml(
+    UXR_AGENT_DLLAPI static bool create_subscriber_by_xml(
             uint32_t client_key,
             uint16_t subscriber_id,
             uint16_t participant_id,
@@ -252,7 +252,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_datawriter_by_ref(
+    UXR_AGENT_DLLAPI static bool create_datawriter_by_ref(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint16_t publisher_id,
@@ -271,7 +271,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_datawriter_by_xml(
+    UXR_AGENT_DLLAPI static bool create_datawriter_by_xml(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint16_t publisher_id,
@@ -290,7 +290,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_datareader_by_ref(
+    UXR_AGENT_DLLAPI static bool create_datareader_by_ref(
             uint32_t client_key,
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -309,7 +309,7 @@ public:
      * @param errcode           The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool create_datareader_by_xml(
+    UXR_AGENT_DLLAPI static bool create_datareader_by_xml(
             uint32_t client_key,
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -318,13 +318,13 @@ public:
             ResultStatus& errcode);
 
     /**
-     * @brief Deletes an entity identifier by the object_id in a ProxyClient idenfied by the client_key.
+     * @brief Deletes an entity identified by the object_id in a ProxyClient identified by the client_key.
      * @param client_key    The identifier of the ProxyClient.
      * @param object_id     The identifier of the entity to be deleted.
      * @param errcode       The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    microxrcedds_agent_DllAPI static bool delete_object(
+    UXR_AGENT_DLLAPI static bool delete_object(
             uint32_t client_key,
             uint16_t object_id,
             ResultStatus& errcode);
@@ -332,7 +332,7 @@ public:
     /**
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
      */
-    microxrcedds_agent_DllAPI static void reset();
+    UXR_AGENT_DLLAPI static void reset();
 };
 
 } // uxr

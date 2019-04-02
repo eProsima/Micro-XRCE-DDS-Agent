@@ -33,9 +33,9 @@ public:
     Server();
     virtual ~Server();
 
-    microxrcedds_agent_DllAPI bool run(bool discovery_enabled = false);
-    microxrcedds_agent_DllAPI bool stop();
-    microxrcedds_agent_DllAPI bool load_config_file(const std::string& path);
+    UXR_AGENT_DLLAPI bool run(bool discovery_enabled = false);
+    UXR_AGENT_DLLAPI bool stop();
+    UXR_AGENT_DLLAPI bool load_config_file(const std::string& path);
 
     void push_output_packet(OutputPacket output_packet);
     virtual void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) = 0;
