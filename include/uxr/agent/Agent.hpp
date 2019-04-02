@@ -318,7 +318,10 @@ public:
             ResultStatus& errcode);
 
     /**
-     * @brief Deletes an entity identified by the object_id in a ProxyClient identified by the client_key.
+     * @brief Deletes an entity identified by the object_id and all its associated entities
+     *        in a ProxyClient identified by the client_key.
+     *        For example, if a Participant is deleted,
+     *        its associated Topics, Publishers, Subscribers, DataWriters and DataReaders will be deleted also.
      * @param client_key    The identifier of the ProxyClient.
      * @param object_id     The identifier of the entity to be deleted.
      * @param errcode       The result status of the operation.
