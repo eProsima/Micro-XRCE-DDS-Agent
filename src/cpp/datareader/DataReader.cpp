@@ -220,14 +220,6 @@ void DataReader::read_task(
     }
 }
 
-//void DataReader::on_max_timeout(const asio::error_code& error)
-//{
-//    if (!error)
-//    {
-//        running_cond_ = false;
-//    }
-//}
-
 bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
     /* Check ObjectKind. */
@@ -261,31 +253,6 @@ Middleware& DataReader::get_middleware() const
 {
     return subscriber_->get_middleware();
 }
-
-//ReadTimeEvent::ReadTimeEvent()
-//    : m_timer_max(m_io_service_max)
-//{
-//}
-//
-//int ReadTimeEvent::init_max_timer(int milliseconds)
-//{
-//    m_io_service_max.reset();
-//    m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
-//    m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
-//    return 0;
-//}
-//
-//void ReadTimeEvent::stop_max_timer()
-//{
-//    m_timer_max.cancel();
-//    m_io_service_max.stop();
-//}
-//
-//void ReadTimeEvent::run_max_timer(int milliseconds)
-//{
-//    init_max_timer(milliseconds);
-//    m_io_service_max.run();
-//}
 
 } // namespace uxr
 } // namespace eprosima
