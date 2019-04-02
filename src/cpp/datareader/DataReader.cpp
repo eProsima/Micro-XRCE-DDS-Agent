@@ -145,10 +145,10 @@ bool DataReader::start_read(
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
-    if (MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time())
-    {
-        max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
-    }
+//    if (MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time())
+//    {
+//        max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
+//    }
     read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
     return true;
 }
@@ -162,11 +162,11 @@ bool DataReader::stop_read()
     {
         read_thread_.join();
     }
-    stop_max_timer();
-    if (max_timer_thread_.joinable())
-    {
-        max_timer_thread_.join();
-    }
+//    stop_max_timer();
+//    if (max_timer_thread_.joinable())
+//    {
+//        max_timer_thread_.join();
+//    }
     return true;
 }
 
@@ -176,9 +176,12 @@ void DataReader::read_task(
         ReadCallbackArgs cb_args)
 {
     TokenBucket token_bucket{delivery_control.max_bytes_per_second()};
+    bool stop_cond = false;
     uint16_t message_count = 0;
+    std::chrono::time_point<std::chrono::steady_clock> init_time;
+    init_time = std::chrono::steady_clock::now();
 
-    while (running_cond_ && (message_count < delivery_control.max_samples()))
+    while (running_cond_ && !stop_cond)
     {
         std::vector<uint8_t> data;
         if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(READ_TIMEOUT)))
@@ -201,16 +204,29 @@ void DataReader::read_task(
                 ++message_count;
             }
         }
+
+        if (message_count < delivery_control.max_samples() || MAX_SAMPLES_UNLIMITED != delivery_control.max_samples())
+        {
+            auto elapsed_time =
+                    std::chrono::duration_cast<std::chrono::seconds>
+                    (std::chrono::steady_clock::now() - init_time).count();
+            stop_cond = (elapsed_time > delivery_control.max_elapsed_time()) &&
+                        (MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time());
+        }
+        else
+        {
+            stop_cond = true;
+        }
     }
 }
 
-void DataReader::on_max_timeout(const asio::error_code& error)
-{
-    if (!error)
-    {
-        running_cond_ = false;
-    }
-}
+//void DataReader::on_max_timeout(const asio::error_code& error)
+//{
+//    if (!error)
+//    {
+//        running_cond_ = false;
+//    }
+//}
 
 bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
@@ -246,30 +262,30 @@ Middleware& DataReader::get_middleware() const
     return subscriber_->get_middleware();
 }
 
-ReadTimeEvent::ReadTimeEvent()
-    : m_timer_max(m_io_service_max)
-{
-}
-
-int ReadTimeEvent::init_max_timer(int milliseconds)
-{
-    m_io_service_max.reset();
-    m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
-    m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
-    return 0;
-}
-
-void ReadTimeEvent::stop_max_timer()
-{
-    m_timer_max.cancel();
-    m_io_service_max.stop();
-}
-
-void ReadTimeEvent::run_max_timer(int milliseconds)
-{
-    init_max_timer(milliseconds);
-    m_io_service_max.run();
-}
+//ReadTimeEvent::ReadTimeEvent()
+//    : m_timer_max(m_io_service_max)
+//{
+//}
+//
+//int ReadTimeEvent::init_max_timer(int milliseconds)
+//{
+//    m_io_service_max.reset();
+//    m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
+//    m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
+//    return 0;
+//}
+//
+//void ReadTimeEvent::stop_max_timer()
+//{
+//    m_timer_max.cancel();
+//    m_io_service_max.stop();
+//}
+//
+//void ReadTimeEvent::run_max_timer(int milliseconds)
+//{
+//    init_max_timer(milliseconds);
+//    m_io_service_max.run();
+//}
 
 } // namespace uxr
 } // namespace eprosima
