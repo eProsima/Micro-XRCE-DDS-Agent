@@ -263,7 +263,7 @@ bool FastMiddleware::write_data(
 }
 
 bool FastMiddleware::read_data(uint16_t datareader_id,
-        std::vector<uint8_t>* data,
+        std::vector<uint8_t>& data,
         uint32_t timeout)
 {
     bool rv = false;

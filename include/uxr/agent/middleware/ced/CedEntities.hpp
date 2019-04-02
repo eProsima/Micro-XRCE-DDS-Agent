@@ -77,8 +77,7 @@ private:
         uint8_t& errcode
     );
 
-    bool read(
-        std::vector<uint8_t>* const data,
+    bool read(std::vector<uint8_t>& data,
         uint32_t timeout,
         SeqNum& last_read,
         uint8_t& errcode
@@ -222,7 +221,7 @@ public:
     ~CedDataReader() = default;
 
     bool read(
-            std::vector<uint8_t>* const data,
+            std::vector<uint8_t>& data,
             uint32_t timeout,
             uint8_t& errcode);
 

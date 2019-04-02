@@ -111,7 +111,7 @@ public:
 
     virtual bool read_data(
             uint16_t datareader_id,
-            std::vector<uint8_t>* data,
+            std::vector<uint8_t>& data,
             uint32_t timeout) = 0;
 
 /**********************************************************************************************************************

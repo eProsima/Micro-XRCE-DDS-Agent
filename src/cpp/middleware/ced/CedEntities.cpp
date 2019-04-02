@@ -100,7 +100,7 @@ bool CedTopicImpl::write(
 }
 
 bool CedTopicImpl::read(
-        std::vector<uint8_t>* const data,
+        std::vector<uint8_t>& data,
         uint32_t timeout,
         SeqNum& last_read,
         uint8_t& errcode)
@@ -118,7 +118,7 @@ bool CedTopicImpl::read(
             ++last_read;
         }
         size_t index = uint16_t(last_read) % history_.size();
-        data->assign(history_[index].data(), history_[index].data() + history_[index].size());
+        data.assign(history_[index].data(), history_[index].data() + history_[index].size());
         rv = true;
     }
     else
@@ -128,7 +128,7 @@ bool CedTopicImpl::read(
         {
             ++last_read;
             size_t index = uint16_t(last_read) % history_.size();
-            data->assign(history_[index].data(), history_[index].data() + history_[index].size());
+            data.assign(history_[index].data(), history_[index].data() + history_[index].size());
             rv = true;
         }
         else
@@ -218,7 +218,7 @@ bool CedDataWriter::write(
  * CedDataReader
  **********************************************************************************************************************/
 bool CedDataReader::read(
-        std::vector<uint8_t>* const data,
+        std::vector<uint8_t>& data,
         uint32_t timeout,
         uint8_t &errcode)
 {

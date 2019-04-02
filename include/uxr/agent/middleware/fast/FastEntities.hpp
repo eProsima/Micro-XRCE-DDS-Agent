@@ -71,7 +71,8 @@ public:
     fastrtps::Participant* get_ptr() const { return ptr_; }
 
     // TODO (Julian): change FastRTPS in order to accept a `const FastTopic*` ar argiment
-    bool register_topic(FastTopic* const topic,
+    bool register_topic(
+            FastTopic* const topic,
             uint16_t topic_id);
 
     bool unregister_topic(const FastTopic* const topic);
@@ -200,7 +201,7 @@ public:
     bool match_from_xml(const std::string& xml) const;
 
     bool read(
-            std::vector<uint8_t>* data,
+            std::vector<uint8_t>& data,
             uint32_t timeout);
 
     void onSubscriptionMatched(

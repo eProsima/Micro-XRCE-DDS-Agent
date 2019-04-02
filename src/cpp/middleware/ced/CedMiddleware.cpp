@@ -58,15 +58,19 @@ bool CedMiddleware::create_topic_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    auto it = participants_.find(participant_id);
-    if (participants_.end() != it)
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
     {
-        std::shared_ptr<CedTopicImpl> topic_impl;
-        if (it->second->register_topic(ref, topic_id, topic_impl)) // TODO: get reference.
+        auto it_topic = topics_.find(topic_id);
+        if (topics_.end() == it_topic)
         {
-            std::shared_ptr<CedTopic> topic(new CedTopic(it->second, topic_impl));
-            topics_.emplace(topic_id, std::move(topic));
-            rv = true;
+            std::shared_ptr<CedTopicImpl> topic_impl;
+            if (it_participant->second->register_topic(ref, topic_id, topic_impl)) // TODO: get reference.
+            {
+                std::shared_ptr<CedTopic> topic(new CedTopic(it_participant->second, topic_impl));
+                topics_.emplace(topic_id, std::move(topic));
+                rv = true;
+            }
         }
     }
     return rv;
@@ -78,15 +82,19 @@ bool CedMiddleware::create_topic_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    auto it = participants_.find(participant_id);
-    if (participants_.end() != it)
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
     {
-        std::shared_ptr<CedTopicImpl> topic_impl;
-        if (it->second->register_topic(xml, topic_id, topic_impl)) // TODO: parse XML.
+        auto it_topic = topics_.find(topic_id);
+        if (topics_.end() == it_topic)
         {
-            std::shared_ptr<CedTopic> topic(new CedTopic(it->second, topic_impl));
-            topics_.emplace(topic_id, std::move(topic));
-            rv = true;
+            std::shared_ptr<CedTopicImpl> topic_impl;
+            if (it_participant->second->register_topic(xml, topic_id, topic_impl)) // TODO: parse XML.
+            {
+                std::shared_ptr<CedTopic> topic(new CedTopic(it_participant->second, topic_impl));
+                topics_.emplace(topic_id, std::move(topic));
+                rv = true;
+            }
         }
     }
     return rv;
@@ -304,7 +312,7 @@ bool CedMiddleware::write_data(
 
 bool CedMiddleware::read_data(
         uint16_t datareader_id,
-        std::vector<uint8_t>* data,
+        std::vector<uint8_t>& data,
         uint32_t timeout)
 {
     bool rv = false;

@@ -170,7 +170,7 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByRef)
      *      Reference:      same
      *      Expected:       TRUE
      */
-    EXPECT_TRUE(middleware_.create_topic_by_ref(0, 1, topic_ref_one));
+    EXPECT_FALSE(middleware_.create_topic_by_ref(0, 1, topic_ref_one));
 
     /* Create:
      *      Id:             same
@@ -178,7 +178,15 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByRef)
      *      Reference:      different
      *      Expected:       TRUE
      */
-    EXPECT_TRUE(middleware_.create_topic_by_ref(0, 0, topic_ref_two));
+    EXPECT_FALSE(middleware_.create_topic_by_ref(0, 0, topic_ref_two));
+
+    /* Create:
+     *      Id:             same
+     *      Participant:    non-existent
+     *      Reference:      same
+     *      Expected:       TRUE
+     */
+    EXPECT_FALSE(middleware_.create_topic_by_ref(0, 2, topic_ref_one));
 }
 
 TEST_F(CedMiddlewareUnitTests, CreateTopicByXML)
@@ -215,7 +223,7 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByXML)
      *      XML:            same
      *      Expected:       TRUE
      */
-    EXPECT_TRUE(middleware_.create_topic_by_xml(0, 1, topic_xml_one));
+    EXPECT_FALSE(middleware_.create_topic_by_xml(0, 1, topic_xml_one));
 
     /* Create:
      *      Id:             same
@@ -223,7 +231,15 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByXML)
      *      XML:            different
      *      Expected:       TRUE
      */
-    EXPECT_TRUE(middleware_.create_topic_by_xml(0, 0, topic_xml_two));
+    EXPECT_FALSE(middleware_.create_topic_by_xml(0, 0, topic_xml_two));
+
+    /* Create:
+     *      Id:             same
+     *      Participant:    non-existent
+     *      XML:            same
+     *      Expected:       TRUE
+     */
+    EXPECT_FALSE(middleware_.create_topic_by_xml(0, 2, topic_xml_one));
 }
 
 TEST_F(CedMiddlewareUnitTests, DeleteTopic)
@@ -878,22 +894,22 @@ TEST_F(CedMiddlewareUnitTests, WriteReadData)
     EXPECT_TRUE(middleware_.write_data(1, output_data_two));
 
     /* Read successfully with DataReader ONE. */
-    EXPECT_TRUE(middleware_.read_data(0, &input_data, 0));
+    EXPECT_TRUE(middleware_.read_data(0, input_data, 0));
     EXPECT_TRUE(std::equal(output_data_one.begin(), output_data_one.end(), input_data.begin()));
-    EXPECT_TRUE(middleware_.read_data(0, &input_data, 0));
+    EXPECT_TRUE(middleware_.read_data(0, input_data, 0));
     EXPECT_TRUE(std::equal(output_data_two.begin(), output_data_two.end(), input_data.begin()));
 
     /* Read unsuccessfully with DataReader ONE. */
-    EXPECT_FALSE(middleware_.read_data(0, &input_data, 100));
+    EXPECT_FALSE(middleware_.read_data(0, input_data, 100));
 
     /* Read successfully with DataReader ONE. */
-    EXPECT_TRUE(middleware_.read_data(1, &input_data, 0));
+    EXPECT_TRUE(middleware_.read_data(1, input_data, 0));
     EXPECT_TRUE(std::equal(output_data_one.begin(), output_data_one.end(), input_data.begin()));
-    EXPECT_TRUE(middleware_.read_data(1, &input_data, 0));
+    EXPECT_TRUE(middleware_.read_data(1, input_data, 0));
     EXPECT_TRUE(std::equal(output_data_two.begin(), output_data_two.end(), input_data.begin()));
 
     /* Read unsuccessfully with DataReader ONE. */
-    EXPECT_FALSE(middleware_.read_data(1, &input_data, 100));
+    EXPECT_FALSE(middleware_.read_data(1, input_data, 100));
 }
 
 } // namespace testing
