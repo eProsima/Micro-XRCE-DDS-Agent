@@ -27,6 +27,8 @@
 #define DEFAULT_XRCE_PARTICIPANT_PROFILE "default_xrce_participant_profile"
 #define DEFAULT_XRCE_SUBSCRIBER_PROFILE "default_xrce_subscriber_profile"
 
+#define MAX_SAMPLES_UNLIMITED 0xFFFF
+
 namespace eprosima {
 namespace uxr {
 
@@ -212,12 +214,12 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                            read_callback read_cb, ReadCallbackArgs cb_args)
 {
     TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
-    uint16_t message_count = 0;
+    size_t message_count = 0;
     std::chrono::steady_clock::time_point last_read = std::chrono::steady_clock::now();
     while (true)
     {
         std::unique_lock<std::mutex> lock(mtx_);
-        if (running_cond_ && (message_count < delivery_control.max_samples()))
+        if (running_cond_ && (message_count < delivery_control.max_samples() || MAX_SAMPLES_UNLIMITED == delivery_control.max_samples()))
         {
             if (rtps_subscriber_->getUnreadCount() != 0)
             {
