@@ -40,9 +40,14 @@ inline bool is_reliable_stream(dds::xrce::StreamId stream_id)
 
 class Session
 {
+    friend class NoneOutputStream;
 public:
-    Session(dds::xrce::SessionId session_id, const dds::xrce::ClientKey& client_key, size_t mtu)
-        : none_out_stream_(session_id, client_key, mtu)
+    Session(
+            dds::xrce::SessionId session_id,
+            const dds::xrce::ClientKey& client_key,
+            size_t mtu)
+        : id_(session_id)
+        , none_out_stream_(*this, client_key, mtu)
     {
         /* Create Best-Effort output streams. */
         for (int i = 1; i <= 127; ++i)
@@ -96,6 +101,8 @@ public:
     bool get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_submessage);
 
 private:
+    const dds::xrce::SessionId id_;
+
     NoneInputStream none_in_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_in_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableInputStream> reliable_in_streams_;

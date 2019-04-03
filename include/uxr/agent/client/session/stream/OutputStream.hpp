@@ -18,40 +18,69 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/utils/SeqNum.hpp>
-#include <map>
+
+#include <memory>
 #include <queue>
 #include <mutex>
 #include <array>
+#include <map>
 
 namespace eprosima {
 namespace uxr {
 
+class Session;
+
+/****************************************************************************************
+ * Output Stream.
+ ****************************************************************************************/
+class OutputStream
+{
+public:
+    OutputStream(
+            const Session& session,
+            dds::xrce::StreamId stream_id)
+        : session_{std::move(session)}
+        , stream_id_{stream_id}
+        , mtx_{}
+    {}
+
+protected:
+    const Session& session_;
+    const dds::xrce::StreamId stream_id_;
+    std::mutex mtx_;
+};
+
 /****************************************************************************************
  * None Output Stream.
  ****************************************************************************************/
-class NoneOutputStream
+class NoneOutputStream : public OutputStream
 {
 public:
-    NoneOutputStream(dds::xrce::SessionId session_id,
-                     const dds::xrce::ClientKey& client_key,
-                     size_t mtu)
-        : session_id_(session_id),
-          stream_id_(dds::xrce::STREAMID_NONE),
-          client_key_(client_key),
-          mtu_(mtu)
+    NoneOutputStream(
+            const Session& session,
+            const dds::xrce::ClientKey& client_key,
+            size_t mtu)
+        : OutputStream(session, dds::xrce::STREAMID_NONE)
+        , stream_id_(dds::xrce::STREAMID_NONE)
+        , client_key_(client_key)
+        , mtu_(mtu)
     {}
 
     ~NoneOutputStream() = default;
+
+    NoneOutputStream(NoneOutputStream&&) = delete;
+    NoneOutputStream(const NoneOutputStream&) = delete;
+    NoneOutputStream& operator=(NoneOutputStream&&) = delete;
+    NoneOutputStream& operator=(const NoneOutputStream) = delete;
 
     template<class T>
     bool push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
-    dds::xrce::SessionId session_id_;
-    dds::xrce::StreamId stream_id_;
-    dds::xrce::ClientKey client_key_;
-    size_t mtu_;
+    const dds::xrce::StreamId stream_id_;
+    const dds::xrce::ClientKey client_key_;
+    const size_t mtu_;
     std::queue<OutputMessagePtr> messages_;
     std::mutex mtx_;
 };
@@ -65,7 +94,7 @@ inline bool NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const 
     {
         /* Message header. */
         dds::xrce::MessageHeader message_header;
-        message_header.session_id(session_id_);
+        message_header.session_id(session_.id_);
         message_header.stream_id(stream_id_);
         message_header.sequence_nr(0x00);
         message_header.client_key(client_key_);
@@ -84,8 +113,8 @@ inline bool NoneOutputStream::push_submessage(dds::xrce::SubmessageId id, const 
 
 inline bool NoneOutputStream::get_next_message(OutputMessagePtr& output_message)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
     bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
     if (!messages_.empty())
     {
         output_message = std::move(messages_.front());
@@ -109,23 +138,30 @@ public:
           stream_id_(stream_id),
           client_key_(client_key),
           mtu_(mtu),
-          last_send_(UINT16_MAX)
+          last_sent_(UINT16_MAX)
     {}
 
-    SeqNum get_last_handled() const { return last_send_; }
-    void promote_stream() { last_send_ += 1; }
-    void reset() { last_send_ = UINT16_MAX; }
+    ~BestEffortOutputStream() = default;
+
+    BestEffortOutputStream(BestEffortOutputStream&&) = delete;
+    BestEffortOutputStream(const BestEffortOutputStream&) = delete;
+    BestEffortOutputStream& operator=(BestEffortOutputStream&&) = delete;
+    BestEffortOutputStream& operator=(const BestEffortOutputStream) = delete;
+
+    SeqNum get_last_handled() const { return last_sent_; }
+    void promote_stream() { last_sent_ += 1; }
+    void reset() { last_sent_ = UINT16_MAX; }
 
     template<class T>
     bool push_submessage(dds::xrce::SubmessageId id, const T& submessage);
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
-    dds::xrce::SessionId session_id_;
-    dds::xrce::StreamId stream_id_;
-    dds::xrce::ClientKey client_key_;
-    size_t mtu_;
-    SeqNum last_send_;
+    const dds::xrce::SessionId session_id_;
+    const dds::xrce::StreamId stream_id_;
+    const dds::xrce::ClientKey client_key_;
+    const size_t mtu_;
+    SeqNum last_sent_;
     std::queue<OutputMessagePtr> messages_;
     std::mutex mtx_;
 };
@@ -141,7 +177,7 @@ inline bool BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
         dds::xrce::MessageHeader message_header;
         message_header.session_id(session_id_);
         message_header.stream_id(stream_id_);
-        message_header.sequence_nr(last_send_ + 1);
+        message_header.sequence_nr(last_sent_ + 1);
         message_header.client_key(client_key_);
 
         /* Create message. */
@@ -150,7 +186,7 @@ inline bool BestEffortOutputStream::push_submessage(dds::xrce::SubmessageId id, 
         {
             /* Push message. */
             messages_.push(std::move(output_message));
-            last_send_ += 1;
+            last_sent_ += 1;
             rv = true;
         }
     }
@@ -189,10 +225,10 @@ public:
           last_acknown_(UINT16_MAX)
     {}
 
+    ReliableOutputStream(ReliableOutputStream&&) = delete;
     ReliableOutputStream(const ReliableOutputStream&) = delete;
+    ReliableOutputStream& operator=(ReliableOutputStream&&) = delete;
     ReliableOutputStream& operator=(const ReliableOutputStream) = delete;
-    ReliableOutputStream(ReliableOutputStream&&);
-    ReliableOutputStream& operator=(ReliableOutputStream&&);
 
     bool push_message(OutputMessagePtr& output_message);
     bool get_message(SeqNum seq_num, OutputMessagePtr& output_message);
@@ -209,30 +245,16 @@ public:
     bool get_next_message(OutputMessagePtr& output_message);
 
 private:
-    dds::xrce::SessionId session_id_;
-    dds::xrce::StreamId stream_id_;
-    dds::xrce::ClientKey client_key_;
-    size_t mtu_;
+    const dds::xrce::SessionId session_id_;
+    const dds::xrce::StreamId stream_id_;
+    const dds::xrce::ClientKey client_key_;
+    const size_t mtu_;
     SeqNum last_available_;
     SeqNum last_sent_;
     SeqNum last_acknown_;
     std::map<uint16_t, OutputMessagePtr> messages_;
     std::mutex mtx_;
 };
-
-inline ReliableOutputStream::ReliableOutputStream(ReliableOutputStream&& x)
-    : last_sent_(x.last_sent_),
-      last_acknown_(x.last_acknown_),
-      messages_(std::move(x.messages_))
-{}
-
-inline ReliableOutputStream& ReliableOutputStream::operator=(ReliableOutputStream&& x)
-{
-    last_sent_ = x.last_sent_;
-    last_acknown_ = x.last_acknown_;
-    messages_ = std::move(x.messages_);
-    return *this;
-}
 
 inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
 {

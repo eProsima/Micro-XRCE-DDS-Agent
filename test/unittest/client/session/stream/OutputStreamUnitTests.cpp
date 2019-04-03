@@ -35,9 +35,10 @@ class NoneOutputStreamUnitTests : public ::testing::Test
 {
 public:
     NoneOutputStreamUnitTests()
-        : none_stream_(session_id, client_key, mtu) {}
+        : none_stream_(session, session_id, client_key, mtu) {}
 
 public:
+    Session session_;
     NoneOutputStream none_stream_;
 };
 
