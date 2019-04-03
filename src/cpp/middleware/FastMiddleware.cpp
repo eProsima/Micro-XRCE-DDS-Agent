@@ -22,11 +22,6 @@ namespace uxr {
 
 FastMiddleware::FastMiddleware()
 {
-    /* Load XML profile file. */
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadDefaultXMLFile())
-    {
-        std::cout << "Error: parsing DEFAULT PROFILE." << std::endl;
-    }
 }
 
 bool FastMiddleware::create_participant_from_ref(uint16_t participant_id, const std::string& ref)
