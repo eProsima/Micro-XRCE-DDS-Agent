@@ -193,14 +193,9 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 
 bool Root::load_config_file(const std::string& path)
 {
-    bool rv = true;
-    /* Load XML profile file. */
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadXMLFile(path))
-    {
-        std::cout << "Error: parsing config file." << std::endl;
-        rv = false;
-    }
-    return rv;
+    // TODO (#5047): XML Parser.
+    (void) path;
+    return false;
 }
 
 } // namespace uxr
