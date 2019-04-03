@@ -31,7 +31,7 @@ namespace uxr {
 ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
     : representation_(representation),
       objects_(),
-      session_(representation.session_id(), representation.client_key(), representation.mtu())
+      session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
 {
     middleware_.reset(new FastMiddleware());
 //    middleware_.reset(new CedMiddleware());

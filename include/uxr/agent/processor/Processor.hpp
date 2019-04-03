@@ -43,7 +43,8 @@ public:
     Processor(Server* server);
     ~Processor();
 
-    void process_input_packet(InputPacket&& input_packet);
+    void process_input_packet(
+            InputPacket&& input_packet);
 
     bool process_get_info_packet(
             InputPacket&& input_packet,
@@ -61,7 +62,8 @@ private:
             ProxyClient& client,
             InputPacket& input_packet);
 
-    bool process_create_client_submessage(InputPacket& input_packet);
+    bool process_create_client_submessage(
+            InputPacket& input_packet);
 
     bool process_create_submessage(
             ProxyClient& client,
@@ -95,9 +97,9 @@ private:
             ProxyClient& client,
             InputPacket& input_packet);
 
-    bool process_performance_submessage(
-            ProxyClient& client,
-            InputPacket& input_packet);
+//    bool process_performance_submessage(
+//            ProxyClient& client,
+//            InputPacket& input_packet);
 
     void read_data_callback(
             const ReadCallbackArgs& cb_args,

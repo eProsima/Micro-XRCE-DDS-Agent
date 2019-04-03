@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
-#define _UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
+#ifndef UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
+#define UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
 
+#include <uxr/agent/client/session/SessionInfo.hpp>
 #include <uxr/agent/client/session/stream/InputStream.hpp>
 #include <uxr/agent/client/session/stream/OutputStream.hpp>
+
 #include <unordered_map>
 #include <memory>
 
@@ -25,55 +27,36 @@ namespace uxr {
 
 inline bool is_none_stream(dds::xrce::StreamId stream_id)
 {
-    return (0x00 == stream_id);
+    return (dds::xrce::STREAMID_NONE == stream_id);
 }
 
 inline bool is_besteffort_stream(dds::xrce::StreamId stream_id)
 {
-    return (128 > stream_id) && (0x00 != stream_id);
+    return (dds::xrce::STREAMID_BUILTIN_RELIABLE > stream_id) && (dds::xrce::STREAMID_NONE != stream_id);
 }
 
 inline bool is_reliable_stream(dds::xrce::StreamId stream_id)
 {
-    return (127 < stream_id);
+    return (dds::xrce::STREAMID_BUILTIN_RELIABLE <= stream_id);
 }
 
 class Session
 {
     friend class NoneOutputStream;
+    friend class BestEffortOutputStream;
+    friend class ReliableOutputStream;
 public:
-    Session(
-            dds::xrce::SessionId session_id,
-            const dds::xrce::ClientKey& client_key,
-            size_t mtu)
-        : id_(session_id)
-        , none_out_stream_(*this, client_key, mtu)
-    {
-        /* Create Best-Effort output streams. */
-        for (int i = 1; i <= 127; ++i)
-        {
-            dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
-            besteffort_out_streams_.emplace(std::piecewise_construct,
-                                            std::forward_as_tuple(dds::xrce::StreamId(i)),
-                                            std::forward_as_tuple(session_id, stream_id, client_key, mtu));
-        }
-
-        /* Create Reliable output streams. */
-        for (int i = 128; i <= 255; ++i)
-        {
-            dds::xrce::StreamId stream_id = dds::xrce::StreamId(i);
-            reliable_out_streams_.emplace(std::piecewise_construct,
-                                          std::forward_as_tuple(dds::xrce::StreamId(i)),
-                                          std::forward_as_tuple(session_id, stream_id, client_key, mtu));
-        }
-    }
+    Session(const SessionInfo& info)
+        : session_info_{info}
+        , none_out_stream_{}
+    {}
 
     ~Session() = default;
 
-    Session(const Session&) = delete;
-    Session& operator=(const Session&) = delete;
     Session(Session&& x) = delete;
+    Session(const Session&) = delete;
     Session& operator=(Session&& x) = delete;
+    Session& operator=(const Session&) = delete;
 
     void reset();
 
@@ -87,25 +70,38 @@ public:
     bool pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
 
     /* Output streams functions. */
-    bool push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
-    SeqNum get_first_unacked_seq_nr(dds::xrce::StreamId stream_id);
-    SeqNum get_last_unacked_seq_nr(dds::xrce::StreamId stream_id);
-    void update_from_acknack(dds::xrce::StreamId stream_id, SeqNum first_unacked);
-    SeqNum next_output_message(dds::xrce::StreamId stream_id);
     std::vector<uint8_t> get_output_streams();
-    bool message_pending(dds::xrce::StreamId stream_id);
 
     template<class T>
-    void push_output_submessage(dds::xrce::StreamId stream_id, dds::xrce::SubmessageId, const T& submessage);
-    bool get_next_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message);
-    bool get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_submessage);
+    void push_output_submessage(
+            dds::xrce::StreamId stream_id,
+            dds::xrce::SubmessageId submessage_id,
+            const T& submessage);
+
+    bool get_next_output_message(
+            dds::xrce::StreamId stream_id,
+            OutputMessagePtr& output_message);
+
+    bool get_output_message(
+            dds::xrce::StreamId stream_id,
+            SeqNum seq_num,
+            OutputMessagePtr& output_submessage);
+
+    void update_from_acknack(
+            dds::xrce::StreamId stream_id,
+            SeqNum first_unacked);
+
+    bool fill_heartbeat(
+            dds::xrce::StreamId stream_id,
+            dds::xrce::HEARTBEAT_Payload& heartbeat);
 
 private:
-    const dds::xrce::SessionId id_;
+    const SessionInfo session_info_;
 
     NoneInputStream none_in_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_in_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableInputStream> reliable_in_streams_;
+
     NoneOutputStream none_out_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> besteffort_out_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> reliable_out_streams_;
@@ -113,25 +109,23 @@ private:
 
 inline void Session::reset()
 {
-    /* Reset Best-Effor Input streams. */
     for (auto& it : besteffort_in_streams_)
     {
         it.second.reset();
     }
 
-    /* Reset Reliable Input streams. */
     for (auto& it : reliable_in_streams_)
     {
         it.second.reset();
     }
 
-    /* Reset Best-Effor Output streams. */
+    none_out_stream_.reset();
+
     for (auto& it : besteffort_out_streams_)
     {
         it.second.reset();
     }
 
-    /* Reset Reliable Output streams. */
     for (auto& it : reliable_out_streams_)
     {
         it.second.reset();
@@ -210,62 +204,6 @@ inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, I
 /**************************************************************************************************
  * Output Stream Methods.
  **************************************************************************************************/
-inline bool Session::push_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
-{
-    bool rv = false;
-    if (128 > stream_id)
-    {
-        besteffort_out_streams_.at(stream_id).promote_stream();
-        rv = true;
-    }
-    else
-    {
-        rv = reliable_out_streams_.at(stream_id).push_message(output_message);
-    }
-    return rv;
-}
-
-inline bool Session::get_output_message(dds::xrce::StreamId stream_id, SeqNum seq_num, OutputMessagePtr& output_message)
-{
-    bool rv = false;
-    if (is_reliable_stream(stream_id))
-    {
-        rv = reliable_out_streams_.at(stream_id).get_message(seq_num, output_message);
-    }
-    return rv;
-}
-
-inline SeqNum Session::get_first_unacked_seq_nr(const dds::xrce::StreamId stream_id)
-{
-    return (is_reliable_stream(stream_id)) ? reliable_out_streams_.at(stream_id).get_first_available() : SeqNum(0);
-}
-
-inline SeqNum Session::get_last_unacked_seq_nr(const dds::xrce::StreamId stream_id)
-{
-    return (is_reliable_stream(stream_id)) ? reliable_out_streams_.at(stream_id).get_last_available() : SeqNum(0);
-}
-
-inline void Session::update_from_acknack(const dds::xrce::StreamId stream_id, const SeqNum first_unacked)
-{
-    if (is_reliable_stream(stream_id))
-    {
-        reliable_out_streams_.at(stream_id).update_from_acknack(first_unacked);
-    }
-}
-
-inline SeqNum Session::next_output_message(const dds::xrce::StreamId stream_id)
-{
-    SeqNum rv;
-    if (128 > stream_id)
-    {
-        rv = besteffort_out_streams_.at(stream_id).get_last_handled() + 1;
-    }
-    else
-    {
-        rv = reliable_out_streams_.at(stream_id).next_message();
-    }
-    return rv;
-}
 
 inline std::vector<uint8_t> Session::get_output_streams()
 {
@@ -278,54 +216,85 @@ inline std::vector<uint8_t> Session::get_output_streams()
     return result;
 }
 
-inline bool Session::message_pending(const dds::xrce::StreamId stream_id)
-{
-    bool result = false;
-    if (is_reliable_stream(stream_id))
-    {
-        result = reliable_out_streams_.at(stream_id).message_pending();
-    }
-    return result;
-}
-
 template<class T>
-inline void Session::push_output_submessage(dds::xrce::StreamId stream_id,
-                                            dds::xrce::SubmessageId id,
-                                            const T& submessage)
+inline void Session::push_output_submessage(
+        dds::xrce::StreamId stream_id,
+        dds::xrce::SubmessageId submessage_id,
+        const T& submessage)
 {
     if (is_none_stream(stream_id))
     {
-        none_out_stream_.push_submessage(id, submessage);
+        none_out_stream_.push_submessage(session_info_, submessage_id, submessage);
     }
     else if (is_besteffort_stream(stream_id))
     {
-        besteffort_out_streams_.at(stream_id).push_submessage(id, submessage);
+        besteffort_out_streams_[stream_id].push_submessage(session_info_, stream_id, submessage_id, submessage);
     }
     else
     {
-        reliable_out_streams_.at(stream_id).push_submessage(id, submessage);
+        reliable_out_streams_[stream_id].push_submessage(session_info_, stream_id, submessage_id, submessage);
     }
 }
 
-inline bool Session::get_next_output_message(dds::xrce::StreamId stream_id, OutputMessagePtr& output_message)
+inline bool Session::get_next_output_message(
+        dds::xrce::StreamId stream_id,
+        OutputMessagePtr& output_message)
 {
     bool rv = false;
     if (is_none_stream(stream_id))
     {
-        rv = none_out_stream_.get_next_message(output_message);
+        rv = none_out_stream_.pop_message(output_message);
     }
     else if (is_besteffort_stream(stream_id))
     {
-        rv = besteffort_out_streams_.at(stream_id).get_next_message(output_message);
+        rv = besteffort_out_streams_[stream_id].pop_message(output_message);
     }
     else
     {
-        rv = reliable_out_streams_.at(stream_id).get_next_message(output_message);
+        rv = reliable_out_streams_[stream_id].get_next_message(output_message);
     }
     return rv;
 }
 
+inline bool Session::get_output_message(
+        dds::xrce::StreamId stream_id,
+        SeqNum seq_num,
+        OutputMessagePtr& output_message)
+{
+    bool rv = false;
+    if (is_reliable_stream(stream_id))
+    {
+        rv = reliable_out_streams_[stream_id].get_message(seq_num, output_message);
+    }
+    return rv;
+}
+
+inline void Session::update_from_acknack(
+        const dds::xrce::StreamId stream_id,
+        const SeqNum first_unacked)
+{
+    if (is_reliable_stream(stream_id))
+    {
+        reliable_out_streams_.at(stream_id).update_from_acknack(first_unacked);
+    }
+}
+
+
+inline bool Session::fill_heartbeat(
+        dds::xrce::StreamId stream_id,
+        dds::xrce::HEARTBEAT_Payload& heartbeat)
+{
+    bool rv = false;
+    if (is_reliable_stream(stream_id))
+    {
+        rv = reliable_out_streams_[stream_id].fill_heartbeat(heartbeat);
+        heartbeat.stream_id(stream_id);
+    }
+    return rv;
+}
+
+
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
+#endif // UXR_AGENT_CLIENT_SESSION_SESSION_HPP_
