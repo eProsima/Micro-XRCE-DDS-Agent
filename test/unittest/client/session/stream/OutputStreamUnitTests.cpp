@@ -31,267 +31,367 @@ const size_t mtu = 512;
 /****************************************************************************************
  * None Output Stream.
  ****************************************************************************************/
-class NoneOutputStreamUnitTests : public ::testing::Test
+class NoneOutputStreamTest : public ::testing::Test
 {
 public:
-    NoneOutputStreamUnitTests()
-        : none_stream_(session, session_id, client_key, mtu) {}
+    NoneOutputStreamTest()
+        : none_stream_{}
+        , session_info_{client_key, session_id, mtu}
+    {}
 
 public:
-    Session session_;
     NoneOutputStream none_stream_;
+    SessionInfo session_info_;
 };
 
-TEST_F(NoneOutputStreamUnitTests, StreamCapacity)
+/**
+ * @brief   This test checks the capacity of the stream.
+ *          No more than BEST_EFFORT_STREAM_DEPTH message shall be pushed in a none stream.
+ */
+TEST_F(NoneOutputStreamTest, StreamCapacity)
 {
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
     for (int i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(none_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+        ASSERT_TRUE(none_stream_.push_submessage(session_info_, dds::xrce::WRITE_DATA, write_data));
     }
-    ASSERT_EQ(none_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), false);
+    ASSERT_FALSE(none_stream_.push_submessage(session_info_, dds::xrce::WRITE_DATA, write_data));
 
     OutputMessagePtr output_message;
     for (int i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(none_stream_.get_next_message(output_message), true);
+        ASSERT_TRUE(none_stream_.pop_message(output_message));
     }
-    ASSERT_EQ(none_stream_.get_next_message(output_message), false);
+    ASSERT_FALSE(none_stream_.pop_message(output_message));
 }
 
-TEST_F(NoneOutputStreamUnitTests, MessageCapacity)
+/**
+ * @brief   This test checks the maximum message size of the stream.
+ *          The none stream shall be not able to push messages larger that the MTU.
+ */
+TEST_F(NoneOutputStreamTest, MessageCapacity)
 {
-    dds::xrce::MessageHeader message_header{};
-    dds::xrce::SubmessageHeader submessage_header{};
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::MessageHeader header{};
+    dds::xrce::SubmessageHeader subheader{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
 
-    size_t headers_size = message_header.getCdrSerializedSize() + submessage_header.getCdrSerializedSize();
-    size_t bounded_size = mtu - headers_size - write_data_payload.BaseObjectRequest::getCdrSerializedSize();
+    size_t headers_size = header.getCdrSerializedSize() + subheader.getCdrSerializedSize();
+    size_t bounded_size = mtu - headers_size - write_data.BaseObjectRequest::getCdrSerializedSize();
 
-    write_data_payload.data().serialized_data().resize(bounded_size);
-    ASSERT_EQ(none_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+    write_data.data().serialized_data().resize(bounded_size);
+    ASSERT_TRUE(none_stream_.push_submessage(session_info_, dds::xrce::WRITE_DATA, write_data));
 
-    write_data_payload.data().serialized_data().resize(bounded_size + 1);
-    ASSERT_EQ(none_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), false);
+    write_data.data().serialized_data().resize(bounded_size + 1);
+    ASSERT_FALSE(none_stream_.push_submessage(session_info_, dds::xrce::WRITE_DATA, write_data));
 }
 
 /****************************************************************************************
  * Best-Effort Output Stream.
  ****************************************************************************************/
-class BestEffortOutputStreamUnitTests : public ::testing::Test
+class BestEffortOutputStreamTest : public ::testing::Test
 {
 public:
-    BestEffortOutputStreamUnitTests()
-        : best_effort_stream_(session_id, 0x01, client_key, mtu) {}
+    BestEffortOutputStreamTest()
+        : best_effort_stream_{}
+        , session_info_{client_key, session_id, mtu}
+        , stream_id_{dds::xrce::STREAMID_BUILTIN_BEST_EFFORTS}
+    {}
 
 public:
     BestEffortOutputStream best_effort_stream_;
+    SessionInfo session_info_;
+    dds::xrce::StreamId stream_id_;
 };
 
-TEST_F(BestEffortOutputStreamUnitTests, StreamCapacity)
+/**
+ * @brief   This test checks the capacity of the stream.
+ *          No more than BEST_EFFORT_STREAM_DEPTH message shall be pushed in a best-effort stream.
+ */
+TEST_F(BestEffortOutputStreamTest, StreamCapacity)
 {
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
     for (int i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(best_effort_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+        ASSERT_TRUE(best_effort_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
     }
-    ASSERT_EQ(best_effort_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), false);
+    ASSERT_FALSE(best_effort_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 
     OutputMessagePtr output_message;
     for (int i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(best_effort_stream_.get_next_message(output_message), true);
+        ASSERT_TRUE(best_effort_stream_.pop_message(output_message));
     }
-    ASSERT_EQ(best_effort_stream_.get_next_message(output_message), false);
+    ASSERT_FALSE(best_effort_stream_.pop_message(output_message));
 }
 
-TEST_F(BestEffortOutputStreamUnitTests, MessageCapacity)
+/**
+ * @brief   This test checks the maximum message size of the stream.
+ *          The best-effort stream shall be not able to push messages larger that the MTU.
+ */
+TEST_F(BestEffortOutputStreamTest, MaximumMessageSize)
 {
-    dds::xrce::MessageHeader message_header{};
-    dds::xrce::SubmessageHeader submessage_header{};
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::MessageHeader header{};
+    dds::xrce::SubmessageHeader subheader{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
 
-    size_t headers_size = message_header.getCdrSerializedSize() + submessage_header.getCdrSerializedSize();
-    size_t bounded_size = mtu - headers_size - write_data_payload.BaseObjectRequest::getCdrSerializedSize();
+    size_t headers_size = header.getCdrSerializedSize() + subheader.getCdrSerializedSize();
+    size_t bounded_size = mtu - headers_size - write_data.BaseObjectRequest::getCdrSerializedSize();
 
-    write_data_payload.data().serialized_data().resize(bounded_size);
-    ASSERT_EQ(best_effort_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+    write_data.data().serialized_data().resize(bounded_size);
+    ASSERT_TRUE(best_effort_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 
-    write_data_payload.data().serialized_data().resize(bounded_size + 1);
-    ASSERT_EQ(best_effort_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), false);
+    write_data.data().serialized_data().resize(bounded_size + 1);
+    ASSERT_FALSE(best_effort_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 }
 
 /****************************************************************************************
  * Reliable Output Stream.
  ****************************************************************************************/
-class ReliableOutputStreamUnitTests : public ::testing::Test
+class ReliableOutputStreamTest : public ::testing::Test
 {
 public:
-    ReliableOutputStreamUnitTests()
-        : reliable_stream_(session_id, 0x01, client_key, mtu) {}
+    ReliableOutputStreamTest()
+        : reliable_stream_{}
+        , session_info_{client_key, session_id, mtu}
+        , stream_id_{dds::xrce::STREAMID_BUILTIN_RELIABLE}
+    {}
 
 public:
     ReliableOutputStream reliable_stream_;
+    SessionInfo session_info_;
+    dds::xrce::StreamId stream_id_;
 };
 
-TEST_F(ReliableOutputStreamUnitTests, StreamCapacity)
+/**
+ * @brief   This test checks the capacity of the stream.
+ *          No more than RELIABLE_STREAM_DEPTH message shall be pushed in a reliable stream.
+ */
+TEST_F(ReliableOutputStreamTest, StreamCapacity)
 {
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
     }
-    ASSERT_EQ(reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), false);
+    ASSERT_FALSE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 
     OutputMessagePtr output_message;
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
     {
-        ASSERT_EQ(reliable_stream_.get_next_message(output_message), true);
+        ASSERT_TRUE(reliable_stream_.get_next_message(output_message));
     }
-    ASSERT_EQ(reliable_stream_.get_next_message(output_message), false);
+    ASSERT_FALSE(reliable_stream_.get_next_message(output_message));
 }
 
-TEST_F(ReliableOutputStreamUnitTests, MessageCapacity)
+/**
+ * @brief   This test checks the maximum message size of the stream.
+ *          The reliable stream shall be able to push messages larger that the MTU.
+ */
+TEST_F(ReliableOutputStreamTest, MaximumMessageSize)
 {
-    dds::xrce::MessageHeader message_header{};
-    dds::xrce::SubmessageHeader submessage_header{};
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::MessageHeader header{};
+    dds::xrce::SubmessageHeader subheader{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
 
-    const size_t headers_size = message_header.getCdrSerializedSize() + submessage_header.getCdrSerializedSize();
-    const size_t bounded_size = mtu - headers_size - write_data_payload.BaseObjectRequest::getCdrSerializedSize();
+    const size_t headers_size = header.getCdrSerializedSize() + subheader.getCdrSerializedSize();
+    const size_t bounded_size = mtu - headers_size - write_data.BaseObjectRequest::getCdrSerializedSize();
 
-    write_data_payload.data().serialized_data().resize(bounded_size);
-    ASSERT_EQ(reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+    write_data.data().serialized_data().resize(bounded_size);
+    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 
-    write_data_payload.data().serialized_data().resize(bounded_size + 1);
-    ASSERT_EQ(reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+    write_data.data().serialized_data().resize(bounded_size + 1);
+    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 }
 
-TEST_F(ReliableOutputStreamUnitTests, FragmentedMessages)
+/**
+ * @brief   This test checks that the reliable stream fragments the messages properly.
+ *          There are two border case:
+ *          * Message fit:
+ *              when all the fragment fit the MTU of the stream.
+ *          * Message unfit:
+ *              when the last fragment only contains the last byte of the message.
+ */
+TEST_F(ReliableOutputStreamTest, Fragmentation)
 {
-    dds::xrce::MessageHeader message_header{};
-    message_header.session_id(session_id);
-    message_header.client_key(client_key);
-    dds::xrce::SubmessageHeader submessage_header{};
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    dds::xrce::MessageHeader header{};
+    header.session_id(session_id);
+    header.client_key(client_key);
+    dds::xrce::SubmessageHeader subheader{};
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
 
-    const size_t headers_size = message_header.getCdrSerializedSize() + submessage_header.getCdrSerializedSize();
+    const size_t headers_size = header.getCdrSerializedSize() + subheader.getCdrSerializedSize();
     const size_t first_fragment_size =
             mtu
             - headers_size
-            - submessage_header.getCdrSerializedSize()
-            - write_data_payload.BaseObjectRequest::getCdrSerializedSize();
+            - subheader.getCdrSerializedSize()
+            - write_data.BaseObjectRequest::getCdrSerializedSize();
     const size_t max_fragment_size =  size_t(mtu - headers_size);
 
     SeqNum msg_counter = 0xFFFF;
+
+    /*
+     * Message fit.
+     */
     for (int i = 1; i < RELIABLE_STREAM_DEPTH; ++i)
     {
-        write_data_payload.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size));
-        ASSERT_EQ(reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload), true);
+        write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size));
+        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
 
         const int n_fragments = i + 1;
         OutputMessagePtr output_message;
         for (int j = 0; j < n_fragments; ++j)
         {
-            ASSERT_EQ(reliable_stream_.get_next_message(output_message), true);
+            ASSERT_TRUE(reliable_stream_.get_next_message(output_message));
             msg_counter += 1;
         }
-        ASSERT_EQ(reliable_stream_.get_next_message(output_message), false);
+        ASSERT_FALSE(reliable_stream_.get_next_message(output_message));
+
+        reliable_stream_.update_from_acknack(msg_counter);
+    }
+
+    /*
+     * Message unfit.
+     */
+    for (int i = 2; i < RELIABLE_STREAM_DEPTH; ++i)
+    {
+        write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size) + 1);
+        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+
+        const int n_fragments = i + 2;
+        OutputMessagePtr output_message;
+        for (int j = 0; j < n_fragments; ++j)
+        {
+            ASSERT_TRUE(reliable_stream_.get_next_message(output_message));
+            msg_counter += 1;
+        }
+        ASSERT_FALSE(reliable_stream_.get_next_message(output_message));
 
         reliable_stream_.update_from_acknack(msg_counter);
     }
 }
 
-TEST_F(ReliableOutputStreamUnitTests, EmptyStream)
+/**
+ * @brief   This test checks the initial conditions of the reliable stream.
+ */
+TEST_F(ReliableOutputStreamTest, InitialCondition)
 {
-    SeqNum expected_first_available = 0x0000;
-    SeqNum expected_last_available = 0xFFFF;
-    SeqNum expected_next_message = 0x0000;
+    SeqNum expected_first_unacked = 0x0000;
+    SeqNum expected_last_unacked = 0xFFFF;
+    dds::xrce::HEARTBEAT_Payload hearbeat;
 
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
-
-    reliable_stream_.update_from_acknack(0xFFFF);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
-
-    reliable_stream_.update_from_acknack(0x0001);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
-
-    reliable_stream_.update_from_acknack(0x0000);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
 }
 
-TEST_F(ReliableOutputStreamUnitTests, UpdateFromAcknack)
+/**
+ * @brief   This test checks that the reliable stream is promoted properly when messages are pushed.
+ *          The last_unacked shall increase by one for each pushed message.
+ */
+TEST_F(ReliableOutputStreamTest, PushMessages)
 {
-    SeqNum expected_first_available = 0x0000;
-    SeqNum expected_last_available = 0xFFFF;
-    SeqNum expected_next_message = 0x0000;
+    SeqNum expected_first_unacked = 0x0000;
+    SeqNum expected_last_unacked = 0xFFFF;
+    dds::xrce::HEARTBEAT_Payload hearbeat;
 
-    reliable_stream_.update_from_acknack(0x0000);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
+    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    expected_last_unacked += 1;
 
-    reliable_stream_.update_from_acknack(0xFFFF);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
 
-    reliable_stream_.update_from_acknack(0x0001);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    expected_last_unacked += 1;
 
-    dds::xrce::WRITE_DATA_Payload_Data write_data_payload{};
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
+}
 
-    for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
-    {
-        if (reliable_stream_.push_submessage(dds::xrce::WRITE_DATA, write_data_payload))
-        {
-            expected_last_available += 1;
-        }
-        ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-        ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-        ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
-    }
+/**
+ * @brief   This test checks that the reliable stream is promoted properly when messages are popped.
+ *          The first_unacked shall increase by one for each popped message.
+ */
+TEST_F(ReliableOutputStreamTest, GetMessages)
+{
+    SeqNum expected_first_unacked = 0x0000;
+    SeqNum expected_last_unacked = 0xFFFF;
+    dds::xrce::HEARTBEAT_Payload hearbeat;
 
-    for (int i = 0; i < RELIABLE_STREAM_DEPTH - 2; ++i)
-    {
-        OutputMessagePtr output_message;
-        if (reliable_stream_.get_next_message(output_message))
-        {
-            expected_next_message += 1;
-        }
-        ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-        ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-        ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
-    }
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    expected_last_unacked += 2;
 
-    int first_unacked = expected_first_available;
-    reliable_stream_.update_from_acknack(first_unacked);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    OutputMessagePtr output_message;
+    ASSERT_TRUE(reliable_stream_.get_next_message(output_message));
+    ASSERT_TRUE(reliable_stream_.get_next_message(output_message));
+    ASSERT_FALSE(reliable_stream_.get_next_message(output_message));
 
-    first_unacked = expected_next_message + 1;
-    reliable_stream_.update_from_acknack(first_unacked);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
+}
 
-    first_unacked = expected_first_available + 1;
-    expected_first_available += 1;
-    reliable_stream_.update_from_acknack(first_unacked);
-    ASSERT_EQ(reliable_stream_.get_first_available(), expected_first_available);
-    ASSERT_EQ(reliable_stream_.get_last_available(), expected_last_available);
-    ASSERT_EQ(reliable_stream_.next_message(), expected_next_message);
+/**
+ * @brief   This test checks that the reliable stream is update properly from acknacks.
+ *          There are two border cases:
+ *          * Lower border case:
+ *                when the first_unacked of the acknack is less or equal than the first_unacked of the stream,
+ *                the acknack shall not have effect.
+ *          * Upper border case:
+ *                when the first_unacked of the acknack is greater that the last_sent + 1 of the stream,
+ *                the acknack shall not have effect.
+ */
+TEST_F(ReliableOutputStreamTest, UpdateFromAcknack)
+{
+    SeqNum expected_first_unacked = 0x0000;
+    SeqNum expected_last_unacked = 0xFFFF;
+    SeqNum last_sent = 0xFFFF;
+    dds::xrce::HEARTBEAT_Payload hearbeat;
+
+    dds::xrce::WRITE_DATA_Payload_Data write_data{};
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    expected_last_unacked += 4;
+
+    OutputMessagePtr output_message;
+    reliable_stream_.get_next_message(output_message);
+    reliable_stream_.get_next_message(output_message);
+    reliable_stream_.get_next_message(output_message);
+    last_sent += 3;
+
+    /*
+     * Lower border case.
+     */
+    reliable_stream_.update_from_acknack(expected_first_unacked);
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
+
+    reliable_stream_.update_from_acknack(expected_first_unacked + 1);
+    expected_first_unacked += 1;
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
+
+    /*
+     * Upper border case.
+     */
+    reliable_stream_.update_from_acknack(last_sent + 2);
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
+
+    reliable_stream_.update_from_acknack(last_sent + 1);
+    expected_first_unacked = last_sent + 1;
+    reliable_stream_.fill_heartbeat(hearbeat);
+    ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
+    ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
 }
 
 } // namespace testing

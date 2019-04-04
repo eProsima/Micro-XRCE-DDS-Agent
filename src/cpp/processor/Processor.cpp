@@ -683,7 +683,6 @@ void Processor::check_heartbeats()
 
     OutputPacket output_packet;
 
-    root_.init_client_iteration();
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {

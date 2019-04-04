@@ -175,12 +175,6 @@ std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client
     return client;
 }
 
-void Root::init_client_iteration()
-{
-    std::unique_lock<std::mutex> lock(mtx_);
-    current_client_ = clients_.begin();
-}
-
 bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 {
     bool rv = false;
@@ -190,6 +184,10 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
         next_client = current_client_->second;
         ++current_client_;
         rv = true;
+    }
+    else
+    {
+        current_client_ = clients_.begin();
     }
     return rv;
 }

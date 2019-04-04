@@ -101,31 +101,33 @@ private:
     NoneInputStream none_in_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortInputStream> besteffort_in_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableInputStream> reliable_in_streams_;
+    std::mutex input_mtx_;
 
     NoneOutputStream none_out_stream_;
     std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> besteffort_out_streams_;
     std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> reliable_out_streams_;
+    std::mutex output_mtx_;
 };
 
 inline void Session::reset()
 {
+    std::unique_lock<std::mutex> input_lock(output_mtx_);
     for (auto& it : besteffort_in_streams_)
     {
         it.second.reset();
     }
-
     for (auto& it : reliable_in_streams_)
     {
         it.second.reset();
     }
+    input_lock.unlock();
 
+    std::lock_guard<std::mutex> output_lock(output_mtx_);
     none_out_stream_.reset();
-
     for (auto& it : besteffort_out_streams_)
     {
         it.second.reset();
     }
-
     for (auto& it : reliable_out_streams_)
     {
         it.second.reset();

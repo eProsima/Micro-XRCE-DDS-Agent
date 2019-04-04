@@ -207,9 +207,9 @@ class ReliableOutputStream
 {
 public:
     ReliableOutputStream()
-        : last_available_(UINT16_MAX)
+        : last_unacked_(UINT16_MAX)
         , last_sent_(UINT16_MAX)
-        , last_acknown_(UINT16_MAX)
+        , first_unacked_(0x0000)
     {}
 
 //    bool push_message(OutputMessagePtr& output_message);
@@ -235,9 +235,9 @@ public:
 
 private:
     std::map<uint16_t, OutputMessagePtr> messages_;
-    SeqNum last_available_;
+    SeqNum last_unacked_;
     SeqNum last_sent_;
-    SeqNum last_acknown_;
+    SeqNum first_unacked_;
     std::mutex mtx_;
 };
 
@@ -257,9 +257,9 @@ private:
 inline void ReliableOutputStream::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    last_available_ = UINT16_MAX;
+    last_unacked_ = UINT16_MAX;
     last_sent_ = UINT16_MAX;
-    last_acknown_ = UINT16_MAX;
+    first_unacked_ = 0x0000;
     messages_.clear();
 }
 
@@ -272,7 +272,7 @@ inline bool ReliableOutputStream::push_submessage(
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
-    if (last_available_ < last_acknown_ + SeqNum(RELIABLE_STREAM_DEPTH))
+    if (last_unacked_ < first_unacked_ + SeqNum(RELIABLE_STREAM_DEPTH - 1))
     {
         /* Message header. */
         dds::xrce::MessageHeader message_header;
@@ -295,13 +295,13 @@ inline bool ReliableOutputStream::push_submessage(
         if ((header_size + submessage_size) <= session_info.mtu)
         {
             /* Create message. */
-            last_available_ += 1;
-            message_header.sequence_nr(last_available_);
+            last_unacked_ += 1;
+            message_header.sequence_nr(last_unacked_);
             OutputMessagePtr output_message(new OutputMessage(message_header, header_size + submessage_size));
             if (output_message->append_submessage(submessage_id, submessage))
             {
                 /* Push message. */
-                messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+                messages_.insert(std::make_pair(last_unacked_, std::move(output_message)));
                 rv = true;
             }
         }
@@ -338,13 +338,13 @@ inline bool ReliableOutputStream::push_submessage(
                 const size_t current_message_size = header_size + subheader_size + fragment_size;
 
                 /* Create message. */
-                last_available_ += 1;
-                message_header.sequence_nr(last_available_);
+                last_unacked_ += 1;
+                message_header.sequence_nr(last_unacked_);
                 OutputMessagePtr output_message(new OutputMessage(message_header, current_message_size));
                 if (output_message->append_fragment(fragment_subheader,  buf.get() + serialized_size, fragment_size))
                 {
                     /* Push message. */
-                    messages_.insert(std::make_pair(last_available_, std::move(output_message)));
+                    messages_.insert(std::make_pair(last_unacked_, std::move(output_message)));
                     serialized_size += fragment_size;
                 }
                 else
@@ -363,7 +363,7 @@ inline bool ReliableOutputStream::get_next_message(OutputMessagePtr& output_mess
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
-    if (last_sent_ < last_available_)
+    if (last_sent_ < last_unacked_)
     {
         last_sent_ += 1;
         output_message = messages_.at(last_sent_);
@@ -390,26 +390,21 @@ inline bool ReliableOutputStream::get_message(
 inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    if ((last_acknown_ + 1 < first_unacked) && (last_sent_ + 1 >= first_unacked))
+    if (first_unacked <= last_sent_ + 1)
     {
-        while (last_acknown_ + 1 < first_unacked)
+        while (first_unacked > first_unacked_)
         {
-            last_acknown_ += 1;
-            messages_.erase(last_acknown_);
+            messages_.erase(first_unacked_);
+            first_unacked_ += 1;
         }
     }
 }
 
 inline bool ReliableOutputStream::fill_heartbeat(dds::xrce::HEARTBEAT_Payload& heartbeat)
 {
-    bool rv = false;
-    if (!messages_.empty())
-    {
-        heartbeat.first_unacked_seq_nr(last_acknown_ + 1);
-        heartbeat.last_unacked_seq_nr(last_available_);
-        rv = true;
-    }
-    return rv;
+    heartbeat.first_unacked_seq_nr(first_unacked_);
+    heartbeat.last_unacked_seq_nr(last_unacked_);
+    return !messages_.empty();
 }
 
 } // namespace uxr
