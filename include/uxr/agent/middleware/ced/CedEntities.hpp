@@ -69,7 +69,7 @@ public:
 
     ~CedTopicImpl() = default;
 
-    const std::string& name();
+    const std::string& name() const;
 
 private:
     bool write(

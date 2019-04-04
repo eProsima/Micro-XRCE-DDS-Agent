@@ -80,7 +80,7 @@ CedTopicImpl::CedTopicImpl(
     , last_write_(UINT16_MAX)
 {}
 
-const std::string& CedTopicImpl::name()
+const std::string& CedTopicImpl::name() const
 {
     return name_;
 }
@@ -170,7 +170,7 @@ bool CedParticipant::unregister_topic(const std::string &topic_name)
     {
         if (CedTopicManager::unregister_topic(topic_name, domain_id_))
         {
-            topics_.erase(topic_name);
+            topics_.erase(it);
             rv = true;
         }
     }

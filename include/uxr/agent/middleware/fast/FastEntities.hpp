@@ -55,8 +55,7 @@ public:
 
     bool create_by_ref(const std::string& ref);
 
-    // TODO (julian: #4372): add const qualifier in attrs.
-    bool create_by_attributes(fastrtps::ParticipantAttributes& attrs);
+    bool create_by_attributes(const fastrtps::ParticipantAttributes& attrs);
 
     bool match_from_ref(const std::string& ref) const;
 
@@ -70,7 +69,6 @@ public:
 
     fastrtps::Participant* get_ptr() const { return ptr_; }
 
-    // TODO (Julian): change FastRTPS in order to accept a `const FastTopic*` ar argiment
     bool register_topic(
             FastTopic* const topic,
             uint16_t topic_id);
@@ -155,9 +153,8 @@ public:
             const std::string& ref,
             uint16_t& topic_id);
 
-    // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(
-            fastrtps::PublisherAttributes& attrs,
+            const fastrtps::PublisherAttributes& attrs,
             uint16_t& topic_id);
 
     bool match_from_ref(const std::string& ref) const;
@@ -170,7 +167,7 @@ public:
             fastrtps::Publisher*,
             fastrtps::rtps::MatchingInfo& info) override;
 
-    fastrtps::Publisher* get_ptr() { return ptr_; }
+    const fastrtps::Publisher* get_ptr() const { return ptr_; }
 
 private:
     std::shared_ptr<FastParticipant> participant_;
@@ -191,9 +188,8 @@ public:
             const std::string& ref,
             uint16_t& topic_id);
 
-    // TODO (julian: #4372): add const qualifier in attrs.
     bool create_by_attributes(
-            fastrtps::SubscriberAttributes& attrs,
+            const fastrtps::SubscriberAttributes& attrs,
             uint16_t& topic_id);
 
     bool match_from_ref(const std::string& ref) const;
@@ -210,7 +206,7 @@ public:
 
     void onNewDataMessage(fastrtps::Subscriber*) override;
 
-    fastrtps::Subscriber* get_ptr() { return ptr_; }
+    const fastrtps::Subscriber* get_ptr() const { return ptr_; }
 
 private:
     std::shared_ptr<FastParticipant> participant_;

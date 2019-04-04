@@ -65,7 +65,7 @@ public:
 
     SeqNum& operator++()
     {
-        seq_num_ = uint16_t(uint32_t(seq_num_) + 1) % seq_num_limits_;
+        seq_num_ = (seq_num_ == UINT16_MAX) ? 0 : seq_num_ + 1;
         return *this;
     }
 
@@ -118,8 +118,8 @@ public:
 
 private:
     uint16_t seq_num_;
-    static const int32_t seq_num_limits_ = (1 << 16);
-    static const int32_t seq_num_add_range_ = (1 << 15);
+    static constexpr int32_t seq_num_limits_ = UINT16_MAX + 1;
+    static constexpr int32_t seq_num_add_range_ = INT16_MAX;
 };
 
 } // namespace uxr

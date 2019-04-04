@@ -38,7 +38,7 @@ bool FastParticipant::create_by_ref(const std::string& ref)
     return (nullptr != ptr_);
 }
 
-bool FastParticipant::create_by_attributes(fastrtps::ParticipantAttributes& attrs)
+bool FastParticipant::create_by_attributes(const ParticipantAttributes& attrs)
 {
     ptr_ = fastrtps::Domain::createParticipant(attrs, this);
     return (nullptr != ptr_);
@@ -85,6 +85,7 @@ bool FastParticipant::register_topic(
         FastTopic* const topic,
         uint16_t topic_id)
 {
+    // TODO (#5057): allow more than one topic.
     bool rv = false;
     auto it = topics_register_.find(topic->getName());
     if (topics_register_.end() == it)
@@ -125,7 +126,7 @@ bool FastParticipant::find_topic(
  * FastTopic
  **********************************************************************************************************************/
 FastTopic::FastTopic(const std::shared_ptr<FastParticipant>& participant)
-    : TopicPubSubType(false)
+    : TopicPubSubType{false}
     , participant_(participant)
 {}
 
@@ -200,7 +201,7 @@ bool FastDataWriter::create_by_ref(
 }
 
 bool FastDataWriter::create_by_attributes(
-        PublisherAttributes& attrs,
+        const PublisherAttributes& attrs,
         uint16_t& topic_id)
 {
     bool rv = false;
@@ -281,7 +282,7 @@ bool FastDataReader::create_by_ref(
 }
 
 bool FastDataReader::create_by_attributes(
-        SubscriberAttributes& attrs,
+        const SubscriberAttributes& attrs,
         uint16_t& topic_id)
 {
     bool rv = false;
