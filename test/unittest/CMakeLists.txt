@@ -12,30 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# XRCE test
+###################################################################################################
+# RootTest
+###################################################################################################
+
 set(SRCS
-    XRCETests.cpp
-    ../Common.cpp
+    RootTests.cpp
+    Common.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/Root.cpp
     )
-add_executable(xrce_test ${SRCS})
-add_gtest(xrce_test
+add_executable(test-root ${SRCS})
+add_gtest(test-root
     SOURCES
         ${SRCS}
     DEPENDENCIES
         fastrtps
         fastcdr
     )
-target_include_directories(xrce_test
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}/include
-        ${GTEST_INCLUDE_DIRS}
+target_include_directories(test-root PRIVATE
+    ${PROJECT_SOURCE_DIR}/test/mock/ProxyClient
+    ${PROJECT_SOURCE_DIR}/test/mock/Middleware
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/include
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(xrce_test PRIVATE fastrtps fastcdr ${GTEST_BOTH_LIBRARIES})
-set_target_properties(xrce_test PROPERTIES
+target_link_libraries(test-root PRIVATE fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+set_target_properties(test-root PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )

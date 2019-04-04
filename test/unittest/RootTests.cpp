@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "../Common.h"
+#include "Common.h"
 
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
@@ -25,12 +25,12 @@ namespace eprosima {
 namespace uxr {
 namespace testing {
 
-class RootUnitTests : public CommonData, public ::testing::Test
+class RootTests : public CommonData, public ::testing::Test
 {
 protected:
-    RootUnitTests() = default;
+    RootTests() = default;
 
-    ~RootUnitTests()
+    ~RootTests()
     {
         root_.reset();
     }
@@ -38,7 +38,7 @@ protected:
     eprosima::uxr::Root& root_ = eprosima::uxr::Root::instance();
 };
 
-TEST_F(RootUnitTests, CreateClientOk)
+TEST_F(RootTests, CreateClientOk)
 {
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(generate_create_client_payload().client_representation(),
@@ -46,7 +46,7 @@ TEST_F(RootUnitTests, CreateClientOk)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
-TEST_F(RootUnitTests, CreateClientBadCookie)
+TEST_F(RootTests, CreateClientBadCookie)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
@@ -56,7 +56,7 @@ TEST_F(RootUnitTests, CreateClientBadCookie)
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
-TEST_F(RootUnitTests, CreateClientCompatibleVersion)
+TEST_F(RootTests, CreateClientCompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{dds::xrce::XRCE_VERSION_MAJOR, 0x20}});
@@ -66,7 +66,7 @@ TEST_F(RootUnitTests, CreateClientCompatibleVersion)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
-TEST_F(RootUnitTests, CreateClientIncompatibleVersion)
+TEST_F(RootTests, CreateClientIncompatibleVersion)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     create_data.client_representation().xrce_version({{0x02, dds::xrce::XRCE_VERSION_MINOR}});
@@ -76,7 +76,7 @@ TEST_F(RootUnitTests, CreateClientIncompatibleVersion)
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
-TEST_F(RootUnitTests, DeleteExistingClient)
+TEST_F(RootTests, DeleteExistingClient)
 {
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
@@ -88,13 +88,13 @@ TEST_F(RootUnitTests, DeleteExistingClient)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
-TEST_F(RootUnitTests, DeleteOnEmptyAgent)
+TEST_F(RootTests, DeleteOnEmptyAgent)
 {
     dds::xrce::ResultStatus response = root_.delete_client(client_key);
     ASSERT_EQ(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE, response.status());
 }
 
-TEST_F(RootUnitTests, DeleteNoExistingClient)
+TEST_F(RootTests, DeleteNoExistingClient)
 {
     const dds::xrce::ClientKey fake_client_key = {{0xFA, 0xFB, 0xFC, 0xFD}};
 

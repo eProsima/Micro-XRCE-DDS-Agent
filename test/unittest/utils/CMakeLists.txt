@@ -12,27 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(GMOCK_FOUND)
-    set(TEST_NAME seqnum_unit_tests)
-    set(SRCS
-        SeqNumUnitTests.cpp
-        )
-    add_executable(${TEST_NAME} ${SRCS})
-    add_gtest(${TEST_NAME}
-        SOURCES
-            ${SRCS}
-        DEPENDENCIES
-            fastcdr
-        )
-    target_include_directories(${TEST_NAME} PRIVATE
+###################################################################################################
+# TokenBucketTest
+###################################################################################################
+
+set(SRCS
+    TokenBucketTest.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/datareader/TokenBucket.cpp
+    )
+add_executable(test-token-bucket ${SRCS})
+add_gtest(test-token-bucket
+    SOURCES
+        ${SRCS}
+    )
+target_include_directories(test-token-bucket
+    PRIVATE
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}
-        ${GMOCK_INCLUDE_DIRS}
-        )
-    target_link_libraries(${TEST_NAME} PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
-    set_target_properties(${TEST_NAME} PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        )
-endif()
+    )
+target_link_libraries(test-token-bucket PRIVATE ${GTEST_BOTH_LIBRARIES})
+set_target_properties(test-token-bucket PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )
+
+###################################################################################################
+# SeqNumTest
+###################################################################################################
+
+set(SRCS
+    SeqNumUnitTests.cpp
+    )
+add_executable(test-seq-num ${SRCS})
+add_gtest(test-seq-num
+    SOURCES
+        ${SRCS}
+    DEPENDENCIES
+        fastcdr
+    )
+target_include_directories(test-seq-num PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/include
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
+    )
+target_link_libraries(test-seq-num PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+set_target_properties(test-seq-num PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )

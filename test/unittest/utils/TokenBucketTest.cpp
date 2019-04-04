@@ -25,11 +25,11 @@ namespace testing {
 
 using eprosima::uxr::utils::TokenBucket;
 
-class TokenBucketTests : public ::testing::Test
+class TokenBucketTest : public ::testing::Test
 {
 protected:
-    TokenBucketTests() = default;
-    ~TokenBucketTests() override = default;
+    TokenBucketTest() = default;
+    ~TokenBucketTest() override = default;
 
 public:
     size_t sleep_thread(int64_t millisecons)
@@ -42,7 +42,7 @@ public:
     }
 };
 
-TEST_F(TokenBucketTests, RateNoBurst)
+TEST_F(TokenBucketTest, RateNoBurst)
 {
     // Rate and capacity should be automatically adjusted to be equal.
     const unsigned int rate = 70;
@@ -57,7 +57,7 @@ TEST_F(TokenBucketTests, RateNoBurst)
     ASSERT_FALSE(bucket.get_tokens(rate));
 }
 
-TEST_F(TokenBucketTests, NoRateNoBurst)
+TEST_F(TokenBucketTest, NoRateNoBurst)
 {
     const unsigned int min_rate = 64000;
     TokenBucket bucket{0};
@@ -71,7 +71,7 @@ TEST_F(TokenBucketTests, NoRateNoBurst)
     ASSERT_FALSE(bucket.get_tokens(min_rate));
 }
 
-TEST_F(TokenBucketTests, AdjustedBurst)
+TEST_F(TokenBucketTest, AdjustedBurst)
 {
     const unsigned int min_rate = 64000;
     const unsigned int rate     = (unsigned int) (min_rate * 0.5);
@@ -85,7 +85,7 @@ TEST_F(TokenBucketTests, AdjustedBurst)
     ASSERT_FALSE(bucket.get_tokens(rate));
 }
 
-TEST_F(TokenBucketTests, LimitToUDPBucket)
+TEST_F(TokenBucketTest, LimitToUDPBucket)
 {
     const int udp_size = 64000;
     TokenBucket bucket{0, 1};
@@ -98,7 +98,7 @@ TEST_F(TokenBucketTests, LimitToUDPBucket)
     ASSERT_FALSE(bucket.get_tokens(10));
 }
 
-TEST_F(TokenBucketTests, RateMeassure)
+TEST_F(TokenBucketTest, RateMeassure)
 {
     const size_t requested_tokens = 300;
     const size_t bucket_rate = 100;
