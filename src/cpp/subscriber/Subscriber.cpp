@@ -33,7 +33,7 @@ std::unique_ptr<Subscriber> Subscriber::create(
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            created_entity = middleware.create_subscriber_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_subscriber_by_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
@@ -58,7 +58,7 @@ Subscriber::Subscriber(
 Subscriber::~Subscriber()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_subscriber(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_subscriber(get_raw_id());
 }
 
 void Subscriber::release(ObjectContainer& root_objects)

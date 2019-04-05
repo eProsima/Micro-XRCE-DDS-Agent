@@ -12,148 +12,159 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
-#define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
-#include <string>
+#ifndef UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+#define UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+
+#include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/middleware/fast/FastEntities.hpp>
+#include <uxr/agent/types/TopicPubSubType.hpp>
+
 #include <cstdint>
 #include <cstddef>
-#include <vector>
-#include <functional>
-#include <chrono>
+#include <unordered_map>
+#include <memory>
 
 namespace eprosima {
 namespace uxr {
 
-class Middleware
+class FastMiddleware : public Middleware
 {
 public:
-    Middleware() = default;
-    virtual ~Middleware() = default;
+    FastMiddleware();
+    ~FastMiddleware() override = default;
 
 /**********************************************************************************************************************
  * Create functions.
  **********************************************************************************************************************/
-    virtual bool create_participant_by_ref(
+    bool create_participant_by_ref(
             uint16_t participant_id,
             int16_t domain_id,
-            const std::string& ref) = 0;
+            const std::string& ref) override;
 
-    virtual bool create_participant_by_xml(
+    bool create_participant_by_xml(
             uint16_t participant_id,
             int16_t domain_id,
-            const std::string& xml) = 0;
+            const std::string& xml) override;
 
-    virtual bool create_topic_by_ref(
+    bool create_topic_by_ref(
             uint16_t topic_id,
             uint16_t participant_id,
-            const std::string& ref) = 0;
+            const std::string& ref) override;
 
-    virtual bool create_topic_by_xml(
+    bool create_topic_by_xml(
             uint16_t topic_id,
             uint16_t participant_id,
-            const std::string& xml) = 0;
+            const std::string& xml) override;
 
-    virtual bool create_publisher_by_xml(
+    bool create_publisher_by_xml(
             uint16_t publisher_id,
             uint16_t participant_id,
-            const std::string& xml) = 0;
+            const std::string&) override;
 
-    virtual bool create_subscriber_by_xml(
-            uint16_t subscriber_id,
+    bool create_subscriber_by_xml(
+            uint16_t subscirber_id,
             uint16_t participant_id,
-            const std::string& xml) = 0;
+            const std::string&) override;
 
-    virtual bool create_datawriter_by_ref(
+    bool create_datawriter_by_ref(
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const std::string& ref,
-            uint16_t& associated_topic_id) = 0;
+            uint16_t& associated_topic_id) override;
 
-    virtual bool create_datawriter_by_xml(
+    bool create_datawriter_by_xml(
             uint16_t datawriter_id,
             uint16_t publisher_id,
             const std::string& xml,
-            uint16_t& associated_topic_id) = 0;
+            uint16_t& associated_topic_id) override;
 
-    virtual bool create_datareader_by_ref(
+    bool create_datareader_by_ref(
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const std::string& ref,
-            uint16_t& associated_topic_id) = 0;
+            uint16_t& associated_topic_id) override;
 
-    virtual bool create_datareader_by_xml(
+    bool create_datareader_by_xml(
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const std::string& xml,
-            uint16_t& associated_topic_id) = 0;
+            uint16_t& associated_topic_id) override;
 
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
-    virtual bool delete_participant(uint16_t participant_id) = 0;
+    bool delete_participant(uint16_t participant_id) override;
 
-    virtual bool delete_topic(uint16_t topic_id) = 0;
+    bool delete_topic(uint16_t topic_id) override;
 
-    virtual bool delete_publisher(uint16_t publisher_id) = 0;
+    bool delete_publisher(uint16_t publisher_id) override;
 
-    virtual bool delete_subscriber(uint16_t subscriber_id) = 0;
+    bool delete_subscriber(uint16_t subscriber_id) override;
 
-    virtual bool delete_datawriter(uint16_t datawriter_id) = 0;
+    bool delete_datawriter(uint16_t datawriter_id) override;
 
-    virtual bool delete_datareader(uint16_t datareader_id) = 0;
+    bool delete_datareader(uint16_t datareader_id) override;
 
 /**********************************************************************************************************************
  * Write/Read functions.
  **********************************************************************************************************************/
-    virtual bool write_data(
+    bool write_data(
             uint16_t datawriter_id,
-            std::vector<uint8_t>& data) = 0;
+            std::vector<uint8_t>& data) override;
 
-    virtual bool read_data(
+    bool read_data(
             uint16_t datareader_id,
             std::vector<uint8_t>& data,
-            std::chrono::milliseconds timeout) = 0;
+            std::chrono::milliseconds timeout) override;
 
 /**********************************************************************************************************************
  * Matched functions.
  **********************************************************************************************************************/
-    virtual bool matched_participant_from_ref(
+    bool matched_participant_from_ref(
             uint16_t participant_id,
             int16_t domain_id,
-            const std::string& ref) const = 0;
+            const std::string& ref) const override;
 
-    virtual bool matched_participant_from_xml(
+    bool matched_participant_from_xml(
             uint16_t participant_id,
             int16_t domain_id,
-            const std::string& xml) const = 0;
+            const std::string& xml) const override;
 
-    virtual bool matched_topic_from_ref(
+    bool matched_topic_from_ref(
             uint16_t topic_id,
-            const std::string& ref) const = 0;
+            const std::string& ref) const override;
 
-    virtual bool matched_topic_from_xml(
+    bool matched_topic_from_xml(
             uint16_t topic_id,
-            const std::string& xml) const = 0;
+            const std::string& xml) const override;
 
-    virtual bool matched_datawriter_from_ref(
+    bool matched_datawriter_from_ref(
             uint16_t datawriter_id,
-            const std::string& ref) const = 0;
+            const std::string& ref) const override;
 
-    virtual bool matched_datawriter_from_xml(
+    bool matched_datawriter_from_xml(
             uint16_t datawriter_id,
-            const std::string& xml) const = 0;
+            const std::string& xml) const override;
 
-    virtual bool matched_datareader_from_ref(
+    bool matched_datareader_from_ref(
             uint16_t datareader_id,
-            const std::string& ref) const = 0;
+            const std::string& ref) const override;
 
-    virtual bool matched_datareader_from_xml(
+    bool matched_datareader_from_xml(
             uint16_t datareader_id,
-            const std::string& xml) const = 0;
+            const std::string& xml) const override;
+
+private:
+    std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_

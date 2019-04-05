@@ -19,6 +19,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
 
+#include <iostream>
 #include <atomic>
 
 namespace eprosima {
@@ -42,7 +43,7 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t topic_id;
-            if (middleware.create_datareader_from_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
+            if (middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);;
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
@@ -55,7 +56,7 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t topic_id;
-            if (middleware.create_datareader_from_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
+            if (middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
             {
                 dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
@@ -98,7 +99,7 @@ DataReader::~DataReader() noexcept
 
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware().delete_datareader(get_raw_id(), subscriber_->get_raw_id());
+    get_middleware().delete_datareader(get_raw_id());
 }
 
 bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
@@ -139,11 +140,6 @@ bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
 
 bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    if (!get_middleware().set_read_cb(get_raw_id(), std::bind(&DataReader::on_new_message, this)))
-    {
-        return false;
-    }
-
     std::unique_lock<std::mutex> lock(mtx_);
     running_cond_ = true;
     lock.unlock();
@@ -174,8 +170,7 @@ bool DataReader::stop_read()
     {
         max_timer_thread_.join();
     }
-
-    return get_middleware().unset_read_cb(get_raw_id());
+    return true;
 }
 
 void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
@@ -190,7 +185,7 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
         if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
             std::vector<uint8_t> data;
-            if (get_middleware().read_data(get_raw_id(), &data))
+            if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
             {
                 lock.unlock();
                 while (!rate_manager.get_tokens(data.size()))
@@ -199,12 +194,6 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                 }
                 read_cb(cb_args, data);
                 ++message_count;
-            }
-            else
-            {
-                /* Wait for new message or terminate signal. */
-                cond_var_.wait(lock);
-                lock.unlock();
             }
         }
         else
@@ -225,12 +214,6 @@ void DataReader::on_max_timeout(const asio::error_code& error)
         running_cond_ = false;
         cond_var_.notify_one();
     }
-}
-
-void DataReader::on_new_message()
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-    cond_var_.notify_one();
 }
 
 bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const

@@ -33,13 +33,13 @@ std::unique_ptr<Topic> Topic::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            created_entity = middleware.create_topic_from_ref(raw_object_id, participant->get_raw_id(), ref);
+            created_entity = middleware.create_topic_by_ref(raw_object_id, participant->get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            created_entity = middleware.create_topic_from_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_topic_by_xml(raw_object_id, participant->get_raw_id(), xml);
             break;
         }
         default:
@@ -61,7 +61,7 @@ Topic::Topic(
 Topic::~Topic()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_topic(get_raw_id(), participant_->get_raw_id());
+    get_middleware().delete_topic(get_raw_id());
 }
 
 void Topic::release(ObjectContainer& root_objects)

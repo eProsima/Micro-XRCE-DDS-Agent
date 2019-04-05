@@ -30,16 +30,16 @@ public:
     /*
      * Operators.
      */
-    inline operator uint16_t() const { return seq_num_; }
+    operator uint16_t() const { return seq_num_; }
     operator int() const { return seq_num_; }
 
-    inline SeqNum& operator+=(const int& rhs)
+    SeqNum& operator+=(const int& rhs)
     {
-        seq_num_ = (seq_num_ + static_cast<uint16_t>(rhs)) % seq_num_limits_;
+        seq_num_ = (seq_num_ + uint16_t(rhs)) % seq_num_limits_;
         return *this;
     }
 
-    inline SeqNum& operator+=(const SeqNum& rhs)
+    SeqNum& operator+=(const SeqNum& rhs)
     {
         seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
         return *this;
@@ -63,6 +63,46 @@ public:
         return rhs;
     }
 
+    SeqNum& operator++()
+    {
+        seq_num_ = (seq_num_ == UINT16_MAX) ? 0 : seq_num_ + 1;
+        return *this;
+    }
+
+    SeqNum& operator-=(const int& rhs)
+    {
+        seq_num_ = (uint16_t(rhs) > seq_num_)
+                ? uint16_t(seq_num_ - uint16_t(rhs) + seq_num_limits_)
+                : uint16_t(seq_num_ - uint16_t(rhs));
+        return *this;
+    }
+
+    SeqNum& operator-=(const SeqNum& rhs)
+    {
+        seq_num_ = (rhs.seq_num_ > seq_num_)
+                ? uint16_t(seq_num_ - rhs.seq_num_ + seq_num_limits_)
+                : uint16_t(seq_num_ - rhs.seq_num_);
+        return *this;
+    }
+
+    friend SeqNum operator-(SeqNum lhs, const SeqNum& rhs)
+    {
+        lhs -= rhs;
+        return lhs;
+    }
+
+    friend SeqNum operator-(SeqNum lhs, const int& rhs)
+    {
+        lhs -= rhs;
+        return lhs;
+    }
+
+    friend SeqNum operator-(const int& lhs, SeqNum rhs)
+    {
+        rhs -= lhs;
+        return rhs;
+    }
+
     friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
     {
         return (lhs.seq_num_ != rhs.seq_num_) &&
@@ -78,8 +118,8 @@ public:
 
 private:
     uint16_t seq_num_;
-    static const int32_t seq_num_limits_ = (1 << 16);
-    static const int32_t seq_num_add_range_ = (1 << 15);
+    static constexpr int32_t seq_num_limits_ = UINT16_MAX + 1;
+    static constexpr int32_t seq_num_add_range_ = INT16_MAX;
 };
 
 } // namespace uxr

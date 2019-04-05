@@ -16,7 +16,6 @@
 #define UXR_AGENT_DATAWRITER_DATAWRITER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
 #include <string>
 #include <set>
 

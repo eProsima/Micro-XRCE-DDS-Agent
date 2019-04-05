@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_ROOT_HPP_
-#define _UXR_AGENT_ROOT_HPP_
+#ifndef UXR_AGENT_ROOT_HPP_
+#define UXR_AGENT_ROOT_HPP_
 
 #include <uxr/agent/client/ProxyClient.hpp>
 #include <thread>
@@ -23,8 +23,6 @@
 
 namespace eprosima{
 namespace uxr{
-
-class Middleware;
 
 class Root
 {
@@ -43,7 +41,6 @@ public:
     bool load_config_file(const std::string& path);
 
 private:
-    std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;
@@ -52,4 +49,4 @@ private:
 } // uxr
 } // eprosima
 
-#endif //_UXR_AGENT_ROOT_HPP_
+#endif // UXR_AGENT_ROOT_HPP_

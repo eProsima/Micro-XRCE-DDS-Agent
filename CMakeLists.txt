@@ -142,8 +142,6 @@ set(SRCS
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
     src/cpp/types/SubMessageHeader.cpp
-    src/cpp/types/TopicPubSubType.cpp
-    src/cpp/xmlobjects/xmlobjects.cpp
     $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
@@ -152,12 +150,16 @@ set(SRCS
     src/cpp/transport/serial/serial_protocol.c
     src/cpp/transport/discovery/DiscoveryServer.cpp
     ${TRANSPORT_SRCS}
-    src/cpp/middleware/FastEntities.cpp
-    src/cpp/middleware/FastMiddleware.cpp
+    src/cpp/types/TopicPubSubType.cpp
+    src/cpp/xmlobjects/xmlobjects.cpp
+    src/cpp/middleware/fast/FastEntities.cpp
+    src/cpp/middleware/fast/FastMiddleware.cpp
+    src/cpp/middleware/ced/CedEntities.cpp
+    src/cpp/middleware/ced/CedMiddleware.cpp
     )
 
 # Executable
-add_library(${PROJECT_NAME} SHARED ${SRCS})
+add_library(${PROJECT_NAME} ${SRCS})
 target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
 target_include_directories(${PROJECT_NAME}
     PUBLIC
@@ -238,7 +240,7 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
         add_subdirectory(test/unittest/util)
         add_subdirectory(test/unittest/xrce)
         add_subdirectory(test/unittest/transport/serial)
-        # TODO (#5047): enable when XML is available
+        add_subdirectory(test/unittest/middleware/ced)
         #add_subdirectory(test/blackbox/tree)
     endif()
     add_subdirectory(test/integration/cross_serialization)

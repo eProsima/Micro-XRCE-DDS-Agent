@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/middleware/FastEntities.hpp>
+#include <uxr/agent/middleware/fast/FastEntities.hpp>
 #include <fastrtps/Domain.h>
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/Publisher.h>
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include "../xmlobjects/xmlobjects.h"
+#include "../../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
 namespace uxr {
 
+/**********************************************************************************************************************
+ * FastParticipant
+ **********************************************************************************************************************/
 FastParticipant::~FastParticipant()
 {
     fastrtps::Domain::removeParticipant(ptr_);
@@ -35,7 +38,7 @@ bool FastParticipant::create_by_ref(const std::string& ref)
     return (nullptr != ptr_);
 }
 
-bool FastParticipant::create_by_attributes(fastrtps::ParticipantAttributes& attrs)
+bool FastParticipant::create_by_attributes(const ParticipantAttributes& attrs)
 {
     ptr_ = fastrtps::Domain::createParticipant(attrs, this);
     return (nullptr != ptr_);
@@ -64,7 +67,9 @@ bool FastParticipant::match_from_xml(const std::string& xml) const
     return rv;
 }
 
-void FastParticipant::onParticipantDiscovery(fastrtps::Participant*, fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+void FastParticipant::onParticipantDiscovery(
+        fastrtps::Participant*,
+        fastrtps::rtps::ParticipantDiscoveryInfo&& info)
 {
     if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
@@ -76,19 +81,69 @@ void FastParticipant::onParticipantDiscovery(fastrtps::Participant*, fastrtps::r
     }
 }
 
-FastTopic::~FastTopic()
+bool FastParticipant::register_topic(
+        FastTopic* const topic,
+        uint16_t topic_id)
 {
-    fastrtps::Domain::unregisterType(participant_->get_ptr(), getName());
+    // TODO (#5057): allow more than one topic.
+    bool rv = false;
+    auto it = topics_register_.find(topic->getName());
+    if (topics_register_.end() == it)
+    {
+        fastrtps::Domain::registerType(ptr_, topic);
+        topics_register_[topic->getName()] = topic_id;
+        rv = true;
+    }
+    return rv;
 }
 
-bool FastTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs, FastParticipant* participant)
+bool FastParticipant::unregister_topic(const FastTopic* const topic)
+{
+    bool rv = false;
+    if (0 != topics_register_.erase(topic->getName()))
+    {
+        fastrtps::Domain::unregisterType(ptr_, topic->getName());
+        rv = true;
+    }
+    return rv;
+}
+
+bool FastParticipant::find_topic(
+        const std::string& topic_name,
+        uint16_t& topic_id)
+{
+    bool rv = false;
+    auto it = topics_register_.find(topic_name);
+    if (topics_register_.end() != it)
+    {
+        topic_id = it->second;
+        rv = true;
+    }
+    return rv;
+}
+
+/**********************************************************************************************************************
+ * FastTopic
+ **********************************************************************************************************************/
+FastTopic::FastTopic(const std::shared_ptr<FastParticipant>& participant)
+    : TopicPubSubType{false}
+    , participant_(participant)
+{}
+
+FastTopic::~FastTopic()
+{
+    participant_->unregister_topic(this);
+}
+
+bool FastTopic::create_by_attributes(
+        const fastrtps::TopicAttributes& attrs,
+        uint16_t topic_id)
 {
     bool rv = false;
     setName(attrs.getTopicDataType().data());
     m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    if (fastrtps::Domain::registerType(participant->get_ptr(), this))
+    if (participant_->register_topic(this, topic_id))
     {
-        participant_ = participant;
         rv = true;
     }
     return rv;
@@ -119,31 +174,43 @@ bool FastTopic::match_from_xml(const std::string& xml) const
     return rv;
 }
 
+/**********************************************************************************************************************
+ * FastDataWriter
+ **********************************************************************************************************************/
+FastDataWriter::FastDataWriter(const std::shared_ptr<FastParticipant>& participant)
+    : participant_(participant)
+    , ptr_(nullptr)
+{}
+
 FastDataWriter::~FastDataWriter()
 {
     fastrtps::Domain::removePublisher(ptr_);
 }
 
-bool FastDataWriter::create_by_ref(const std::string& ref, const FastParticipant* participant, std::string& topic_name)
+bool FastDataWriter::create_by_ref(
+        const std::string& ref,
+        uint16_t& topic_id)
 {
-    ptr_ = fastrtps::Domain::createPublisher(participant->get_ptr(), ref, this);
+    bool rv = false;
+    ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
     }
-    return (nullptr != ptr_);
+    return rv;
 }
 
-bool FastDataWriter::create_by_attributes(PublisherAttributes& attrs,
-                                          const FastParticipant* participant,
-                                          std::string& topic_name)
+bool FastDataWriter::create_by_attributes(
+        const PublisherAttributes& attrs,
+        uint16_t& topic_id)
 {
-    ptr_ = fastrtps::Domain::createPublisher(participant->get_ptr(), attrs, this);
+    bool rv = false;
+    ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
     }
-    return (nullptr != ptr_);
+    return rv;
 }
 
 bool FastDataWriter::match_from_ref(const std::string& ref) const
@@ -174,7 +241,9 @@ bool FastDataWriter::write(std::vector<uint8_t>& data)
     return ptr_->write(&data);
 }
 
-void FastDataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::MatchingInfo& info)
+void FastDataWriter::onPublicationMatched(
+        fastrtps::Publisher*,
+        fastrtps::rtps::MatchingInfo& info)
 {
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
@@ -186,9 +255,12 @@ void FastDataWriter::onPublicationMatched(fastrtps::Publisher*, fastrtps::rtps::
     }
 }
 
-FastDataReader::FastDataReader()
-    : ptr_(nullptr)
-    , on_new_data_cb_(nullptr)
+/**********************************************************************************************************************
+ * FastDataReader
+ **********************************************************************************************************************/
+FastDataReader::FastDataReader(const std::shared_ptr<FastParticipant>& participant)
+    : participant_(participant)
+    , ptr_(nullptr)
 {}
 
 FastDataReader::~FastDataReader()
@@ -196,28 +268,30 @@ FastDataReader::~FastDataReader()
     fastrtps::Domain::removeSubscriber(ptr_);
 }
 
-bool FastDataReader::create_by_ref(const std::string& ref,
-                                   const FastParticipant* participant,
-                                   std::string& topic_name)
+bool FastDataReader::create_by_ref(
+        const std::string& ref,
+        uint16_t& topic_id)
 {
-    ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), ref, this);
+    bool rv = false;
+    ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
     }
-    return (nullptr != ptr_);
+    return rv;
 }
 
-bool FastDataReader::create_by_attributes(SubscriberAttributes& attrs,
-                                          const FastParticipant* participant,
-                                          std::string& topic_name)
+bool FastDataReader::create_by_attributes(
+        const SubscriberAttributes& attrs,
+        uint16_t& topic_id)
 {
-    ptr_ = fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, this);
+    bool rv = false;
+    ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        topic_name = ptr_->getAttributes().topic.getTopicDataType();
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
     }
-    return (nullptr != ptr_);
+    return rv;
 }
 
 bool FastDataReader::match_from_ref(const std::string& ref) const
@@ -243,30 +317,34 @@ bool FastDataReader::match_from_xml(const std::string& xml) const
     return rv;
 }
 
-bool FastDataReader::set_on_new_data_cb(OnNewData on_new_data_cb)
+bool FastDataReader::read(
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
 {
-    on_new_data_cb_ = on_new_data_cb;
-    return true;
-}
-
-bool FastDataReader::unset_on_new_data_cb()
-{
-    on_new_data_cb_ = nullptr;
-    return true;
-}
-
-bool FastDataReader::read(std::vector<uint8_t>* data)
-{
+    auto now = std::chrono::steady_clock::now();
     bool rv = false;
+    std::unique_lock<std::mutex> lock(mtx_);
     if (ptr_->getUnreadCount() != 0)
     {
+        lock.unlock();
         fastrtps::SampleInfo_t info;
-        rv = ptr_->takeNextData(data, &info);
+        rv = ptr_->takeNextData(&data, &info);
+    }
+    else
+    {
+        if (cv_.wait_until(lock, now + timeout, [&](){ return  ptr_->getUnreadCount() != 0; }))
+        {
+            lock.unlock();
+            fastrtps::SampleInfo_t info;
+            rv = ptr_->takeNextData(&data, &info);
+        }
     }
     return rv;
 }
 
-void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps::MatchingInfo& info)
+void FastDataReader::onSubscriptionMatched(
+        fastrtps::Subscriber*,
+        fastrtps::rtps::MatchingInfo& info)
 {
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
@@ -280,10 +358,8 @@ void FastDataReader::onSubscriptionMatched(fastrtps::Subscriber*, fastrtps::rtps
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
-    if (nullptr != on_new_data_cb_)
-    {
-        on_new_data_cb_();
-    }
+    std::unique_lock<std::mutex> lock(mtx_);
+    cv_.notify_one();
 }
 
 } // namespace uxr

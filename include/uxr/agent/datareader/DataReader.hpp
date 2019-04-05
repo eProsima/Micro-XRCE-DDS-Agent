@@ -16,7 +16,6 @@
 #define UXR_AGENT_DATAREADER_DATAREADER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
 
 #include <asio/io_service.hpp>
 #include <asio/steady_timer.hpp>
@@ -41,7 +40,6 @@ struct ReadCallbackArgs
     dds::xrce::StreamId stream_id;
     dds::xrce::ObjectId object_id;
     dds::xrce::RequestId request_id;
-
 };
 
 typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
@@ -72,9 +70,8 @@ protected:
 };
 
 /**
- * @brief The DataReader class contains the public API that allows the user to control the reception of message.
+ * @brief The DataReader class
  */
-//class DataReader : public XRCEObject, public ReadTimeEvent, public RTPSSubListener
 class DataReader : public XRCEObject, public ReadTimeEvent
 {
 public:
@@ -100,7 +97,6 @@ public:
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
     void on_max_timeout(const asio::error_code& error) override;
-    void on_new_message();
 
 private:
     DataReader(const dds::xrce::ObjectId& object_id,

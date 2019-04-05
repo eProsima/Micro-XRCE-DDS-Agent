@@ -31,13 +31,13 @@ std::unique_ptr<Participant> Participant::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref_rep = representation.representation().object_reference();
-            created_entity = middleware.create_participant_from_ref(raw_object_id, ref_rep);
+            created_entity = middleware.create_participant_by_ref(raw_object_id, representation.domain_id(), ref_rep);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml_rep = representation.representation().xml_string_representation();
-            created_entity = middleware.create_participant_from_xml(raw_object_id, xml_rep);
+            created_entity = middleware.create_participant_by_xml(raw_object_id, representation.domain_id(), xml_rep);
             break;
         }
         default:
@@ -82,13 +82,15 @@ bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.participant().representation().object_reference();
-            rv = middleware_.matched_participant_from_ref(get_raw_id(), ref);
+            const int16_t domain_id = new_object_rep.participant().domain_id();
+            rv = middleware_.matched_participant_from_ref(get_raw_id(), domain_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.participant().representation().xml_string_representation();
-            rv = middleware_.matched_participant_from_xml(get_raw_id(), xml);
+            const int16_t domain_id = new_object_rep.participant().domain_id();
+            rv = middleware_.matched_participant_from_xml(get_raw_id(), domain_id, xml);
             break;
         }
         default:

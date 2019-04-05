@@ -18,6 +18,8 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 #include <uxr/agent/topic/Topic.hpp>
+#include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#include <uxr/agent/middleware/ced/CedMiddleware.hpp>
 #ifdef VERBOSE_OUTPUT
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
@@ -26,12 +28,13 @@
 namespace eprosima {
 namespace uxr {
 
-ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation, Middleware& middleware)
+ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
     : representation_(representation),
-      middleware_(middleware),
       objects_(),
       session_(representation.session_id(), representation.client_key(), representation.mtu())
 {
+    middleware_.reset(new FastMiddleware());
+//    middleware_.reset(new CedMiddleware());
 }
 
 dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
@@ -209,22 +212,24 @@ bool ProxyClient::create_object(const dds::xrce::ObjectId& object_id, const dds:
     return rv;
 }
 
-bool ProxyClient::create_participant(const dds::xrce::ObjectId& object_id,
-                                     const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
+bool ProxyClient::create_participant(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_PARTICIPANT_Representation& representation)
 {
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (object_id[1] & 0x0F))
     {
-        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, middleware_))
+        if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, *middleware_))
         {
-            rv = objects_.emplace(std::make_pair(object_id, std::move(participant))).second;
+            rv = objects_.emplace(object_id, std::move(participant)).second;
         }
     }
     return rv;
 }
 
-bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
-                               const dds::xrce::OBJK_TOPIC_Representation& representation)
+bool ProxyClient::create_topic(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::OBJK_TOPIC_Representation& representation)
 {
     bool rv = false;
     if (dds::xrce::OBJK_PARTICIPANT == (representation.participant_id()[1] & 0x0F) &&
@@ -236,7 +241,7 @@ bool ProxyClient::create_topic(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, std::move(topic))).second;
+                rv = objects_.emplace(object_id, std::move(topic)).second;
             }
         }
     }
@@ -257,7 +262,7 @@ bool ProxyClient::create_publisher(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, std::move(publisher))).second;
+                rv = objects_.emplace(object_id, std::move(publisher)).second;
             }
         }
     }
@@ -278,7 +283,7 @@ bool ProxyClient::create_subscriber(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
             if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant, representation))
             {
-                rv = objects_.emplace(std::make_pair(object_id, std::move(subscriber))).second;
+                rv = objects_.emplace(object_id, std::move(subscriber)).second;
             }
         }
     }
@@ -298,7 +303,7 @@ bool ProxyClient::create_datawriter(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
             if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation, objects_))
             {
-                rv = objects_.emplace(std::make_pair(object_id, std::move(datawriter))).second;
+                rv = objects_.emplace(object_id, std::move(datawriter)).second;
             }
         }
     }
@@ -318,7 +323,7 @@ bool ProxyClient::create_datareader(const dds::xrce::ObjectId& object_id,
             std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
             if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation, objects_))
             {
-                rv = objects_.emplace(std::make_pair(object_id, std::move(datareader))).second;
+                rv = objects_.emplace(object_id, std::move(datareader)).second;
             }
         }
     }
