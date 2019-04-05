@@ -29,8 +29,7 @@ bool CedMiddleware::create_participant_by_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() == it)
     {
-        std::shared_ptr<CedParticipant> participant(new CedParticipant(domain_id));
-        participants_.emplace(participant_id, std::move(participant));
+        participants_.emplace(participant_id, std::make_shared<CedParticipant>(domain_id));
         rv = true;
     }
     return rv;
@@ -45,8 +44,7 @@ bool CedMiddleware::create_participant_by_xml(
     auto it = participants_.find(participant_id);
     if (participants_.end() == it)
     {
-        std::shared_ptr<CedParticipant> participant(new CedParticipant(domain_id));
-        participants_.emplace(participant_id, std::move(participant));
+        participants_.emplace(participant_id, std::make_shared<CedParticipant>(domain_id));
         rv = true;
     }
     return rv;
@@ -64,11 +62,10 @@ bool CedMiddleware::create_topic_by_ref(
         auto it_topic = topics_.find(topic_id);
         if (topics_.end() == it_topic)
         {
-            std::shared_ptr<CedTopicImpl> topic_impl;
-            if (it_participant->second->register_topic(ref, topic_id, topic_impl)) // TODO: get reference.
+            std::shared_ptr<CedGlobalTopic> global_topic;
+            if (it_participant->second->register_topic(ref, topic_id, global_topic)) // TODO: get reference.
             {
-                std::shared_ptr<CedTopic> topic(new CedTopic(it_participant->second, topic_impl));
-                topics_.emplace(topic_id, std::move(topic));
+                topics_.emplace(topic_id, std::make_shared<CedTopic>(it_participant->second, global_topic));
                 rv = true;
             }
         }
@@ -88,11 +85,10 @@ bool CedMiddleware::create_topic_by_xml(
         auto it_topic = topics_.find(topic_id);
         if (topics_.end() == it_topic)
         {
-            std::shared_ptr<CedTopicImpl> topic_impl;
-            if (it_participant->second->register_topic(xml, topic_id, topic_impl)) // TODO: parse XML.
+            std::shared_ptr<CedGlobalTopic> global_topic;
+            if (it_participant->second->register_topic(xml, topic_id, global_topic)) // TODO: parse XML.
             {
-                std::shared_ptr<CedTopic> topic(new CedTopic(it_participant->second, topic_impl));
-                topics_.emplace(topic_id, std::move(topic));
+                topics_.emplace(topic_id, std::make_shared<CedTopic>(it_participant->second, global_topic));
                 rv = true;
             }
         }
@@ -112,8 +108,7 @@ bool CedMiddleware::create_publisher_by_xml(
         auto it_publisher = publishers_.find(publisher_id);
         if (publishers_.end() == it_publisher)
         {
-            std::shared_ptr<CedPublisher> publisher(new CedPublisher(it_participant->second));
-            publishers_.emplace(publisher_id, std::move(publisher));
+            publishers_.emplace(publisher_id, std::make_shared<CedPublisher>(it_participant->second));
             rv = true;
         }
     }
@@ -132,8 +127,7 @@ bool CedMiddleware::create_subscriber_by_xml(
         auto it_subscriber = subscribers_.find(subscirber_id);
         if (subscribers_.end() == it_subscriber)
         {
-            std::shared_ptr<CedSubscriber> subscriber(new CedSubscriber(it_participant->second));
-            subscribers_.emplace(std::make_pair(subscirber_id, std::move(subscriber)));
+            subscribers_.emplace(subscirber_id, std::make_shared<CedSubscriber>(it_participant->second));
             rv = true;
         }
     }
@@ -159,8 +153,8 @@ bool CedMiddleware::create_datawriter_by_ref(
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
                 {
-                    std::shared_ptr<CedDataWriter> datawriter(new CedDataWriter(it_publisher->second, it_topic->second));
-                    datawriters_.emplace(datawriter_id, std::move(datawriter));
+                    datawriters_.emplace(datawriter_id,
+                                         std::make_shared<CedDataWriter>(it_publisher->second, it_topic->second));
                     associated_topic_id = topic_id;
                     rv = true;
                 }
@@ -189,8 +183,8 @@ bool CedMiddleware::create_datawriter_by_xml(
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
                 {
-                    std::shared_ptr<CedDataWriter> datawriter(new CedDataWriter(it_publisher->second, it_topic->second));
-                    datawriters_.emplace(datawriter_id, std::move(datawriter));
+                    datawriters_.emplace(datawriter_id,
+                                         std::make_shared<CedDataWriter>(it_publisher->second, it_topic->second));
                     associated_topic_id = topic_id;
                     rv = true;
                 }
@@ -219,8 +213,8 @@ bool CedMiddleware::create_datareader_by_ref(
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
                 {
-                    std::shared_ptr<CedDataReader> datareader(new CedDataReader(it_subscriber->second, it_topic->second));
-                    datareaders_.emplace(datareader_id, std::move(datareader));
+                    datareaders_.emplace(datareader_id,
+                                         std::make_shared<CedDataReader>(it_subscriber->second, it_topic->second));
                     associated_topic_id = topic_id;
                     rv = true;
                 }
@@ -250,7 +244,8 @@ bool CedMiddleware::create_datareader_by_xml(
                 if (topics_.end() != it_topic)
                 {
                     std::shared_ptr<CedDataReader> datareader(new CedDataReader(it_subscriber->second, it_topic->second));
-                    datareaders_.emplace(datareader_id, std::move(datareader));
+                    datareaders_.emplace(datareader_id,
+                                         std::make_shared<CedDataReader>(it_subscriber->second, it_topic->second));
                     associated_topic_id = topic_id;
                     rv = true;
                 }
@@ -313,7 +308,7 @@ bool CedMiddleware::write_data(
 bool CedMiddleware::read_data(
         uint16_t datareader_id,
         std::vector<uint8_t>& data,
-        uint32_t timeout)
+        std::chrono::milliseconds timeout)
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

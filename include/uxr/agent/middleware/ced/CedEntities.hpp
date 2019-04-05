@@ -29,45 +29,46 @@
 namespace eprosima {
 namespace uxr {
 
-class CedTopicImpl;
+class CedGlobalTopic;
 
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
 class CedTopicManager
 {
-    friend class CedParticipant;
-private:
-    CedTopicManager() = default;
-    ~CedTopicManager() = default;
-
+    friend class CedGlobalTopic;
+public:
     static bool register_topic(
         const std::string& topic_name,
         int16_t domain_id,
-        std::shared_ptr<CedTopicImpl>& topic);
+        std::shared_ptr<CedGlobalTopic>& topic);
+
+private:
+    CedTopicManager() = default;
+    ~CedTopicManager() = default;
 
     static bool unregister_topic(
         const std::string& topic_name,
         int16_t domain_id);
 
 private:
-    static std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> topics_;
+    static std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> topics_;
     static std::mutex mtx_;
 };
 
 /**********************************************************************************************************************
  * CedTopicCloud
  **********************************************************************************************************************/
-class CedTopicImpl
+class CedGlobalTopic
 {
     friend class CedDataReader;
     friend class CedDataWriter;
 public:
-    CedTopicImpl(
+    CedGlobalTopic(
         const std::string& topic_name,
         int16_t domain_id);
 
-    ~CedTopicImpl() = default;
+    ~CedGlobalTopic();
 
     const std::string& name() const;
 
@@ -77,8 +78,9 @@ private:
         uint8_t& errcode
     );
 
-    bool read(std::vector<uint8_t>& data,
-        uint32_t timeout,
+    bool read(
+    std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout,
         SeqNum& last_read,
         uint8_t& errcode
     );
@@ -106,7 +108,7 @@ public:
     bool register_topic(
             const std::string& topic_name,
             uint16_t topic_id,
-            std::shared_ptr<CedTopicImpl>& topic_impl);
+            std::shared_ptr<CedGlobalTopic>& global_topic);
 
     bool unregister_topic(const std::string& topic_name);
 
@@ -129,19 +131,19 @@ class CedTopic
 public:
     CedTopic(
             const std::shared_ptr<CedParticipant>& participant,
-            const std::shared_ptr<CedTopicImpl>& topic_impl)
+            const std::shared_ptr<CedGlobalTopic>& global_topic)
         : participant_(participant)
-        , topic_impl_(topic_impl)
+        , global_topic_(global_topic)
     {}
     ~CedTopic();
 
-    const std::shared_ptr<CedTopicImpl>& topic_impl() const;
+    CedGlobalTopic* global_topic() const;
 
-    const std::string& name() { return topic_impl_->name(); }
+    const std::string& name() { return global_topic_->name(); }
 
 private:
     std::shared_ptr<CedParticipant> participant_;
-    std::shared_ptr<CedTopicImpl> topic_impl_;
+    std::shared_ptr<CedGlobalTopic> global_topic_;
 };
 
 /**********************************************************************************************************************
@@ -198,7 +200,7 @@ public:
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const;
 
-    const std::string& topic_name() const { return topic_->topic_impl()->name(); }
+    const std::string& topic_name() const { return topic_->global_topic()->name(); }
 
 private:
     const std::shared_ptr<CedPublisher> publisher_;
@@ -222,10 +224,10 @@ public:
 
     bool read(
             std::vector<uint8_t>& data,
-            uint32_t timeout,
+            std::chrono::milliseconds timeout,
             uint8_t& errcode);
 
-    const std::string& topic_name() const { return topic_->topic_impl()->name(); }
+    const std::string& topic_name() const { return topic_->global_topic()->name(); }
 
 private:
     const std::shared_ptr<CedSubscriber> subscriber_;

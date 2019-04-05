@@ -262,9 +262,10 @@ bool FastMiddleware::write_data(
     return rv;
 }
 
-bool FastMiddleware::read_data(uint16_t datareader_id,
+bool FastMiddleware::read_data(
+        uint16_t datareader_id,
         std::vector<uint8_t>& data,
-        uint32_t timeout)
+        std::chrono::milliseconds timeout)
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

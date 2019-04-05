@@ -185,7 +185,7 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
         if (running_cond_ && (message_count < delivery_control.max_samples()))
         {
             std::vector<uint8_t> data;
-            if (get_middleware().read_data(get_raw_id(), data, 100))
+            if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
             {
                 lock.unlock();
                 while (!rate_manager.get_tokens(data.size()))

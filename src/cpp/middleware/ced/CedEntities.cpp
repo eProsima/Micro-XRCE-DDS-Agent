@@ -1,3 +1,5 @@
+#include <memory>
+
 // Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,24 +23,24 @@ namespace uxr {
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
-std::unordered_map<int16_t, std::unordered_map<std::string, std::shared_ptr<CedTopicImpl>>> CedTopicManager::topics_;
+std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> CedTopicManager::topics_;
 std::mutex CedTopicManager::mtx_;
 
 bool CedTopicManager::register_topic(
         const std::string& topic_name,
         int16_t domain_id,
-        std::shared_ptr<CedTopicImpl>& topic)
+        std::shared_ptr<CedGlobalTopic>& topic)
 {
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = topics_[domain_id].find(topic_name);
     if (topics_[domain_id].end() == it)
     {
-        topic = std::shared_ptr<CedTopicImpl>(new CedTopicImpl(topic_name, domain_id));
-        topics_[domain_id][topic_name] = topic;
+        topic = std::make_shared<CedGlobalTopic>(topic_name, domain_id);
+        topics_[domain_id].emplace(topic_name, topic);
     }
     else
     {
-        topic = topics_[domain_id][topic_name];
+        topic = topics_[domain_id][topic_name].lock();
     }
     return true;
 }
@@ -48,20 +50,17 @@ bool CedTopicManager::unregister_topic(
         int16_t domain_id)
 {
     bool rv = false;
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it_domain = topics_.find(domain_id);
     if (topics_.end() != it_domain)
     {
         auto it_topic = topics_[domain_id].find(topic_name);
         if (topics_[domain_id].end() != it_topic)
         {
-            if (2 == it_topic->second.use_count())
+            it_domain->second.erase(it_topic);
+            if (it_domain->second.empty())
             {
-                topics_[domain_id].erase(it_topic);
-                if (topics_[domain_id].empty())
-                {
-                    topics_.erase(it_domain);
-                }
+                topics_.erase(it_domain);
             }
             rv = true;
         }
@@ -72,26 +71,32 @@ bool CedTopicManager::unregister_topic(
 /**********************************************************************************************************************
  * CedTopicCloud
  **********************************************************************************************************************/
-CedTopicImpl::CedTopicImpl(
+CedGlobalTopic::CedGlobalTopic(
         const std::string& topic_name,
         int16_t domain_id)
     : name_(topic_name)
     , domain_id_(domain_id)
     , last_write_(UINT16_MAX)
-{}
+{
+}
 
-const std::string& CedTopicImpl::name() const
+CedGlobalTopic::~CedGlobalTopic()
+{
+    CedTopicManager::unregister_topic(name_, domain_id_);
+}
+
+const std::string& CedGlobalTopic::name() const
 {
     return name_;
 }
 
-bool CedTopicImpl::write(
+bool CedGlobalTopic::write(
         const std::vector<uint8_t>& data,
         uint8_t& errcode)
 {
     std::unique_lock<std::mutex> lock(mtx_);
     size_t index = uint16_t(last_write_ + 1) % history_.size();
-    history_[index] = data;
+    history_.at(index) = data;
     ++last_write_;
     lock.unlock();
     cv_.notify_all();
@@ -99,9 +104,9 @@ bool CedTopicImpl::write(
     return true;
 }
 
-bool CedTopicImpl::read(
+bool CedGlobalTopic::read(
         std::vector<uint8_t>& data,
-        uint32_t timeout,
+        std::chrono::milliseconds timeout,
         SeqNum& last_read,
         uint8_t& errcode)
 {
@@ -118,17 +123,17 @@ bool CedTopicImpl::read(
             ++last_read;
         }
         size_t index = uint16_t(last_read) % history_.size();
-        data.assign(history_[index].data(), history_[index].data() + history_[index].size());
+        data.assign(history_.at(index).begin(), history_.at(index).end());
         rv = true;
     }
     else
     {
         auto now = std::chrono::steady_clock::now();
-        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){ return last_read != last_write_; }))
+        if (cv_.wait_until(lock, now + timeout, [&](){ return last_read != last_write_; }))
         {
             ++last_read;
             size_t index = uint16_t(last_read) % history_.size();
-            data.assign(history_[index].data(), history_[index].data() + history_[index].size());
+            data.assign(history_.at(index).begin(), history_.at(index).end());
             rv = true;
         }
         else
@@ -147,13 +152,13 @@ bool CedTopicImpl::read(
 bool CedParticipant::register_topic(
         const std::string& topic_name,
         uint16_t topic_id,
-        std::shared_ptr<CedTopicImpl>& topic_impl)
+        std::shared_ptr<CedGlobalTopic>& global_topic)
 {
     bool rv = false;
     auto it = topics_.find(topic_name);
     if (topics_.end() == it)
     {
-        if (CedTopicManager::register_topic(topic_name, domain_id_, topic_impl))
+        if (CedTopicManager::register_topic(topic_name, domain_id_, global_topic))
         {
             topics_.emplace(topic_name, topic_id);
             rv = true;
@@ -168,11 +173,8 @@ bool CedParticipant::unregister_topic(const std::string &topic_name)
     auto it = topics_.find(topic_name);
     if (topics_.end() != it)
     {
-        if (CedTopicManager::unregister_topic(topic_name, domain_id_))
-        {
-            topics_.erase(it);
-            rv = true;
-        }
+        topics_.erase(it);
+        rv = true;
     }
     return rv;
 }
@@ -196,12 +198,12 @@ bool CedParticipant::find_topic(
  **********************************************************************************************************************/
 CedTopic::~CedTopic()
 {
-    participant_->unregister_topic(topic_impl_->name());
+    participant_->unregister_topic(global_topic_->name());
 }
 
-const std::shared_ptr<CedTopicImpl>& CedTopic::topic_impl() const
+CedGlobalTopic* CedTopic::global_topic() const
 {
-    return topic_impl_;
+    return global_topic_.get();
 }
 
 /**********************************************************************************************************************
@@ -211,7 +213,7 @@ bool CedDataWriter::write(
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const
 {
-    return topic_->topic_impl()->write(data, errcode);
+    return topic_->global_topic()->write(data, errcode);
 }
 
 /**********************************************************************************************************************
@@ -219,10 +221,10 @@ bool CedDataWriter::write(
  **********************************************************************************************************************/
 bool CedDataReader::read(
         std::vector<uint8_t>& data,
-        uint32_t timeout,
+        std::chrono::milliseconds timeout,
         uint8_t &errcode)
 {
-    return topic_->topic_impl()->read(data, timeout, last_read_, errcode);
+    return topic_->global_topic()->read(data, timeout, last_read_, errcode);
 }
 
 } // namespace uxr

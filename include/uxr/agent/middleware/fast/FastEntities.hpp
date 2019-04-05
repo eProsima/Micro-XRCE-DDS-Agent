@@ -198,7 +198,7 @@ public:
 
     bool read(
             std::vector<uint8_t>& data,
-            uint32_t timeout);
+            std::chrono::milliseconds timeout);
 
     void onSubscriptionMatched(
             fastrtps::Subscriber* sub,

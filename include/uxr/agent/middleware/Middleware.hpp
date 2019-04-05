@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <vector>
 #include <functional>
+#include <chrono>
 
 namespace eprosima {
 namespace uxr {
@@ -112,7 +113,7 @@ public:
     virtual bool read_data(
             uint16_t datareader_id,
             std::vector<uint8_t>& data,
-            uint32_t timeout) = 0;
+            std::chrono::milliseconds timeout) = 0;
 
 /**********************************************************************************************************************
  * Matched functions.

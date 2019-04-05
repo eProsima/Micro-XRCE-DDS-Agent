@@ -317,7 +317,9 @@ bool FastDataReader::match_from_xml(const std::string& xml) const
     return rv;
 }
 
-bool FastDataReader::read(std::vector<uint8_t>& data, uint32_t timeout)
+bool FastDataReader::read(
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
 {
     auto now = std::chrono::steady_clock::now();
     bool rv = false;
@@ -330,7 +332,7 @@ bool FastDataReader::read(std::vector<uint8_t>& data, uint32_t timeout)
     }
     else
     {
-        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){ return  ptr_->getUnreadCount() != 0; }))
+        if (cv_.wait_until(lock, now + timeout, [&](){ return  ptr_->getUnreadCount() != 0; }))
         {
             lock.unlock();
             fastrtps::SampleInfo_t info;
