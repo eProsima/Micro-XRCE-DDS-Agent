@@ -45,27 +45,27 @@ set_target_properties(test-output-stream PROPERTIES
 # InputStreamTest
 ###################################################################################################
 
-#set(SRCS
-#    InputStreamTest.cpp
-#    ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
-#    ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
-#    ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
-#    )
-#add_executable(${TEST_NAME_INPUT} ${SRCS})
-#add_gtest(${TEST_NAME_INPUT}
-#    SOURCES
-#        ${SRCS}
-#    DEPENDENCIES
-#        fastcdr
-#    )
-#target_include_directories(${TEST_NAME_INPUT} PRIVATE
-#    ${PROJECT_SOURCE_DIR}/include
-#    ${PROJECT_BINARY_DIR}/include
-#    ${GTEST_INCLUDE_DIRS}
-#    ${GMOCK_INCLUDE_DIRS}
-#    )
-#target_link_libraries(${TEST_NAME_INPUT} PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
-#set_target_properties(${TEST_NAME_INPUT} PROPERTIES
-#    CXX_STANDARD 11
-#    CXX_STANDARD_REQUIRED YES
-#    )
+set(SRCS
+    InputStreamTest.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    )
+add_executable(test-input-stream ${SRCS})
+add_gtest(test-input-stream
+    SOURCES
+        ${SRCS}
+    DEPENDENCIES
+        fastcdr
+    )
+target_include_directories(test-input-stream PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/include
+    ${GTEST_INCLUDE_DIRS}
+    ${GMOCK_INCLUDE_DIRS}
+    )
+target_link_libraries(test-input-stream PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
+set_target_properties(test-input-stream PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )

@@ -57,16 +57,11 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             /* Check whether it is the next message. */
             Session& session = client->session();
             dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
-            if (session.is_next_input_message(input_packet.message))
+            dds::xrce::SequenceNr sequence_nr = input_packet.message->get_header().sequence_nr();
+            session.push_input_message(std::move(input_packet.message), stream_id, sequence_nr);
+            while (session.pop_input_message(stream_id, input_packet.message))
             {
-                /* Process messages. */
                 process_input_message(*client, input_packet);
-                client = root_.get_client(client_key);
-                while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
-                {
-                    process_input_message(*client, input_packet);
-                    client = root_.get_client(client_key);
-                }
             }
 
             /* Send acknack in case. */
@@ -81,8 +76,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
 
                 /* ACKNACK payload. */
                 dds::xrce::ACKNACK_Payload acknack_payload;
-                acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
-                acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
+                client->session().fill_acknack(stream_id, acknack_payload);
                 acknack_payload.stream_id(header.stream_id());
 
                 /* ACKNACK subheader. */
@@ -488,8 +482,7 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
 
         /* ACKNACK payload. */
         dds::xrce::ACKNACK_Payload acknack_payload;
-        acknack_payload.first_unacked_seq_num(client.session().get_first_unacked_seq_num(stream_id));
-        acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
+        client.session().fill_acknack(stream_id, acknack_payload);
         acknack_payload.stream_id(stream_id);
 
         /* Push submessage into the output stream. */

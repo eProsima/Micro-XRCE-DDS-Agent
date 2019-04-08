@@ -18,8 +18,11 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/utils/SeqNum.hpp>
+#include <uxr/agent/client/session/SessionInfo.hpp>
+
 #include <map>
 #include <mutex>
+#include <queue>
 
 namespace eprosima {
 namespace uxr {
@@ -30,15 +33,55 @@ namespace uxr {
 class NoneInputStream
 {
 public:
-    NoneInputStream() {}
+    NoneInputStream() = default;
 
-    bool next_message(SeqNum seq_num);
+    bool push_message(
+            InputMessagePtr&& input_message,
+            SeqNum seq_num);
+
+    bool pop_message(InputMessagePtr& input_message);
+
+    void reset();
+
+private:
+    std::queue<InputMessagePtr> messages_;
+    std::mutex mtx_;
 };
 
-inline bool NoneInputStream::next_message(SeqNum seq_num)
+inline bool NoneInputStream::push_message(
+        InputMessagePtr&& input_message,
+        SeqNum /*seq_num*/)
 {
-    (void) seq_num;
-    return true;
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (messages_.size() < BEST_EFFORT_STREAM_DEPTH)
+    {
+        messages_.push(std::move(input_message));
+        rv = true;
+    }
+    return rv;
+}
+
+inline bool NoneInputStream::pop_message(InputMessagePtr& input_message)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (!messages_.empty())
+    {
+        input_message = std::move(messages_.front());
+        messages_.pop();
+        rv = true;
+    }
+    return rv;
+}
+
+inline void NoneInputStream::reset()
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    while (!messages_.empty())
+    {
+        messages_.pop();
+    }
 }
 
 /**************************************************************************************************
@@ -47,25 +90,67 @@ inline bool NoneInputStream::next_message(SeqNum seq_num)
 class BestEffortInputStream
 {
 public:
-    BestEffortInputStream() : last_received_(UINT16_MAX) {}
+    BestEffortInputStream()
+        : last_received_(UINT16_MAX)
+    {}
 
-    bool next_message(SeqNum seq_num);
-    void reset() { last_received_ = UINT16_MAX; }
+    ~BestEffortInputStream() = default;
+
+    BestEffortInputStream(BestEffortInputStream&&) = delete;
+    BestEffortInputStream(const BestEffortInputStream&) = delete;
+    BestEffortInputStream& operator=(BestEffortInputStream&&) = delete;
+    BestEffortInputStream& operator=(const BestEffortInputStream) = delete;
+
+    bool push_message(
+            InputMessagePtr&& input_message,
+            SeqNum seq_num);
+
+    bool pop_message(InputMessagePtr& input_message);
+
+    void reset();
 
 private:
+    std::queue<InputMessagePtr> messages_;
     SeqNum last_received_;
     std::mutex mtx_;
 };
 
-inline bool BestEffortInputStream::next_message(SeqNum seq_num)
+inline bool BestEffortInputStream::push_message(
+        InputMessagePtr&& input_message,
+        SeqNum seq_num)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if ((seq_num > last_received_) && (messages_.size() < BEST_EFFORT_STREAM_DEPTH))
+    {
+        messages_.push(std::move(input_message));
+        last_received_ = seq_num;
+        rv = true;
+    }
+    return rv;
+}
+
+inline bool BestEffortInputStream::pop_message(InputMessagePtr& input_message)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (!messages_.empty())
+    {
+        input_message = std::move(messages_.front());
+        messages_.pop();
+        rv = true;
+    }
+    return rv;
+}
+
+inline void BestEffortInputStream::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    if (seq_num > last_received_)
+    while (!messages_.empty())
     {
-        last_received_ = seq_num;
-        return true;
+        messages_.pop();
     }
-    return false;
+    last_received_ = UINT16_MAX;
 }
 
 /**************************************************************************************************
@@ -81,19 +166,30 @@ public:
           fragment_message_available_(false)
     {}
 
-    ReliableInputStream(const ReliableInputStream&) = delete;
-    ReliableInputStream& operator=(const ReliableInputStream) = delete;
-    ReliableInputStream(ReliableInputStream&&);
-    ReliableInputStream& operator=(ReliableInputStream&&);
+    ~ReliableInputStream() = default;
 
-    bool next_message(SeqNum seq_num, InputMessagePtr& message);
+    ReliableInputStream(ReliableInputStream&&) = delete;
+    ReliableInputStream(const ReliableInputStream&) = delete;
+    ReliableInputStream& operator=(ReliableInputStream&&) = delete;
+    ReliableInputStream& operator=(const ReliableInputStream) = delete;
+
+    bool push_message(
+            InputMessagePtr&& message,
+            SeqNum seq_num);
+
     bool pop_message(InputMessagePtr& message);
-    void update_from_heartbeat(SeqNum first_available, SeqNum last_available);
-    SeqNum get_first_unacked();
-    std::array<uint8_t, 2> get_nack_bitmap();
-    void reset();
+
+    void update_from_heartbeat(
+            SeqNum first_unacked,
+            SeqNum last_unacked);
+
+    void fill_acknack(dds::xrce::ACKNACK_Payload& acknack);
+
     void push_fragment(InputMessagePtr& message);
+
     bool pop_fragment_message(InputMessagePtr& message);
+
+    void reset();
 
 private:
     SeqNum last_handled_;
@@ -104,46 +200,27 @@ private:
     std::mutex mtx_;
 };
 
-inline ReliableInputStream::ReliableInputStream(ReliableInputStream&& x)
-    : last_handled_(x.last_handled_),
-      last_announced_(x.last_announced_),
-      messages_(std::move(x.messages_))
-{
-}
-
-inline ReliableInputStream& ReliableInputStream::operator=(ReliableInputStream&& x)
-{
-    last_handled_ = x.last_handled_;
-    last_announced_ = x.last_announced_;
-    messages_ = std::move(x.messages_);
-    return *this;
-}
-
-inline bool ReliableInputStream::next_message(SeqNum seq_num, InputMessagePtr& message)
+inline bool ReliableInputStream::push_message(
+        InputMessagePtr&& message,
+        SeqNum seq_num)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
-    if (seq_num == last_handled_ + 1)
+    if ((seq_num > last_handled_) && (seq_num <= last_handled_ + SeqNum(RELIABLE_STREAM_DEPTH)))
     {
-        last_handled_ += 1;
-        rv = true;
-    }
-    else
-    {
-        if ((seq_num > last_handled_ + 1) && (seq_num <= last_handled_ + SeqNum(RELIABLE_STREAM_DEPTH)))
+        if (seq_num > last_announced_)
         {
-            if (seq_num > last_announced_)
+            last_announced_ = seq_num;
+            messages_.insert(std::make_pair(seq_num, std::move(message)));
+            rv = true;
+        }
+        else
+        {
+            auto it = messages_.find(seq_num);
+            if (it == messages_.end())
             {
-                last_announced_ = seq_num;
                 messages_.insert(std::make_pair(seq_num, std::move(message)));
-            }
-            else
-            {
-                auto it = messages_.find(seq_num);
-                if (it == messages_.end())
-                {
-                    messages_.insert(std::make_pair(seq_num, std::move(message)));
-                }
+                rv = true;
             }
         }
     }
@@ -165,29 +242,26 @@ inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
     return rv;
 }
 
-inline void ReliableInputStream::update_from_heartbeat(SeqNum first_available, SeqNum last_available)
+inline void ReliableInputStream::update_from_heartbeat(
+        SeqNum first_unacked,
+        SeqNum last_unacked)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    if (last_handled_ + 1 < first_available)
+    if (last_handled_ + 1 < first_unacked)
     {
-        last_handled_ = first_available;
+        last_handled_ = first_unacked - 1;
     }
-    if (last_announced_ < last_available)
+    if (last_announced_ < last_unacked)
     {
-        last_announced_ = last_available;
+        last_announced_ = last_unacked;
     }
 }
 
-inline SeqNum ReliableInputStream::get_first_unacked()
+inline void ReliableInputStream::fill_acknack(dds::xrce::ACKNACK_Payload& acknack)
 {
+    acknack.nack_bitmap() = {0, 0};
     std::lock_guard<std::mutex> lock(mtx_);
-    return last_handled_ + 1;
-}
-
-inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
-{
-    std::array<uint8_t, 2> bitmap = {0, 0};
-    std::lock_guard<std::mutex> lock(mtx_);
+    acknack.first_unacked_seq_num(last_handled_ + 1);
     for (uint16_t i = 0; i < 8; i++)
     {
         if (last_handled_ + SeqNum(i) < last_announced_)
@@ -195,7 +269,7 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
             auto it = messages_.find(last_handled_ + SeqNum(i + 1));
             if (it == messages_.end())
             {
-                bitmap.at(1) = bitmap.at(1) | (0x01 << i);
+                acknack.nack_bitmap().at(1) = acknack.nack_bitmap().at(1) | (0x01 << i);
             }
         }
         if (last_handled_ + SeqNum(i + 8) < last_announced_)
@@ -203,11 +277,10 @@ inline std::array<uint8_t, 2> ReliableInputStream::get_nack_bitmap()
             auto it = messages_.find(last_handled_ + SeqNum(i + 9));
             if (it == messages_.end())
             {
-                bitmap.at(0) = bitmap.at(0) | (0x01 << i);
+                acknack.nack_bitmap().at(0) = acknack.nack_bitmap().at(0) | (0x01 << i);
             }
         }
     }
-    return bitmap;
 }
 
 inline void ReliableInputStream::reset()

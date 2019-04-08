@@ -45,6 +45,8 @@ public:
     friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
     friend bool operator==(const SeqNum& lhs, const int& rhs) { return lhs.seq_num_ == uint16_t(rhs); }
     friend bool operator==(const int& lhs, const SeqNum& rhs) { return uint16_t(lhs) == rhs.seq_num_; }
+    friend bool operator==(const SeqNum& lhs, const uint16_t& rhs) { return lhs.seq_num_ == rhs; }
+    friend bool operator==(const uint16_t& lhs, const SeqNum& rhs) { return lhs == rhs.seq_num_; }
     friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
 
     SeqNum& operator+=(const int& rhs)

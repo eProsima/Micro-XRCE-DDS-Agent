@@ -42,9 +42,6 @@ inline bool is_reliable_stream(dds::xrce::StreamId stream_id)
 
 class Session
 {
-    friend class NoneOutputStream;
-    friend class BestEffortOutputStream;
-    friend class ReliableOutputStream;
 public:
     Session(const SessionInfo& info)
         : session_info_{info}
@@ -61,13 +58,31 @@ public:
     void reset();
 
     /* Input streams functions. */
-    bool is_next_input_message(InputMessagePtr& message);
-    bool pop_input_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
-    void update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum first_unacked, SeqNum last_unacked);
-    SeqNum get_first_unacked_seq_num(dds::xrce::StreamId stream_id);
-    std::array<uint8_t, 2> get_nack_bitmap(dds::xrce::StreamId stream_id);
-    void push_input_fragment(dds::xrce::StreamId stream_id, InputMessagePtr& message);
-    bool pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message);
+    bool push_input_message(
+            InputMessagePtr&& message,
+            dds::xrce::StreamId stream_id,
+            dds::xrce::SequenceNr sequence_nr);
+
+    bool pop_input_message(
+            dds::xrce::StreamId stream_id,
+            InputMessagePtr& message);
+
+    void update_from_heartbeat(
+            dds::xrce::StreamId stream_id,
+            SeqNum first_unacked,
+            SeqNum last_unacked);
+
+    void fill_acknack(
+            dds::xrce::StreamId stream_id,
+            dds::xrce::ACKNACK_Payload& acknack);
+
+    void push_input_fragment(
+            dds::xrce::StreamId stream_id,
+            InputMessagePtr& message);
+
+    bool pop_input_fragment_message(
+            dds::xrce::StreamId stream_id,
+            InputMessagePtr& message);
 
     /* Output streams functions. */
     std::vector<uint8_t> get_output_streams();
@@ -147,33 +162,45 @@ inline void Session::reset()
 /**************************************************************************************************
  * Input Stream Methods.
  **************************************************************************************************/
-
-inline bool Session::is_next_input_message(InputMessagePtr& message)
+inline bool Session::push_input_message(
+        InputMessagePtr&& message,
+        dds::xrce::StreamId stream_id,
+        dds::xrce::SequenceNr sequence_nr)
 {
-    bool rv;
-    dds::xrce::StreamId stream_id = message->get_header().stream_id();
-    SeqNum seq_num = message->get_header().sequence_nr();
+    bool rv = false;
+    SeqNum seq_num{sequence_nr};
     if (is_none_stream(stream_id))
     {
-        rv = none_istream_.next_message(seq_num);
+        rv = none_istream_.push_message(std::move(message), sequence_nr);
     }
     else if (is_besteffort_stream(stream_id))
     {
         std::lock_guard<std::mutex> lock(best_effort_imtx_);
-        rv = best_effort_istreams_[stream_id].next_message(seq_num);
+        rv = best_effort_istreams_[stream_id].push_message(std::move(message), sequence_nr);
     }
     else
     {
         std::lock_guard<std::mutex> lock(reliable_imtx_);
-        rv = reliable_istreams_[stream_id].next_message(seq_num, message);
+        rv = reliable_istreams_[stream_id].push_message(std::move(message), sequence_nr);
     }
     return rv;
 }
 
-inline bool Session::pop_input_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
+inline bool Session::pop_input_message(
+        dds::xrce::StreamId stream_id,
+        InputMessagePtr& message)
 {
     bool rv = false;
-    if (is_reliable_stream(stream_id))
+    if (is_none_stream(stream_id))
+    {
+        rv = none_istream_.pop_message(message);
+    }
+    else if (is_besteffort_stream(stream_id))
+    {
+        std::lock_guard<std::mutex> lock(best_effort_imtx_);
+        rv = best_effort_istreams_[stream_id].pop_message(message);
+    }
+    else
     {
         std::lock_guard<std::mutex> lock(reliable_imtx_);
         rv = reliable_istreams_[stream_id].pop_message(message);
@@ -181,7 +208,10 @@ inline bool Session::pop_input_message(dds::xrce::StreamId stream_id, InputMessa
     return rv;
 }
 
-inline void Session::update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum first_unacked, SeqNum last_unacked)
+inline void Session::update_from_heartbeat(
+        dds::xrce::StreamId stream_id,
+        SeqNum first_unacked,
+        SeqNum last_unacked)
 {
     if (is_reliable_stream(stream_id))
     {
@@ -190,21 +220,15 @@ inline void Session::update_from_heartbeat(dds::xrce::StreamId stream_id, SeqNum
     }
 }
 
-inline SeqNum Session::get_first_unacked_seq_num(dds::xrce::StreamId stream_id)
+inline void Session::fill_acknack(
+        dds::xrce::StreamId stream_id,
+        dds::xrce::ACKNACK_Payload& acknack)
 {
-    std::lock_guard<std::mutex> lock(reliable_imtx_);
-    return reliable_istreams_[stream_id].get_first_unacked();
-}
-
-inline std::array<uint8_t, 2> Session::get_nack_bitmap(const dds::xrce::StreamId stream_id)
-{
-    std::array<uint8_t, 2> bitmap = {0, 0};
     if (is_reliable_stream(stream_id))
     {
         std::lock_guard<std::mutex> lock(reliable_imtx_);
-        bitmap = reliable_istreams_[stream_id].get_nack_bitmap();
+        reliable_istreams_[stream_id].fill_acknack(acknack);
     }
-    return bitmap;
 }
 
 inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMessagePtr& message)
