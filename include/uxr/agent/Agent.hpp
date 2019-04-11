@@ -29,7 +29,7 @@ public:
     /**
      * @brief Indicates the result status of the operation perform over the Agent.
      */
-    enum ResultStatus : uint8_t
+    enum OpResult : uint8_t
     {
         /** Indicates a successful execution of the operation. */
         OK                      = 0x00,
@@ -110,24 +110,24 @@ public:
      * @param key       The identifier of the ProxyClient.
      * @param session   The identifier of the Session attached to the ProxyClient.
      * @param mtu       The Maximum Transmission Unit (MTU) of the Session.
-     * @param errcode   The result status of the operation.
+     * @param op_result The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_client(
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Deletes a ProxyClient from the Root.
      * @param key       The identifier of the ProxyClient to be removed.
-     * @param errcode   The result status of the operation.
+     * @param op_result The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool delete_client(
             uint32_t key,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Participant from a reference in the ProxyClient identified by the client_key.
@@ -136,7 +136,7 @@ public:
      * @param domain_id         The domain associated with the Participant.
      * @param ref               The reference of the Participant.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_participant_by_ref(
@@ -145,7 +145,7 @@ public:
             int16_t domain_id,
             const char* ref,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Participant from an XML in the ProxyClient identified by the client_key.
@@ -154,7 +154,7 @@ public:
      * @param domain_id         The domain associated with the Participant.
      * @param xml               The XML that describes the Participant.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_participant_by_xml(
@@ -163,7 +163,7 @@ public:
             int16_t domain_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Topic from a reference in the ProxyClient identified by the client_key.
@@ -173,7 +173,7 @@ public:
      * @param participant_id    The identifier of the Participant associated with the Topic.
      * @param ref               The reference of the Topic.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_topic_by_ref(
@@ -182,7 +182,7 @@ public:
             uint16_t participant_id,
             const char* ref,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Topic from an XML in the ProxyClient identified by the client_key.
@@ -192,7 +192,7 @@ public:
      * @param participant_id    The identifier of the Participant associated with the Topic.
      * @param xml               The XML that describes the Topic.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_topic_by_xml(
@@ -201,7 +201,7 @@ public:
             uint16_t participant_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Publisher from an XML in the ProxyClient identified by the client_key.
@@ -211,7 +211,7 @@ public:
      * @param participant_id    The identifier of the Participant associated with the Publisher.
      * @param xml               The XML of the Publisher.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_publisher_by_xml(
@@ -220,7 +220,7 @@ public:
             uint16_t participant_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a Subscriber from an XML in the ProxyClient identified by the client_key.
@@ -230,7 +230,7 @@ public:
      * @param participant_id    The identifier of the Participant associated with the Publisher.
      * @param xml               The XML that describes the Subscriber.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_subscriber_by_xml(
@@ -239,7 +239,7 @@ public:
             uint16_t participant_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a DataWriter from a reference in the ProxyClient identified by the client_key.
@@ -249,7 +249,7 @@ public:
      * @param publisher_id      The identifier of the Publisher associated with the DataWriter.
      * @param ref               The reference of the DataWriter.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_datawriter_by_ref(
@@ -258,7 +258,7 @@ public:
             uint16_t publisher_id,
             const char* ref,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a DataWriter from an XML in the ProxyClient identified by the client_key.
@@ -268,7 +268,7 @@ public:
      * @param publisher_id      The identifier of the Publisher associated with the DataWriter.
      * @param xml               The XML that describes the DataWriter.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_datawriter_by_xml(
@@ -277,7 +277,7 @@ public:
             uint16_t publisher_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a DataReader from a reference in the ProxyClient identified by the client_key.
@@ -287,7 +287,7 @@ public:
      * @param subscriber_id     The identifier of the Subscriber associated with the DataReader.
      * @param ref               The reference of the DataReader.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_datareader_by_ref(
@@ -296,7 +296,7 @@ public:
             uint16_t subscriber_id,
             const char* ref,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Creates a DataReader from an XML in the ProxyClient identified by the client_key.
@@ -306,7 +306,7 @@ public:
      * @param subscriber_id     The identifier of the Subscriber associated with the DataReader.
      * @param xml               The XML that describes the DataReader.
      * @param flag              The flag that determines the creation mode.
-     * @param errcode           The result status of the operation.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool create_datareader_by_xml(
@@ -315,7 +315,7 @@ public:
             uint16_t subscriber_id,
             const char* xml,
             uint8_t flag,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Deletes an entity identified by the object_id and all its associated entities
@@ -324,13 +324,13 @@ public:
      *        its associated Topics, Publishers, Subscribers, DataWriters and DataReaders will be deleted also.
      * @param client_key    The identifier of the ProxyClient.
      * @param object_id     The identifier of the entity to be deleted.
-     * @param errcode       The result status of the operation.
+     * @param op_result     The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_DLLAPI static bool delete_object(
             uint32_t client_key,
             uint16_t object_id,
-            ResultStatus& errcode);
+            OpResult& op_result);
 
     /**
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.

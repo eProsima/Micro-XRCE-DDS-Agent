@@ -18,14 +18,6 @@
 namespace eprosima {
 namespace uxr {
 
-//static uint32_t clientkey_to_raw(const dds::xrce::ClientKey& client_key)
-//{
-//    return uint32_t(client_key[0] << 24)
-//         + uint32_t(client_key[1] << 16)
-//         + uint32_t(client_key[2] << 8)
-//         + uint32_t(client_key[3]);
-//}
-
 static dds::xrce::ClientKey raw_to_clientkey(uint32_t key)
 {
     dds::xrce::ClientKey client_key{
@@ -43,7 +35,7 @@ bool Agent::create_client(
         uint32_t key,
         uint8_t session,
         uint16_t mtu,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     Root& root = Root::instance();
     dds::xrce::CLIENT_Representation client_representation;
@@ -58,7 +50,7 @@ bool Agent::create_client(
     result = root.create_client(client_representation, agent_representation);
     if (dds::xrce::STATUS_OK != result.status())
     {
-        errcode = ResultStatus(result.status());
+        op_result = OpResult(result.status());
     }
 
     return (dds::xrce::STATUS_OK == result.status());
@@ -66,14 +58,14 @@ bool Agent::create_client(
 
 bool Agent::delete_client(
         uint32_t key,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     Root& root = Root::instance();
     dds::xrce::ResultStatus result = root.delete_client(raw_to_clientkey(key));
 
     if (dds::xrce::STATUS_OK != result.status())
     {
-        errcode = ResultStatus(result.status());
+        op_result = OpResult(result.status());
     }
 
     return (dds::xrce::STATUS_OK == result.status());
@@ -88,7 +80,7 @@ bool Agent::create_participant_by_ref(
         int16_t domain_id,
         const char* ref,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -97,7 +89,7 @@ bool Agent::create_participant_by_ref(
     {
         if (dds::xrce::OBJK_PARTICIPANT == (participant_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PARTICIPANT_Representation participant;
@@ -109,17 +101,17 @@ bool Agent::create_participant_by_ref(
             object_variant.participant(participant);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -131,7 +123,7 @@ bool Agent::create_participant_by_xml(
         int16_t domain_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -140,7 +132,7 @@ bool Agent::create_participant_by_xml(
     {
         if (dds::xrce::OBJK_PARTICIPANT == (participant_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(participant_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PARTICIPANT_Representation participant;
@@ -152,17 +144,17 @@ bool Agent::create_participant_by_xml(
             object_variant.participant(participant);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -177,7 +169,7 @@ bool Agent::create_topic_by_ref(
         uint16_t participant_id,
         const char* ref,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -186,7 +178,7 @@ bool Agent::create_topic_by_ref(
     {
         if (dds::xrce::OBJK_TOPIC == (topic_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_TOPIC_Representation topic;
@@ -198,17 +190,17 @@ bool Agent::create_topic_by_ref(
             object_variant.topic(topic);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -220,7 +212,7 @@ bool Agent::create_topic_by_xml(
         uint16_t participant_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -229,7 +221,7 @@ bool Agent::create_topic_by_xml(
     {
         if (dds::xrce::OBJK_TOPIC == (topic_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(topic_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_TOPIC_Representation topic;
@@ -241,17 +233,17 @@ bool Agent::create_topic_by_xml(
             object_variant.topic(topic);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -266,7 +258,7 @@ bool Agent::create_publisher_by_xml(
         uint16_t participant_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -275,7 +267,7 @@ bool Agent::create_publisher_by_xml(
     {
         if (dds::xrce::OBJK_PUBLISHER == (publisher_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(publisher_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_PUBLISHER_Representation publisher;
@@ -287,17 +279,17 @@ bool Agent::create_publisher_by_xml(
             object_variant.publisher(publisher);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -312,7 +304,7 @@ bool Agent::create_subscriber_by_xml(
         uint16_t participant_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -321,7 +313,7 @@ bool Agent::create_subscriber_by_xml(
     {
         if (dds::xrce::OBJK_SUBSCRIBER == (subscriber_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(subscriber_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
@@ -333,17 +325,17 @@ bool Agent::create_subscriber_by_xml(
             object_variant.subscriber(subscriber);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -358,7 +350,7 @@ bool Agent::create_datawriter_by_ref(
         uint16_t publisher_id,
         const char* ref,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -367,7 +359,7 @@ bool Agent::create_datawriter_by_ref(
     {
         if (dds::xrce::OBJK_DATAWRITER == (datawriter_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAWRITER_Representation datawriter;
@@ -379,17 +371,17 @@ bool Agent::create_datawriter_by_ref(
             object_variant.data_writer(datawriter);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -401,7 +393,7 @@ bool Agent::create_datawriter_by_xml(
         uint16_t publisher_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -410,7 +402,7 @@ bool Agent::create_datawriter_by_xml(
     {
         if (dds::xrce::OBJK_DATAWRITER == (datawriter_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datawriter_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAWRITER_Representation datawriter;
@@ -422,17 +414,17 @@ bool Agent::create_datawriter_by_xml(
             object_variant.data_writer(datawriter);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -447,7 +439,7 @@ bool Agent::create_datareader_by_ref(
         uint16_t subscriber_id,
         const char* ref,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -456,7 +448,7 @@ bool Agent::create_datareader_by_ref(
     {
         if (dds::xrce::OBJK_DATAREADER == (datareader_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAREADER_Representation datareader;
@@ -468,17 +460,17 @@ bool Agent::create_datareader_by_ref(
             object_variant.data_reader(datareader);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -490,7 +482,7 @@ bool Agent::create_datareader_by_xml(
         uint16_t subscriber_id,
         const char* xml,
         uint8_t flag,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -499,7 +491,7 @@ bool Agent::create_datareader_by_xml(
     {
         if (dds::xrce::OBJK_DATAREADER == (datareader_id & 0x000F))
         {
-            dds::xrce::CreationMode creation_mode{}; // TODO (julian): provide flag argument.
+            dds::xrce::CreationMode creation_mode{};
             dds::xrce::ObjectId object_id = XRCEObject::raw_to_objectid(datareader_id);
             dds::xrce::ObjectVariant object_variant;
             dds::xrce::DATAREADER_Representation datareader;
@@ -511,17 +503,17 @@ bool Agent::create_datareader_by_xml(
             object_variant.data_reader(datareader);
 
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
-            errcode = ResultStatus(result.status());
+            op_result = OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
         }
         else
         {
-            errcode = ResultStatus(dds::xrce::STATUS_ERR_INVALID_DATA);
+            op_result = OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
         }
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;
@@ -533,7 +525,7 @@ bool Agent::create_datareader_by_xml(
 bool Agent::delete_object(
         uint32_t client_key,
         uint16_t object_id,
-        ResultStatus& errcode)
+        OpResult& op_result)
 {
     bool rv = false;
     Root& root = Root::instance();
@@ -541,12 +533,12 @@ bool Agent::delete_object(
     if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
         dds::xrce::ResultStatus result = client->delete_object(XRCEObject::raw_to_objectid(object_id));
-        errcode = ResultStatus(result.status());
+        op_result = OpResult(result.status());
         rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
     }
     else
     {
-        errcode = ResultStatus(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        op_result = OpResult(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
     }
 
     return rv;

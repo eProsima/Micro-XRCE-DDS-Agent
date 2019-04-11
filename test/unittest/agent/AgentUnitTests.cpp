@@ -32,29 +32,29 @@ protected:
         eprosima::uxr::Agent::reset();
     }
 
-    uint32_t client_key_ = 0xAABBCCDD;
+    const uint32_t client_key_ = 0xAABBCCDD;
 };
 
 TEST_F(AgentUnitTests, CreateClient)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     EXPECT_TRUE(Agent::create_client(client_key_, 0x01, 512, result));
     EXPECT_TRUE(Agent::create_client(client_key_, 0x01, 512, result));
 }
 
 TEST_F(AgentUnitTests, DeleteClient)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     EXPECT_TRUE(Agent::delete_client(client_key_, result));
     EXPECT_FALSE(Agent::delete_client(client_key_, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateParticipantByRef)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* ref_one = "default_xrce_participant";
@@ -73,36 +73,36 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
      * Create Participant over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
-    EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
+    EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_two, flag, result));
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Participant over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create Participant over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Participant over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete Participant.
@@ -113,19 +113,19 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
      * Create Participant with invalid REF.
      */
     EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create Participant with invalid ObjectId.
      */
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_participant_by_ref(client_key_, participant_id, domain_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateParticipantByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* xml_one = "<dds>"
@@ -156,36 +156,36 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
      * Create Participant over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Participant over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create Participant over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Participant over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete Participant.
@@ -196,19 +196,19 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
      * Create Participant with invalid XML.
      */
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create Participant with invalid ObjectId.
      */
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_participant_by_xml(client_key_, participant_id, domain_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateTopicByRef)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -230,36 +230,36 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
      * Create Topic over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Topic over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create Topic over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Topic over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete Topic.
@@ -270,14 +270,14 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
      * Create Topic with invalid REF.
      */
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create Topic with invalid ObjectId.
      */
     topic_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create Topic with invalid Participant Id.
@@ -285,12 +285,12 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
     topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateTopicByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -323,36 +323,36 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
      * Create Topic over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Topic over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create Topic over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Topic over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete Topic.
@@ -363,14 +363,14 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
      * Create Topic with invalid XML.
      */
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create Topic with invalid ObjectId.
      */
     topic_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create Topic with invalid Participant Id.
@@ -378,12 +378,12 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
     topic_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreatePublisherByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -405,32 +405,32 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
      * Create Publisher over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Publisher over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
 
     /*
      * Create Publisher over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Publisher over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
 
     /*
      * Delete Publisher.
@@ -442,7 +442,7 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
      */
     publisher_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create Publisher with invalid Participant Id.
@@ -450,12 +450,12 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
     publisher_id = Agent::get_object_id(0x00, Agent::PUBLISHER_OBJK);
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateSubscriberByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -477,32 +477,32 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
      * Create Subscriber over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create Subscriber over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
 
     /*
      * Create Subscriber over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create Subscriber over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
 
     /*
      * Delete Subscriber.
@@ -514,7 +514,7 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
      */
     subscriber_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create Subscriber with invalid Participant Id.
@@ -522,12 +522,12 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
     subscriber_id = Agent::get_object_id(0x00, Agent::SUBSCRIBER_OBJK);
     participant_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateDataWriterByRef)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -556,36 +556,36 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
      * Create DataWriter over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create DataWriter over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create DataWriter over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create DataWriter over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete DataWriter.
@@ -596,14 +596,14 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
      * Create DataWriter with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create DataWriter with invalid ObjectId.
      */
     datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create DataWriter with invalid Participant Id.
@@ -611,12 +611,12 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
     datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
     publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_datawriter_by_ref(client_key_, datawriter_id, publisher_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateDataWriterByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -679,36 +679,36 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
      * Create DataWriter over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create DataWriter over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create DataWriter over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create DataWriter over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete DataWriter.
@@ -719,14 +719,14 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
      * Create DataWriter with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create DataWriter with invalid ObjectId.
      */
     datawriter_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create DataWriter with invalid Participant Id.
@@ -734,12 +734,12 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
     datawriter_id = Agent::get_object_id(0x00, Agent::DATAWRITER_OBJK);
     publisher_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_datawriter_by_xml(client_key_, datawriter_id, publisher_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 TEST_F(AgentUnitTests, CreateDataReaderByRef)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -768,36 +768,36 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
      * Create DataReader over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create DataReader over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create DataReader over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create DataReader over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete DataReader.
@@ -808,14 +808,14 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
      * Create DataReader with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create DataReader with invalid ObjectId.
      */
     datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create DataReader with invalid Participant Id.
@@ -823,13 +823,13 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
     datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
     subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_datareader_by_ref(client_key_, datareader_id, subscriber_id, ref_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 
 TEST_F(AgentUnitTests, CreateDataReaderByXml)
 {
-    Agent::ResultStatus result;
+    Agent::OpResult result;
     Agent::create_client(client_key_, 0x01, 512, result);
 
     const char* participant_ref = "default_xrce_participant";
@@ -892,36 +892,36 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
      * Create DataReader over an existing with 0x00 flag.
      */
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::ALREADY_EXISTS_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::ALREADY_EXISTS_ERROR);
 
     /*
      * Create DataReader over an existing with REUSE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::MISMATCH_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::MISMATCH_ERROR);
 
     /*
      * Create DataReader over an existing with REPLACE flag.
      */
     flag = Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
     EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Create DataReader over an existing with REUSE & REPLACE flag.
      */
     flag = Agent::CreationFlag::REUSE_MODE | Agent::CreationFlag::REPLACE_MODE;
     EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_two, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK_MATCHED);
+    EXPECT_EQ(result, Agent::OpResult::OK_MATCHED);
     EXPECT_TRUE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::OK);
+    EXPECT_EQ(result, Agent::OpResult::OK);
 
     /*
      * Delete DataReader.
@@ -932,14 +932,14 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
      * Create DataReader with invalid REF.
      */
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, "error", flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 
     /*
      * Create DataReader with invalid ObjectId.
      */
     datareader_id = Agent::get_object_id(0x00, Agent::PARTICIPANT_OBJK);
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::INVALID_DATA_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::INVALID_DATA_ERROR);
 
     /*
      * Create DataReader with invalid Participant Id.
@@ -947,7 +947,7 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
     datareader_id = Agent::get_object_id(0x00, Agent::DATAREADER_OBJK);
     subscriber_id = Agent::get_object_id(0x00, Agent::TOPIC_OBJK);
     EXPECT_FALSE(Agent::create_datareader_by_xml(client_key_, datareader_id, subscriber_id, xml_one, flag, result));
-    EXPECT_EQ(result, Agent::ResultStatus::UNKNOWN_REFERENCE_ERROR);
+    EXPECT_EQ(result, Agent::OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
 

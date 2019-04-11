@@ -46,9 +46,9 @@ public:
     void process_input_packet(InputPacket&& input_packet);
 
     bool process_get_info_packet(
-                InputPacket&& input_packet,
-                dds::xrce::TransportAddress& address,
-                OutputPacket& output_packet) const;
+            InputPacket&& input_packet,
+            dds::xrce::TransportAddress& address,
+            OutputPacket& output_packet) const;
 
     void check_heartbeats();
 
