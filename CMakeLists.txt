@@ -238,7 +238,7 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     include(CTest)
     if(GTEST_FOUND)
         # TODO (#5047): XML Parser.
-        add_subdirectory(test/unittest/agent)
+        #add_subdirectory(test/unittest/agent)
         add_subdirectory(test/unittest/root)
         add_subdirectory(test/unittest/util)
         add_subdirectory(test/unittest/xrce)
