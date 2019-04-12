@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/Root.hpp>
 
 #include <gtest/gtest.h>
 
@@ -25,7 +26,10 @@ using namespace eprosima::uxr;
 class AgentUnitTests : public ::testing::Test
 {
 protected:
-    AgentUnitTests() = default;
+    AgentUnitTests()
+    {
+        Root::instance().load_config_file("./agent.refs");
+    }
 
     ~AgentUnitTests()
     {

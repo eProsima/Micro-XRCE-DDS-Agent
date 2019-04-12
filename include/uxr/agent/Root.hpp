@@ -43,7 +43,7 @@ public:
 
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
-    bool load_config_file(const std::string& path);
+    bool load_config_file(const std::string& file);
 
     void reset();
 

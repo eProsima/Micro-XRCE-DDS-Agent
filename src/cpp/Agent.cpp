@@ -79,7 +79,7 @@ void fill_object_variant<Agent::TOPIC_OBJK>(
 {
     dds::xrce::OBJK_TOPIC_Representation topic;
     topic.participant_id(XRCEObject::raw_to_objectid(participant_id));
-    topic.representation().object_reference(rep.xml);
+    topic.representation().xml_string_representation(rep.xml);
     object_variant.topic(topic);
 }
 
