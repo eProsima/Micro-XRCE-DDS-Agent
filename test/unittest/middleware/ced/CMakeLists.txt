@@ -27,7 +27,7 @@ target_include_directories(${TEST_NAME} PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(${TEST_NAME} PRIVATE ${GTETS_LIBRARIES} ${GMOCK_LIBRARIES})
+target_link_libraries(${TEST_NAME} PRIVATE ${GTEST_BOTH_LIBRARIES})
 set_target_properties(${TEST_NAME} PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
