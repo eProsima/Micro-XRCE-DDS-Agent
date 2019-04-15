@@ -23,7 +23,7 @@
 #include <memory>
 #include <chrono>
 
-const dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
+constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
 namespace eprosima {
 namespace uxr {
@@ -194,9 +194,9 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
     return rv;
 }
 
-bool Root::load_config_file(const std::string& file)
+bool Root::load_config_file(const std::string& file_path)
 {
-    return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file);
+    return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
 }
 
 void Root::reset()

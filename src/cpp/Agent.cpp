@@ -177,9 +177,8 @@ bool create_object(
         Agent::OpResult& op_result)
 {
     bool rv = false;
-    Root& root = Root::instance();
 
-    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
+    if (std::shared_ptr<ProxyClient> client = Root::instance().get_client(raw_to_clientkey(client_key)))
     {
         if (object_kind == (raw_id & 0x000F))
         {
@@ -230,10 +229,7 @@ bool Agent::create_client(
     client_representation.session_id(session);
     client_representation.mtu(mtu);
     result = root.create_client(client_representation, agent_representation);
-    if (dds::xrce::STATUS_OK != result.status())
-    {
-        op_result = OpResult(result.status());
-    }
+    op_result = OpResult(result.status());
 
     return (dds::xrce::STATUS_OK == result.status());
 }
@@ -419,9 +415,9 @@ bool Agent::delete_object(
 /**********************************************************************************************************************
  * Config.
  **********************************************************************************************************************/
-bool Agent::load_config_file(const std::string& file)
+bool Agent::load_config_file(const std::string& file_path)
 {
-    return Root::instance().load_config_file(file);
+    return Root::instance().load_config_file(file_path);
 }
 
 /**********************************************************************************************************************

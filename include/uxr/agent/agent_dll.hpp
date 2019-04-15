@@ -18,15 +18,15 @@
 #if defined(_WIN32)
 #if defined(microxrcedds_agent_SHARED)
 #if defined(microxrcedds_agent_EXPORTS)
-#define UXR_AGENT_LIB __declspec( dllexport )
+#define UXR_AGENT_EXPORT __declspec( dllexport )
 #else
-#define UXR_AGENT_LIB __declspec( dllimport )
+#define UXR_AGENT_EXPORT __declspec( dllimport )
 #endif // microxrcedds_agent_EXPORTS
 #else
-#define UXR_AGENT_LIB
+#define UXR_AGENT_EXPORT
 #endif // microxrcedds_agent_SHARED
 #else
-#define UXR_AGENT_LIB
-#endif // WIN32
+#define UXR_AGENT_EXPORT
+#endif // _WIN32
 
 #endif // UXR_AGENT_DLL_HPP_

@@ -29,8 +29,8 @@ namespace uxr {
 class UDPServer : public UDPServerBase
 {
 public:
-    UXR_AGENT_LIB UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
-    UXR_AGENT_LIB ~UDPServer() = default;
+    UXR_AGENT_EXPORT UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_EXPORT ~UDPServer() = default;
 
 private:
     bool init(bool discovery_enabled) final;

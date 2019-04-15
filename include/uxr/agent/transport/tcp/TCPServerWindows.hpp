@@ -40,8 +40,8 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    UXR_AGENT_LIB TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
-    UXR_AGENT_LIB ~TCPServer() = default;
+    UXR_AGENT_EXPORT TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    UXR_AGENT_EXPORT ~TCPServer() = default;
 
 private:
     bool init(bool discovery_enabled) final;
