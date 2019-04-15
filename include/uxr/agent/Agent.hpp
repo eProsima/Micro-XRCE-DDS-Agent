@@ -18,6 +18,7 @@
 #include <uxr/agent/agent_dll.hpp>
 
 #include <cstdint>
+#include <string>
 
 namespace eprosima{
 namespace uxr{
@@ -331,6 +332,16 @@ public:
             uint32_t client_key,
             uint16_t object_id,
             OpResult& op_result);
+
+    /**
+     * @brief Loads a configuration file which provides the references use to create XRCE object by reference.
+     *        This file shall use the
+     *        [Fast RTPS profile syntax](https://fast-rtps.docs.eprosima.com/en/latest/xmlprofiles.html),
+     *        where the `profile_name` attributes represent the references.
+     * @param file  The file path relative to the working directory.
+     * @return true in case of successful reading, false in other case.
+     */
+    UXR_AGENT_LIB static bool load_config_file(const std::string& file);
 
     /**
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
