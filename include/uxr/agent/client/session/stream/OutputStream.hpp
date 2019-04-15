@@ -309,7 +309,7 @@ inline void ReliableOutputStream::push_submessage(dds::xrce::SubmessageId id, co
         else
         {
             /* Serialize submessage. */
-            std::unique_ptr<uint8_t> buf(new uint8_t[submessage_size]);
+            std::unique_ptr<uint8_t[]> buf(new uint8_t[submessage_size]);
             fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(buf.get()), submessage_size);
             fastcdr::Cdr serializer(fastbuffer);
             submessage_header.serialize(serializer);
