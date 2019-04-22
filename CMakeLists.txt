@@ -128,6 +128,7 @@ endif()
 
 # Set source files
 set(SRCS
+    src/cpp/Agent.cpp
     src/cpp/Root.cpp
     src/cpp/processor/Processor.cpp
     src/cpp/client/ProxyClient.cpp
@@ -236,12 +237,13 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     enable_testing()
     include(CTest)
     if(GTEST_FOUND)
+        add_subdirectory(test/unittest/agent)
         add_subdirectory(test/unittest/root)
         add_subdirectory(test/unittest/util)
         add_subdirectory(test/unittest/xrce)
         add_subdirectory(test/unittest/transport/serial)
         add_subdirectory(test/unittest/middleware/ced)
-        #add_subdirectory(test/blackbox/tree)
+        add_subdirectory(test/blackbox/tree)
     endif()
     add_subdirectory(test/integration/cross_serialization)
 endif()

@@ -81,7 +81,7 @@ bool Server::stop()
 
 bool Server::load_config_file(const std::string& path)
 {
-    return processor_->get_root()->load_config_file(path);
+    return Root::instance().load_config_file(path);
 }
 
 void Server::push_output_packet(OutputPacket output_packet)

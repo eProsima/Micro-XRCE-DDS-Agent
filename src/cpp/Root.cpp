@@ -15,20 +15,24 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/middleware/Middleware.hpp>
+
+// TODO (#5047): replace Fast RTPS dependency by XML parser library.
+#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <memory>
 #include <chrono>
 
-#ifdef WIN32
-    #include <windows.h>
-#else
-    #include <unistd.h>
-#endif
-
-const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
+constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
 namespace eprosima {
 namespace uxr {
+
+Root& Root::instance()
+{
+    static Root root;
+    return root;
+}
 
 Root::Root()
     : mtx_(),
@@ -41,8 +45,9 @@ Root::Root()
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
 Root::~Root() = default;
 
-dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& agent_representation)
+dds::xrce::ResultStatus Root::create_client(
+        const dds::xrce::CLIENT_Representation& client_representation,
+        dds::xrce::AGENT_Representation& agent_representation)
 {
     if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
     {
@@ -108,7 +113,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
     agent_representation.agent_timestamp(timestamp);
     agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(eprosima_vendor_id);
+    agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
 
     return result_status;
 }
@@ -128,7 +133,7 @@ dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
     agent_representation.agent_timestamp(timestamp);
     agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(eprosima_vendor_id);
+    agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
 
     dds::xrce::ObjectVariant object_varian;
     object_varian.agent(agent_representation);
@@ -189,11 +194,16 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
     return rv;
 }
 
-bool Root::load_config_file(const std::string& path)
+bool Root::load_config_file(const std::string& file_path)
 {
-    // TODO (#5047): XML Parser.
-    (void) path;
-    return false;
+    return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
+}
+
+void Root::reset()
+{
+    std::unique_lock<std::mutex> lock(mtx_);
+    clients_.clear();
+    current_client_ = clients_.begin();
 }
 
 } // namespace uxr

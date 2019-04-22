@@ -57,12 +57,15 @@ bool CedTopicManager::unregister_topic(
         auto it_topic = topics_[domain_id].find(topic_name);
         if (topics_[domain_id].end() != it_topic)
         {
-            it_domain->second.erase(it_topic);
-            if (it_domain->second.empty())
+            if (it_topic->second.expired())
             {
-                topics_.erase(it_domain);
+                it_domain->second.erase(it_topic);
+                if (it_domain->second.empty())
+                {
+                    topics_.erase(it_domain);
+                }
+                rv = true;
             }
-            rv = true;
         }
     }
     return rv;

@@ -36,7 +36,7 @@ private:
         }
     };
 
-protected:
+public:
     static uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
     {
         return uint16_t(object_id[1] + (object_id[0] << 8));
@@ -47,7 +47,6 @@ protected:
         return dds::xrce::ObjectId{uint8_t(raw >> 8), uint8_t(raw & 0XFF)};
     }
 
-public:
     typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, ObjectIdHash> ObjectContainer;
 
     explicit XRCEObject(const dds::xrce::ObjectId& object_id)
