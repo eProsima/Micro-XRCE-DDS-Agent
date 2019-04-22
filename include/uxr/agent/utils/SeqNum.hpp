@@ -16,6 +16,7 @@
 #define _UXR_AGENT_UTILS_SEQNUM_HPP_
 
 #include <cstdint>
+#include <utility>
 
 namespace eprosima {
 namespace uxr {
@@ -35,8 +36,8 @@ public:
     friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
     {
         return (lhs.seq_num_ != rhs.seq_num_) &&
-               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (seq_num_add_range_ + 1))) ||
-                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_ + 1))));
+               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (ADD_RANGE[1] + 1))) ||
+                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (ADD_RANGE[1] + 1))));
     }
 
     friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
@@ -51,18 +52,18 @@ public:
 
     SeqNum& operator+=(const int& rhs)
     {
-        if ((rhs >= 0) && (rhs <= (seq_num_add_range_)))
+        if ((rhs >= ADD_RANGE[0]) && (rhs <= (ADD_RANGE[1])))
         {
-            seq_num_ = (seq_num_ + uint16_t(rhs)) % seq_num_limits_;
+            seq_num_ = (seq_num_ + uint16_t(rhs)) % MAX;
         }
         return *this;
     }
 
     SeqNum& operator+=(const SeqNum& rhs)
     {
-        if ((rhs >= SeqNum(0)) && (rhs <= SeqNum(seq_num_add_range_)))
+        if ((rhs >= SeqNum(ADD_RANGE[0])) && (rhs <= SeqNum(ADD_RANGE[1])))
         {
-            seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
+            seq_num_ = (seq_num_ + rhs.seq_num_) % MAX;
         }
         return *this;
     }
@@ -94,7 +95,7 @@ public:
     SeqNum& operator-=(const int& rhs)
     {
         seq_num_ = (uint16_t(rhs) > seq_num_)
-                ? uint16_t(seq_num_ - uint16_t(rhs) + seq_num_limits_)
+                ? uint16_t(seq_num_ - uint16_t(rhs) + MAX)
                 : uint16_t(seq_num_ - uint16_t(rhs));
         return *this;
     }
@@ -102,7 +103,7 @@ public:
     SeqNum& operator-=(const SeqNum& rhs)
     {
         seq_num_ = (rhs.seq_num_ > seq_num_)
-                ? uint16_t(seq_num_ - rhs.seq_num_ + seq_num_limits_)
+                ? uint16_t(seq_num_ - rhs.seq_num_ + MAX)
                 : uint16_t(seq_num_ - rhs.seq_num_);
         return *this;
     }
@@ -127,8 +128,8 @@ public:
 
 private:
     uint16_t seq_num_;
-    static const uint32_t seq_num_limits_ = (1 << 16);
-    static const uint16_t seq_num_add_range_ = (1 << 15) - 1;
+    static constexpr uint32_t MAX{UINT16_MAX + 1};
+    static constexpr uint16_t ADD_RANGE[2]{0, INT16_MAX};
 };
 
 } // namespace uxr
