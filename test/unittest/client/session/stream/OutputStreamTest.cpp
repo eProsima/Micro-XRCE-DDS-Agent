@@ -24,9 +24,9 @@ namespace eprosima {
 namespace uxr {
 namespace testing {
 
-const dds::xrce::SessionId session_id = 0x01;
-const dds::xrce::ClientKey client_key = {0xAA, 0xBB, 0xCC, 0xDD};
-const size_t mtu = 512;
+constexpr dds::xrce::SessionId session_id = 0x01;
+constexpr dds::xrce::ClientKey client_key = {0xAA, 0xBB, 0xCC, 0xDD};
+constexpr size_t mtu = 512;
 
 /****************************************************************************************
  * None Output Stream.
@@ -67,7 +67,7 @@ TEST_F(NoneOutputStreamTest, StreamCapacity)
 
 /**
  * @brief   This test checks the maximum message size of the stream.
- *          The none stream shall be not able to push messages larger that the MTU.
+ *          The none stream shall be not able to push messages larger than the MTU.
  */
 TEST_F(NoneOutputStreamTest, MessageCapacity)
 {
@@ -126,7 +126,7 @@ TEST_F(BestEffortOutputStreamTest, StreamCapacity)
 
 /**
  * @brief   This test checks the maximum message size of the stream.
- *          The best-effort stream shall be not able to push messages larger that the MTU.
+ *          The best-effort stream shall be not able to push messages larger than the MTU.
  */
 TEST_F(BestEffortOutputStreamTest, MaximumMessageSize)
 {
@@ -185,7 +185,7 @@ TEST_F(ReliableOutputStreamTest, StreamCapacity)
 
 /**
  * @brief   This test checks the maximum message size of the stream.
- *          The reliable stream shall be able to push messages larger that the MTU.
+ *          The reliable stream shall be able to push messages larger than the MTU.
  */
 TEST_F(ReliableOutputStreamTest, MaximumMessageSize)
 {
@@ -207,7 +207,7 @@ TEST_F(ReliableOutputStreamTest, MaximumMessageSize)
  * @brief   This test checks that the reliable stream fragments the messages properly.
  *          There are two border case:
  *          * Message fit:
- *              when all the fragment fit the MTU of the stream.
+ *              when all the fragments fit the MTU of the stream.
  *          * Message unfit:
  *              when the last fragment only contains the last byte of the message.
  */

@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_UTILS_SEQNUM_HPP_
-#define _UXR_AGENT_UTILS_SEQNUM_HPP_
+#ifndef UXR_AGENT_UTILS_SEQNUM_HPP_
+#define UXR_AGENT_UTILS_SEQNUM_HPP_
 
 #include <cstdint>
 #include <utility>
@@ -128,6 +128,8 @@ public:
 
 private:
     uint16_t seq_num_;
+
+public:
     static constexpr uint32_t MAX{UINT16_MAX + 1};
     static constexpr uint16_t ADD_RANGE[2]{0, INT16_MAX};
 };
@@ -135,4 +137,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_UTILS_SEQNUM_HPP_
+#endif // UXR_AGENT_UTILS_SEQNUM_HPP_

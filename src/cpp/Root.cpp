@@ -166,7 +166,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
 std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client_key)
 {
     std::shared_ptr<ProxyClient> client;
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = clients_.find(client_key);
     if (it != clients_.end())
     {
@@ -178,7 +178,7 @@ std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client
 bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 {
     bool rv = false;
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     if (current_client_ != clients_.end())
     {
         next_client = current_client_->second;
@@ -199,7 +199,7 @@ bool Root::load_config_file(const std::string& file_path)
 
 void Root::reset()
 {
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     clients_.clear();
     current_client_ = clients_.begin();
 }

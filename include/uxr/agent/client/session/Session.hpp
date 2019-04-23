@@ -252,9 +252,8 @@ inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, I
 
 inline std::vector<uint8_t> Session::get_output_streams()
 {
-    std::vector<uint8_t> result;
     std::lock_guard<std::mutex> lock(reliable_omtx_);
-    result.reserve(reliable_ostreams_.size());
+    std::vector<uint8_t> result(reliable_ostreams_.size());
     for (auto it = reliable_ostreams_.begin(); it != reliable_ostreams_.end(); ++it)
     {
         result.push_back(it->first);
@@ -327,7 +326,7 @@ inline void Session::update_from_acknack(
     if (is_reliable_stream(stream_id))
     {
         std::lock_guard<std::mutex> lock(reliable_omtx_);
-        reliable_ostreams_.at(stream_id).update_from_acknack(first_unacked);
+        reliable_ostreams_[stream_id].update_from_acknack(first_unacked);
     }
 }
 
