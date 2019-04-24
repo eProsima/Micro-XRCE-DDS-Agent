@@ -8411,3 +8411,67 @@ void dds::xrce::HEARTBEAT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_last_unacked_seq_nr;
     dcdr >> m_stream_id;
 }
+
+size_t dds::xrce::TIMESTAMP_Payload::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_aligment = current_alignment;
+
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_aligment;
+}
+
+size_t dds::xrce::TIMESTAMP_Payload::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_aligment = current_alignment;
+
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_aligment;
+}
+
+void dds::xrce::TIMESTAMP_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_transmit_timestamp;
+}
+
+void dds::xrce::TIMESTAMP_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr >> m_transmit_timestamp;
+}
+
+size_t dds::xrce::TIMESTAMP_REPLY_Payload::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_aligment = current_alignment;
+
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_aligment;
+}
+
+size_t dds::xrce::TIMESTAMP_REPLY_Payload::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_aligment = current_alignment;
+
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_aligment;
+}
+
+void dds::xrce::TIMESTAMP_REPLY_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_transmit_timestamp;
+    scdr << m_receive_timestamp;
+    scdr << m_originate_timestamp;
+}
+
+void dds::xrce::TIMESTAMP_REPLY_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr >> m_transmit_timestamp;
+    dcdr >> m_receive_timestamp;
+    dcdr >> m_originate_timestamp;
+}

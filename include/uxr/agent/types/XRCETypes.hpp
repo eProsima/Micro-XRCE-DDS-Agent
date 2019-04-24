@@ -10409,6 +10409,300 @@ private:
 };
 
 /*!
+ * @brief This class represents the structure TIMESTAMP_Payload defined by the user in the IDL file.
+ * @ingroup TYPESMOD
+ */
+class TIMESTAMP_Payload
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    TIMESTAMP_Payload();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~TIMESTAMP_Payload();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object TIMESTAMP_Payload that will be copied.
+     */
+    TIMESTAMP_Payload(const TIMESTAMP_Payload &x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object TIMESTAMP_Payload that will be copied.
+     */
+    TIMESTAMP_Payload(TIMESTAMP_Payload &&x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object TIMESTAMP_Payload that will be copied.
+     */
+    TIMESTAMP_Payload& operator=(const TIMESTAMP_Payload &x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object TIMESTAMP_Payload that will be copied.
+     */
+    TIMESTAMP_Payload& operator=(TIMESTAMP_Payload &&x);
+
+    /*!
+     * @brief This function sets a value in member transmit_timestamp
+     * @param _transmit_timestamp New value for member transmit_timestamp
+     */
+    inline void transmit_timestamp(const Time_t& _transmit_timestamp)
+    {
+        m_transmit_timestamp = _transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function moves the value in member transmit_timestamp
+     * @param _packed_samples New value to be moved in member transmit_timestamp
+     */
+    inline void transmit_timestamp(Time_t &&_transmit_timestamp)
+    {
+        m_transmit_timestamp = std::move(_transmit_timestamp);
+    }
+
+    /*!
+     * @brief This function returns the value of member transmit_timestamp
+     * @return Value of member transmit_timestamp
+     */
+    inline const Time_t& transmit_timestamp() const
+    {
+        return m_transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function returns a reference to member transmit_timestamp
+     * @return Reference to member transmit_timestamp
+     */
+    inline Time_t& transmit_timestamp()
+    {
+        return m_transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    Time_t m_transmit_timestamp;
+};
+
+/*!
+ * @brief This class represents the structure TIMESTAMP_Payload defined by the user in the IDL file.
+ * @ingroup TYPESMOD
+ */
+class TIMESTAMP_REPLY_Payload
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    TIMESTAMP_REPLY_Payload();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~TIMESTAMP_REPLY_Payload();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
+     */
+    TIMESTAMP_REPLY_Payload(const TIMESTAMP_REPLY_Payload &x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
+     */
+    TIMESTAMP_REPLY_Payload(TIMESTAMP_REPLY_Payload &&x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
+     */
+    TIMESTAMP_REPLY_Payload& operator=(const TIMESTAMP_REPLY_Payload &x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
+     */
+    TIMESTAMP_REPLY_Payload& operator=(TIMESTAMP_REPLY_Payload &&x);
+
+    /*!
+     * @brief This function sets a value in member transmit_timestamp
+     * @param _transmit_timestamp New value for member transmit_timestamp
+     */
+    inline void transmit_timestamp(const Time_t& _transmit_timestamp)
+    {
+        m_transmit_timestamp = _transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function moves the value in member transmit_timestamp
+     * @param _packed_samples New value to be moved in member transmit_timestamp
+     */
+    inline void transmit_timestamp(Time_t &&_transmit_timestamp)
+    {
+        m_transmit_timestamp = std::move(_transmit_timestamp);
+    }
+
+    /*!
+     * @brief This function returns the value of member transmit_timestamp
+     * @return Value of member transmit_timestamp
+     */
+    inline const Time_t& transmit_timestamp() const
+    {
+        return m_transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function returns a reference to member transmit_timestamp
+     * @return Reference to member transmit_timestamp
+     */
+    inline Time_t& transmit_timestamp()
+    {
+        return m_transmit_timestamp;
+    }
+
+    /*!
+     * @brief This function sets a value in member receive_timestamp
+     * @param _receive_timestamp New value for member receive_timestamp
+     */
+    inline void receive_timestamp(const Time_t& _receive_timestamp)
+    {
+        m_receive_timestamp = _receive_timestamp;
+    }
+
+    /*!
+     * @brief This function moves the value in member receive_timestamp
+     * @param _packed_samples New value to be moved in member receive_timestamp
+     */
+    inline void receive_timestamp(Time_t &&_receive_timestamp)
+    {
+        m_receive_timestamp = std::move(_receive_timestamp);
+    }
+
+    /*!
+     * @brief This function returns the value of member receive_timestamp
+     * @return Value of member receive_timestamp
+     */
+    inline const Time_t& receive_timestamp() const
+    {
+        return m_receive_timestamp;
+    }
+
+    /*!
+     * @brief This function returns a reference to member receive_timestamp
+     * @return Reference to member receive_timestamp
+     */
+    inline Time_t& receive_timestamp()
+    {
+        return m_receive_timestamp;
+    }
+
+    /*!
+     * @brief This function sets a value in member originate_timestamp
+     * @param _originate_timestamp New value for member originate_timestamp
+     */
+    inline void originate_timestamp(const Time_t& _originate_timestamp)
+    {
+        m_originate_timestamp = _originate_timestamp;
+    }
+
+    /*!
+     * @brief This function moves the value in member originate_timestamp
+     * @param _packed_samples New value to be moved in member originate_timestamp
+     */
+    inline void originate_timestamp(Time_t &&_originate_timestamp)
+    {
+        m_originate_timestamp = std::move(_originate_timestamp);
+    }
+
+    /*!
+     * @brief This function returns the value of member originate_timestamp
+     * @return Value of member originate_timestamp
+     */
+    inline const Time_t& originate_timestamp() const
+    {
+        return m_originate_timestamp;
+    }
+
+    /*!
+     * @brief This function returns a reference to member originate_timestamp
+     * @return Reference to member originate_timestamp
+     */
+    inline Time_t& originate_timestamp()
+    {
+        return m_originate_timestamp;
+    }
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    Time_t m_transmit_timestamp;
+    Time_t m_receive_timestamp;
+    Time_t m_originate_timestamp;
+};
+
+/*!
  * @brief This class represents the enumeration SubmessageId defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
@@ -10428,7 +10722,9 @@ enum SubmessageId : uint8_t
     HEARTBEAT       = 11,
     RESET           = 12,
     FRAGMENT        = 13,
-    PERFORMANCE     = 14
+    TIMESTAMP       = 14,
+    TIMESTAMP_REPLY = 15,
+    PERFORMANCE     = 255
 };
 
 } } // namespace 
