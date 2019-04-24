@@ -6899,30 +6899,30 @@ public:
     ReadSpecification& operator=(ReadSpecification &&x);
 
     /*!
-     * @brief This function sets a value in member data_stream_id
-     * @param _data_stream_id New value for member data_stream_id
+     * @brief This function sets a value in member preferred_stream_id
+     * @param _preferred_stream_id New value for member preferred_stream_id
      */
-    inline void data_stream_id(StreamId _data_stream_id)
+    inline void preferred_stream_id(StreamId _preferred_stream_id)
     {
-        m_data_stream_id = _data_stream_id;
+        m_preferred_stream_id = _preferred_stream_id;
     }
 
     /*!
-     * @brief This function returns the value of member data_stream_id
-     * @return Value of member data_stream_id
+     * @brief This function returns the value of member preferred_stream_id
+     * @return Value of member preferred_stream_id
      */
-    inline StreamId data_stream_id() const
+    inline StreamId preferred_stream_id() const
     {
-        return m_data_stream_id;
+        return m_preferred_stream_id;
     }
 
     /*!
-     * @brief This function returns a reference to member data_stream_id
-     * @return Reference to member data_stream_id
+     * @brief This function returns a reference to member preferred_stream_id
+     * @return Reference to member preferred_stream_id
      */
-    inline StreamId& data_stream_id()
+    inline StreamId& preferred_stream_id()
     {
-        return m_data_stream_id;
+        return m_preferred_stream_id;
     }
 
     /*!
@@ -7079,7 +7079,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    StreamId m_data_stream_id;
+    StreamId m_preferred_stream_id;
     DataFormat m_data_format;
     eprosima::Optional<std::string> m_content_filter_expression;
     eprosima::Optional<DataDeliveryControl> m_delivery_control;
@@ -10461,7 +10461,7 @@ public:
 
     /*!
      * @brief This function moves the value in member transmit_timestamp
-     * @param _packed_samples New value to be moved in member transmit_timestamp
+     * @param _transmit_timestamp New value to be moved in member transmit_timestamp
      */
     inline void transmit_timestamp(Time_t &&_transmit_timestamp)
     {
@@ -10571,7 +10571,7 @@ public:
 
     /*!
      * @brief This function moves the value in member transmit_timestamp
-     * @param _packed_samples New value to be moved in member transmit_timestamp
+     * @param _transmit_timestamp New value to be moved in member transmit_timestamp
      */
     inline void transmit_timestamp(Time_t &&_transmit_timestamp)
     {
@@ -10607,7 +10607,7 @@ public:
 
     /*!
      * @brief This function moves the value in member receive_timestamp
-     * @param _packed_samples New value to be moved in member receive_timestamp
+     * @param _receive_timestamp New value to be moved in member receive_timestamp
      */
     inline void receive_timestamp(Time_t &&_receive_timestamp)
     {
@@ -10643,7 +10643,7 @@ public:
 
     /*!
      * @brief This function moves the value in member originate_timestamp
-     * @param _packed_samples New value to be moved in member originate_timestamp
+     * @param _originate_timestamp New value to be moved in member originate_timestamp
      */
     inline void originate_timestamp(Time_t &&_originate_timestamp)
     {
