@@ -65,11 +65,11 @@ static void on_topic(
 
     Agent::OpResult result;
     Agent::write(
-                INTERNAL_CLIENT_KEY,
-                Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK),
-                ub->iterator,
-                ucdr_buffer_remaining(ub),
-                result);
+        INTERNAL_CLIENT_KEY,
+        Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK),
+        ub->iterator,
+        ucdr_buffer_remaining(ub),
+        result);
 }
 
 bool InternalClient::run()
