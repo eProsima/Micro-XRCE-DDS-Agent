@@ -25,13 +25,9 @@ std::vector<uint8_t> AgentSerialization::create_client_payload()
 
     /* Payload. */
     dds::xrce::CREATE_CLIENT_Payload payload;
-    payload.request_id() = {0x01, 0x23};
-    payload.object_id() = {0x45, 0x67};
     payload.client_representation().xrce_cookie() = {0x89, 0xAB, 0xCD, 0xEF};
     payload.client_representation().xrce_version() = {0x01, 0x23};
     payload.client_representation().xrce_vendor_id() = {0x45, 0x67};
-    payload.client_representation().client_timestamp().seconds() = 0x89ABCDEF;
-    payload.client_representation().client_timestamp().nanoseconds() = 0x01234567;
     payload.client_representation().client_key() = {0x89, 0xAB, 0xCD, 0xEF};
     payload.client_representation().session_id() = 0x01;
     payload.client_representation().mtu() = 0x2345;
@@ -158,15 +154,9 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
 
     /* Payload. */
     dds::xrce::STATUS_AGENT_Payload payload;
-    payload.related_request().request_id() = {0x01, 0x23};
-    payload.related_request().object_id() = {0x45, 0x67};
     payload.agent_info().xrce_cookie({0x89, 0xAB, 0xCD, 0xEF});
     payload.agent_info().xrce_version({0x01, 0x23});
     payload.agent_info().xrce_vendor_id({0x45, 0x67});
-    dds::xrce::Time_t time;
-    time.seconds(0x89ABCDEF);
-    time.nanoseconds(0x01234567);
-    payload.agent_info().agent_timestamp(time);
 
     /* Subheader. */
     dds::xrce::SubmessageHeader subheader;
@@ -244,10 +234,6 @@ std::vector<uint8_t> AgentSerialization::info_payload()
     agent_config.xrce_cookie({0x89, 0xAB, 0xCD, 0xEF});
     agent_config.xrce_version({0x01, 0x23});
     agent_config.xrce_vendor_id({0x45, 0x67});
-    dds::xrce::Time_t time;
-    time.seconds(0x89ABCDEF);
-    time.nanoseconds(0x01234567);
-    agent_config.agent_timestamp(time);
 
     dds::xrce::ObjectVariant config;
     config.agent(agent_config);
@@ -289,7 +275,6 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
     dds::xrce::READ_DATA_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
-    payload.read_specification().data_stream_id() = 0x80;
     payload.read_specification().data_format() = 0x89;
 
     dds::xrce::DataDeliveryControl delivery_control;

@@ -942,7 +942,6 @@ dds::xrce::CLIENT_Representation::CLIENT_Representation(const CLIENT_Representat
     m_xrce_cookie = x.m_xrce_cookie;
     m_xrce_version = x.m_xrce_version;
     m_xrce_vendor_id = x.m_xrce_vendor_id;
-    m_client_timestamp = x.m_client_timestamp;
     m_client_key = x.m_client_key;
     m_session_id = x.m_session_id;
     m_properties = x.m_properties;
@@ -954,7 +953,6 @@ dds::xrce::CLIENT_Representation::CLIENT_Representation(CLIENT_Representation &&
     m_xrce_cookie = std::move(x.m_xrce_cookie);
     m_xrce_version = std::move(x.m_xrce_version);
     m_xrce_vendor_id = std::move(x.m_xrce_vendor_id);
-    m_client_timestamp = std::move(x.m_client_timestamp);
     m_client_key = std::move(x.m_client_key);
     m_session_id = x.m_session_id;
     m_properties = std::move(x.m_properties);
@@ -966,7 +964,6 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(co
     m_xrce_cookie = x.m_xrce_cookie;
     m_xrce_version = x.m_xrce_version;
     m_xrce_vendor_id = x.m_xrce_vendor_id;
-    m_client_timestamp = x.m_client_timestamp;
     m_client_key = x.m_client_key;
     m_session_id = x.m_session_id;
     m_properties = x.m_properties;
@@ -980,7 +977,6 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(CL
     m_xrce_cookie = std::move(x.m_xrce_cookie);
     m_xrce_version = std::move(x.m_xrce_version);
     m_xrce_vendor_id = std::move(x.m_xrce_vendor_id);
-    m_client_timestamp = std::move(x.m_client_timestamp);
     m_client_key = std::move(x.m_client_key);
     m_session_id = x.m_session_id;
     m_properties = std::move(x.m_properties);
@@ -996,7 +992,6 @@ size_t dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(size_t current_
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1012,7 +1007,6 @@ size_t dds::xrce::CLIENT_Representation::getCdrSerializedSize(size_t current_ali
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += m_client_timestamp.getCdrSerializedSize(current_alignment);
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -1036,7 +1030,6 @@ void dds::xrce::CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) c
     scdr << m_xrce_cookie;
     scdr << m_xrce_version;
     scdr << m_xrce_vendor_id;
-    scdr << m_client_timestamp;
     scdr << m_client_key;
     scdr << m_session_id;
     scdr << bool(m_properties);
@@ -1052,7 +1045,6 @@ void dds::xrce::CLIENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_xrce_cookie;
     dcdr >> m_xrce_version;
     dcdr >> m_xrce_vendor_id;
-    dcdr >> m_client_timestamp;
     dcdr >> m_client_key;
     dcdr >> m_session_id;
     bool m_properties_flag;
@@ -1079,7 +1071,6 @@ dds::xrce::AGENT_Representation::AGENT_Representation(const AGENT_Representation
     m_xrce_cookie = x.m_xrce_cookie;
     m_xrce_version = x.m_xrce_version;
     m_xrce_vendor_id = x.m_xrce_vendor_id;
-    m_agent_timestamp = x.m_agent_timestamp;
 }
 
 dds::xrce::AGENT_Representation::AGENT_Representation(AGENT_Representation &&x)
@@ -1087,7 +1078,6 @@ dds::xrce::AGENT_Representation::AGENT_Representation(AGENT_Representation &&x)
     m_xrce_cookie = std::move(x.m_xrce_cookie);
     m_xrce_version = std::move(x.m_xrce_version);
     m_xrce_vendor_id = std::move(x.m_xrce_vendor_id);
-    m_agent_timestamp = std::move(x.m_agent_timestamp);
 }
 
 dds::xrce::AGENT_Representation& dds::xrce::AGENT_Representation::operator=(const AGENT_Representation &x)
@@ -1095,7 +1085,6 @@ dds::xrce::AGENT_Representation& dds::xrce::AGENT_Representation::operator=(cons
     m_xrce_cookie = x.m_xrce_cookie;
     m_xrce_version = x.m_xrce_version;
     m_xrce_vendor_id = x.m_xrce_vendor_id;
-    m_agent_timestamp = x.m_agent_timestamp;
     
     return *this;
 }
@@ -1105,7 +1094,6 @@ dds::xrce::AGENT_Representation& dds::xrce::AGENT_Representation::operator=(AGEN
     m_xrce_cookie = std::move(x.m_xrce_cookie);
     m_xrce_version = std::move(x.m_xrce_version);
     m_xrce_vendor_id = std::move(x.m_xrce_vendor_id);
-    m_agent_timestamp = std::move(x.m_agent_timestamp);
     
     return *this;
 }
@@ -1117,7 +1105,6 @@ size_t dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(size_t current_a
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += dds::xrce::Time_t::getMaxCdrSerializedSize(current_alignment);
     /* TODO (Julian): add optional support for getMaxCrdSerializedSize */
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -1131,7 +1118,6 @@ size_t dds::xrce::AGENT_Representation::getCdrSerializedSize(size_t current_alig
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-    current_alignment += m_agent_timestamp.getCdrSerializedSize(current_alignment);
 
     /* Optional properties. */
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1151,7 +1137,6 @@ void dds::xrce::AGENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) co
     scdr << m_xrce_cookie;
     scdr << m_xrce_version;
     scdr << m_xrce_vendor_id;
-    scdr << m_agent_timestamp;
     scdr << bool(m_properties);
     if (m_properties)
     {
@@ -1164,7 +1149,6 @@ void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_xrce_cookie;
     dcdr >> m_xrce_version;
     dcdr >> m_xrce_vendor_id;
-    dcdr >> m_agent_timestamp;
     bool m_properties_flag;
     dcdr >> m_properties_flag;
     if (m_properties_flag)
@@ -5883,7 +5867,7 @@ void dds::xrce::DataDeliveryControl::deserialize(eprosima::fastcdr::Cdr &dcdr)
 
 dds::xrce::ReadSpecification::ReadSpecification()
 {
-    m_data_stream_id = 0;
+    m_preferred_stream_id = 0;
     m_data_format = 0;
 }
 
@@ -5893,7 +5877,7 @@ dds::xrce::ReadSpecification::~ReadSpecification()
 
 dds::xrce::ReadSpecification::ReadSpecification(const ReadSpecification &x)
 {
-    m_data_stream_id = x.m_data_stream_id;
+    m_preferred_stream_id = x.m_preferred_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_control = x.m_delivery_control;
@@ -5901,7 +5885,7 @@ dds::xrce::ReadSpecification::ReadSpecification(const ReadSpecification &x)
 
 dds::xrce::ReadSpecification::ReadSpecification(ReadSpecification &&x)
 {
-    m_data_stream_id = x.m_data_stream_id;
+    m_preferred_stream_id = x.m_preferred_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_control = std::move(x.m_delivery_control);
@@ -5909,7 +5893,7 @@ dds::xrce::ReadSpecification::ReadSpecification(ReadSpecification &&x)
 
 dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(const ReadSpecification &x)
 {
-    m_data_stream_id = x.m_data_stream_id;
+    m_preferred_stream_id = x.m_preferred_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_control = x.m_delivery_control;
@@ -5919,7 +5903,7 @@ dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(const Read
 
 dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(ReadSpecification &&x)
 {
-    m_data_stream_id = x.m_data_stream_id;
+    m_preferred_stream_id = x.m_preferred_stream_id;
     m_data_format = x.m_data_format;
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_control = std::move(x.m_delivery_control);
@@ -5966,7 +5950,7 @@ size_t dds::xrce::ReadSpecification::getCdrSerializedSize(size_t current_alignme
 
 void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_data_stream_id;
+    scdr << m_preferred_stream_id;
     scdr << m_data_format;
     scdr << bool(m_content_filter_expression);
     if (m_content_filter_expression)
@@ -5982,7 +5966,7 @@ void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 
 void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_data_stream_id;
+    dcdr >> m_preferred_stream_id;
     dcdr >> m_data_format;
     bool temp;
     dcdr >> temp;
@@ -7018,20 +7002,17 @@ dds::xrce::CREATE_CLIENT_Payload::~CREATE_CLIENT_Payload()
 }
 
 dds::xrce::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload(const CREATE_CLIENT_Payload &x)
-    : BaseObjectRequest(x)
 {
     m_client_representation = x.m_client_representation;
 }
 
 dds::xrce::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload(CREATE_CLIENT_Payload &&x)
-    : BaseObjectRequest(x)
 {
     m_client_representation = std::move(x.m_client_representation);
 }
 
 dds::xrce::CREATE_CLIENT_Payload& dds::xrce::CREATE_CLIENT_Payload::operator=(const CREATE_CLIENT_Payload &x)
 {
-    BaseObjectRequest::operator=(x);
     m_client_representation = x.m_client_representation;
     
     return *this;
@@ -7039,7 +7020,6 @@ dds::xrce::CREATE_CLIENT_Payload& dds::xrce::CREATE_CLIENT_Payload::operator=(co
 
 dds::xrce::CREATE_CLIENT_Payload& dds::xrce::CREATE_CLIENT_Payload::operator=(CREATE_CLIENT_Payload &&x)
 {
-    BaseObjectRequest::operator=(x);
     m_client_representation = std::move(x.m_client_representation);
     
     return *this;
@@ -7049,7 +7029,6 @@ size_t dds::xrce::CREATE_CLIENT_Payload::getMaxCdrSerializedSize(size_t current_
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7059,7 +7038,6 @@ size_t dds::xrce::CREATE_CLIENT_Payload::getCdrSerializedSize(size_t current_ali
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_client_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7067,13 +7045,11 @@ size_t dds::xrce::CREATE_CLIENT_Payload::getCdrSerializedSize(size_t current_ali
 
 void dds::xrce::CREATE_CLIENT_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    BaseObjectRequest::serialize(scdr);
     scdr << m_client_representation;
 }
 
 void dds::xrce::CREATE_CLIENT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectRequest::deserialize(dcdr);
     dcdr >> m_client_representation;
 }
 
@@ -7285,20 +7261,17 @@ dds::xrce::STATUS_AGENT_Payload::~STATUS_AGENT_Payload()
 }
 
 dds::xrce::STATUS_AGENT_Payload::STATUS_AGENT_Payload(const STATUS_AGENT_Payload &x)
-    : BaseObjectReply(x)
 {
     m_agent_info = x.m_agent_info;
 }
 
 dds::xrce::STATUS_AGENT_Payload::STATUS_AGENT_Payload(STATUS_AGENT_Payload &&x)
-    : BaseObjectReply(x)
 {
     m_agent_info = std::move(x.m_agent_info);
 }
 
 dds::xrce::STATUS_AGENT_Payload& dds::xrce::STATUS_AGENT_Payload::operator=(const STATUS_AGENT_Payload &x)
 {
-    BaseObjectReply::operator=(x);
     m_agent_info = x.m_agent_info;
     
     return *this;
@@ -7306,7 +7279,6 @@ dds::xrce::STATUS_AGENT_Payload& dds::xrce::STATUS_AGENT_Payload::operator=(cons
 
 dds::xrce::STATUS_AGENT_Payload& dds::xrce::STATUS_AGENT_Payload::operator=(STATUS_AGENT_Payload &&x)
 {
-    BaseObjectReply::operator=(x);
     m_agent_info = std::move(x.m_agent_info);
     
     return *this;
@@ -7316,7 +7288,6 @@ size_t dds::xrce::STATUS_AGENT_Payload::getMaxCdrSerializedSize(size_t current_a
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::BaseObjectReply::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7326,7 +7297,6 @@ size_t dds::xrce::STATUS_AGENT_Payload::getCdrSerializedSize(size_t current_alig
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += dds::xrce::BaseObjectReply::getCdrSerializedSize(current_alignment);
     current_alignment += m_agent_info.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7334,13 +7304,11 @@ size_t dds::xrce::STATUS_AGENT_Payload::getCdrSerializedSize(size_t current_alig
 
 void dds::xrce::STATUS_AGENT_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    BaseObjectReply::serialize(scdr);
     scdr << m_agent_info;
 }
 
 void dds::xrce::STATUS_AGENT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    BaseObjectReply::deserialize(dcdr);
     dcdr >> m_agent_info;
 }
 

@@ -41,8 +41,6 @@ dds::xrce::SubmessageHeader CommonData::generate_submessage_header(const dds::xr
 dds::xrce::CREATE_CLIENT_Payload CommonData::generate_create_client_payload() const
 {
     dds::xrce::CREATE_CLIENT_Payload create_data;
-    create_data.request_id(request_id);
-    create_data.object_id(object_id);
     create_data.client_representation(generate_client_representation());
     return create_data;
 }
@@ -70,7 +68,6 @@ dds::xrce::CLIENT_Representation CommonData::generate_client_representation() co
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id);
-    client_representation.client_timestamp();
     client_representation.client_key(client_key);
     client_representation.session_id();
     client_representation.properties();

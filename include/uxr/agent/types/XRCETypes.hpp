@@ -1248,41 +1248,7 @@ public:
     {
         return m_xrce_vendor_id;
     }
-    /*!
-     * @brief This function copies the value in member client_timestamp
-     * @param _client_timestamp New value to be copied in member client_timestamp
-     */
-    inline void client_timestamp(const Time_t &_client_timestamp)
-    {
-        m_client_timestamp = _client_timestamp;
-    }
 
-    /*!
-     * @brief This function moves the value in member client_timestamp
-     * @param _client_timestamp New value to be moved in member client_timestamp
-     */
-    inline void client_timestamp(Time_t &&_client_timestamp)
-    {
-        m_client_timestamp = std::move(_client_timestamp);
-    }
-
-    /*!
-     * @brief This function returns a constant reference to member client_timestamp
-     * @return Constant reference to member client_timestamp
-     */
-    inline const Time_t& client_timestamp() const
-    {
-        return m_client_timestamp;
-    }
-
-    /*!
-     * @brief This function returns a reference to member client_timestamp
-     * @return Reference to member client_timestamp
-     */
-    inline Time_t& client_timestamp()
-    {
-        return m_client_timestamp;
-    }
     /*!
      * @brief This function copies the value in member client_key
      * @param _client_key New value to be copied in member client_key
@@ -1432,7 +1398,6 @@ private:
     XrceCookie m_xrce_cookie;
     XrceVersion m_xrce_version;
     XrceVendorId m_xrce_vendor_id;
-    Time_t m_client_timestamp;
     ClientKey m_client_key;
     SessionId m_session_id;
     eprosima::Optional<PropertySeq> m_properties;
@@ -1588,42 +1553,6 @@ public:
     }
 
     /*!
-     * @brief This function copies the value in member agent_timestamp
-     * @param _agent_timestamp New value to be copied in member agent_timestamp
-     */
-    inline void agent_timestamp(const Time_t &_agent_timestamp)
-    {
-        m_agent_timestamp = _agent_timestamp;
-    }
-
-    /*!
-     * @brief This function moves the value in member agent_timestamp
-     * @param _agent_timestamp New value to be moved in member agent_timestamp
-     */
-    inline void agent_timestamp(Time_t &&_agent_timestamp)
-    {
-        m_agent_timestamp = std::move(_agent_timestamp);
-    }
-
-    /*!
-     * @brief This function returns a constant reference to member agent_timestamp
-     * @return Constant reference to member agent_timestamp
-     */
-    inline const Time_t& agent_timestamp() const
-    {
-        return m_agent_timestamp;
-    }
-
-    /*!
-     * @brief This function returns a reference to member agent_timestamp
-     * @return Reference to member agent_timestamp
-     */
-    inline Time_t& agent_timestamp()
-    {
-        return m_agent_timestamp;
-    }
-
-    /*!
      * @brief This function sets a value in member properties
      * @param _properties New value for member properties
      */
@@ -1683,7 +1612,6 @@ private:
     XrceCookie m_xrce_cookie;
     XrceVersion m_xrce_version;
     XrceVendorId m_xrce_vendor_id;
-    Time_t m_agent_timestamp;
     eprosima::Optional<PropertySeq> m_properties;
 };
 
@@ -8197,7 +8125,7 @@ private:
  * @brief This class represents the structure CREATE_CLIENT_Payload defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
-class CREATE_CLIENT_Payload : public BaseObjectRequest 
+class CREATE_CLIENT_Payload
 {
 public:
 
@@ -8589,7 +8517,7 @@ public:
  * @brief This class represents the structure STATUS_AGENT_Payload defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
-class STATUS_AGENT_Payload : public BaseObjectReply
+class STATUS_AGENT_Payload
 {
 public:
 
