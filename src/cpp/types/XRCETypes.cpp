@@ -8380,6 +8380,14 @@ void dds::xrce::HEARTBEAT_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_stream_id;
 }
 
+dds::xrce::TIMESTAMP_Payload::TIMESTAMP_Payload()
+{
+}
+
+dds::xrce::TIMESTAMP_Payload::~TIMESTAMP_Payload()
+{
+}
+
 size_t dds::xrce::TIMESTAMP_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_aligment = current_alignment;
@@ -8406,6 +8414,14 @@ void dds::xrce::TIMESTAMP_Payload::serialize(eprosima::fastcdr::Cdr &scdr) const
 void dds::xrce::TIMESTAMP_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_transmit_timestamp;
+}
+
+dds::xrce::TIMESTAMP_REPLY_Payload::TIMESTAMP_REPLY_Payload()
+{
+}
+
+dds::xrce::TIMESTAMP_REPLY_Payload::~TIMESTAMP_REPLY_Payload()
+{
 }
 
 size_t dds::xrce::TIMESTAMP_REPLY_Payload::getMaxCdrSerializedSize(size_t current_alignment)

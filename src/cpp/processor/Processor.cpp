@@ -17,6 +17,7 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/utils/Time.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -540,6 +541,36 @@ bool Processor::process_fragment_submessage(
         process_input_message(client, fragment_packet);
     }
     return true;
+}
+
+bool Processor::process_timestamp_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    bool rv = true;
+    dds::xrce::TIMESTAMP_Payload timestamp;
+    if (input_packet.message->get_payload(timestamp))
+    {
+        dds::xrce::TIMESTAMP_REPLY_Payload timestamp_reply;
+        time::get_epoch_time(timestamp_reply.receive_timestamp().seconds(),
+                             timestamp_reply.receive_timestamp().nanoseconds());
+        timestamp_reply.originate_timestamp(timestamp.transmit_timestamp());
+        time::get_epoch_time(timestamp_reply.transmit_timestamp().seconds(),
+                             timestamp_reply.transmit_timestamp().nanoseconds());
+
+        client.session().push_output_submessage(dds::xrce::STREAMID_NONE, dds::xrce::TIMESTAMP_REPLY, timestamp_reply);
+
+        OutputPacket output_packet;
+        output_packet.destination = input_packet.source;
+        if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
+        {
+            server_->push_output_packet(output_packet);
+        }
+    }
+    else
+    {
+        std::cerr << "Error processin TIMESTAMP submessage." << std::endl;
+        rv = false;
+    }
+    return rv;
 }
 
 //bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)

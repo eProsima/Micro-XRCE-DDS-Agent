@@ -102,6 +102,10 @@ private:
             ProxyClient& client,
             InputPacket& input_packet);
 
+    bool process_timestamp_submessage(
+            ProxyClient& client,
+            InputPacket& input_packet);
+
 //    bool process_performance_submessage(
 //            ProxyClient& client,
 //            InputPacket& input_packet);
