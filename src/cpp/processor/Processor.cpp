@@ -154,6 +154,9 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
         case dds::xrce::FRAGMENT:
             rv = process_fragment_submessage(client, input_packet);
             break;
+        case dds::xrce::TIMESTAMP:
+            rv = process_timestamp_submessage(client, input_packet);
+            break;
 //        case dds::xrce::PERFORMANCE:
 //            rv = process_performance_submessage(client, input_packet);
 //            break;
