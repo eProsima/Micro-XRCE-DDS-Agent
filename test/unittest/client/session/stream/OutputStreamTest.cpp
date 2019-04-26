@@ -342,7 +342,7 @@ TEST_F(ReliableOutputStreamTest, GetMessages)
  *                when the first_unacked of the acknack is less or equal than the first_unacked of the stream,
  *                the acknack shall not have effect.
  *          * Upper border case:
- *                when the first_unacked of the acknack is greater that the last_sent + 1 of the stream,
+ *                when the first_unacked of the acknack is greater than the last_sent + 1 of the stream,
  *                the acknack shall not have effect.
  */
 TEST_F(ReliableOutputStreamTest, UpdateFromAcknack)

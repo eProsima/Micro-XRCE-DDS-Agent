@@ -35,8 +35,9 @@ class NoneInputStream
 public:
     NoneInputStream() = default;
 
+    template<typename T>
     bool push_message(
-            InputMessagePtr&& input_message,
+            T&& input_message,
             SeqNum seq_num);
 
     bool pop_message(InputMessagePtr& input_message);
@@ -48,15 +49,16 @@ private:
     std::mutex mtx_;
 };
 
+template<typename T>
 inline bool NoneInputStream::push_message(
-        InputMessagePtr&& input_message,
+        T&& input_message,
         SeqNum /*seq_num*/)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if (messages_.size() < BEST_EFFORT_STREAM_DEPTH)
     {
-        messages_.push(std::move(input_message));
+        messages_.push(std::unique_ptr<InputMessage>(std::forward<T>(input_message)));
         rv = true;
     }
     return rv;
@@ -101,8 +103,9 @@ public:
     BestEffortInputStream& operator=(BestEffortInputStream&&) = delete;
     BestEffortInputStream& operator=(const BestEffortInputStream) = delete;
 
+    template<typename T>
     bool push_message(
-            InputMessagePtr&& input_message,
+            T&& input_message,
             SeqNum seq_num);
 
     bool pop_message(InputMessagePtr& input_message);
@@ -115,15 +118,16 @@ private:
     std::mutex mtx_;
 };
 
+template<typename T>
 inline bool BestEffortInputStream::push_message(
-        InputMessagePtr&& input_message,
+        T&& input_message,
         SeqNum seq_num)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if ((seq_num > last_received_) && (messages_.size() < BEST_EFFORT_STREAM_DEPTH))
     {
-        messages_.push(std::move(input_message));
+        messages_.push(std::unique_ptr<InputMessage>(std::forward<T>(input_message)));
         last_received_ = seq_num;
         rv = true;
     }
@@ -173,8 +177,9 @@ public:
     ReliableInputStream& operator=(ReliableInputStream&&) = delete;
     ReliableInputStream& operator=(const ReliableInputStream) = delete;
 
+    template<typename T>
     bool push_message(
-            InputMessagePtr&& message,
+            T&& message,
             SeqNum seq_num);
 
     bool pop_message(InputMessagePtr& message);
@@ -200,8 +205,9 @@ private:
     std::mutex mtx_;
 };
 
+template<typename T>
 inline bool ReliableInputStream::push_message(
-        InputMessagePtr&& message,
+        T&& message,
         SeqNum seq_num)
 {
     bool rv = false;
@@ -211,7 +217,7 @@ inline bool ReliableInputStream::push_message(
         if (seq_num > last_announced_)
         {
             last_announced_ = seq_num;
-            messages_.insert(std::make_pair(seq_num, std::move(message)));
+            messages_.insert(std::make_pair(seq_num, std::unique_ptr<InputMessage>(std::forward<T>(message))));
             rv = true;
         }
         else
@@ -219,7 +225,7 @@ inline bool ReliableInputStream::push_message(
             auto it = messages_.find(seq_num);
             if (it == messages_.end())
             {
-                messages_.insert(std::make_pair(seq_num, std::move(message)));
+                messages_.insert(std::make_pair(seq_num, std::unique_ptr<InputMessage>(std::forward<T>(message))));
                 rv = true;
             }
         }

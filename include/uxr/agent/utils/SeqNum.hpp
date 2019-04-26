@@ -33,24 +33,24 @@ public:
      */
     inline operator uint16_t() const { return seq_num_; }
 
-    friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
+    friend bool operator<(SeqNum lhs, SeqNum rhs)
     {
         return (lhs.seq_num_ != rhs.seq_num_) &&
                (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (ADD_RANGE[1] + 1))) ||
                 ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (ADD_RANGE[1] + 1))));
     }
 
-    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
-    friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
-    friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
-    friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
-    friend bool operator==(const SeqNum& lhs, const int& rhs) { return lhs.seq_num_ == uint16_t(rhs); }
-    friend bool operator==(const int& lhs, const SeqNum& rhs) { return uint16_t(lhs) == rhs.seq_num_; }
-    friend bool operator==(const SeqNum& lhs, const uint16_t& rhs) { return lhs.seq_num_ == rhs; }
-    friend bool operator==(const uint16_t& lhs, const SeqNum& rhs) { return lhs == rhs.seq_num_; }
-    friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
+    friend bool operator>(SeqNum lhs, SeqNum rhs) { return rhs < lhs; }
+    friend bool operator<=(SeqNum lhs, SeqNum rhs) { return !(lhs > rhs); }
+    friend bool operator>=(SeqNum lhs, SeqNum rhs) { return !(lhs < rhs); }
+    friend bool operator==(SeqNum lhs, SeqNum rhs) { return lhs.seq_num_ == rhs.seq_num_; }
+    friend bool operator==(SeqNum lhs, int rhs) { return lhs.seq_num_ == uint16_t(rhs); }
+    friend bool operator==(int lhs, SeqNum rhs) { return uint16_t(lhs) == rhs.seq_num_; }
+    friend bool operator==(SeqNum lhs, uint16_t rhs) { return lhs.seq_num_ == rhs; }
+    friend bool operator==(uint16_t lhs, SeqNum rhs) { return lhs == rhs.seq_num_; }
+    friend bool operator!=(SeqNum lhs, SeqNum rhs) { return lhs.seq_num_ != rhs.seq_num_; }
 
-    SeqNum& operator+=(const int& rhs)
+    SeqNum& operator+=(int rhs)
     {
         if ((rhs >= ADD_RANGE[0]) && (rhs <= (ADD_RANGE[1])))
         {
@@ -59,7 +59,7 @@ public:
         return *this;
     }
 
-    SeqNum& operator+=(const SeqNum& rhs)
+    SeqNum& operator+=(SeqNum rhs)
     {
         if ((rhs >= SeqNum(ADD_RANGE[0])) && (rhs <= SeqNum(ADD_RANGE[1])))
         {
@@ -68,19 +68,19 @@ public:
         return *this;
     }
 
-    friend SeqNum operator+(SeqNum lhs, const SeqNum& rhs)
+    friend SeqNum operator+(SeqNum lhs, SeqNum rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
-    friend SeqNum operator+(SeqNum lhs, const int& rhs)
+    friend SeqNum operator+(SeqNum lhs, int rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
-    friend SeqNum operator+(const int& lhs, SeqNum rhs)
+    friend SeqNum operator+(int lhs, SeqNum rhs)
     {
         rhs += lhs;
         return rhs;
@@ -92,7 +92,7 @@ public:
         return *this;
     }
 
-    SeqNum& operator-=(const int& rhs)
+    SeqNum& operator-=(int rhs)
     {
         seq_num_ = (uint16_t(rhs) > seq_num_)
                 ? uint16_t(seq_num_ - uint16_t(rhs) + MAX)
@@ -100,7 +100,7 @@ public:
         return *this;
     }
 
-    SeqNum& operator-=(const SeqNum& rhs)
+    SeqNum& operator-=(SeqNum rhs)
     {
         seq_num_ = (rhs.seq_num_ > seq_num_)
                 ? uint16_t(seq_num_ - rhs.seq_num_ + MAX)
@@ -108,19 +108,19 @@ public:
         return *this;
     }
 
-    friend SeqNum operator-(SeqNum lhs, const SeqNum& rhs)
+    friend SeqNum operator-(SeqNum lhs, SeqNum rhs)
     {
         lhs -= rhs;
         return lhs;
     }
 
-    friend SeqNum operator-(SeqNum lhs, const int& rhs)
+    friend SeqNum operator-(SeqNum lhs, int rhs)
     {
         lhs -= rhs;
         return lhs;
     }
 
-    friend SeqNum operator-(const int& lhs, SeqNum rhs)
+    friend SeqNum operator-(int lhs, SeqNum rhs)
     {
         rhs -= lhs;
         return rhs;
