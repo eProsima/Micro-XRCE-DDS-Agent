@@ -35,12 +35,15 @@ class NoneInputStream
 public:
     NoneInputStream() = default;
 
-    template<typename T>
     bool push_message(
-            T&& input_message,
-            SeqNum seq_num);
+            InputMessagePtr&& input_message);
 
-    bool pop_message(InputMessagePtr& input_message);
+    template<typename ... Args>
+    bool emplace_message(
+            Args&& ... args);
+
+    bool pop_message(
+            InputMessagePtr& input_message);
 
     void reset();
 
@@ -49,16 +52,28 @@ private:
     std::mutex mtx_;
 };
 
-template<typename T>
 inline bool NoneInputStream::push_message(
-        T&& input_message,
-        SeqNum /*seq_num*/)
+        InputMessagePtr&& input_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if (messages_.size() < BEST_EFFORT_STREAM_DEPTH)
     {
-        messages_.push(std::unique_ptr<InputMessage>(std::forward<T>(input_message)));
+        messages_.push(std::move(input_message));
+        rv = true;
+    }
+    return rv;
+}
+
+template<typename ... Args>
+inline bool NoneInputStream::emplace_message(
+        Args&& ... args)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if (messages_.size() < BEST_EFFORT_STREAM_DEPTH)
+    {
+        messages_.emplace(new InputMessage(std::forward<Args>(args)...));
         rv = true;
     }
     return rv;
@@ -103,10 +118,14 @@ public:
     BestEffortInputStream& operator=(BestEffortInputStream&&) = delete;
     BestEffortInputStream& operator=(const BestEffortInputStream) = delete;
 
-    template<typename T>
     bool push_message(
-            T&& input_message,
-            SeqNum seq_num);
+            SeqNum seq_num,
+            InputMessagePtr&& input_message);
+
+    template<typename ... Args>
+    bool emplace_message(
+            SeqNum seq_num,
+            Args&& ... args);
 
     bool pop_message(InputMessagePtr& input_message);
 
@@ -118,16 +137,31 @@ private:
     std::mutex mtx_;
 };
 
-template<typename T>
 inline bool BestEffortInputStream::push_message(
-        T&& input_message,
-        SeqNum seq_num)
+        SeqNum seq_num,
+        InputMessagePtr&& input_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
     if ((seq_num > last_received_) && (messages_.size() < BEST_EFFORT_STREAM_DEPTH))
     {
-        messages_.push(std::unique_ptr<InputMessage>(std::forward<T>(input_message)));
+        messages_.push(std::move(input_message));
+        last_received_ = seq_num;
+        rv = true;
+    }
+    return rv;
+}
+
+template<typename ... Args>
+inline bool BestEffortInputStream::emplace_message(
+        SeqNum seq_num,
+        Args&& ... args)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if ((seq_num > last_received_) && (messages_.size() < BEST_EFFORT_STREAM_DEPTH))
+    {
+        messages_.emplace(new InputMessage(std::forward<Args>(args)...));
         last_received_ = seq_num;
         rv = true;
     }
@@ -177,10 +211,14 @@ public:
     ReliableInputStream& operator=(ReliableInputStream&&) = delete;
     ReliableInputStream& operator=(const ReliableInputStream) = delete;
 
-    template<typename T>
     bool push_message(
-            T&& message,
-            SeqNum seq_num);
+            SeqNum seq_num,
+            InputMessagePtr&& message);
+
+    template<typename ... Args>
+    bool emplace_message(
+            SeqNum seq_num,
+            Args ... args);
 
     bool pop_message(InputMessagePtr& message);
 
@@ -205,10 +243,9 @@ private:
     std::mutex mtx_;
 };
 
-template<typename T>
 inline bool ReliableInputStream::push_message(
-        T&& message,
-        SeqNum seq_num)
+        SeqNum seq_num,
+        InputMessagePtr&& message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -217,7 +254,7 @@ inline bool ReliableInputStream::push_message(
         if (seq_num > last_announced_)
         {
             last_announced_ = seq_num;
-            messages_.insert(std::make_pair(seq_num, std::unique_ptr<InputMessage>(std::forward<T>(message))));
+            messages_.emplace(seq_num, std::move(message));
             rv = true;
         }
         else
@@ -225,7 +262,7 @@ inline bool ReliableInputStream::push_message(
             auto it = messages_.find(seq_num);
             if (it == messages_.end())
             {
-                messages_.insert(std::make_pair(seq_num, std::unique_ptr<InputMessage>(std::forward<T>(message))));
+                messages_.emplace(seq_num, std::move(message));
                 rv = true;
             }
         }
@@ -244,6 +281,34 @@ inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
         message = std::move(messages_.at(last_handled_));
         messages_.erase(last_handled_);
         rv = true;
+    }
+    return rv;
+}
+
+template<typename ... Args>
+inline bool ReliableInputStream::emplace_message(
+        SeqNum seq_num,
+        Args ... args)
+{
+    bool rv = false;
+    std::lock_guard<std::mutex> lock(mtx_);
+    if ((seq_num > last_handled_) && (seq_num <= last_handled_ + SeqNum(RELIABLE_STREAM_DEPTH)))
+    {
+        if (seq_num > last_announced_)
+        {
+            last_announced_ = seq_num;
+            messages_.emplace(seq_num, new InputMessage(std::forward<Args>(args)...));
+            rv = true;
+        }
+        else
+        {
+            auto it = messages_.find(seq_num);
+            if (it == messages_.end())
+            {
+                messages_.emplace(seq_num, new InputMessage(std::forward<Args>(args)...));
+                rv = true;
+            }
+        }
     }
     return rv;
 }

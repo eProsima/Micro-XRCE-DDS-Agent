@@ -171,17 +171,17 @@ inline bool Session::push_input_message(
     SeqNum seq_num{sequence_nr};
     if (is_none_stream(stream_id))
     {
-        rv = none_istream_.push_message(std::move(message), sequence_nr);
+        rv = none_istream_.push_message(std::move(message));
     }
     else if (is_besteffort_stream(stream_id))
     {
         std::lock_guard<std::mutex> lock(best_effort_imtx_);
-        rv = best_effort_istreams_[stream_id].push_message(std::move(message), sequence_nr);
+        rv = best_effort_istreams_[stream_id].push_message(sequence_nr, std::move(message));
     }
     else
     {
         std::lock_guard<std::mutex> lock(reliable_imtx_);
-        rv = reliable_istreams_[stream_id].push_message(std::move(message), sequence_nr);
+        rv = reliable_istreams_[stream_id].push_message(sequence_nr, std::move(message));
     }
     return rv;
 }

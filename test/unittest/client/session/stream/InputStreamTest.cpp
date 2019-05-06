@@ -41,24 +41,38 @@ public:
 TEST_F(NoneInputStreamTest, PushMessage)
 {
     uint8_t buf[128] = {0};
+    InputMessagePtr input_message;
 
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_TRUE(none_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF));
+        input_message.reset(new InputMessage(buf, sizeof(buf)));
+        ASSERT_TRUE(none_stream_.push_message(std::move(input_message)));
     }
-    ASSERT_FALSE(none_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF));
+    input_message.reset(new InputMessage(buf, sizeof(buf)));
+    ASSERT_FALSE(none_stream_.push_message(std::move(input_message)));
+}
+
+TEST_F(NoneInputStreamTest, EmplaceMessage)
+{
+    uint8_t buf[128] = {0};
+
+    for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
+    {
+        ASSERT_TRUE(none_stream_.emplace_message(buf, sizeof(buf)));
+    }
+    ASSERT_FALSE(none_stream_.emplace_message(buf, sizeof(buf)));
 }
 
 TEST_F(NoneInputStreamTest, PopMessage)
 {
     uint8_t buf[128] = {0};
-    InputMessagePtr input_message;
 
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        none_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF);
+        none_stream_.emplace_message(buf, sizeof(buf));
     }
 
+    InputMessagePtr input_message;
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
         ASSERT_TRUE(none_stream_.pop_message(input_message));
@@ -72,7 +86,7 @@ TEST_F(NoneInputStreamTest, Reset)
 
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        none_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF);
+        none_stream_.emplace_message(buf, sizeof(buf));
     }
 
     InputMessagePtr input_message;
@@ -98,14 +112,33 @@ public:
 TEST_F(BestEffortInputStreamTest, PushMessage)
 {
     uint8_t buf[128] = {0};
+    InputMessagePtr input_message;
 
-    ASSERT_FALSE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF));
+    input_message.reset(new InputMessage(buf, sizeof(buf)));
+    ASSERT_FALSE(best_effort_stream_.push_message(0xFFFF, std::move(input_message)));
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        ASSERT_TRUE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), i));
-        ASSERT_FALSE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), i));
+        input_message.reset(new InputMessage(buf, sizeof(buf)));
+        ASSERT_TRUE(best_effort_stream_.push_message(i, std::move(input_message)));
+
+        input_message.reset(new InputMessage(buf, sizeof(buf)));
+        ASSERT_FALSE(best_effort_stream_.push_message(i, std::move(input_message)));
     }
-    ASSERT_FALSE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), BEST_EFFORT_STREAM_DEPTH));
+    input_message.reset(new InputMessage(buf, sizeof(buf)));
+    ASSERT_FALSE(best_effort_stream_.push_message(BEST_EFFORT_STREAM_DEPTH, std::move(input_message)));
+}
+
+TEST_F(BestEffortInputStreamTest, EmplaceMessage)
+{
+    uint8_t buf[128] = {0};
+
+    ASSERT_FALSE(best_effort_stream_.emplace_message(0xFFFF, buf, sizeof(buf)));
+    for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
+    {
+        ASSERT_TRUE(best_effort_stream_.emplace_message(i, buf, sizeof(buf)));
+        ASSERT_FALSE(best_effort_stream_.emplace_message(i, buf, sizeof(buf)));
+    }
+    ASSERT_FALSE(best_effort_stream_.emplace_message(BEST_EFFORT_STREAM_DEPTH, buf, sizeof(buf)));
 }
 
 TEST_F(BestEffortInputStreamTest, PopMessage)
@@ -114,7 +147,7 @@ TEST_F(BestEffortInputStreamTest, PopMessage)
 
     for (uint16_t i = 0; i < BEST_EFFORT_STREAM_DEPTH; ++i)
     {
-        best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), i);
+        best_effort_stream_.emplace_message(i, buf, sizeof(buf));
     }
 
     InputMessagePtr input_message;
@@ -129,13 +162,13 @@ TEST_F(BestEffortInputStreamTest, Reset)
 {
     uint8_t buf[128] = {0};
 
-    best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000);
-    ASSERT_FALSE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000));
+    best_effort_stream_.emplace_message(0x0000, buf, sizeof(buf));
+    ASSERT_FALSE(best_effort_stream_.emplace_message(0x0000, buf, sizeof(buf)));
 
     best_effort_stream_.reset();
 
-    ASSERT_TRUE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000));
-    best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0001);
+    ASSERT_TRUE(best_effort_stream_.emplace_message(0x0000, buf, sizeof(buf)));
+    best_effort_stream_.emplace_message(0x0001, buf, sizeof(buf));
 
     best_effort_stream_.reset();
 
@@ -147,8 +180,8 @@ TEST_F(BestEffortInputStreamTest, BorderCases)
 {
     uint8_t buf[128] = {0};
 
-    ASSERT_FALSE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), SeqNum::ADD_RANGE[1]));
-    ASSERT_TRUE(best_effort_stream_.push_message(new InputMessage(buf, sizeof(buf)), SeqNum::ADD_RANGE[1] - 1));
+    ASSERT_FALSE(best_effort_stream_.emplace_message(SeqNum::ADD_RANGE[1], buf, sizeof(buf)));
+    ASSERT_TRUE(best_effort_stream_.emplace_message(SeqNum::ADD_RANGE[1] - 1, buf, sizeof(buf)));
 }
 
 /****************************************************************************************
@@ -165,17 +198,36 @@ public:
     ReliableInputStream reliable_stream_;
 };
 
-TEST_F(ReliableInputStreamTest, NextMessage)
+TEST_F(ReliableInputStreamTest, PushMessage)
+{
+    uint8_t buf[128] = {0};
+    InputMessagePtr input_message;
+
+    input_message.reset(new InputMessage(buf, sizeof(buf)));
+    ASSERT_FALSE(reliable_stream_.push_message(0xFFFF, std::move(input_message)));
+    for (uint16_t i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
+    {
+        input_message.reset(new InputMessage(buf, sizeof(buf)));
+        ASSERT_TRUE(reliable_stream_.push_message(i, std::move(input_message)));
+
+        input_message.reset(new InputMessage(buf, sizeof(buf)));
+        ASSERT_FALSE(reliable_stream_.push_message(i, std::move(input_message)));
+    }
+    input_message.reset(new InputMessage(buf, sizeof(buf)));
+    ASSERT_FALSE(reliable_stream_.push_message(RELIABLE_STREAM_DEPTH, std::move(input_message)));
+}
+
+TEST_F(ReliableInputStreamTest, EmplaceMessage)
 {
     uint8_t buf[128] = {0};
 
-    ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0xFFFF));
+    ASSERT_FALSE(reliable_stream_.emplace_message(0xFFFF, buf, sizeof(buf)));
     for (uint16_t i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
     {
-        ASSERT_TRUE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), i));
-        ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), i));
+        ASSERT_TRUE(reliable_stream_.emplace_message(i, buf, sizeof(buf)));
+        ASSERT_FALSE(reliable_stream_.emplace_message(i, buf, sizeof(buf)));
     }
-    ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), RELIABLE_STREAM_DEPTH));
+    ASSERT_FALSE(reliable_stream_.emplace_message(RELIABLE_STREAM_DEPTH, buf, sizeof(buf)));
 }
 
 TEST_F(ReliableInputStreamTest, PopMessage)
@@ -183,12 +235,12 @@ TEST_F(ReliableInputStreamTest, PopMessage)
     uint8_t buf[128] = {0};
     InputMessagePtr input_message;
 
-    reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)),0x0000);
+    reliable_stream_.emplace_message(0x0000, buf, sizeof(buf));
     ASSERT_TRUE(reliable_stream_.pop_message(input_message));
 
     for (uint16_t i = 1; i < RELIABLE_STREAM_DEPTH + 1; ++i)
     {
-        reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), i);
+        reliable_stream_.emplace_message(i, buf, sizeof(buf));
     }
 
     for (uint16_t i = 1; i < RELIABLE_STREAM_DEPTH + 1; ++i)
@@ -203,12 +255,12 @@ TEST_F(ReliableInputStreamTest, PushPopMessage)
     uint8_t buf[128] = {0};
     InputMessagePtr input_message;
 
-    reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000);
-    reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0002);
+    reliable_stream_.emplace_message(0x0000, buf, sizeof(buf));
+    reliable_stream_.emplace_message(0x0002, buf, sizeof(buf));
     reliable_stream_.pop_message(input_message);
 
     ASSERT_FALSE(reliable_stream_.pop_message(input_message));
-    reliable_stream_.push_message(new InputMessage(buf,sizeof(buf)), 0x0001);
+    reliable_stream_.emplace_message(0x0001, buf, sizeof(buf));
     ASSERT_TRUE(reliable_stream_.pop_message(input_message));
     ASSERT_TRUE(reliable_stream_.pop_message(input_message));
     ASSERT_FALSE(reliable_stream_.pop_message(input_message));
@@ -218,12 +270,12 @@ TEST_F(ReliableInputStreamTest, Reset)
 {
     uint8_t buf[128] = {0};
 
-    reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000);
-    ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000));
+    reliable_stream_.emplace_message(0x0000, buf, sizeof(buf));
+    ASSERT_FALSE(reliable_stream_.emplace_message(0x0000, buf, sizeof(buf)));
     reliable_stream_.reset();
-    ASSERT_TRUE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000));
+    ASSERT_TRUE(reliable_stream_.emplace_message(0x0000, buf, sizeof(buf)));
 
-    reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0001);
+    reliable_stream_.emplace_message(0x0001, buf, sizeof(buf));
     reliable_stream_.reset();
 
     InputMessagePtr input_message;
@@ -234,8 +286,8 @@ TEST_F(ReliableInputStreamTest, BorderCases)
 {
     uint8_t buf[128] = {0};
 
-    ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), RELIABLE_STREAM_DEPTH));
-    ASSERT_TRUE (reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), RELIABLE_STREAM_DEPTH - 1));
+    ASSERT_FALSE(reliable_stream_.emplace_message(RELIABLE_STREAM_DEPTH, buf, sizeof(buf)));
+    ASSERT_TRUE(reliable_stream_.emplace_message(RELIABLE_STREAM_DEPTH - 1, buf, sizeof(buf)));
 }
 
 TEST_F(ReliableInputStreamTest, UpdateFromHeartbeat)
@@ -243,8 +295,8 @@ TEST_F(ReliableInputStreamTest, UpdateFromHeartbeat)
     uint8_t buf[128] = {0};
 
     reliable_stream_.update_from_heartbeat(0x0001, 0xFFFF);
-    ASSERT_FALSE(reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0000));
-    ASSERT_TRUE (reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), 0x0001));
+    ASSERT_FALSE(reliable_stream_.emplace_message(0x0000, buf, sizeof(buf)));
+    ASSERT_TRUE (reliable_stream_.emplace_message(0x0001, buf, sizeof(buf)));
 }
 
 TEST_F(ReliableInputStreamTest, FillAcknack)
@@ -260,7 +312,7 @@ TEST_F(ReliableInputStreamTest, FillAcknack)
     for (int i = 0; i < 16; ++i)
     {
         reliable_stream_.reset();
-        reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), i);
+        reliable_stream_.emplace_message(i, buf, sizeof(buf));
         reliable_stream_.fill_acknack(acknack);
         ASSERT_EQ(acknack.first_unacked_seq_num(), 0x0000);
 
@@ -272,11 +324,11 @@ TEST_F(ReliableInputStreamTest, FillAcknack)
     for (int i = 2; i < 16; ++i)
     {
         reliable_stream_.reset();
-        reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), i);
+        reliable_stream_.emplace_message(i, buf, sizeof(buf));
 
         for (int j = 0; j < i - 1; ++j)
         {
-            reliable_stream_.push_message(new InputMessage(buf, sizeof(buf)), j);
+            reliable_stream_.emplace_message(j, buf, sizeof(buf));
         }
 
         reliable_stream_.fill_acknack(acknack);
