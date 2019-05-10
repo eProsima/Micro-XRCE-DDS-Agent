@@ -39,8 +39,6 @@ public:
 
     std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
 
-    void init_client_iteration();
-
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
     bool load_config_file(const std::string& file_path);

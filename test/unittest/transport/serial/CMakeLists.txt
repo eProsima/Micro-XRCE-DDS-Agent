@@ -13,7 +13,7 @@
 # limitations under the License.
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(TEST_NAME baud_rate_table_tests)
+    set(TEST_NAME test-baud-rate-convertion)
     set(SRCS
         BaudRateTableTests.cpp
         )

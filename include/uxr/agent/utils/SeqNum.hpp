@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_UTILS_SEQNUM_HPP_
-#define _UXR_AGENT_UTILS_SEQNUM_HPP_
+#ifndef UXR_AGENT_UTILS_SEQNUM_HPP_
+#define UXR_AGENT_UTILS_SEQNUM_HPP_
 
 #include <cstdint>
+#include <utility>
 
 namespace eprosima {
 namespace uxr {
@@ -30,34 +31,56 @@ public:
     /*
      * Operators.
      */
-    operator uint16_t() const { return seq_num_; }
-    operator int() const { return seq_num_; }
+    inline operator uint16_t() const { return seq_num_; }
 
-    SeqNum& operator+=(const int& rhs)
+    friend bool operator<(SeqNum lhs, SeqNum rhs)
     {
-        seq_num_ = (seq_num_ + uint16_t(rhs)) % seq_num_limits_;
+        return (lhs.seq_num_ != rhs.seq_num_) &&
+               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (ADD_RANGE[1] + 1))) ||
+                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (ADD_RANGE[1] + 1))));
+    }
+
+    friend bool operator>(SeqNum lhs, SeqNum rhs) { return rhs < lhs; }
+    friend bool operator<=(SeqNum lhs, SeqNum rhs) { return !(lhs > rhs); }
+    friend bool operator>=(SeqNum lhs, SeqNum rhs) { return !(lhs < rhs); }
+    friend bool operator==(SeqNum lhs, SeqNum rhs) { return lhs.seq_num_ == rhs.seq_num_; }
+    friend bool operator==(SeqNum lhs, int rhs) { return lhs.seq_num_ == uint16_t(rhs); }
+    friend bool operator==(int lhs, SeqNum rhs) { return uint16_t(lhs) == rhs.seq_num_; }
+    friend bool operator==(SeqNum lhs, uint16_t rhs) { return lhs.seq_num_ == rhs; }
+    friend bool operator==(uint16_t lhs, SeqNum rhs) { return lhs == rhs.seq_num_; }
+    friend bool operator!=(SeqNum lhs, SeqNum rhs) { return lhs.seq_num_ != rhs.seq_num_; }
+
+    SeqNum& operator+=(int rhs)
+    {
+        if ((rhs >= ADD_RANGE[0]) && (rhs <= (ADD_RANGE[1])))
+        {
+            seq_num_ = (seq_num_ + uint16_t(rhs)) % MAX;
+        }
         return *this;
     }
 
-    SeqNum& operator+=(const SeqNum& rhs)
+    SeqNum& operator+=(SeqNum rhs)
     {
-        seq_num_ = (seq_num_ + rhs.seq_num_) % seq_num_limits_;
+        if ((rhs >= SeqNum(ADD_RANGE[0])) && (rhs <= SeqNum(ADD_RANGE[1])))
+        {
+            seq_num_ = (seq_num_ + rhs.seq_num_) % MAX;
+        }
         return *this;
     }
 
-    friend SeqNum operator+(SeqNum lhs, const SeqNum& rhs)
+    friend SeqNum operator+(SeqNum lhs, SeqNum rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
-    friend SeqNum operator+(SeqNum lhs, const int& rhs)
+    friend SeqNum operator+(SeqNum lhs, int rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
-    friend SeqNum operator+(const int& lhs, SeqNum rhs)
+    friend SeqNum operator+(int lhs, SeqNum rhs)
     {
         rhs += lhs;
         return rhs;
@@ -69,60 +92,49 @@ public:
         return *this;
     }
 
-    SeqNum& operator-=(const int& rhs)
+    SeqNum& operator-=(int rhs)
     {
         seq_num_ = (uint16_t(rhs) > seq_num_)
-                ? uint16_t(seq_num_ - uint16_t(rhs) + seq_num_limits_)
+                ? uint16_t(seq_num_ - uint16_t(rhs) + MAX)
                 : uint16_t(seq_num_ - uint16_t(rhs));
         return *this;
     }
 
-    SeqNum& operator-=(const SeqNum& rhs)
+    SeqNum& operator-=(SeqNum rhs)
     {
         seq_num_ = (rhs.seq_num_ > seq_num_)
-                ? uint16_t(seq_num_ - rhs.seq_num_ + seq_num_limits_)
+                ? uint16_t(seq_num_ - rhs.seq_num_ + MAX)
                 : uint16_t(seq_num_ - rhs.seq_num_);
         return *this;
     }
 
-    friend SeqNum operator-(SeqNum lhs, const SeqNum& rhs)
+    friend SeqNum operator-(SeqNum lhs, SeqNum rhs)
     {
         lhs -= rhs;
         return lhs;
     }
 
-    friend SeqNum operator-(SeqNum lhs, const int& rhs)
+    friend SeqNum operator-(SeqNum lhs, int rhs)
     {
         lhs -= rhs;
         return lhs;
     }
 
-    friend SeqNum operator-(const int& lhs, SeqNum rhs)
+    friend SeqNum operator-(int lhs, SeqNum rhs)
     {
         rhs -= lhs;
         return rhs;
     }
 
-    friend bool operator<(const SeqNum& lhs, const SeqNum& rhs)
-    {
-        return (lhs.seq_num_ != rhs.seq_num_) &&
-               (((lhs.seq_num_ < rhs.seq_num_) && ((rhs.seq_num_ - lhs.seq_num_) < (seq_num_add_range_))) ||
-                ((lhs.seq_num_ > rhs.seq_num_) && ((lhs.seq_num_ - rhs.seq_num_) > (seq_num_add_range_))));
-    }
-
-    friend bool operator>(const SeqNum& lhs, const SeqNum& rhs) { return rhs < lhs; }
-    friend bool operator<=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs > rhs); }
-    friend bool operator>=(const SeqNum& lhs, const SeqNum& rhs) { return !(lhs < rhs); }
-    friend bool operator==(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ == rhs.seq_num_; }
-    friend bool operator!=(const SeqNum& lhs, const SeqNum& rhs) { return lhs.seq_num_ != rhs.seq_num_; }
-
 private:
     uint16_t seq_num_;
-    static constexpr int32_t seq_num_limits_ = UINT16_MAX + 1;
-    static constexpr int32_t seq_num_add_range_ = INT16_MAX;
+
+public:
+    static constexpr uint32_t MAX{UINT16_MAX + 1};
+    static constexpr uint16_t ADD_RANGE[2]{0, INT16_MAX};
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_UTILS_SEQNUM_HPP_
+#endif // UXR_AGENT_UTILS_SEQNUM_HPP_

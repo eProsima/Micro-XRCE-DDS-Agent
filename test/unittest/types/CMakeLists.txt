@@ -12,25 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Utils test
+# XRCE test
 set(SRCS
-    UtilsTests.cpp
+    XRCETests.cpp
     ../Common.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/datareader/TokenBucket.cpp
     )
-add_executable(util_test ${SRCS})
-add_gtest(util_test
+add_executable(test-xrce-types ${SRCS})
+add_gtest(test-xrce-types
     SOURCES
         ${SRCS}
     DEPENDENCIES
+        fastrtps
         fastcdr
     )
-target_include_directories(util_test PRIVATE ${PROJECT_SOURCE_DIR}/include ${GTEST_INCLUDE_DIRS})
-target_link_libraries(util_test PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
-set_target_properties(util_test PROPERTIES
+target_include_directories(test-xrce-types
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_BINARY_DIR}/include
+        ${GTEST_INCLUDE_DIRS}
+    )
+target_link_libraries(test-xrce-types PRIVATE fastrtps fastcdr ${GTEST_BOTH_LIBRARIES})
+set_target_properties(test-xrce-types PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     )

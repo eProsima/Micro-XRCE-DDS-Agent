@@ -44,10 +44,10 @@ public:
         delete[] buf_;
     }
 
-    InputMessage(const InputMessage&) = delete;
     InputMessage(InputMessage&&) = delete;
-    InputMessage& operator=(const InputMessage&) = delete;
+    InputMessage(const InputMessage&) = delete;
     InputMessage& operator=(InputMessage&&) = delete;
+    InputMessage& operator=(const InputMessage&) = delete;
 
     const dds::xrce::MessageHeader& get_header() const { return header_; }
     const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }

@@ -57,16 +57,11 @@ void Processor::process_input_packet(InputPacket&& input_packet)
             /* Check whether it is the next message. */
             Session& session = client->session();
             dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
-            if (session.is_next_input_message(input_packet.message))
+            dds::xrce::SequenceNr sequence_nr = input_packet.message->get_header().sequence_nr();
+            session.push_input_message(std::move(input_packet.message), stream_id, sequence_nr);
+            while (session.pop_input_message(stream_id, input_packet.message))
             {
-                /* Process messages. */
                 process_input_message(*client, input_packet);
-                client = root_.get_client(client_key);
-                while (nullptr != client && session.pop_input_message(stream_id, input_packet.message))
-                {
-                    process_input_message(*client, input_packet);
-                    client = root_.get_client(client_key);
-                }
             }
 
             /* Send acknack in case. */
@@ -81,8 +76,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
 
                 /* ACKNACK payload. */
                 dds::xrce::ACKNACK_Payload acknack_payload;
-                acknack_payload.first_unacked_seq_num(client->session().get_first_unacked_seq_num(stream_id));
-                acknack_payload.nack_bitmap(client->session().get_nack_bitmap(stream_id));
+                client->session().fill_acknack(stream_id, acknack_payload);
                 acknack_payload.stream_id(header.stream_id());
 
                 /* ACKNACK subheader. */
@@ -158,9 +152,9 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
         case dds::xrce::FRAGMENT:
             rv = process_fragment_submessage(client, input_packet);
             break;
-        case dds::xrce::PERFORMANCE:
-            rv = process_performance_submessage(client, input_packet);
-            break;
+//        case dds::xrce::PERFORMANCE:
+//            rv = process_performance_submessage(client, input_packet);
+//            break;
         default:
             rv = false;
             break;
@@ -488,8 +482,7 @@ bool Processor::process_heartbeat_submessage(ProxyClient& client, InputPacket& i
 
         /* ACKNACK payload. */
         dds::xrce::ACKNACK_Payload acknack_payload;
-        acknack_payload.first_unacked_seq_num(client.session().get_first_unacked_seq_num(stream_id));
-        acknack_payload.nack_bitmap(client.session().get_nack_bitmap(stream_id));
+        client.session().fill_acknack(stream_id, acknack_payload);
         acknack_payload.stream_id(stream_id);
 
         /* Push submessage into the output stream. */
@@ -531,48 +524,48 @@ bool Processor::process_fragment_submessage(ProxyClient& client, InputPacket& in
     return true;
 }
 
-bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
-{
-    /* Set output packet. */
-    OutputPacket output_packet;
-    output_packet.destination = input_packet.source;
-
-    /* Get epoch time and array. */
-    uint8_t buf[UINT16_MAX];
-    uint16_t submessage_len = input_packet.message->get_subheader().submessage_length();
-    input_packet.message->get_raw_payload(buf, size_t(submessage_len));
-
-    /* Check ECHO. */
-    if (dds::xrce::FLAG_ECHO == (dds::xrce::FLAG_ECHO & input_packet.message->get_subheader().flags()))
-    {
-        /* PERFORMANCE header. */
-        dds::xrce::MessageHeader output_header;
-        output_header.session_id(input_packet.message->get_header().session_id());
-        output_header.stream_id(input_packet.message->get_header().stream_id());
-        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
-        output_header.client_key(input_packet.message->get_header().client_key());
-
-        /* PERFORMANCE subheader. */
-        dds::xrce::SubmessageHeader performance_subheader;
-        performance_subheader.submessage_id(dds::xrce::PERFORMANCE);
-        performance_subheader.flags(0x01);
-        performance_subheader.submessage_length(submessage_len);
-
-        const size_t message_size = output_header.getCdrSerializedSize() +
-                                    performance_subheader.getCdrSerializedSize() +
-                                    submessage_len;
-
-        /* Generate output packect. */
-        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, message_size));
-        output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
-        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
-        {
-            /* Send message. */
-            server_->push_output_packet(output_packet);
-        }
-    }
-    return true;
-}
+//bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
+//{
+//    /* Set output packet. */
+//    OutputPacket output_packet;
+//    output_packet.destination = input_packet.source;
+//
+//    /* Get epoch time and array. */
+//    uint8_t buf[UINT16_MAX];
+//    uint16_t submessage_len = input_packet.message->get_subheader().submessage_length();
+//    input_packet.message->get_raw_payload(buf, size_t(submessage_len));
+//
+//    /* Check ECHO. */
+//    if (dds::xrce::FLAG_ECHO == (dds::xrce::FLAG_ECHO & input_packet.message->get_subheader().flags()))
+//    {
+//        /* PERFORMANCE header. */
+//        dds::xrce::MessageHeader output_header;
+//        output_header.session_id(input_packet.message->get_header().session_id());
+//        output_header.stream_id(input_packet.message->get_header().stream_id());
+//        output_header.sequence_nr(client.session().next_output_message(output_header.stream_id()));
+//        output_header.client_key(input_packet.message->get_header().client_key());
+//
+//        /* PERFORMANCE subheader. */
+//        dds::xrce::SubmessageHeader performance_subheader;
+//        performance_subheader.submessage_id(dds::xrce::PERFORMANCE);
+//        performance_subheader.flags(0x01);
+//        performance_subheader.submessage_length(submessage_len);
+//
+//        const size_t message_size = output_header.getCdrSerializedSize() +
+//                                    performance_subheader.getCdrSerializedSize() +
+//                                    submessage_len;
+//
+//        /* Generate output packect. */
+//        output_packet.message = OutputMessagePtr(new OutputMessage(output_header, message_size));
+//        output_packet.message->append_raw_payload(dds::xrce::PERFORMANCE, buf, size_t(submessage_len));
+//        if (client.session().push_output_message(output_header.stream_id(), output_packet.message))
+//        {
+//            /* Send message. */
+//            server_->push_output_packet(output_packet);
+//        }
+//    }
+//    return true;
+//}
 
 void Processor::read_data_callback(const ReadCallbackArgs& cb_args, const std::vector<uint8_t>& buffer)
 {
@@ -662,47 +655,43 @@ bool Processor::process_get_info_packet(InputPacket&& input_packet,
 
 void Processor::check_heartbeats()
 {
-    root_.init_client_iteration();
+    /* HEARTBEAT header. */
+    dds::xrce::MessageHeader header;
+    header.stream_id(dds::xrce::STREAMID_NONE);
+    header.sequence_nr(0x00);
+
+    /* HEARTBEAT payload. */
+    dds::xrce::HEARTBEAT_Payload heartbeat;
+
+    /* HEARTBEAT subheader. */
+    dds::xrce::SubmessageHeader subheader;
+    subheader.submessage_id(dds::xrce::HEARTBEAT);
+    subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
+    subheader.submessage_length(uint16_t(heartbeat.getCdrSerializedSize()));
+
+    const size_t message_size =
+            header.getCdrSerializedSize() +
+            subheader.getCdrSerializedSize() +
+            heartbeat.getCdrSerializedSize();
+
+    OutputPacket output_packet;
+
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {
-        /* Get reliable streams. */
-        for (auto stream : client->session().get_output_streams())
+        if ((output_packet.destination = server_->get_source(client->get_client_key())))
         {
-            /* Get and send pending messages. */
-            if (client->session().message_pending(stream))
+            header.session_id(client->get_session_id());
+            header.client_key(client->get_client_key());
+
+            /* Get reliable streams. */
+            for (auto stream : client->session().get_output_streams())
             {
-                /* HEARTBEAT header. */
-                dds::xrce::MessageHeader heartbeat_header;
-                heartbeat_header.session_id(client->get_session_id());
-                heartbeat_header.stream_id(dds::xrce::STREAMID_NONE);
-                heartbeat_header.sequence_nr(0x00);
-                heartbeat_header.client_key(client->get_client_key());
-
-                /* HEARTBEAT payload. */
-                dds::xrce::HEARTBEAT_Payload heartbeat_payload;
-                heartbeat_payload.first_unacked_seq_nr(client->session().get_first_unacked_seq_nr(stream));
-                heartbeat_payload.last_unacked_seq_nr(client->session().get_last_unacked_seq_nr(stream));
-                heartbeat_payload.stream_id(stream);
-
-                /* HEARTBEAT subheader. */
-                dds::xrce::SubmessageHeader heartbeat_subheader;
-                heartbeat_subheader.submessage_id(dds::xrce::HEARTBEAT);
-                heartbeat_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
-                heartbeat_subheader.submessage_length(uint16_t(heartbeat_payload.getCdrSerializedSize()));
-
-                /* Compute message size. */
-                const size_t message_size = heartbeat_header.getCdrSerializedSize() +
-                                            heartbeat_subheader.getCdrSerializedSize() +
-                                            heartbeat_payload.getCdrSerializedSize();
-
-                /* Set output packet and serialize HEARTBEAT. */
-                OutputPacket output_packet;
-                output_packet.destination = server_->get_source(client->get_client_key());
-                if (output_packet.destination)
+                /* Get and send pending messages. */
+                if (client->session().fill_heartbeat(stream, heartbeat))
                 {
-                    output_packet.message = OutputMessagePtr(new OutputMessage(heartbeat_header, message_size));
-                    output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat_payload);
+                    output_packet.message = OutputMessagePtr(new OutputMessage(header, message_size));
+                    output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat);
 
                     /* Send message. */
                     server_->push_output_packet(output_packet);
