@@ -339,6 +339,7 @@ private:
 /*************************************************************************************************
  * Serial CLI Subcommand
  *************************************************************************************************/
+#ifndef _WIN32
 class SerialSubcommand : public Subcommand
 {
 public:
@@ -474,6 +475,7 @@ private:
     BaudrateOpt baudrate_opt_;
     CommonOpts common_opts_;
 };
+#endif
 
 } // cli
 } // uxr
