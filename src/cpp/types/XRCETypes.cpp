@@ -4874,9 +4874,9 @@ void dds::xrce::CreationMode::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::ResultStatus::ResultStatus()
+    : m_status{dds::xrce::STATUS_OK}
+    , m_implementation_status{}
 {
-    m_status = dds::xrce::STATUS_OK;
-    m_implementation_status = 0;
 }
 
 dds::xrce::ResultStatus::~ResultStatus()
@@ -5652,6 +5652,8 @@ void dds::xrce::ObjectInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::BaseObjectRequest::BaseObjectRequest()
+    : m_request_id{}
+    , m_object_id{}
 {
 }
 
@@ -5722,6 +5724,8 @@ void dds::xrce::BaseObjectRequest::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::BaseObjectReply::BaseObjectReply()
+    : m_related_request{}
+    , m_result{}
 {
 }
 
@@ -7401,6 +7405,7 @@ void dds::xrce::STATUS_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::INFO_Payload::INFO_Payload()
+    : BaseObjectReply{}
 {
 }
 
@@ -7537,6 +7542,7 @@ void dds::xrce::READ_DATA_Payload::deserialize(eprosima::fastcdr::Cdr &dcdr)
 }
 
 dds::xrce::WRITE_DATA_Payload_Data::WRITE_DATA_Payload_Data()
+    : m_data{}
 {
 }
 

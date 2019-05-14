@@ -34,10 +34,10 @@ namespace { char dummy; }
 using namespace eprosima::fastcdr::exception;
 
 dds::xrce::SubmessageHeader::SubmessageHeader()
+    : m_submessage_id{CREATE_CLIENT}
+    , m_flags{}
+    , m_submessage_length{}
 {
-    m_submessage_id = CREATE_CLIENT;
-    m_flags = 0;
-    m_submessage_length = 0;
 }
 
 dds::xrce::SubmessageHeader::~SubmessageHeader()

@@ -31,10 +31,11 @@ using namespace eprosima::fastcdr::exception;
 namespace dds { namespace xrce {
 
 MessageHeader::MessageHeader()
+    : m_session_id{}
+    , m_stream_id{}
+    , m_sequence_nr{}
+    , m_client_key{}
 {
-    m_session_id  = 0;
-    m_stream_id   = 0;
-    m_sequence_nr = 0;
 }
 
 MessageHeader::~MessageHeader()
