@@ -27,6 +27,7 @@ DiscoveryServer::DiscoveryServer(const Processor& processor)
     : running_cond_(false)
     , processor_(processor)
     , transport_address_{}
+    , filter_port_{}
 {
 }
 

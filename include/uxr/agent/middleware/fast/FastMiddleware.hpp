@@ -111,7 +111,7 @@ public:
  **********************************************************************************************************************/
     bool write_data(
             uint16_t datawriter_id,
-            std::vector<uint8_t>& data) override;
+            const std::vector<uint8_t>& data) override;
 
     bool read_data(
             uint16_t datareader_id,

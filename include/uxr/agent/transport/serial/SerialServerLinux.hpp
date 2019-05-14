@@ -30,7 +30,7 @@ public:
     SerialServer(
             int fd,
             uint8_t addr,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~SerialServer() = default;
 

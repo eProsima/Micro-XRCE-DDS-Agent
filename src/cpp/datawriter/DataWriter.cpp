@@ -117,7 +117,7 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
     return get_middleware().write_data(get_raw_id(), write_data.data().serialized_data());
 }
 
-bool DataWriter::write(std::vector<uint8_t>& data)
+bool DataWriter::write(const std::vector<uint8_t>& data)
 {
     return get_middleware().write_data(get_raw_id(), data);
 }

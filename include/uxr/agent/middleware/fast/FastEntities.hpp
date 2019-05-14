@@ -161,7 +161,7 @@ public:
 
     bool match_from_xml(const std::string& xml) const;
 
-    bool write(std::vector<uint8_t>& data);
+    bool write(const std::vector<uint8_t>& data);
 
     void onPublicationMatched(
             fastrtps::Publisher*,

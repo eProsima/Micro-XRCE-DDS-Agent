@@ -120,7 +120,7 @@ uint16_t parsePort(const std::string& str_port)
 void parseMiddleware(
         const std::vector<std::string>& cl,
         uint8_t& cl_counter,
-        eprosima::uxr::MiddlewareKind& middleware_kind)
+        eprosima::uxr::Middleware::Kind& middleware_kind)
 {
     if (cl_counter <= cl.size())
     {
@@ -133,14 +133,14 @@ void parseMiddleware(
 #ifdef PROFILE_CED_MIDDLEWARE
                 if ("ced" == cl[cl_counter - 1])
                 {
-                    middleware_kind = eprosima::uxr::CED_MIDDLEWARE;
+                    middleware_kind = eprosima::uxr::Middleware::Kind::CED;
                     middleware_set = true;
                 }
 #endif
 #ifdef PROFILE_FAST_MIDDLEWARE
                 if("dds" == cl[cl_counter - 1])
                 {
-                    middleware_kind = eprosima::uxr::FAST_MIDDLEWARE;
+                    middleware_kind = eprosima::uxr::Middleware::Kind::FAST;
                     middleware_set = true;
                 }
 #endif
@@ -263,7 +263,7 @@ int main(int argc, char** argv)
         {
             initializationError();
         }
-        server.reset(new eprosima::uxr::UDPServer(port, eprosima::uxr::FAST_MIDDLEWARE));
+        server.reset(new eprosima::uxr::UDPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
             std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
@@ -330,7 +330,7 @@ int main(int argc, char** argv)
         {
             initializationError();
         }
-        server.reset(new eprosima::uxr::TCPServer(port, eprosima::uxr::FAST_MIDDLEWARE));
+        server.reset(new eprosima::uxr::TCPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
             std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
@@ -452,7 +452,7 @@ int main(int argc, char** argv)
 
                     if (0 == tcsetattr(fd, TCSANOW, &attr))
                     {
-                        server.reset(new eprosima::uxr::SerialServer(fd, 0, eprosima::uxr::FAST_MIDDLEWARE));
+                        server.reset(new eprosima::uxr::SerialServer(fd, 0, eprosima::uxr::Middleware::Kind::FAST));
                         if (server->run())
                         {
                             std::cout << "--> Serial Agent running at device " << cl[1] << std::endl;
@@ -526,7 +526,7 @@ int main(int argc, char** argv)
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
                     std::cout << "Device: " << dev << std::endl;
-                    server.reset(new eprosima::uxr::SerialServer(fd, 0, eprosima::uxr::FAST_MIDDLEWARE));
+                    server.reset(new eprosima::uxr::SerialServer(fd, 0, eprosima::uxr::Middleware::Kind::FAST));
                     if (server->run())
                     {
                         std::cout << "--> Pseudo-Serial Agent running at device " << dev << std::endl;

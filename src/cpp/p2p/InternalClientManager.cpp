@@ -52,11 +52,12 @@ void InternalClientManager::create_client(
 
 void InternalClientManager::delete_clients()
 {
-    for (auto it = clients_.begin(); it != clients_.end(); )
+    std::lock_guard<std::mutex> lock(mtx_);
+    for (auto& c : clients_)
     {
-        it->second->stop();
-        it = clients_.erase(it);
+        c.second->stop();
     }
+    clients_.clear();
 }
 
 InternalClientManager::InternalClientManager() = default;

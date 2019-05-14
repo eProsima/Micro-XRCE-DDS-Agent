@@ -19,7 +19,7 @@ namespace uxr {
 
 SerialServerBase::SerialServerBase(
         uint8_t addr,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
     : Server(middleware_kind)
     , addr_(addr)
     , source_to_client_map_{}

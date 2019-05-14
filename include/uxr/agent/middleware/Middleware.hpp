@@ -27,20 +27,20 @@
 namespace eprosima {
 namespace uxr {
 
-enum MiddlewareKind : uint8_t
-{
-#ifdef PROFILE_FAST_MIDDLEWARE
-    FAST_MIDDLEWARE,
-#endif
-
-#ifdef PROFILE_CED_MIDDLEWARE
-    CED_MIDDLEWARE,
-#endif
-};
-
 class Middleware
 {
 public:
+    enum class Kind : uint8_t
+    {
+    #ifdef PROFILE_FAST_MIDDLEWARE
+        FAST,
+    #endif
+
+    #ifdef PROFILE_CED_MIDDLEWARE
+        CED,
+    #endif
+    };
+
     Middleware() = default;
     virtual ~Middleware() = default;
 
@@ -121,7 +121,7 @@ public:
  **********************************************************************************************************************/
     virtual bool write_data(
             uint16_t datawriter_id,
-            std::vector<uint8_t>& data) = 0;
+            const std::vector<uint8_t>& data) = 0;
 
     virtual bool read_data(
             uint16_t datareader_id,

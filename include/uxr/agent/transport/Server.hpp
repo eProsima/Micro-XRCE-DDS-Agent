@@ -31,7 +31,7 @@ class Server
 {
     friend class Processor;
 public:
-    Server(MiddlewareKind middleware_kind);
+    Server(Middleware::Kind middleware_kind);
 
     virtual ~Server();
 

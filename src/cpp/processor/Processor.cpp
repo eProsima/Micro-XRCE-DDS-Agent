@@ -23,7 +23,7 @@ namespace uxr {
 
 Processor::Processor(
         Server* server,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
     : server_(server)
     , middleware_kind_{middleware_kind}
     , root_(Root::instance())

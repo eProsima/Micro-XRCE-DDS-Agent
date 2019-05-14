@@ -29,7 +29,7 @@ class ProxyClient
 public:
     explicit ProxyClient(
             const dds::xrce::CLIENT_Representation& representation,
-            MiddlewareKind middleware_kind = MiddlewareKind(0));
+            Middleware::Kind middleware_kind = Middleware::Kind(0));
 
     ~ProxyClient() = default;
 

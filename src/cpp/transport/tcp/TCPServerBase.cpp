@@ -19,7 +19,7 @@ namespace uxr {
 
 TCPServerBase::TCPServerBase(
         uint16_t agent_port,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
     : Server(middleware_kind)
     , transport_address_{}
     , source_to_connection_map_{}

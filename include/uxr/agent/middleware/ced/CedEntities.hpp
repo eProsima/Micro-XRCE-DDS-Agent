@@ -36,26 +36,26 @@ const uint8_t EXTERNAL_CLIENT_KEY_PREFIX = 0xEA;
 /**********************************************************************************************************************
  * CedController
  **********************************************************************************************************************/
-enum TopicSource : uint8_t
+enum class TopicSource : uint8_t
 {
-    INTERNAL_TOPIC_SOURCE = 0,
-    EXTERNAL_TOPIC_SOURCE = 1
+    INTERNAL = 0,
+    EXTERNAL = 1
 };
 
-enum WriteAccess : uint8_t
+enum class WriteAccess : uint8_t
 {
-    NULL_WRITE_ACESS = 0,
-    INTERNAL_WRITE_ACCESS = 1,
-    EXTERNAL_WRITE_ACCESS = 2,
-    COMPLETE_WRITE_ACCESS = 3
+    NONE = 0,
+    INTERNAL = 1,
+    EXTERNAL = 2,
+    COMPLETE = 3
 };
 
-enum ReadAccess : uint8_t
+enum class ReadAccess : uint8_t
 {
-    NULL_READ_ACESS = 0,
-    INTERNAL_READ_ACCESS = 1,
-    EXTERNAL_READ_ACCESS = 2,
-    COMPLETE_READ_ACCESS = 3
+    NONE = 0,
+    INTERNAL = 1,
+    EXTERNAL = 2,
+    COMPLETE = 3
 };
 
 /**********************************************************************************************************************
@@ -71,28 +71,30 @@ class CedTopicManager
 public:
     static void register_on_new_domain_cb(
             uint32_t key,
-            OnNewDomain on_new_domain_cb);
+            const OnNewDomain& on_new_domain_cb);
 
-    static void unregister_on_new_domain_cb(uint32_t key);
+    static void unregister_on_new_domain_cb(
+            uint32_t key);
 
     static void register_on_new_topic_cb(
             uint32_t key,
-            OnNewTopic on_new_topic_cb);
+            const OnNewTopic& on_new_topic_cb);
 
-    static void unregister_on_new_topic_cb(uint32_t key);
+    static void unregister_on_new_topic_cb(
+            uint32_t key);
 
     static bool register_topic(
-        const std::string& topic_name,
-        int16_t domain_id,
-        std::shared_ptr<CedGlobalTopic>& topic);
+            const std::string& topic_name,
+            int16_t domain_id,
+            std::shared_ptr<CedGlobalTopic>& topic);
 
 private:
     CedTopicManager() = default;
     ~CedTopicManager() = default;
 
     static bool unregister_topic(
-        const std::string& topic_name,
-        int16_t domain_id);
+            const std::string& topic_name,
+            int16_t domain_id);
 
 private:
     static std::unordered_map<uint32_t, OnNewDomain> on_new_domain_map_;
@@ -110,8 +112,8 @@ class CedGlobalTopic
     friend class CedDataWriter;
 public:
     CedGlobalTopic(
-        const std::string& topic_name,
-        int16_t domain_id);
+            const std::string& topic_name,
+            int16_t domain_id);
 
     ~CedGlobalTopic();
 
@@ -119,17 +121,17 @@ public:
 
 private:
     bool write(
-        const std::vector<uint8_t>& data,
-        WriteAccess write_access,
-        TopicSource topic_src,
-        uint8_t& errcode);
+            const std::vector<uint8_t>& data,
+            WriteAccess write_access,
+            TopicSource topic_src,
+            uint8_t& errcode);
 
     bool read(
-    std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout,
-        SeqNum& last_read,
-        ReadAccess read_access,
-        uint8_t& errcode);
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout,
+            SeqNum& last_read,
+            ReadAccess read_access,
+            uint8_t& errcode);
 
     bool check_write_access(
             WriteAccess write_access,

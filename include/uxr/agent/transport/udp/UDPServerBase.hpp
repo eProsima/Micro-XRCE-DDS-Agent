@@ -28,7 +28,7 @@ class UDPServerBase : public Server
 public:
     UDPServerBase(
             uint16_t agent_port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~UDPServerBase() override = default;
 

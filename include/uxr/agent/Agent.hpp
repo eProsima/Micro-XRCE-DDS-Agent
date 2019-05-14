@@ -122,7 +122,7 @@ public:
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
-            MiddlewareKind middleware_kind,
+            Middleware::Kind middleware_kind,
             OpResult& op_result);
 
     /**

@@ -15,6 +15,8 @@
 #ifndef UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 #define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
+#include <uxr/agent/config.hpp>
+
 #include <string>
 #include <cstdint>
 #include <cstddef>
@@ -24,22 +26,22 @@
 namespace eprosima {
 namespace uxr {
 
-enum MiddlewareKind : uint8_t
-{
-#ifdef PROFILE_FAST_MIDDLEWARE
-    FAST_MIDDLEWARE,
-#endif
-
-#ifdef PROFILE_CED_MIDDLEWARE
-    CED_MIDDLEWARE,
-#endif
-};
-
 typedef std::function<void ()> OnNewData;
 
 class Middleware
 {
 public:
+    enum class Kind : uint8_t
+    {
+    #ifdef PROFILE_FAST_MIDDLEWARE
+        FAST,
+    #endif
+
+    #ifdef PROFILE_CED_MIDDLEWARE
+        CED,
+    #endif
+    };
+
     Middleware() = default;
     virtual ~Middleware() = default;
 };

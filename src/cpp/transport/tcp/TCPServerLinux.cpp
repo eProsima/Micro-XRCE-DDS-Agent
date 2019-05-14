@@ -27,9 +27,8 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
-TCPServer::TCPServer(
-        uint16_t agent_port,
-        MiddlewareKind middleware_kind)
+TCPServer::TCPServer(uint16_t agent_port,
+        Middleware::Kind middleware_kind)
     : TCPServerBase{agent_port, middleware_kind}
     , connections_{}
     , active_connections_()

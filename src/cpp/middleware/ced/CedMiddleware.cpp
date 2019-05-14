@@ -30,23 +30,23 @@ CedMiddleware::CedMiddleware(uint32_t client_key)
 {
     if (INTERNAL_CLIENT_KEY == client_key)
     {
-        topics_src_ = EXTERNAL_TOPIC_SOURCE;
-        write_access_ = EXTERNAL_WRITE_ACCESS;
-        read_access_ = NULL_READ_ACESS;
+        topics_src_ = TopicSource::EXTERNAL;
+        write_access_ = WriteAccess::EXTERNAL;
+        read_access_ = ReadAccess::NONE;
     }
     else
     {
         if (EXTERNAL_CLIENT_KEY_PREFIX == (client_key >> 24))
         {
-            topics_src_ = EXTERNAL_TOPIC_SOURCE;
-            write_access_ = NULL_WRITE_ACESS;
-            read_access_ = INTERNAL_READ_ACCESS;
+            topics_src_ = TopicSource::EXTERNAL;
+            write_access_ = WriteAccess::NONE;
+            read_access_ = ReadAccess::INTERNAL;
         }
         else
         {
-            topics_src_ = INTERNAL_TOPIC_SOURCE;
-            write_access_ = COMPLETE_WRITE_ACCESS;
-            read_access_ = COMPLETE_READ_ACCESS;
+            topics_src_ = TopicSource::INTERNAL;
+            write_access_ = WriteAccess::COMPLETE;
+            read_access_ = ReadAccess::COMPLETE;
         }
     }
 }
@@ -348,7 +348,7 @@ bool CedMiddleware::delete_datareader(uint16_t datareader_id)
  **********************************************************************************************************************/
 bool CedMiddleware::write_data(
         uint16_t datawriter_id,
-        std::vector<uint8_t>& data)
+        const std::vector<uint8_t>& data)
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);

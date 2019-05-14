@@ -27,7 +27,7 @@ namespace uxr {
 
 UDPServer::UDPServer(
         uint16_t agent_port,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
     : UDPServerBase{agent_port, middleware_kind}
     , poll_fd_{-1, 0, 0}
     , buffer_{0}

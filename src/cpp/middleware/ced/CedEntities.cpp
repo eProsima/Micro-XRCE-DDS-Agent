@@ -30,7 +30,7 @@ std::mutex CedTopicManager::mtx_;
 
 void CedTopicManager::register_on_new_domain_cb(
         uint32_t key,
-        OnNewDomain on_new_domain_cb)
+        const OnNewDomain& on_new_domain_cb)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     for (auto& topic : topics_)
@@ -48,7 +48,7 @@ void CedTopicManager::unregister_on_new_domain_cb(uint32_t key)
 
 void CedTopicManager::register_on_new_topic_cb(
         uint32_t key,
-        OnNewTopic on_new_topic_cb)
+        const OnNewTopic& on_new_topic_cb)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     for (auto& topic : topics_)
@@ -223,18 +223,18 @@ bool CedGlobalTopic::check_write_access(
         WriteAccess write_access,
         TopicSource topic_src)
 {
-    return (COMPLETE_WRITE_ACCESS == write_access) ||
-           ((INTERNAL_WRITE_ACCESS == write_access) && (INTERNAL_TOPIC_SOURCE == topic_src)) ||
-           ((EXTERNAL_WRITE_ACCESS == write_access) && (EXTERNAL_TOPIC_SOURCE == topic_src));
+    return (WriteAccess::COMPLETE == write_access) ||
+           ((WriteAccess::INTERNAL == write_access) && (TopicSource::INTERNAL == topic_src)) ||
+           ((WriteAccess::EXTERNAL == write_access) && (TopicSource::EXTERNAL == topic_src));
 }
 
 bool CedGlobalTopic::check_read_access(
         ReadAccess read_access,
         size_t index)
 {
-    return (COMPLETE_READ_ACCESS == read_access) ||
-           ((INTERNAL_READ_ACCESS == read_access) && (INTERNAL_TOPIC_SOURCE == srcs_[index])) ||
-           ((EXTERNAL_READ_ACCESS == read_access) && (EXTERNAL_TOPIC_SOURCE == srcs_[index]));
+    return (ReadAccess::COMPLETE == read_access) ||
+           ((ReadAccess::INTERNAL == read_access) && (TopicSource::INTERNAL == srcs_[index])) ||
+           ((ReadAccess::EXTERNAL == read_access) && (TopicSource::EXTERNAL == srcs_[index]));
 }
 
 bool CedGlobalTopic::get_data(
@@ -246,7 +246,7 @@ bool CedGlobalTopic::get_data(
     size_t index = uint16_t(++last_read) % history_.size();
     if (check_read_access(read_access, index))
     {
-        data.assign(history_[index].data(), history_[index].data() + history_[index].size());
+        data.assign(history_[index].begin(), history_[index].end());
         rv = true;
     }
     return rv;

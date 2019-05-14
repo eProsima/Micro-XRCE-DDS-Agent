@@ -14,7 +14,7 @@
 
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/Root.hpp>
-#include <uxr/agent/utils/Convertion.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 
 
@@ -80,7 +80,7 @@ void fill_object_variant<Agent::TOPIC_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::OBJK_TOPIC_Representation topic;
-    topic.participant_id(convertion::raw_to_objectid(participant_id));
+    topic.participant_id(conversion::raw_to_objectid(participant_id));
     topic.representation().xml_string_representation(rep.xml);
     object_variant.topic(topic);
 }
@@ -92,7 +92,7 @@ void fill_object_variant<Agent::TOPIC_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::OBJK_TOPIC_Representation topic;
-    topic.participant_id(convertion::raw_to_objectid(participant_id));
+    topic.participant_id(conversion::raw_to_objectid(participant_id));
     topic.representation().object_reference(rep.ref);
     object_variant.topic(topic);
 }
@@ -104,7 +104,7 @@ void fill_object_variant<Agent::PUBLISHER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::OBJK_PUBLISHER_Representation publisher;
-    publisher.participant_id(convertion::raw_to_objectid(participant_id));
+    publisher.participant_id(conversion::raw_to_objectid(participant_id));
     publisher.representation().string_representation(rep.xml);
     object_variant.publisher(publisher);
 }
@@ -116,7 +116,7 @@ void fill_object_variant<Agent::SUBSCRIBER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::OBJK_SUBSCRIBER_Representation subscriber;
-    subscriber.participant_id(convertion::raw_to_objectid(participant_id));
+    subscriber.participant_id(conversion::raw_to_objectid(participant_id));
     subscriber.representation().string_representation(rep.xml);
     object_variant.subscriber(subscriber);
 }
@@ -128,7 +128,7 @@ void fill_object_variant<Agent::DATAWRITER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::DATAWRITER_Representation datawriter;
-    datawriter.publisher_id(convertion::raw_to_objectid(publisher_id));
+    datawriter.publisher_id(conversion::raw_to_objectid(publisher_id));
     datawriter.representation().xml_string_representation(rep.xml);
     object_variant.data_writer(datawriter);
 }
@@ -140,7 +140,7 @@ void fill_object_variant<Agent::DATAWRITER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::DATAWRITER_Representation datawriter;
-    datawriter.publisher_id(convertion::raw_to_objectid(publisher_id));
+    datawriter.publisher_id(conversion::raw_to_objectid(publisher_id));
     datawriter.representation().object_reference(rep.ref);
     object_variant.data_writer(datawriter);
 }
@@ -152,7 +152,7 @@ void fill_object_variant<Agent::DATAREADER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::DATAREADER_Representation datareader;
-    datareader.subscriber_id(convertion::raw_to_objectid(subscriber_id));
+    datareader.subscriber_id(conversion::raw_to_objectid(subscriber_id));
     datareader.representation().xml_string_representation(rep.xml);
     object_variant.data_reader(datareader);
 }
@@ -164,7 +164,7 @@ void fill_object_variant<Agent::DATAREADER_OBJK>(
         dds::xrce::ObjectVariant& object_variant)
 {
     dds::xrce::DATAREADER_Representation datareader;
-    datareader.subscriber_id(convertion::raw_to_objectid(subscriber_id));
+    datareader.subscriber_id(conversion::raw_to_objectid(subscriber_id));
     datareader.representation().object_reference(rep.ref);
     object_variant.data_reader(datareader);
 }
@@ -191,7 +191,7 @@ bool create_object(
             dds::xrce::ObjectVariant object_variant;
             fill_object_variant<object_kind, U, T>(parent_id, rep, object_variant);
 
-            dds::xrce::ObjectId object_id = convertion::raw_to_objectid(raw_id);
+            dds::xrce::ObjectId object_id = conversion::raw_to_objectid(raw_id);
             dds::xrce::ResultStatus result = client->create(creation_mode, object_id, object_variant);
             op_result = Agent::OpResult(result.status());
             rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
@@ -218,7 +218,7 @@ bool Agent::create_client(
         uint32_t key,
         uint8_t session,
         uint16_t mtu,
-        MiddlewareKind middleware_kind,
+        Middleware::Kind middleware_kind,
         OpResult& op_result)
 {
     Root& root = Root::instance();
@@ -226,7 +226,7 @@ bool Agent::create_client(
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus result;
 
-    client_representation.client_key(convertion::raw_to_clientkey(key));
+    client_representation.client_key(conversion::raw_to_clientkey(key));
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.session_id(session);
@@ -242,7 +242,7 @@ bool Agent::delete_client(
         OpResult& op_result)
 {
     Root& root = Root::instance();
-    dds::xrce::ResultStatus result = root.delete_client(convertion::raw_to_clientkey(key));
+    dds::xrce::ResultStatus result = root.delete_client(conversion::raw_to_clientkey(key));
 
     if (dds::xrce::STATUS_OK != result.status())
     {
@@ -401,9 +401,9 @@ bool Agent::delete_object(
     bool rv = false;
     Root& root = Root::instance();
 
-    if (std::shared_ptr<ProxyClient> client = root.get_client(convertion::raw_to_clientkey(client_key)))
+    if (std::shared_ptr<ProxyClient> client = root.get_client(conversion::raw_to_clientkey(client_key)))
     {
-        dds::xrce::ResultStatus result = client->delete_object(convertion::raw_to_objectid(object_id));
+        dds::xrce::ResultStatus result = client->delete_object(conversion::raw_to_objectid(object_id));
         op_result = OpResult(result.status());
         rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
     }
@@ -436,20 +436,20 @@ bool Agent::write(
     bool rv = false;
     Root& root = Root::instance();
 
-    if (std::shared_ptr<ProxyClient> client = root.get_client(convertion::raw_to_clientkey(client_key)))
+    if (std::shared_ptr<ProxyClient> client = root.get_client(conversion::raw_to_clientkey(client_key)))
     {
          std::shared_ptr<DataWriter> datawriter =
-                 std::dynamic_pointer_cast<DataWriter>(client->get_object(convertion::raw_to_objectid(datawriter_id)));
+                 std::dynamic_pointer_cast<DataWriter>(client->get_object(conversion::raw_to_objectid(datawriter_id)));
          if (datawriter)
          {
              std::vector<uint8_t> data(buf, buf + len);
              rv = datawriter->write(data);
              op_result = rv ? OpResult::OK : OpResult::WRITE_ERROR;
          }
-        else
-        {
-            op_result = OpResult::UNKNOWN_REFERENCE_ERROR;
-        }
+         else
+         {
+             op_result = OpResult::UNKNOWN_REFERENCE_ERROR;
+         }
     }
     else
     {

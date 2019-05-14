@@ -33,7 +33,7 @@ class UDPServer : public UDPServerBase
 public:
     UXR_AGENT_EXPORT UDPServer(
             uint16_t agent_port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     UXR_AGENT_EXPORT ~UDPServer() = default;
 

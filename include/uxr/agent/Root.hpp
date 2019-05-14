@@ -33,7 +33,7 @@ public:
     dds::xrce::ResultStatus create_client(
             const dds::xrce::CLIENT_Representation& client_representation,
             dds::xrce::AGENT_Representation& agent_representation,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     dds::xrce::ResultStatus get_info(dds::xrce::ObjectInfo& agent_info);
 

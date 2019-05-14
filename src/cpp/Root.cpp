@@ -48,7 +48,7 @@ Root::~Root() = default;
 dds::xrce::ResultStatus Root::create_client(
         const dds::xrce::CLIENT_Representation& client_representation,
         dds::xrce::AGENT_Representation& agent_representation,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
 {
     if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
     {

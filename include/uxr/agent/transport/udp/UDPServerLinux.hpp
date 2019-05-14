@@ -37,7 +37,7 @@ class UDPServer : public UDPServerBase
 public:
     UDPServer(
             uint16_t port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~UDPServer() = default;
 

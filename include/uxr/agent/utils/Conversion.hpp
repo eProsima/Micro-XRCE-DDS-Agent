@@ -19,7 +19,7 @@
 
 namespace eprosima {
 namespace uxr {
-namespace convertion {
+namespace conversion {
 
 inline uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
 {
@@ -49,7 +49,7 @@ inline dds::xrce::ClientKey raw_to_clientkey(uint32_t key)
     return client_key;
 }
 
-} // namespace convertion
+} // namespace conversion
 } // namespace uxr
 } // namespace eprosima
 

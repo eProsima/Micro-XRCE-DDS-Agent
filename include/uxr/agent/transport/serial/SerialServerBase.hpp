@@ -29,7 +29,7 @@ class SerialServerBase : public Server
 public:
     SerialServerBase(
             uint8_t addr,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~SerialServerBase() override = default;
 

@@ -44,7 +44,7 @@ class Processor
 public:
     Processor(
             Server* server,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~Processor();
 
@@ -112,7 +112,7 @@ private:
 
 private:
     Server* server_;
-    MiddlewareKind middleware_kind_;
+    Middleware::Kind middleware_kind_;
     Root& root_;
     std::recursive_mutex mtx_;
 };

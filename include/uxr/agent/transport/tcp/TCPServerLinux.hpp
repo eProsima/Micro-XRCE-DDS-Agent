@@ -47,7 +47,7 @@ class TCPServer : public TCPServerBase
 public:
     TCPServer(
             uint16_t agent_port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~TCPServer() = default;
 

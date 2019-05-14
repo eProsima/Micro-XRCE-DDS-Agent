@@ -30,7 +30,7 @@ class TCPServerBase : public Server
 public:
     TCPServerBase(
             uint16_t agent_port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     ~TCPServerBase() override = default;
 

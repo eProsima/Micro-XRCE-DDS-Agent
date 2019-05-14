@@ -23,7 +23,7 @@
 namespace eprosima {
 namespace uxr {
 
-Server::Server(MiddlewareKind middleware_kind)
+Server::Server(Middleware::Kind middleware_kind)
     : processor_(new Processor(this, middleware_kind))
     , running_cond_(false)
 {}

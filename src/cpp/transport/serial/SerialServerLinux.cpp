@@ -21,7 +21,7 @@ namespace uxr {
 SerialServer::SerialServer(
         int fd,
         uint8_t addr,
-        MiddlewareKind middleware_kind)
+        Middleware::Kind middleware_kind)
     : SerialServerBase(addr, middleware_kind)
     , poll_fd_()
     , buffer_{0}

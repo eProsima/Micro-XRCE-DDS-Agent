@@ -37,24 +37,24 @@ namespace uxr {
 
 ProxyClient::ProxyClient(
         const dds::xrce::CLIENT_Representation& representation,
-        MiddlewareKind middleware_kind)
-    : representation_(representation),
-      objects_(),
-      session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
+        Middleware::Kind middleware_kind)
+    : representation_(representation)
+    , objects_()
+    , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
 {
     switch (middleware_kind)
     {
 #ifdef PROFILE_FAST_MIDDLEWARE
-        case FAST_MIDDLEWARE:
+        case Middleware::Kind::FAST:
         {
             middleware_.reset(new FastMiddleware());
             break;
         }
 #endif
 #ifdef PROFILE_CED_MIDDLEWARE
-        case CED_MIDDLEWARE:
+        case Middleware::Kind::CED:
         {
-            middleware_.reset(new CedMiddleware(convertion::clientkey_to_raw(representation.client_key())));
+            middleware_.reset(new CedMiddleware(conversion::clientkey_to_raw(representation.client_key())));
             break;
         }
 #endif

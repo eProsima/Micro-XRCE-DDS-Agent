@@ -19,7 +19,7 @@
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <uxr/agent/types/SubMessageHeader.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/utils/Convertion.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 
 #include <unordered_map>
 #include <memory>
@@ -34,7 +34,7 @@ private:
     {
         uint16_t operator()(const dds::xrce::ObjectId& object_id) const
         {
-            return convertion::objectid_to_raw(object_id);
+            return conversion::objectid_to_raw(object_id);
         }
     };
 
@@ -53,7 +53,7 @@ public:
     XRCEObject& operator=(const XRCEObject &) = delete;
 
     dds::xrce::ObjectId get_id() const;
-    uint16_t get_raw_id() const { return convertion::objectid_to_raw(id_); }
+    uint16_t get_raw_id() const { return conversion::objectid_to_raw(id_); }
     virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
     virtual void release(ObjectContainer& root_objects) = 0;
     virtual Middleware& get_middleware() const = 0;

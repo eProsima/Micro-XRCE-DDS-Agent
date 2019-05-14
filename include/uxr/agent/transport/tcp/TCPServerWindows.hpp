@@ -44,7 +44,7 @@ class TCPServer : public TCPServerBase
 public:
     UXR_AGENT_EXPORT TCPServer(
             uint16_t agent_port,
-            MiddlewareKind middleware_kind);
+            Middleware::Kind middleware_kind);
 
     UXR_AGENT_EXPORT ~TCPServer() = default;
 
