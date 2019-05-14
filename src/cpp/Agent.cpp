@@ -182,24 +182,17 @@ bool create_object(
 
     if (std::shared_ptr<ProxyClient> client = Root::instance().get_client(raw_to_clientkey(client_key)))
     {
-//        if (object_kind == (raw_id & 0x000F))
-//        {
-            dds::xrce::CreationMode creation_mode{};
-            creation_mode.reuse(0 != (flag & Agent::REUSE_MODE));
-            creation_mode.replace(0 != (flag & Agent::REPLACE_MODE));
+        dds::xrce::CreationMode creation_mode{};
+        creation_mode.reuse(0 != (flag & Agent::REUSE_MODE));
+        creation_mode.replace(0 != (flag & Agent::REPLACE_MODE));
 
-            dds::xrce::ObjectVariant object_variant;
-            fill_object_variant<object_kind, U, T>(parent_id, rep, object_variant);
+        dds::xrce::ObjectVariant object_variant;
+        fill_object_variant<object_kind, U, T>(parent_id, rep, object_variant);
 
-            dds::xrce::ObjectId object_id = conversion::raw_to_objectprefix(raw_id);
-            dds::xrce::ResultStatus result = client->create_object(creation_mode, object_id, object_variant);
-            op_result = Agent::OpResult(result.status());
-            rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
-//        }
-//        else
-//        {
-//            op_result = Agent::OpResult(dds::xrce::STATUS_ERR_INVALID_DATA);
-//        }
+        dds::xrce::ObjectId object_id = conversion::raw_to_objectprefix(raw_id);
+        dds::xrce::ResultStatus result = client->create_object(creation_mode, object_id, object_variant);
+        op_result = Agent::OpResult(result.status());
+        rv = (dds::xrce::STATUS_OK == result.status() || dds::xrce::STATUS_OK_MATCHED == result.status());
     }
     else
     {
