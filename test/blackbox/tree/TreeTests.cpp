@@ -50,7 +50,10 @@ TEST_F(TreeTests, XMLTree)
     client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
-    dds::xrce::ResultStatus response = root_.create_client(client_representation, agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                client_representation,
+                agent_representation,
+                Middleware::Kind::FAST);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -181,7 +184,10 @@ TEST_F(TreeTests, REFTree)
     client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
-    dds::xrce::ResultStatus response = root_.create_client(client_representation, agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                client_representation,
+                agent_representation,
+                Middleware::Kind::FAST);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -401,7 +407,10 @@ TEST_F(TreeTests, CreationModeXMLTree)
     client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
-    dds::xrce::ResultStatus response = root_.create_client(client_representation, agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                client_representation,
+                agent_representation,
+                eprosima::uxr::Middleware::Kind::FAST);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -676,7 +685,10 @@ TEST_F(TreeTests, CreationModeREFTree)
     client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
-    dds::xrce::ResultStatus response = root_.create_client(client_representation, agent_representation);
+    dds::xrce::ResultStatus response = root_.create_client(
+                client_representation,
+                agent_representation,
+                Middleware::Kind::FAST);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
-#define _UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
+#define UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/udp/UDPEndPoint.hpp>
@@ -26,7 +26,10 @@ namespace uxr {
 class UDPServerBase : public Server
 {
 public:
-    UDPServerBase(uint16_t port);
+    UDPServerBase(
+            uint16_t agent_port,
+            Middleware::Kind middleware_kind);
+
     ~UDPServerBase() override = default;
 
     void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
@@ -35,7 +38,7 @@ public:
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 protected:
-    uint16_t port_;
+    dds::xrce::TransportAddress transport_address_;
 
 private:
     std::unordered_map<uint64_t, uint32_t> source_to_client_map_;
@@ -46,4 +49,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_

@@ -25,7 +25,8 @@ namespace uxr {
 class CedMiddleware : public Middleware
 {
 public:
-    CedMiddleware() = default;
+    CedMiddleware(uint32_t client_key);
+
     ~CedMiddleware() override = default;
 
 /**********************************************************************************************************************
@@ -105,7 +106,7 @@ public:
  **********************************************************************************************************************/
     bool write_data(
             uint16_t datawriter_id,
-            std::vector<uint8_t>& data) override;
+            const std::vector<uint8_t>& data) override;
 
     bool read_data(
             uint16_t datareader_id,
@@ -156,6 +157,10 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<CedSubscriber>> subscribers_;
     std::unordered_map<uint16_t, std::shared_ptr<CedDataWriter>> datawriters_;
     std::unordered_map<uint16_t, std::shared_ptr<CedDataReader>> datareaders_;
+
+    TopicSource topics_src_;
+    WriteAccess write_access_;
+    ReadAccess read_access_;
 };
 
 } // namespace uxr

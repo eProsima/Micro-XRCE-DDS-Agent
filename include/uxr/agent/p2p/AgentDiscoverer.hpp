@@ -12,41 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
-#define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
+#ifndef UXR_AGENT_P2P_AGENT_DISCOVERER_HPP_
+#define UXR_AGENT_P2P_AGENT_DISCOVERER_HPP_
 
-#include <uxr/agent/config.hpp>
-
-#include <string>
-#include <cstdint>
-#include <cstddef>
-#include <vector>
-#include <functional>
+#include <atomic>
+#include <thread>
 
 namespace eprosima {
 namespace uxr {
 
-typedef std::function<void ()> OnNewData;
-
-class Middleware
+class AgentDiscoverer
 {
 public:
-    enum class Kind : uint8_t
-    {
-    #ifdef PROFILE_FAST_MIDDLEWARE
-        FAST,
-    #endif
+    AgentDiscoverer();
+    ~AgentDiscoverer() = default;
 
-    #ifdef PROFILE_CED_MIDDLEWARE
-        CED,
-    #endif
-    };
+    AgentDiscoverer(AgentDiscoverer&&) = delete;
+    AgentDiscoverer(const AgentDiscoverer&) = delete;
+    AgentDiscoverer& operator=(AgentDiscoverer&&) = delete;
+    AgentDiscoverer& operator=(const AgentDiscoverer&) = delete;
 
-    Middleware() = default;
-    virtual ~Middleware() = default;
+    bool run();
+    bool stop();
+
+private:
+    void discovery_loop();
+
+private:
+    std::atomic<bool> running_cond_;
+    std::thread thread_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
+#endif // UXR_AGENT_P2P_AGENT_DISCOVERER_HPP_

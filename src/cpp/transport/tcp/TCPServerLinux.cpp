@@ -27,31 +27,30 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
-TCPServer::TCPServer(uint16_t port, uint16_t discovery_port)
-    : TCPServerBase(port),
-      connections_{},
-      active_connections_(),
-      free_connections_(),
-      listener_poll_{},
-      poll_fds_{},
-      buffer_{0},
-      listener_thread_(),
-      running_cond_(false),
-      messages_queue_{},
-      discovery_server_(*processor_, port_, discovery_port)
+TCPServer::TCPServer(
+        uint16_t agent_port,
+        Middleware::Kind middleware_kind)
+    : TCPServerBase{agent_port, middleware_kind}
+    , connections_{}
+    , active_connections_()
+    , free_connections_()
+    , listener_poll_{}
+    , poll_fds_{}
+    , buffer_{0}
+    , listener_thread_()
+    , running_cond_(false)
+    , messages_queue_{}
+#ifdef PROFILE_DISCOVERY
+    , discovery_server_{*processor_}
+#endif
+#ifdef PROFILE_P2P
+    , agent_discoverer_{}
+#endif
 {}
 
-bool TCPServer::init(bool discovery_enabled)
+bool TCPServer::init()
 {
     bool rv = false;
-
-    if (discovery_enabled)
-    {
-        if (!discovery_server_.run())
-        {
-            return false;
-        }
-    }
 
     /* Ignore SIGPIPE signal. */
     signal(SIGPIPE, sigpipe_handler);
@@ -64,7 +63,7 @@ bool TCPServer::init(bool discovery_enabled)
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(port_);
+        address.sin_port = htons(transport_address_.medium_locator().port());
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(listener_poll_.fd, (struct sockaddr*)&address, sizeof(address)))
@@ -89,7 +88,28 @@ bool TCPServer::init(bool discovery_enabled)
             {
                 running_cond_ = true;
                 listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
-                rv = true;
+
+                /* Get local address. */
+                int fd = socket(PF_INET, SOCK_DGRAM, 0);
+                struct sockaddr_in temp_addr;
+                temp_addr.sin_family = AF_INET;
+                temp_addr.sin_port = htons(80);
+                temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
+                int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
+                if (0 == connected)
+                {
+                    struct sockaddr local_addr;
+                    socklen_t local_addr_len = sizeof(local_addr);
+                    if (-1 != getsockname(fd, &local_addr, &local_addr_len))
+                    {
+                        transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+                                                                     uint8_t(local_addr.sa_data[3]),
+                                                                     uint8_t(local_addr.sa_data[4]),
+                                                                     uint8_t(local_addr.sa_data[5])});
+                        rv = true;
+                    }
+                    ::close(fd);
+                }
             }
         }
     }
@@ -121,10 +141,50 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
-    return (-1 == listener_poll_.fd) && (active_connections_.empty()) && discovery_server_.stop();
+
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.stop();
+#endif
+#ifdef PROFILE_P2P
+    agent_discoverer_.stop();
+#endif
+
+    return (-1 == listener_poll_.fd) && (active_connections_.empty());
 }
 
-bool TCPServer::recv_message(InputPacket& input_packet, int timeout)
+#ifdef PROFILE_DISCOVERY
+bool TCPServer::init_discovery(uint16_t discovery_port)
+{
+    return discovery_server_.run(discovery_port, transport_address_);
+}
+
+bool TCPServer::close_discovery()
+{
+    return discovery_server_.stop();
+}
+#endif
+
+#ifdef PROFILE_P2P
+bool TCPServer::init_p2p(uint16_t p2p_port)
+{
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(p2p_port);
+#endif
+    return agent_discoverer_.run(p2p_port, transport_address_);
+}
+
+bool TCPServer::close_p2p()
+{
+#ifdef PROFILE_DISCOVERY
+    discovery_server_.set_filter_port(0);
+#endif
+    return agent_discoverer_.stop();
+}
+#endif
+
+bool TCPServer::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
     bool rv = true;
     if (messages_queue_.empty() && !read_message(timeout))
@@ -228,7 +288,9 @@ int TCPServer::get_error()
     return errno;
 }
 
-bool TCPServer::open_connection(int fd, struct sockaddr_in* sockaddr)
+bool TCPServer::open_connection(
+        int fd,
+        struct sockaddr_in* sockaddr)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(connections_mtx_);
@@ -269,6 +331,7 @@ bool TCPServer::close_connection(TCPConnection& connection)
             conn_lock.unlock();
 
             uint64_t source_id = (uint64_t(connection.addr) << 16) | connection.port;
+
             /* Clear connections map and lists. */
             lock.lock();
             source_to_connection_map_.erase(source_id);
@@ -359,7 +422,11 @@ bool TCPServer::connection_available()
     return !free_connections_.empty();
 }
 
-size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
+size_t TCPServer::recv_locking(
+        TCPConnection& connection,
+        uint8_t* buffer,
+        size_t len,
+        uint8_t& errcode)
 {
     size_t rv = 0;
     TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
@@ -388,7 +455,11 @@ size_t TCPServer::recv_locking(TCPConnection& connection, uint8_t* buffer, size_
     return rv;
 }
 
-size_t TCPServer::send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode)
+size_t TCPServer::send_locking(
+        TCPConnection& connection,
+        uint8_t* buffer,
+        size_t len,
+        uint8_t& errcode)
 {
     size_t rv = 0;
     TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);

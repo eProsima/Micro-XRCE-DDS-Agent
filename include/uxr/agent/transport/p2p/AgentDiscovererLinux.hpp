@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,45 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
-#define UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#ifndef UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_
+#define UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_
 
-#include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
-#include <uxr/agent/message/Packet.hpp>
+#include <uxr/agent/transport/p2p/AgentDiscoverer.hpp>
 
-#include <winsock2.h>
-#include <thread>
-#include <atomic>
+#include <poll.h>
 
 namespace eprosima {
 namespace uxr {
 
-class Processor;
-
-class DiscoveryServerWindows : public DiscoveryServer
+class AgentDiscovererLinux : public AgentDiscoverer
 {
 public:
-    DiscoveryServerWindows(const Processor& processor);
+    AgentDiscovererLinux();
 
-    ~DiscoveryServerWindows() override = default;
+    ~AgentDiscovererLinux() = default;
 
 private:
-    bool init(uint16_t discovery_port) final;
+    bool init(uint16_t p2p_port) final;
 
     bool close() final;
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputMessagePtr& input_message,
             int timeout) final;
 
-    bool send_message(OutputPacket&& output_packet) final;
+    bool send_message(const OutputMessage& output_message) final;
 
 private:
     struct pollfd poll_fd_;
-    uint8_t buffer_[128];
+    uint8_t buf_[128];
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#endif // UXR_AGENT_TRANSPORT_P2P_AGENT_DISCOVERER_LINUX_HPP_

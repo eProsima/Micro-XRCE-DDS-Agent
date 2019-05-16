@@ -45,7 +45,7 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
             uint16_t topic_id;
             if (middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);;
+                dds::xrce::ObjectId topic_xrce_id = conversion::raw_to_objectid(topic_id);;
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
                 topic->tie_object(object_id);
                 created_entity = true;
@@ -58,7 +58,7 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
             uint16_t topic_id;
             if (middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = raw_to_objectid(topic_id);
+                dds::xrce::ObjectId topic_xrce_id = conversion::raw_to_objectid(topic_id);
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
                 topic->tie_object(object_id);
                 created_entity = true;
@@ -87,16 +87,6 @@ DataReader::DataReader(const dds::xrce::ObjectId& object_id,
 DataReader::~DataReader() noexcept
 {
     stop_read();
-    if (read_thread_.joinable())
-    {
-        read_thread_.join();
-    }
-
-    if (max_timer_thread_.joinable())
-    {
-        max_timer_thread_.join();
-    }
-
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
     get_middleware().delete_datareader(get_raw_id());
@@ -140,31 +130,25 @@ bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
 
 bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
 {
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
-    lock.unlock();
-
     if (delivery_control.max_elapsed_time() > 0)
     {
         max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
     }
     read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
-
     return true;
 }
 
 bool DataReader::stop_read()
 {
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
-    lock.unlock();
-    cond_var_.notify_one();
 
     if (read_thread_.joinable())
     {
         read_thread_.join();
     }
-
     stop_max_timer();
     if (max_timer_thread_.joinable())
     {
@@ -179,29 +163,18 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
 {
     TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
     uint16_t message_count = 0;
-    while (true)
+
+    while (running_cond_ && (message_count < delivery_control.max_samples()))
     {
-        std::unique_lock<std::mutex> lock(mtx_);
-        if (running_cond_ && (message_count < delivery_control.max_samples()))
+        std::vector<uint8_t> data;
+        if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
         {
-            std::vector<uint8_t> data;
-            if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
+            while (!rate_manager.get_tokens(data.size()))
             {
-                lock.unlock();
-                while (!rate_manager.get_tokens(data.size()))
-                {
-                    std::this_thread::sleep_for(std::chrono::microseconds(100));
-                }
-                read_cb(cb_args, data);
-                ++message_count;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-        }
-        else
-        {
-            running_cond_ = false;
-            lock.unlock();
-            stop_max_timer();
-            break;
+            read_cb(cb_args, data);
+            ++message_count;
         }
     }
 }
@@ -210,9 +183,7 @@ void DataReader::on_max_timeout(const asio::error_code& error)
 {
     if (!error)
     {
-        std::lock_guard<std::mutex> lock(mtx_);
         running_cond_ = false;
-        cond_var_.notify_one();
     }
 }
 

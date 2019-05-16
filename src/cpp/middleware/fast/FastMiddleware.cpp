@@ -251,7 +251,7 @@ bool FastMiddleware::delete_datareader(uint16_t datareader_id)
  **********************************************************************************************************************/
 bool FastMiddleware::write_data(
         uint16_t datawriter_id,
-        std::vector<uint8_t>& data)
+        const std::vector<uint8_t>& data)
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);

@@ -7,3 +7,6 @@
 [submodule "thirdparty/fastcdr"]
     path = thirdparty/fastcdr
     url = https://github.com/eProsima/Fast-CDR.git
+[submodule "thirdparty/uxrclient"]
+	path = thirdparty/uxrclient
+	url = https://github.com/eProsima/Micro-XRCE-DDS-Client.git

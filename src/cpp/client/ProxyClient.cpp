@@ -18,8 +18,15 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 #include <uxr/agent/topic/Topic.hpp>
+
+#ifdef PROFILE_FAST_MIDDLEWARE
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#endif
+
+#ifdef PROFILE_CED_MIDDLEWARE
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
+#endif
+
 #ifdef VERBOSE_OUTPUT
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
@@ -28,13 +35,30 @@
 namespace eprosima {
 namespace uxr {
 
-ProxyClient::ProxyClient(const dds::xrce::CLIENT_Representation& representation)
-    : representation_(representation),
-      objects_(),
-      session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
+ProxyClient::ProxyClient(
+        const dds::xrce::CLIENT_Representation& representation,
+        Middleware::Kind middleware_kind)
+    : representation_(representation)
+    , objects_()
+    , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
 {
-    middleware_.reset(new FastMiddleware());
-//    middleware_.reset(new CedMiddleware());
+    switch (middleware_kind)
+    {
+#ifdef PROFILE_FAST_MIDDLEWARE
+        case Middleware::Kind::FAST:
+        {
+            middleware_.reset(new FastMiddleware());
+            break;
+        }
+#endif
+#ifdef PROFILE_CED_MIDDLEWARE
+        case Middleware::Kind::CED:
+        {
+            middleware_.reset(new CedMiddleware(conversion::clientkey_to_raw(representation.client_key())));
+            break;
+        }
+#endif
+    }
 }
 
 dds::xrce::ResultStatus ProxyClient::create(const dds::xrce::CreationMode& creation_mode,
@@ -148,14 +172,14 @@ dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_
     return dds::xrce::ObjectInfo{};
 }
 
-XRCEObject* ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
+std::shared_ptr<XRCEObject> ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
 {
-    XRCEObject* object = nullptr;
+    std::shared_ptr<XRCEObject> object;
     std::lock_guard<std::mutex> lock(mtx_);
     auto object_it = objects_.find(object_id);
     if (object_it != objects_.end())
     {
-        object = object_it->second.get();
+        object = object_it->second;
     }
     return object;
 }

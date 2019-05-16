@@ -116,11 +116,10 @@ private:
 private:
     std::shared_ptr<Subscriber> subscriber_;
     std::shared_ptr<Topic> topic_;
+    std::atomic<bool> running_cond_;
     std::thread read_thread_;
     std::thread max_timer_thread_;
     std::mutex mtx_;
-    std::condition_variable cond_var_;
-    bool running_cond_;
 };
 
 } // namespace uxr

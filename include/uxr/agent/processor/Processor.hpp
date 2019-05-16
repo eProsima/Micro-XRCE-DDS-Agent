@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
-#define _UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
+#ifndef UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
+#define UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
+
+#include <uxr/agent/middleware/Middleware.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -40,7 +42,10 @@ struct ReadCallbackArgs;
 class Processor
 {
 public:
-    Processor(Server* server);
+    Processor(
+            Server* server,
+            Middleware::Kind middleware_kind);
+
     ~Processor();
 
     void process_input_packet(
@@ -107,6 +112,7 @@ private:
 
 private:
     Server* server_;
+    Middleware::Kind middleware_kind_;
     Root& root_;
     std::recursive_mutex mtx_;
 };
@@ -114,4 +120,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_PROCESSOR_PROCESSOR_HPP_
+#endif // UXR_AGENT_PROCESSOR_PROCESSOR_HPP_

@@ -16,6 +16,7 @@
 #define UXR_AGENT_AGENT_HPP_
 
 #include <uxr/agent/agent_dll.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 #include <cstdint>
 #include <string>
@@ -52,7 +53,9 @@ public:
         /** Indicates a failure in the operation due to an incompatibility between the Client and the Agent. */
         INCOMPATIBLE_ERROR      = 0x86,
         /** Indicates a failure in the operation due to a resource error on the Agent. */
-        RESOURCES_ERROR         = 0x87
+        RESOURCES_ERROR         = 0x87,
+        /** Indicates a failure in a write operation. */
+        WRITE_ERROR             = 0xF0
     };
 
     /**
@@ -108,16 +111,18 @@ public:
 
     /**
      * @brief Creates a ProxyClient which can be reused by an external Client.
-     * @param key       The identifier of the ProxyClient.
-     * @param session   The identifier of the Session attached to the ProxyClient.
-     * @param mtu       The Maximum Transmission Unit (MTU) of the Session.
-     * @param op_result The result status of the operation.
+     * @param key               The identifier of the ProxyClient.
+     * @param session           The identifier of the Session attached to the ProxyClient.
+     * @param mtu               The Maximum Transmission Unit (MTU) of the Session.
+     * @param middleware_kind   The middleware used by the Client. It could be DDS or Centralized Data middleware.
+     * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
     UXR_AGENT_EXPORT static bool create_client(
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
+            Middleware::Kind middleware_kind,
             OpResult& op_result);
 
     /**
@@ -347,6 +352,17 @@ public:
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
      */
     UXR_AGENT_EXPORT static void reset();
+
+    /**********************************************************************************************
+     * Write Data.
+     **********************************************************************************************/
+    UXR_AGENT_EXPORT static bool write(
+            uint32_t client_key,
+            uint16_t datawriter_id,
+            uint8_t* buf,
+            size_t len,
+            OpResult& op_result);
+
 };
 
 } // uxr

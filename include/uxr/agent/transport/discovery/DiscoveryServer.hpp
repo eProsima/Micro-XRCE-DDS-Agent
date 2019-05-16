@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
-
-#define UXR_DEFAULT_DISCOVERY_PORT 7400
+#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 
 #include <uxr/agent/message/Packet.hpp>
 
@@ -30,17 +28,29 @@ class Processor;
 class DiscoveryServer
 {
 public:
-    DiscoveryServer(const Processor& processor, uint16_t port);
+    DiscoveryServer(const Processor& processor);
+
     virtual ~DiscoveryServer() = default;
 
-    bool run();
+    bool run(
+            uint16_t discovery_port,
+            const dds::xrce::TransportAddress& transport_address_);
+
     bool stop();
 
+    void set_filter_port(uint16_t filter_port) { filter_port_ = filter_port; }
+
 private:
-    virtual bool init() = 0;
+    virtual bool init(uint16_t discovery_port) = 0;
+
     virtual bool close() = 0;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
+
+    virtual bool recv_message(
+            InputPacket& input_packet,
+            int timeout) = 0;
+
     virtual bool send_message(OutputPacket&& output_packet) = 0;
+
     void discovery_loop();
 
 private:
@@ -50,9 +60,10 @@ private:
 
 protected:
     dds::xrce::TransportAddress transport_address_;
+    uint16_t filter_port_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_

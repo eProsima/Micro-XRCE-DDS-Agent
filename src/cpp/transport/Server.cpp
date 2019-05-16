@@ -23,9 +23,9 @@
 namespace eprosima {
 namespace uxr {
 
-Server::Server()
-    : processor_(new Processor(this)),
-      running_cond_(false)
+Server::Server(Middleware::Kind middleware_kind)
+    : processor_(new Processor(this, middleware_kind))
+    , running_cond_(false)
 {}
 
 Server::~Server()
@@ -33,9 +33,10 @@ Server::~Server()
     delete processor_;
 }
 
-bool Server::run(bool discovery_enabled)
+bool Server::run()
 {
-    if (!init(discovery_enabled))
+    /* Init server. */
+    if (!init())
     {
         return false;
     }
@@ -76,13 +77,55 @@ bool Server::stop()
         heartbeat_thread_->join();
     }
 
-    return close();
+    bool rv = true;
+#ifdef PROFILE_DISCOVERY
+    rv &= close_discovery();
+#endif
+#ifdef PROFILE_P2P
+    rv &= close_p2p();
+#endif
+    rv &= close();
+    return rv;
 }
 
 bool Server::load_config_file(const std::string& path)
 {
     return Root::instance().load_config_file(path);
 }
+
+#ifdef PROFILE_DISCOVERY
+bool Server::enable_discovery(uint16_t discovery_port)
+{
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_discovery(discovery_port);
+    }
+    return rv;
+}
+
+bool Server::disable_discovery()
+{
+    return close_discovery();
+}
+#endif
+
+#ifdef PROFILE_P2P
+bool Server::enable_p2p(uint16_t p2p_port)
+{
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_p2p(p2p_port);
+    }
+    return rv;
+}
+
+bool Server::disable_p2p()
+{
+    return close_p2p();
+}
+#endif
 
 void Server::push_output_packet(OutputPacket output_packet)
 {

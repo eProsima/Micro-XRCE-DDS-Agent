@@ -25,33 +25,80 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <set>
 
 namespace eprosima {
 namespace uxr {
 
-class CedGlobalTopic;
+const uint32_t INTERNAL_CLIENT_KEY = 0xEAEAEAEA;
+const uint8_t EXTERNAL_CLIENT_KEY_PREFIX = 0xEA;
+
+/**********************************************************************************************************************
+ * CedController
+ **********************************************************************************************************************/
+enum class TopicSource : uint8_t
+{
+    INTERNAL = 0,
+    EXTERNAL = 1
+};
+
+enum class WriteAccess : uint8_t
+{
+    NONE = 0,
+    INTERNAL = 1,
+    EXTERNAL = 2,
+    COMPLETE = 3
+};
+
+enum class ReadAccess : uint8_t
+{
+    NONE = 0,
+    INTERNAL = 1,
+    EXTERNAL = 2,
+    COMPLETE = 3
+};
 
 /**********************************************************************************************************************
  * CedTopicManager
  **********************************************************************************************************************/
+class CedGlobalTopic;
+typedef const std::function<void (int16_t)> OnNewDomain;
+typedef const std::function<void (int16_t, const std::string&)> OnNewTopic;
+
 class CedTopicManager
 {
     friend class CedGlobalTopic;
 public:
+    static void register_on_new_domain_cb(
+            uint32_t key,
+            const OnNewDomain& on_new_domain_cb);
+
+    static void unregister_on_new_domain_cb(
+            uint32_t key);
+
+    static void register_on_new_topic_cb(
+            uint32_t key,
+            const OnNewTopic& on_new_topic_cb);
+
+    static void unregister_on_new_topic_cb(
+            uint32_t key);
+
     static bool register_topic(
-        const std::string& topic_name,
-        int16_t domain_id,
-        std::shared_ptr<CedGlobalTopic>& topic);
+            const std::string& topic_name,
+            int16_t domain_id,
+            std::shared_ptr<CedGlobalTopic>& topic);
 
 private:
     CedTopicManager() = default;
     ~CedTopicManager() = default;
 
     static bool unregister_topic(
-        const std::string& topic_name,
-        int16_t domain_id);
+            const std::string& topic_name,
+            int16_t domain_id);
 
 private:
+    static std::unordered_map<uint32_t, OnNewDomain> on_new_domain_map_;
+    static std::unordered_map<uint32_t, OnNewTopic> on_new_topic_map_;
     static std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> topics_;
     static std::mutex mtx_;
 };
@@ -65,8 +112,8 @@ class CedGlobalTopic
     friend class CedDataWriter;
 public:
     CedGlobalTopic(
-        const std::string& topic_name,
-        int16_t domain_id);
+            const std::string& topic_name,
+            int16_t domain_id);
 
     ~CedGlobalTopic();
 
@@ -74,16 +121,30 @@ public:
 
 private:
     bool write(
-        const std::vector<uint8_t>& data,
-        uint8_t& errcode
-    );
+            const std::vector<uint8_t>& data,
+            WriteAccess write_access,
+            TopicSource topic_src,
+            uint8_t& errcode);
 
     bool read(
-    std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout,
-        SeqNum& last_read,
-        uint8_t& errcode
-    );
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout,
+            SeqNum& last_read,
+            ReadAccess read_access,
+            uint8_t& errcode);
+
+    bool check_write_access(
+            WriteAccess write_access,
+            TopicSource topic_src);
+
+    bool check_read_access(
+            ReadAccess read_access,
+            size_t index);
+
+    bool get_data(
+            std::vector<uint8_t>& data,
+            SeqNum& last_read,
+            ReadAccess read_access);
 
 private:
     const std::string name_;
@@ -92,6 +153,7 @@ private:
     std::mutex mtx_;
     std::condition_variable cv_;
     std::array<std::vector<uint8_t>, 16> history_; // TODO (review history size)
+    std::array<TopicSource, 16> srcs_; // TODO (review history size)
 };
 
 /**********************************************************************************************************************
@@ -190,9 +252,13 @@ class CedDataWriter
 public:
     CedDataWriter(
             const std::shared_ptr<CedPublisher>& publisher,
-            const std::shared_ptr<CedTopic>& topic)
+            const std::shared_ptr<CedTopic>& topic,
+            const WriteAccess write_access,
+            const TopicSource topic_src)
         : publisher_(publisher)
         , topic_(topic)
+        , write_access_(write_access)
+        , topic_src_(topic_src)
     {}
     ~CedDataWriter() = default;
 
@@ -205,6 +271,8 @@ public:
 private:
     const std::shared_ptr<CedPublisher> publisher_;
     const std::shared_ptr<CedTopic> topic_;
+    const WriteAccess write_access_;
+    const TopicSource topic_src_;
 };
 
 /**********************************************************************************************************************
@@ -215,10 +283,12 @@ class CedDataReader
 public:
     CedDataReader(
             const std::shared_ptr<CedSubscriber> subscriber,
-            const std::shared_ptr<CedTopic> topic)
+            const std::shared_ptr<CedTopic> topic,
+            const ReadAccess read_access)
         : subscriber_(subscriber)
         , topic_(topic)
         , last_read_(UINT16_MAX)
+        , read_access_(read_access)
     {}
     ~CedDataReader() = default;
 
@@ -233,6 +303,7 @@ private:
     const std::shared_ptr<CedSubscriber> subscriber_;
     const std::shared_ptr<CedTopic> topic_;
     SeqNum last_read_;
+    const ReadAccess read_access_;
 };
 
 } // namespace uxr

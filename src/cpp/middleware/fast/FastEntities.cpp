@@ -236,9 +236,9 @@ bool FastDataWriter::match_from_xml(const std::string& xml) const
     return rv;
 }
 
-bool FastDataWriter::write(std::vector<uint8_t>& data)
+bool FastDataWriter::write(const std::vector<uint8_t>& data)
 {
-    return ptr_->write(&data);
+    return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
 void FastDataWriter::onPublicationMatched(

@@ -15,6 +15,7 @@
 #ifndef UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 #define UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 
+#include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <uxr/agent/client/session/Session.hpp>
 
@@ -28,13 +29,16 @@ class Middleware;
 class ProxyClient
 {
 public:
-    explicit ProxyClient(const dds::xrce::CLIENT_Representation&) {}
+    explicit ProxyClient(
+            const dds::xrce::CLIENT_Representation& /*representation*/,
+            Middleware::Kind /*middleware_kind*/) {}
+
     ~ProxyClient() = default;
 
-    ProxyClient(const ProxyClient&) = delete;
     ProxyClient(ProxyClient&&) = delete;
-    ProxyClient& operator=(const ProxyClient&) = delete;
+    ProxyClient(const ProxyClient&) = delete;
     ProxyClient& operator=(ProxyClient&&) = delete;
+    ProxyClient& operator=(const ProxyClient&) = delete;
 
     MOCK_METHOD0(get_session_id, dds::xrce::SessionId());
     MOCK_METHOD0(session, Session&());

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
 #include <uxr/agent/transport/serial/SerialServerBase.hpp>
 
@@ -27,18 +27,48 @@ namespace uxr {
 class SerialServer : public SerialServerBase
 {
 public:
-    SerialServer(int fd, uint8_t addr);
+    SerialServer(
+            int fd,
+            uint8_t addr,
+            Middleware::Kind middleware_kind);
+
     ~SerialServer() = default;
 
 private:
-    bool init(bool discovery_enabled) final;
+    bool init() final;
+
     bool close() final;
-    bool recv_message(InputPacket& input_packet, int timeout) final;
+
+#ifdef PROFILE_DISCOVERY
+    bool init_discovery(uint16_t /*discovery_port*/) final { return false; }
+
+    bool close_discovery() final { return false; }
+#endif
+
+#ifdef PROFILE_P2P
+    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+
+    bool close_p2p() final { return false; } // TODO
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
     bool send_message(OutputPacket output_packet) final;
+
     int get_error() final;
 
-    static size_t write_data(void* instance, uint8_t* buf, size_t len);
-    static size_t read_data(void* instance, uint8_t* buf, size_t len, int timeout);
+    static size_t write_data(
+            void* instance,
+            uint8_t* buf,
+            size_t len);
+
+    static size_t read_data(
+            void* instance,
+            uint8_t* buf,
+            size_t len,
+            int timeout);
 
 private:
     struct pollfd poll_fd_;
@@ -50,4 +80,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_

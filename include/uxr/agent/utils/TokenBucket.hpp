@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_
-#define _UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_
+#ifndef UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_
+#define UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_
 
 #include <chrono>
 #include <mutex>
@@ -50,4 +50,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_
+#endif // UXR_UTILS_DATAREADER_TOKENBUCKET_HPP_

@@ -25,6 +25,8 @@ if(GMOCK_FOUND)
             microxrcedds_agent
             fastrtps
             fastcdr
+            microxrcedds_client
+            microcdr
         )
     target_include_directories(${TEST_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}/include
@@ -32,7 +34,7 @@ if(GMOCK_FOUND)
         ${GTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIRS}
         )
-    target_link_libraries(${TEST_NAME} PRIVATE microxrcedds_agent fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+    target_link_libraries(${TEST_NAME} PRIVATE microxrcedds_agent ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
     set_target_properties(${TEST_NAME} PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES

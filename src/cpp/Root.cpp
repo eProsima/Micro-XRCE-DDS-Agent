@@ -47,7 +47,8 @@ Root::~Root() = default;
 
 dds::xrce::ResultStatus Root::create_client(
         const dds::xrce::CLIENT_Representation& client_representation,
-        dds::xrce::AGENT_Representation& agent_representation)
+        dds::xrce::AGENT_Representation& agent_representation,
+        Middleware::Kind middleware_kind)
 {
     if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
     {
@@ -69,7 +70,8 @@ dds::xrce::ResultStatus Root::create_client(
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation);
+                std::shared_ptr<ProxyClient> new_client
+                        = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
 #ifdef VERBOSE_OUTPUT
@@ -87,7 +89,7 @@ dds::xrce::ResultStatus Root::create_client(
                 std::shared_ptr<ProxyClient> client = clients_.at(client_key);
                 if (session_id != client->get_session_id())
                 {
-                    it->second = std::make_shared<ProxyClient>(client_representation);
+                    it->second = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 }
                 else
                 {

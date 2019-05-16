@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#ifdef PROFILE_DISCOVERY
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
+#endif
+#ifdef PROFILE_P2P
+#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
+#endif
 #include <uxr/agent/config.hpp>
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -40,25 +45,64 @@ public:
 class TCPServer : public TCPServerBase
 {
 public:
-    TCPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
+    TCPServer(
+            uint16_t agent_port,
+            Middleware::Kind middleware_kind);
+
     ~TCPServer() = default;
 
 private:
-    bool init(bool discovery_enabled) final;
+    bool init() final;
+
     bool close() final;
-    bool recv_message(InputPacket& input_packet, int timeout) final;
+
+#ifdef PROFILE_DISCOVERY
+    bool init_discovery(uint16_t discovery_port) final;
+
+    bool close_discovery() final;
+#endif
+
+#ifdef PROFILE_P2P
+    bool init_p2p(uint16_t p2p_port) final;
+
+    bool close_p2p() final;
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
     bool send_message(OutputPacket output_packet) final;
+
     int get_error() final;
+
     bool read_message(int timeout);
-    bool open_connection(int fd, struct sockaddr_in* sockaddr);
+
+    bool open_connection(
+            int fd,
+            struct sockaddr_in* sockaddr);
+
     bool connection_available();
+
     void listener_loop();
+
     static void init_input_buffer(TCPInputBuffer& buffer);
+
     static void sigpipe_handler(int fd) { (void)fd; }
 
     bool close_connection(TCPConnection& connection) override;
-    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) override;
-    size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t& errcode) override;
+
+    size_t recv_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t& errcode) override;
+
+    size_t send_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t& errcode) override;
 
 private:
     std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
@@ -71,10 +115,15 @@ private:
     std::unique_ptr<std::thread> listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+#ifdef PROFILE_DISCOVERY
     DiscoveryServerLinux discovery_server_;
+#endif
+#ifdef PROFILE_P2P
+    AgentDiscovererLinux agent_discoverer_;
+#endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_

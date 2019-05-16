@@ -22,20 +22,18 @@
 #include <unistd.h>
 
 #define RECEIVE_TIMEOUT 100
-#define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor, uint16_t port, uint16_t discovery_port)
-    : DiscoveryServer (processor, port),
-      poll_fd_{},
-      buffer_{0},
-      discovery_port_(discovery_port)
+DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor)
+    : DiscoveryServer(processor)
+    , poll_fd_{-1, 0, 0}
+    , buffer_{0}
 {
 }
 
-bool DiscoveryServerLinux::init()
+bool DiscoveryServerLinux::init(uint16_t discovery_port)
 {
     bool rv = false;
 
@@ -56,7 +54,7 @@ bool DiscoveryServerLinux::init()
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(discovery_port_);
+    address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
@@ -70,27 +68,7 @@ bool DiscoveryServerLinux::init()
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
-            /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
-            struct sockaddr_in temp_addr;
-            temp_addr.sin_family = AF_INET;
-            temp_addr.sin_port = htons(80);
-            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-            if (0 == connected)
-            {
-                struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-                {
-                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                 uint8_t(local_addr.sa_data[3]),
-                                                                 uint8_t(local_addr.sa_data[4]),
-                                                                 uint8_t(local_addr.sa_data[5])});
-                    rv = true;
-                }
-                ::close(fd);
-            }
+            rv = true;
         }
     }
 
@@ -99,10 +77,12 @@ bool DiscoveryServerLinux::init()
 
 bool DiscoveryServerLinux::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
 
-bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerLinux::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
@@ -114,11 +94,23 @@ bool DiscoveryServerLinux::recv_message(InputPacket& input_packet, int timeout)
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (0 < bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new UDPEndPoint(addr, port));
-            rv = true;
+            std::array<uint8_t, 4> remote_addr{
+                uint8_t(client_addr.sa_data[2]),
+                uint8_t(client_addr.sa_data[3]),
+                uint8_t(client_addr.sa_data[4]),
+                uint8_t(client_addr.sa_data[5])
+            };
+            uint16_t remote_port = ((struct sockaddr_in*)&client_addr)->sin_port;
+
+            if (remote_addr != transport_address_.medium_locator().address() ||
+                remote_port != htons(filter_port_))
+            {
+                input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
+                uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
+                uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+                input_packet.source.reset(new UDPEndPoint(addr, port));
+                rv = true;
+            }
         }
     }
     else
@@ -149,7 +141,7 @@ bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
                                 sizeof(client_addr));
     if (0 < bytes_sent)
     {
-        rv = (size_t(bytes_sent) != output_packet.message->get_len());
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 
     return rv;

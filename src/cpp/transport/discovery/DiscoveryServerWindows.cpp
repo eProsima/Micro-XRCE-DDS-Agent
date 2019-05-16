@@ -21,33 +21,35 @@
 #include <functional>
 
 #define RECEIVE_TIMEOUT 100
-#define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerWindows::DiscoveryServerWindows(const Processor& processor, uint16_t port, uint16_t discovery_port)
-    : DiscoveryServer (processor, port),
-      poll_fd_{},
-      buffer_{0},
-      discovery_port_(discovery_port)
+DiscoveryServerWindows::DiscoveryServerWindows(const Processor& processor)
+    : DiscoveryServer(processor)
+    , poll_fd_{INVALID_SOCKET, 0, 0}
+    , buffer_{0}
 {
 }
 
-bool DiscoveryServerWindows::init()
+bool DiscoveryServerWindows::init(uint16_t discovery_port)
 {
     bool rv = false;
 
     /* Socket initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (INVALID_SOCKET == poll_fd_.fd)
+    {
+        return false;
+    }
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(discovery_port_);
+    address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-    if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+    if (SOCKET_ERROR != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
         /* Poll setup. */
         poll_fd_.events = POLLIN;
@@ -56,29 +58,9 @@ bool DiscoveryServerWindows::init()
         struct ip_mreq mreq;
         mreq.imr_multiaddr.s_addr = inet_addr(DISCOVERY_IP);
         mreq.imr_interface.s_addr = INADDR_ANY;
-        if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
+        if (SOCKET_ERROR != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
-            /* Get local address. */
-            SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
-            struct sockaddr_in temp_addr;
-            temp_addr.sin_family = AF_INET;
-            temp_addr.sin_port = htons(80);
-            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-            if (0 == connected)
-            {
-                struct sockaddr local_addr;
-                int local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-                {
-                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                 uint8_t(local_addr.sa_data[3]),
-                                                                 uint8_t(local_addr.sa_data[4]),
-                                                                 uint8_t(local_addr.sa_data[5])});
-                    rv = true;
-                }
-                closesocket(fd);
-            }
+            rv = true;
         }
     }
 
@@ -87,10 +69,12 @@ bool DiscoveryServerWindows::init()
 
 bool DiscoveryServerWindows::close()
 {
-    return (0 == closesocket(poll_fd_.fd));
+    return (INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd));
 }
 
-bool DiscoveryServerWindows::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerWindows::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
@@ -102,7 +86,7 @@ bool DiscoveryServerWindows::recv_message(InputPacket& input_packet, int timeout
         int bytes_received = recvfrom(poll_fd_.fd, (char*)buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (SOCKET_ERROR != bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
+            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new UDPEndPoint(addr, port));
@@ -137,7 +121,7 @@ bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
                             sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
-        rv = (size_t(bytes_sent) != output_packet.message->get_len());
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 
     return rv;

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_SERVER_HPP_
 
 #include <uxr/agent/transport/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
@@ -29,29 +29,69 @@ class Processor;
 
 class Server
 {
+    friend class Processor;
 public:
-    Server();
+    Server(Middleware::Kind middleware_kind);
+
     virtual ~Server();
 
-    UXR_AGENT_EXPORT bool run(bool discovery_enabled = false);
+    UXR_AGENT_EXPORT bool run();
     UXR_AGENT_EXPORT bool stop();
     UXR_AGENT_EXPORT bool load_config_file(const std::string& path);
 
-    void push_output_packet(OutputPacket output_packet);
-    virtual void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) = 0;
-    virtual void on_delete_client(EndPoint* source) = 0;
-    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) = 0;
-    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
+#ifdef PROFILE_DISCOVERY
+    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);
+    UXR_AGENT_EXPORT bool disable_discovery();
+#endif
+
+#ifdef PROFILE_P2P
+    UXR_AGENT_EXPORT bool enable_p2p(uint16_t p2p_port);
+    UXR_AGENT_EXPORT bool disable_p2p();
+#endif
 
 private:
-    virtual bool init(bool discovery_enabled) = 0;
+    void push_output_packet(OutputPacket output_packet);
+
+    virtual void on_create_client(
+            EndPoint* source,
+            const dds::xrce::CLIENT_Representation& representation) = 0;
+
+    virtual void on_delete_client(EndPoint* source) = 0;
+
+    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) = 0;
+
+    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
+
+    virtual bool init() = 0;
+
     virtual bool close() = 0;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) = 0;
+
+#ifdef PROFILE_DISCOVERY
+    virtual bool init_discovery(uint16_t discovery_port) = 0;
+
+    virtual bool close_discovery() = 0;
+#endif
+
+#ifdef PROFILE_P2P
+    virtual bool init_p2p(uint16_t p2p_port) = 0;
+
+    virtual bool close_p2p() = 0;
+#endif
+
+    virtual bool recv_message(
+            InputPacket& input_packet,
+            int timeout) = 0;
+
     virtual bool send_message(OutputPacket output_packet) = 0;
+
     virtual int get_error() = 0;
+
     void receiver_loop();
+
     void sender_loop();
+
     void processing_loop();
+
     void heartbeat_loop();
 
 protected:
@@ -70,4 +110,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_SERVER_HPP_

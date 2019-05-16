@@ -92,6 +92,10 @@ set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth."
 set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
+option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
+option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
+option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
+option(PROFILE_P2P "Activate the P2P discovery profile." ON)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -105,24 +109,27 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
 eprosima_find_package(fastrtps REQUIRED)
+eprosima_find_package(uxrclient REQUIRED)
 eprosima_find_thirdparty(Asio asio)
 
 ###############################################################################
 # Targets
 ###############################################################################
 
+# Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerLinux.cpp
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
-        src/cpp/transport/discovery/DiscoveryServerLinux.cpp
+        $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
+        $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
-        src/cpp/transport/discovery/DiscoveryServerWindows.cpp
+        $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
 
@@ -149,19 +156,28 @@ set(SRCS
     src/cpp/transport/tcp/TCPServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
-    src/cpp/transport/discovery/DiscoveryServer.cpp
+    $<$<BOOL:${PROFILE_DISCOVERY}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
     ${TRANSPORT_SRCS}
-    src/cpp/types/TopicPubSubType.cpp
-    src/cpp/xmlobjects/xmlobjects.cpp
-    src/cpp/middleware/fast/FastEntities.cpp
-    src/cpp/middleware/fast/FastMiddleware.cpp
-    src/cpp/middleware/ced/CedEntities.cpp
-    src/cpp/middleware/ced/CedMiddleware.cpp
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/types/TopicPubSubType.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/xmlobjects/xmlobjects.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastEntities.cpp>
+    $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
+    $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedEntities.cpp>
+    $<$<BOOL:${PROFILE_CED_MIDDLEWARE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClientManager.cpp>
+    $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
 # Executable
 add_library(${PROJECT_NAME} ${SRCS})
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        fastcdr
+    PRIVATE
+        $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
+        microxrcedds_client
+    )
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -214,7 +230,7 @@ get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
 if((MSVC OR MSVC_IDE) AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     target_compile_definitions(${PROJECT_NAME}
         PUBLIC
-            -D${PROJECT_NAME}_SHARED
+            ${PROJECT_NAME}_SHARED
         )
 endif()
 
@@ -236,14 +252,20 @@ if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
     check_gmock()
     enable_testing()
     include(CTest)
-    add_subdirectory(test/unittest/agent)
-    add_subdirectory(test/unittest)
-    add_subdirectory(test/unittest/utils)
-    add_subdirectory(test/unittest/types)
-    add_subdirectory(test/unittest/transport/serial)
-    add_subdirectory(test/unittest/middleware/ced)
-    add_subdirectory(test/unittest/client/session/stream)
-    add_subdirectory(test/blackbox/tree)
+    if(GTEST_FOUND)
+        if(PROFILE_FAST_MIDDLEWARE)
+            add_subdirectory(test/unittest)
+            add_subdirectory(test/unittest/agent)
+            add_subdirectory(test/blackbox/tree)
+        endif()
+        if(PROFILE_CED_MIDDLEWARE)
+            add_subdirectory(test/unittest/middleware/ced)
+        endif()
+        add_subdirectory(test/unittest/utils)
+        add_subdirectory(test/unittest/types)
+        add_subdirectory(test/unittest/transport/serial)
+        add_subdirectory(test/unittest/client/session/stream)
+    endif()
     add_subdirectory(test/integration/cross_serialization)
 endif()
 
@@ -349,13 +371,13 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
     set(CPACK_NSIS_CONTACT "support@eprosima.com")
     set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/utils/images/icon/eprosima_icon.ico")
-    set(CPACK_NSIS_MENU_LINKS 
+    set(CPACK_NSIS_MENU_LINKS
         "bin/MicroXRCEAgent.exe" "${PRODUCT_NAME_SHORT}"
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
-    else() 
+    else()
         set(PF86_STR "PROGRAMFILES(x86)")
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
@@ -384,7 +406,7 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")	
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
 
     include(CPack)
 endif()
