@@ -16,7 +16,7 @@
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/utils/Convertion.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 // TODO (#5047): replace Fast RTPS dependency by XML parser library.
@@ -64,7 +64,7 @@ dds::xrce::ResultStatus Root::create_client(
         UXR_AGENT_LOG_WARN(
             UXR_CLIENT_KEY_PATTERN,
             UXR_DECORATE_RED("invalid client key"),
-            convertion::clientkey_to_raw(client_representation.client_key()));
+            conversion::clientkey_to_raw(client_representation.client_key()));
 
         return invalid_result;
     }
@@ -89,7 +89,7 @@ dds::xrce::ResultStatus Root::create_client(
                     UXR_AGENT_LOG_INFO(
                         UXR_CREATE_SESSION_PATTERN,
                         UXR_DECORATE_GREEN("create"),
-                        convertion::clientkey_to_raw(client_key),
+                        conversion::clientkey_to_raw(client_key),
                         session_id);
                 }
                 else
@@ -99,7 +99,7 @@ dds::xrce::ResultStatus Root::create_client(
                     UXR_AGENT_LOG_INFO(
                         UXR_CLIENT_KEY_PATTERN,
                         UXR_DECORATE_RED("resources error"),
-                        convertion::clientkey_to_raw(client_representation.client_key()));
+                        conversion::clientkey_to_raw(client_representation.client_key()));
                 }
             }
             else
@@ -122,7 +122,7 @@ dds::xrce::ResultStatus Root::create_client(
             UXR_AGENT_LOG_INFO(
                 UXR_CLIENT_KEY_PATTERN,
                 UXR_DECORATE_RED("incompatible version"),
-                convertion::clientkey_to_raw(client_representation.client_key()));
+                conversion::clientkey_to_raw(client_representation.client_key()));
         }
     }
     else
@@ -132,7 +132,7 @@ dds::xrce::ResultStatus Root::create_client(
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
             UXR_DECORATE_RED("invalid cookie"),
-            convertion::clientkey_to_raw(client_representation.client_key()));
+            conversion::clientkey_to_raw(client_representation.client_key()));
     }
 
     if (dds::xrce::STATUS_OK == result_status.status())
@@ -191,7 +191,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
             UXR_DECORATE_GREEN("delete"),
-            convertion::clientkey_to_raw(client_key));
+            conversion::clientkey_to_raw(client_key));
     }
     else
     {
@@ -200,7 +200,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         UXR_AGENT_LOG_INFO(
             UXR_CLIENT_KEY_PATTERN,
             UXR_DECORATE_RED("unknown client"),
-            convertion::clientkey_to_raw(client_key));
+            conversion::clientkey_to_raw(client_key));
     }
     return result_status;
 }

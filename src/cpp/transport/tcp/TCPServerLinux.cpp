@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
-#include <uxr/agent/utils/Convertion.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <sys/types.h>
@@ -248,7 +248,7 @@ bool TCPServer::recv_message(
             input_packet.message->get_buf(),
             input_packet.message->get_len(),
             UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
-            convertion::clientkey_to_raw(get_client_key(input_packet.source.get())));
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())));
     }
     return rv;
 }
@@ -330,7 +330,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
                 UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
-                convertion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
             rv = true;
         }
         else

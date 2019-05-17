@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
-#include <uxr/agent/utils/Convertion.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
@@ -41,7 +41,7 @@ void TCPServerBase::on_create_client(
     IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
     const dds::xrce::ClientKey& client_key = representation.client_key();
-    uint32_t client_id = convertion::clientkey_to_raw(client_key);
+    uint32_t client_id = conversion::clientkey_to_raw(client_key);
 
     /* Update source for the client. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -97,7 +97,7 @@ const dds::xrce::ClientKey TCPServerBase::get_client_key(EndPoint* source)
     auto it = source_to_client_map_.find((uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port());
     if (it != source_to_client_map_.end())
     {
-        client_key = convertion::raw_to_clientkey(it->second);
+        client_key = conversion::raw_to_clientkey(it->second);
     }
     else
     {
@@ -109,7 +109,7 @@ const dds::xrce::ClientKey TCPServerBase::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> TCPServerBase::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = convertion::clientkey_to_raw(client_key);
+    uint32_t client_id = conversion::clientkey_to_raw(client_key);
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())

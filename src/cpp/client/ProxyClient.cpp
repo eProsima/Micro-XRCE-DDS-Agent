@@ -91,8 +91,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_OBJECT_PATTERN,
                     UXR_DECORATE_RED("already exists"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
             else
             {
@@ -110,8 +110,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                     UXR_AGENT_LOG_DEBUG(
                         UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_GREEN("objects matched"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
+                        conversion::clientkey_to_raw(representation_.client_key()),
+                        conversion::objectid_to_raw(object_id));
                 }
                 else
                 {
@@ -119,8 +119,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                     UXR_AGENT_LOG_DEBUG(
                         UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_RED("objects mismatch"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
+                        conversion::clientkey_to_raw(representation_.client_key()),
+                        conversion::objectid_to_raw(object_id));
                 }
             }
             else
@@ -131,8 +131,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                     UXR_AGENT_LOG_DEBUG(
                         UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_GREEN("objects matched"),
-                        convertion::clientkey_to_raw(representation_.client_key()),
-                        convertion::objectid_to_raw(object_id));
+                        conversion::clientkey_to_raw(representation_.client_key()),
+                        conversion::objectid_to_raw(object_id));
                 }
                 else
                 {
@@ -161,8 +161,8 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_OBJECT_PATTERN,
             UXR_DECORATE_GREEN("object deleted"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
     else
     {
@@ -170,8 +170,8 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_OBJECT_PATTERN,
             UXR_DECORATE_RED("unknown referece"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return result;
@@ -264,16 +264,16 @@ bool ProxyClient::create_participant(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_PARTICIPANT_PATTERN,
                 UXR_DECORATE_GREEN("participant created"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
         else
         {
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_PARTICIPANT_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
             result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
         }
     }
@@ -282,8 +282,8 @@ bool ProxyClient::create_participant(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_PARTICIPANT_PATTERN,
             UXR_DECORATE_RED("dds error"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
         result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
     }
 
@@ -312,9 +312,9 @@ bool ProxyClient::create_topic(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_TOPIC_PATTERN,
                     UXR_DECORATE_GREEN("topic created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id),
-                    convertion::objectid_to_raw(participant_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(participant_id));
             }
             else
             {
@@ -322,8 +322,8 @@ bool ProxyClient::create_topic(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_TOPIC_PATTERN,
                     UXR_DECORATE_RED("resources error"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
         }
         else
@@ -332,8 +332,8 @@ bool ProxyClient::create_topic(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_TOPIC_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
     }
     else
@@ -342,8 +342,8 @@ bool ProxyClient::create_topic(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_TOPIC_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return rv;
@@ -371,9 +371,9 @@ bool ProxyClient::create_publisher(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_PUBLISHER_PATTERN,
                     UXR_DECORATE_GREEN("publisher created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id),
-                    convertion::objectid_to_raw(participant_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(participant_id));
             }
             else
             {
@@ -381,8 +381,8 @@ bool ProxyClient::create_publisher(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_PUBLISHER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
         }
         else
@@ -391,8 +391,8 @@ bool ProxyClient::create_publisher(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_PUBLISHER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
     }
     else
@@ -401,8 +401,8 @@ bool ProxyClient::create_publisher(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_PUBLISHER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return rv;
@@ -429,9 +429,9 @@ bool ProxyClient::create_subscriber(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_SUBSCRIBER_PATTERN,
                     UXR_DECORATE_GREEN("subscriber created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id),
-                    convertion::objectid_to_raw(participant_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(participant_id));
                 rv = true;
             }
             else
@@ -440,8 +440,8 @@ bool ProxyClient::create_subscriber(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_SUBSCRIBER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
         }
         else
@@ -450,8 +450,8 @@ bool ProxyClient::create_subscriber(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_SUBSCRIBER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
     }
     else
@@ -460,8 +460,8 @@ bool ProxyClient::create_subscriber(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_SUBSCRIBER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return rv;
@@ -488,9 +488,9 @@ bool ProxyClient::create_datawriter(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_DATAWRITER_PATTERN,
                     UXR_DECORATE_GREEN("datawriter created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id),
-                    convertion::objectid_to_raw(publisher_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(publisher_id));
                 rv = true;
             }
             else
@@ -499,8 +499,8 @@ bool ProxyClient::create_datawriter(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_DATAWRITER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
         }
         else
@@ -509,8 +509,8 @@ bool ProxyClient::create_datawriter(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_DATAWRITER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
     }
     else
@@ -519,8 +519,8 @@ bool ProxyClient::create_datawriter(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_DATAWRITER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return rv;
@@ -547,9 +547,9 @@ bool ProxyClient::create_datareader(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_DATAREADER_PATTERN,
                     UXR_DECORATE_GREEN("datareader created"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id),
-                    convertion::objectid_to_raw(subscriber_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(subscriber_id));
                 rv = true;
             }
             else
@@ -558,8 +558,8 @@ bool ProxyClient::create_datareader(
                 UXR_AGENT_LOG_DEBUG(
                     UXR_CREATE_DATAREADER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
-                    convertion::clientkey_to_raw(representation_.client_key()),
-                    convertion::objectid_to_raw(object_id));
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
             }
         }
         else
@@ -568,8 +568,8 @@ bool ProxyClient::create_datareader(
             UXR_AGENT_LOG_DEBUG(
                 UXR_CREATE_DATAREADER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
-                convertion::clientkey_to_raw(representation_.client_key()),
-                convertion::objectid_to_raw(object_id));
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
         }
     }
     else
@@ -578,8 +578,8 @@ bool ProxyClient::create_datareader(
         UXR_AGENT_LOG_DEBUG(
             UXR_CREATE_DATAREADER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
-            convertion::clientkey_to_raw(representation_.client_key()),
-            convertion::objectid_to_raw(object_id));
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
     }
 
     return rv;
