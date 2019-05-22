@@ -160,6 +160,14 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the Participant from the ProxyClient.
+     *        This operation removes all the participant hiearchy.
+     * @param client_key        The identifier of the ProxyClient to delete from.
+     * @param participant_id    The identifier of the participant to delete.
+     * @param op_result         The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_participant(
             uint32_t client_key,
             uint16_t participant_id,
@@ -203,6 +211,14 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the Topic from the ProxyClient.
+     *        This operation removes all the datawriters or datareaders associated with the topic.
+     * @param client_ke     	The identifier of the ProxyClient to delete from.
+     * @param topic_id         The identifier of the topic to delete.
+     * @param op_result     	The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_topic(
             uint32_t client_key,
             uint16_t topic_id,
@@ -227,6 +243,14 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the publisher from a ProxyClient.
+     *        This operation removes all the datawriters associated with the publisher.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param publisher_id  The identifier of the publisher to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_publisher(
             uint32_t client_key,
             uint16_t publisher_id,
@@ -251,6 +275,15 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the subscriber from a ProxyClient.
+     *        This operation removes all the datareaders associated with the subscriber.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param subscriber_id The identifier of the subscriber to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_subscriber(
             uint32_t client_key,
             uint16_t subscriber_id,
@@ -294,6 +327,13 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the datawriter from a ProxyClient.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param datawriter_id The identifier of the datawriter to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_datawriter(
             uint32_t client_key,
             uint16_t datawriter_id,
@@ -337,6 +377,13 @@ public:
             uint8_t flag,
             OpResult& op_result);
 
+    /**
+     * @brief Deletes the datareader from a ProxyClient.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param datareader_id The identifier of the datareader to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool delete_datareader(
             uint32_t client_key,
             uint16_t datareader_id,

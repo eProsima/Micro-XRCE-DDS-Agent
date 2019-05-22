@@ -389,12 +389,12 @@ bool Agent::create_subscriber_by_xml(
 
 bool Agent::delete_subscriber(
         uint32_t client_key,
-        uint16_t subcriber_id,
+        uint16_t subscriber_id,
         OpResult& op_result)
 {
     return delete_object(
                 conversion::raw_to_clientkey(client_key),
-                conversion::raw_to_objectid(subcriber_id, dds::xrce::OBJK_SUBSCRIBER),
+                conversion::raw_to_objectid(subscriber_id, dds::xrce::OBJK_SUBSCRIBER),
                 op_result);
 }
 
