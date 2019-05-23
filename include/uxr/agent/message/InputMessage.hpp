@@ -97,17 +97,7 @@ inline bool InputMessage::prepare_next_submessage()
 template<class T>
 inline bool InputMessage::get_payload(T& data)
 {
-    bool rv = true;
-    try
-    {
-        data.deserialize(deserializer_);
-    }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
-    {
-        log_error();
-        rv = false;
-    }
-    return rv;
+    return deserialize(data);
 }
 
 inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
