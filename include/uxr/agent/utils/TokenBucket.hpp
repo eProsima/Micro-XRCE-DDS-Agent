@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <mutex>
+#include <algorithm>
 
 namespace eprosima {
 namespace uxr {
