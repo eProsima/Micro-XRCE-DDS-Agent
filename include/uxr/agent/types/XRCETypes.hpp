@@ -8554,8 +8554,44 @@ public:
      * @param x Reference to the object STATUS_AGENT_Payload that will be copied.
      */
     STATUS_AGENT_Payload& operator=(STATUS_AGENT_Payload &&x);
-    
+
+    /*
+     * @brief This function copies the value in member result
+     * @param _retuls New value to be copied in member result
+     */
+    inline void result(const ResultStatus &_result)
+    {
+        m_result = _result;
+    }
+
     /*!
+     * @brief This function moves the value in member result
+     * @param _result New value to be moved in member result
+     */
+    inline void result(ResultStatus &&_result)
+    {
+        m_result = std::move(_result);
+    }
+
+    /*!
+     * @brief This function returns a constant reference to member result
+     * @return Constant reference to member result
+     */
+    inline const ResultStatus& result() const
+    {
+        return m_result;
+    }
+
+    /*!
+     * @brief This function returns a reference to member result
+     * @return Reference to member result
+     */
+    inline ResultStatus& result()
+    {
+        return m_result;
+    }
+
+    /*
      * @brief This function copies the value in member agent_info
      * @param _agent_info New value to be copied in member agent_info
      */
@@ -8620,6 +8656,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
+    ResultStatus m_result;
     AGENT_Representation m_agent_info;
 };
 

@@ -214,6 +214,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             }
             /* STATUS_AGENT payload. */
             dds::xrce::STATUS_AGENT_Payload status_agent;
+            status_agent.result(result);
             status_agent.agent_info(agent_representation);
 
             /* STATUS_AGENT subheader. */

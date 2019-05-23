@@ -154,6 +154,8 @@ std::vector<uint8_t> AgentSerialization::status_agent_payload()
 
     /* Payload. */
     dds::xrce::STATUS_AGENT_Payload payload;
+    payload.result().status() = dds::xrce::StatusValue(0x01);
+    payload.result().implementation_status() = {0x23};
     payload.agent_info().xrce_cookie({0x89, 0xAB, 0xCD, 0xEF});
     payload.agent_info().xrce_version({0x01, 0x23});
     payload.agent_info().xrce_vendor_id({0x45, 0x67});
@@ -188,7 +190,7 @@ std::vector<uint8_t> AgentSerialization::status_payload()
     payload.related_request().request_id() = {0x01, 0x23};
     payload.related_request().object_id() = {0x45, 0x67};
     payload.result().implementation_status() = 0x89;
-    payload.result().status() = (dds::xrce::StatusValue)0xAB;
+    payload.result().status() = dds::xrce::StatusValue(0xAB);
 
     /* Subheader. */
     dds::xrce::SubmessageHeader subheader;
@@ -242,7 +244,7 @@ std::vector<uint8_t> AgentSerialization::info_payload()
     payload.related_request().request_id() = {0x01, 0x23};
     payload.related_request().object_id() = {0x45, 0x67};
     payload.result().implementation_status() = 0x89;
-    payload.result().status() = (dds::xrce::StatusValue)0xAB;
+    payload.result().status() = dds::xrce::StatusValue(0xAB);
     payload.object_info().activity(activity);
     payload.object_info().config(config);
 
@@ -275,6 +277,7 @@ std::vector<uint8_t> AgentSerialization::read_data_payload()
     dds::xrce::READ_DATA_Payload payload;
     payload.request_id() = {0x01, 0x23};
     payload.object_id() = {0x45, 0x67};
+    payload.read_specification().preferred_stream_id() = 0x80;
     payload.read_specification().data_format() = 0x89;
 
     dds::xrce::DataDeliveryControl delivery_control;
