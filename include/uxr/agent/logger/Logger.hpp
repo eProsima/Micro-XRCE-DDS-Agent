@@ -26,10 +26,10 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
 
-#define UXR_LOG_PATTERN color::magenta + "[%E.%f]" + color::reset + \
-                        " %^%-8l%$ | " + \
-                        color::blue +  "%-18s" + color::reset +  " | " + \
-                        color::white + "%-24!" + color::reset + " | " \
+#define UXR_LOG_PATTERN UXR_COLOR_MAGENTA "[%E.%f]" UXR_COLOR_RESET \
+                        " %^%-8l%$ | " \
+                        UXR_COLOR_BLUE "%-18s" UXR_COLOR_RESET  " | " \
+                        UXR_COLOR_WHITE "%-24!" UXR_COLOR_RESET " | " \
                         "%v"
 
 #define UXR_CLIENT_KEY_STR      "client_key"
@@ -133,13 +133,5 @@
 #else
 #define UXR_AGENT_LOG_MESSAGE(...) void(0)
 #endif
-
-namespace eprosima {
-namespace uxr {
-namespace logger {
-
-} // namespace logger
-} // namespace uxr
-} // namespace eprosima
 
 #endif // UXR_AGENT_LOGGER_LOGGER_HPP_
