@@ -407,6 +407,15 @@ public:
     /**********************************************************************************************
      * Write Data.
      **********************************************************************************************/
+    /**
+     * @brief Writes data using the datawriter of the ProxyClient.
+     * @param client_key    The identifier of the ProxyClient.
+     * @param datawriter_id The identifier of the datawriter to write with.
+     * @param buf           Raw buffer of data to write.
+     * @param len           Lengh to write.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool write(
             uint32_t client_key,
             uint16_t datawriter_id,
