@@ -76,16 +76,16 @@ void FastParticipant::onParticipantDiscovery(
     if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
             "entity_id: {}, guid_prefix: {}",
-            "matched",
             info.info.m_guid.entityId,
             info.info.m_guid.guidPrefix);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
             "entity_id: {}, guid_prefix: {}",
-            "unmatched",
             info.info.m_guid.entityId,
             info.info.m_guid.guidPrefix);
     }
@@ -258,16 +258,16 @@ void FastDataWriter::onPublicationMatched(
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
             "entity_id: {}, guid_prefix: {}",
-            "matched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
             "entity_id: {}, guid_prefix: {}",
-            "unmatched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
@@ -367,16 +367,16 @@ void FastDataReader::onSubscriptionMatched(
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
             "entity_id: {}, guid_prefix: {}",
-            "matched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }
     else
     {
         UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
             "entity_id: {}, guid_prefix: {}",
-            "unmatched",
             info.remoteEndpointGuid.entityId,
             info.remoteEndpointGuid.guidPrefix);
     }

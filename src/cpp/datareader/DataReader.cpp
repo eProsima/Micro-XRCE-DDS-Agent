@@ -175,10 +175,10 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             UXR_AGENT_LOG_MESSAGE(
-                data.data(),
-                data.size(),
                 UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-            get_raw_id());
+                get_raw_id(),
+                data.data(),
+                data.size());
             read_cb(cb_args, data);
             ++message_count;
         }

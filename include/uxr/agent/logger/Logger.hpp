@@ -26,10 +26,10 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
 
-#define UXR_LOG_PATTERN color::magenta + "[%E.%f]" + color::reset + \
-                        " %^%-8l%$ | " + \
-                        color::blue +  "%-18s" + color::reset +  " | " + \
-                        color::white + "%-24!" + color::reset + " | " \
+#define UXR_LOG_PATTERN UXR_COLOR_MAGENTA "[%E.%f]" UXR_COLOR_RESET \
+                        " %^%-8l%$ | " \
+                        UXR_COLOR_BLUE "%-18s" UXR_COLOR_RESET  " | " \
+                        UXR_COLOR_WHITE "%-24!" UXR_COLOR_RESET " | " \
                         "%v"
 
 #define UXR_CLIENT_KEY_STR      "client_key"
@@ -77,38 +77,39 @@
 #define UXR_MESSAGE_WITH_DATA_PATTERN   UXR_MESSAGE_PATTERN                     UXR_ADD_FIELD(DATA)
 
 
+
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_TRACE(...) SPDLOG_TRACE(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_TRACE(X, Y, ...) SPDLOG_TRACE(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_TRACE(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_DEBUG(...) SPDLOG_DEBUG(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_DEBUG(X, Y, ...) SPDLOG_DEBUG(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_DEBUG(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_INFO(...) SPDLOG_INFO(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_INFO(X, Y, ...) SPDLOG_INFO(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_INFO(...) void(0)
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_WARN(...) SPDLOG_WARN(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_WARN(X, Y, ...) SPDLOG_WARN(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_WARN(...) (void)0
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_ERROR(...) SPDLOG_ERROR(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_ERROR(X, Y, ...) SPDLOG_ERROR(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_ERROR(...) (void)0
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_CRITICAL(...) SPDLOG_CRITICAL(UXR_STATUS_FORMAT __VA_ARGS__)
+#define UXR_AGENT_LOG_CRITICAL(X, Y, ...) SPDLOG_CRITICAL(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_CRITICAL(...) (void)0
 #endif
@@ -120,26 +121,18 @@
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_MESSAGE(BUF, LEN, ...) \
+#define UXR_AGENT_LOG_MESSAGE(STATUS, CLIENT_KEY, BUF, LEN) \
     if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
     { \
-        UXR_AGENT_LOG_DEBUG(UXR_MESSAGE_WITH_DATA_PATTERN, __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_WITH_DATA_PATTERN, CLIENT_KEY, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     else \
     { \
-        UXR_AGENT_LOG_DEBUG(UXR_MESSAGE_PATTERN, __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_PATTERN, CLIENT_KEY, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     void(0)
 #else
 #define UXR_AGENT_LOG_MESSAGE(...) void(0)
 #endif
-
-namespace eprosima {
-namespace uxr {
-namespace logger {
-
-} // namespace logger
-} // namespace uxr
-} // namespace eprosima
 
 #endif // UXR_AGENT_LOGGER_LOGGER_HPP_

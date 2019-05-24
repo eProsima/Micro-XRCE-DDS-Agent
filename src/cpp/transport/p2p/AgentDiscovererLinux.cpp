@@ -45,8 +45,14 @@ bool AgentDiscovererLinux::init(uint16_t p2p_port)
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
         /* Log. */
-        UXR_AGENT_LOG_DEBUG("Port: {}, Status: OPENED_PORT", p2p_port);
-        UXR_AGENT_LOG_INFO("Port: {}, Status: LAUNCHED", p2p_port);
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_WHITE("port opened"),
+            "Port: {}",
+            p2p_port);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_WHITE("launched"),
+            "Port: {}",
+            p2p_port);
 
         /* Poll setup. */
         poll_fd_.events = POLLIN;
@@ -54,7 +60,10 @@ bool AgentDiscovererLinux::init(uint16_t p2p_port)
     }
     else
     {
-        UXR_AGENT_LOG_ERROR("Port: {}, Status: BIND_ERROR", p2p_port);
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("bind error"),
+            "Port: {}",
+            p2p_port);
     }
 
     return rv;

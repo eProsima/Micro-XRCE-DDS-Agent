@@ -21,8 +21,8 @@ namespace uxr {
 void OutputMessage::log_error()
 {
     UXR_AGENT_LOG_ERROR(
-        "buffer: {:X}",
         UXR_DECORATE_RED("serialization error"),
+        "buffer: {:X}",
         UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
 }
 

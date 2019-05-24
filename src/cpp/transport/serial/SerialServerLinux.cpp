@@ -43,8 +43,8 @@ bool SerialServer::init()
     poll_fd_.events = POLLIN;
 
     UXR_AGENT_LOG_DEBUG(
-        "fd: {}",
         UXR_DECORATE_GREEN("running..."),
+        "fd: {}",
         poll_fd_.fd);
 
     return true;
@@ -100,10 +100,10 @@ bool SerialServer::recv_message(InputPacket& input_packet, int timeout)
         input_packet.source.reset(new SerialEndPoint(remote_addr));
         rv = true;
         UXR_AGENT_LOG_MESSAGE(
-            input_packet.message->get_buf(),
-            input_packet.message->get_len(),
             UXR_DECORATE_YELLOW("[==>> SER <<==]"),
-            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())));
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     else
     {
@@ -126,10 +126,10 @@ bool SerialServer::send_message(OutputPacket output_packet)
     {
         rv = true;
         UXR_AGENT_LOG_MESSAGE(
-            output_packet.message->get_buf(),
-            output_packet.message->get_len(),
             UXR_DECORATE_YELLOW("[** <<SER>> **]"),
-            conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
+            conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+            output_packet.message->get_buf(),
+            output_packet.message->get_len());
     }
     errno_ = rv ? 0 : -1;
     return rv;
