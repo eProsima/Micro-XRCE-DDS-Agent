@@ -44,6 +44,11 @@ public:
         delete[] buf_;
     }
 
+    OutputMessage(OutputMessage&&) = delete;
+    OutputMessage(const OutputMessage&) = delete;
+    OutputMessage& operator=(OutputMessage&&) = delete;
+    OutputMessage& operator=(const OutputMessage&) = delete;
+
     uint8_t* get_buf() const { return buf_; }
 
     size_t get_len() const { return serializer_.getSerializedDataLength(); }
