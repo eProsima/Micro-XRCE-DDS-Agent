@@ -61,9 +61,10 @@ bool UDPServer::init()
         {
             /* Log. */
             UXR_AGENT_LOG_DEBUG(
-                "port: {}",
                 UXR_DECORATE_GREEN("port opened"),
-                transport_address_.medium_locator().port());
+                "port: {}",
+                transport_address_.medium_locator().port()
+                );
 
             /* Poll setup. */
             poll_fd_.events = POLLIN;
@@ -87,8 +88,8 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
                     UXR_AGENT_LOG_INFO(
-                        "port: {}",
                         UXR_DECORATE_GREEN("running..."),
+                        "port: {}",
                         transport_address_.medium_locator().port());
                 }
                 ::close(fd);
@@ -97,16 +98,16 @@ bool UDPServer::init()
         else
         {
             UXR_AGENT_LOG_ERROR(
-                "port: {}",
                 UXR_DECORATE_RED("bind error"),
+                "port: {}",
                 transport_address_.medium_locator().port());
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
-            "port: {}",
             UXR_DECORATE_RED("socket error"),
+            "port: {}",
             transport_address_.medium_locator().port());
     }
 
@@ -119,16 +120,16 @@ bool UDPServer::close()
     if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
     {
         UXR_AGENT_LOG_INFO(
-            "port: {}",
             UXR_DECORATE_GREEN("server stoped"),
+            "port: {}",
             transport_address_.medium_locator().port());
         rv = true;
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
-            "port: {}",
             UXR_DECORATE_RED("socket error"),
+            "port: {}",
             transport_address_.medium_locator().port());
     }
     return rv;

@@ -73,8 +73,8 @@ bool TCPServer::init()
         {
             /* Log. */
             UXR_AGENT_LOG_DEBUG(
-                "port: {}",
                 UXR_DECORATE_GREEN("port opened"),
+                "port: {}",
                 transport_address_.medium_locator().port());
 
             /* Setup listener poll. */
@@ -117,8 +117,8 @@ bool TCPServer::init()
                                                                      uint8_t(local_addr.sa_data[5])});
                         rv = true;
                         UXR_AGENT_LOG_INFO(
-                            "port: {}",
                             UXR_DECORATE_GREEN("running..."),
+                            "port: {}",
                             transport_address_.medium_locator().port());
                     }
                     ::close(fd);
@@ -127,24 +127,24 @@ bool TCPServer::init()
             else
             {
                 UXR_AGENT_LOG_ERROR(
-                    "port: {}",
                     UXR_DECORATE_RED("listen error"),
+                    "port: {}",
                     transport_address_.medium_locator().port());
             }
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
-                "port: {}",
                 UXR_DECORATE_RED("bind error"),
+                "port: {}",
                 transport_address_.medium_locator().port());
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
-            "port: {}",
             UXR_DECORATE_RED("socket error"),
+            "port: {}",
             transport_address_.medium_locator().port());
     }
     return rv;
@@ -187,15 +187,15 @@ bool TCPServer::close()
     if ((-1 == listener_poll_.fd) && (active_connections_.empty()))
     {
         UXR_AGENT_LOG_INFO(
-            "port: {}",
             UXR_DECORATE_GREEN("server stoped"),
+            "port: {}",
             transport_address_.medium_locator().port());
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
-            "port: {}",
             UXR_DECORATE_RED("socket error"),
+            "port: {}",
             transport_address_.medium_locator().port());
     }
     return rv;

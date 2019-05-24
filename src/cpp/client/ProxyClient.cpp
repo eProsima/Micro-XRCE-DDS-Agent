@@ -89,8 +89,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
             {
                 result.status(dds::xrce::STATUS_ERR_ALREADY_EXISTS);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_OBJECT_PATTERN,
                     UXR_DECORATE_RED("already exists"),
+                    UXR_CREATE_OBJECT_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -108,8 +108,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                 {
                     result.status(dds::xrce::STATUS_OK_MATCHED);
                     UXR_AGENT_LOG_DEBUG(
-                        UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_GREEN("objects matched"),
+                        UXR_CREATE_OBJECT_PATTERN,
                         conversion::clientkey_to_raw(representation_.client_key()),
                         conversion::objectid_to_raw(object_id));
                 }
@@ -117,8 +117,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                 {
                     result.status(dds::xrce::STATUS_ERR_MISMATCH);
                     UXR_AGENT_LOG_DEBUG(
-                        UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_RED("objects mismatch"),
+                        UXR_CREATE_OBJECT_PATTERN,
                         conversion::clientkey_to_raw(representation_.client_key()),
                         conversion::objectid_to_raw(object_id));
                 }
@@ -129,8 +129,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                 {
                     result.status(dds::xrce::STATUS_OK_MATCHED);
                     UXR_AGENT_LOG_DEBUG(
-                        UXR_CREATE_OBJECT_PATTERN,
                         UXR_DECORATE_GREEN("objects matched"),
+                        UXR_CREATE_OBJECT_PATTERN,
                         conversion::clientkey_to_raw(representation_.client_key()),
                         conversion::objectid_to_raw(object_id));
                 }
@@ -159,8 +159,8 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
         it->second->release(objects_);
         objects_.erase(object_id);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_OBJECT_PATTERN,
             UXR_DECORATE_GREEN("object deleted"),
+            UXR_CREATE_OBJECT_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -168,8 +168,8 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     {
         result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_OBJECT_PATTERN,
             UXR_DECORATE_RED("unknown referece"),
+            UXR_CREATE_OBJECT_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -262,16 +262,16 @@ bool ProxyClient::create_participant(
         {
             rv = true;
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_PARTICIPANT_PATTERN,
                 UXR_DECORATE_GREEN("participant created"),
+                UXR_CREATE_PARTICIPANT_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
         else
         {
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_PARTICIPANT_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_PARTICIPANT_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
             result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
@@ -280,8 +280,8 @@ bool ProxyClient::create_participant(
     else
     {
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_PARTICIPANT_PATTERN,
             UXR_DECORATE_RED("dds error"),
+            UXR_CREATE_PARTICIPANT_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
         result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
@@ -310,8 +310,8 @@ bool ProxyClient::create_topic(
             {
                 rv = true;
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_TOPIC_PATTERN,
                     UXR_DECORATE_GREEN("topic created"),
+                    UXR_CREATE_TOPIC_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id),
                     conversion::objectid_to_raw(participant_id));
@@ -320,8 +320,8 @@ bool ProxyClient::create_topic(
             {
                 result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_TOPIC_PATTERN,
                     UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_TOPIC_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -330,8 +330,8 @@ bool ProxyClient::create_topic(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_TOPIC_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_TOPIC_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
@@ -340,8 +340,8 @@ bool ProxyClient::create_topic(
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_TOPIC_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_TOPIC_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -369,8 +369,8 @@ bool ProxyClient::create_publisher(
             {
                 rv = true;
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_PUBLISHER_PATTERN,
                     UXR_DECORATE_GREEN("publisher created"),
+                    UXR_CREATE_PUBLISHER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id),
                     conversion::objectid_to_raw(participant_id));
@@ -379,8 +379,8 @@ bool ProxyClient::create_publisher(
             {
                 result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_PUBLISHER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_PUBLISHER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -389,8 +389,8 @@ bool ProxyClient::create_publisher(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_PUBLISHER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_PUBLISHER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
@@ -399,8 +399,8 @@ bool ProxyClient::create_publisher(
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_PUBLISHER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_PUBLISHER_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -427,8 +427,8 @@ bool ProxyClient::create_subscriber(
             if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_SUBSCRIBER_PATTERN,
                     UXR_DECORATE_GREEN("subscriber created"),
+                    UXR_CREATE_SUBSCRIBER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id),
                     conversion::objectid_to_raw(participant_id));
@@ -438,8 +438,8 @@ bool ProxyClient::create_subscriber(
             {
                 result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_SUBSCRIBER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_SUBSCRIBER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -448,8 +448,8 @@ bool ProxyClient::create_subscriber(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_SUBSCRIBER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_SUBSCRIBER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
@@ -458,8 +458,8 @@ bool ProxyClient::create_subscriber(
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_SUBSCRIBER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_SUBSCRIBER_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -486,8 +486,8 @@ bool ProxyClient::create_datawriter(
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_DATAWRITER_PATTERN,
                     UXR_DECORATE_GREEN("datawriter created"),
+                    UXR_CREATE_DATAWRITER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id),
                     conversion::objectid_to_raw(publisher_id));
@@ -497,8 +497,8 @@ bool ProxyClient::create_datawriter(
             {
                 result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_DATAWRITER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_DATAWRITER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -507,8 +507,8 @@ bool ProxyClient::create_datawriter(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_DATAWRITER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_DATAWRITER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
@@ -517,8 +517,8 @@ bool ProxyClient::create_datawriter(
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_DATAWRITER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_DATAWRITER_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
@@ -545,8 +545,8 @@ bool ProxyClient::create_datareader(
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_DATAREADER_PATTERN,
                     UXR_DECORATE_GREEN("datareader created"),
+                    UXR_CREATE_DATAREADER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id),
                     conversion::objectid_to_raw(subscriber_id));
@@ -556,8 +556,8 @@ bool ProxyClient::create_datareader(
             {
                 result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
                 UXR_AGENT_LOG_DEBUG(
-                    UXR_CREATE_DATAREADER_PATTERN,
                     UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_DATAREADER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
                     conversion::objectid_to_raw(object_id));
             }
@@ -566,8 +566,8 @@ bool ProxyClient::create_datareader(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_CREATE_DATAREADER_PATTERN,
                 UXR_DECORATE_RED("resources error"),
+                UXR_CREATE_DATAREADER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
         }
@@ -576,8 +576,8 @@ bool ProxyClient::create_datareader(
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
         UXR_AGENT_LOG_DEBUG(
-            UXR_CREATE_DATAREADER_PATTERN,
             UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_DATAREADER_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }

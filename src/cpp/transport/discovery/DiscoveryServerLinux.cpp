@@ -42,7 +42,10 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
     if (-1 == poll_fd_.fd)
     {
-        UXR_AGENT_LOG_ERROR("(Port: {}, Status: SOCKET_ERROR)", discovery_port);
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "Port: {}",
+            discovery_port);
         return false;
     }
 
@@ -50,7 +53,10 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     int reuse = 1;
     if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
-        UXR_AGENT_LOG_ERROR("(Port: {}, Status: SOCKET_OPT_ERROR)", discovery_port);
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket opt error"),
+            "Port: {}",
+            discovery_port);
         return false;
     }
 
@@ -63,7 +69,10 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
         /* Log. */
-        UXR_AGENT_LOG_DEBUG("Port: {}, Status: OPENED_PORT", discovery_port);
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_GREEN("port opened"),
+            "Port: {}",
+            discovery_port);
 
         /* Poll setup. */
         poll_fd_.events = POLLIN;
@@ -74,12 +83,18 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
-            UXR_AGENT_LOG_INFO("Port: {}, Status: LAUNCHED", discovery_port);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("running..."),
+                "Port: {}",
+                discovery_port);
             rv = true;
         }
         else
         {
-            UXR_AGENT_LOG_ERROR("Port: {}, Status: SOCKET_OPT_ERROR", discovery_port);
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("socket opt error"),
+                "Port: {}",
+                discovery_port);
         }
     }
 

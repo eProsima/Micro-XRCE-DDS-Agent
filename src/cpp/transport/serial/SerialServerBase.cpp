@@ -48,22 +48,31 @@ void SerialServerBase::on_create_client(
     else
     {
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
-        UXR_AGENT_LOG_INFO("client_key: 0x{0:08X}, address: {1}, status: SESSION_ESTABLISHED", client_id, *source);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session established"),
+            "client_key: 0x{0:08X}, address: {1}",
+            client_id,
+            *source);
+
     }
 
     /* Update client for the source. */
     if (127 < representation.session_id())
     {
-       auto it_source = source_to_client_map_.find(source_id);
-       if (it_source != source_to_client_map_.end())
-       {
-           it_source->second = client_id;
-            UXR_AGENT_LOG_INFO("client_key: 0x{0:08X}, address: {1}, status: ADDRESS_UPDATED", client_id, *source);
-       }
-       else
-       {
+        auto it_source = source_to_client_map_.find(source_id);
+        if (it_source != source_to_client_map_.end())
+        {
+            it_source->second = client_id;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_WHITE("address updated"),
+                "client_key: 0x{0:08X}, address: {1}",
+                client_id,
+                *source);
+        }
+        else
+        {
            source_to_client_map_.insert(std::make_pair(source_id, client_id));
-       }
+        }
     }
 }
 
@@ -77,7 +86,11 @@ void SerialServerBase::on_delete_client(EndPoint* source)
     auto it = source_to_client_map_.find(source_id);
     if (it != source_to_client_map_.end())
     {
-        UXR_AGENT_LOG_INFO("client_key: 0x{0:08X}, address: {1}, status: SESSION_DESTROYED", it->second, *source);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_WHITE("session destroyed"),
+            "client_key: 0x{0:08X}, address: {1}",
+            it->second,
+            *source);
         client_to_source_map_.erase(it->second);
         source_to_client_map_.erase(it->first);
     }

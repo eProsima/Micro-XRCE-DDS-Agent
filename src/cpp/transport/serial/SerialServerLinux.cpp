@@ -43,8 +43,8 @@ bool SerialServer::init()
     poll_fd_.events = POLLIN;
 
     UXR_AGENT_LOG_DEBUG(
-        "fd: {}",
         UXR_DECORATE_GREEN("running..."),
+        "fd: {}",
         poll_fd_.fd);
 
     return true;
