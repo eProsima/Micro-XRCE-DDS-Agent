@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
-#define _UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
+#include <uxr/agent/transport/udp/UdpServerImplLinux.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-class EndPoint
+bool UdpServerImpl::init()
 {
-public:
-    EndPoint() = default;
-    virtual ~EndPoint() = default;
-};
+    return true;
+}
+
+bool UdpServerImpl::close()
+{
+    return true;
+}
 
 } // namespace uxr
-} // namespace eprosima
-
-#endif //_UXR_AGENT_TRANSPORT_ENDPOINT_HPP_
+} // namespece eprosima

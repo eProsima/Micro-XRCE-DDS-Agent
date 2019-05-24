@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <unistd.h>
 
 namespace eprosima {
@@ -38,6 +41,11 @@ bool SerialServer::init()
 
     /* Poll setup. */
     poll_fd_.events = POLLIN;
+
+    UXR_AGENT_LOG_DEBUG(
+        UXR_DECORATE_GREEN("running..."),
+        "fd: {}",
+        poll_fd_.fd);
 
     return true;
 }
@@ -91,6 +99,11 @@ bool SerialServer::recv_message(InputPacket& input_packet, int timeout)
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
         input_packet.source.reset(new SerialEndPoint(remote_addr));
         rv = true;
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> SER <<==]"),
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     else
     {
@@ -112,6 +125,11 @@ bool SerialServer::send_message(OutputPacket output_packet)
     if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
         rv = true;
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<SER>> **]"),
+            conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+            output_packet.message->get_buf(),
+            output_packet.message->get_len());
     }
     errno_ = rv ? 0 : -1;
     return rv;

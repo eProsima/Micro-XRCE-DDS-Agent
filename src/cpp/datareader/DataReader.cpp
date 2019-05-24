@@ -18,6 +18,7 @@
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <iostream>
 #include <atomic>
@@ -33,7 +34,7 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
         const ObjectContainer& root_objects)
 {
     bool created_entity = false;
-    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
     std::shared_ptr<Topic> topic;
 
     Middleware& middleware = subscriber->get_middleware();
@@ -42,11 +43,11 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            uint16_t topic_id;
-            if (middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = conversion::raw_to_objectid(topic_id);;
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);;
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 topic->tie_object(object_id);
                 created_entity = true;
             }
@@ -55,11 +56,11 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t topic_id;
-            if (middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = conversion::raw_to_objectid(topic_id);
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 topic->tie_object(object_id);
                 created_entity = true;
             }
@@ -173,6 +174,11 @@ void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+                get_raw_id(),
+                data.data(),
+                data.size());
             read_cb(cb_args, data);
             ++message_count;
         }

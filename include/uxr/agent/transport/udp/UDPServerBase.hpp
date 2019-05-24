@@ -16,7 +16,7 @@
 #define UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 
 #include <unordered_map>
 
@@ -32,9 +32,14 @@ public:
 
     ~UDPServerBase() override = default;
 
-    void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
+    void on_create_client(
+            EndPoint* source,
+            const dds::xrce::CLIENT_Representation& representation) override;
+
     void on_delete_client(EndPoint* source) override;
+
     const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
+
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 protected:

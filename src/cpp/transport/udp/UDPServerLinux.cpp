@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -31,6 +33,7 @@ UDPServer::UDPServer(
     : UDPServerBase{agent_port, middleware_kind}
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
+    , port_{agent_port}
 #ifdef PROFILE_DISCOVERY
     , discovery_server_{*processor_}
 #endif
@@ -56,6 +59,13 @@ bool UDPServer::init()
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
+            /* Log. */
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_GREEN("port opened"),
+                "port: {}",
+                transport_address_.medium_locator().port()
+                );
+
             /* Poll setup. */
             poll_fd_.events = POLLIN;
 
@@ -77,10 +87,28 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_GREEN("running..."),
+                        "port: {}",
+                        transport_address_.medium_locator().port());
                 }
                 ::close(fd);
             }
         }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("bind error"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+        }
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
     }
 
     return rv;
@@ -88,7 +116,23 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
+    bool rv = false;
+    if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -136,7 +180,12 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new UDPEndPoint(addr, port));
+            input_packet.source.reset(new IPv4EndPoint(addr, port));
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
             rv = true;
         }
     }
@@ -154,7 +203,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
 bool UDPServer::send_message(OutputPacket output_packet)
 {
     bool rv = false;
-    const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
+    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
@@ -168,7 +217,15 @@ bool UDPServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (-1 != bytes_sent)
     {
-        rv = ((size_t)bytes_sent == output_packet.message->get_len());
+        if (size_t(bytes_sent) == output_packet.message->get_len())
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
+            rv = true;
+        }
     }
 
     return rv;

@@ -24,7 +24,7 @@ std::unique_ptr<Participant> Participant::create(
         Middleware& middleware)
 {
     bool created_entity = false;
-    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
     switch (representation.representation()._d())
     {

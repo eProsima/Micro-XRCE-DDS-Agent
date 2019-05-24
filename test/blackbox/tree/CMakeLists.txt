@@ -50,7 +50,14 @@ if(GMOCK_FOUND)
         ${GMOCK_INCLUDE_DIRS}
         ${ASIO_INCLUDE_DIR}
         )
-    target_link_libraries(tree_test PRIVATE fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+    target_link_libraries(tree_test
+        PRIVATE
+            fastrtps
+            fastcdr
+            $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+            ${GTEST_LIBRARIES}
+            ${GMOCK_LIBRARIES}
+        )
     target_compile_definitions(tree_test
         PRIVATE
             -DBOOST_ASIO_STANDALONE

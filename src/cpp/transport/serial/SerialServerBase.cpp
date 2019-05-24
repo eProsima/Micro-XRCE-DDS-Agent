@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/serial/SerialServerBase.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -26,15 +28,14 @@ SerialServerBase::SerialServerBase(
     , client_to_source_map_{}
 {}
 
-void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation)
+void SerialServerBase::on_create_client(
+        EndPoint* source,
+        const dds::xrce::CLIENT_Representation& representation)
 {
     SerialEndPoint* endpoint = static_cast<SerialEndPoint*>(source);
     uint8_t source_id = endpoint->get_addr();
     const dds::xrce::ClientKey& client_key = representation.client_key();
-    uint32_t client_id = uint32_t(client_key.at(0) +
-                                  (client_key.at(1) << 8) +
-                                  (client_key.at(2) << 16) +
-                                  (client_key.at(3) << 24));
+    uint32_t client_id = conversion::clientkey_to_raw(client_key);
 
     /* Update source for the client. */
     std::lock_guard<std::mutex> lock(clients_mtx_);
@@ -47,20 +48,31 @@ void SerialServerBase::on_create_client(EndPoint* source, const dds::xrce::CLIEN
     else
     {
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session established"),
+            "client_key: 0x{:08X}, address: {}",
+            client_id,
+            *source);
+
     }
 
     /* Update client for the source. */
     if (127 < representation.session_id())
     {
-       auto it_source = source_to_client_map_.find(source_id);
-       if (it_source != source_to_client_map_.end())
-       {
-           it_source->second = client_id;
-       }
-       else
-       {
+        auto it_source = source_to_client_map_.find(source_id);
+        if (it_source != source_to_client_map_.end())
+        {
+            it_source->second = client_id;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_WHITE("address updated"),
+                "client_key: 0x{:08X}, address: {}",
+                client_id,
+                *source);
+        }
+        else
+        {
            source_to_client_map_.insert(std::make_pair(source_id, client_id));
-       }
+        }
     }
 }
 
@@ -74,6 +86,11 @@ void SerialServerBase::on_delete_client(EndPoint* source)
     auto it = source_to_client_map_.find(source_id);
     if (it != source_to_client_map_.end())
     {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_WHITE("session destroyed"),
+            "client_key: 0x{:08X}, address: {}",
+            it->second,
+            *source);
         client_to_source_map_.erase(it->second);
         source_to_client_map_.erase(it->first);
     }
@@ -87,10 +104,7 @@ const dds::xrce::ClientKey SerialServerBase::get_client_key(EndPoint* source)
     auto it = source_to_client_map_.find(endpoint->get_addr());
     if (it != source_to_client_map_.end())
     {
-        client_key.at(0) = uint8_t(it->second & 0x000000FF);
-        client_key.at(1) = uint8_t((it->second & 0x0000FF00) >> 8);
-        client_key.at(2) = uint8_t((it->second & 0x00FF0000) >> 16);
-        client_key.at(3) = uint8_t((it->second & 0xFF000000) >> 24);
+        client_key = conversion::raw_to_clientkey(it->second);
     }
     else
     {
@@ -102,10 +116,7 @@ const dds::xrce::ClientKey SerialServerBase::get_client_key(EndPoint* source)
 std::unique_ptr<EndPoint> SerialServerBase::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
-    uint32_t client_id = uint32_t(client_key.at(0) +
-                                  (client_key.at(1) << 8) +
-                                  (client_key.at(2) << 16) +
-                                  (client_key.at(3) << 24));
+    uint32_t client_id = conversion::clientkey_to_raw(client_key);
     std::lock_guard<std::mutex> lock(clients_mtx_);
     auto it = client_to_source_map_.find(client_id);
     if (it != client_to_source_map_.end())

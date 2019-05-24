@@ -16,7 +16,8 @@
 #define UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/tcp/TCPEndPoint.hpp>
+#include <uxr/agent/transport/tcp/TCPConnection.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 
 #include <unordered_map>
 

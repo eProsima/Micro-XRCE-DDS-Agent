@@ -95,17 +95,6 @@ public:
         DATAREADER_OBJK     = 0x06
     };
 
-    /**
-     * @brief Generates an XRCEObject identifier from a prefix and an ObjectKind identifier.
-     * @param prefix        The XRCEObject's prefix.
-     * @param object_kind   The XRCEObject's kind.
-     * @return The XRCEObject's identifier.
-     */
-    static uint16_t get_object_id(uint16_t prefix, ObjectKind object_kind)
-    {
-        return uint16_t((uint16_t(prefix) << 4) + object_kind);
-    }
-
     Agent() = delete;
     ~Agent() = delete;
 
@@ -172,6 +161,19 @@ public:
             OpResult& op_result);
 
     /**
+     * @brief Deletes the Participant from the ProxyClient.
+     *        This operation removes all the participant hiearchy.
+     * @param client_key        The identifier of the ProxyClient to delete from.
+     * @param participant_id    The identifier of the Participant to delete.
+     * @param op_result         The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
+    UXR_AGENT_EXPORT static bool delete_participant(
+            uint32_t client_key,
+            uint16_t participant_id,
+            OpResult& op_result);
+
+    /**
      * @brief Creates a Topic from a reference in the ProxyClient identified by the client_key.
      *        The Topic is associated with the Participant identifier by the participant_id.
      * @param client_key        The identifier of the ProxyClient.
@@ -210,6 +212,19 @@ public:
             OpResult& op_result);
 
     /**
+     * @brief Deletes the Topic from the ProxyClient.
+     *        This operation removes all the DataWriters or DataReaders associated with the Topic.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param topic_id      The identifier of the Topic to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
+    UXR_AGENT_EXPORT static bool delete_topic(
+            uint32_t client_key,
+            uint16_t topic_id,
+            OpResult& op_result);
+
+    /**
      * @brief Creates a Publisher from an XML in the ProxyClient identified by the client_key.
      *        The Publisher is associated with the Participant identifier by the participant_id.
      * @param client_key        The identifier of the ProxyClient.
@@ -229,6 +244,19 @@ public:
             OpResult& op_result);
 
     /**
+     * @brief Deletes the publisher from a ProxyClient.
+     *        This operation removes all the DataWriters associated with the Publisher.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param publisher_id  The identifier of the Publisher to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
+    UXR_AGENT_EXPORT static bool delete_publisher(
+            uint32_t client_key,
+            uint16_t publisher_id,
+            OpResult& op_result);
+
+    /**
      * @brief Creates a Subscriber from an XML in the ProxyClient identified by the client_key.
      *        The Subscriber is associated with the Participant identifier by the participant_id.
      * @param client_key        The identifier of the ProxyClient.
@@ -245,6 +273,20 @@ public:
             uint16_t participant_id,
             const char* xml,
             uint8_t flag,
+            OpResult& op_result);
+
+    /**
+     * @brief Deletes the subscriber from a ProxyClient.
+     *        This operation removes all the DataReaders associated with the Subscriber.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param subscriber_id The identifier of the Subscriber to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
+    UXR_AGENT_EXPORT static bool delete_subscriber(
+            uint32_t client_key,
+            uint16_t subscriber_id,
             OpResult& op_result);
 
     /**
@@ -286,6 +328,18 @@ public:
             OpResult& op_result);
 
     /**
+     * @brief Deletes the DataWriter from a ProxyClient.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param datawriter_id The identifier of the DataWriter to delete.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
+    UXR_AGENT_EXPORT static bool delete_datawriter(
+            uint32_t client_key,
+            uint16_t datawriter_id,
+            OpResult& op_result);
+
+    /**
      * @brief Creates a DataReader from a reference in the ProxyClient identified by the client_key.
      *        The DataReader is associated with a Subscriber identified by subscriber_id.
      * @param client_key        The identifier of the ProxyClient.
@@ -324,18 +378,15 @@ public:
             OpResult& op_result);
 
     /**
-     * @brief Deletes an entity identified by the object_id and all its associated entities
-     *        in a ProxyClient identified by the client_key.
-     *        For example, if a Participant is deleted,
-     *        its associated Topics, Publishers, Subscribers, DataWriters and DataReaders will be deleted also.
-     * @param client_key    The identifier of the ProxyClient.
-     * @param object_id     The identifier of the entity to be deleted.
+     * @brief Deletes the DataReader from a ProxyClient.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param datareader_id The identifier of the DataReader to delete.
      * @param op_result     The result status of the operation.
-     * @return  true in case of success and false in other case.
+     * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_object(
+    UXR_AGENT_EXPORT static bool delete_datareader(
             uint32_t client_key,
-            uint16_t object_id,
+            uint16_t datareader_id,
             OpResult& op_result);
 
     /**
@@ -356,6 +407,15 @@ public:
     /**********************************************************************************************
      * Write Data.
      **********************************************************************************************/
+    /**
+     * @brief Writes data using the DataWriter of the ProxyClient.
+     * @param client_key    The identifier of the ProxyClient.
+     * @param datawriter_id The identifier of the DataWriter to write with.
+     * @param buf           Raw buffer of data to write.
+     * @param len           Lengh to write.
+     * @param op_result     The result status of the operation.
+     * @return true in case of success and false in other case.
+     */
     UXR_AGENT_EXPORT static bool write(
             uint32_t client_key,
             uint16_t datawriter_id,

@@ -15,7 +15,7 @@
 #ifndef _UXR_AGENT_TRANSPORT_SERIAL_ENDPOINT_HPP_
 #define _UXR_AGENT_TRANSPORT_SERIAL_ENDPOINT_HPP_
 
-#include <uxr/agent/transport/EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/EndPoint.hpp>
 
 #include <stdint.h>
 
@@ -26,7 +26,13 @@ class SerialEndPoint : public EndPoint
 {
 public:
     SerialEndPoint(uint8_t addr) { addr_ = addr; }
+
     ~SerialEndPoint() {}
+
+    std::ostream& print(std::ostream& os) const final
+    {
+        return os << int(addr_);
+    }
 
     uint8_t get_addr() const { return addr_; }
 

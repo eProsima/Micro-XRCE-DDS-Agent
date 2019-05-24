@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -68,6 +71,12 @@ bool TCPServer::init()
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (-1 != bind(listener_poll_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
+            /* Log. */
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_GREEN("port opened"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
 
@@ -107,11 +116,36 @@ bool TCPServer::init()
                                                                      uint8_t(local_addr.sa_data[4]),
                                                                      uint8_t(local_addr.sa_data[5])});
                         rv = true;
+                        UXR_AGENT_LOG_INFO(
+                            UXR_DECORATE_GREEN("running..."),
+                            "port: {}",
+                            transport_address_.medium_locator().port());
                     }
                     ::close(fd);
                 }
             }
+            else
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("listen error"),
+                    "port: {}",
+                    transport_address_.medium_locator().port());
+            }
         }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("bind error"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+        }
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
     }
     return rv;
 }
@@ -149,7 +183,22 @@ bool TCPServer::close()
     agent_discoverer_.stop();
 #endif
 
-    return (-1 == listener_poll_.fd) && (active_connections_.empty());
+    bool rv = false;
+    if ((-1 == listener_poll_.fd) && (active_connections_.empty()))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -195,6 +244,11 @@ bool TCPServer::recv_message(
     {
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     return rv;
 }
@@ -203,7 +257,7 @@ bool TCPServer::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
-    const TCPEndPoint* destination = static_cast<const TCPEndPoint*>(output_packet.destination.get());
+    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
@@ -272,6 +326,11 @@ bool TCPServer::send_message(OutputPacket output_packet)
 
         if (payload_sent)
         {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
             rv = true;
         }
         else
@@ -373,7 +432,7 @@ bool TCPServer::read_message(int timeout)
                 {
                     InputPacket input_packet;
                     input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
-                    input_packet.source.reset(new TCPEndPoint(conn.addr, conn.port));
+                    input_packet.source.reset(new IPv4EndPoint(conn.addr, conn.port));
                     messages_queue_.push(std::move(input_packet));
                     rv = true;
                 }

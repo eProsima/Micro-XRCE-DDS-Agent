@@ -16,6 +16,8 @@
 #include <uxr/agent/libdev/MessageDebugger.h>
 #include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 // TODO (#5047): replace Fast RTPS dependency by XML parser library.
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -40,6 +42,10 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
+#ifdef PROFILE_LOGGER
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_pattern(UXR_LOG_PATTERN);
+#endif
 }
 
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
@@ -54,6 +60,12 @@ dds::xrce::ResultStatus Root::create_client(
     {
         dds::xrce::ResultStatus invalid_result;
         invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+        UXR_AGENT_LOG_WARN(
+            UXR_DECORATE_RED("invalid client key"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_representation.client_key()));
+
         return invalid_result;
     }
 
@@ -74,14 +86,20 @@ dds::xrce::ResultStatus Root::create_client(
                         = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
-#ifdef VERBOSE_OUTPUT
-                    std::cout << "<== ";
-                    debug::printl_connected_client_submessage(client_representation);
-#endif
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_GREEN("create"),
+                        UXR_CREATE_SESSION_PATTERN,
+                        conversion::clientkey_to_raw(client_key),
+                        session_id);
                 }
                 else
                 {
                     result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_RED("resources error"),
+                        UXR_CLIENT_KEY_PATTERN,
+                        conversion::clientkey_to_raw(client_representation.client_key()));
                 }
             }
             else
@@ -100,22 +118,35 @@ dds::xrce::ResultStatus Root::create_client(
         else
         {
             result_status.status(dds::xrce::STATUS_ERR_INCOMPATIBLE);
+
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_RED("incompatible version"),
+                UXR_CLIENT_KEY_PATTERN,
+                conversion::clientkey_to_raw(client_representation.client_key()));
         }
     }
     else
     {
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_RED("invalid cookie"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_representation.client_key()));
     }
 
-    auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
-                      (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    dds::xrce::Time_t timestamp;
-    timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
-    timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
-    agent_representation.agent_timestamp(timestamp);
-    agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
-    agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
+    if (dds::xrce::STATUS_OK == result_status.status())
+    {
+        auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
+                          (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+        dds::xrce::Time_t timestamp;
+        timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
+        timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
+        agent_representation.agent_timestamp(timestamp);
+        agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
+        agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
+        agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
+    }
 
     return result_status;
 }
@@ -157,10 +188,19 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         }
         clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("delete"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_key));
     }
     else
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_RED("unknown client"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_key));
     }
     return result_status;
 }

@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,33 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_MESSAGE_PACKET_HPP_
-#define UXR_AGENT_MESSAGE_PACKET_HPP_
-
-#include <uxr/agent/message/InputMessage.hpp>
 #include <uxr/agent/message/OutputMessage.hpp>
-#include <memory>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-class EndPoint;
-
-typedef std::unique_ptr<InputMessage> InputMessagePtr;
-struct InputPacket
+void OutputMessage::log_error()
 {
-    std::shared_ptr<EndPoint> source;
-    InputMessagePtr message;
-};
-
-typedef std::shared_ptr<OutputMessage> OutputMessagePtr;
-struct OutputPacket
-{
-    std::shared_ptr<EndPoint> destination;
-    OutputMessagePtr message;
-};
+    UXR_AGENT_LOG_ERROR(
+        UXR_DECORATE_RED("serialization error"),
+        "buffer: {:X}",
+        UXR_AGENT_LOG_TO_HEX(buf_, buf_ + len_));
+}
 
 } // namespace uxr
 } // namespace eprosima
-
-#endif // UXR_AGENT_MESSAGE_PACKET_HPP_

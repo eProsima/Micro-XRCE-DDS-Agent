@@ -16,6 +16,8 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/Root.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <functional>
 
 #define RECEIVE_TIMEOUT 1

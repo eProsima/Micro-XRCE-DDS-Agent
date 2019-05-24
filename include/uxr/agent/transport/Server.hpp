@@ -15,11 +15,12 @@
 #ifndef UXR_AGENT_TRANSPORT_SERVER_HPP_
 #define UXR_AGENT_TRANSPORT_SERVER_HPP_
 
-#include <uxr/agent/transport/EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/agent_dll.hpp>
+
 #include <thread>
 
 namespace eprosima {

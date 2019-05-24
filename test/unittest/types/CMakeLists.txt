@@ -19,13 +19,14 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/OutputMessage.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-xrce-types ${SRCS})
 add_gtest(test-xrce-types
     SOURCES
         ${SRCS}
     DEPENDENCIES
-        fastrtps
         fastcdr
     )
 target_include_directories(test-xrce-types
@@ -34,7 +35,12 @@ target_include_directories(test-xrce-types
         ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}
     )
-target_link_libraries(test-xrce-types PRIVATE fastrtps fastcdr ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-xrce-types
+    PRIVATE
+        fastcdr
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        ${GTEST_BOTH_LIBRARIES}
+    )
 set_target_properties(test-xrce-types PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES

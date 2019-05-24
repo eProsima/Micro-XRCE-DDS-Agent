@@ -21,6 +21,8 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/OutputMessage.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-output-stream ${SRCS})
 add_gtest(test-output-stream
@@ -35,7 +37,12 @@ target_include_directories(test-output-stream PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-output-stream PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-output-stream
+    PRIVATE
+        fastcdr
+        ${GTEST_BOTH_LIBRARIES}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+    )
 set_target_properties(test-output-stream PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
@@ -50,6 +57,8 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/types/XRCETypes.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/MessageHeader.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/types/SubMessageHeader.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/OutputMessage.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-input-stream ${SRCS})
 add_gtest(test-input-stream
@@ -64,7 +73,12 @@ target_include_directories(test-input-stream PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-input-stream PRIVATE fastcdr ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test-input-stream
+    PRIVATE
+        fastcdr
+        ${GTEST_BOTH_LIBRARIES}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+    )
 set_target_properties(test-input-stream PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES

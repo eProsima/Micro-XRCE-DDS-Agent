@@ -66,7 +66,7 @@ static void on_topic(
     Agent::OpResult result;
     Agent::write(
         INTERNAL_CLIENT_KEY,
-        Agent::get_object_id(object_id.id, Agent::DATAWRITER_OBJK),
+        object_id.id >> 4,
         ub->iterator,
         ucdr_buffer_remaining(ub),
         result);
@@ -176,8 +176,8 @@ void InternalClient::create_domain_entities()
             bool entities_created = false;
 
             /* Create local entities. */
-            uint16_t internal_participant_id = Agent::get_object_id(uint16_t(*it), Agent::PARTICIPANT_OBJK);
-            uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(*it), Agent::PUBLISHER_OBJK);
+            const uint16_t internal_participant_id = uint16_t(*it);
+            const uint16_t internal_publisher_id = uint16_t(*it);
             const char* ref = "";
             Agent::OpResult result;
             if (Agent::create_participant_by_ref(
@@ -263,10 +263,10 @@ void InternalClient::create_topic_entities()
 
             /* Create local entities. */
             Agent::OpResult result;
-            uint16_t internal_paraticipant_id = Agent::get_object_id(uint16_t(it->first), Agent::PARTICIPANT_OBJK);
-            uint16_t internal_topic_id = Agent::get_object_id(topic_counter_, Agent::TOPIC_OBJK);
-            uint16_t internal_publisher_id = Agent::get_object_id(uint16_t(it->first), Agent::PUBLISHER_OBJK);
-            uint16_t internal_datawriter_id = Agent::get_object_id(topic_counter_, Agent::DATAWRITER_OBJK);
+            const uint16_t internal_paraticipant_id = uint16_t(it->first);
+            const uint16_t internal_topic_id = topic_counter_;
+            const uint16_t internal_publisher_id = uint16_t(it->first);
+            const uint16_t internal_datawriter_id = topic_counter_;
             if (Agent::create_topic_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_topic_id,

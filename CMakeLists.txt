@@ -96,6 +96,7 @@ option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
 option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
 option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
 option(PROFILE_P2P "Activate the P2P discovery profile." ON)
+option(PROFILE_LOGGER "Active logger profile." ON)
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -108,9 +109,16 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_package(fastrtps REQUIRED)
-eprosima_find_package(uxrclient REQUIRED)
 eprosima_find_thirdparty(Asio asio)
+if(PROFILE_P2P)
+    eprosima_find_package(uxrclient)
+endif()
+if(PROFILE_FAST_MIDDLEWARE)
+    eprosima_find_package(fastrtps REQUIRED)
+endif()
+if(PROFILE_LOGGER)
+    eprosima_find_package(spdlog REQUIRED)
+endif()
 
 ###############################################################################
 # Targets
@@ -150,6 +158,8 @@ set(SRCS
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
     src/cpp/types/SubMessageHeader.cpp
+    src/cpp/message/InputMessage.cpp
+    src/cpp/message/OutputMessage.cpp
     $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
@@ -169,14 +179,16 @@ set(SRCS
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
-# Executable
+# Library
 add_library(${PROJECT_NAME} ${SRCS})
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
     PRIVATE
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         microxrcedds_client
+        $<$<PLATFORM_ID:Linux>:pthread>
     )
 target_include_directories(${PROJECT_NAME}
     PUBLIC
@@ -187,8 +199,14 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         ${ASIO_INCLUDE_DIR}
     )
+
+# Executable
 add_executable(MicroXRCEAgent microxrce_agent.cpp)
-target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
+target_link_libraries(MicroXRCEAgent
+    PRIVATE
+        ${PROJECT_NAME}
+        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+    )
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/agent.refs

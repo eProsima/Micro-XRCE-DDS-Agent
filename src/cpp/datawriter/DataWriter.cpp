@@ -17,6 +17,7 @@
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -28,7 +29,7 @@ std::unique_ptr<DataWriter> DataWriter::create(
         const ObjectContainer& root_objects)
 {
     bool created_entity = false;
-    uint16_t raw_object_id = uint16_t((object_id[0] << 8) + object_id[1]);
+    uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
     std::shared_ptr<Topic> topic;
 
     Middleware& middleware = publisher->get_middleware();
@@ -37,11 +38,11 @@ std::unique_ptr<DataWriter> DataWriter::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            uint16_t topic_id;
-            if (middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 created_entity = true;
             }
             break;
@@ -49,11 +50,11 @@ std::unique_ptr<DataWriter> DataWriter::create(
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t topic_id;
-            if (middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml, topic_id))
+            uint16_t raw_topic_id;
+            if (middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml, raw_topic_id))
             {
-                dds::xrce::ObjectId topic_xrce_id = {uint8_t(topic_id >> 8), uint8_t(topic_id & 0xFF)};
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_xrce_id));
+                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
+                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
                 created_entity = true;
             }
             break;
@@ -114,12 +115,32 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    return get_middleware().write_data(get_raw_id(), write_data.data().serialized_data());
+    bool rv = false;
+    if (get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
+    {
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
+            get_raw_id(),
+            write_data.data().serialized_data().data(),
+            write_data.data().serialized_data().size());
+        rv = true;
+    }
+    return rv;
 }
 
 bool DataWriter::write(const std::vector<uint8_t>& data)
 {
-    return get_middleware().write_data(get_raw_id(), data);
+    bool rv = false;
+    if (get_middleware().write_data(get_raw_id(), data))
+    {
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
+            get_raw_id(),
+            data.data(),
+            data.size());
+        rv = true;
+    }
+    return rv;
 }
 
 Middleware& DataWriter::get_middleware() const

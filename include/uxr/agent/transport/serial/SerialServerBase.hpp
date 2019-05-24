@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
-#define _UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
+#ifndef UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
+#define UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/serial/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
 #include <uxr/agent/transport/serial/serial_protocol.h>
 
 #include <unordered_map>
@@ -33,9 +33,14 @@ public:
 
     ~SerialServerBase() override = default;
 
-    void on_create_client(EndPoint* source, const dds::xrce::CLIENT_Representation& representation) override;
+    void on_create_client(
+            EndPoint* source,
+            const dds::xrce::CLIENT_Representation& representation) override;
+
     void on_delete_client(EndPoint* source) override;
+
     const dds::xrce::ClientKey get_client_key(EndPoint* source) override;
+
     std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) override;
 
 protected:
@@ -50,4 +55,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_
+#endif // UXR_AGENT_TRANSPORT_SERIAL_SERVER_BASE_HPP_

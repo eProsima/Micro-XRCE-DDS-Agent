@@ -22,7 +22,11 @@ if(NOT ((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     set(SRCS AgentSerialization.cpp)
     add_library(${PROJECT_NAME} STATIC ${SRCS})
 
-    target_link_libraries(${PROJECT_NAME} microxrcedds_agent)
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            microxrcedds_agent
+            $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        )
     get_target_property(MICROXRCEDDS_AGENT_DIR microxrcedds_agent SOURCE_DIR)
     target_include_directories(${PROJECT_NAME}
         PUBLIC

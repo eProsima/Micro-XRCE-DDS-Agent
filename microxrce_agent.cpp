@@ -165,23 +165,14 @@ void parseDiscovery(
         if(("--discovery" == cl[cl_counter - 1]))
         {
             ++cl_counter;
-            bool discovery_launch = false;
             if (cl_counter <= cl.size() && "--" != cl[cl_counter - 1].substr(0, 2))
             {
-                discovery_launch = server->enable_discovery(parsePort(cl[cl_counter - 1]));
+                server->enable_discovery(parsePort(cl[cl_counter - 1]));
                 ++cl_counter;
             }
             else
             {
-                discovery_launch = server->enable_discovery();
-            }
-            if (discovery_launch)
-            {
-                std::cout << "--> OK: Discovery Server enable" << std::endl;
-            }
-            else
-            {
-                std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
+                server->enable_discovery();
             }
         }
     }
@@ -201,14 +192,7 @@ void parseP2P(
             ++cl_counter;
             if (cl_counter <= cl.size())
             {
-                if (server->enable_p2p(parsePort(cl[cl_counter - 1])))
-                {
-                    std::cout << "--> OK: Agent Discoverer enable" << std::endl;
-                }
-                else
-                {
-                    std::cout << "--> ERROR: failed to start Agent Discoverer" << std::endl;
-                }
+                server->enable_p2p(parsePort(cl[cl_counter - 1]));
             }
             else
             {
@@ -222,6 +206,7 @@ void parseP2P(
 
 int main(int argc, char** argv)
 {
+    std::cout << "Enter 'q' for exit" << std::endl;
     std::unique_ptr<eprosima::uxr::Server> server;
     std::vector<std::string> cl(0);
 
@@ -253,7 +238,7 @@ int main(int argc, char** argv)
     }
     else if ((cl.end() != it_cl) && ("--udp" == *it_cl))
     {
-        std::cout << "UDP agent initialization... ";
+//        std::cout << "UDP agent initialization... ";
         uint16_t port = 0;
         if (cl.end() != ++it_cl)
         {
@@ -266,11 +251,10 @@ int main(int argc, char** argv)
         server.reset(new eprosima::uxr::UDPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
-            std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
+//            std::cout << "--> OK: UDP Agent running at port " << port << std::endl;
         }
         else
         {
-            std::cerr << "--> ERROR: failed to start UDP Agent" << std::endl;
             return 1;
         }
 
@@ -293,11 +277,11 @@ int main(int argc, char** argv)
                 }
                 if (discovery_launch)
                 {
-                    std::cout << "--> OK: Discovery Server enable" << std::endl;
+//                    std::cout << "--> OK: Discovery Server enable" << std::endl;
                 }
                 else
                 {
-                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
+//                    std::cout << "--> ERROR: failed to start Discovery Server" << std::endl;
                 }
             }
             else
@@ -333,11 +317,11 @@ int main(int argc, char** argv)
         server.reset(new eprosima::uxr::TCPServer(port, eprosima::uxr::Middleware::Kind::FAST));
         if (server->run())
         {
-            std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
+//            std::cout << "--> OK: TCP Agent running at port " << port << std::endl;
         }
         else
         {
-            std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
+//            std::cerr << "--> ERROR: failed to start TCP Agent" << std::endl;
             return 1;
         }
 
@@ -562,7 +546,6 @@ int main(int argc, char** argv)
     char exit_flag = 0;
     while ('q' != exit_flag)
     {
-        std::cout << "Enter 'q' for exit" << std::endl;
         std::cin >> exit_flag;
     }
     if (server)

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fast/FastEntities.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <fastrtps/Domain.h>
 #include <fastrtps/participant/Participant.h>
 #include <fastrtps/publisher/Publisher.h>
@@ -73,11 +75,19 @@ void FastParticipant::onParticipantDiscovery(
 {
     if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
     {
-        std::cout << "RTPS Participant matched " << info.info.m_guid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.info.m_guid.entityId,
+            info.info.m_guid.guidPrefix);
     }
     else
     {
-        std::cout << "RTPS Participant unmatched " << info.info.m_guid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.info.m_guid.entityId,
+            info.info.m_guid.guidPrefix);
     }
 }
 
@@ -247,11 +257,19 @@ void FastDataWriter::onPublicationMatched(
 {
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
-        std::cout << "RTPS Subscriber matched " << info.remoteEndpointGuid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
     }
     else
     {
-        std::cout << "RTPS Subscriber unmatched " << info.remoteEndpointGuid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
     }
 }
 
@@ -348,11 +366,19 @@ void FastDataReader::onSubscriptionMatched(
 {
     if (info.status == fastrtps::rtps::MATCHED_MATCHING)
     {
-        std::cout << "RTPS Publisher matched " << info.remoteEndpointGuid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
     }
     else
     {
-        std::cout << "RTPS Publisher unmatched " << info.remoteEndpointGuid << std::endl;
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
     }
 }
 

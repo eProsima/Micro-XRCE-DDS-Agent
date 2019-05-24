@@ -38,7 +38,7 @@ public:
     ProxyClient& operator=(ProxyClient&&) = delete;
     ProxyClient& operator=(const ProxyClient&) = delete;
 
-    dds::xrce::ResultStatus create(
+    dds::xrce::ResultStatus create_object(
             const dds::xrce::CreationMode& creation_mode,
             const dds::xrce::ObjectPrefix& objectid_prefix,
             const dds::xrce::ObjectVariant& object_representation);
@@ -62,34 +62,41 @@ public:
 private:
     bool create_object(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::ObjectVariant& representation);
+            const dds::xrce::ObjectVariant& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_participant(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+            const dds::xrce::OBJK_PARTICIPANT_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_topic(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_TOPIC_Representation& representation);
+            const dds::xrce::OBJK_TOPIC_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_publisher(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_PUBLISHER_Representation& representation);
+            const dds::xrce::OBJK_PUBLISHER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_subscriber(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
+            const dds::xrce::OBJK_SUBSCRIBER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_datawriter(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::DATAWRITER_Representation& representation);
+            const dds::xrce::DATAWRITER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
     bool create_datareader(
             const dds::xrce::ObjectId& object_id,
-            const dds::xrce::DATAREADER_Representation& representation);
+            const dds::xrce::DATAREADER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
 
 private:
-    dds::xrce::CLIENT_Representation representation_;
+    const dds::xrce::CLIENT_Representation representation_;
     std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
     XRCEObject::ObjectContainer objects_;
