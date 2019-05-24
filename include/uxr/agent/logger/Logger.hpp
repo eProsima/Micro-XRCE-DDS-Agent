@@ -121,14 +121,14 @@
 #endif
 
 #ifdef PROFILE_LOGGER
-#define UXR_AGENT_LOG_MESSAGE(BUF, LEN, ...) \
+#define UXR_AGENT_LOG_MESSAGE(STATUS, CLIENT_KEY, BUF, LEN) \
     if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
     { \
-        UXR_AGENT_LOG_DEBUG(UXR_MESSAGE_WITH_DATA_PATTERN, __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_WITH_DATA_PATTERN, CLIENT_KEY, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     else \
     { \
-        UXR_AGENT_LOG_DEBUG(UXR_MESSAGE_PATTERN, __VA_ARGS__, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_PATTERN, CLIENT_KEY, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     void(0)
 #else

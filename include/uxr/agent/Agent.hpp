@@ -164,7 +164,7 @@ public:
      * @brief Deletes the Participant from the ProxyClient.
      *        This operation removes all the participant hiearchy.
      * @param client_key        The identifier of the ProxyClient to delete from.
-     * @param participant_id    The identifier of the participant to delete.
+     * @param participant_id    The identifier of the Participant to delete.
      * @param op_result         The result status of the operation.
      * @return true in case of success and false in other case.
      */
@@ -213,10 +213,10 @@ public:
 
     /**
      * @brief Deletes the Topic from the ProxyClient.
-     *        This operation removes all the datawriters or datareaders associated with the topic.
-     * @param client_ke     	The identifier of the ProxyClient to delete from.
-     * @param topic_id         The identifier of the topic to delete.
-     * @param op_result     	The result status of the operation.
+     *        This operation removes all the DataWriters or DataReaders associated with the Topic.
+     * @param client_key    The identifier of the ProxyClient to delete from.
+     * @param topic_id      The identifier of the Topic to delete.
+     * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
     UXR_AGENT_EXPORT static bool delete_topic(
@@ -245,9 +245,9 @@ public:
 
     /**
      * @brief Deletes the publisher from a ProxyClient.
-     *        This operation removes all the datawriters associated with the publisher.
+     *        This operation removes all the DataWriters associated with the Publisher.
      * @param client_key    The identifier of the ProxyClient to delete from.
-     * @param publisher_id  The identifier of the publisher to delete.
+     * @param publisher_id  The identifier of the Publisher to delete.
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
@@ -277,10 +277,10 @@ public:
 
     /**
      * @brief Deletes the subscriber from a ProxyClient.
-     *        This operation removes all the datareaders associated with the subscriber.
+     *        This operation removes all the DataReaders associated with the Subscriber.
      * @param client_key    The identifier of the ProxyClient to delete from.
      * @param client_key    The identifier of the ProxyClient to delete from.
-     * @param subscriber_id The identifier of the subscriber to delete.
+     * @param subscriber_id The identifier of the Subscriber to delete.
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
@@ -328,9 +328,9 @@ public:
             OpResult& op_result);
 
     /**
-     * @brief Deletes the datawriter from a ProxyClient.
+     * @brief Deletes the DataWriter from a ProxyClient.
      * @param client_key    The identifier of the ProxyClient to delete from.
-     * @param datawriter_id The identifier of the datawriter to delete.
+     * @param datawriter_id The identifier of the DataWriter to delete.
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
@@ -378,9 +378,9 @@ public:
             OpResult& op_result);
 
     /**
-     * @brief Deletes the datareader from a ProxyClient.
+     * @brief Deletes the DataReader from a ProxyClient.
      * @param client_key    The identifier of the ProxyClient to delete from.
-     * @param datareader_id The identifier of the datareader to delete.
+     * @param datareader_id The identifier of the DataReader to delete.
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
@@ -408,9 +408,9 @@ public:
      * Write Data.
      **********************************************************************************************/
     /**
-     * @brief Writes data using the datawriter of the ProxyClient.
+     * @brief Writes data using the DataWriter of the ProxyClient.
      * @param client_key    The identifier of the ProxyClient.
-     * @param datawriter_id The identifier of the datawriter to write with.
+     * @param datawriter_id The identifier of the DataWriter to write with.
      * @param buf           Raw buffer of data to write.
      * @param len           Lengh to write.
      * @param op_result     The result status of the operation.
