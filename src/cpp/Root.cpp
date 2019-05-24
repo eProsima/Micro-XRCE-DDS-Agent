@@ -86,7 +86,7 @@ dds::xrce::ResultStatus Root::create_client(
                         = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
-                    UXR_AGENT_LOG_DEBUG(
+                    UXR_AGENT_LOG_INFO(
                         UXR_DECORATE_GREEN("create"),
                         UXR_CREATE_SESSION_PATTERN,
                         conversion::clientkey_to_raw(client_key),
