@@ -187,7 +187,7 @@ bool TCPServer::close()
     if ((-1 == listener_poll_.fd) && (active_connections_.empty()))
     {
         UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("server stoped"),
+            UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
     }
@@ -245,10 +245,10 @@ bool TCPServer::recv_message(
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
         UXR_AGENT_LOG_MESSAGE(
-            input_packet.message->get_buf(),
-            input_packet.message->get_len(),
             UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
-            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())));
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     return rv;
 }
@@ -327,10 +327,10 @@ bool TCPServer::send_message(OutputPacket output_packet)
         if (payload_sent)
         {
             UXR_AGENT_LOG_MESSAGE(
-                output_packet.message->get_buf(),
-                output_packet.message->get_len(),
                 UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
-                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
             rv = true;
         }
         else

@@ -56,7 +56,7 @@ void TCPServerBase::on_create_client(
         client_to_source_map_.insert(std::make_pair(client_id, source_id));
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session established"),
-            "client_key: 0x{0:08X}, address: {1}",
+            "client_key: 0x{:08X}, address: {}",
             client_id,
             *source);
 
@@ -71,7 +71,7 @@ void TCPServerBase::on_create_client(
             it_source->second = client_id;
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_WHITE("address updated"),
-                "client_key: 0x{0:08X}, address: {1}",
+                "client_key: 0x{:08X}, address: {}",
                 client_id,
                 *source);
         }
@@ -94,7 +94,7 @@ void TCPServerBase::on_delete_client(EndPoint* source)
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_WHITE("session destroyed"),
-            "client_key: 0x{0:08X}, address: {1}",
+            "client_key: 0x{:08X}, address: {}",
             it->second,
             *source);
         client_to_source_map_.erase(it->second);

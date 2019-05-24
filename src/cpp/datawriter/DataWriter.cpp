@@ -119,10 +119,10 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
     if (get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
-            write_data.data().serialized_data().data(),
-            write_data.data().serialized_data().size(),
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
-            get_raw_id());
+            get_raw_id(),
+            write_data.data().serialized_data().data(),
+            write_data.data().serialized_data().size());
         rv = true;
     }
     return rv;
@@ -134,10 +134,10 @@ bool DataWriter::write(const std::vector<uint8_t>& data)
     if (get_middleware().write_data(get_raw_id(), data))
     {
         UXR_AGENT_LOG_MESSAGE(
-            data.data(),
-            data.size(),
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
-        get_raw_id());
+            get_raw_id(),
+            data.data(),
+            data.size());
         rv = true;
     }
     return rv;

@@ -120,7 +120,7 @@ bool UDPServer::close()
     if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
     {
         UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("server stoped"),
+            UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
         rv = true;
@@ -182,10 +182,10 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
             UXR_AGENT_LOG_MESSAGE(
-                input_packet.message->get_buf(),
-                input_packet.message->get_len(),
                 UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())));
+                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
             rv = true;
         }
     }
@@ -220,10 +220,10 @@ bool UDPServer::send_message(OutputPacket output_packet)
         if (size_t(bytes_sent) == output_packet.message->get_len())
         {
             UXR_AGENT_LOG_MESSAGE(
-                output_packet.message->get_buf(),
-                output_packet.message->get_len(),
                 UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())));
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
             rv = true;
         }
     }
