@@ -44,7 +44,7 @@ class TCPConnection
 {
 public:
     TCPConnection() = default;
-    ~TCPConnection() = default;
+    virtual ~TCPConnection() = default;
 
 public:
     TCPInputBuffer input_buffer;

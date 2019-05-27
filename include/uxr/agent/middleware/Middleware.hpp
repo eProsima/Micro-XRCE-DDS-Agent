@@ -32,6 +32,7 @@ class Middleware
 public:
     enum class Kind : uint8_t
     {
+        NONE,
     #ifdef PROFILE_FAST_MIDDLEWARE
         FAST,
     #endif

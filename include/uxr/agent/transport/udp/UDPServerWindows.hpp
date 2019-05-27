@@ -34,7 +34,7 @@ public:
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~UDPServer() = default;
+    UXR_AGENT_EXPORT ~UDPServer() final;
 
 private:
     bool init() final;

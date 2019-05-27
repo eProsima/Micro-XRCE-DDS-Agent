@@ -118,7 +118,7 @@ bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
                             output_packet.message->get_len(),
                             0,
                             (struct sockaddr*)&client_addr,
-                            sizeof(client_addr));
+                            int(sizeof(client_addr)));
     if (SOCKET_ERROR != bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());

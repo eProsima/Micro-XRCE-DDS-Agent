@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerWindows.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <string.h>
 
@@ -29,6 +30,21 @@ UDPServer::UDPServer(
     , discovery_server_(*processor_)
 #endif
 {}
+
+UDPServer::~UDPServer()
+{
+    try
+    {
+        stop();
+    }
+    catch (std::exception& e)
+    {
+        UXR_AGENT_LOG_CRITICAL(
+            UXR_DECORATE_RED("error stopping server"),
+            "exception: {}",
+            e.what());
+    }
+}
 
 bool UDPServer::init()
 {

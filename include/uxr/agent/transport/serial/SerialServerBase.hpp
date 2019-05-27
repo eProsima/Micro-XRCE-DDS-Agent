@@ -31,7 +31,7 @@ public:
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-    ~SerialServerBase() override = default;
+    virtual ~SerialServerBase() override = default;
 
     void on_create_client(
             EndPoint* source,

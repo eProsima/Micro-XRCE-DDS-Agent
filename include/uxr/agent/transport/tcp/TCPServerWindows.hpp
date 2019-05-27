@@ -46,7 +46,7 @@ public:
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~TCPServer() = default;
+    UXR_AGENT_EXPORT ~TCPServer() final;
 
 private:
     bool init() final;
