@@ -125,6 +125,9 @@ if(PROFILE_LOGGER)
     eprosima_find_package(spdlog REQUIRED)
 endif()
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+find_package(Sanitizers)
+
 ###############################################################################
 # Targets
 ###############################################################################
@@ -186,6 +189,8 @@ set(SRCS
 
 # Library
 add_library(${PROJECT_NAME} ${SRCS})
+add_sanitizers(${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr

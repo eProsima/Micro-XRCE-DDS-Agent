@@ -25,6 +25,9 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/Root.cpp
     )
 add_executable(test-root ${SRCS})
+
+add_sanitizers(test-root)
+
 add_gtest(test-root
     SOURCES
         ${SRCS}

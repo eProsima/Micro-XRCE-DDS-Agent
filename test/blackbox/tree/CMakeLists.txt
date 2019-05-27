@@ -36,6 +36,9 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedMiddleware.cpp
         )
     add_executable(tree_test ${SRCS})
+
+    add_sanitizers(tree_test)
+
     add_gtest(tree_test
         SOURCES
             ${SRCS}
