@@ -247,49 +247,49 @@ void Root::set_verbose_level(uint8_t verbose_level)
         case 0:
             spdlog::set_level(spdlog::level::off);
             UXR_AGENT_LOG_WARN(
-                "verbose_level: {}",
-                UXR_DECORATE_YELLOW("logger off"), 0);
+                UXR_DECORATE_YELLOW("logger off"),
+                "verbose_level: {}", 0);
             break;
         case 1:
             spdlog::set_level(spdlog::level::critical);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 1);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 1);
             break;
         case 2:
             spdlog::set_level(spdlog::level::err);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 2);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 2);
             break;
         case 3:
             spdlog::set_level(spdlog::level::warn);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 3);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 3);
             break;
         case 4:
             spdlog::set_level(spdlog::level::info);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 4);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 4);
             break;
         case 5:
             spdlog::set_level(spdlog::level::debug);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 5);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 5);
             break;
         case 6:
             spdlog::set_level(spdlog::level::trace);
             UXR_AGENT_LOG_INFO(
-                "verbose_level: {}",
-                UXR_DECORATE_GREEN("logger setup"), 6);
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 6);
             break;
         default:
             UXR_AGENT_LOG_WARN(
-                "verbose_level: {}",
-                UXR_DECORATE_YELLOW("out-of-range level"), 0);
+                UXR_DECORATE_YELLOW("out-of-range level"),
+                "verbose_level: {}", verbose_level);
             break;
     }
 #endif

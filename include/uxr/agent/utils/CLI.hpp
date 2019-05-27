@@ -119,7 +119,7 @@ public:
     {
     }
 
-    bool is_enable() const { return bool(cli_opt_); }
+    bool is_enable() const { return bool(*cli_opt_); }
     uint16_t get_port() const { return port_; }
 
 protected:
@@ -140,7 +140,7 @@ public:
     {
     }
 
-    bool is_enable() const { return bool(cli_opt_); }
+    bool is_enable() const { return bool(*cli_opt_); }
     const std::string& get_baudrate() const { return baudrate_; }
 
 protected:
@@ -161,7 +161,7 @@ public:
         cli_opt_->check(CLI::ExistingFile);
     }
 
-    bool is_enable() const { return bool(cli_opt_); }
+    bool is_enable() const { return bool(*cli_opt_); }
     const std::string& get_file() const { return file_; }
 
 protected:
@@ -181,7 +181,7 @@ public:
         , cli_opt_{subcommand.add_set("-v,--verbose", level_, set_, "Select log level from less to more verbose", true)}
     {}
 
-    bool is_enable() const { return bool(cli_opt_); }
+    bool is_enable() const { return bool(*cli_opt_); }
     uint8_t get_level() const { return uint8_t(level_); }
 
 protected:
