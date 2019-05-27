@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerWindows.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <string.h>
 

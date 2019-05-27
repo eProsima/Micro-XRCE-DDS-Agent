@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <string.h>
 
 namespace eprosima {
@@ -46,8 +48,8 @@ TCPServer::~TCPServer()
     }
     catch (std::exception& e)
     {
-        uxr_agent_log_critical(
-            uxr_decorate_red("error stopping server"),
+        UXR_AGENT_LOG_CRITICAL(
+            UXR_DECORATE_RED("error stopping server"),
             "exception: {}",
             e.what());
     }
