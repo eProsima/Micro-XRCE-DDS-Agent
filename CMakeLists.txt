@@ -125,8 +125,28 @@ if(PROFILE_LOGGER)
     eprosima_find_package(spdlog REQUIRED)
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
-find_package(Sanitizers)
+###############################################################################
+# Load external CMake Modules.
+###############################################################################
+set(SANITIZER_PACKAGE "sanitizers-cmake")
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/CMakeLists.txt")
+    message(STATUS "${SANITIZER_PACKAGE} thirdparty is being updated...")
+    execute_process(
+        COMMAND git submodule update --recursive --init "thirdparty/${SANITIZER_PACKAGE}"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        RESULT_VARIABLE EXECUTE_RESULT
+    )
+    if(NOT EXECUTE_RESULT EQUAL 0)
+        message(WARNING "Cannot configure Git submodule ${SANITIZER_PACKAGE}.")
+    endif()
+endif()
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/cmake" ${CMAKE_MODULE_PATH})
+find_package(Sanitizers REQUIRED)
+if(SANITIZE_ADDRESS)
+    message(STATUS "Preloading AddressSanitizer library could done using \"${ASan_WRAPPER}\" to run your program.")
+endif()
+unset(SANITIZER_PACKAGE)
 
 ###############################################################################
 # Targets
