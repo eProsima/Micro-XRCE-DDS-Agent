@@ -111,7 +111,7 @@
 #ifdef PROFILE_LOGGER
 #define UXR_AGENT_LOG_CRITICAL(X, Y, ...) SPDLOG_CRITICAL(UXR_STATUS_FORMAT Y, X, __VA_ARGS__); std::exit(EXIT_FAILURE)
 #else
-#define UXR_AGENT_LOG_CRITICAL(...) exit(1)
+#define UXR_AGENT_LOG_CRITICAL(...) std::exit(EXIT_FAILURE)
 #endif
 
 #ifdef PROFILE_LOGGER

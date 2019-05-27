@@ -424,7 +424,7 @@ public:
      * @brief Sets the verbose level of the logger.
      * @param verbose_level The verbose level of the logger.
      *                      There are 7 different levels:
-     *                      * Level 0: any message will be logged (off).
+     *                      * Level 0: no message will be logged (logger is turned off).
      *                      * Level 1: only critical messages will be logged.
      *                      * Level 2: error and critical messages will be logged.
      *                      * Level 3: warning, error and critical messages will be logged.
