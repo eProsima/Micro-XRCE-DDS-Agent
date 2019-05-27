@@ -34,6 +34,21 @@ SerialServer::SerialServer(
     poll_fd_.fd = fd;
 }
 
+SerialServer::~SerialServer()
+{
+    try
+    {
+        stop();
+    }
+    catch (std::exception& e)
+    {
+        UXR_AGENT_LOG_CRITICAL(
+            UXR_DECORATE_RED("error stopping server"),
+            "exception: {}",
+            e.what());
+    }
+}
+
 bool SerialServer::init()
 {
     /* Init serial IO. */

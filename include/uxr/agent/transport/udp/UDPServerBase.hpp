@@ -30,7 +30,7 @@ public:
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    ~UDPServerBase() override = default;
+    virtual ~UDPServerBase() override = default;
 
     void on_create_client(
             EndPoint* source,

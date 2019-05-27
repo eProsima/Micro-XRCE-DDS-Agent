@@ -30,6 +30,21 @@ UDPServer::UDPServer(
 #endif
 {}
 
+UDPServer::~UDPServer()
+{
+    try
+    {
+        stop();
+    }
+    catch (std::exception& e)
+    {
+        UXR_AGENT_LOG_CRITICAL(
+            UXR_DECORATE_RED("error stopping server"),
+            "exception: {}",
+            e.what());
+    }
+}
+
 bool UDPServer::init()
 {
     bool rv = false;

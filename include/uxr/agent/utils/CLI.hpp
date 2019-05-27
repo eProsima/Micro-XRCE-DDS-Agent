@@ -241,6 +241,7 @@ public:
 private:
     void server_callback()
     {
+        std::cout << "Enter 'q' for exit" << std::endl;
         if (launch_server())
         {
 #ifdef PROFILE_DISCOVERY
@@ -430,9 +431,7 @@ public:
         : Subcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
-    {
-        cli_subcommand_->callback(std::bind(&PseudoSerialSubcommand::launch_server, this));
-    }
+    {}
 
 private:
     bool launch_server() final

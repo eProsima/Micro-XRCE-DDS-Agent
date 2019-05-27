@@ -33,18 +33,6 @@ Server::Server(Middleware::Kind middleware_kind)
 Server::~Server()
 {
     delete processor_;
-
-    try
-    {
-        stop();
-    }
-    catch (std::exception& e)
-    {
-        UXR_AGENT_LOG_CRITICAL(
-            UXR_DECORATE_RED("error stopping server"),
-            "exception: {}",
-            e.what());
-    }
 }
 
 bool Server::run()

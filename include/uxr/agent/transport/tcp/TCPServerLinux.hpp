@@ -36,7 +36,7 @@ class TCPConnectionPlatform : public TCPConnection
 {
 public:
     TCPConnectionPlatform() = default;
-    ~TCPConnectionPlatform() = default;
+    ~TCPConnectionPlatform() final = default;
 
 public:
     struct pollfd* poll_fd;
@@ -49,7 +49,7 @@ public:
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    ~TCPServer() = default;
+    ~TCPServer() final;
 
 private:
     bool init() final;

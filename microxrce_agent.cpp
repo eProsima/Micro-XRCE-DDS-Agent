@@ -16,11 +16,10 @@
 
 int main(int argc, char** argv)
 {
-    std::cout << "Enter 'q' for exit" << std::endl;
 
     /* CLI application. */
     CLI::App app("eProsima Micro XRCE-DDS Agent");
-    app.require_subcommand(0, 1);
+    app.require_subcommand(1, 1);
     app.get_formatter()->column_width(42);
 
     /* CLI subcommands. */

@@ -32,7 +32,7 @@ public:
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-    ~SerialServer() = default;
+    ~SerialServer() final;
 
 private:
     bool init() final;

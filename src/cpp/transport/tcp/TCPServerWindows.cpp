@@ -38,6 +38,21 @@ TCPServer::TCPServer(
 #endif
 {}
 
+TCPServer::~TCPServer()
+{
+    try
+    {
+        stop();
+    }
+    catch (std::exception& e)
+    {
+        uxr_agent_log_critical(
+            uxr_decorate_red("error stopping server"),
+            "exception: {}",
+            e.what());
+    }
+}
+
 bool TCPServer::init()
 {
     bool rv = false;
