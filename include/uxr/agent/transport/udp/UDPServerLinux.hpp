@@ -38,7 +38,7 @@ public:
             uint16_t port,
             Middleware::Kind middleware_kind);
 
-    ~UDPServer();
+    ~UDPServer() = default;
 
 private:
     bool init() final;

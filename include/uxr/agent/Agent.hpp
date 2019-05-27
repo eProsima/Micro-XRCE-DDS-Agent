@@ -404,16 +404,13 @@ public:
      */
     UXR_AGENT_EXPORT static void reset();
 
-    /**********************************************************************************************
-     * Write Data.
-     **********************************************************************************************/
     /**
-     * @brief Writes data using the DataWriter of the ProxyClient.
-     * @param client_key    The identifier of the ProxyClient.
-     * @param datawriter_id The identifier of the DataWriter to write with.
-     * @param buf           Raw buffer of data to write.
-     * @param len           Lengh to write.
-     * @param op_result     The result status of the operation.
+     * @brief Writes data into the middleware using the DataWriter identifier by the datawriter_id.
+     * @param client_key        The identifier of the ProxyClient.
+     * @param datawriter_id     The identifier of the DataWriter.
+     * @param buf               The pointer to the buffer to write.
+     * @param len               The lenght of the buffer to write.
+     * @param op_result         The result status of the operation.
      * @return true in case of success and false in other case.
      */
     UXR_AGENT_EXPORT static bool write(
@@ -423,9 +420,18 @@ public:
             size_t len,
             OpResult& op_result);
 
-    /**********************************************************************************************
-     * Config.
-     **********************************************************************************************/
+    /**
+     * @brief Sets the verbose level of the logger.
+     * @param verbose_level The verbose level of the logger.
+     *                      There are 7 different levels:
+     *                      * Level 0: any message will be logged (off).
+     *                      * Level 1: only critical messages will be logged.
+     *                      * Level 2: error and critical messages will be logged.
+     *                      * Level 3: warning, error and critical messages will be logged.
+     *                      * Level 4: info, warning, error and critical message will be logged.
+     *                      * Level 5: debug, info, warning, error and critical message will be logged.
+     *                      * Level 6: trace, debug, info, warning, error and critical message will be logged.
+     */
     UXR_AGENT_EXPORT static void set_verbose_level(uint8_t verbose_level);
 };
 
