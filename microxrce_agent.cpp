@@ -29,9 +29,32 @@ int main(int argc, char** argv)
     eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
     eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
 #endif
+    eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 
     /* CLI parse. */
-    CLI11_PARSE(app, argc, argv);
+    std::string cli_input{};
+    for (int i = 0; i < argc; ++i)
+    {
+        cli_input.append(argv[i]);
+        cli_input.append(" ");
+    }
+
+    while (true)
+    {
+        try
+        {
+            app.parse(cli_input);
+            break;
+        }
+        catch (const CLI::ParseError& e)
+        {
+            app.exit(e);
+            std::cin.clear();
+            std::cout << std::endl;
+            std::cout << "Enter command: ";
+            std::getline(std::cin, cli_input);
+        }
+    }
 
     /* Waiting until exit. */
     std::cin.clear();

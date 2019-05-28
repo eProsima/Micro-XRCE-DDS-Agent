@@ -220,12 +220,35 @@ public:
 };
 
 /*************************************************************************************************
- * CLI Subcommand
+ * Exit Subcommand
  *************************************************************************************************/
-class Subcommand
+class ExitSubcommand
 {
 public:
-    Subcommand(
+    ExitSubcommand(
+            CLI::App& app)
+        : exit_subcommand_{app.add_subcommand("q", "Exit")}
+    {
+        exit_subcommand_->callback(std::bind(&ExitSubcommand::exit, this));
+    }
+
+private:
+    void exit()
+    {
+        std::exit(EXIT_SUCCESS);
+    }
+
+private:
+    CLI::App* exit_subcommand_;
+};
+
+/*************************************************************************************************
+ * Server Subcommand
+ *************************************************************************************************/
+class ServerSubcommand
+{
+public:
+    ServerSubcommand(
             CLI::App& app,
             const std::string& name,
             const std::string& description,
@@ -233,10 +256,10 @@ public:
         : cli_subcommand_{app.add_subcommand(name, description)}
         , opts_ref_{common_opts}
     {
-        cli_subcommand_->callback(std::bind(&Subcommand::server_callback, this));
+        cli_subcommand_->callback(std::bind(&ServerSubcommand::server_callback, this));
     }
 
-    virtual ~Subcommand() = default;
+    virtual ~ServerSubcommand() = default;
 
 private:
     void server_callback()
@@ -280,13 +303,13 @@ protected:
 
 
 /*************************************************************************************************
- * UDP CLI Subcommand
+ * UDP Subcommand
  *************************************************************************************************/
-class UDPSubcommand : public Subcommand
+class UDPSubcommand : public ServerSubcommand
 {
 public:
     UDPSubcommand(CLI::App& app)
-        : Subcommand{app, "udp", "Launch a UDP server", common_opts_}
+        : ServerSubcommand{app, "udp", "Launch a UDP server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
         , common_opts_{*cli_subcommand_}
     {
@@ -309,13 +332,13 @@ private:
 };
 
 /*************************************************************************************************
- * TCP CLI Subcommand
+ * TCP Subcommand
  *************************************************************************************************/
-class TCPSubcommand : public Subcommand
+class TCPSubcommand : public ServerSubcommand
 {
 public:
     TCPSubcommand(CLI::App& app)
-        : Subcommand{app, "tcp", "Launch a TCP server", common_opts_}
+        : ServerSubcommand{app, "tcp", "Launch a TCP server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
         , common_opts_{*cli_subcommand_}
     {
@@ -338,14 +361,14 @@ private:
 };
 
 /*************************************************************************************************
- * Serial CLI Subcommand
+ * Serial Subcommand
  *************************************************************************************************/
 #ifndef _WIN32
-class SerialSubcommand : public Subcommand
+class SerialSubcommand : public ServerSubcommand
 {
 public:
     SerialSubcommand(CLI::App& app)
-        : Subcommand{app, "serial", "Launch a Serial server", common_opts_}
+        : ServerSubcommand{app, "serial", "Launch a Serial server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-d,--dev", dev_, "Select the serial device")}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
@@ -422,13 +445,13 @@ private:
 };
 
 /*************************************************************************************************
- * Pseudo-Serial CLI Subcommand
+ * Pseudo-Serial Subcommand
  *************************************************************************************************/
-class PseudoSerialSubcommand : public Subcommand
+class PseudoSerialSubcommand : public ServerSubcommand
 {
 public:
     PseudoSerialSubcommand(CLI::App& app)
-        : Subcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
+        : ServerSubcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
     {}
