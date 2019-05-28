@@ -26,11 +26,19 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #endif
 
+#ifdef _WIN32
+#define UXR_LOG_PATTERN "[%E.%f]" \
+                        " %^%-8l%$ | " \
+                        "%-18s" " | " \
+                        "%-24!" " | " \
+                        "%v"
+#else
 #define UXR_LOG_PATTERN UXR_COLOR_MAGENTA "[%E.%f]" UXR_COLOR_RESET \
                         " %^%-8l%$ | " \
                         UXR_COLOR_BLUE "%-18s" UXR_COLOR_RESET  " | " \
                         UXR_COLOR_WHITE "%-24!" UXR_COLOR_RESET " | " \
                         "%v"
+#endif
 
 #define UXR_CLIENT_KEY_STR      "client_key"
 #define UXR_SESSION_ID_STR      "session_id"

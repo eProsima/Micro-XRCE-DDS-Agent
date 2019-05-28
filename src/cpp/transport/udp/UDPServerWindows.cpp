@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPServerWindows.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <string.h>
@@ -63,6 +64,13 @@ bool UDPServer::init()
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
+            /* Log. */
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_GREEN("port opened"),
+                "port: {}",
+                transport_address_.medium_locator().port()
+                );
+
             /* Poll setup. */
             poll_fd_.events = POLLIN;
 
@@ -84,10 +92,28 @@ bool UDPServer::init()
                                                                  uint8_t(local_addr.sa_data[4]),
                                                                  uint8_t(local_addr.sa_data[5])});
                     rv = true;
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_GREEN("running..."),
+                        "port: {}",
+                        transport_address_.medium_locator().port());
                 }
                 closesocket(fd);
             }
         }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("bind error"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+        }
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
     }
 
     return rv;
@@ -95,10 +121,23 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
-#ifdef PROFILE_DISCOVERY
-    discovery_server_.stop();
-#endif
-    return (INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd));
+    bool rv = false;
+    if ((INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd)))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -135,6 +174,12 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
             uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
             rv = true;
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
+            rv = true;
         }
     }
     else
@@ -165,7 +210,15 @@ bool UDPServer::send_message(OutputPacket output_packet)
                             sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
-        rv = (size_t(bytes_sent) != output_packet.message->get_len());
+        if (size_t(bytes_sent) != output_packet.message->get_len())
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
+            rv = true;
+        }
     }
 
     return rv;

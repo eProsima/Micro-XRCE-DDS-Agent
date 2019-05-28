@@ -103,7 +103,23 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
 
 bool DiscoveryServerLinux::close()
 {
-    return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
+    bool rv = false;
+    if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 bool DiscoveryServerLinux::recv_message(
