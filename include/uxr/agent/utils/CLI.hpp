@@ -327,7 +327,7 @@ public:
 private:
     bool launch_server()
     {
-        server_.reset(new eprosima::uxr::UDPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        server_.reset(new eprosima::uxr::TCPServer(port_, common_opts_.middleware_opt_.get_kind()));
         return server_->run();
     }
 

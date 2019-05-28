@@ -191,13 +191,6 @@ bool TCPServer::close()
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
 
-#ifdef PROFILE_DISCOVERY
-    discovery_server_.stop();
-#endif
-#ifdef PROFILE_P2P
-    agent_discoverer_.stop();
-#endif
-
     bool rv = false;
     if ((-1 == listener_poll_.fd) && (active_connections_.empty()))
     {

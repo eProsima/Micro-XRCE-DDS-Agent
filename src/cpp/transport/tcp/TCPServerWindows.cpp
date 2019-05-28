@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <string.h>
@@ -75,6 +76,12 @@ bool TCPServer::init()
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
+            /* Log. */
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_GREEN("port opened"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
 
@@ -114,11 +121,36 @@ bool TCPServer::init()
                                                                      uint8_t(local_addr.sa_data[4]),
                                                                      uint8_t(local_addr.sa_data[5])});
                         rv = true;
+                        UXR_AGENT_LOG_INFO(
+                            UXR_DECORATE_GREEN("running..."),
+                            "port: {}",
+                            transport_address_.medium_locator().port());
                     }
                     closesocket(fd);
                 }
             }
+            else
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("listen error"),
+                    "port: {}",
+                    transport_address_.medium_locator().port());
+            }
         }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("bind error"),
+                "port: {}",
+                transport_address_.medium_locator().port());
+        }
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
     }
     return rv;
 }
@@ -148,10 +180,23 @@ bool TCPServer::close()
     }
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
-#ifdef PROFILE_DISCOVERY
-    discovery_server_.stop();
-#endif
-    return (INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty());
+
+    bool rv = true;
+    if ((INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty()))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 #ifdef PROFILE_DISCOVERY
@@ -179,6 +224,11 @@ bool TCPServer::recv_message(
     {
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
+            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     return rv;
 }
@@ -256,6 +306,11 @@ bool TCPServer::send_message(OutputPacket output_packet)
 
         if (payload_sent)
         {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
+                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
             rv = true;
         }
         else
