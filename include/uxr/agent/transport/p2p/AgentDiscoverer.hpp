@@ -19,6 +19,7 @@
 
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 namespace eprosima {
 namespace uxr {
@@ -59,6 +60,7 @@ private:
     void loop();
 
 private:
+    std::mutex mtx_;
     std::thread thread_;
     std::atomic<bool> running_cond_;
 };

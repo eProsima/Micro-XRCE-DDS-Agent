@@ -19,6 +19,7 @@
 
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 namespace eprosima {
 namespace uxr {
@@ -54,7 +55,8 @@ private:
     void discovery_loop();
 
 private:
-    std::unique_ptr<std::thread> discovery_thread_;
+    std::mutex mtx_;
+    std::thread thread_;
     std::atomic<bool> running_cond_;
     const Processor& processor_;
 

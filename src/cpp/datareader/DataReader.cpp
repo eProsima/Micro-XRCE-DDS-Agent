@@ -28,7 +28,8 @@ namespace uxr {
 
 using utils::TokenBucket;
 
-std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object_id,
+std::unique_ptr<DataReader> DataReader::create(
+        const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const dds::xrce::DATAREADER_Representation& representation,
         const ObjectContainer& root_objects)
@@ -73,7 +74,8 @@ std::unique_ptr<DataReader> DataReader::create(const dds::xrce::ObjectId& object
     return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber, topic)) : nullptr);
 }
 
-DataReader::DataReader(const dds::xrce::ObjectId& object_id,
+DataReader::DataReader(
+        const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const std::shared_ptr<Topic>& topic)
     : XRCEObject(object_id)
@@ -93,9 +95,10 @@ DataReader::~DataReader() noexcept
     get_middleware().delete_datareader(get_raw_id());
 }
 
-bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
-                      read_callback read_cb,
-                      const ReadCallbackArgs& cb_args)
+bool DataReader::read(
+        const dds::xrce::READ_DATA_Payload& read_data,
+        read_callback read_cb,
+        const ReadCallbackArgs& cb_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -129,7 +132,10 @@ bool DataReader::read(const dds::xrce::READ_DATA_Payload& read_data,
     return (stop_read() && start_read(delivery_control, read_cb, cb_args));
 }
 
-bool DataReader::start_read(const dds::xrce::DataDeliveryControl& delivery_control, read_callback read_cb, const ReadCallbackArgs& cb_args)
+bool DataReader::start_read(
+        const dds::xrce::DataDeliveryControl& delivery_control,
+        read_callback read_cb,
+        const ReadCallbackArgs& cb_args)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
@@ -158,9 +164,10 @@ bool DataReader::stop_read()
     return true;
 }
 
-void DataReader::read_task(dds::xrce::DataDeliveryControl delivery_control,
-                           read_callback read_cb,
-                           ReadCallbackArgs cb_args)
+void DataReader::read_task(
+        dds::xrce::DataDeliveryControl delivery_control,
+        read_callback read_cb,
+        ReadCallbackArgs cb_args)
 {
     TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
     uint16_t message_count = 0;

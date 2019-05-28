@@ -89,13 +89,16 @@ public:
     DataReader& operator=(const DataReader&) = delete;
 
     void release(ObjectContainer&) override {}
+
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+
     Middleware& get_middleware() const override;
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
+
     void on_max_timeout(const asio::error_code& error) override;
 
 private:
@@ -107,7 +110,9 @@ private:
         const dds::xrce::DataDeliveryControl& delivery_control,
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
+
     bool stop_read();
+
     void read_task(
         dds::xrce::DataDeliveryControl delivery_control,
         read_callback read_cb,

@@ -35,13 +35,13 @@ TCPServer::TCPServer(
         Middleware::Kind middleware_kind)
     : TCPServerBase{agent_port, middleware_kind}
     , connections_{}
-    , active_connections_()
-    , free_connections_()
+    , active_connections_{}
+    , free_connections_{}
     , listener_poll_{}
     , poll_fds_{}
     , buffer_{0}
-    , listener_thread_()
-    , running_cond_(false)
+    , listener_thread_{}
+    , running_cond_{false}
     , messages_queue_{}
 #ifdef PROFILE_DISCOVERY
     , discovery_server_{*processor_}
@@ -111,7 +111,7 @@ bool TCPServer::init()
             if (-1 != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
             {
                 running_cond_ = true;
-                listener_thread_.reset(new std::thread(std::bind(&TCPServer::listener_loop, this)));
+                listener_thread_ = std::thread(&TCPServer::listener_loop, this);
 
                 /* Get local address. */
                 int fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -169,9 +169,9 @@ bool TCPServer::close()
 {
     /* Stop listener thread. */
     running_cond_ = false;
-    if (listener_thread_ && listener_thread_->joinable())
+    if (listener_thread_.joinable())
     {
-        listener_thread_->join();
+        listener_thread_.join();
     }
 
     /* Close listener. */
