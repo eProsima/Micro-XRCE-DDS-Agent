@@ -90,7 +90,7 @@ class DiscoveryOpt
 public:
     DiscoveryOpt(CLI::App& subcommand)
         : port_(eprosima::uxr::DISCOVERY_PORT)
-        , cli_flag_{subcommand.add_flag("--discovery", "Active the Discovery server")}
+        , cli_flag_{subcommand.add_flag("-d,--discovery", "Active the Discovery server")}
         , cli_opt_{subcommand.add_option("--disport", port_, "Select the port for the Discovery server", true)}
     {
         cli_opt_->needs(cli_flag_);

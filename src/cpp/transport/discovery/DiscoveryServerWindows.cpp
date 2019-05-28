@@ -15,6 +15,7 @@
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <ws2ipdef.h>
 #include <MSWSock.h>
@@ -40,6 +41,10 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (INVALID_SOCKET == poll_fd_.fd)
     {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "Port: {}",
+            discovery_port);
         return false;
     }
 
@@ -51,6 +56,12 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (SOCKET_ERROR != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
+        /* Log. */
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_GREEN("port opened"),
+            "Port: {}",
+            discovery_port);
+
         /* Poll setup. */
         poll_fd_.events = POLLIN;
 
@@ -60,7 +71,18 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (SOCKET_ERROR != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("running..."),
+                "Port: {}",
+                discovery_port);
             rv = true;
+        }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("socket opt error"),
+                "Port: {}",
+                discovery_port);
         }
     }
 
@@ -69,7 +91,23 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
 
 bool DiscoveryServerWindows::close()
 {
-    return (INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd));
+    bool rv = false;
+    if ((INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd)))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
 bool DiscoveryServerWindows::recv_message(
