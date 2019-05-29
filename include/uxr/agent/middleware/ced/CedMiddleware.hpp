@@ -40,7 +40,7 @@ public:
      *        For this purpose an XML parser and a reference data base are needed in the XRCE Core.
      * @param participant_id    The CedParticipant identifier.
      * @param domain_id         The Domain identifier to which the CedParticipant belongs.
-     * @param ref               The CedParticipant reference (not used).
+     * @param ref               NOT USED.
      * @return  true in case of creation and false in other case.
      */
     bool create_participant_by_ref(
@@ -55,7 +55,7 @@ public:
      *        For this purpose an XML parser and a reference data base are needed in the XRCE Core.
      * @param participant_id    The CedParticipant identifier.
      * @param domain_id         The Domain identifier to which the CedParticipant belongs.
-     * @param xml               The XML that describes the CedParticipant (not used).
+     * @param xml               NOT USED.
      * @return  true in case of creation and false in other case.
      */
     bool create_participant_by_xml(
@@ -201,7 +201,7 @@ public:
     bool delete_participant(uint16_t participant_id) override;
 
     /**
-     * @brief Removes a CedParticipant from the topic register.
+     * @brief Removes a CedTopic from the topic register.
      * @param topic_id  The CedTopic identifier.
      * @return  true in case of the CedTopic was found and removed, false in other case.
      */
@@ -222,14 +222,14 @@ public:
     bool delete_subscriber(uint16_t subscriber_id) override;
 
     /**
-     * @brief Removes a DataWriter from the datawriters register.
+     * @brief Removes a CedDataWriter from the datawriters register.
      * @param datawriter_id The CedDataWriter identifier.
      * @return  true in case of the CedDataWriter was found and removed, false in other case.
      */
     bool delete_datawriter(uint16_t datawriter_id) override;
 
     /**
-     * @brief Removes a DataReader from the datawriters register.
+     * @brief Removes a CedDataReader from the datawriters register.
      * @param datareader_id The CedDataReader identifier.
      * @return  true in case of the CedDataReader was found and removed, false in other case.
      */
