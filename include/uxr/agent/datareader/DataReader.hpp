@@ -62,9 +62,11 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    void release(ObjectContainer&) override {}
+    void release(
+            ObjectContainer&) override {}
 
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(
+            const dds::xrce::ObjectVariant& new_object_rep) const override;
 
     Middleware& get_middleware() const override;
 
@@ -74,7 +76,8 @@ public:
         const ReadCallbackArgs& cb_args);
 
 private:
-    DataReader(const dds::xrce::ObjectId& object_id,
+    DataReader(
+        const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const std::shared_ptr<Topic>& topic);
 
@@ -97,6 +100,7 @@ private:
     std::thread read_thread_;
     std::mutex mtx_;
 };
+
 
 } // namespace uxr
 } // namespace eprosima
