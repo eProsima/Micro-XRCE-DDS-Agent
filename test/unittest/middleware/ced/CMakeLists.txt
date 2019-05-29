@@ -21,6 +21,7 @@ set(SRCS
     )
 
 add_executable(${TEST_NAME} ${SRCS})
+add_sanitizers(${TEST_NAME})
 add_gtest(${TEST_NAME} SOURCES ${SRCS})
 target_include_directories(${TEST_NAME} PRIVATE
     ${PROJECT_SOURCE_DIR}/include

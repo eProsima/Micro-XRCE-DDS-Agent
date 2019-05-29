@@ -25,6 +25,9 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-output-stream ${SRCS})
+
+add_sanitizers(test-output-stream)
+
 add_gtest(test-output-stream
     SOURCES
         ${SRCS}

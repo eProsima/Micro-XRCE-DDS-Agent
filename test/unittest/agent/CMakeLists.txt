@@ -18,6 +18,9 @@ if(GMOCK_FOUND)
         AgentUnitTests.cpp
         )
     add_executable(${TEST_NAME} ${SRCS})
+
+    add_sanitizers(${TEST_NAME})
+
     add_gtest(${TEST_NAME}
         SOURCES
             ${SRCS}

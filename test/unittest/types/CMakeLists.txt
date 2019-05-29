@@ -23,6 +23,7 @@ set(SRCS
     ${PROJECT_SOURCE_DIR}/src/cpp/message/InputMessage.cpp
     )
 add_executable(test-xrce-types ${SRCS})
+add_sanitizers(test-xrce-types)
 add_gtest(test-xrce-types
     SOURCES
         ${SRCS}

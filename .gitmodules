@@ -16,3 +16,6 @@
 [submodule "thirdparty/CLI11"]
 	path = thirdparty/CLI11
 	url = https://github.com/CLIUtils/CLI11.git
+[submodule "thirdparty/sanitizers-cmake"]
+	path = thirdparty/sanitizers-cmake
+	url = https://github.com/arsenm/sanitizers-cmake.git

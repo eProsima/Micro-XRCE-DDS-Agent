@@ -126,6 +126,43 @@ if(PROFILE_LOGGER)
 endif()
 
 ###############################################################################
+# Load external CMake Modules.
+###############################################################################
+if(CMAKE_VERSION VERSION_LESS 3.11.4)
+    set(SANITIZER_PACKAGE "sanitizers-cmake")
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/CMakeLists.txt")
+        message(STATUS "${SANITIZER_PACKAGE} thirdparty is being updated...")
+        execute_process(
+            COMMAND git submodule update --recursive --init "thirdparty/${SANITIZER_PACKAGE}"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            RESULT_VARIABLE EXECUTE_RESULT
+        )
+        if(NOT EXECUTE_RESULT EQUAL 0)
+            message(WARNING "Cannot configure Git submodule ${SANITIZER_PACKAGE}.")
+        endif()
+    endif()
+
+    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/cmake" ${CMAKE_MODULE_PATH})
+    unset(SANITIZER_PACKAGE)
+else()
+    set(SANITIZER_PACKAGE "sanitizers-cmake")
+    include(FetchContent)
+    FetchContent_Declare(sanitizers-cmake
+        GIT_REPOSITORY https://github.com/arsenm/sanitizers-cmake.git
+        GIT_TAG master
+    )
+    FetchContent_GetProperties(sanitizers-cmake)
+    if(NOT sanitizers-cmake_POPULATED)
+        FetchContent_Populate(sanitizers-cmake)
+        LIST(APPEND CMAKE_MODULE_PATH "${sanitizers-cmake_SOURCE_DIR}/cmake")
+    endif()
+endif()
+find_package(Sanitizers REQUIRED)
+if(SANITIZE_ADDRESS)
+    message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
+endif()
+
+###############################################################################
 # Targets
 ###############################################################################
 
@@ -186,6 +223,8 @@ set(SRCS
 
 # Library
 add_library(${PROJECT_NAME} ${SRCS})
+add_sanitizers(${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
