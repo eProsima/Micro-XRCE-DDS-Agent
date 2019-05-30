@@ -43,7 +43,7 @@ Root::Root()
 {
     current_client_ = clients_.begin();
 #ifdef PROFILE_LOGGER
-    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::info);
     spdlog::set_pattern(UXR_LOG_PATTERN);
 #endif
 }

@@ -108,15 +108,15 @@ TEST_F(TokenBucketTest, RateMeassure)
     std::cout << "Testing getting " << requested_tokens << " tokens at a rate of " << bucket_rate;
     std::cout << " tokens per second, reading by " << bunch_size << std::endl;
 
-    size_t sended_size  = 0;
+    size_t sent_size  = 0;
     int reading_counter = 0;
     auto start         = std::chrono::steady_clock::now();
-    while (sended_size < requested_tokens)
+    while (sent_size < requested_tokens)
     {
         if (bucket.get_tokens(bunch_size))
         {
             ++reading_counter;
-            sended_size += bunch_size;
+            sent_size += bunch_size;
         }
     }
     auto end     = std::chrono::steady_clock::now();

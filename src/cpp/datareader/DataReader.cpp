@@ -26,6 +26,30 @@
 namespace eprosima {
 namespace uxr {
 
+constexpr int READ_TIMEOUT = 100;
+constexpr uint8_t MAX_SLEEP_TIME = 100;
+constexpr uint16_t MAX_SAMPLES_ZERO = 0;
+constexpr uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
+constexpr uint16_t MAX_ELAPSED_TIME_UNLIMITED = 0;
+
+namespace  {
+
+std::chrono::milliseconds get_read_timeout(
+        const std::chrono::steady_clock::time_point& final_time,
+        uint16_t max_elapsed_time)
+{
+    std::chrono::milliseconds rv = std::chrono::milliseconds(READ_TIMEOUT);
+    if (MAX_ELAPSED_TIME_UNLIMITED != max_elapsed_time)
+    {
+        rv = std::min(
+             std::chrono::milliseconds(READ_TIMEOUT),
+             std::chrono::duration_cast<std::chrono::milliseconds>(final_time - std::chrono::steady_clock::now()));
+    }
+    return rv;
+}
+
+} // unnamed namespace
+
 using utils::TokenBucket;
 
 std::unique_ptr<DataReader> DataReader::create(
@@ -95,6 +119,41 @@ DataReader::~DataReader() noexcept
     get_middleware().delete_datareader(get_raw_id());
 }
 
+bool DataReader::matched(
+        const dds::xrce::ObjectVariant& new_object_rep) const
+{
+    /* Check ObjectKind. */
+    if ((get_id().at(1) & 0x0F) != new_object_rep._d())
+    {
+        return false;
+    }
+
+    bool rv = false;
+    switch (new_object_rep.data_reader().representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_BY_REFERENCE:
+        {
+            const std::string& ref = new_object_rep.data_reader().representation().object_reference();
+            rv = get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
+            rv = get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
+            break;
+        }
+        default:
+            break;
+    }
+    return rv;
+}
+
+Middleware& DataReader::get_middleware() const
+{
+    return subscriber_->get_middleware();
+}
+
 bool DataReader::read(
         const dds::xrce::READ_DATA_Payload& read_data,
         read_callback read_cb,
@@ -139,10 +198,6 @@ bool DataReader::start_read(
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
-    if (delivery_control.max_elapsed_time() > 0)
-    {
-        max_timer_thread_ = std::thread(&DataReader::run_max_timer, this, delivery_control.max_elapsed_time());
-    }
     read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
     return true;
 }
@@ -156,11 +211,6 @@ bool DataReader::stop_read()
     {
         read_thread_.join();
     }
-    stop_max_timer();
-    if (max_timer_thread_.joinable())
-    {
-        max_timer_thread_.join();
-    }
     return true;
 }
 
@@ -169,94 +219,44 @@ void DataReader::read_task(
         read_callback read_cb,
         ReadCallbackArgs cb_args)
 {
-    TokenBucket rate_manager{delivery_control.max_bytes_per_second()};
+    TokenBucket token_bucket{delivery_control.max_bytes_per_second()};
+    bool stop_cond = false;
     uint16_t message_count = 0;
+    std::chrono::time_point<std::chrono::steady_clock> init_time
+            = std::chrono::steady_clock::now();
+    const std::chrono::time_point<std::chrono::steady_clock> final_time
+            = init_time + std::chrono::seconds(delivery_control.max_elapsed_time());
 
-    while (running_cond_ && (message_count < delivery_control.max_samples()))
+    std::vector<uint8_t> data;
+    while (running_cond_ && !stop_cond)
     {
-        std::vector<uint8_t> data;
-        if (get_middleware().read_data(get_raw_id(), data, std::chrono::milliseconds(100)))
+        std::chrono::milliseconds read_timeout = get_read_timeout(final_time, delivery_control.max_elapsed_time());
+        if (get_middleware().read_data(get_raw_id(), data, read_timeout))
         {
-            while (!rate_manager.get_tokens(data.size()))
+            std::chrono::milliseconds wait_time = token_bucket.wait_time(data.size());
+            while (running_cond_ && wait_time.count())
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::min(std::chrono::milliseconds(MAX_SLEEP_TIME), wait_time));
+                wait_time = token_bucket.wait_time(data.size());
             }
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-                get_raw_id(),
-                data.data(),
-                data.size());
-            read_cb(cb_args, data);
-            ++message_count;
+
+            if (token_bucket.get_tokens(data.size()))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+                    get_raw_id(),
+                    data.data(),
+                    data.size());
+                read_cb(cb_args, data);
+                ++message_count;
+            }
         }
+
+        stop_cond = ((MAX_SAMPLES_UNLIMITED != delivery_control.max_samples()) &&
+                     (message_count == delivery_control.max_samples())) ||
+                    ((MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time()) &&
+                     (std::chrono::steady_clock::now() > final_time));
     }
-}
-
-void DataReader::on_max_timeout(const asio::error_code& error)
-{
-    if (!error)
-    {
-        running_cond_ = false;
-    }
-}
-
-bool DataReader::matched(const dds::xrce::ObjectVariant& new_object_rep) const
-{
-    /* Check ObjectKind. */
-    if ((get_id().at(1) & 0x0F) != new_object_rep._d())
-    {
-        return false;
-    }
-
-    bool rv = false;
-    switch (new_object_rep.data_reader().representation()._d())
-    {
-        case dds::xrce::REPRESENTATION_BY_REFERENCE:
-        {
-            const std::string& ref = new_object_rep.data_reader().representation().object_reference();
-            rv = get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
-            break;
-        }
-        case dds::xrce::REPRESENTATION_AS_XML_STRING:
-        {
-            const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
-            rv = get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
-            break;
-        }
-        default:
-            break;
-    }
-    return rv;
-}
-
-Middleware& DataReader::get_middleware() const
-{
-    return subscriber_->get_middleware();
-}
-
-ReadTimeEvent::ReadTimeEvent()
-    : m_timer_max(m_io_service_max)
-{
-}
-
-int ReadTimeEvent::init_max_timer(int milliseconds)
-{
-    m_io_service_max.reset();
-    m_timer_max.expires_from_now(std::chrono::milliseconds(milliseconds));
-    m_timer_max.async_wait(std::bind(&ReadTimeEvent::on_max_timeout, this, std::placeholders::_1));
-    return 0;
-}
-
-void ReadTimeEvent::stop_max_timer()
-{
-    m_timer_max.cancel();
-    m_io_service_max.stop();
-}
-
-void ReadTimeEvent::run_max_timer(int milliseconds)
-{
-    init_max_timer(milliseconds);
-    m_io_service_max.run();
 }
 
 } // namespace uxr

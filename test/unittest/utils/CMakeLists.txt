@@ -18,7 +18,6 @@
 
 set(SRCS
     TokenBucketTest.cpp
-    ${PROJECT_SOURCE_DIR}/src/cpp/datareader/TokenBucket.cpp
     )
 add_executable(test-token-bucket ${SRCS})
 add_sanitizers(test-token-bucket)

@@ -26,7 +26,6 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/Subscriber.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/datawriter/DataWriter.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/datareader/DataReader.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/datareader/TokenBucket.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/object/XRCEObject.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/TopicPubSubType.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp

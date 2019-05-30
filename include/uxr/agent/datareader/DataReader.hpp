@@ -17,12 +17,11 @@
 
 #include <uxr/agent/object/XRCEObject.hpp>
 
-#include <asio/io_service.hpp>
-#include <asio/steady_timer.hpp>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
 #include <functional>
+#include <atomic>
 
 namespace eprosima {
 namespace uxr {
@@ -45,34 +44,9 @@ struct ReadCallbackArgs
 typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
 
 /**
- * @brief The ReadTimeEvent class
- */
-class ReadTimeEvent
-{
-public:
-    ReadTimeEvent();
-    virtual ~ReadTimeEvent() = default;
-
-    ReadTimeEvent(ReadTimeEvent&&) = delete;
-    ReadTimeEvent(const ReadTimeEvent&) = delete;
-    ReadTimeEvent& operator=(ReadTimeEvent&&) = delete;
-    ReadTimeEvent& operator=(const ReadTimeEvent&) = delete;
-
-    int init_max_timer(int milliseconds);
-    void stop_max_timer();
-    void run_max_timer(int milliseconds);
-
-    virtual void on_max_timeout(const asio::error_code& error) = 0;
-
-protected:
-    asio::io_service m_io_service_max;
-    asio::steady_timer m_timer_max;
-};
-
-/**
  * @brief The DataReader class
  */
-class DataReader : public XRCEObject, public ReadTimeEvent
+class DataReader : public XRCEObject
 {
 public:
     static std::unique_ptr<DataReader> create(
@@ -88,9 +62,11 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    void release(ObjectContainer&) override {}
+    void release(
+            ObjectContainer&) override {}
 
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(
+            const dds::xrce::ObjectVariant& new_object_rep) const override;
 
     Middleware& get_middleware() const override;
 
@@ -99,10 +75,9 @@ public:
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
 
-    void on_max_timeout(const asio::error_code& error) override;
-
 private:
-    DataReader(const dds::xrce::ObjectId& object_id,
+    DataReader(
+        const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const std::shared_ptr<Topic>& topic);
 
@@ -123,9 +98,9 @@ private:
     std::shared_ptr<Topic> topic_;
     std::atomic<bool> running_cond_;
     std::thread read_thread_;
-    std::thread max_timer_thread_;
     std::mutex mtx_;
 };
+
 
 } // namespace uxr
 } // namespace eprosima

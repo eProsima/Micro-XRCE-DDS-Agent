@@ -113,7 +113,6 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
 eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_thirdparty(Asio asio REQUIRED)
 eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
 if(PROFILE_P2P)
     eprosima_find_package(uxrclient REQUIRED)
@@ -195,7 +194,6 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
-    src/cpp/datareader/TokenBucket.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
@@ -241,7 +239,6 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        ${ASIO_INCLUDE_DIR}
     )
 
 # Executable
@@ -284,8 +281,6 @@ set_target_properties(MicroXRCEAgent PROPERTIES
 # Definition
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
-        BOOST_ASIO_STANDALONE
-        ASIO_STANDALONE
         $<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
     )
 
