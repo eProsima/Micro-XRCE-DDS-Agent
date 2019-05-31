@@ -17,11 +17,11 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-option(SUPERBUILD "Active super build" ON)
+option(UAGENT_SUPERBUILD "Active super build" ON)
 
-if(SUPERBUILD)
-    project(superbuild NONE)
-    include(cmake/SuperBuild.cmake)
+if(UAGENT_SUPERBUILD)
+    project(uagent_superbuild NONE)
+    include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
     project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
@@ -120,39 +120,17 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 ###############################################################################
 # Load external eProsima projects.
 ###############################################################################
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
-include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
-#eprosima_find_package(fastcdr REQUIRED)
-find_package(fastcdr "1.0.8" EXACT REQUIRED
-    HINTS
-        ${PROJECT_BINARY_DIR}/temp_install
-    )
-
-find_package(CLI11 "1.7.1" EXACT REQUIRED
-    HINTS
-        ${PROJECT_BINARY_DIR}/temp_install
-    )
-#eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
+find_package(fastcdr "1.0.8" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(CLI11 "1.7.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
 if(PROFILE_P2P)
-#    eprosima_find_package(uxrclient REQUIRED)
-find_package(microxrcedds_client "1.0.1" EXACT REQUIRED
-    HINTS
-        ${PROJECT_BINARY_DIR}/temp_install
-    )
+    find_package(microxrcedds_client "1.0.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microcdr REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(PROFILE_FAST_MIDDLEWARE)
-#    eprosima_find_package(fastrtps REQUIRED)
-    find_package(fastrtps "1.7.2" EXACT REQUIRED
-        HINTS
-            ${PROJECT_BINARY_DIR}/temp_install
-        )
+    find_package(fastrtps "1.7.2" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(PROFILE_LOGGER)
-#    eprosima_find_package(spdlog REQUIRED)
-    find_package(spdlog "1.3.1" EXACT REQUIRED
-        HINTS
-            ${PROJECT_BINARY_DIR}/temp_install
-        )
+    find_package(spdlog "1.3.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################
@@ -261,6 +239,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<BOOL:${PROFILE_FAST_MIDDLEWARE}>:fastrtps>
         $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
         $<$<BOOL:${PROFILE_P2P}>:microxrcedds_client>
+        $<$<BOOL:${PROFILE_P2P}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
     )
 target_include_directories(${PROJECT_NAME}
@@ -320,6 +299,7 @@ if((MSVC OR MSVC_IDE) AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     target_compile_definitions(${PROJECT_NAME}
         PUBLIC
             ${PROJECT_NAME}_SHARED
+
         )
 endif()
 
@@ -418,6 +398,16 @@ install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     install(FILES ${PROJECT_SOURCE_DIR}/agent.refs
         DESTINATION ${BIN_INSTALL_DIR}
+        )
+endif()
+
+# Install dependencies
+if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
+    install(
+        DIRECTORY
+            ${CMAKE_BINARY_DIR}/temp_install/
+        DESTINATION
+            ${CMAKE_INSTALL_PREFIX}
         )
 endif()
 

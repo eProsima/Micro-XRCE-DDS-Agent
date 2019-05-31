@@ -16,7 +16,9 @@ include(ExternalProject)
 
 unset(_deps)
 
+
 # Micro XRCE-DDS Client.
+unset(microxrcedds_client_DIR CACHE)
 find_package(microxrcedds_client "1.0.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(uclient
@@ -32,12 +34,13 @@ if(NOT microxrcedds_client_FOUND)
         CMAKE_ARGS
             -DSUPERBUILD:BOOL=ON
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DBUILD_SHARED_LIBS:BOOL=ON
         )
     list(APPEND _deps uclient)
 endif()
 
 # Fast CDR.
+unset(fastcdr_DIR CACHE)
 find_package(fastcdr "1.0.8" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(fastcdr
@@ -52,12 +55,13 @@ if(NOT microxrcedds_client_FOUND)
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DBUILD_SHARED_LIBS:BOOL=ON
         )
     list(APPEND _deps fastcdr)
 endif()
 
 # Fast RTPS.
+unset(fastrtps_DIR CACHE)
 find_package(fastrtps "1.7.2" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(fastrtps
@@ -72,14 +76,17 @@ if(NOT microxrcedds_client_FOUND)
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=OFF
-            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
+            -DBUILD_SHARED_LIBS:BOOL=ON
+            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
             -DTHIRDPARTY:BOOL=ON
+        DEPENDS
+            fastcdr
         )
     list(APPEND _deps fastrtps)
 endif()
 
 # CLI11.
+unset(CLI11_DIR CACHE)
 find_package(CLI11 "1.7.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(cli11
@@ -94,7 +101,7 @@ if(NOT microxrcedds_client_FOUND)
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
             -DCLI11_TESTING:BOOL=OFF
             -DCLI11_EXAMPLES:BOOL=OFF
@@ -103,6 +110,7 @@ if(NOT microxrcedds_client_FOUND)
 endif()
 
 # spdlog.
+unset(spdlog_DIR CACHE)
 find_package(spdlog "1.3.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(spdlog
@@ -117,7 +125,7 @@ if(NOT microxrcedds_client_FOUND)
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
             -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
             -DSPDLOG_BUILD_TESTS:BOOL=OFF
@@ -128,15 +136,12 @@ endif()
 
 # Main project.
 ExternalProject_Add(uagent
-    BUILD_ALWAYS
-        TRUE
     SOURCE_DIR
         ${PROJECT_SOURCE_DIR}
     BINARY_DIR
         ${CMAKE_CURRENT_BINARY_DIR}
     CMAKE_ARGS
-        -DSUPERBUILD=OFF
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DUAGENT_SUPERBUILD=OFF
     INSTALL_COMMAND
         ""
     DEPENDS
