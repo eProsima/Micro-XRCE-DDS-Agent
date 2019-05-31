@@ -31,7 +31,7 @@ if(NOT microxrcedds_client_FOUND)
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_ARGS
-            -DSUPERBUILD:BOOL=ON
+            -DUCLIENT_SUPERBUILD:BOOL=ON
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
         )

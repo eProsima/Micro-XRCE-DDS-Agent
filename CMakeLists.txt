@@ -78,11 +78,6 @@ set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200 CACHE STRING "Heartbeat perio
 set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100 CACHE STRING "Maximum TCP connection allowed.")
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100 CACHE STRING "Maximum TCP backlog connection allowed.")
 
-# Create config.hpp
-configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
-    )
-
 ###############################################################################
 # Check MSVC architecture
 ###############################################################################
@@ -323,7 +318,6 @@ endif()
 ###############################################################################
 # Packaging
 ###############################################################################
-
 # Install agent lib
 install(
     TARGETS
@@ -375,7 +369,12 @@ install(
         executables
     )
 
-# Install config.h
+# Create config.hpp
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    )
+
+# Install config.hpp
 install(
     FILES
         ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
