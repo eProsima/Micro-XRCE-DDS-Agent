@@ -19,8 +19,10 @@
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
+#ifdef UAGENT_FAST_PROFILE
 // TODO (#5047): replace Fast RTPS dependency by XML parser library.
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#endif
 
 #include <memory>
 #include <chrono>
@@ -220,7 +222,12 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 
 bool Root::load_config_file(const std::string& file_path)
 {
+#ifdef UAGENT_FAST_PROFILE
     return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
+#else
+    (void) file_path;
+    return false;
+#endif
 }
 
 void Root::set_verbose_level(uint8_t verbose_level)
