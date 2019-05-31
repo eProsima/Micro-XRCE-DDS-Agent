@@ -127,7 +127,12 @@ find_package(fastcdr "1.0.8" EXACT REQUIRED
     HINTS
         ${PROJECT_BINARY_DIR}/temp_install
     )
-eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
+
+find_package(CLI11 "1.7.1" EXACT REQUIRED
+    HINTS
+        ${PROJECT_BINARY_DIR}/temp_install
+    )
+#eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
 if(PROFILE_P2P)
 #    eprosima_find_package(uxrclient REQUIRED)
 find_package(microxrcedds_client "1.0.1" EXACT REQUIRED
@@ -143,7 +148,11 @@ if(PROFILE_FAST_MIDDLEWARE)
         )
 endif()
 if(PROFILE_LOGGER)
-    eprosima_find_package(spdlog REQUIRED)
+#    eprosima_find_package(spdlog REQUIRED)
+    find_package(spdlog "1.3.1" EXACT REQUIRED
+        HINTS
+            ${PROJECT_BINARY_DIR}/temp_install
+        )
 endif()
 
 ###############################################################################
