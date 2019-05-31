@@ -47,7 +47,7 @@ target_include_directories(test-output-stream
 target_link_libraries(test-output-stream
     PRIVATE
         fastcdr
-        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         ${GTEST_BOTH_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )
@@ -91,7 +91,7 @@ target_include_directories(test-input-stream PRIVATE
 target_link_libraries(test-input-stream
     PRIVATE
         fastcdr
-        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         ${GTEST_BOTH_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )

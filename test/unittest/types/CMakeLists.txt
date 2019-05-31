@@ -44,7 +44,7 @@ target_include_directories(test-xrce-types
 target_link_libraries(test-xrce-types
     PRIVATE
         fastcdr
-        $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         ${GTEST_BOTH_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )

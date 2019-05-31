@@ -56,7 +56,7 @@ if(GMOCK_FOUND)
         PRIVATE
             fastrtps
             fastcdr
-            $<$<BOOL:${PROFILE_LOGGER}>:spdlog::spdlog>
+            $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
             ${GTEST_LIBRARIES}
             ${GMOCK_LIBRARIES}
         )

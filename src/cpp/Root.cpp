@@ -276,6 +276,8 @@ void Root::set_verbose_level(uint8_t verbose_level)
                 "verbose_level: {}", verbose_level);
             break;
     }
+#else
+    (void) verbose_level;
 #endif
 }
 
