@@ -1,4 +1,4 @@
-# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +15,22 @@
 ###############################################################################
 # CMake build rules for Micro XRCE-DDS Agent
 ###############################################################################
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-set(IS_TOP_LEVEL TRUE)
-if(PROJECT_SOURCE_DIR)
-    set(IS_TOP_LEVEL FALSE)
+option(SUPERBUILD "Active super build" ON)
+
+if(SUPERBUILD)
+    project(superbuild NONE)
+    include(cmake/SuperBuild.cmake)
+    return()
+else()
+    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
 endif()
+
+#set(IS_TOP_LEVEL TRUE)
+#if(PROJECT_SOURCE_DIR)
+#    set(IS_TOP_LEVEL FALSE)
+#endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -34,33 +44,33 @@ endif()
 ###############################################################################
 # Product information
 ###############################################################################
-if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(microxrcedds_agent C CXX)
-    set(PROJECT_VERSION_MAJOR 1)
-    set(PROJECT_VERSION_MINOR 0)
-    set(PROJECT_VERSION_PATCH 1)
-    set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
-else()
-    cmake_policy(SET CMP0048 NEW)
-    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
-endif()
+#if(CMAKE_VERSION VERSION_LESS 3.0)
+#    project(microxrcedds_agent C CXX)
+#    set(PROJECT_VERSION_MAJOR 1)
+#    set(PROJECT_VERSION_MINOR 0)
+#    set(PROJECT_VERSION_PATCH 1)
+#    set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+#else()
+#    cmake_policy(SET CMP0048 NEW)
+#    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
+#endif()
 
 ###############################################################################
 # eProsima build options
 ###############################################################################
 option(EPROSIMA_BUILD "Activate internal building" OFF)
 option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
-option(THIRDPARTY "Activate the build of thirdparties" OFF)
+#option(THIRDPARTY "Activate the build of thirdparties" OFF)
 option(VERBOSE "Use verbose output" OFF)
 option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
 
 if(EPROSIMA_INSTALLER)
-    set(THIRDPARTY ON)
+#    set(THIRDPARTY ON)
 endif()
 
 if(EPROSIMA_BUILD)
-    set(THIRDPARTY ON)
-    set(EPROSIMA_BUILD_TESTS ON)
+#    set(THIRDPARTY ON)
+#    set(EPROSIMA_BUILD_TESTS ON)
 endif()
 
 ###############################################################################
@@ -112,13 +122,25 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
-eprosima_find_package(fastcdr REQUIRED)
+#eprosima_find_package(fastcdr REQUIRED)
+find_package(fastcdr "1.0.8" EXACT REQUIRED
+    HINTS
+        ${PROJECT_BINARY_DIR}/temp_install
+    )
 eprosima_find_package(CLI11 CLI11 CONFIG) # Check why it does not work with eprosima_find_thirdparty
 if(PROFILE_P2P)
-    eprosima_find_package(uxrclient REQUIRED)
+#    eprosima_find_package(uxrclient REQUIRED)
+find_package(microxrcedds_client "1.0.1" EXACT REQUIRED
+    HINTS
+        ${PROJECT_BINARY_DIR}/temp_install
+    )
 endif()
 if(PROFILE_FAST_MIDDLEWARE)
-    eprosima_find_package(fastrtps REQUIRED)
+#    eprosima_find_package(fastrtps REQUIRED)
+    find_package(fastrtps "1.7.2" EXACT REQUIRED
+        HINTS
+            ${PROJECT_BINARY_DIR}/temp_install
+        )
 endif()
 if(PROFILE_LOGGER)
     eprosima_find_package(spdlog REQUIRED)
