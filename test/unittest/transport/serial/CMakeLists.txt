@@ -12,25 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(TEST_NAME test-baud-rate-conversion)
-    set(SRCS
-        BaudRateTableTests.cpp
-        )
-    add_executable(${TEST_NAME} ${SRCS})
-    add_sanitizers(${TEST_NAME})
-    add_gtest(${TEST_NAME}
-        SOURCES
-            ${SRCS}
-        )
-    target_include_directories(${TEST_NAME} PRIVATE
+set(TEST_NAME test-baud-rate-conversion)
+
+set(SRCS
+    BaudRateTableTests.cpp
+    )
+add_executable(${TEST_NAME} ${SRCS})
+
+add_sanitizers(${TEST_NAME})
+
+add_gtest(${TEST_NAME}
+    SOURCES
+        ${SRCS}
+    )
+
+target_include_directories(${TEST_NAME}
+    PRIVATE
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}
-        )
-    target_link_libraries(${TEST_NAME} PRIVATE ${GTEST_LIBRARIES})
-    set_target_properties(${TEST_NAME} PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        )
-endif()
+    )
+
+target_link_libraries(${TEST_NAME}
+    PRIVATE
+        ${GTEST_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+    )
+
+set_target_properties(${TEST_NAME} PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    )

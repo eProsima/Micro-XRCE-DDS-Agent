@@ -294,10 +294,13 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 ###############################################################################
 # Testing
 ###############################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
+
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
-    check_gtest()
-    check_gmock()
+    find_package(GTest REQUIRED)
+    find_package(GMock REQUIRED)
+    find_package(Threads REQUIRED)
     enable_testing()
     include(CTest)
     if(GTEST_FOUND)

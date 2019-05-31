@@ -19,21 +19,33 @@
 set(SRCS
     TokenBucketTest.cpp
     )
+
 add_executable(test-token-bucket ${SRCS})
+
 add_sanitizers(test-token-bucket)
+
 add_gtest(test-token-bucket
     SOURCES
         ${SRCS}
     )
+
 target_include_directories(test-token-bucket
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
         ${GTEST_INCLUDE_DIRS}
     )
-target_link_libraries(test-token-bucket PRIVATE ${GTEST_BOTH_LIBRARIES})
+
+target_link_libraries(test-token-bucket
+    PRIVATE
+        ${GTEST_BOTH_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+    )
+
 set_target_properties(test-token-bucket PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
     )
 
 ###################################################################################################
@@ -56,8 +68,15 @@ target_include_directories(test-seq-num PRIVATE
     ${GTEST_INCLUDE_DIRS}
     ${GMOCK_INCLUDE_DIRS}
     )
-target_link_libraries(test-seq-num PRIVATE fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+target_link_libraries(test-seq-num
+    PRIVATE
+        fastcdr
+        ${GTEST_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+    )
 set_target_properties(test-seq-num PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
     )
