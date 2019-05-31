@@ -40,12 +40,12 @@ public:
     UXR_AGENT_EXPORT bool stop();
     UXR_AGENT_EXPORT bool load_config_file(const std::string& path);
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);
     UXR_AGENT_EXPORT bool disable_discovery();
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     UXR_AGENT_EXPORT bool enable_p2p(uint16_t p2p_port);
     UXR_AGENT_EXPORT bool disable_p2p();
 #endif
@@ -67,13 +67,13 @@ private:
 
     virtual bool close() = 0;
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     virtual bool init_discovery(uint16_t discovery_port) = 0;
 
     virtual bool close_discovery() = 0;
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     virtual bool init_p2p(uint16_t p2p_port) = 0;
 
     virtual bool close_p2p() = 0;

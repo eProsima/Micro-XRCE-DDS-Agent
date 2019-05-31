@@ -42,7 +42,7 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
     spdlog::set_level(spdlog::level::info);
     spdlog::set_pattern(UXR_LOG_PATTERN);
 #endif
@@ -225,7 +225,7 @@ bool Root::load_config_file(const std::string& file_path)
 
 void Root::set_verbose_level(uint8_t verbose_level)
 {
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
     switch (verbose_level)
     {
         case 0:

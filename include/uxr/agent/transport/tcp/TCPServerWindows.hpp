@@ -16,7 +16,7 @@
 #define UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
 
@@ -53,13 +53,13 @@ private:
 
     bool close() final;
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t discovery_port) final;
 
     bool close_discovery() final;
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
 
     bool close_p2p() final { return false; } // TODO
@@ -110,7 +110,7 @@ private:
     std::thread listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerWindows discovery_server_;
 #endif
 };
