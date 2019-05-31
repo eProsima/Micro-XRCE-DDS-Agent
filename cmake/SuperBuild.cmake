@@ -23,8 +23,7 @@ find_package(microxrcedds_client "1.0.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(uclient
         DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR}
-            git submodule update --init --recursive ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient/
+            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/uxrclient/
         PREFIX
             ${PROJECT_BINARY_DIR}/uclient
         SOURCE_DIR
@@ -45,8 +44,7 @@ find_package(fastcdr "1.0.8" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(fastcdr
         DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR}
-            git submodule update --init ${PROJECT_SOURCE_DIR}/thirdparty/fastcdr/
+            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastcdr/
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
         SOURCE_DIR
@@ -66,8 +64,7 @@ find_package(fastrtps "1.7.2" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(fastrtps
         DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR}
-            git submodule update --init ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps/
+            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastrtps/
         PREFIX
             ${PROJECT_BINARY_DIR}/fastrtps
         SOURCE_DIR
@@ -91,8 +88,7 @@ find_package(CLI11 "1.7.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(cli11
         DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR}
-            git submodule update --init ${PROJECT_SOURCE_DIR}/thirdparty/CLI11/
+            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/CLI11/
         PREFIX
             ${PROJECT_BINARY_DIR}/CLI11
         SOURCE_DIR
@@ -115,8 +111,7 @@ find_package(spdlog "1.3.1" EXACT QUIET)
 if(NOT microxrcedds_client_FOUND)
     ExternalProject_Add(spdlog
         DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR}
-            git submodule update --init ${PROJECT_SOURCE_DIR}/thirdparty/spdlog/
+            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/spdlog/
         PREFIX
             ${PROJECT_BINARY_DIR}/spdlog
         SOURCE_DIR
