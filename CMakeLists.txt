@@ -27,11 +27,6 @@ else()
     project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
 endif()
 
-#set(IS_TOP_LEVEL TRUE)
-#if(PROJECT_SOURCE_DIR)
-#    set(IS_TOP_LEVEL FALSE)
-#endif()
-
 # Set CMAKE_BUILD_TYPE to Release by default.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -42,49 +37,28 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 ###############################################################################
-# Product information
+# Build options
 ###############################################################################
-#if(CMAKE_VERSION VERSION_LESS 3.0)
-#    project(microxrcedds_agent C CXX)
-#    set(PROJECT_VERSION_MAJOR 1)
-#    set(PROJECT_VERSION_MINOR 0)
-#    set(PROJECT_VERSION_PATCH 1)
-#    set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
-#else()
-#    cmake_policy(SET CMP0048 NEW)
-#    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
-#endif()
-
-###############################################################################
-# eProsima build options
-###############################################################################
-option(EPROSIMA_BUILD "Activate internal building" OFF)
-option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
-#option(THIRDPARTY "Activate the build of thirdparties" OFF)
-option(VERBOSE "Use verbose output" OFF)
+option(UAGENT_BUILD_TESTS "Activate the building tests" OFF)
 option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
 
 if(EPROSIMA_INSTALLER)
 #    set(THIRDPARTY ON)
 endif()
 
-if(EPROSIMA_BUILD)
-#    set(THIRDPARTY ON)
-#    set(EPROSIMA_BUILD_TESTS ON)
-endif()
+option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
+option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
+option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
+option(PROFILE_P2P "Activate the P2P discovery profile." ON)
+option(PROFILE_LOGGER "Active logger profile." ON)
 
-###############################################################################
-# Check MSVC architecture
-###############################################################################
-include(${PROJECT_SOURCE_DIR}/cmake/common/check_configuration.cmake)
-if(MSVC OR MSVC_IDE)
-    check_msvc_arch()
+if(NOT PROFILE_CED_MIDDLEWARE)
+    set(PROFILE_P2P OFF)
 endif()
 
 ###############################################################################
 # Config
 ###############################################################################
-
 # Install path
 set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
 set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
@@ -102,15 +76,6 @@ set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth."
 set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
 set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
 set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
-option(PROFILE_FAST_MIDDLEWARE "Activate the FastMiddleware profile." ON)
-option(PROFILE_CED_MIDDLEWARE "Activate the CedMiddleware profile." ON)
-option(PROFILE_DISCOVERY "Activate the Discovery profile." ON)
-option(PROFILE_P2P "Activate the P2P discovery profile." ON)
-option(PROFILE_LOGGER "Active logger profile." ON)
-
-if(NOT PROFILE_CED_MIDDLEWARE)
-    set(PROFILE_P2P OFF)
-endif()
 
 # Create source files with the define
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -118,7 +83,15 @@ configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
     )
 
 ###############################################################################
-# Load external eProsima projects.
+# Check MSVC architecture
+###############################################################################
+include(${PROJECT_SOURCE_DIR}/cmake/common/check_configuration.cmake)
+if(MSVC OR MSVC_IDE)
+    check_msvc_arch()
+endif()
+
+###############################################################################
+# Load external dependencies.
 ###############################################################################
 find_package(fastcdr "1.0.8" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
 find_package(CLI11 "1.7.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
@@ -171,9 +144,8 @@ if(SANITIZE_ADDRESS)
 endif()
 
 ###############################################################################
-# Targets
+# Sources
 ###############################################################################
-
 # Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
@@ -209,7 +181,6 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
-    $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
     src/cpp/transport/tcp/TCPServerBase.cpp
@@ -228,9 +199,40 @@ set(SRCS
     $<$<BOOL:${PROFILE_P2P}>:src/cpp/p2p/InternalClient.cpp>
     )
 
+###############################################################################
+# Targets
+###############################################################################
 # Library
 add_library(${PROJECT_NAME} ${SRCS})
 add_sanitizers(${PROJECT_NAME})
+
+set_target_properties(MicroXRCEAgent PROPERTIES
+    VERSION
+        ${PROJECT_VERSION}
+    SOVERSION
+        ${PROJECT_VERSION_MAJOR}
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
+    )
+
+get_target_property(UAGENT_TARGET_TYPE ${PROJECT_NAME} TYPE)
+if((CMAKE_SYSTEM_NAME STREQUAL "Windows") AND (ACLIENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            RELEASE_POSTFIX
+                -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+            RELWITHDEBINFO_POSTFIX
+                -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+            DEBUG_POSTFIX
+                d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+            )
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            ${PROJECT_NAME}_SHARED
+        )
+endif()
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -242,6 +244,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<BOOL:${PROFILE_P2P}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
     )
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -265,44 +268,6 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
     DESTINATION ${PROJECT_BINARY_DIR}
     )
 
-###############################################################################
-# Compile options
-###############################################################################
-
-# Set targets properties.
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    )
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RELEASE_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        DEBUG_POSTFIX d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        )
-endif()
-set_target_properties(MicroXRCEAgent PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    )
-
-# Definition
-target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
-        $<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
-    )
-
-get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
-if((MSVC OR MSVC_IDE) AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
-    target_compile_definitions(${PROJECT_NAME}
-        PUBLIC
-            ${PROJECT_NAME}_SHARED
-
-        )
-endif()
-
 # Warnings
 if(MSVC OR MSVC_IDE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")
@@ -315,7 +280,7 @@ endif()
 ###############################################################################
 # Testing
 ###############################################################################
-if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
+if(UAGENT_BUILD_TESTS AND IS_TOP_LEVEL)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
     check_gtest()
     check_gmock()
