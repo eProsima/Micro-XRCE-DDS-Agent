@@ -46,8 +46,6 @@ TEST_F(TreeTests, XMLTree)
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id_);
-    client_representation.client_timestamp().seconds(0x00);
-    client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
     dds::xrce::ResultStatus response = root_.create_client(
@@ -180,8 +178,6 @@ TEST_F(TreeTests, REFTree)
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id_);
-    client_representation.client_timestamp().seconds(0x00);
-    client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
     dds::xrce::ResultStatus response = root_.create_client(
@@ -403,8 +399,6 @@ TEST_F(TreeTests, CreationModeXMLTree)
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id_);
-    client_representation.client_timestamp().seconds(0x00);
-    client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
     dds::xrce::ResultStatus response = root_.create_client(
@@ -681,8 +675,6 @@ TEST_F(TreeTests, CreationModeREFTree)
     client_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.xrce_vendor_id(vendor_id_);
-    client_representation.client_timestamp().seconds(0x00);
-    client_representation.client_timestamp().nanoseconds(0x00);
     client_representation.client_key(client_key_);
     client_representation.session_id(0x00);
     dds::xrce::ResultStatus response = root_.create_client(

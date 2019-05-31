@@ -17,6 +17,7 @@
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/utils/Time.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -153,6 +154,9 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
         case dds::xrce::FRAGMENT:
             rv = process_fragment_submessage(client, input_packet);
             break;
+        case dds::xrce::TIMESTAMP:
+            rv = process_timestamp_submessage(client, input_packet);
+            break;
 //        case dds::xrce::PERFORMANCE:
 //            rv = process_performance_submessage(client, input_packet);
 //            break;
@@ -196,11 +200,6 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             dds::xrce::MessageHeader status_header = input_packet.message->get_header();
             status_header.session_id(client_payload.client_representation().session_id());
 
-            /* STATUS_AGENT payload. */
-            dds::xrce::STATUS_AGENT_Payload status_payload;
-            status_payload.related_request().request_id(client_payload.request_id());
-            status_payload.related_request().object_id(client_payload.object_id());
-
             /* Create client. */
             dds::xrce::AGENT_Representation agent_representation;
             dds::xrce::ResultStatus result = root_.create_client(
@@ -213,25 +212,27 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
                 server_->on_create_client(input_packet.source.get(),
                                           client_payload.client_representation());
             }
-            status_payload.result(result);
-            status_payload.agent_info(agent_representation);
+            /* STATUS_AGENT payload. */
+            dds::xrce::STATUS_AGENT_Payload status_agent;
+            status_agent.result(result);
+            status_agent.agent_info(agent_representation);
 
             /* STATUS_AGENT subheader. */
             dds::xrce::SubmessageHeader status_subheader;
             status_subheader.submessage_id(dds::xrce::STATUS_AGENT);
             status_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
-            status_subheader.submessage_length(uint16_t(status_payload.getCdrSerializedSize()));
+            status_subheader.submessage_length(uint16_t(status_agent.getCdrSerializedSize()));
 
             /* Compute message size. */
             const size_t message_size = status_header.getCdrSerializedSize() +
                                         status_subheader.getCdrSerializedSize() +
-                                        status_payload.getCdrSerializedSize();
+                                        status_agent.getCdrSerializedSize();
 
             /* Set output packet and serialize STATUS_AGENT. */
             OutputPacket output_packet;
             output_packet.destination = input_packet.source;
             output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(status_header, message_size));
-            output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_payload);
+            output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_agent);
 
             /* Send message. */
             server_->push_output_packet(output_packet);
@@ -398,7 +399,7 @@ bool Processor::process_read_data_submessage(
             /* Set callback args. */
             ReadCallbackArgs cb_args;
             cb_args.client_key = client.get_client_key();
-            cb_args.stream_id = read_payload.read_specification().data_stream_id();
+            cb_args.stream_id = read_payload.read_specification().preferred_stream_id();
             cb_args.object_id = read_payload.object_id();
             cb_args.request_id = read_payload.request_id();
 
@@ -544,6 +545,36 @@ bool Processor::process_fragment_submessage(
         process_input_message(client, fragment_packet);
     }
     return true;
+}
+
+bool Processor::process_timestamp_submessage(ProxyClient& client, InputPacket& input_packet)
+{
+    bool rv = true;
+    dds::xrce::TIMESTAMP_Payload timestamp;
+    if (input_packet.message->get_payload(timestamp))
+    {
+        dds::xrce::TIMESTAMP_REPLY_Payload timestamp_reply;
+        time::get_epoch_time(timestamp_reply.receive_timestamp().seconds(),
+                             timestamp_reply.receive_timestamp().nanoseconds());
+        timestamp_reply.originate_timestamp(timestamp.transmit_timestamp());
+        time::get_epoch_time(timestamp_reply.transmit_timestamp().seconds(),
+                             timestamp_reply.transmit_timestamp().nanoseconds());
+
+        client.session().push_output_submessage(dds::xrce::STREAMID_NONE, dds::xrce::TIMESTAMP_REPLY, timestamp_reply);
+
+        OutputPacket output_packet;
+        output_packet.destination = input_packet.source;
+        if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
+        {
+            server_->push_output_packet(output_packet);
+        }
+    }
+    else
+    {
+        std::cerr << "Error processin TIMESTAMP submessage." << std::endl;
+        rv = false;
+    }
+    return rv;
 }
 
 //bool Processor::process_performance_submessage(ProxyClient& client, InputPacket& input_packet)
