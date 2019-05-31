@@ -30,6 +30,11 @@ public:
             size_t rate,
             size_t burst = min_rate_);
 
+    TokenBucket(TokenBucket&&) = delete;
+    TokenBucket(const TokenBucket&) = delete;
+    TokenBucket& operator=(TokenBucket&&) = delete;
+    TokenBucket& operator=(const TokenBucket&) = delete;
+
     std::chrono::milliseconds wait_time(size_t tokens_required);
 
     bool get_tokens(size_t tokens_required);
