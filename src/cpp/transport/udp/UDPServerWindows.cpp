@@ -27,7 +27,7 @@ UDPServer::UDPServer(
     : UDPServerBase(agent_port, middleware_kind)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
 {}
@@ -140,7 +140,7 @@ bool UDPServer::close()
     return rv;
 }
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 bool UDPServer::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);

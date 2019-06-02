@@ -152,7 +152,7 @@ if(UAGENT_BUILD_TESTS)
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-                $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt>
+                $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
             )
         list(APPEND _deps googletest)
     endif()

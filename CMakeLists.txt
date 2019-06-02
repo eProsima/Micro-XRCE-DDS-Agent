@@ -35,6 +35,10 @@ if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(UAGENT_P2P_PROFILE OFF)
+endif()
+
 if(UAGENT_SUPERBUILD)
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -210,7 +214,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     )
 
 get_target_property(UAGENT_TARGET_TYPE ${PROJECT_NAME} TYPE)
-if((CMAKE_SYSTEM_NAME STREQUAL "Windows") AND (ACLIENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+if((CMAKE_SYSTEM_NAME STREQUAL "Windows") AND (UAGENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RELEASE_POSTFIX
             -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -244,6 +248,7 @@ target_compile_options(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
+        $<$<PLATFORM_ID:Windows>:ws2_32>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
@@ -305,8 +310,10 @@ if(UAGENT_BUILD_TESTS)
         endif()
         add_subdirectory(test/unittest/utils)
         add_subdirectory(test/unittest/types)
-        add_subdirectory(test/unittest/transport/serial)
         add_subdirectory(test/unittest/client/session/stream)
+        if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            add_subdirectory(test/unittest/transport/serial)
+        endif()
     endif()
     add_subdirectory(test/integration/cross_serialization)
 endif()

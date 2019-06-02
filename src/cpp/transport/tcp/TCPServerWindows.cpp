@@ -36,7 +36,7 @@ TCPServer::TCPServer(
     , listener_thread_{}
     , running_cond_{false}
     , messages_queue_{}
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
 {}
@@ -199,7 +199,7 @@ bool TCPServer::close()
     return rv;
 }
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 bool TCPServer::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);
