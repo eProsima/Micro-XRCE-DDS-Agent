@@ -17,7 +17,23 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
+###############################################################################
+# Build options
+###############################################################################
 option(UAGENT_SUPERBUILD "Active super build" ON)
+option(UAGENT_BUILD_TESTS "Build tests." OFF)
+option(UAGENT_INSTALLER "Build Windows installer." OFF)
+option(BUILD_SHARED_LIBS "Control share or static building." ON)
+
+option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
+option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
+option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
+option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
+option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
+
+if(NOT UAGENT_CED_PROFILE)
+    set(UAGENT_P2P_PROFILE OFF)
+endif()
 
 if(UAGENT_SUPERBUILD)
     project(uagent_superbuild NONE)
@@ -34,23 +50,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
         FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-###############################################################################
-# Build options
-###############################################################################
-option(UAGENT_BUILD_TESTS "Build tests." OFF)
-option(UAGENT_INSTALLER "Build Windows installer." OFF)
-option(BUILD_SHARED_LIBS "Control share or static building." ON)
-
-option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
-option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
-option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
-option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
-option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
-
-if(NOT UAGENT_CED_PROFILE)
-    set(UAGENT_P2P_PROFILE OFF)
 endif()
 
 ###############################################################################
@@ -290,8 +289,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
-    find_package(GTest REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-    find_package(GMock REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(GTest REQUIRED GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(GMock REQUIRED GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install)
     find_package(Threads REQUIRED)
     enable_testing()
     include(CTest)
