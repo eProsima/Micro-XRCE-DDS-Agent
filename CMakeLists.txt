@@ -39,12 +39,9 @@ endif()
 ###############################################################################
 # Build options
 ###############################################################################
-option(UAGENT_BUILD_TESTS "Activate the building tests" OFF)
-option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
-
-if(EPROSIMA_INSTALLER)
-#    set(THIRDPARTY ON)
-endif()
+option(UAGENT_BUILD_TESTS "Build tests." OFF)
+option(UAGENT_INSTALLER "Build Windows installer." OFF)
+option(BUILD_SHARED_LIBS "Control share or static building." ON)
 
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
@@ -89,17 +86,17 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.8" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
-find_package(CLI11 "1.7.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr "1.0.8" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.0.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
-    find_package(microcdr REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client "1.0.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.7.2" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps "1.7.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog "1.3.1" EXACT REQUIRED HINTS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################
@@ -293,8 +290,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
-    find_package(GTest REQUIRED)
-    find_package(GMock REQUIRED)
+    find_package(GTest REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(GMock REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(Threads REQUIRED)
     enable_testing()
     include(CTest)
@@ -443,7 +440,7 @@ if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
 endif()
 
 # Generate Windows Installer.
-if(WIN32 AND EPROSIMA_INSTALLER)
+if(WIN32 AND UAGENT_INSTALLER)
     # Set product name.
     set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
     set(PRODUCT_NAME_LONG "Micro XRCE-DDS Agent")

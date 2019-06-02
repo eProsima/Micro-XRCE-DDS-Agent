@@ -14,34 +14,36 @@
 
 include(ExternalProject)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 unset(_deps)
 
-
-# Micro XRCE-DDS Client.
-unset(microxrcedds_client_DIR CACHE)
-find_package(microxrcedds_client "1.0.1" EXACT QUIET)
-if(NOT microxrcedds_client_FOUND)
-    ExternalProject_Add(uclient
-        DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/uxrclient/
-        PREFIX
-            ${PROJECT_BINARY_DIR}/uclient
-        SOURCE_DIR
-            ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
-            -DUCLIENT_SUPERBUILD:BOOL=ON
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=ON
-        )
-    list(APPEND _deps uclient)
+if(UAGENT_P2P_PROFILE)
+    # Micro XRCE-DDS Client.
+    unset(microxrcedds_client_DIR CACHE)
+    find_package(microxrcedds_client "1.0.1" EXACT QUIET)
+    if(NOT microxrcedds_client_FOUND)
+        ExternalProject_Add(uclient
+            DOWNLOAD_COMMAND
+                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/uxrclient/
+            PREFIX
+                ${PROJECT_BINARY_DIR}/uclient
+            SOURCE_DIR
+                ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install
+            CMAKE_ARGS
+                -DUCLIENT_SUPERBUILD:BOOL=ON
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DBUILD_SHARED_LIBS:BOOL=ON
+            )
+        list(APPEND _deps uclient)
+    endif()
 endif()
 
 # Fast CDR.
 unset(fastcdr_DIR CACHE)
 find_package(fastcdr "1.0.8" EXACT QUIET)
-if(NOT microxrcedds_client_FOUND)
+if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
         DOWNLOAD_COMMAND
             cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastcdr/
@@ -58,34 +60,36 @@ if(NOT microxrcedds_client_FOUND)
     list(APPEND _deps fastcdr)
 endif()
 
-# Fast RTPS.
-unset(fastrtps_DIR CACHE)
-find_package(fastrtps "1.7.2" EXACT QUIET)
-if(NOT microxrcedds_client_FOUND)
-    ExternalProject_Add(fastrtps
-        DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastrtps/
-        PREFIX
-            ${PROJECT_BINARY_DIR}/fastrtps
-        SOURCE_DIR
-            ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
-            -DTHIRDPARTY:BOOL=ON
-        DEPENDS
-            fastcdr
-        )
-    list(APPEND _deps fastrtps)
+if(UAGENT_FAST_PROFILE)
+    # Fast RTPS.
+    unset(fastrtps_DIR CACHE)
+    find_package(fastrtps "1.7.2" EXACT QUIET)
+    if(NOT fastrtps_FOUND)
+        ExternalProject_Add(fastrtps
+            DOWNLOAD_COMMAND
+                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastrtps/
+            PREFIX
+                ${PROJECT_BINARY_DIR}/fastrtps
+            SOURCE_DIR
+                ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DBUILD_SHARED_LIBS:BOOL=ON
+                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
+                -DTHIRDPARTY:BOOL=ON
+            DEPENDS
+                fastcdr
+            )
+        list(APPEND _deps fastrtps)
+    endif()
 endif()
 
 # CLI11.
 unset(CLI11_DIR CACHE)
 find_package(CLI11 "1.7.1" EXACT QUIET)
-if(NOT microxrcedds_client_FOUND)
+if(NOT CLI11_FOUND)
     ExternalProject_Add(cli11
         DOWNLOAD_COMMAND
             cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/CLI11/
@@ -105,28 +109,53 @@ if(NOT microxrcedds_client_FOUND)
     list(APPEND _deps cli11)
 endif()
 
-# spdlog.
-unset(spdlog_DIR CACHE)
-find_package(spdlog "1.3.1" EXACT QUIET)
-if(NOT microxrcedds_client_FOUND)
-    ExternalProject_Add(spdlog
-        DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/spdlog/
-        PREFIX
-            ${PROJECT_BINARY_DIR}/spdlog
-        SOURCE_DIR
-            ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
-            -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
-            -DSPDLOG_BUILD_TESTS:BOOL=OFF
-            -DSPDLOG_INSTALL:BOOL=ON
-        )
-    list(APPEND _deps spdlog)
+if(UAGENT_LOGGER_PROFILE)
+    # spdlog.
+    unset(spdlog_DIR CACHE)
+    find_package(spdlog "1.3.1" EXACT QUIET)
+    if(NOT spdlog_FOUND)
+        ExternalProject_Add(spdlog
+            DOWNLOAD_COMMAND
+                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/spdlog/
+            PREFIX
+                ${PROJECT_BINARY_DIR}/spdlog
+            SOURCE_DIR
+                ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DBUILD_SHARED_LIBS:BOOL=ON
+                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
+                -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
+                -DSPDLOG_BUILD_TESTS:BOOL=OFF
+                -DSPDLOG_INSTALL:BOOL=ON
+            )
+        list(APPEND _deps spdlog)
+    endif()
+endif()
+
+if(UAGENT_BUILD_TESTS)
+    unset(googletest_DIR CACHE)
+    enable_language(CXX)
+    find_package(GTest QUIET)
+    find_package(GMock QUIET)
+    if(NOT GTest_FOUND OR NOT GMock_FOUND)
+        ExternalProject_Add(googletest
+            GIT_REPOSITORY
+                https://github.com/google/googletest.git
+            GIT_TAG
+                master
+            PREFIX
+                ${PROJECT_BINARY_DIR}/googletest
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt>
+            )
+        list(APPEND _deps googletest)
+    endif()
 endif()
 
 # Main project.

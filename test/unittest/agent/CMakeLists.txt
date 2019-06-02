@@ -46,6 +46,7 @@ target_link_libraries(${TEST_NAME}
         microxrcedds_agent
         ${GTEST_LIBRARIES}
         ${GMOCK_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
     )
 
 set_target_properties(${TEST_NAME} PROPERTIES
