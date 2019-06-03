@@ -211,6 +211,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         11
     CXX_STANDARD_REQUIRED
         YES
+    C_STANDARD
+        99
+    C_STANDARD_REQUIRED
+        YES
     )
 
 get_target_property(UAGENT_TARGET_TYPE ${PROJECT_NAME} TYPE)

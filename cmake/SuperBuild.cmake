@@ -136,7 +136,6 @@ if(UAGENT_LOGGER_PROFILE)
 endif()
 
 if(UAGENT_BUILD_TESTS)
-#    message(FATAL_ERROR "${CMAKE_GENERATOR}")
     unset(googletest_DIR CACHE)
     enable_language(CXX)
     find_package(GTest QUIET)
@@ -162,8 +161,8 @@ if(UAGENT_BUILD_TESTS)
             INSTALL_COMMAND
                 ""
             )
-        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install)
-        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install)
+        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE PATH "" FORCE)
+        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE PATH "" FORCE)
         list(APPEND _deps googletest)
     endif()
 endif()
