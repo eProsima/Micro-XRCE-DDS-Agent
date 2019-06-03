@@ -136,11 +136,14 @@ if(UAGENT_LOGGER_PROFILE)
 endif()
 
 if(UAGENT_BUILD_TESTS)
+#    message(FATAL_ERROR "${CMAKE_GENERATOR}")
     unset(googletest_DIR CACHE)
     enable_language(CXX)
     find_package(GTest QUIET)
     find_package(GMock QUIET)
     if(NOT GTest_FOUND OR NOT GMock_FOUND)
+        unset(GTEST_ROOT CACHE)
+        unset(GMOCK_ROOT CACHE)
         ExternalProject_Add(googletest
             GIT_REPOSITORY
                 https://github.com/google/googletest.git
@@ -153,7 +156,14 @@ if(UAGENT_BUILD_TESTS)
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
+            BUILD_COMMAND
+                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target INSTALL
+                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Debug --target INSTALL
+            INSTALL_COMMAND
+                ""
             )
+        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install)
+        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install)
         list(APPEND _deps googletest)
     endif()
 endif()
@@ -166,6 +176,8 @@ ExternalProject_Add(uagent
         ${CMAKE_CURRENT_BINARY_DIR}
     CMAKE_ARGS
         -DUAGENT_SUPERBUILD=OFF
+        -DGTEST_ROOT:PATH=${GTEST_ROOT}
+        -DGMOCK_ROOT:PATH=${GMOCK_ROOT}
     INSTALL_COMMAND
         ""
     DEPENDS
