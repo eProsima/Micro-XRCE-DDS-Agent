@@ -103,7 +103,7 @@ dds::xrce::ResultStatus ProxyClient::create_object(
             }
             else
             {
-                objects_.erase(object_id);
+                delete_object_unlock(object_id);
                 create_object(object_id, object_representation, result);
             }
         }
@@ -143,7 +143,7 @@ dds::xrce::ResultStatus ProxyClient::create_object(
                 }
                 else
                 {
-                    objects_.erase(object_id);
+                    delete_object_unlock(object_id);
                     create_object(object_id, object_representation, result);
                 }
             }
@@ -160,27 +160,10 @@ dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& ob
     result.implementation_status(0x00);
 
     std::lock_guard<std::mutex> lock(mtx_);
-    auto it = objects_.find(object_id);
-    if (it != objects_.end())
-    {
-        it->second->release(objects_);
-        objects_.erase(object_id);
-        UXR_AGENT_LOG_DEBUG(
-            UXR_DECORATE_GREEN("object deleted"),
-            UXR_CREATE_OBJECT_PATTERN,
-            conversion::clientkey_to_raw(representation_.client_key()),
-            conversion::objectid_to_raw(object_id));
-    }
-    else
+    if (!delete_object_unlock(object_id))
     {
         result.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
-        UXR_AGENT_LOG_DEBUG(
-            UXR_DECORATE_RED("unknown referece"),
-            UXR_CREATE_OBJECT_PATTERN,
-            conversion::clientkey_to_raw(representation_.client_key()),
-            conversion::objectid_to_raw(object_id));
     }
-
     return result;
 }
 
@@ -589,6 +572,33 @@ bool ProxyClient::create_datareader(
             conversion::objectid_to_raw(object_id));
     }
 
+    return rv;
+}
+
+bool ProxyClient::delete_object_unlock(
+        const dds::xrce::ObjectId& object_id)
+{
+    bool rv = false;
+    auto it = objects_.find(object_id);
+    if (it != objects_.end())
+    {
+        it->second->release(objects_);
+        objects_.erase(object_id);
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_GREEN("object deleted"),
+            UXR_CREATE_OBJECT_PATTERN,
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_RED("unknown referece"),
+            UXR_CREATE_OBJECT_PATTERN,
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
+    }
     return rv;
 }
 
