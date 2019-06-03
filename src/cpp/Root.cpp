@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/Root.hpp>
-#include <uxr/agent/libdev/MessageDebugger.h>
-#include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>

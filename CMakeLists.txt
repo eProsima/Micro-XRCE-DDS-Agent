@@ -20,10 +20,10 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 ###############################################################################
 # Build options
 ###############################################################################
-option(UAGENT_SUPERBUILD "Activate super build" ON)
+option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
-option(BUILD_SHARED_LIBS "Control share or static building." ON)
+option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
@@ -319,7 +319,6 @@ if(UAGENT_BUILD_TESTS)
             add_subdirectory(test/unittest/transport/serial)
         endif()
     endif()
-    add_subdirectory(test/integration/cross_serialization)
 endif()
 
 ###############################################################################
