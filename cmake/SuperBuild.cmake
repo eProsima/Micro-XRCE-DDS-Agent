@@ -43,7 +43,7 @@ endif()
 
 # Fast CDR.
 unset(fastcdr_DIR CACHE)
-find_package(fastcdr "1.0.8" EXACT QUIET)
+find_package(fastcdr "1.0.9" EXACT QUIET)
 if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
         DOWNLOAD_COMMAND
@@ -65,7 +65,7 @@ endif()
 if(UAGENT_FAST_PROFILE)
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
-    find_package(fastrtps "1.7.2" EXACT QUIET)
+    find_package(fastrtps "1.8.0" EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
             DOWNLOAD_COMMAND

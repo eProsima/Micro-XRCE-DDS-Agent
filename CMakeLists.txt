@@ -89,14 +89,14 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.8" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
     find_package(microxrcedds_client "1.0.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.7.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps "1.8.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
     find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)

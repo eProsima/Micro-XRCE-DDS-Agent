@@ -150,7 +150,7 @@ bool FastTopic::create_by_attributes(
         uint16_t topic_id)
 {
     bool rv = false;
-    setName(attrs.getTopicDataType().data());
+    setName(attrs.getTopicDataType().c_str());
     m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
     if (participant_->register_topic(this, topic_id))
     {
@@ -166,7 +166,7 @@ bool FastTopic::match_from_ref(const std::string& ref) const
     if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
         fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref, new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
              (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
@@ -178,7 +178,7 @@ bool FastTopic::match_from_xml(const std::string& xml) const
     fastrtps::TopicAttributes new_attributes;
     if (xmlobjects::parse_topic(xml.data(), xml.size(), new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
              (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
@@ -205,7 +205,7 @@ bool FastDataWriter::create_by_ref(
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -218,7 +218,7 @@ bool FastDataWriter::create_by_attributes(
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -294,7 +294,7 @@ bool FastDataReader::create_by_ref(
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -307,7 +307,7 @@ bool FastDataReader::create_by_attributes(
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }

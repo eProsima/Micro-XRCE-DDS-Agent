@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     /* CLI parse. */
     std::string cli_input{};
-    for (int i = 0; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         cli_input.append(argv[i]);
         cli_input.append(" ");
