@@ -120,7 +120,6 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
-    mtx_.lock();
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -164,7 +163,6 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = false;
             break;
     }
-    mtx_.unlock();
     return rv;
 }
 
@@ -624,7 +622,6 @@ void Processor::read_data_callback(
         const ReadCallbackArgs& cb_args,
         const std::vector<uint8_t>& buffer)
 {
-    mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_.get_client(cb_args.client_key);
 
     /* DATA payload. */
@@ -648,7 +645,6 @@ void Processor::read_data_callback(
             server_->push_output_packet(output_packet);
         }
     }
-    mtx_.unlock();
 }
 
 bool Processor::process_get_info_packet(

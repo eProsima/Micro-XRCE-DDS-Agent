@@ -64,6 +64,16 @@ ProxyClient::ProxyClient(
     }
 }
 
+ProxyClient::~ProxyClient()
+{
+    while (!objects_.empty())
+    {
+        auto object = objects_.begin();
+        object->second->release(objects_);
+        objects_.erase(object);
+    }
+}
+
 dds::xrce::ResultStatus ProxyClient::create_object(
         const dds::xrce::CreationMode& creation_mode,
         const dds::xrce::ObjectPrefix& objectid_prefix,

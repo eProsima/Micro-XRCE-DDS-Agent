@@ -45,12 +45,14 @@ private:
 template<class T>
 inline void FCFSScheduler<T>::init()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
 }
 
 template<class T>
 inline void FCFSScheduler<T>::deinit()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
     cond_var_.notify_one();
 }
@@ -69,7 +71,7 @@ inline bool FCFSScheduler<T>::pop(T& element)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
-    cond_var_.wait(lock, [this] { return (!queue_.empty() || !running_cond_); });
+    cond_var_.wait(lock, [this] { return !(queue_.empty() && running_cond_); });
     if (running_cond_)
     {
         element = std::move(queue_.front());

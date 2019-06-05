@@ -23,6 +23,7 @@
 
 #include <unordered_map>
 #include <condition_variable>
+#include <atomic>
 
 namespace eprosima {
 namespace fastrtps {
@@ -213,6 +214,7 @@ private:
     fastrtps::Subscriber* ptr_;
     std::mutex mtx_;
     std::condition_variable cv_;
+    std::atomic_uint64_t unread_count_;
 };
 
 

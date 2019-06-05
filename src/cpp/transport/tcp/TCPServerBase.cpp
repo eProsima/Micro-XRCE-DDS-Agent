@@ -93,7 +93,7 @@ void TCPServerBase::on_delete_client(EndPoint* source)
     if (it != source_to_client_map_.end())
     {
         UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_WHITE("session destroyed"),
+            UXR_DECORATE_GREEN("session destroyed"),
             "client_key: 0x{:08X}, address: {}",
             it->second,
             *source);

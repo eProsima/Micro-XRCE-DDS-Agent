@@ -277,8 +277,9 @@ void FastDataWriter::onPublicationMatched(
  * FastDataReader
  **********************************************************************************************************************/
 FastDataReader::FastDataReader(const std::shared_ptr<FastParticipant>& participant)
-    : participant_(participant)
-    , ptr_(nullptr)
+    : participant_{participant}
+    , ptr_{nullptr}
+    , unread_count_{0}
 {}
 
 FastDataReader::~FastDataReader()
@@ -341,20 +342,21 @@ bool FastDataReader::read(
 {
     auto now = std::chrono::steady_clock::now();
     bool rv = false;
-    std::unique_lock<std::mutex> lock(mtx_);
-    if (ptr_->getUnreadCount() != 0)
+    if (unread_count_ != 0)
     {
-        lock.unlock();
         fastrtps::SampleInfo_t info;
         rv = ptr_->takeNextData(&data, &info);
+        unread_count_ = ptr_->getUnreadCount();
     }
     else
     {
-        if (cv_.wait_until(lock, now + timeout, [&](){ return  ptr_->getUnreadCount() != 0; }))
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
         {
             lock.unlock();
             fastrtps::SampleInfo_t info;
             rv = ptr_->takeNextData(&data, &info);
+            unread_count_ = ptr_->getUnreadCount();
         }
     }
     return rv;
@@ -384,6 +386,7 @@ void FastDataReader::onSubscriptionMatched(
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
+    unread_count_ = ptr_->getUnreadCount();
     std::unique_lock<std::mutex> lock(mtx_);
     cv_.notify_one();
 }

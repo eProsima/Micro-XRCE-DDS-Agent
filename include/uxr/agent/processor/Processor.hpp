@@ -118,7 +118,6 @@ private:
     Server* server_;
     Middleware::Kind middleware_kind_;
     Root& root_;
-    std::recursive_mutex mtx_;
 };
 
 } // namespace uxr
