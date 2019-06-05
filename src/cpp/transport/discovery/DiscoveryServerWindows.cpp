@@ -103,6 +103,7 @@ bool DiscoveryServerWindows::close()
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
+        poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
     else

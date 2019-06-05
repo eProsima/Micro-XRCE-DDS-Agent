@@ -121,13 +121,19 @@ bool UDPServer::init()
 
 bool UDPServer::close()
 {
+    if (INVALID_SOCKET == poll_fd_.fd)
+    {
+        return true;
+    }
+
     bool rv = false;
-    if ((INVALID_SOCKET == poll_fd_.fd) || (0 == closesocket(poll_fd_.fd)))
+    if (0 == closesocket(poll_fd_.fd))
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
+        poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
     else
