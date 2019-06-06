@@ -74,7 +74,7 @@ size_t SerialServer::write_data(void* instance, uint8_t* buf, size_t len)
 {
     size_t rv = 0;
     SerialServer* server = static_cast<SerialServer*>(instance);
-    ssize_t bytes_written = write(server->poll_fd_.fd, (void*)buf, len);
+    ssize_t bytes_written = ::write(server->poll_fd_.fd, (void*)buf, len);
     if ((0 < bytes_written)  && size_t(bytes_written) == len)
     {
         rv = size_t(bytes_written);

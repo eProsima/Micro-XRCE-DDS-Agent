@@ -283,12 +283,12 @@ private:
 #endif
             if (opts_ref_.reference_opt_.is_enable())
             {
-                Agent::load_config_file(opts_ref_.reference_opt_.get_file());
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
             }
 
             if (opts_ref_.verbose_opt_.is_enable())
             {
-                Agent::set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
             }
         }
     }

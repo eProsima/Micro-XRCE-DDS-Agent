@@ -30,12 +30,6 @@ constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 namespace eprosima {
 namespace uxr {
 
-Root& Root::instance()
-{
-    static Root root;
-    return root;
-}
-
 Root::Root()
     : mtx_(),
       clients_(),

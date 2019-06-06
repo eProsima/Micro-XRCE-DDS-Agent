@@ -171,6 +171,7 @@ void fill_object_variant<Agent::DATAREADER_OBJK>(
 
 template<Agent::ObjectKind object_kind, typename U, typename T>
 bool create_object(
+        Root& root,
         uint32_t client_key,
         uint16_t raw_id,
         T parent_id,
@@ -180,7 +181,7 @@ bool create_object(
 {
     bool rv = false;
 
-    if (std::shared_ptr<ProxyClient> client = Root::instance().get_client(raw_to_clientkey(client_key)))
+    if (std::shared_ptr<ProxyClient> client = root.get_client(raw_to_clientkey(client_key)))
     {
         dds::xrce::CreationMode creation_mode{};
         creation_mode.reuse(0 != (flag & Agent::REUSE_MODE));
@@ -208,12 +209,12 @@ bool create_object(
  * Delete Object.
  **********************************************************************************************************************/
 inline bool delete_object(
+        Root& root,
         const dds::xrce::ClientKey& client_key,
         const dds::xrce::ObjectId& object_id,
         Agent::OpResult& op_result)
 {
     bool rv = false;
-    Root& root = Root::instance();
 
     if (std::shared_ptr<ProxyClient> client = root.get_client(client_key))
     {
@@ -230,6 +231,15 @@ inline bool delete_object(
 }
 
 /**********************************************************************************************************************
+ * Des/Constructor.
+ **********************************************************************************************************************/
+Agent::Agent()
+    : root_(new Root())
+{}
+
+Agent::~Agent() = default;
+
+/**********************************************************************************************************************
  * Client.
  **********************************************************************************************************************/
 bool Agent::create_client(
@@ -239,7 +249,6 @@ bool Agent::create_client(
         Middleware::Kind middleware_kind,
         OpResult& op_result)
 {
-    Root& root = Root::instance();
     dds::xrce::CLIENT_Representation client_representation;
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus result;
@@ -249,7 +258,7 @@ bool Agent::create_client(
     client_representation.xrce_version(dds::xrce::XRCE_VERSION);
     client_representation.session_id(session);
     client_representation.mtu(mtu);
-    result = root.create_client(client_representation, agent_representation, middleware_kind);
+    result = root_->create_client(client_representation, agent_representation, middleware_kind);
     op_result = OpResult(result.status());
 
     return (dds::xrce::STATUS_OK == result.status());
@@ -259,8 +268,7 @@ bool Agent::delete_client(
         uint32_t key,
         OpResult& op_result)
 {
-    Root& root = Root::instance();
-    dds::xrce::ResultStatus result = root.delete_client(conversion::raw_to_clientkey(key));
+    dds::xrce::ResultStatus result = root_->delete_client(conversion::raw_to_clientkey(key));
 
     if (dds::xrce::STATUS_OK != result.status())
     {
@@ -282,7 +290,7 @@ bool Agent::create_participant_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::PARTICIPANT_OBJK>
-            (client_key, participant_id, domain_id, RefRep{ref}, flag, op_result);
+            (*root_, client_key, participant_id, domain_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_participant_by_xml(
@@ -294,7 +302,7 @@ bool Agent::create_participant_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::PARTICIPANT_OBJK>
-            (client_key, participant_id, domain_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, participant_id, domain_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_participant(
@@ -303,6 +311,7 @@ bool Agent::delete_participant(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(participant_id, dds::xrce::OBJK_PARTICIPANT),
                 op_result);
@@ -320,7 +329,7 @@ bool Agent::create_topic_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::TOPIC_OBJK>
-            (client_key, topic_id, participant_id, RefRep{ref}, flag, op_result);
+            (*root_, client_key, topic_id, participant_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_topic_by_xml(
@@ -332,7 +341,7 @@ bool Agent::create_topic_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::TOPIC_OBJK>
-            (client_key, topic_id, participant_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, topic_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_topic(
@@ -341,6 +350,7 @@ bool Agent::delete_topic(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(topic_id, dds::xrce::OBJK_TOPIC),
                 op_result);
@@ -358,7 +368,7 @@ bool Agent::create_publisher_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::PUBLISHER_OBJK>
-            (client_key, publisher_id, participant_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, publisher_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_publisher(
@@ -367,6 +377,7 @@ bool Agent::delete_publisher(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(publisher_id, dds::xrce::OBJK_PUBLISHER),
                 op_result);
@@ -384,7 +395,7 @@ bool Agent::create_subscriber_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::SUBSCRIBER_OBJK>
-            (client_key, subscriber_id, participant_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, subscriber_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_subscriber(
@@ -393,6 +404,7 @@ bool Agent::delete_subscriber(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(subscriber_id, dds::xrce::OBJK_SUBSCRIBER),
                 op_result);
@@ -410,7 +422,7 @@ bool Agent::create_datawriter_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::DATAWRITER_OBJK>
-            (client_key, datawriter_id, publisher_id, RefRep{ref}, flag, op_result);
+            (*root_, client_key, datawriter_id, publisher_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_datawriter_by_xml(
@@ -422,7 +434,7 @@ bool Agent::create_datawriter_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::DATAWRITER_OBJK>
-            (client_key, datawriter_id, publisher_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, datawriter_id, publisher_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_datawriter(
@@ -431,6 +443,7 @@ bool Agent::delete_datawriter(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(datawriter_id, dds::xrce::OBJK_DATAWRITER),
                 op_result);
@@ -448,7 +461,7 @@ bool Agent::create_datareader_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::DATAREADER_OBJK>
-            (client_key, datareader_id, subscriber_id, RefRep{ref}, flag, op_result);
+            (*root_, client_key, datareader_id, subscriber_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_datareader_by_xml(
@@ -460,7 +473,7 @@ bool Agent::create_datareader_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::DATAREADER_OBJK>
-            (client_key, datareader_id, subscriber_id, XmlRep{xml}, flag, op_result);
+            (*root_, client_key, datareader_id, subscriber_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_datareader(
@@ -469,6 +482,7 @@ bool Agent::delete_datareader(
         OpResult& op_result)
 {
     return delete_object(
+                *root_,
                 conversion::raw_to_clientkey(client_key),
                 conversion::raw_to_objectid(datareader_id, dds::xrce::OBJK_DATAREADER),
                 op_result);
@@ -479,12 +493,12 @@ bool Agent::delete_datareader(
  **********************************************************************************************************************/
 bool Agent::load_config_file(const std::string& file_path)
 {
-    return Root::instance().load_config_file(file_path);
+    return root_->load_config_file(file_path);
 }
 
 void Agent::set_verbose_level(uint8_t verbose_level)
 {
-    Root::instance().set_verbose_level(verbose_level);
+    root_->set_verbose_level(verbose_level);
 }
 
 /**********************************************************************************************************************
@@ -498,9 +512,8 @@ bool Agent::write(
         OpResult& op_result)
 {
     bool rv = false;
-    Root& root = Root::instance();
 
-    if (std::shared_ptr<ProxyClient> client = root.get_client(conversion::raw_to_clientkey(client_key)))
+    if (std::shared_ptr<ProxyClient> client = root_->get_client(conversion::raw_to_clientkey(client_key)))
     {
         dds::xrce::ObjectId object_id = conversion::raw_to_objectid(datawriter_id, dds::xrce::OBJK_DATAWRITER);
         std::shared_ptr<DataWriter> datawriter = std::dynamic_pointer_cast<DataWriter>(client->get_object(object_id));
@@ -528,7 +541,7 @@ bool Agent::write(
  **********************************************************************************************************************/
 void Agent::reset()
 {
-    Root::instance().reset();
+    root_->reset();
 }
 
 } // namespace uxr

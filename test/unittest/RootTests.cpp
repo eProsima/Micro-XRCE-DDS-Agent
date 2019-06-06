@@ -36,7 +36,7 @@ protected:
         root_.reset();
     }
 
-    eprosima::uxr::Root& root_ = eprosima::uxr::Root::instance();
+    eprosima::uxr::Root root_;
 };
 
 TEST_F(RootTests, CreateClientOk)

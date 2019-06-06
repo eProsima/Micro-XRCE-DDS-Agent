@@ -28,7 +28,13 @@ namespace uxr{
 class Root
 {
 public:
-    static Root& instance();
+    Root();
+    ~Root();
+
+    Root(Root&&) = delete;
+    Root(const Root&) = delete;
+    Root operator=(Root&&) = delete;
+    Root operator=(const Root&) = delete;
 
     dds::xrce::ResultStatus create_client(
             const dds::xrce::CLIENT_Representation& client_representation,
@@ -48,15 +54,6 @@ public:
     void set_verbose_level(uint8_t verbose_level);
 
     void reset();
-
-private:
-    Root();
-    ~Root();
-
-    Root(Root&&) = delete;
-    Root(const Root&) = delete;
-    Root operator=(Root&&) = delete;
-    Root operator=(const Root&) = delete;
 
 private:
     std::mutex mtx_;

@@ -20,10 +20,12 @@
 
 #include <cstdint>
 #include <string>
+#include <memory>
 
 namespace eprosima{
 namespace uxr{
 
+class Root;
 
 class Agent
 {
@@ -95,8 +97,8 @@ public:
         DATAREADER_OBJK     = 0x06
     };
 
-    Agent() = delete;
-    ~Agent() = delete;
+    Agent();
+    ~Agent();
 
     /**
      * @brief Creates a ProxyClient which can be reused by an external Client.
@@ -107,7 +109,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_client(
+    UXR_AGENT_EXPORT bool create_client(
             uint32_t key,
             uint8_t session,
             uint16_t mtu,
@@ -120,7 +122,7 @@ public:
      * @param op_result The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_client(
+    UXR_AGENT_EXPORT bool delete_client(
             uint32_t key,
             OpResult& op_result);
 
@@ -134,7 +136,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_participant_by_ref(
+    UXR_AGENT_EXPORT bool create_participant_by_ref(
             uint32_t client_key,
             uint16_t participant_id,
             int16_t domain_id,
@@ -152,7 +154,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_participant_by_xml(
+    UXR_AGENT_EXPORT bool create_participant_by_xml(
             uint32_t client_key,
             uint16_t participant_id,
             int16_t domain_id,
@@ -168,7 +170,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_participant(
+    UXR_AGENT_EXPORT bool delete_participant(
             uint32_t client_key,
             uint16_t participant_id,
             OpResult& op_result);
@@ -184,7 +186,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_topic_by_ref(
+    UXR_AGENT_EXPORT bool create_topic_by_ref(
             uint32_t client_key,
             uint16_t topic_id,
             uint16_t participant_id,
@@ -203,7 +205,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_topic_by_xml(
+    UXR_AGENT_EXPORT bool create_topic_by_xml(
             uint32_t client_key,
             uint16_t topic_id,
             uint16_t participant_id,
@@ -219,7 +221,7 @@ public:
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_topic(
+    UXR_AGENT_EXPORT bool delete_topic(
             uint32_t client_key,
             uint16_t topic_id,
             OpResult& op_result);
@@ -235,7 +237,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_publisher_by_xml(
+    UXR_AGENT_EXPORT bool create_publisher_by_xml(
             uint32_t client_key,
             uint16_t publisher_id,
             uint16_t participant_id,
@@ -251,7 +253,7 @@ public:
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_publisher(
+    UXR_AGENT_EXPORT bool delete_publisher(
             uint32_t client_key,
             uint16_t publisher_id,
             OpResult& op_result);
@@ -267,7 +269,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_subscriber_by_xml(
+    UXR_AGENT_EXPORT bool create_subscriber_by_xml(
             uint32_t client_key,
             uint16_t subscriber_id,
             uint16_t participant_id,
@@ -284,7 +286,7 @@ public:
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_subscriber(
+    UXR_AGENT_EXPORT bool delete_subscriber(
             uint32_t client_key,
             uint16_t subscriber_id,
             OpResult& op_result);
@@ -300,7 +302,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_datawriter_by_ref(
+    UXR_AGENT_EXPORT bool create_datawriter_by_ref(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint16_t publisher_id,
@@ -319,7 +321,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_datawriter_by_xml(
+    UXR_AGENT_EXPORT bool create_datawriter_by_xml(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint16_t publisher_id,
@@ -334,7 +336,7 @@ public:
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_datawriter(
+    UXR_AGENT_EXPORT bool delete_datawriter(
             uint32_t client_key,
             uint16_t datawriter_id,
             OpResult& op_result);
@@ -350,7 +352,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_datareader_by_ref(
+    UXR_AGENT_EXPORT bool create_datareader_by_ref(
             uint32_t client_key,
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -369,7 +371,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return  true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool create_datareader_by_xml(
+    UXR_AGENT_EXPORT bool create_datareader_by_xml(
             uint32_t client_key,
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -384,7 +386,7 @@ public:
      * @param op_result     The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool delete_datareader(
+    UXR_AGENT_EXPORT bool delete_datareader(
             uint32_t client_key,
             uint16_t datareader_id,
             OpResult& op_result);
@@ -397,12 +399,12 @@ public:
      * @param file_path The file path relative to the working directory.
      * @return true in case of successful reading, false in other case.
      */
-    UXR_AGENT_EXPORT static bool load_config_file(const std::string& file_path);
+    UXR_AGENT_EXPORT bool load_config_file(const std::string& file_path);
 
     /**
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
      */
-    UXR_AGENT_EXPORT static void reset();
+    UXR_AGENT_EXPORT void reset();
 
     /**
      * @brief Writes data into the middleware using the DataWriter identifier by the datawriter_id.
@@ -413,7 +415,7 @@ public:
      * @param op_result         The result status of the operation.
      * @return true in case of success and false in other case.
      */
-    UXR_AGENT_EXPORT static bool write(
+    UXR_AGENT_EXPORT bool write(
             uint32_t client_key,
             uint16_t datawriter_id,
             uint8_t* buf,
@@ -432,7 +434,10 @@ public:
      *                      * Level 5: debug, info, warning, error and critical message will be logged.
      *                      * Level 6: trace, debug, info, warning, error and critical message will be logged.
      */
-    UXR_AGENT_EXPORT static void set_verbose_level(uint8_t verbose_level);
+    UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
+
+protected:
+    std::unique_ptr<Root> root_;
 };
 
 } // uxr
