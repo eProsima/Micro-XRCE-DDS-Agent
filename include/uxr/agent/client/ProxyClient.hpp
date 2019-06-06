@@ -31,7 +31,7 @@ public:
             const dds::xrce::CLIENT_Representation& representation,
             Middleware::Kind middleware_kind = Middleware::Kind(0));
 
-    ~ProxyClient();
+    ~ProxyClient() = default;
 
     ProxyClient(ProxyClient&&) = delete;
     ProxyClient(const ProxyClient&) = delete;

@@ -32,6 +32,7 @@ Server::Server(Middleware::Kind middleware_kind)
 
 Server::~Server()
 {
+    Root::instance().reset();
     delete processor_;
 }
 
