@@ -15,7 +15,7 @@
 #ifndef UXR_AGENT_AGENT_HPP_
 #define UXR_AGENT_AGENT_HPP_
 
-#include <uxr/agent/agent_dll.hpp>
+#include <uxr/agent/visibility.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 
 #include <cstdint>

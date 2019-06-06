@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_DLL_HPP_
-#define UXR_AGENT_DLL_HPP_
+#ifndef UXR_AGENT_VISIBILITY_HPP_
+#define UXR_AGENT_VISIBILITY_HPP_
 
 #if defined(_WIN32)
 #if defined(microxrcedds_agent_SHARED)
@@ -29,4 +29,4 @@
 #define UXR_AGENT_EXPORT
 #endif // _WIN32
 
-#endif // UXR_AGENT_DLL_HPP_
+#endif // UXR_AGENT_VISIBILITY_HPP_
