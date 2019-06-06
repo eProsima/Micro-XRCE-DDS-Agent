@@ -21,7 +21,7 @@
 namespace eprosima {
 namespace uxr {
 
-SerialServer::SerialServer(
+SerialAgent::SerialAgent(
         int fd,
         uint8_t addr,
         Middleware::Kind middleware_kind)
@@ -34,7 +34,7 @@ SerialServer::SerialServer(
     poll_fd_.fd = fd;
 }
 
-SerialServer::~SerialServer()
+SerialAgent::~SerialAgent()
 {
     try
     {
@@ -49,7 +49,7 @@ SerialServer::~SerialServer()
     }
 }
 
-bool SerialServer::init()
+bool SerialAgent::init()
 {
     /* Init serial IO. */
     uxr_init_serial_io(&serial_io_, addr_);
@@ -65,15 +65,15 @@ bool SerialServer::init()
     return true;
 }
 
-bool SerialServer::close()
+bool SerialAgent::close()
 {
     return 0 == ::close(poll_fd_.fd);
 }
 
-size_t SerialServer::write_data(void* instance, uint8_t* buf, size_t len)
+size_t SerialAgent::write_data(void* instance, uint8_t* buf, size_t len)
 {
     size_t rv = 0;
-    SerialServer* server = static_cast<SerialServer*>(instance);
+    SerialAgent* server = static_cast<SerialAgent*>(instance);
     ssize_t bytes_written = ::write(server->poll_fd_.fd, (void*)buf, len);
     if ((0 < bytes_written)  && size_t(bytes_written) == len)
     {
@@ -82,10 +82,10 @@ size_t SerialServer::write_data(void* instance, uint8_t* buf, size_t len)
     return rv;
 }
 
-size_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
+size_t SerialAgent::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
 {
     size_t rv = 0;
-    SerialServer* server = static_cast<SerialServer*>(instance);
+    SerialAgent* server = static_cast<SerialAgent*>(instance);
     int poll_rv = poll(&server->poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
@@ -98,7 +98,7 @@ size_t SerialServer::read_data(void* instance, uint8_t* buf, size_t len, int tim
     return rv;
 }
 
-bool SerialServer::recv_message(InputPacket& input_packet, int timeout)
+bool SerialAgent::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
     uint8_t remote_addr;
@@ -127,7 +127,7 @@ bool SerialServer::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool SerialServer::send_message(OutputPacket output_packet)
+bool SerialAgent::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     const SerialEndPoint* destination = static_cast<const SerialEndPoint*>(output_packet.destination.get());
@@ -150,7 +150,7 @@ bool SerialServer::send_message(OutputPacket output_packet)
     return rv;
 }
 
-int SerialServer::get_error()
+int SerialAgent::get_error()
 {
     return errno_;
 }

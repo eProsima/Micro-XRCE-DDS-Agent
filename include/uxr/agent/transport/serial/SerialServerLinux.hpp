@@ -24,15 +24,15 @@
 namespace eprosima {
 namespace uxr {
 
-class SerialServer : public SerialServerBase
+class SerialAgent : public SerialServerBase
 {
 public:
-    SerialServer(
+    SerialAgent(
             int fd,
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-    ~SerialServer() final;
+    ~SerialAgent() final;
 
 private:
     bool init() final;

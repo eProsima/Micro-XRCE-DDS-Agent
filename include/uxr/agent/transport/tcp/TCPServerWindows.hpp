@@ -39,14 +39,14 @@ public:
     struct pollfd* poll_fd;
 };
 
-class TCPServer : public TCPServerBase
+class TCPv4Agent : public TCPServerBase
 {
 public:
-    UXR_AGENT_EXPORT TCPServer(
+    UXR_AGENT_EXPORT TCPv4Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~TCPServer() final;
+    UXR_AGENT_EXPORT ~TCPv4Agent() final;
 
 private:
     bool init() final;

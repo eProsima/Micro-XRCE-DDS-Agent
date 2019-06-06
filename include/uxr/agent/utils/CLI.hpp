@@ -321,7 +321,7 @@ public:
 private:
     bool launch_server()
     {
-        server_.reset(new eprosima::uxr::UDPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
         return server_->run();
     }
 
@@ -350,7 +350,7 @@ public:
 private:
     bool launch_server()
     {
-        server_.reset(new eprosima::uxr::TCPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
         return server_->run();
     }
 
@@ -429,7 +429,7 @@ private:
 
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
-                    server_.reset(new eprosima::uxr::SerialServer(fd, 0, common_opts_.middleware_opt_.get_kind()));
+                    server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
                     rv = server_->run();
                 }
             }
@@ -485,7 +485,7 @@ private:
                 std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
 
                 /* Run server. */
-                server_.reset(new eprosima::uxr::SerialServer(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
+                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
                 rv = server_->run();
             }
         }

@@ -21,7 +21,7 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(
+UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
     : UDPServerBase(agent_port, middleware_kind)
@@ -32,7 +32,7 @@ UDPServer::UDPServer(
 #endif
 {}
 
-UDPServer::~UDPServer()
+UDPv4Agent::~UDPv4Agent()
 {
     try
     {
@@ -47,7 +47,7 @@ UDPServer::~UDPServer()
     }
 }
 
-bool UDPServer::init()
+bool UDPv4Agent::init()
 {
     bool rv = false;
 
@@ -119,7 +119,7 @@ bool UDPServer::init()
     return rv;
 }
 
-bool UDPServer::close()
+bool UDPv4Agent::close()
 {
     if (INVALID_SOCKET == poll_fd_.fd)
     {
@@ -147,18 +147,18 @@ bool UDPServer::close()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPServer::init_discovery(uint16_t discovery_port)
+bool UDPv4Agent::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);
 }
 
-bool UDPServer::close_discovery()
+bool UDPv4Agent::close_discovery()
 {
     return discovery_server_.stop();
 }
 #endif
 
-bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
+bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
@@ -199,7 +199,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool UDPServer::send_message(OutputPacket output_packet)
+bool UDPv4Agent::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
@@ -230,7 +230,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
     return rv;
 }
 
-int UDPServer::get_error()
+int UDPv4Agent::get_error()
 {
     return WSAGetLastError();
 }
