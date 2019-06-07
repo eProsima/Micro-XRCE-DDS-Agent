@@ -35,7 +35,7 @@ if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
@@ -44,7 +44,7 @@ if(UAGENT_SUPERBUILD)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.0.3" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.0" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.

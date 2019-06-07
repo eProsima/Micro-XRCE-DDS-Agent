@@ -20,7 +20,7 @@ unset(_deps)
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
-    find_package(microxrcedds_client "1.0.1" EXACT QUIET)
+    find_package(microxrcedds_client "1.1.0" EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
         ExternalProject_Add(uclient
             DOWNLOAD_COMMAND
@@ -152,7 +152,9 @@ if(UAGENT_BUILD_TESTS)
             GIT_REPOSITORY
                 https://github.com/google/googletest.git
             GIT_TAG
-                master
+                release-1.8.1
+            GIT_SHALLOW
+                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/googletest
             INSTALL_DIR
