@@ -147,7 +147,7 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
             {
                 connection.input_buffer.position = 0;
                 uint8_t size_buf[2];
-                uint8_t errcode;
+                uint8_t errcode = 0;
                 size_t bytes_received = recv_locking(connection, size_buf, 2, errcode);
                 if (0 < bytes_received)
                 {
@@ -179,7 +179,7 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
             case TCP_SIZE_INCOMPLETE:
             {
                 uint8_t size_msb;
-                uint8_t errcode;
+                uint8_t errcode = 0;
                 size_t bytes_received = recv_locking(connection, &size_msb, 1, errcode);
                 if (0 < bytes_received)
                 {
@@ -206,7 +206,7 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
             case TCP_SIZE_READ:
             {
                 connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
-                uint8_t errcode;
+                uint8_t errcode = 0;
                 size_t bytes_received = recv_locking(connection,
                                                      connection.input_buffer.buffer.data(),
                                                      connection.input_buffer.buffer.size(),
@@ -236,7 +236,7 @@ uint16_t TCPServerBase::read_data(TCPConnection& connection)
             }
             case TCP_MESSAGE_INCOMPLETE:
             {
-                uint8_t errcode;
+                uint8_t errcode = 0;
                 size_t bytes_received = recv_locking(connection,
                                                      connection.input_buffer.buffer.data() + connection.input_buffer.position,
                                                      connection.input_buffer.buffer.size() - connection.input_buffer.position,
