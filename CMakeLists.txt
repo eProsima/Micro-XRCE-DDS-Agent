@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 ###############################################################################
 # Build options
 ###############################################################################
-option(UAGENT_SUPERBUILD "Active super build" ON)
+option(UAGENT_SUPERBUILD "Activate super build" ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
 option(BUILD_SHARED_LIBS "Control share or static building." ON)
@@ -44,7 +44,7 @@ if(UAGENT_SUPERBUILD)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.0.3" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
