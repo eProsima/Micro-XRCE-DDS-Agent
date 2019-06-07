@@ -39,13 +39,13 @@ private:
 
     bool close() final;
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t /*discovery_port*/) final { return false; }
 
     bool close_discovery() final { return false; }
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
 
     bool close_p2p() final { return false; } // TODO

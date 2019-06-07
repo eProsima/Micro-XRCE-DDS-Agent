@@ -12,37 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(GMOCK_FOUND)
-    set(TEST_NAME "agent-unit-tests")
-    set(SRCS
-        AgentUnitTests.cpp
-        )
-    add_executable(${TEST_NAME} ${SRCS})
+set(TEST_NAME "agent-unit-tests")
 
-    add_sanitizers(${TEST_NAME})
+set(SRCS
+    AgentUnitTests.cpp
+    )
 
-    add_gtest(${TEST_NAME}
-        SOURCES
-            ${SRCS}
-        DEPENDENCIES
-            microxrcedds_agent
-            fastrtps
-            fastcdr
-            microxrcedds_client
-            microcdr
-        )
-    target_include_directories(${TEST_NAME} PRIVATE
+add_executable(${TEST_NAME} ${SRCS})
+
+add_sanitizers(${TEST_NAME})
+
+add_gtest(${TEST_NAME}
+    SOURCES
+        ${SRCS}
+    DEPENDENCIES
+        microxrcedds_agent
+        fastrtps
+        fastcdr
+    )
+
+target_include_directories(${TEST_NAME}
+    PRIVATE
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_BINARY_DIR}/include
         ${GTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIRS}
-        )
-    target_link_libraries(${TEST_NAME} PRIVATE microxrcedds_agent ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
-    set_target_properties(${TEST_NAME} PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        )
-    file(COPY ${PROJECT_SOURCE_DIR}/test/agent.refs
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-        )
-endif()
+    )
+
+target_link_libraries(${TEST_NAME}
+    PRIVATE
+        microxrcedds_agent
+        ${GTEST_LIBRARIES}
+        ${GMOCK_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+    )
+
+set_target_properties(${TEST_NAME} PROPERTIES
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
+    )
+
+file(
+    COPY
+        ${PROJECT_SOURCE_DIR}/test/agent.refs
+    DESTINATION
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )

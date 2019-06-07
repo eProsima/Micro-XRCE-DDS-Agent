@@ -33,11 +33,11 @@ class Middleware
 public:
     enum class Kind : uint8_t
     {
-    #ifdef PROFILE_FAST_MIDDLEWARE
+    #ifdef UAGENT_FAST_PROFILE
         FAST,
     #endif
 
-    #ifdef PROFILE_CED_MIDDLEWARE
+    #ifdef UAGENT_CED_PROFILE
         CED,
     #endif
     };

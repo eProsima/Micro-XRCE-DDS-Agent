@@ -34,10 +34,10 @@ UDPServer::UDPServer(
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
     , port_{agent_port}
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
 #endif
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{}
 #endif
 {}
@@ -150,7 +150,7 @@ bool UDPServer::close()
     return rv;
 }
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 bool UDPServer::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);
@@ -162,10 +162,10 @@ bool UDPServer::close_discovery()
 }
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
 bool UDPServer::init_p2p(uint16_t p2p_port)
 {
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
     return agent_discoverer_.run(p2p_port, transport_address_);
@@ -173,7 +173,7 @@ bool UDPServer::init_p2p(uint16_t p2p_port)
 
 bool UDPServer::close_p2p()
 {
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
 #endif
     return agent_discoverer_.stop();

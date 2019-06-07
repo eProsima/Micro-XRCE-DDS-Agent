@@ -20,11 +20,11 @@
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
-#ifdef PROFILE_FAST_MIDDLEWARE
+#ifdef UAGENT_FAST_PROFILE
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
 #endif
 
-#ifdef PROFILE_CED_MIDDLEWARE
+#ifdef UAGENT_CED_PROFILE
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
 #endif
 
@@ -47,14 +47,14 @@ ProxyClient::ProxyClient(
                 UXR_CLIENT_KEY_PATTERN,
                 conversion::clientkey_to_raw(representation.client_key()));
         }
-#ifdef PROFILE_FAST_MIDDLEWARE
+#ifdef UAGENT_FAST_PROFILE
         case Middleware::Kind::FAST:
         {
             middleware_.reset(new FastMiddleware());
             break;
         }
 #endif
-#ifdef PROFILE_CED_MIDDLEWARE
+#ifdef UAGENT_CED_PROFILE
         case Middleware::Kind::CED:
         {
             middleware_.reset(new CedMiddleware(conversion::clientkey_to_raw(representation.client_key())));

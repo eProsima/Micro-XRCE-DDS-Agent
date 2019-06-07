@@ -47,11 +47,11 @@ public:
         , set_{}
         , cli_opt_{}
     {
-#ifdef PROFILE_CED_MIDDLEWARE
+#ifdef UAGENT_CED_PROFILE
         set_.insert("ced");
         kind_ = "ced";
 #endif
-#ifdef PROFILE_FAST_MIDDLEWARE
+#ifdef UAGENT_FAST_PROFILE
         set_.insert("dds");
         kind_ = "dds";
 #endif
@@ -60,13 +60,13 @@ public:
 
     eprosima::uxr::Middleware::Kind get_kind() const
     {
-#ifdef PROFILE_FAST_MIDDLEWARE
+#ifdef UAGENT_FAST_PROFILE
         if ("dds" == kind_)
         {
             return eprosima::uxr::Middleware::Kind::FAST;
         }
 #endif
-#ifdef PROFILE_CED_MIDDLEWARE
+#ifdef UAGENT_CED_PROFILE
         if ("ced" == kind_)
         {
             return eprosima::uxr::Middleware::Kind::CED;
@@ -84,7 +84,7 @@ protected:
 /*************************************************************************************************
  * Discovery CLI Option
  *************************************************************************************************/
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 class DiscoveryOpt
 {
 public:
@@ -109,7 +109,7 @@ protected:
 /*************************************************************************************************
  * P2P CLI Option
  *************************************************************************************************/
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
 class P2POpt
 {
 public:
@@ -200,10 +200,10 @@ public:
         : middleware_opt_{subcommand}
         , reference_opt_{subcommand}
         , verbose_opt_{subcommand}
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
         , discovery_opt_{subcommand}
 #endif
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
         , p2p_opt_{subcommand}
 #endif
     {}
@@ -211,10 +211,10 @@ public:
     MiddlewareOpt middleware_opt_;
     ReferenceOpt reference_opt_;
     VerboseOpt verbose_opt_;
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryOpt discovery_opt_;
 #endif
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     P2POpt p2p_opt_;
 #endif
 };
@@ -267,14 +267,14 @@ private:
         std::cout << "Enter 'q' for exit" << std::endl;
         if (launch_server())
         {
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
             {
                 server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
             }
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
             if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
                 && opts_ref_.p2p_opt_.is_enable())
             {
@@ -369,7 +369,7 @@ class SerialSubcommand : public ServerSubcommand
 public:
     SerialSubcommand(CLI::App& app)
         : ServerSubcommand{app, "serial", "Launch a Serial server", common_opts_}
-        , cli_opt_{cli_subcommand_->add_option("-d,--dev", dev_, "Select the serial device")}
+        , cli_opt_{cli_subcommand_->add_option("--dev", dev_, "Select the serial device")}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
     {

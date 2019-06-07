@@ -121,12 +121,17 @@ bool DiscoveryServerWindows::recv_message(
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received = recvfrom(poll_fd_.fd, (char*)buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
+        int bytes_received = recvfrom(poll_fd_.fd,
+                                      reinterpret_cast<char*>(buffer_),
+                                      sizeof(buffer_),
+                                      0,
+                                      &client_addr, &client_addr_len);
+
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+            uint32_t addr = (reinterpret_cast<struct sockaddr_in*>(&client_addr))->sin_addr.s_addr;
+            uint16_t port = (reinterpret_cast<struct sockaddr_in*>(&client_addr))->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
             rv = true;
         }
@@ -152,10 +157,10 @@ bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
     client_addr.sin_port = destination->get_port();
     client_addr.sin_addr.s_addr = destination->get_addr();
     int bytes_sent = sendto(poll_fd_.fd,
-                            (char*)output_packet.message->get_buf(),
-                            output_packet.message->get_len(),
+                            reinterpret_cast<char*>(output_packet.message->get_buf()),
+                            int(output_packet.message->get_len()),
                             0,
-                            (struct sockaddr*)&client_addr,
+                            reinterpret_cast<struct sockaddr*>(&client_addr),
                             int(sizeof(client_addr)));
     if (SOCKET_ERROR != bytes_sent)
     {

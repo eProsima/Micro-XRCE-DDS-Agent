@@ -19,8 +19,10 @@
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
+#ifdef UAGENT_FAST_PROFILE
 // TODO (#5047): replace Fast RTPS dependency by XML parser library.
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#endif
 
 #include <memory>
 #include <chrono>
@@ -42,7 +44,7 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
     spdlog::set_level(spdlog::level::info);
     spdlog::set_pattern(UXR_LOG_PATTERN);
 #endif
@@ -220,12 +222,17 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 
 bool Root::load_config_file(const std::string& file_path)
 {
+#ifdef UAGENT_FAST_PROFILE
     return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
+#else
+    (void) file_path;
+    return false;
+#endif
 }
 
 void Root::set_verbose_level(uint8_t verbose_level)
 {
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
     switch (verbose_level)
     {
         case 0:
@@ -276,6 +283,8 @@ void Root::set_verbose_level(uint8_t verbose_level)
                 "verbose_level: {}", verbose_level);
             break;
     }
+#else
+    (void) verbose_level;
 #endif
 }
 

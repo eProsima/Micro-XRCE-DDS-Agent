@@ -18,7 +18,7 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/utils/Color.hpp>
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
@@ -86,49 +86,49 @@
 
 
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_TRACE(X, Y, ...) SPDLOG_TRACE(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_TRACE(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_DEBUG(X, Y, ...) SPDLOG_DEBUG(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_DEBUG(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_INFO(X, Y, ...) SPDLOG_INFO(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_INFO(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_WARN(X, Y, ...) SPDLOG_WARN(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_WARN(...) (void)0
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_ERROR(X, Y, ...) SPDLOG_ERROR(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_ERROR(...) (void)0
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_CRITICAL(X, Y, ...) SPDLOG_CRITICAL(UXR_STATUS_FORMAT Y, X, __VA_ARGS__); std::exit(EXIT_FAILURE)
 #else
 #define UXR_AGENT_LOG_CRITICAL(...) std::exit(EXIT_FAILURE)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_HEX(...) void(0)
 #endif
 
-#ifdef PROFILE_LOGGER
+#ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_MESSAGE(STATUS, CLIENT_KEY, BUF, LEN) \
     if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
     { \

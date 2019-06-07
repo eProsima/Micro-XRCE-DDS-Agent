@@ -88,17 +88,17 @@ bool Server::stop()
 
     /* Close servers. */
     bool rv = true;
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
     rv &= close_discovery();
 #endif
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
     rv &= close_p2p();
 #endif
     rv &= close();
     return rv;
 }
 
-#ifdef PROFILE_DISCOVERY
+#ifdef UAGENT_DISCOVERY_PROFILE
 bool Server::enable_discovery(uint16_t discovery_port)
 {
     bool rv = false;
@@ -115,7 +115,7 @@ bool Server::disable_discovery()
 }
 #endif
 
-#ifdef PROFILE_P2P
+#ifdef UAGENT_P2P_PROFILE
 bool Server::enable_p2p(uint16_t p2p_port)
 {
     bool rv = false;
