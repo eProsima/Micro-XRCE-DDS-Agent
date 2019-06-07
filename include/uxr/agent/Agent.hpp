@@ -97,8 +97,8 @@ public:
         DATAREADER_OBJK     = 0x06
     };
 
-    Agent();
-    ~Agent();
+    UXR_AGENT_EXPORT Agent();
+    UXR_AGENT_EXPORT ~Agent();
 
     /**
      * @brief Creates a ProxyClient which can be reused by an external Client.
