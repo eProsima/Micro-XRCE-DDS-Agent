@@ -24,11 +24,13 @@ namespace eprosima {
 namespace uxr {
 
 InternalClient::InternalClient(
+        Agent& agent,
         const std::array<uint8_t, 4>& ip,
         uint16_t port,
         uint32_t remote_client_key,
         uint32_t local_client_key)
-    : ip_{ip}
+    : agent_{agent}
+    , ip_{ip}
     , port_{port}
     , domains_{}
     , topics_{}
@@ -61,10 +63,11 @@ static void on_topic(
         struct ucdrBuffer* ub,
         void* args)
 {
-    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub; (void) args;
+    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub;
 
+    InternalClient* internal_client = reinterpret_cast<InternalClient*>(args);
     Agent::OpResult result;
-    Agent::write(
+    internal_client->get_agent().write(
         INTERNAL_CLIENT_KEY,
         object_id.id >> 4,
         ub->iterator,
@@ -98,7 +101,7 @@ bool InternalClient::run()
 
     /* Create ProxyClient. */
     Agent::OpResult result;
-    if (Agent::create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, Middleware::Kind::CED, result))
+    if (agent_.create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, Middleware::Kind::CED, result))
     {
         /* Transport. */
         if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))
@@ -180,7 +183,7 @@ void InternalClient::create_domain_entities()
             const uint16_t internal_publisher_id = uint16_t(*it);
             const char* ref = "";
             Agent::OpResult result;
-            if (Agent::create_participant_by_ref(
+            if (agent_.create_participant_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_participant_id,
                         *it,
@@ -188,7 +191,7 @@ void InternalClient::create_domain_entities()
                         Agent::REUSE_MODE,
                         result)
                     &&
-                Agent::create_publisher_by_xml(
+                agent_.create_publisher_by_xml(
                         INTERNAL_CLIENT_KEY,
                         internal_publisher_id,
                         internal_participant_id,
@@ -267,7 +270,7 @@ void InternalClient::create_topic_entities()
             const uint16_t internal_topic_id = topic_counter_;
             const uint16_t internal_publisher_id = uint16_t(it->first);
             const uint16_t internal_datawriter_id = topic_counter_;
-            if (Agent::create_topic_by_ref(
+            if (agent_.create_topic_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_topic_id,
                         internal_paraticipant_id,
@@ -275,7 +278,7 @@ void InternalClient::create_topic_entities()
                         Agent::REUSE_MODE,
                         result)
                     &&
-                Agent::create_datawriter_by_ref(
+                agent_.create_datawriter_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_datawriter_id,
                         internal_publisher_id,

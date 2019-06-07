@@ -34,6 +34,7 @@ void InternalClientManager::set_local_address(
 }
 
 void InternalClientManager::create_client(
+        Agent& agent,
         const std::array<uint8_t, 4>& ip,
         uint16_t port)
 {
@@ -42,7 +43,8 @@ void InternalClientManager::create_client(
     auto it = clients_.find(remote_client_key);
     if (clients_.end() == it)
     {
-        std::unique_ptr<InternalClient> client(new InternalClient(ip, port, remote_client_key, local_client_key_));
+        std::unique_ptr<InternalClient>
+                client(new InternalClient(agent, ip, port, remote_client_key, local_client_key_));
         if (client->run())
         {
             clients_.emplace(remote_client_key, std::move(client));

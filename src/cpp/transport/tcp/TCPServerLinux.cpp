@@ -47,7 +47,7 @@ TCPv4Agent::TCPv4Agent(
     , discovery_server_{*processor_}
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    , agent_discoverer_{}
+    , agent_discoverer_{*this}
 #endif
 {}
 

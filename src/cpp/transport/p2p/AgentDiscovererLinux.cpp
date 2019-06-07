@@ -23,8 +23,10 @@
 namespace eprosima {
 namespace uxr {
 
-AgentDiscovererLinux::AgentDiscovererLinux()
-    : poll_fd_{-1, 0, 0}
+AgentDiscovererLinux::AgentDiscovererLinux(
+        Agent& agent)
+    : AgentDiscoverer(agent)
+    , poll_fd_{-1, 0, 0}
     , buf_{0}
 {
 }
