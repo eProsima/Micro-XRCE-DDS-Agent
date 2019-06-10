@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
-#define _UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#ifndef UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#define UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
 
 #include <uxr/agent/scheduler/Scheduler.hpp>
 #include <queue>
@@ -39,7 +39,7 @@ private:
     std::queue<T> queue_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
-    std::atomic<bool> running_cond_;
+    bool running_cond_;
 };
 
 template<class T>
@@ -85,4 +85,4 @@ inline bool FCFSScheduler<T>::pop(T& element)
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#endif // UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_

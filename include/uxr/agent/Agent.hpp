@@ -436,6 +436,23 @@ public:
      */
     UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
 
+private:
+    template<Agent::ObjectKind object_kind, typename U, typename T>
+    bool create_object(
+            uint32_t client_key,
+            uint16_t raw_id,
+            T parent_id,
+            U rep,
+            uint8_t flag,
+            Agent::OpResult& op_result);
+
+    template<Agent::ObjectKind object_kind>
+    bool delete_object(
+            uint32_t client_key,
+            uint16_t raw_id,
+            Agent::OpResult& op_result);
+
+
 protected:
     std::unique_ptr<Root> root_;
 };

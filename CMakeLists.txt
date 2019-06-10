@@ -438,7 +438,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         )
 endif()
 
-# Install dependencies
+# Install dependencies.
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     install(
         DIRECTORY
