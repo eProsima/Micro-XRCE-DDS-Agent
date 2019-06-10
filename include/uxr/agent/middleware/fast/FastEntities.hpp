@@ -214,7 +214,7 @@ private:
     fastrtps::Subscriber* ptr_;
     std::mutex mtx_;
     std::condition_variable cv_;
-    std::atomic_uint64_t unread_count_;
+    std::atomic<uint64_t> unread_count_;
 };
 
 
