@@ -57,7 +57,7 @@ bool SerialAgent::init()
     /* Poll setup. */
     poll_fd_.events = POLLIN;
 
-    UXR_AGENT_LOG_DEBUG(
+    UXR_AGENT_LOG_INFO(
         UXR_DECORATE_GREEN("running..."),
         "fd: {}",
         poll_fd_.fd);
@@ -67,7 +67,28 @@ bool SerialAgent::init()
 
 bool SerialAgent::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    if (-1 == poll_fd_.fd)
+    {
+        return true;
+    }
+
+    bool rv = false;
+    if (0 == ::close(poll_fd_.fd))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "fd: {}",
+            poll_fd_.fd);
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("close server error"),
+            "fd: {}",
+            poll_fd_.fd);
+    }
+    return rv;
 }
 
 size_t SerialAgent::write_data(void* instance, uint8_t* buf, size_t len)

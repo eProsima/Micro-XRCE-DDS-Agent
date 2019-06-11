@@ -32,7 +32,6 @@ if(UAGENT_P2P_PROFILE)
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_ARGS
-                -DUCLIENT_SUPERBUILD:BOOL=ON
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
