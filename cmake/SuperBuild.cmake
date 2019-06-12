@@ -14,7 +14,6 @@
 
 include(ExternalProject)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 unset(_deps)
 
 if(UAGENT_P2P_PROFILE)
@@ -151,9 +150,7 @@ if(UAGENT_BUILD_TESTS)
             GIT_REPOSITORY
                 https://github.com/google/googletest.git
             GIT_TAG
-                release-1.8.1
-            GIT_SHALLOW
-                TRUE
+                2fe3bd994b3189899d93f1d5a881e725e046fdc2
             PREFIX
                 ${PROJECT_BINARY_DIR}/googletest
             INSTALL_DIR
@@ -163,8 +160,8 @@ if(UAGENT_BUILD_TESTS)
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
             BUILD_COMMAND
-                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target INSTALL
-                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Debug --target INSTALL
+                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target install
+                COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Debug --target install
             INSTALL_COMMAND
                 ""
             )
