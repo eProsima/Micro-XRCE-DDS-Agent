@@ -297,7 +297,9 @@ inline bool ReliableInputStream::emplace_message(
         if (seq_num > last_announced_)
         {
             last_announced_ = seq_num;
-            messages_.emplace(seq_num, new InputMessage(std::forward<Args>(args)...));
+            // gcc5 doesn't not support raw pointer as argument in std::pair when std::unique_ptr is create.
+            messages_.emplace(seq_num,
+                              std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
             rv = true;
         }
         else
@@ -305,7 +307,8 @@ inline bool ReliableInputStream::emplace_message(
             auto it = messages_.find(seq_num);
             if (it == messages_.end())
             {
-                messages_.emplace(seq_num, new InputMessage(std::forward<Args>(args)...));
+                messages_.emplace(seq_num,
+                                  std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
                 rv = true;
             }
         }
