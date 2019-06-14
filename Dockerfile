@@ -14,6 +14,13 @@ RUN apt-get install -y \
             cmake \
             git
 
+# Java
+RUN apt install -y openjdk-8-jdk
+ENV JAVA_HOME "/usr/lib/jvm/java-8-openjdk-amd64/"
+
+# Gradle
+RUN apt-get install -y gradle
+
 RUN apt-get clean
 
 # Prepare Micro XRCE-DDS Agent workspace

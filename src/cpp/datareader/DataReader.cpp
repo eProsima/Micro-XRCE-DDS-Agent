@@ -226,7 +226,6 @@ void DataReader::read_task(
             = std::chrono::steady_clock::now();
     const std::chrono::time_point<std::chrono::steady_clock> final_time
             = init_time + std::chrono::seconds(delivery_control.max_elapsed_time());
-
     std::vector<uint8_t> data;
     while (running_cond_ && !stop_cond)
     {
