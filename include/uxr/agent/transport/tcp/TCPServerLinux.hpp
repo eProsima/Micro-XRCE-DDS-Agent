@@ -42,14 +42,14 @@ public:
     struct pollfd* poll_fd;
 };
 
-class TCPServer : public TCPServerBase
+class TCPv4Agent : public TCPServerBase
 {
 public:
-    TCPServer(
+    TCPv4Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    ~TCPServer() final;
+    ~TCPv4Agent() final;
 
 private:
     bool init() final;

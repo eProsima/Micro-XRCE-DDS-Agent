@@ -15,11 +15,11 @@
 #ifndef UXR_AGENT_TRANSPORT_SERVER_HPP_
 #define UXR_AGENT_TRANSPORT_SERVER_HPP_
 
+#include <uxr/agent/Agent.hpp>
 #include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
-#include <uxr/agent/agent_dll.hpp>
 
 #include <thread>
 
@@ -28,7 +28,7 @@ namespace uxr {
 
 class Processor;
 
-class Server
+class Server : public Agent
 {
     friend class Processor;
 public:
@@ -38,7 +38,6 @@ public:
 
     UXR_AGENT_EXPORT bool run();
     UXR_AGENT_EXPORT bool stop();
-    UXR_AGENT_EXPORT bool load_config_file(const std::string& path);
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);

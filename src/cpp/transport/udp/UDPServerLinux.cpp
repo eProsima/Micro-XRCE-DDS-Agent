@@ -27,7 +27,7 @@
 namespace eprosima {
 namespace uxr {
 
-UDPServer::UDPServer(
+UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
     : UDPServerBase{agent_port, middleware_kind}
@@ -38,11 +38,11 @@ UDPServer::UDPServer(
     , discovery_server_{*processor_}
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    , agent_discoverer_{}
+    , agent_discoverer_{*this}
 #endif
 {}
 
-UDPServer::~UDPServer()
+UDPv4Agent::~UDPv4Agent()
 {
     try
     {
@@ -57,7 +57,7 @@ UDPServer::~UDPServer()
     }
 }
 
-bool UDPServer::init()
+bool UDPv4Agent::init()
 {
     bool rv = false;
 
@@ -129,15 +129,21 @@ bool UDPServer::init()
     return rv;
 }
 
-bool UDPServer::close()
+bool UDPv4Agent::close()
 {
+    if (-1 == poll_fd_.fd)
+    {
+        return true;
+    }
+
     bool rv = false;
-    if ((-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd)))
+    if (0 == ::close(poll_fd_.fd))
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
+        poll_fd_.fd = -1;
         rv = true;
     }
     else
@@ -151,19 +157,19 @@ bool UDPServer::close()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPServer::init_discovery(uint16_t discovery_port)
+bool UDPv4Agent::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);
 }
 
-bool UDPServer::close_discovery()
+bool UDPv4Agent::close_discovery()
 {
     return discovery_server_.stop();
 }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool UDPServer::init_p2p(uint16_t p2p_port)
+bool UDPv4Agent::init_p2p(uint16_t p2p_port)
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
@@ -171,7 +177,7 @@ bool UDPServer::init_p2p(uint16_t p2p_port)
     return agent_discoverer_.run(p2p_port, transport_address_);
 }
 
-bool UDPServer::close_p2p()
+bool UDPv4Agent::close_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
@@ -180,7 +186,7 @@ bool UDPServer::close_p2p()
 }
 #endif
 
-bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
+bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
@@ -215,7 +221,7 @@ bool UDPServer::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool UDPServer::send_message(OutputPacket output_packet)
+bool UDPv4Agent::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
@@ -246,7 +252,7 @@ bool UDPServer::send_message(OutputPacket output_packet)
     return rv;
 }
 
-int UDPServer::get_error()
+int UDPv4Agent::get_error()
 {
     return errno;
 }

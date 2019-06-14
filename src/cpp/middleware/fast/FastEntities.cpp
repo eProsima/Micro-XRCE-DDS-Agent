@@ -150,7 +150,7 @@ bool FastTopic::create_by_attributes(
         uint16_t topic_id)
 {
     bool rv = false;
-    setName(attrs.getTopicDataType().data());
+    setName(attrs.getTopicDataType().c_str());
     m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
     if (participant_->register_topic(this, topic_id))
     {
@@ -166,7 +166,7 @@ bool FastTopic::match_from_ref(const std::string& ref) const
     if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
         fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref, new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
              (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
@@ -178,7 +178,7 @@ bool FastTopic::match_from_xml(const std::string& xml) const
     fastrtps::TopicAttributes new_attributes;
     if (xmlobjects::parse_topic(xml.data(), xml.size(), new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().data())) &&
+        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
              (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
@@ -205,7 +205,7 @@ bool FastDataWriter::create_by_ref(
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -218,7 +218,7 @@ bool FastDataWriter::create_by_attributes(
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -277,8 +277,9 @@ void FastDataWriter::onPublicationMatched(
  * FastDataReader
  **********************************************************************************************************************/
 FastDataReader::FastDataReader(const std::shared_ptr<FastParticipant>& participant)
-    : participant_(participant)
-    , ptr_(nullptr)
+    : participant_{participant}
+    , ptr_{nullptr}
+    , unread_count_{0}
 {}
 
 FastDataReader::~FastDataReader()
@@ -294,7 +295,7 @@ bool FastDataReader::create_by_ref(
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -307,7 +308,7 @@ bool FastDataReader::create_by_attributes(
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType(), topic_id);
+        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -341,20 +342,21 @@ bool FastDataReader::read(
 {
     auto now = std::chrono::steady_clock::now();
     bool rv = false;
-    std::unique_lock<std::mutex> lock(mtx_);
-    if (ptr_->getUnreadCount() != 0)
+    if (unread_count_ != 0)
     {
-        lock.unlock();
         fastrtps::SampleInfo_t info;
         rv = ptr_->takeNextData(&data, &info);
+        unread_count_ = ptr_->getUnreadCount();
     }
     else
     {
-        if (cv_.wait_until(lock, now + timeout, [&](){ return  ptr_->getUnreadCount() != 0; }))
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
         {
             lock.unlock();
             fastrtps::SampleInfo_t info;
             rv = ptr_->takeNextData(&data, &info);
+            unread_count_ = ptr_->getUnreadCount();
         }
     }
     return rv;
@@ -384,6 +386,7 @@ void FastDataReader::onSubscriptionMatched(
 
 void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 {
+    unread_count_ = ptr_->getUnreadCount();
     std::unique_lock<std::mutex> lock(mtx_);
     cv_.notify_one();
 }

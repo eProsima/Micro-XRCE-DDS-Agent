@@ -25,7 +25,8 @@ namespace uxr {
 class AgentDiscovererLinux : public AgentDiscoverer
 {
 public:
-    AgentDiscovererLinux();
+    AgentDiscovererLinux(
+            Agent& agent);
 
     ~AgentDiscovererLinux() = default;
 

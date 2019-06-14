@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/Root.hpp>
-#include <uxr/agent/libdev/MessageDebugger.h>
-#include <uxr/agent/libdev/MessageOutput.h>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
@@ -31,12 +29,6 @@ constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
 namespace eprosima {
 namespace uxr {
-
-Root& Root::instance()
-{
-    static Root root;
-    return root;
-}
 
 Root::Root()
     : mtx_(),

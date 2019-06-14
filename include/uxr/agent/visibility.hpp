@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/udp/UdpServerImplLinux.hpp>
+#ifndef UXR_AGENT_VISIBILITY_HPP_
+#define UXR_AGENT_VISIBILITY_HPP_
 
-namespace eprosima {
-namespace uxr {
+#if defined(_WIN32)
+#if defined(microxrcedds_agent_SHARED)
+#if defined(microxrcedds_agent_EXPORTS)
+#define UXR_AGENT_EXPORT __declspec( dllexport )
+#else
+#define UXR_AGENT_EXPORT __declspec( dllimport )
+#endif // microxrcedds_agent_EXPORTS
+#else
+#define UXR_AGENT_EXPORT
+#endif // microxrcedds_agent_SHARED
+#else
+#define UXR_AGENT_EXPORT
+#endif // _WIN32
 
-bool UdpServerImpl::init()
-{
-    return true;
-}
-
-bool UdpServerImpl::close()
-{
-    return true;
-}
-
-} // namespace uxr
-} // namespece eprosima
+#endif // UXR_AGENT_VISIBILITY_HPP_

@@ -90,7 +90,7 @@ class DiscoveryOpt
 public:
     DiscoveryOpt(CLI::App& subcommand)
         : port_(eprosima::uxr::DISCOVERY_PORT)
-        , cli_flag_{subcommand.add_flag("-d,--discovery", "Active the Discovery server")}
+        , cli_flag_{subcommand.add_flag("-d,--discovery", "Activate the Discovery server")}
         , cli_opt_{subcommand.add_option("--disport", port_, "Select the port for the Discovery server", true)}
     {
         cli_opt_->needs(cli_flag_);
@@ -283,12 +283,12 @@ private:
 #endif
             if (opts_ref_.reference_opt_.is_enable())
             {
-                Agent::load_config_file(opts_ref_.reference_opt_.get_file());
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
             }
 
             if (opts_ref_.verbose_opt_.is_enable())
             {
-                Agent::set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
             }
         }
     }
@@ -321,7 +321,7 @@ public:
 private:
     bool launch_server()
     {
-        server_.reset(new eprosima::uxr::UDPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
         return server_->run();
     }
 
@@ -350,7 +350,7 @@ public:
 private:
     bool launch_server()
     {
-        server_.reset(new eprosima::uxr::TCPServer(port_, common_opts_.middleware_opt_.get_kind()));
+        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
         return server_->run();
     }
 
@@ -429,7 +429,7 @@ private:
 
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
-                    server_.reset(new eprosima::uxr::SerialServer(fd, 0, common_opts_.middleware_opt_.get_kind()));
+                    server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
                     rv = server_->run();
                 }
             }
@@ -485,7 +485,7 @@ private:
                 std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
 
                 /* Run server. */
-                server_.reset(new eprosima::uxr::SerialServer(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
+                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
                 rv = server_->run();
             }
         }

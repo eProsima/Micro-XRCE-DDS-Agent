@@ -23,7 +23,7 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
-TCPServer::TCPServer(
+TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
     : TCPServerBase{agent_port, middleware_kind}
@@ -41,7 +41,7 @@ TCPServer::TCPServer(
 #endif
 {}
 
-TCPServer::~TCPServer()
+TCPv4Agent::~TCPv4Agent()
 {
     try
     {
@@ -56,7 +56,7 @@ TCPServer::~TCPServer()
     }
 }
 
-bool TCPServer::init()
+bool TCPv4Agent::init()
 {
     bool rv = false;
 
@@ -101,7 +101,7 @@ bool TCPServer::init()
             if (SOCKET_ERROR != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
             {
                 running_cond_ = true;
-                listener_thread_ = std::thread(&TCPServer::listener_loop, this);
+                listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
 
                 /* Get local address. */
                 SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -155,7 +155,7 @@ bool TCPServer::init()
     return rv;
 }
 
-bool TCPServer::close()
+bool TCPv4Agent::close()
 {
     /* Stop listener thread. */
     running_cond_ = false;
@@ -200,18 +200,18 @@ bool TCPServer::close()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool TCPServer::init_discovery(uint16_t discovery_port)
+bool TCPv4Agent::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port, transport_address_);
 }
 
-bool TCPServer::close_discovery()
+bool TCPv4Agent::close_discovery()
 {
     return discovery_server_.stop();
 }
 #endif
 
-bool TCPServer::recv_message(
+bool TCPv4Agent::recv_message(
         InputPacket& input_packet,
         int timeout)
 {
@@ -233,7 +233,7 @@ bool TCPServer::recv_message(
     return rv;
 }
 
-bool TCPServer::send_message(OutputPacket output_packet)
+bool TCPv4Agent::send_message(OutputPacket output_packet)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
@@ -322,12 +322,12 @@ bool TCPServer::send_message(OutputPacket output_packet)
     return rv;
 }
 
-int TCPServer::get_error()
+int TCPv4Agent::get_error()
 {
     return WSAGetLastError();
 }
 
-bool TCPServer::open_connection(
+bool TCPv4Agent::open_connection(
         SOCKET fd,
         struct sockaddr_in* sockaddr)
 {
@@ -352,7 +352,7 @@ bool TCPServer::open_connection(
     return rv;
 }
 
-bool TCPServer::close_connection(TCPConnection& connection)
+bool TCPv4Agent::close_connection(TCPConnection& connection)
 {
     bool rv = false;
     TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
@@ -390,13 +390,13 @@ bool TCPServer::close_connection(TCPConnection& connection)
     return rv;
 }
 
-void TCPServer::init_input_buffer(TCPInputBuffer& buffer)
+void TCPv4Agent::init_input_buffer(TCPInputBuffer& buffer)
 {
     buffer.state = TCP_BUFFER_EMPTY;
     buffer.msg_size = 0;
 }
 
-bool TCPServer::read_message(int timeout)
+bool TCPv4Agent::read_message(int timeout)
 {
     bool rv = false;
     int poll_rv = WSAPoll(poll_fds_.data(), ULONG(poll_fds_.size()), timeout);
@@ -428,7 +428,7 @@ bool TCPServer::read_message(int timeout)
     return rv;
 }
 
-void TCPServer::listener_loop()
+void TCPv4Agent::listener_loop()
 {
     while (running_cond_)
     {
@@ -454,13 +454,13 @@ void TCPServer::listener_loop()
     }
 }
 
-bool TCPServer::connection_available()
+bool TCPv4Agent::connection_available()
 {
     std::lock_guard<std::mutex> lock(connections_mtx_);
     return !free_connections_.empty();
 }
 
-size_t TCPServer::recv_locking(
+size_t TCPv4Agent::recv_locking(
         TCPConnection& connection,
         uint8_t* buffer,
         size_t len,
@@ -493,7 +493,7 @@ size_t TCPServer::recv_locking(
     return rv;
 }
 
-size_t TCPServer::send_locking(
+size_t TCPv4Agent::send_locking(
         TCPConnection& connection,
         uint8_t* buffer,
         size_t len,

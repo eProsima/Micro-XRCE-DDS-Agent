@@ -43,7 +43,8 @@ class Processor
 {
 public:
     Processor(
-            Server* server,
+            Server& server,
+            Root& root,
             Middleware::Kind middleware_kind);
 
     ~Processor();
@@ -115,10 +116,9 @@ private:
             const std::vector<uint8_t>& buffer);
 
 private:
-    Server* server_;
+    Server& server_;
     Middleware::Kind middleware_kind_;
     Root& root_;
-    std::recursive_mutex mtx_;
 };
 
 } // namespace uxr

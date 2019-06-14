@@ -20,31 +20,36 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 ###############################################################################
 # Build options
 ###############################################################################
-option(UAGENT_SUPERBUILD "Activate super build" ON)
+option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
-option(BUILD_SHARED_LIBS "Control share or static building." ON)
+option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
+option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 
 if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
+###############################################################################
+# Project
+###############################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(UAGENT_SUPERBUILD)
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.0.3" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.0" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -89,14 +94,14 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.8" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.0.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client "1.1.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.7.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps "1.8.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
     find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
@@ -298,28 +303,30 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
+    if(UAGENT_USE_INTERNAL_GTEST)
+        unset(ENV{GTEST_ROOT})
+        unset(ENV{GMOCK_ROOT})
+    endif()
     find_package(GTest REQUIRED)
     find_package(GMock REQUIRED)
     find_package(Threads REQUIRED)
     enable_testing()
     include(CTest)
-    if(GTEST_FOUND AND GMOCK_FOUND)
-        if(UAGENT_FAST_PROFILE)
-            add_subdirectory(test/unittest)
-            add_subdirectory(test/unittest/agent)
-            add_subdirectory(test/blackbox/tree)
-        endif()
-        if(UAGENT_CED_PROFILE)
-            add_subdirectory(test/unittest/middleware/ced)
-        endif()
-        add_subdirectory(test/unittest/utils)
-        add_subdirectory(test/unittest/types)
-        add_subdirectory(test/unittest/client/session/stream)
-        if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-            add_subdirectory(test/unittest/transport/serial)
-        endif()
+
+    if(UAGENT_FAST_PROFILE)
+        add_subdirectory(test/unittest)
+        add_subdirectory(test/unittest/agent)
+        add_subdirectory(test/blackbox/tree)
     endif()
-    add_subdirectory(test/integration/cross_serialization)
+    if(UAGENT_CED_PROFILE)
+        add_subdirectory(test/unittest/middleware/ced)
+    endif()
+    add_subdirectory(test/unittest/utils)
+    add_subdirectory(test/unittest/types)
+    add_subdirectory(test/unittest/client/session/stream)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        add_subdirectory(test/unittest/transport/serial)
+    endif()
 endif()
 
 ###############################################################################
@@ -439,13 +446,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         )
 endif()
 
-# Install dependencies
+# Install dependencies.
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     install(
         DIRECTORY
             ${CMAKE_BINARY_DIR}/temp_install/
         DESTINATION
             ${CMAKE_INSTALL_PREFIX}
+        USE_SOURCE_PERMISSIONS
         )
 endif()
 

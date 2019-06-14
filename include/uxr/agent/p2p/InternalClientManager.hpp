@@ -25,6 +25,7 @@ namespace eprosima {
 namespace uxr {
 
 class InternalClient;
+class Agent;
 
 class InternalClientManager
 {
@@ -36,6 +37,7 @@ public:
             uint16_t port);
 
     void create_client(
+            Agent& agent,
             const std::array<uint8_t, 4>& ip,
             uint16_t port);
 

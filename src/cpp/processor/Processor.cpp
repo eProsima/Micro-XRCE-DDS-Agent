@@ -23,11 +23,12 @@ namespace eprosima {
 namespace uxr {
 
 Processor::Processor(
-        Server* server,
+        Server& server,
+        Root& root,
         Middleware::Kind middleware_kind)
     : server_(server)
     , middleware_kind_{middleware_kind}
-    , root_(Root::instance())
+    , root_(root)
 {}
 
 Processor::~Processor()
@@ -54,7 +55,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         dds::xrce::MessageHeader header = input_packet.message->get_header();
         dds::xrce::ClientKey client_key = (128 > header.session_id()) ?
                                           header.client_key() :
-                                          server_->get_client_key(input_packet.source.get());
+                                          server_.get_client_key(input_packet.source.get());
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
@@ -101,7 +102,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 
                 /* Send message. */
-                server_->push_output_packet(output_packet);
+                server_.push_output_packet(output_packet);
             }
         }
     }
@@ -120,7 +121,6 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
 {
     bool rv;
     dds::xrce::SubmessageId submessage_id = input_packet.message->get_subheader().submessage_id();
-    mtx_.lock();
     switch (submessage_id)
     {
         case dds::xrce::CREATE_CLIENT:
@@ -164,7 +164,6 @@ bool Processor::process_submessage(ProxyClient& client, InputPacket& input_packe
             rv = false;
             break;
     }
-    mtx_.unlock();
     return rv;
 }
 
@@ -177,7 +176,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
           input_packet.message->get_payload(client_payload))
     {
         /* Check whether there is a client associate with the source. */
-        dds::xrce::ClientKey client_key = server_->get_client_key(input_packet.source.get());
+        dds::xrce::ClientKey client_key = server_.get_client_key(input_packet.source.get());
         if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
             (client_payload.client_representation().client_key() != client_key))
         {
@@ -185,7 +184,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             if ((dds::xrce::STATUS_OK == delete_status) ||
                 (dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE == delete_status))
             {
-                server_->on_delete_client(input_packet.source.get());
+                server_.on_delete_client(input_packet.source.get());
             }
             else
             {
@@ -209,7 +208,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
 
             if (dds::xrce::STATUS_OK == result.status())
             {
-                server_->on_create_client(input_packet.source.get(),
+                server_.on_create_client(input_packet.source.get(),
                                           client_payload.client_representation());
             }
             /* STATUS_AGENT payload. */
@@ -235,7 +234,7 @@ bool Processor::process_create_client_submessage(InputPacket& input_packet)
             output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_agent);
 
             /* Send message. */
-            server_->push_output_packet(output_packet);
+            server_.push_output_packet(output_packet);
         }
     }
     else
@@ -275,7 +274,7 @@ bool Processor::process_create_submessage(
         while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
         {
             /* Send status. */
-            server_->push_output_packet(output_packet);
+            server_.push_output_packet(output_packet);
         }
     }
     return rv;
@@ -306,13 +305,13 @@ bool Processor::process_delete_submessage(
             status_payload.result(root_.delete_client(client_key));
             if (dds::xrce::STATUS_OK == status_payload.result().status())
             {
-                server_->on_delete_client(input_packet.source.get());
+                server_.on_delete_client(input_packet.source.get());
             }
             client.session().push_output_submessage(dds::xrce::STREAMID_NONE, dds::xrce::STATUS, status_payload);
             if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
             {
                 /* Send message. */
-                server_->push_output_packet(output_packet);
+                server_.push_output_packet(output_packet);
             }
         }
         else
@@ -325,7 +324,7 @@ bool Processor::process_delete_submessage(
             while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
                 /* Send message. */
-                server_->push_output_packet(output_packet);
+                server_.push_output_packet(output_packet);
             }
         }
     }
@@ -429,7 +428,7 @@ bool Processor::process_read_data_submessage(
             while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
                 /* Send message. */
-                server_->push_output_packet(output_packet);
+                server_.push_output_packet(output_packet);
             }
         }
     }
@@ -462,14 +461,14 @@ bool Processor::process_acknack_submessage(
             {
                 if (client.session().get_output_message(stream_id, first_message + i, output_packet.message))
                 {
-                    server_->push_output_packet(output_packet);
+                    server_.push_output_packet(output_packet);
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
                 if (client.session().get_output_message(stream_id, first_message + i + 8, output_packet.message))
                 {
-                    server_->push_output_packet(output_packet);
+                    server_.push_output_packet(output_packet);
                 }
             }
         }
@@ -513,7 +512,7 @@ bool Processor::process_heartbeat_submessage(
         if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
         {
             /* Send message. */
-            server_->push_output_packet(output_packet);
+            server_.push_output_packet(output_packet);
         }
     }
     else
@@ -566,7 +565,7 @@ bool Processor::process_timestamp_submessage(ProxyClient& client, InputPacket& i
         output_packet.destination = input_packet.source;
         if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
         {
-            server_->push_output_packet(output_packet);
+            server_.push_output_packet(output_packet);
         }
     }
     else
@@ -624,7 +623,6 @@ void Processor::read_data_callback(
         const ReadCallbackArgs& cb_args,
         const std::vector<uint8_t>& buffer)
 {
-    mtx_.lock();
     std::shared_ptr<ProxyClient> client = root_.get_client(cb_args.client_key);
 
     /* DATA payload. */
@@ -635,7 +633,7 @@ void Processor::read_data_callback(
 
     /* Set output packet and serialize DATA. */
     OutputPacket output_packet;
-    output_packet.destination = server_->get_source(cb_args.client_key);
+    output_packet.destination = server_.get_source(cb_args.client_key);
     if (output_packet.destination)
     {
         /* Push submessage into the output stream. */
@@ -645,10 +643,9 @@ void Processor::read_data_callback(
         while (client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
         {
             /* Send message. */
-            server_->push_output_packet(output_packet);
+            server_.push_output_packet(output_packet);
         }
     }
-    mtx_.unlock();
 }
 
 bool Processor::process_get_info_packet(
@@ -735,7 +732,7 @@ void Processor::check_heartbeats()
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {
-        if ((output_packet.destination = server_->get_source(client->get_client_key())))
+        if ((output_packet.destination = server_.get_source(client->get_client_key())))
         {
             header.session_id(client->get_session_id());
             header.client_key(client->get_client_key());
@@ -750,7 +747,7 @@ void Processor::check_heartbeats()
                     output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat);
 
                     /* Send message. */
-                    server_->push_output_packet(output_packet);
+                    server_.push_output_packet(output_packet);
                 }
             }
         }

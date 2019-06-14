@@ -21,14 +21,26 @@
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #endif //_WIN32
 
-int main(int argc, char** argv)
+void create_agents(eprosima::uxr::Middleware::Kind middleware)
 {
-
-    std::unique_ptr<eprosima::uxr::UDPServer> udp_server(new eprosima::uxr::UDPServer(2018));
-    std::unique_ptr<eprosima::uxr::TCPServer> tcp_server(new eprosima::uxr::TCPServer(2018));
+    std::unique_ptr<eprosima::uxr::UDPv4Agent> udp_server(new eprosima::uxr::UDPv4Agent(2018, middleware));
+    std::unique_ptr<eprosima::uxr::TCPv4Agent> tcp_server(new eprosima::uxr::TCPv4Agent(2018, middleware));
 #ifndef _WIN32
-    std::unique_ptr<eprosima::uxr::SerialServer> serial_server(new eprosima::uxr::SerialServer(1, 0));
+    std::unique_ptr<eprosima::uxr::SerialAgent> serial_server(new eprosima::uxr::SerialAgent(1, 0, middleware));
 #endif //_WIN32
+}
+
+
+int main(int /*argc*/, char** /*argv*/)
+{
+#ifdef UAGENT_FAST_PROFILE
+    create_agents(eprosima::uxr::Middleware::Kind::FAST);
+#endif // UAGENT_FAST_PROFILE
+#ifdef UAGENT_CED_PROFILE
+    create_agents(eprosima::uxr::Middleware::Kind::CED);
+#endif // UAGENT_CED_PROFILE
+    create_agents(eprosima::uxr::Middleware::Kind::NONE);
+
     return 0;
 }
 

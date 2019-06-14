@@ -43,7 +43,8 @@ public:
             const dds::xrce::ObjectPrefix& objectid_prefix,
             const dds::xrce::ObjectVariant& object_representation);
 
-    dds::xrce::ResultStatus delete_object(const dds::xrce::ObjectId& object_id);
+    dds::xrce::ResultStatus delete_object(
+            const dds::xrce::ObjectId& object_id);
 
     dds::xrce::ResultStatus update(
             const dds::xrce::ObjectId& object_id,
@@ -94,6 +95,9 @@ private:
             const dds::xrce::ObjectId& object_id,
             const dds::xrce::DATAREADER_Representation& representation,
             dds::xrce::ResultStatus& result_status);
+
+    bool delete_object_unlock(
+            const dds::xrce::ObjectId& object_id);
 
 private:
     const dds::xrce::CLIENT_Representation representation_;

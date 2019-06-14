@@ -24,10 +24,13 @@
 namespace eprosima {
 namespace uxr {
 
+class Agent;
+
 class AgentDiscoverer
 {
 public:
-    AgentDiscoverer();
+    AgentDiscoverer(
+            Agent& agent);
 
     virtual ~AgentDiscoverer() = default;
 
@@ -60,6 +63,7 @@ private:
     void loop();
 
 private:
+    Agent& agent_;
     std::mutex mtx_;
     std::thread thread_;
     std::atomic<bool> running_cond_;

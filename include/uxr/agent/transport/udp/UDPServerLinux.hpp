@@ -31,14 +31,14 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPServer : public UDPServerBase
+class UDPv4Agent : public UDPServerBase
 {
 public:
-    UDPServer(
+    UDPv4Agent(
             uint16_t port,
             Middleware::Kind middleware_kind);
 
-    ~UDPServer() final;
+    ~UDPv4Agent() final;
 
 private:
     bool init() final;

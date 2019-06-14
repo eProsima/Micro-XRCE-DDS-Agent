@@ -18,12 +18,13 @@
 namespace eprosima {
 namespace uxr {
 
-AgentDiscoverer::AgentDiscoverer()
-    : mtx_{}
+AgentDiscoverer::AgentDiscoverer(
+        Agent& agent)
+    : agent_{agent}
+    , mtx_{}
     , thread_{}
     , running_cond_{false}
-{
-}
+{}
 
 bool AgentDiscoverer::run(
         uint16_t p2p_port,
@@ -120,7 +121,7 @@ void AgentDiscoverer::loop()
                 dds::xrce::TransportAddressMedium address =
                         info_payload.object_info().activity().agent().address_seq()[0].medium_locator();
                 InternalClientManager& manager = InternalClientManager::instance();
-                manager.create_client(address.address(), address.port());
+                manager.create_client(agent_, address.address(), address.port());
             }
         } while(message_received);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
