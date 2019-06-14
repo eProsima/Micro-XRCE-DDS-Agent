@@ -143,7 +143,7 @@ if(UAGENT_BUILD_TESTS)
     enable_language(CXX)
     find_package(GTest QUIET)
     find_package(GMock QUIET)
-    if(NOT GTest_FOUND OR NOT GMock_FOUND)
+    if(NOT GTest_FOUND OR NOT GMock_FOUND OR UAGENT_USE_INTERNAL_GTEST)
         unset(GTEST_ROOT CACHE)
         unset(GMOCK_ROOT CACHE)
         ExternalProject_Add(googletest
@@ -165,8 +165,9 @@ if(UAGENT_BUILD_TESTS)
             INSTALL_COMMAND
                 ""
             )
-        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE PATH "" FORCE)
-        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE PATH "" FORCE)
+        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
+        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
+        set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
     endif()
 endif()
@@ -179,6 +180,7 @@ ExternalProject_Add(uagent
         ${CMAKE_CURRENT_BINARY_DIR}
     CMAKE_CACHE_ARGS
         -DUAGENT_SUPERBUILD:BOOL=OFF
+        -DUAGENT_USE_INTERNAL_GTEST:BOOL=${UAGENT_USE_INTERNAL_GTEST}
     INSTALL_COMMAND
         ""
     DEPENDS
