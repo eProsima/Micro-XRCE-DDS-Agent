@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TOPIC_TOPIC_HPP_
-#define _UXR_AGENT_TOPIC_TOPIC_HPP_
+#ifndef UXR_AGENT_TOPIC_TOPIC_HPP_
+#define UXR_AGENT_TOPIC_TOPIC_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
 #include <string>
 #include <memory>
 #include <set>
@@ -25,32 +24,39 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class Middleware;
 
 class Topic : public XRCEObject
 {
-  public:
-    Topic(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant);
-    Topic(Topic&&)      = default;
-    Topic(const Topic&) = default;
-    Topic& operator=(Topic&&) = default;
-    Topic& operator=(const Topic&) = default;
+public:
+    static std::unique_ptr<Topic> create(const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        const dds::xrce::OBJK_TOPIC_Representation& representation);
+
     ~Topic() override;
 
-    bool init(const dds::xrce::OBJK_TOPIC_Representation& representation);
-    virtual void release(ObjectContainer&) override;
+    Topic(Topic&&) = delete;
+    Topic(const Topic&) = delete;
+    Topic& operator=(Topic&&) = delete;
+    Topic& operator=(const Topic&) = delete;
+
+    void release(ObjectContainer&) override;
     void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
     void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    Middleware& get_middleware() const override;
 
-  private:
-    std::string name;
-    std::string type_name;
+private:
+    Topic(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant);
+
+private:
     std::shared_ptr<Participant> participant_;
-    TopicPubSubType generic_type_;
     std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TOPIC_TOPIC_HPP_
+#endif // UXR_AGENT_TOPIC_TOPIC_HPP_

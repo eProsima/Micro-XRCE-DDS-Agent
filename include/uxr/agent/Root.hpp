@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_ROOT_HPP_
-#define _UXR_AGENT_ROOT_HPP_
+#ifndef UXR_AGENT_ROOT_HPP_
+#define UXR_AGENT_ROOT_HPP_
 
 #include <uxr/agent/client/ProxyClient.hpp>
+
 #include <thread>
 #include <memory>
 #include <map>
@@ -28,17 +29,31 @@ class Root
 {
 public:
     Root();
-    ~Root() = default;
+    ~Root();
 
-    dds::xrce::ResultStatus create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                          dds::xrce::AGENT_Representation& agent_representation);
+    Root(Root&&) = delete;
+    Root(const Root&) = delete;
+    Root operator=(Root&&) = delete;
+    Root operator=(const Root&) = delete;
+
+    dds::xrce::ResultStatus create_client(
+            const dds::xrce::CLIENT_Representation& client_representation,
+            dds::xrce::AGENT_Representation& agent_representation,
+            Middleware::Kind middleware_kind);
+
     dds::xrce::ResultStatus get_info(dds::xrce::ObjectInfo& agent_info);
+
     dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
+
     std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
-    void init_client_iteration();
+
     bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
 
-    bool load_config_file(const std::string& path);
+    bool load_config_file(const std::string& file_path);
+
+    void set_verbose_level(uint8_t verbose_level);
+
+    void reset();
 
 private:
     std::mutex mtx_;
@@ -49,4 +64,4 @@ private:
 } // uxr
 } // eprosima
 
-#endif //_UXR_AGENT_ROOT_HPP_
+#endif // UXR_AGENT_ROOT_HPP_

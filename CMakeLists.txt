@@ -1,4 +1,4 @@
-# Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +15,41 @@
 ###############################################################################
 # CMake build rules for Micro XRCE-DDS Agent
 ###############################################################################
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-set(IS_TOP_LEVEL TRUE)
-if(PROJECT_SOURCE_DIR)
-    set(IS_TOP_LEVEL FALSE)
+###############################################################################
+# Build options
+###############################################################################
+option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
+option(UAGENT_BUILD_TESTS "Build tests." OFF)
+option(UAGENT_INSTALLER "Build Windows installer." OFF)
+option(BUILD_SHARED_LIBS "Control shared/static building." ON)
+
+option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
+option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
+option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
+option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
+option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
+option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
+
+if(NOT UAGENT_CED_PROFILE)
+    set(UAGENT_P2P_PROFILE OFF)
+endif()
+
+if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
+    set(UAGENT_P2P_PROFILE OFF)
+endif()
+
+###############################################################################
+# Project
+###############################################################################
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+if(UAGENT_SUPERBUILD)
+    project(uagent_superbuild NONE)
+    include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
+    return()
+else()
+    project(microxrcedds_agent VERSION "1.1.0" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -32,36 +62,26 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 ###############################################################################
-# Product information
+# Config
 ###############################################################################
-if(CMAKE_VERSION VERSION_LESS 3.0)
-    project(microxrcedds_agent C CXX)
-    set(PROJECT_VERSION_MAJOR 1)
-    set(PROJECT_VERSION_MINOR 0)
-    set(PROJECT_VERSION_PATCH 1)
-    set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
+# Install path
+include(GNUInstallDirs)
+set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
+set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 else()
-    cmake_policy(SET CMP0048 NEW)
-    project(microxrcedds_agent VERSION "1.0.1" LANGUAGES C CXX)
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
 endif()
 
-###############################################################################
-# eProsima build options
-###############################################################################
-option(EPROSIMA_BUILD "Activate internal building" OFF)
-option(EPROSIMA_BUILD_TESTS "Activate the building tests" OFF)
-option(THIRDPARTY "Activate the build of thirdparties" OFF)
-option(VERBOSE "Use verbose output" OFF)
-option(EPROSIMA_INSTALLER "Activate the creation of a build to create Windows installer" OFF)
-
-if(EPROSIMA_INSTALLER)
-    set(THIRDPARTY ON)
-endif()
-
-if(EPROSIMA_BUILD)
-    set(THIRDPARTY ON)
-    set(EPROSIMA_BUILD_TESTS ON)
-endif()
+# Configuration options.
+set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16  CACHE STRING "Reliable streams depth.")
+set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16  CACHE STRING "Best-effort streams depth.")
+set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200 CACHE STRING "Heartbeat period in milliseconds.")
+set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100 CACHE STRING "Maximum TCP connection allowed.")
+set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100 CACHE STRING "Maximum TCP backlog connection allowed.")
 
 ###############################################################################
 # Check MSVC architecture
@@ -72,64 +92,81 @@ if(MSVC OR MSVC_IDE)
 endif()
 
 ###############################################################################
-# Config
+# Load external dependencies.
 ###############################################################################
-
-# Install path
-set(BIN_INSTALL_DIR bin/ CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR include/ CACHE PATH "Installation directory for C++ headers")
-set(LIB_INSTALL_DIR lib/ CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR share/ CACHE PATH "Installation directory for data")
-if(WIN32 AND EPROSIMA_INSTALLER AND IS_TOP_LEVEL)
-    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
-else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+if(UAGENT_P2P_PROFILE)
+    find_package(microxrcedds_client "1.1.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+endif()
+if(UAGENT_FAST_PROFILE)
+    find_package(fastrtps "1.8.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+endif()
+if(UAGENT_LOGGER_PROFILE)
+    find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
-# Configuration options.
-set(CONFIG_RELIABLE_STREAM_DEPTH 16 CACHE STRING "Reliable streams depth.")
-set(CONFIG_BEST_EFFORT_STREAM_DEPTH 16 CACHE STRING "Best-effort streams depth.")
-set(CONFIG_HEARTBEAT_PERIOD 200 CACHE STRING "Heartbeat period in milliseconds.")
-set(CONFIG_TCP_TRANSPORT_MTU 512 CACHE STRING "TCP transport MTU.")
-set(CONFIG_TCP_MAX_CONNECTIONS 100 CACHE STRING "Maximum TCP connection allowed.")
-set(CONFIG_TCP_MAX_BACKLOG_CONNECTIONS 100 CACHE STRING "Maximum TCP backlog connection allowed.")
-set(CONFIG_UDP_TRANSPORT_MTU 512 CACHE STRING "UDP transport MTU.")
-set(CONFIG_SERIAL_TRANSPORT_MTU 512 CACHE STRING "Serial transport MTU.")
+###############################################################################
+# Load external CMake Modules.
+###############################################################################
+if(CMAKE_VERSION VERSION_LESS 3.11.4)
+    set(SANITIZER_PACKAGE "sanitizers-cmake")
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/CMakeLists.txt")
+        message(STATUS "${SANITIZER_PACKAGE} thirdparty is being updated...")
+        execute_process(
+            COMMAND git submodule update --recursive --init "thirdparty/${SANITIZER_PACKAGE}"
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            RESULT_VARIABLE EXECUTE_RESULT
+        )
+        if(NOT EXECUTE_RESULT EQUAL 0)
+            message(WARNING "Cannot configure Git submodule ${SANITIZER_PACKAGE}.")
+        endif()
+    endif()
 
-# Create source files with the define
-configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
-    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/cmake" ${CMAKE_MODULE_PATH})
+    unset(SANITIZER_PACKAGE)
+else()
+    set(SANITIZER_PACKAGE "sanitizers-cmake")
+    include(FetchContent)
+    FetchContent_Declare(sanitizers-cmake
+        GIT_REPOSITORY https://github.com/arsenm/sanitizers-cmake.git
+        GIT_TAG master
     )
+    FetchContent_GetProperties(sanitizers-cmake)
+    if(NOT sanitizers-cmake_POPULATED)
+        FetchContent_Populate(sanitizers-cmake)
+        LIST(APPEND CMAKE_MODULE_PATH "${sanitizers-cmake_SOURCE_DIR}/cmake")
+    endif()
+endif()
+find_package(Sanitizers REQUIRED)
+if(SANITIZE_ADDRESS)
+    message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
+endif()
 
 ###############################################################################
-# Load external eProsima projects.
+# Sources
 ###############################################################################
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
-include(${PROJECT_SOURCE_DIR}/cmake/common/eprosima_libraries.cmake)
-eprosima_find_package(fastcdr REQUIRED)
-eprosima_find_package(fastrtps REQUIRED)
-eprosima_find_thirdparty(Asio asio)
-
-###############################################################################
-# Targets
-###############################################################################
-
+# Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerLinux.cpp
         src/cpp/transport/tcp/TCPServerLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
-        src/cpp/transport/discovery/DiscoveryServerLinux.cpp
+        $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPServerWindows.cpp
         src/cpp/transport/tcp/TCPServerWindows.cpp
+        $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
 
 # Set source files
 set(SRCS
+    src/cpp/Agent.cpp
     src/cpp/Root.cpp
     src/cpp/processor/Processor.cpp
     src/cpp/client/ProxyClient.cpp
@@ -139,25 +176,96 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
-    src/cpp/datareader/TokenBucket.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
     src/cpp/types/SubMessageHeader.cpp
-    src/cpp/types/TopicPubSubType.cpp
-    src/cpp/xmlobjects/xmlobjects.cpp
-    $<$<BOOL:${VERBOSE}>:src/cpp/libdev/MessageOutput.cpp>
+    src/cpp/message/InputMessage.cpp
+    src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPServerBase.cpp
     src/cpp/transport/tcp/TCPServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
+    $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/xmlobjects/xmlobjects.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastEntities.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
+    $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedEntities.cpp>
+    $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
+    $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
+    $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/p2p/InternalClientManager.cpp>
+    $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/p2p/InternalClient.cpp>
     )
 
-# Executable
-add_library(${PROJECT_NAME} SHARED ${SRCS})
-target_link_libraries(${PROJECT_NAME} PUBLIC fastrtps fastcdr)
+###############################################################################
+# Targets
+###############################################################################
+# Library
+add_library(${PROJECT_NAME} ${SRCS})
+add_sanitizers(${PROJECT_NAME})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    VERSION
+        ${PROJECT_VERSION}
+    SOVERSION
+        ${PROJECT_VERSION_MAJOR}
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
+    C_STANDARD
+        99
+    C_STANDARD_REQUIRED
+        YES
+    )
+
+get_target_property(UAGENT_TARGET_TYPE ${PROJECT_NAME} TYPE)
+if((CMAKE_SYSTEM_NAME STREQUAL "Windows") AND (UAGENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RELEASE_POSTFIX
+            -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        RELWITHDEBINFO_POSTFIX
+            -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        DEBUG_POSTFIX
+            d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        )
+    target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            ${PROJECT_NAME}_SHARED
+        )
+endif()
+
+target_compile_options(${PROJECT_NAME}
+    PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:-pedantic>
+        $<$<CXX_COMPILER_ID:GNU>:-fstrict-aliasing>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall>
+        $<$<CXX_COMPILER_ID:GNU>:-Wextra>
+        $<$<CXX_COMPILER_ID:GNU>:-Wcast-align>
+        $<$<CXX_COMPILER_ID:GNU>:-Wshadow>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4700>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4996>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4820>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4255>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4668>
+    )
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        fastcdr
+        $<$<PLATFORM_ID:Windows>:ws2_32>
+    PRIVATE
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:microcdr>
+        $<$<PLATFORM_ID:Linux>:pthread>
+    )
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -165,10 +273,23 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        ${ASIO_INCLUDE_DIR}
     )
+
+# Executable
 add_executable(MicroXRCEAgent microxrce_agent.cpp)
-target_link_libraries(MicroXRCEAgent PRIVATE ${PROJECT_NAME})
+target_link_libraries(MicroXRCEAgent
+    PRIVATE
+        ${PROJECT_NAME}
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
+        CLI11::CLI11
+    )
+
+set_target_properties(MicroXRCEAgent PROPERTIES
+    CXX_STANDARD
+        11
+    CXX_STANDARD_REQUIRED
+        YES
+    )
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
@@ -176,137 +297,168 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
     )
 
 ###############################################################################
-# Compile options
-###############################################################################
-
-# Set targets properties.
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    )
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RELEASE_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        RELWITHDEBINFO_POSTFIX -${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        DEBUG_POSTFIX d-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        )
-endif()
-set_target_properties(MicroXRCEAgent PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    )
-
-# Definition
-target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
-        -DBOOST_ASIO_STANDALONE
-        -DASIO_STANDALONE
-        -D$<$<BOOL:${VERBOSE}>:VERBOSE_OUTPUT>
-    )
-
-get_target_property(TARGET_TYPE ${PROJECT_NAME} TYPE)
-if((MSVC OR MSVC_IDE) AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
-    target_compile_definitions(${PROJECT_NAME}
-        PUBLIC
-            -D${PROJECT_NAME}_SHARED
-        )
-endif()
-
-# Warnings
-if(MSVC OR MSVC_IDE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /wd4700 /wd4996 /wd4820 /wd4255 /wd4668")
-else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align -Wshadow")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -fstrict-aliasing -Wall -Wextra -Wcast-align")
-endif()
-
-###############################################################################
 # Testing
 ###############################################################################
-if(EPROSIMA_BUILD_TESTS AND IS_TOP_LEVEL)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
+
+if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
-    check_gtest()
-    check_gmock()
+    if(UAGENT_USE_INTERNAL_GTEST)
+        unset(ENV{GTEST_ROOT})
+        unset(ENV{GMOCK_ROOT})
+    endif()
+    find_package(GTest REQUIRED)
+    find_package(GMock REQUIRED)
+    find_package(Threads REQUIRED)
     enable_testing()
     include(CTest)
-    if(GTEST_FOUND)
-        add_subdirectory(test/unittest/root)
-        add_subdirectory(test/unittest/util)
-        add_subdirectory(test/unittest/xrce)
-        add_subdirectory(test/unittest/transport/serial)
+
+    if(UAGENT_FAST_PROFILE)
+        add_subdirectory(test/unittest)
+        add_subdirectory(test/unittest/agent)
         add_subdirectory(test/blackbox/tree)
     endif()
-    add_subdirectory(test/integration/cross_serialization)
+    if(UAGENT_CED_PROFILE)
+        add_subdirectory(test/unittest/middleware/ced)
+    endif()
+    add_subdirectory(test/unittest/utils)
+    add_subdirectory(test/unittest/types)
+    add_subdirectory(test/unittest/client/session/stream)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        add_subdirectory(test/unittest/transport/serial)
+    endif()
 endif()
 
 ###############################################################################
 # Packaging
 ###############################################################################
-
 # Install agent lib
-install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}Targets
-    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT libraries
+install(
+    TARGETS
+        ${PROJECT_NAME}
+    EXPORT
+        ${PROJECT_NAME}Targets
+    RUNTIME DESTINATION
+        ${BIN_INSTALL_DIR}
+    LIBRARY DESTINATION
+        ${LIB_INSTALL_DIR}
+    ARCHIVE DESTINATION
+        ${LIB_INSTALL_DIR}
+    COMPONENT
+        libraries
     )
 
 # Install includes
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/uxr/agent/
-    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
-    FILES_MATCHING PATTERN "*.hpp"
-                   PATTERN "*.h"
+install(
+    DIRECTORY
+        ${PROJECT_SOURCE_DIR}/include/uxr/agent/
+    DESTINATION
+        ${INCLUDE_INSTALL_DIR}/uxr/agent
+    FILES_MATCHING
+        PATTERN "*.hpp"
+        PATTERN "*.h"
     )
 
 # Export library
-install(EXPORT ${PROJECT_NAME}Targets
-    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+install(
+    EXPORT
+        ${PROJECT_NAME}Targets
+    DESTINATION
+        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Install agent exec
-install(TARGETS MicroXRCEAgent
-    EXPORT MicroXRCEAgentTargets
-    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT executables
+install(
+    TARGETS
+        MicroXRCEAgent
+    EXPORT
+        MicroXRCEAgentTargets
+    RUNTIME
+        DESTINATION ${BIN_INSTALL_DIR}
+    LIBRARY
+        DESTINATION ${LIB_INSTALL_DIR}
+    ARCHIVE
+        DESTINATION ${LIB_INSTALL_DIR}
+    COMPONENT
+        executables
     )
 
-# Install config.h
-install(FILES ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
-    DESTINATION ${INCLUDE_INSTALL_DIR}/uxr/agent
+# Create config.hpp
+configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
+    ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    )
+
+# Install config.hpp
+install(
+    FILES
+        ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
+    DESTINATION
+        ${INCLUDE_INSTALL_DIR}/uxr/agent
     )
 
 # Install licenses
-install(FILES ${PROJECT_SOURCE_DIR}/LICENSE
-    DESTINATION ${LICENSE_INSTALL_DIR}
-    COMPONENT licenses
+install(
+    FILES
+        ${PROJECT_SOURCE_DIR}/LICENSE
+    DESTINATION
+        ${LICENSE_INSTALL_DIR}
+    COMPONENT
+        licenses
     )
 
 # Package configuration
 include(CMakePackageConfigHelpers)
-configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
-    ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-    INSTALL_DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
-    PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR DATA_INSTALL_DIR
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
+        ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION
+        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+    PATH_VARS
+        BIN_INSTALL_DIR
+        INCLUDE_INSTALL_DIR
+        LIB_INSTALL_DIR
+        DATA_INSTALL_DIR
     )
-install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-    DESTINATION ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+
+write_basic_package_version_file(
+    ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION
+        ${PROJECT_VERSION}
+    COMPATIBILITY
+        SameMajorVersion
+    )
+
+install(
+    FILES
+        ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
+    DESTINATION
+        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )
 
 # Install default profile XML.
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    install(FILES ${PROJECT_SOURCE_DIR}/agent.refs
-        DESTINATION ${BIN_INSTALL_DIR}
+    install(
+        FILES
+            ${PROJECT_SOURCE_DIR}/agent.refs
+        DESTINATION
+            ${BIN_INSTALL_DIR}
+        )
+endif()
+
+# Install dependencies.
+if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
+    install(
+        DIRECTORY
+            ${CMAKE_BINARY_DIR}/temp_install/
+        DESTINATION
+            ${CMAKE_INSTALL_PREFIX}
+        USE_SOURCE_PERMISSIONS
         )
 endif()
 
 # Generate Windows Installer.
-if(WIN32 AND EPROSIMA_INSTALLER)
+if(WIN32 AND UAGENT_INSTALLER)
     # Set product name.
     set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
     set(PRODUCT_NAME_LONG "Micro XRCE-DDS Agent")
@@ -344,13 +496,13 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_NSIS_URL_INFO_ABOUT "www.eprosima.com")
     set(CPACK_NSIS_CONTACT "support@eprosima.com")
     set(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/utils/images/icon/eprosima_icon.ico")
-    set(CPACK_NSIS_MENU_LINKS 
+    set(CPACK_NSIS_MENU_LINKS
         "bin/MicroXRCEAgent.exe" "${PRODUCT_NAME_SHORT}"
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
-    else() 
+    else()
         set(PF86_STR "PROGRAMFILES(x86)")
 	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
@@ -379,7 +531,7 @@ if(WIN32 AND EPROSIMA_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")	
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
 
     include(CPack)
 endif()

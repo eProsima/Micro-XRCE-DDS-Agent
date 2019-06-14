@@ -26,12 +26,18 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/Subscriber.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/datawriter/DataWriter.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/datareader/DataReader.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/datareader/TokenBucket.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/object/XRCEObject.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/TopicPubSubType.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastEntities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastMiddleware.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedEntities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedMiddleware.cpp
         )
     add_executable(tree_test ${SRCS})
+
+    add_sanitizers(tree_test)
+
     add_gtest(tree_test
         SOURCES
             ${SRCS}
@@ -46,7 +52,14 @@ if(GMOCK_FOUND)
         ${GMOCK_INCLUDE_DIRS}
         ${ASIO_INCLUDE_DIR}
         )
-    target_link_libraries(tree_test PRIVATE fastrtps fastcdr ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES})
+    target_link_libraries(tree_test
+        PRIVATE
+            fastrtps
+            fastcdr
+            $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
+            ${GTEST_LIBRARIES}
+            ${GMOCK_LIBRARIES}
+        )
     target_compile_definitions(tree_test
         PRIVATE
             -DBOOST_ASIO_STANDALONE

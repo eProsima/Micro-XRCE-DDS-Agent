@@ -13,20 +13,19 @@
 // limitations under the License.
 
 #include <uxr/agent/Root.hpp>
-#include <uxr/agent/libdev/MessageDebugger.h>
-#include <uxr/agent/libdev/MessageOutput.h>
+#include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
+#ifdef UAGENT_FAST_PROFILE
+// TODO (#5047): replace Fast RTPS dependency by XML parser library.
 #include <fastrtps/xmlparser/XMLProfileManager.h>
-#include <fastcdr/Cdr.h>
+#endif
+
 #include <memory>
 #include <chrono>
 
-#ifdef WIN32
-    #include <windows.h>
-#else
-    #include <unistd.h>
-#endif
-
-const dds::xrce::XrceVendorId eprosima_vendor_id = {0x01, 0x0F};
+constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
 namespace eprosima {
 namespace uxr {
@@ -37,15 +36,30 @@ Root::Root()
       current_client_()
 {
     current_client_ = clients_.begin();
+#ifdef UAGENT_LOGGER_PROFILE
+    spdlog::set_level(spdlog::level::info);
+    spdlog::set_pattern(UXR_LOG_PATTERN);
+#endif
 }
 
-dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representation& client_representation,
-                                             dds::xrce::AGENT_Representation& agent_representation)
+/* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
+Root::~Root() = default;
+
+dds::xrce::ResultStatus Root::create_client(
+        const dds::xrce::CLIENT_Representation& client_representation,
+        dds::xrce::AGENT_Representation& agent_representation,
+        Middleware::Kind middleware_kind)
 {
     if (client_representation.client_key() == dds::xrce::CLIENTKEY_INVALID)
     {
         dds::xrce::ResultStatus invalid_result;
         invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+        UXR_AGENT_LOG_WARN(
+            UXR_DECORATE_RED("invalid client key"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_representation.client_key()));
+
         return invalid_result;
     }
 
@@ -62,17 +76,24 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
-                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(client_representation);
-                if (clients_.insert(std::make_pair(client_key, std::move(new_client))).second)
+                std::shared_ptr<ProxyClient> new_client
+                        = std::make_shared<ProxyClient>(client_representation, middleware_kind);
+                if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
-#ifdef VERBOSE_OUTPUT
-                    std::cout << "<== ";
-                    debug::printl_connected_client_submessage(client_representation);
-#endif
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_GREEN("create"),
+                        UXR_CREATE_SESSION_PATTERN,
+                        conversion::clientkey_to_raw(client_key),
+                        session_id);
                 }
                 else
                 {
                     result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_RED("resources error"),
+                        UXR_CLIENT_KEY_PATTERN,
+                        conversion::clientkey_to_raw(client_representation.client_key()));
                 }
             }
             else
@@ -80,7 +101,7 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
                 std::shared_ptr<ProxyClient> client = clients_.at(client_key);
                 if (session_id != client->get_session_id())
                 {
-                    it->second = std::make_shared<ProxyClient>(client_representation);
+                    it->second = std::make_shared<ProxyClient>(client_representation, middleware_kind);
                 }
                 else
                 {
@@ -91,22 +112,26 @@ dds::xrce::ResultStatus Root::create_client(const dds::xrce::CLIENT_Representati
         else
         {
             result_status.status(dds::xrce::STATUS_ERR_INCOMPATIBLE);
+
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_RED("incompatible version"),
+                UXR_CLIENT_KEY_PATTERN,
+                conversion::clientkey_to_raw(client_representation.client_key()));
         }
     }
     else
     {
         result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_RED("invalid cookie"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_representation.client_key()));
     }
 
-    auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
-                      (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    dds::xrce::Time_t timestamp;
-    timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
-    timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
-    agent_representation.agent_timestamp(timestamp);
     agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(eprosima_vendor_id);
+    agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
 
     return result_status;
 }
@@ -116,17 +141,10 @@ dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
     dds::xrce::ResultStatus result_status;
 
     /* Agent config. */
-    auto epoch_time = std::chrono::duration_cast<std::chrono::nanoseconds>
-                      (std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    dds::xrce::Time_t timestamp;
-    timestamp.seconds(static_cast<int32_t>(epoch_time / 1000000000));
-    timestamp.nanoseconds(static_cast<uint32_t>(epoch_time % 1000000000));
-
     dds::xrce::AGENT_Representation agent_representation;
-    agent_representation.agent_timestamp(timestamp);
     agent_representation.xrce_cookie(dds::xrce::XRCE_COOKIE);
     agent_representation.xrce_version(dds::xrce::XRCE_VERSION);
-    agent_representation.xrce_vendor_id(eprosima_vendor_id);
+    agent_representation.xrce_vendor_id(EPROSIMA_VENDOR_ID);
 
     dds::xrce::ObjectVariant object_varian;
     object_varian.agent(agent_representation);
@@ -148,10 +166,19 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
         }
         clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("delete"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_key));
     }
     else
     {
         result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_RED("unknown client"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client_key));
     }
     return result_status;
 }
@@ -159,7 +186,7 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
 std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client_key)
 {
     std::shared_ptr<ProxyClient> client;
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     auto it = clients_.find(client_key);
     if (it != clients_.end())
     {
@@ -168,35 +195,96 @@ std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client
     return client;
 }
 
-void Root::init_client_iteration()
-{
-    std::unique_lock<std::mutex> lock(mtx_);
-    current_client_ = clients_.begin();
-}
-
 bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 {
     bool rv = false;
-    std::unique_lock<std::mutex> lock(mtx_);
+    std::lock_guard<std::mutex> lock(mtx_);
     if (current_client_ != clients_.end())
     {
         next_client = current_client_->second;
         ++current_client_;
         rv = true;
     }
+    else
+    {
+        current_client_ = clients_.begin();
+    }
     return rv;
 }
 
-bool Root::load_config_file(const std::string& path)
+bool Root::load_config_file(const std::string& file_path)
 {
-    bool rv = true;
-    /* Load XML profile file. */
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK != fastrtps::xmlparser::XMLProfileManager::loadXMLFile(path))
+#ifdef UAGENT_FAST_PROFILE
+    return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
+#else
+    (void) file_path;
+    return false;
+#endif
+}
+
+void Root::set_verbose_level(uint8_t verbose_level)
+{
+#ifdef UAGENT_LOGGER_PROFILE
+    switch (verbose_level)
     {
-        std::cout << "Error: parsing config file." << std::endl;
-        rv = false;
+        case 0:
+            spdlog::set_level(spdlog::level::off);
+            UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("logger off"),
+                "verbose_level: {}", 0);
+            break;
+        case 1:
+            spdlog::set_level(spdlog::level::critical);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 1);
+            break;
+        case 2:
+            spdlog::set_level(spdlog::level::err);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 2);
+            break;
+        case 3:
+            spdlog::set_level(spdlog::level::warn);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 3);
+            break;
+        case 4:
+            spdlog::set_level(spdlog::level::info);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 4);
+            break;
+        case 5:
+            spdlog::set_level(spdlog::level::debug);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 5);
+            break;
+        case 6:
+            spdlog::set_level(spdlog::level::trace);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("logger setup"),
+                "verbose_level: {}", 6);
+            break;
+        default:
+            UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("out-of-range level"),
+                "verbose_level: {}", verbose_level);
+            break;
     }
-    return rv;
+#else
+    (void) verbose_level;
+#endif
+}
+
+void Root::reset()
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    clients_.clear();
+    current_client_ = clients_.begin();
 }
 
 } // namespace uxr

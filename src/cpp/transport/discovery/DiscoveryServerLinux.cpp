@@ -13,60 +13,28 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
-#include <functional>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
 #define RECEIVE_TIMEOUT 100
-#define DISCOVERY_IP "239.255.0.2"
 
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServer::DiscoveryServer(const Processor& processor, uint16_t port, uint16_t discovery_port)
-    : running_cond_(false),
-      processor_(processor),
-      transport_address_{},
-      poll_fd_{},
-      buffer_{0},
-      discovery_port_(discovery_port)
+DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor)
+    : DiscoveryServer(processor)
+    , poll_fd_{-1, 0, 0}
+    , buffer_{0}
 {
-    dds::xrce::TransportAddressMedium transport_addr;
-    transport_addr.port(port);
-    transport_address_.medium_locator(transport_addr);
 }
 
-bool DiscoveryServer::run()
-{
-    if (!init())
-    {
-        return false;
-    }
-
-    /* Init thread. */
-    running_cond_ = true;
-    discovery_thread_.reset(new std::thread(std::bind(&DiscoveryServer::discovery_loop, this)));
-
-    return true;
-}
-
-bool DiscoveryServer::stop()
-{
-    /* Stop thread. */
-    running_cond_ = false;
-    if (discovery_thread_ && discovery_thread_->joinable())
-    {
-        discovery_thread_->join();
-    }
-    return close();
-}
-
-bool DiscoveryServer::init()
+bool DiscoveryServerLinux::init(uint16_t discovery_port)
 {
     bool rv = false;
 
@@ -74,6 +42,10 @@ bool DiscoveryServer::init()
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
     if (-1 == poll_fd_.fd)
     {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "Port: {}",
+            discovery_port);
         return false;
     }
 
@@ -81,17 +53,27 @@ bool DiscoveryServer::init()
     int reuse = 1;
     if (-1 == setsockopt(poll_fd_.fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket opt error"),
+            "Port: {}",
+            discovery_port);
         return false;
     }
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(discovery_port_);
+    address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
     if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
     {
+        /* Log. */
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_GREEN("port opened"),
+            "Port: {}",
+            discovery_port);
+
         /* Poll setup. */
         poll_fd_.events = POLLIN;
 
@@ -101,41 +83,56 @@ bool DiscoveryServer::init()
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
-            /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
-            struct sockaddr_in temp_addr;
-            temp_addr.sin_family = AF_INET;
-            temp_addr.sin_port = htons(80);
-            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-            if (0 == connected)
-            {
-                struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-                {
-                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                 uint8_t(local_addr.sa_data[3]),
-                                                                 uint8_t(local_addr.sa_data[4]),
-                                                                 uint8_t(local_addr.sa_data[5])});
-                    rv = true;
-                }
-                ::close(fd);
-            }
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("running..."),
+                "Port: {}",
+                discovery_port);
+            rv = true;
+        }
+        else
+        {
+            UXR_AGENT_LOG_ERROR(
+                UXR_DECORATE_RED("socket opt error"),
+                "Port: {}",
+                discovery_port);
         }
     }
 
     return rv;
 }
 
-bool DiscoveryServer::close()
+bool DiscoveryServerLinux::close()
 {
-    return 0 == ::close(poll_fd_.fd);
+    if (-1 == poll_fd_.fd)
+    {
+        return true;
+    }
+
+    bool rv = false;
+    if (0 == ::close(poll_fd_.fd))
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("server stopped"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+        poll_fd_.fd = -1;
+        rv = true;
+    }
+    else
+    {
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("socket error"),
+            "port: {}",
+            transport_address_.medium_locator().port());
+    }
+    return rv;
 }
 
-bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
+bool DiscoveryServerLinux::recv_message(
+        InputPacket& input_packet,
+        int timeout)
 {
-    bool rv = true;
+    bool rv = false;
     struct sockaddr client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
@@ -145,15 +142,27 @@ bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
         ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
         if (0 < bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new UDPEndPoint(addr, port));
+            std::array<uint8_t, 4> remote_addr{
+                uint8_t(client_addr.sa_data[2]),
+                uint8_t(client_addr.sa_data[3]),
+                uint8_t(client_addr.sa_data[4]),
+                uint8_t(client_addr.sa_data[5])
+            };
+            uint16_t remote_port = ((struct sockaddr_in*)&client_addr)->sin_port;
+
+            if (remote_addr != transport_address_.medium_locator().address() ||
+                remote_port != htons(filter_port_))
+            {
+                input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
+                uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
+                uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+                input_packet.source.reset(new IPv4EndPoint(addr, port));
+                rv = true;
+            }
         }
     }
     else
     {
-        rv = false;
         if (0 == poll_rv)
         {
             errno = ETIME;
@@ -163,10 +172,10 @@ bool DiscoveryServer::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool DiscoveryServer::send_message(OutputPacket output_packet)
+bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
 {
-    bool rv = true;
-    const UDPEndPoint* destination = static_cast<const UDPEndPoint*>(output_packet.destination.get());
+    bool rv = false;
+    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
@@ -180,33 +189,10 @@ bool DiscoveryServer::send_message(OutputPacket output_packet)
                                 sizeof(client_addr));
     if (0 < bytes_sent)
     {
-        if ((size_t)bytes_sent != output_packet.message->get_len())
-        {
-            rv = false;
-        }
-    }
-    else
-    {
-        rv = false;
+        rv = (size_t(bytes_sent) == output_packet.message->get_len());
     }
 
     return rv;
-}
-
-void DiscoveryServer::discovery_loop()
-{
-    InputPacket input_packet;
-    OutputPacket output_packet;
-    while (running_cond_)
-    {
-        if (recv_message(input_packet, RECEIVE_TIMEOUT))
-        {
-            if (processor_.process_get_info_packet(std::move(input_packet), transport_address_, output_packet))
-            {
-                send_message(output_packet);
-            }
-        }
-    }
 }
 
 } // namespace uxr

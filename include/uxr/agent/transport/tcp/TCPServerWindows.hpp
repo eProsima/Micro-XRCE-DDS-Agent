@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
-#include <uxr/agent/config.hpp>
+#ifdef UAGENT_DISCOVERY_PROFILE
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
+#endif
+
 #include <winsock2.h>
 #include <vector>
 #include <array>
@@ -36,27 +39,65 @@ public:
     struct pollfd* poll_fd;
 };
 
-class TCPServer : public TCPServerBase
+class TCPv4Agent : public TCPServerBase
 {
 public:
-    microxrcedds_agent_DllAPI TCPServer(uint16_t port);
-    microxrcedds_agent_DllAPI ~TCPServer() = default;
+    UXR_AGENT_EXPORT TCPv4Agent(
+            uint16_t agent_port,
+            Middleware::Kind middleware_kind);
+
+    UXR_AGENT_EXPORT ~TCPv4Agent() final;
 
 private:
-    virtual bool init() override;
-    virtual bool close() override;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
-    virtual bool send_message(OutputPacket output_packet) override;
-    virtual int get_error() override;
+    bool init() final;
+
+    bool close() final;
+
+#ifdef UAGENT_DISCOVERY_PROFILE
+    bool init_discovery(uint16_t discovery_port) final;
+
+    bool close_discovery() final;
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+
+    bool close_p2p() final { return false; } // TODO
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
+    bool send_message(OutputPacket output_packet) final;
+
+    int get_error() final;
+
     bool read_message(int timeout);
-    bool open_connection(SOCKET fd, struct sockaddr_in* sockaddr);
+
+    bool open_connection(
+            SOCKET fd,
+            struct sockaddr_in* sockaddr);
+
     bool connection_available();
+
     void listener_loop();
+
     static void init_input_buffer(TCPInputBuffer& buffer);
 
     bool close_connection(TCPConnection& connection) override;
-    size_t recv_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
-    size_t send_locking(TCPConnection& connection, uint8_t* buffer, size_t len, uint8_t &errcode) override;
+
+    size_t recv_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
+
+    size_t send_locking(
+            TCPConnection& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
 
 private:
     std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
@@ -65,13 +106,16 @@ private:
     std::mutex connections_mtx_;
     struct pollfd listener_poll_;
     std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
-    uint8_t buffer_[TCP_TRANSPORT_MTU];
-    std::unique_ptr<std::thread> listener_thread_;
+    uint8_t buffer_[UINT16_MAX];
+    std::thread listener_thread_;
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
+#ifdef UAGENT_DISCOVERY_PROFILE
+    DiscoveryServerWindows discovery_server_;
+#endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_

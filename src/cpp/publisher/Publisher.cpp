@@ -14,13 +14,43 @@
 
 #include <uxr/agent/publisher/Publisher.hpp>
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-Publisher::Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr<Participant>& participant)
-    : XRCEObject {object_id},
-      participant_(participant)
+std::unique_ptr<Publisher> Publisher::create(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant,
+        const dds::xrce::OBJK_PUBLISHER_Representation& representation)
+{
+    bool created_entity = false;
+    uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
+
+    Middleware& middleware = participant->get_middleware();
+    switch (representation.representation()._d())
+    {
+        case dds::xrce::REPRESENTATION_AS_XML_STRING:
+        {
+            const std::string& xml = representation.representation().string_representation();
+            created_entity = middleware.create_publisher_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            // TODO (julian ???)
+            break;
+        }
+    }
+
+    return (created_entity ? std::unique_ptr<Publisher>(new Publisher(object_id, participant)) : nullptr);
+}
+
+Publisher::Publisher(
+        const dds::xrce::ObjectId& object_id,
+        const std::shared_ptr<Participant>& participant)
+    : XRCEObject(object_id)
+    , participant_(participant)
 {
     participant_->tie_object(object_id);
 }
@@ -28,6 +58,7 @@ Publisher::Publisher(const dds::xrce::ObjectId& object_id, const std::shared_ptr
 Publisher::~Publisher()
 {
     participant_->untie_object(get_id());
+    get_middleware().delete_publisher(get_raw_id());
 }
 
 void Publisher::release(ObjectContainer& root_objects)
@@ -38,6 +69,11 @@ void Publisher::release(ObjectContainer& root_objects)
         root_objects.at(*obj)->release(root_objects);
         root_objects.erase(*obj);
     }
+}
+
+Middleware& Publisher::get_middleware() const
+{
+    return participant_->get_middleware();
 }
 
 } // namespace uxr

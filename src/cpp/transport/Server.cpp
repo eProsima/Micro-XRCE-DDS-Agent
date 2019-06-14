@@ -16,16 +16,18 @@
 #include <uxr/agent/config.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/Root.hpp>
+#include <uxr/agent/logger/Logger.hpp>
+
 #include <functional>
 
-#define RECEIVE_TIMEOUT 100
+#define RECEIVE_TIMEOUT 1
 
 namespace eprosima {
 namespace uxr {
 
-Server::Server()
-    : processor_(new Processor(this)),
-      running_cond_(false)
+Server::Server(Middleware::Kind middleware_kind)
+    : processor_(new Processor(*this, *root_, middleware_kind))
+    , running_cond_(false)
 {}
 
 Server::~Server()
@@ -35,6 +37,9 @@ Server::~Server()
 
 bool Server::run()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    /* Init server. */
     if (!init())
     {
         return false;
@@ -46,43 +51,86 @@ bool Server::run()
 
     /* Thread initialization. */
     running_cond_ = true;
-    receiver_thread_.reset(new std::thread(std::bind(&Server::receiver_loop, this)));
-    sender_thread_.reset(new std::thread(std::bind(&Server::sender_loop, this)));
-    processing_thread_.reset(new std::thread(std::bind(&Server::processing_loop, this)));
-    heartbeat_thread_.reset(new std::thread(std::bind(&Server::heartbeat_loop, this)));
+    receiver_thread_ = std::thread(&Server::receiver_loop, this);
+    sender_thread_ = std::thread(&Server::sender_loop, this);
+    processing_thread_ = std::thread(&Server::processing_loop, this);
+    heartbeat_thread_ = std::thread(&Server::heartbeat_loop, this);
 
     return true;
 }
 
 bool Server::stop()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
+
+    /* Stop input and output queues. */
     input_scheduler_.deinit();
     output_scheduler_.deinit();
-    if (receiver_thread_ && receiver_thread_->joinable())
+
+    /* Join threads. */
+    if (receiver_thread_.joinable())
     {
-        receiver_thread_->join();
+        receiver_thread_.join();
     }
-    if (sender_thread_ && sender_thread_->joinable())
+    if (sender_thread_.joinable())
     {
-        sender_thread_->join();
+        sender_thread_.join();
     }
-    if (processing_thread_ && processing_thread_->joinable())
+    if (processing_thread_.joinable())
     {
-        processing_thread_->join();
+        processing_thread_.join();
     }
-    if (heartbeat_thread_ && heartbeat_thread_->joinable())
+    if (heartbeat_thread_.joinable())
     {
-        heartbeat_thread_->join();
+        heartbeat_thread_.join();
     }
 
-    return close();
+    /* Close servers. */
+    bool rv = true;
+#ifdef UAGENT_DISCOVERY_PROFILE
+    rv &= close_discovery();
+#endif
+#ifdef UAGENT_P2P_PROFILE
+    rv &= close_p2p();
+#endif
+    rv &= close();
+    return rv;
 }
 
-bool Server::load_config_file(const std::string& path)
+#ifdef UAGENT_DISCOVERY_PROFILE
+bool Server::enable_discovery(uint16_t discovery_port)
 {
-    return processor_->get_root()->load_config_file(path);
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_discovery(discovery_port);
+    }
+    return rv;
 }
+
+bool Server::disable_discovery()
+{
+    return close_discovery();
+}
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+bool Server::enable_p2p(uint16_t p2p_port)
+{
+    bool rv = false;
+    if (running_cond_)
+    {
+        rv = init_p2p(p2p_port);
+    }
+    return rv;
+}
+
+bool Server::disable_p2p()
+{
+    return close_p2p();
+}
+#endif
 
 void Server::push_output_packet(OutputPacket output_packet)
 {

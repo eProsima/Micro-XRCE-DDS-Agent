@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
-#define _UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#ifndef UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#define UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
 
 #include <uxr/agent/scheduler/Scheduler.hpp>
 #include <queue>
@@ -39,18 +39,20 @@ private:
     std::queue<T> queue_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
-    std::atomic<bool> running_cond_;
+    bool running_cond_;
 };
 
 template<class T>
 inline void FCFSScheduler<T>::init()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = true;
 }
 
 template<class T>
 inline void FCFSScheduler<T>::deinit()
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
     cond_var_.notify_one();
 }
@@ -69,7 +71,7 @@ inline bool FCFSScheduler<T>::pop(T& element)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
-    cond_var_.wait(lock, [this] { return (!queue_.empty() || !running_cond_); });
+    cond_var_.wait(lock, [this] { return !(queue_.empty() && running_cond_); });
     if (running_cond_)
     {
         element = std::move(queue_.front());
@@ -83,4 +85,4 @@ inline bool FCFSScheduler<T>::pop(T& element)
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
+#endif // UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_

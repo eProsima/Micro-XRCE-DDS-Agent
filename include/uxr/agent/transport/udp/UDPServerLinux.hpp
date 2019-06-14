@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define _UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
-#include <uxr/agent/transport/udp/UDPEndPoint.hpp>
+#ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#include <uxr/agent/config.hpp>
+#endif
+#ifdef UAGENT_P2P_PROFILE
+#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
+#endif
 
 #include <cstdint>
 #include <cstddef>
@@ -28,26 +31,53 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPServer : public UDPServerBase
+class UDPv4Agent : public UDPServerBase
 {
 public:
-    UDPServer(uint16_t port, uint16_t discovery_port = UXR_DEFAULT_DISCOVERY_PORT);
-    ~UDPServer() = default;
+    UDPv4Agent(
+            uint16_t port,
+            Middleware::Kind middleware_kind);
+
+    ~UDPv4Agent() final;
 
 private:
-    virtual bool init() override;
-    virtual bool close() override;
-    virtual bool recv_message(InputPacket& input_packet, int timeout) override;
-    virtual bool send_message(OutputPacket output_packet) override;
-    virtual int get_error() override;
+    bool init() final;
+
+    bool close() final;
+
+#ifdef UAGENT_DISCOVERY_PROFILE
+    bool init_discovery(uint16_t discovery_port) final;
+
+    bool close_discovery() final;
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+    bool init_p2p(uint16_t p2p_port) final;
+
+    bool close_p2p() final;
+#endif
+
+    bool recv_message(
+            InputPacket& input_packet,
+            int timeout) final;
+
+    bool send_message(OutputPacket output_packet) final;
+
+    int get_error() final;
 
 private:
     struct pollfd poll_fd_;
-    uint8_t buffer_[UDP_TRANSPORT_MTU];
-    DiscoveryServer discovery_server_;
+    uint8_t buffer_[UINT16_MAX];
+    uint16_t port_;
+#ifdef UAGENT_DISCOVERY_PROFILE
+    DiscoveryServerLinux discovery_server_;
+#endif
+#ifdef UAGENT_P2P_PROFILE
+    AgentDiscovererLinux agent_discoverer_;
+#endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif //_UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
