@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
 
-#include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#include <uxr/agent/transport/tcp/TCPv4ServerBase.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
-#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
-#ifdef UAGENT_P2P_PROFILE
-#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
-#endif
-#include <uxr/agent/config.hpp>
-#include <netinet/in.h>
-#include <sys/poll.h>
+
+#include <winsock2.h>
+#include <vector>
 #include <array>
 #include <list>
 #include <set>
@@ -36,20 +33,20 @@ class TCPConnectionPlatform : public TCPConnection
 {
 public:
     TCPConnectionPlatform() = default;
-    ~TCPConnectionPlatform() final = default;
+    ~TCPConnectionPlatform() = default;
 
 public:
     struct pollfd* poll_fd;
 };
 
-class TCPv4Agent : public TCPServerBase
+class TCPv4Agent : public TCPv4ServerBase
 {
 public:
-    TCPv4Agent(
+    UXR_AGENT_EXPORT TCPv4Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    ~TCPv4Agent() final;
+    UXR_AGENT_EXPORT ~TCPv4Agent() final;
 
 private:
     bool init() final;
@@ -63,9 +60,9 @@ private:
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(uint16_t p2p_port) final;
+    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
 
-    bool close_p2p() final;
+    bool close_p2p() final { return false; } // TODO
 #endif
 
     bool recv_message(
@@ -79,7 +76,7 @@ private:
     bool read_message(int timeout);
 
     bool open_connection(
-            int fd,
+            SOCKET fd,
             struct sockaddr_in* sockaddr);
 
     bool connection_available();
@@ -88,21 +85,19 @@ private:
 
     static void init_input_buffer(TCPInputBuffer& buffer);
 
-    static void sigpipe_handler(int fd) { (void)fd; }
-
     bool close_connection(TCPConnection& connection) override;
 
     size_t recv_locking(
             TCPConnection& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) override;
+            uint8_t &errcode) override;
 
     size_t send_locking(
             TCPConnection& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) override;
+            uint8_t &errcode) override;
 
 private:
     std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
@@ -116,14 +111,11 @@ private:
     std::atomic<bool> running_cond_;
     std::queue<InputPacket> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerLinux discovery_server_;
-#endif
-#ifdef UAGENT_P2P_PROFILE
-    AgentDiscovererLinux agent_discoverer_;
+    DiscoveryServerWindows discovery_server_;
 #endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_TCP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_

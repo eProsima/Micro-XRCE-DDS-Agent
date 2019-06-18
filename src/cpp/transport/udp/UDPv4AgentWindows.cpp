@@ -24,7 +24,7 @@ namespace uxr {
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : UDPServerBase(agent_port, middleware_kind)
+    : UDPv4ServerBase(agent_port, middleware_kind)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef UAGENT_DISCOVERY_PROFILE

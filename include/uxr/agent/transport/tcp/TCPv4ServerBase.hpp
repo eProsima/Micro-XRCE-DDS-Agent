@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
-#define UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCPv4_SERVER_BASE_HPP_
+#define UXR_AGENT_TRANSPORT_TCPv4_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/tcp/TCPConnection.hpp>
@@ -26,14 +26,14 @@ namespace uxr {
 
 class TCPConnection;
 
-class TCPServerBase : public Server
+class TCPv4ServerBase : public Server
 {
 public:
-    TCPServerBase(
+    TCPv4ServerBase(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    virtual ~TCPServerBase() override = default;
+    virtual ~TCPv4ServerBase() override = default;
 
     void on_create_client(
             EndPoint* source,
@@ -75,4 +75,4 @@ protected:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCPv4_SERVER_BASE_HPP_

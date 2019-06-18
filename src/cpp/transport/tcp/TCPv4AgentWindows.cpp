@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -26,7 +26,7 @@ const uint8_t max_attemps = 16;
 TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : TCPServerBase{agent_port, middleware_kind}
+    : TCPv4ServerBase{agent_port, middleware_kind}
     , connections_{}
     , active_connections_{}
     , free_connections_{}

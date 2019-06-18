@@ -17,10 +17,10 @@
 
 #ifdef _WIN32
 #include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
 #else
 #include <uxr/agent/transport/udp/UDPv4AgentLinux.hpp>
-#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/serial/SerialServerLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 

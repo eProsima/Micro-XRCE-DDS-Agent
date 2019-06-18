@@ -128,7 +128,7 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
-        src/cpp/transport/tcp/TCPServerLinux.cpp
+        src/cpp/transport/tcp/TCPv4AgentLinux.cpp
         src/cpp/transport/serial/SerialServerLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
@@ -136,7 +136,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentWindows.cpp
-        src/cpp/transport/tcp/TCPServerWindows.cpp
+        src/cpp/transport/tcp/TCPv4AgentWindows.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
@@ -161,7 +161,7 @@ set(SRCS
     src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
     src/cpp/transport/udp/UDPv4ServerBase.cpp
-    src/cpp/transport/tcp/TCPServerBase.cpp
+    src/cpp/transport/tcp/TCPv4ServerBase.cpp
     src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
