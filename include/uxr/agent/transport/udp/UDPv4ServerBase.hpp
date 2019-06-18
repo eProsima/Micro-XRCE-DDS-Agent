@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
-#define UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDPv4_SERVER_BASE_HPP_
+#define UXR_AGENT_TRANSPORT_UDPv4_SERVER_BASE_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
@@ -23,14 +23,14 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPServerBase : public Server
+class UDPv4ServerBase : public Server
 {
 public:
-    UDPServerBase(
+    UDPv4ServerBase(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    virtual ~UDPServerBase() override = default;
+    virtual ~UDPv4ServerBase() override = default;
 
     void on_create_client(
             EndPoint* source,
@@ -54,4 +54,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_BASE_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDPv4_SERVER_BASE_HPP_

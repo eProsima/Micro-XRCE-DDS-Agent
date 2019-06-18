@@ -12,17 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/udp/UDPServerLinux.hpp>
+#include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <string.h>
-#include <errno.h>
 
 namespace eprosima {
 namespace uxr {
@@ -30,15 +24,11 @@ namespace uxr {
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : UDPServerBase{agent_port, middleware_kind}
-    , poll_fd_{-1, 0, 0}
+    : UDPServerBase(agent_port, middleware_kind)
+    , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
-    , port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
-    , discovery_server_{*processor_}
-#endif
-#ifdef UAGENT_P2P_PROFILE
-    , agent_discoverer_{*this}
+    , discovery_server_(*processor_)
 #endif
 {}
 
@@ -64,7 +54,7 @@ bool UDPv4Agent::init()
     /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
 
-    if (-1 != poll_fd_.fd)
+    if (INVALID_SOCKET != poll_fd_.fd)
     {
         /* IP and Port setup. */
         struct sockaddr_in address;
@@ -72,7 +62,7 @@ bool UDPv4Agent::init()
         address.sin_port = htons(transport_address_.medium_locator().port());
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+        if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
             /* Log. */
             UXR_AGENT_LOG_DEBUG(
@@ -85,7 +75,7 @@ bool UDPv4Agent::init()
             poll_fd_.events = POLLIN;
 
             /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
+            SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
             struct sockaddr_in temp_addr;
             temp_addr.sin_family = AF_INET;
             temp_addr.sin_port = htons(80);
@@ -94,8 +84,8 @@ bool UDPv4Agent::init()
             if (0 == connected)
             {
                 struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
+                int local_addr_len = sizeof(local_addr);
+                if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
                 {
                     transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
                                                                  uint8_t(local_addr.sa_data[3]),
@@ -107,7 +97,7 @@ bool UDPv4Agent::init()
                         "port: {}",
                         transport_address_.medium_locator().port());
                 }
-                ::close(fd);
+                closesocket(fd);
             }
         }
         else
@@ -131,19 +121,19 @@ bool UDPv4Agent::init()
 
 bool UDPv4Agent::close()
 {
-    if (-1 == poll_fd_.fd)
+    if (INVALID_SOCKET == poll_fd_.fd)
     {
         return true;
     }
 
     bool rv = false;
-    if (0 == ::close(poll_fd_.fd))
+    if (0 == closesocket(poll_fd_.fd))
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
-        poll_fd_.fd = -1;
+        poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
     else
@@ -168,40 +158,28 @@ bool UDPv4Agent::close_discovery()
 }
 #endif
 
-#ifdef UAGENT_P2P_PROFILE
-bool UDPv4Agent::init_p2p(uint16_t p2p_port)
-{
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(p2p_port);
-#endif
-    return agent_discoverer_.run(p2p_port, transport_address_);
-}
-
-bool UDPv4Agent::close_p2p()
-{
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(0);
-#endif
-    return agent_discoverer_.stop();
-}
-#endif
-
 bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    int client_addr_len = sizeof(client_addr);
 
-    int poll_rv = poll(&poll_fd_, 1, timeout);
+    int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
-        if (-1 != bytes_received)
+        int bytes_received = recvfrom(poll_fd_.fd,
+                                      reinterpret_cast<char*>(buffer_),
+                                      sizeof(buffer_),
+                                      0,
+                                      &client_addr,
+                                      &client_addr_len);
+        if (SOCKET_ERROR != bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
+            uint32_t addr = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_addr.s_addr;
+            uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
+            rv = true;
             UXR_AGENT_LOG_MESSAGE(
                 UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
                 conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
@@ -214,7 +192,7 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
     {
         if (0 == poll_rv)
         {
-            errno = ETIME;
+            WSASetLastError(WAIT_TIMEOUT);
         }
     }
 
@@ -230,15 +208,15 @@ bool UDPv4Agent::send_message(OutputPacket output_packet)
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = destination->get_port();
     client_addr.sin_addr.s_addr = destination->get_addr();
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                (struct sockaddr*)&client_addr,
-                                sizeof(client_addr));
-    if (-1 != bytes_sent)
+    int bytes_sent = sendto(poll_fd_.fd,
+                            reinterpret_cast<char*>(output_packet.message->get_buf()),
+                            int(output_packet.message->get_len()),
+                            0,
+                            reinterpret_cast<struct sockaddr*>(&client_addr),
+                            sizeof(client_addr));
+    if (SOCKET_ERROR != bytes_sent)
     {
-        if (size_t(bytes_sent) == output_packet.message->get_len())
+        if (size_t(bytes_sent) != output_packet.message->get_len())
         {
             UXR_AGENT_LOG_MESSAGE(
                 UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
@@ -254,7 +232,7 @@ bool UDPv4Agent::send_message(OutputPacket output_packet)
 
 int UDPv4Agent::get_error()
 {
-    return errno;
+    return WSAGetLastError();
 }
 
 } // namespace uxr

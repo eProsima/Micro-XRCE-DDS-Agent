@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 
 #include <uxr/agent/transport/udp/UDPServerBase.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
@@ -72,4 +72,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_

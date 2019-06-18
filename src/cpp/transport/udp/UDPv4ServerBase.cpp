@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/udp/UDPv4ServerBase.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
 
-UDPServerBase::UDPServerBase(
+UDPv4ServerBase::UDPv4ServerBase(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
     : Server(middleware_kind)
@@ -32,7 +32,7 @@ UDPServerBase::UDPServerBase(
     transport_address_.medium_locator(medium_locator);
 }
 
-void UDPServerBase::on_create_client(
+void UDPv4ServerBase::on_create_client(
         EndPoint* source,
         const dds::xrce::CLIENT_Representation& representation)
 {
@@ -79,7 +79,7 @@ void UDPServerBase::on_create_client(
     }
 }
 
-void UDPServerBase::on_delete_client(EndPoint* source)
+void UDPv4ServerBase::on_delete_client(EndPoint* source)
 {
     IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
     uint64_t source_id = (uint64_t(endpoint->get_addr()) << 16) | endpoint->get_port();
@@ -99,7 +99,7 @@ void UDPServerBase::on_delete_client(EndPoint* source)
     }
 }
 
-const dds::xrce::ClientKey UDPServerBase::get_client_key(EndPoint* source)
+const dds::xrce::ClientKey UDPv4ServerBase::get_client_key(EndPoint* source)
 {
     dds::xrce::ClientKey client_key;
     IPv4EndPoint* endpoint = static_cast<IPv4EndPoint*>(source);
@@ -116,7 +116,7 @@ const dds::xrce::ClientKey UDPServerBase::get_client_key(EndPoint* source)
     return client_key;
 }
 
-std::unique_ptr<EndPoint> UDPServerBase::get_source(const dds::xrce::ClientKey& client_key)
+std::unique_ptr<EndPoint> UDPv4ServerBase::get_source(const dds::xrce::ClientKey& client_key)
 {
     std::unique_ptr<EndPoint> source;
     uint32_t client_id = conversion::clientkey_to_raw(client_key);
