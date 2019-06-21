@@ -25,7 +25,8 @@ RUN apt-get clean
 
 # Prepare Micro XRCE-DDS Agent workspace
 RUN mkdir -p /agent/build
-COPY ./ /agent/
+ADD ./ /agent/
+RUN cd /agent && git submodule update --init --recursive
 
 # Build Micro XRCE-DDS Agent and install
 RUN cd /agent/build && \
