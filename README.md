@@ -17,7 +17,7 @@ The Agent uses the Entities to interact with DDS Global Data Space on behalf of 
 The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* supports two kind transports: UDP or SerialPort.
 While running *Micro XRCE-DDS Agent* will attend any received request from your *Micro XRCE-DDS Clients*. *Micro XRCE-DDS Agent* answers back with the result of a request each time a request is attended.
 
-![Architecture](docs/architecture_agent.png)
+![Architecture](docs/agent_architecture.png)
 
 ## Documentation
 
