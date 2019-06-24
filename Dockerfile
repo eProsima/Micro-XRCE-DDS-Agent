@@ -26,7 +26,7 @@ RUN apt-get clean
 # Prepare Micro XRCE-DDS Agent workspace
 RUN mkdir -p /agent/build
 ADD . /agent/
-RUN cd /agent/ && git pull --recurse-submodules
+RUN cd /agent/ && git remote set-url origin https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && git pull --recurse-submodules
 
 # Build Micro XRCE-DDS Agent and install
 RUN cd /agent/build && \
