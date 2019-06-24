@@ -103,17 +103,17 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr ${_fast_cdr_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-find_package(CLI11 ${_cli11_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr ${_fast_cdr_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/fastcdr)
+find_package(CLI11 ${_cli11_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/cli11)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client ${_micro_xrce_dds_client_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client ${_micro_xrce_dds_client_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/uclient)
+    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/uclient)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps ${_fast_rtps_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps ${_fast_rtps_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/fastrtps)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog ${_spdlog_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog ${_spdlog_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/spdlog)
 endif()
 
 ###############################################################################
@@ -457,13 +457,16 @@ endif()
 
 # Install dependencies.
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
-    install(
-        DIRECTORY
-            ${CMAKE_BINARY_DIR}/temp_install/
-        DESTINATION
-            ${CMAKE_INSTALL_PREFIX}
-        USE_SOURCE_PERMISSIONS
+    foreach(dependency ${UAGENT_DEPENDS})
+        install(
+            DIRECTORY
+                ${CMAKE_BINARY_DIR}/temp_install/${dependency}/
+            DESTINATION .
+            USE_SOURCE_PERMISSIONS
+            COMPONENT
+                ${dependency}
         )
+    endforeach()
 endif()
 
 # Generate Windows Installer.
@@ -510,10 +513,11 @@ if(WIN32 AND UAGENT_INSTALLER)
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
-	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
+        file(TO_NATIVE_PATH $ENV{PROGRAMFILES}/eProsima _install_root)
+        set(CPACK_NSIS_INSTALL_ROOT ${_install_root})
     else()
         set(PF86_STR "PROGRAMFILES(x86)")
-	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
+        set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
 
     # Setup configure files for NSIS installer.
@@ -521,17 +525,18 @@ if(WIN32 AND UAGENT_INSTALLER)
         ${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake @ONLY
         )
     # Setup redistributables installation nsh.
-    if(${MSVC_ARCH} STREQUAL "x64Win64VS2017")
-        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,amd64,14.0,bundle")
-	set(REDIST_VERSION "14.15.26706.0")
-	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/20ef12bb-5283-41d7-90f7-eb3bb7355de7/8b58fd89f948b2430811db3da92299a6/vc_redist.x64.exe")
-	set(REDIST_EXEC "vc_redist_x64.exe")
-    elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2017")
-        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,x86,14.0,bundle")
-	set(REDIST_VERSION "14.15.26706.0")
-	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/749aa419-f9e4-4578-a417-a43786af205e/d59197078cc425377be301faba7dd87a/vc_redist.x86.exe")
-	set(REDIST_EXEC "vc_redist_i86.exe")
+    if(${MSVC_ARCH} STREQUAL "x64Win64VS2015" OR ${MSVC_ARCH} STREQUAL "x64Win64VS2017" OR ${MSVC_ARCH} STREQUAL "x64Win64VS2019")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\VC,redist.x64,amd64,14.21,bundle")
+        set(REDIST_VERSION "14.21.27702.2")
+        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x64.exe")
+        set(REDIST_EXEC "VC_redist.x64.exe")
+    elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2015" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2017" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2019")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\VC,redist.x86,x86,14.21,bundle")
+        set(REDIST_VERSION "14.21.27702.2")
+        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x86.exe")       
+        set(REDIST_EXEC "VC_redist.x86.exe")
     endif()
+
     configure_file(${PROJECT_SOURCE_DIR}/cmake/packaging/windows/InstallRedistributables.nsh.in
         ${PROJECT_BINARY_DIR}/cmake/packaging/windows/InstallRedistributables.nsh @ONLY
         )
