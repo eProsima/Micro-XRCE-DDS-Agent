@@ -30,15 +30,15 @@ class SessionManager
 {
 public:
     void on_create_client(
-            EndPoint* raw_endpoint,
+            const EndPoint* raw_endpoint,
             uint32_t client_key,
             uint8_t session_id);
 
     void on_delete_client(
-            EndPoint* raw_endpoint);
+            const EndPoint* raw_endpoint);
 
     uint32_t get_client_key(
-            EndPoint* raw_endpoint);
+            const EndPoint* raw_endpoint);
 
     std::unique_ptr<EndPoint> get_endpoint(
             uint32_t client_key);
@@ -51,7 +51,7 @@ private:
 
 template<typename T>
 void SessionManager<T>::on_create_client(
-        EndPoint* raw_endpoint,
+        const EndPoint* raw_endpoint,
         uint32_t client_key,
         uint8_t session_id)
 {
@@ -95,7 +95,7 @@ void SessionManager<T>::on_create_client(
 
 template<typename T>
 void SessionManager<T>::on_delete_client(
-        EndPoint* raw_endpoint)
+        const EndPoint* raw_endpoint)
 {
     T endpoint = static_cast<T*>(raw_endpoint);
     std::lock_guard<std::mutex> lock(mtx_);
@@ -115,7 +115,7 @@ void SessionManager<T>::on_delete_client(
 
 template<typename T>
 uint32_t SessionManager<T>::get_client_key(
-        EndPoint* raw_endpoint)
+        const EndPoint* raw_endpoint)
 {
     uint32_t client_key = 0;
     T* endpoint = static_cast<T*>(raw_endpoint);
