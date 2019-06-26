@@ -18,6 +18,7 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/utils/Time.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -51,9 +52,18 @@ void Processor<EndPoint>::process_input_packet(InputPacket&& input_packet)
     else
     {
         dds::xrce::MessageHeader header = input_packet.message->get_header();
-        dds::xrce::ClientKey client_key = (128 > header.session_id()) ?
-                                          header.client_key() :
-                                          server_.get_client_key(input_packet.source.get());
+        dds::xrce::ClientKey client_key = dds::xrce::CLIENTKEY_INVALID;
+        if (128 > header.session_id())
+        {
+            client_key = header.client_key();
+        }
+        else
+        {
+            server_.get_client_key(input_packet.source.get(), client_key);
+        }
+//        dds::xrce::ClientKey client_key = (128 > header.session_id())
+//                ? header.client_key()
+//                : server_.get_client_key(input_packet.source.get());
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
@@ -182,8 +192,11 @@ bool Processor<EndPoint>::process_create_client_submessage(
           input_packet.message->get_payload(client_payload))
     {
         /* Check whether there is a client associate with the source. */
-        dds::xrce::ClientKey client_key = server_.get_client_key(input_packet.source.get());
-        if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
+//        dds::xrce::ClientKey client_key = server_.get_client_key(input_packet.source.get());
+//        if ((dds::xrce::CLIENTKEY_INVALID != client_key) &&
+//            (client_payload.client_representation().client_key() != client_key))
+        dds::xrce::ClientKey client_key;
+        if (server_.get_client_key(input_packet.source.get(), client_key) &&
             (client_payload.client_representation().client_key() != client_key))
         {
             dds::xrce::StatusValue delete_status = root_.delete_client(client_key).status();
@@ -214,8 +227,11 @@ bool Processor<EndPoint>::process_create_client_submessage(
 
             if (dds::xrce::STATUS_OK == result.status())
             {
-                server_.on_create_client(input_packet.source.get(),
-                                          client_payload.client_representation());
+                server_.establish_session(input_packet.source.get(),
+                                          client_payload.client_representation().client_key(),
+                                          client_payload.client_representation().session_id());
+//                server_.on_create_client(input_packet.source.get(),
+//                                          client_payload.client_representation());
             }
             /* STATUS_AGENT payload. */
             dds::xrce::STATUS_AGENT_Payload status_agent;
@@ -317,7 +333,8 @@ bool Processor<EndPoint>::process_delete_submessage(
             status_payload.result(root_.delete_client(client_key));
             if (dds::xrce::STATUS_OK == status_payload.result().status())
             {
-                server_.on_delete_client(input_packet.source.get());
+                server_.destroy_session(input_packet.source.get());
+//                server_.on_delete_client(input_packet.source.get());
             }
 
             client.session().push_output_submessage(
@@ -680,8 +697,9 @@ bool Processor<EndPoint>::read_data_callback(
 
     /* Set output packet and serialize DATA. */
     OutputPacket output_packet;
-    output_packet.destination = server_.get_source(cb_args.client_key);
-    if (output_packet.destination)
+//    output_packet.destination = server_.get_source(cb_args.client_key);
+//    if (output_packet.destination)
+    if (server_.get_endpoint(conversion::clientkey_to_raw(cb_args.client_key), output_packet.destination))
     {
         /* Push submessage into the output stream. */
         rv = client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload, timeout);
@@ -786,7 +804,7 @@ void Processor<EndPoint>::check_heartbeats()
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {
-        if ((output_packet.destination = server_.get_source(client->get_client_key())) &&
+        if (server_.get_endpoint(conversion::clientkey_to_raw(client->get_client_key()), output_packet.destination) &&
              ProxyClient::State::alive == client->get_state())
         {
             header.session_id(client->get_session_id());
@@ -808,6 +826,8 @@ void Processor<EndPoint>::check_heartbeats()
         }
     }
 }
+
+template class Processor<IPv4EndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

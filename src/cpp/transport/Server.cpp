@@ -17,6 +17,7 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/logger/Logger.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 
 #include <functional>
 
@@ -199,6 +200,9 @@ void Server<EndPoint>::heartbeat_loop()
         std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
     }
 }
+
+template class Server<IPv4EndPoint>;
+//typedef Server<IPv4EndPoint> IPv4Server;
 
 } // namespace uxr
 } // namespace eprosima

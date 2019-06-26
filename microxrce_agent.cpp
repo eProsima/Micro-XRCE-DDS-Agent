@@ -37,10 +37,11 @@ int main(int argc, char** argv)
 
     /* CLI subcommands. */
     eprosima::uxr::cli::UDPSubcommand udp_subcommand(app);
-    eprosima::uxr::cli::TCPSubcommand tcp_subcommand(app);
-#ifndef _WIN32
-    eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
-    eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
+//    eprosima::uxr::cli::TCPSubcommand tcp_subcommand(app);
+//#ifndef _WIN32
+//    eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
+//    eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
+//#endif
     eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 #endif
 
