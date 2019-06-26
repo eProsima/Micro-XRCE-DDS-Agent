@@ -16,6 +16,7 @@
 #define UXR_AGENT_TRANSPORT_SERVER_HPP_
 
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/transport/SessionManager.hpp>
 #include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
@@ -28,7 +29,8 @@ namespace uxr {
 
 class Processor;
 
-class Server : public Agent
+template<typename EndPoint>
+class Server : public Agent, public SessionManager<EndPoint>
 {
     friend class Processor;
 public:

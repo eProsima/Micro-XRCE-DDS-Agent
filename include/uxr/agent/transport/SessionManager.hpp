@@ -15,7 +15,6 @@
 #ifndef UXR_AGENT_TRANSPORT_SESSION_MANAGER_HPP_
 #define UXR_AGENT_TRANSPORT_SESSION_MANAGER_HPP_
 
-#include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <memory>
@@ -25,37 +24,38 @@
 namespace eprosima {
 namespace uxr {
 
-template<typename T>
+template<typename EndPoint>
 class SessionManager
 {
 public:
-    void on_create_client(
-            const EndPoint* raw_endpoint,
+    void establish_session(
+            const EndPoint& endpoint,
             uint32_t client_key,
             uint8_t session_id);
 
-    void on_delete_client(
-            const EndPoint* raw_endpoint);
+    void destroy_session(
+            const EndPoint& endpoint);
 
-    uint32_t get_client_key(
-            const EndPoint* raw_endpoint);
+    bool get_client_key(
+            const EndPoint& endpoint,
+            uint32_t& client_key);
 
-    std::unique_ptr<EndPoint> get_endpoint(
-            uint32_t client_key);
+    bool get_endpoint(
+            uint32_t client_key,
+            EndPoint& endpoint);
 
 private:
-    std::map<T, uint32_t> endpoint_to_client_map_;
-    std::map<uint32_t, T> client_to_endpoint_map_;
+    std::map<EndPoint, uint32_t> endpoint_to_client_map_;
+    std::map<uint32_t, EndPoint> client_to_endpoint_map_;
     std::mutex mtx_;
 };
 
-template<typename T>
-void SessionManager<T>::on_create_client(
-        const EndPoint* raw_endpoint,
+template<typename EndPoint>
+void SessionManager<EndPoint>::establish_session(
+        const EndPoint& endpoint,
         uint32_t client_key,
         uint8_t session_id)
 {
-    T* endpoint = static_cast<T*>(raw_endpoint);
     std::lock_guard<std::mutex> lock(mtx_);
 
     auto it_client = client_to_endpoint_map_.find(client_key);
@@ -66,17 +66,17 @@ void SessionManager<T>::on_create_client(
     }
     else
     {
-        client_to_endpoint_map_.insert(std::make_pair(client_key, *endpoint));
+        client_to_endpoint_map_.emplace(client_key, endpoint);
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session established"),
             "client_key: 0x{:08}, address: {}",
             client_key,
-            *endpoint);
+            endpoint);
     }
 
     if (127 < session_id)
     {
-        auto it_endpoint = endpoint_to_client_map_.find(*endpoint);
+        auto it_endpoint = endpoint_to_client_map_.find(endpoint);
         if (it_endpoint != endpoint_to_client_map_.end())
         {
             it_endpoint->second = client_key;
@@ -84,66 +84,68 @@ void SessionManager<T>::on_create_client(
                 UXR_DECORATE_GREEN("address updated"),
                 "client_ket: 0x{:08}, address: {}",
                 client_key,
-                *endpoint);
+                endpoint);
         }
         else
         {
-            endpoint_to_client_map_.insert(std::make_pair(*endpoint, client_key));
+            endpoint_to_client_map_.emplace(endpoint, client_key);
         }
     }
 }
 
-template<typename T>
-void SessionManager<T>::on_delete_client(
-        const EndPoint* raw_endpoint)
+template<typename EndPoint>
+void SessionManager<EndPoint>::destroy_session(
+        const EndPoint& endpoint)
 {
-    T endpoint = static_cast<T*>(raw_endpoint);
     std::lock_guard<std::mutex> lock(mtx_);
 
-    auto it = endpoint_to_client_map_.find(*endpoint);
+    auto it = endpoint_to_client_map_.find(endpoint);
     if (it != endpoint_to_client_map_.end())
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session closed"),
             "client_key: 0x{:08X}, address: {}",
             it->second,
-             *endpoint);
+            endpoint);
         client_to_endpoint_map_.erase(it->second);
         endpoint_to_client_map_.erase(it->first);
     }
 }
 
-template<typename T>
-uint32_t SessionManager<T>::get_client_key(
-        const EndPoint* raw_endpoint)
+template<typename EndPoint>
+bool SessionManager<EndPoint>::get_client_key(
+        const EndPoint& endpoint,
+        uint32_t& client_key)
 {
-    uint32_t client_key = 0;
-    T* endpoint = static_cast<T*>(raw_endpoint);
+    bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
 
     auto it = endpoint_to_client_map_.find(*endpoint);
     if (it != endpoint_to_client_map_.end())
     {
         client_key = it->second;
+        rv = true;
     }
 
-    return client_key;
+    return rv;
 }
 
-template<typename T>
-std::unique_ptr<EndPoint> SessionManager<T>::get_endpoint(
-        uint32_t client_key)
+template<typename EndPoint>
+bool SessionManager<EndPoint>::get_endpoint(
+        uint32_t client_key,
+        EndPoint& endpoint)
 {
-    std::unique_ptr<EndPoint> raw_endpoint;
+    bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
 
     auto it = client_to_endpoint_map_.find(client_key);
     if (it != client_to_endpoint_map_.end())
     {
-        raw_endpoint.reset(new T(it->second));
+        endpoint = it->second;
+        rv = true;
     }
 
-    return raw_endpoint;
+    return rv;
 }
 
 } // namespace uxr
