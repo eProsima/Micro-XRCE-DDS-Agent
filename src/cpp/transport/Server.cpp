@@ -25,19 +25,22 @@
 namespace eprosima {
 namespace uxr {
 
-Server::Server(Middleware::Kind middleware_kind)
-    : processor_(new Processor(*this, *root_, middleware_kind))
+template<typename EndPoint>
+Server<EndPoint>::Server(Middleware::Kind middleware_kind)
+    : processor_(new Processor<EndPoint>(*this, *root_, middleware_kind))
     , running_cond_(false)
     , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
     , output_scheduler_(SERVER_QUEUE_MAX_SIZE)
 {}
 
-Server::~Server()
+template<typename EndPoint>
+Server<EndPoint>::~Server()
 {
     delete processor_;
 }
 
-bool Server::run()
+template<typename EndPoint>
+bool Server<EndPoint>::run()
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -61,7 +64,8 @@ bool Server::run()
     return true;
 }
 
-bool Server::stop()
+template<typename EndPoint>
+bool Server<EndPoint>::stop()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -101,7 +105,8 @@ bool Server::stop()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool Server::enable_discovery(uint16_t discovery_port)
+template<typename EndPoint>
+bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -111,14 +116,16 @@ bool Server::enable_discovery(uint16_t discovery_port)
     return rv;
 }
 
-bool Server::disable_discovery()
+template<typename EndPoint>
+bool Server<EndPoint>::disable_discovery()
 {
     return close_discovery();
 }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool Server::enable_p2p(uint16_t p2p_port)
+template<typename EndPoint>
+bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -128,13 +135,15 @@ bool Server::enable_p2p(uint16_t p2p_port)
     return rv;
 }
 
-bool Server::disable_p2p()
+template<typename EndPoint>
+bool Server<EndPoint>::disable_p2p()
 {
     return close_p2p();
 }
 #endif
 
-void Server::push_output_packet(OutputPacket output_packet)
+template<typename EndPoint>
+void Server<EndPoint>::push_output_packet(OutputPacket output_packet)
 {
     if (output_packet.destination && output_packet.message)
     {
@@ -142,7 +151,8 @@ void Server::push_output_packet(OutputPacket output_packet)
     }
 }
 
-void Server::receiver_loop()
+template<typename EndPoint>
+void Server<EndPoint>::receiver_loop()
 {
     InputPacket input_packet;
     while (running_cond_)
@@ -154,7 +164,8 @@ void Server::receiver_loop()
     }
 }
 
-void Server::sender_loop()
+template<typename EndPoint>
+void Server<EndPoint>::sender_loop()
 {
     OutputPacket output_packet;
     while (running_cond_)
@@ -166,7 +177,8 @@ void Server::sender_loop()
     }
 }
 
-void Server::processing_loop()
+template<typename EndPoint>
+void Server<EndPoint>::processing_loop()
 {
     InputPacket input_packet;
     while (running_cond_)
@@ -178,7 +190,8 @@ void Server::processing_loop()
     }
 }
 
-void Server::heartbeat_loop()
+template<typename EndPoint>
+void Server<EndPoint>::heartbeat_loop()
 {
     while (running_cond_)
     {
