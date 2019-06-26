@@ -30,17 +30,20 @@ namespace uxr {
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : UDPv4ServerBase{agent_port, middleware_kind}
+    : Server<IPv4EndPoint>{middleware_kind}
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
-    , port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
 #endif
 #ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{*this}
 #endif
-{}
+{
+    dds::xrce::TransportAddressMedium medium_locator;
+    medium_locator.port(agent_port);
+    transport_address_.medium_locator(medium_locator);
+}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -202,11 +205,11 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-                input_packet.message->get_buf(),
-                input_packet.message->get_len());
+//            UXR_AGENT_LOG_MESSAGE(
+//                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+//                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
+//                input_packet.message->get_buf(),
+//                input_packet.message->get_len());
             rv = true;
         }
     }
@@ -240,11 +243,11 @@ bool UDPv4Agent::send_message(OutputPacket output_packet)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())
         {
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-                output_packet.message->get_buf(),
-                output_packet.message->get_len());
+//            UXR_AGENT_LOG_MESSAGE(
+//                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+//                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
+//                output_packet.message->get_buf(),
+//                output_packet.message->get_len());
             rv = true;
         }
     }

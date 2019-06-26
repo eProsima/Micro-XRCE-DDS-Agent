@@ -15,7 +15,8 @@
 #ifndef UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 #define UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 
-#include <uxr/agent/transport/udp/UDPv4ServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
@@ -31,7 +32,7 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPv4Agent : public UDPv4ServerBase
+class UDPv4Agent : public Server<IPv4EndPoint>
 {
 public:
     UDPv4Agent(
@@ -68,7 +69,7 @@ private:
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    uint16_t port_;
+    dds::xrce::TransportAddress transport_address_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux discovery_server_;
 #endif
