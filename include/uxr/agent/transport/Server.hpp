@@ -27,12 +27,13 @@
 namespace eprosima {
 namespace uxr {
 
+template<typename EndPoint>
 class Processor;
 
 template<typename EndPoint>
 class Server : public Agent, public SessionManager<EndPoint>
 {
-    friend class Processor;
+    friend class Processor<EndPoint>;
 public:
     Server(Middleware::Kind middleware_kind);
 
@@ -97,7 +98,7 @@ private:
     void heartbeat_loop();
 
 protected:
-    Processor* processor_;
+    Processor<EndPoint>* processor_;
 
 private:
     std::mutex mtx_;

@@ -33,21 +33,25 @@ namespace eprosima {
 namespace uxr {
 
 class Root;
+
+template<typename EndPoint>
 class Server;
+
 class ProxyClient;
 struct InputPacket;
 struct OutputPacket;
 struct ReadCallbackArgs;
 
+template<typename EndPoint>
 class Processor
 {
 public:
     Processor(
-            Server& server,
+            Server<EndPoint>& server,
             Root& root,
             Middleware::Kind middleware_kind);
 
-    ~Processor();
+    ~Processor() = default;
 
     void process_input_packet(
             InputPacket&& input_packet);
@@ -117,7 +121,7 @@ private:
             std::chrono::milliseconds timeout);
 
 private:
-    Server& server_;
+    Server<EndPoint>& server_;
     Middleware::Kind middleware_kind_;
     Root& root_;
 };
