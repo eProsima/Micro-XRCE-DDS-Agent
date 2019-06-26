@@ -62,7 +62,7 @@ void SessionManager<EndPoint>::establish_session(
     if (it_client != client_to_endpoint_map_.end())
     {
         endpoint_to_client_map_.erase(it_client->second);
-        it_client->second = *endpoint;
+        it_client->second = endpoint;
     }
     else
     {
@@ -120,7 +120,7 @@ bool SessionManager<EndPoint>::get_client_key(
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
 
-    auto it = endpoint_to_client_map_.find(*endpoint);
+    auto it = endpoint_to_client_map_.find(endpoint);
     if (it != endpoint_to_client_map_.end())
     {
         client_key = it->second;

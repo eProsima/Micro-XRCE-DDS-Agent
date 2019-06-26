@@ -22,19 +22,21 @@
 namespace eprosima {
 namespace uxr {
 
-class EndPoint;
-
 typedef std::unique_ptr<InputMessage> InputMessagePtr;
+
+template<typename EndPoint>
 struct InputPacket
 {
-    std::shared_ptr<EndPoint> source;
+    EndPoint source;
     InputMessagePtr message;
 };
 
 typedef std::shared_ptr<OutputMessage> OutputMessagePtr;
+
+template<typename EndPoint>
 struct OutputPacket
 {
-    std::shared_ptr<EndPoint> destination;
+    EndPoint destination;
     OutputMessagePtr message;
 };
 

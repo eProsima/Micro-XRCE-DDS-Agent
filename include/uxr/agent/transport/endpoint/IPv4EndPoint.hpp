@@ -25,6 +25,8 @@ namespace uxr {
 class IPv4EndPoint : public EndPoint
 {
 public:
+    IPv4EndPoint() = default;
+
     IPv4EndPoint(
             uint32_t addr,
             uint16_t port)
@@ -33,6 +35,11 @@ public:
     {}
 
     ~IPv4EndPoint() final = default;
+
+    bool operator<(const IPv4EndPoint& other) const
+    {
+        return (addr_ < other.addr_) || ((addr_ == other.addr_) && (port_ < other.port_));
+    }
 
     std::ostream& print(std::ostream& os) const final
     {

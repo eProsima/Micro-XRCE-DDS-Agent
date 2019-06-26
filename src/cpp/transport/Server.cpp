@@ -144,9 +144,11 @@ bool Server<EndPoint>::disable_p2p()
 #endif
 
 template<typename EndPoint>
-void Server<EndPoint>::push_output_packet(OutputPacket output_packet)
+void Server<EndPoint>::push_output_packet(
+        OutputPacket<EndPoint> output_packet)
 {
-    if (output_packet.destination && output_packet.message)
+//    if (output_packet.destination && output_packet.message)
+    if (output_packet.message)
     {
         output_scheduler_.push(std::move(output_packet), 0);
     }
@@ -155,7 +157,7 @@ void Server<EndPoint>::push_output_packet(OutputPacket output_packet)
 template<typename EndPoint>
 void Server<EndPoint>::receiver_loop()
 {
-    InputPacket input_packet;
+    InputPacket<EndPoint> input_packet;
     while (running_cond_)
     {
         if (recv_message(input_packet, RECEIVE_TIMEOUT))
@@ -168,7 +170,7 @@ void Server<EndPoint>::receiver_loop()
 template<typename EndPoint>
 void Server<EndPoint>::sender_loop()
 {
-    OutputPacket output_packet;
+    OutputPacket<EndPoint> output_packet;
     while (running_cond_)
     {
         if (output_scheduler_.pop(output_packet))
@@ -181,7 +183,7 @@ void Server<EndPoint>::sender_loop()
 template<typename EndPoint>
 void Server<EndPoint>::processing_loop()
 {
-    InputPacket input_packet;
+    InputPacket<EndPoint> input_packet;
     while (running_cond_)
     {
         if (input_scheduler_.pop(input_packet))
@@ -202,7 +204,6 @@ void Server<EndPoint>::heartbeat_loop()
 }
 
 template class Server<IPv4EndPoint>;
-//typedef Server<IPv4EndPoint> IPv4Server;
 
 } // namespace uxr
 } // namespace eprosima

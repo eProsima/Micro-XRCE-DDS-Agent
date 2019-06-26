@@ -59,10 +59,11 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint> output_packet) final;
 
     int get_error() final;
 

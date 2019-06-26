@@ -53,7 +53,8 @@ public:
 #endif
 
 private:
-    void push_output_packet(OutputPacket output_packet);
+    void push_output_packet(
+            OutputPacket<EndPoint> output_packet);
 
 //    virtual void on_create_client(
 //            EndPoint* source,
@@ -82,10 +83,11 @@ private:
 #endif
 
     virtual bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<EndPoint>& input_packet,
             int timeout) = 0;
 
-    virtual bool send_message(OutputPacket output_packet) = 0;
+    virtual bool send_message(
+            OutputPacket<EndPoint> output_packet) = 0;
 
     virtual int get_error() = 0;
 
@@ -107,8 +109,8 @@ private:
     std::thread processing_thread_;
     std::thread heartbeat_thread_;
     std::atomic<bool> running_cond_;
-    FCFSScheduler<InputPacket> input_scheduler_;
-    FCFSScheduler<OutputPacket> output_scheduler_;
+    FCFSScheduler<InputPacket<EndPoint>> input_scheduler_;
+    FCFSScheduler<OutputPacket<EndPoint>> output_scheduler_;
 };
 
 } // namespace uxr

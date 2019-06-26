@@ -189,7 +189,9 @@ bool UDPv4Agent::close_p2p()
 }
 #endif
 
-bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
+bool UDPv4Agent::recv_message(
+        InputPacket<IPv4EndPoint>& input_packet,
+        int timeout)
 {
     bool rv = false;
     struct sockaddr client_addr;
@@ -204,7 +206,7 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
             uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
             uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-            input_packet.source.reset(new IPv4EndPoint(addr, port));
+            input_packet.source = IPv4EndPoint(addr, port);
 //            UXR_AGENT_LOG_MESSAGE(
 //                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
 //                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
@@ -224,15 +226,15 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool UDPv4Agent::send_message(OutputPacket output_packet)
+bool UDPv4Agent::send_message(
+        OutputPacket<IPv4EndPoint> output_packet)
 {
     bool rv = false;
-    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
-    client_addr.sin_port = destination->get_port();
-    client_addr.sin_addr.s_addr = destination->get_addr();
+    client_addr.sin_port = output_packet.destination.get_port();
+    client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
     ssize_t bytes_sent = sendto(poll_fd_.fd,
                                 output_packet.message->get_buf(),
                                 output_packet.message->get_len(),
