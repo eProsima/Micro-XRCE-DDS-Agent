@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,12 @@
 #include <uxr/agent/transport/endpoint/EndPoint.hpp>
 
 #include <stdint.h>
+#include <iostream>
 
 namespace eprosima {
 namespace uxr {
 
-class IPv4EndPoint : public EndPoint
+class IPv4EndPoint
 {
 public:
     IPv4EndPoint() = default;
@@ -34,22 +35,22 @@ public:
         , port_(port)
     {}
 
-    ~IPv4EndPoint() final = default;
+    ~IPv4EndPoint() = default;
 
     bool operator<(const IPv4EndPoint& other) const
     {
         return (addr_ < other.addr_) || ((addr_ == other.addr_) && (port_ < other.port_));
     }
 
-    std::ostream& print(std::ostream& os) const final
-    {
-        os << int(uint8_t(addr_)) << "."
-           << int(uint8_t(addr_ >> 8)) << "."
-           << int(uint8_t(addr_ >> 16)) << "."
-           << int(uint8_t(addr_ >> 24)) << ":"
-           << port_;
-        return os;
-    }
+   friend std::ostream& operator<<(std::ostream& os, const IPv4EndPoint& endpoint)
+   {
+       os << int(uint8_t(endpoint.addr_)) << "."
+          << int(uint8_t(endpoint.addr_ >> 8)) << "."
+          << int(uint8_t(endpoint.addr_ >> 16)) << "."
+          << int(uint8_t(endpoint.addr_ >> 24)) << ":"
+          << endpoint.get_port();
+       return os;
+   }
 
     uint32_t get_addr() const { return addr_; }
     uint16_t get_port() const { return port_; }
@@ -58,6 +59,7 @@ private:
     uint32_t addr_;
     uint16_t port_;
 };
+
 
 } // namespace uxr
 } // namespace eprosima
