@@ -17,7 +17,9 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/logger/Logger.hpp>
+
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 
 #include <functional>
 
@@ -204,6 +206,7 @@ void Server<EndPoint>::heartbeat_loop()
 }
 
 template class Server<IPv4EndPoint>;
+template class Server<IPv6EndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

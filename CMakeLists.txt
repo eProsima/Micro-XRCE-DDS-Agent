@@ -128,6 +128,7 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
+        src/cpp/transport/udp/UDPv6AgentLinux.cpp
 #        src/cpp/transport/tcp/TCPv4AgentLinux.cpp
 #        src/cpp/transport/serial/SerialServerLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
