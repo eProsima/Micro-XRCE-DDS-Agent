@@ -32,6 +32,8 @@
 namespace eprosima {
 namespace uxr {
 
+extern template class Server<IPv4EndPoint>; // Explicit instantiation declaration.
+
 class UDPv4Agent : public Server<IPv4EndPoint>
 {
 public:

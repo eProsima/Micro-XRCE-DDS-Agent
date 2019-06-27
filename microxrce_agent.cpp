@@ -36,7 +36,8 @@ int main(int argc, char** argv)
     app.get_formatter()->column_width(42);
 
     /* CLI subcommands. */
-    eprosima::uxr::cli::UDPSubcommand udp_subcommand(app);
+    eprosima::uxr::cli::UDPv4Subcommand udpv4_subcommand(app);
+    eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
 //    eprosima::uxr::cli::TCPSubcommand tcp_subcommand(app);
 //#ifndef _WIN32
 //    eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);

@@ -86,6 +86,8 @@ bool UDPv6Agent::init()
             /* Poll setup. */
             poll_fd_.events = POLLIN;
 
+            rv = true;
+
 // TODO (julian): get local address from getifaddrs.
 //            /* Get local address. */
 //            int fd = socket(PF_INET6, SOCK_DGRAM, 0);
