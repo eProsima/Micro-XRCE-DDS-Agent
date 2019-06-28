@@ -194,18 +194,23 @@ bool UDPv4Agent::recv_message(
         int timeout)
 {
     bool rv = false;
-    struct sockaddr client_addr;
+    struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received = recvfrom(poll_fd_.fd, buffer_, sizeof(buffer_), 0, &client_addr, &client_addr_len);
+        ssize_t bytes_received = recvfrom(poll_fd_.fd,
+                                          buffer_,
+                                          sizeof(buffer_),
+                                          0,
+                                          reinterpret_cast<sockaddr*>(&client_addr),
+                                          &client_addr_len);
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
-            uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-            uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
+            uint32_t addr = client_addr.sin_addr.s_addr;
+            uint16_t port = client_addr.sin_port;
             input_packet.source = IPv4EndPoint(addr, port);
 //            UXR_AGENT_LOG_MESSAGE(
 //                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),

@@ -29,8 +29,8 @@ InternalClient::InternalClient(
         uint16_t port,
         uint32_t remote_client_key,
         uint32_t local_client_key)
-    : agent_{agent}
-    , ip_{ip}
+    : agent_(agent)
+    , ip_(ip)
     , port_{port}
     , domains_{}
     , topics_{}
@@ -104,7 +104,7 @@ bool InternalClient::run()
     if (agent_.create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, Middleware::Kind::CED, result))
     {
         /* Transport. */
-        if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))
+        if (uxr_init_udp_transport(&transport_, &platform_, UXR_IPv4, ip.c_str(), port_))
         {
             /* Session. */
             uxr_init_session(&session_, &transport_.comm, local_client_key_);

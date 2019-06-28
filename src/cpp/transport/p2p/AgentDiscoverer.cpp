@@ -20,7 +20,7 @@ namespace uxr {
 
 AgentDiscoverer::AgentDiscoverer(
         Agent& agent)
-    : agent_{agent}
+    : agent_(agent)
     , mtx_{}
     , thread_{}
     , running_cond_{false}

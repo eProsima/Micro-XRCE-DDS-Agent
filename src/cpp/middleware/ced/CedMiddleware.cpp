@@ -182,7 +182,7 @@ bool CedMiddleware::create_datawriter_by_ref(
         if (datawriters_.end() == it_datawriter)
         {
             uint16_t topic_id;
-            if (it_publisher->second->participant()->find_topic(ref, topic_id)) // TODO: get reference.
+            if (it_publisher->second->get_participant()->find_topic(ref, topic_id)) // TODO: get reference.
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -218,7 +218,7 @@ bool CedMiddleware::create_datawriter_by_xml(
         if (datawriters_.end() == it_datawriter)
         {
             uint16_t topic_id;
-            if (it_publisher->second->participant()->find_topic(xml, topic_id)) // TODO: parse XML.
+            if (it_publisher->second->get_participant()->find_topic(xml, topic_id)) // TODO: parse XML.
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -254,7 +254,7 @@ bool CedMiddleware::create_datareader_by_ref(
         if (datareaders_.end() == it_datareader)
         {
             uint16_t topic_id;
-            if (it_subscriber->second->participant()->find_topic(ref, topic_id)) // TODO: get reference.
+            if (it_subscriber->second->get_participant()->find_topic(ref, topic_id)) // TODO: get reference.
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -289,7 +289,7 @@ bool CedMiddleware::create_datareader_by_xml(
         if (datareaders_.end() == it_datareader)
         {
             uint16_t topic_id;
-            if (it_subscriber->second->participant()->find_topic(xml, topic_id)) // TODO: parse XML.
+            if (it_subscriber->second->get_participant()->find_topic(xml, topic_id)) // TODO: parse XML.
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -387,7 +387,7 @@ bool CedMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id());
+        rv = (domain_id == it->second->get_domain_id());
     }
     return rv;
 }
@@ -401,7 +401,7 @@ bool CedMiddleware::matched_participant_from_xml(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id());
+        rv = (domain_id == it->second->get_domain_id());
     }
     return rv;
 }

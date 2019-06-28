@@ -308,7 +308,7 @@ CedTopic::~CedTopic()
     participant_->unregister_topic(global_topic_->name());
 }
 
-CedGlobalTopic* CedTopic::global_topic() const
+CedGlobalTopic* CedTopic::get_global_topic() const
 {
     return global_topic_.get();
 }
@@ -320,7 +320,7 @@ bool CedDataWriter::write(
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const
 {
-    return topic_->global_topic()->write(data, write_access_, topic_src_, errcode);
+    return topic_->get_global_topic()->write(data, write_access_, topic_src_, errcode);
 }
 
 /**********************************************************************************************************************
@@ -331,7 +331,7 @@ bool CedDataReader::read(
         std::chrono::milliseconds timeout,
         uint8_t &errcode)
 {
-    return topic_->global_topic()->read(data, timeout, last_read_, read_access_, errcode);
+    return topic_->get_global_topic()->read(data, timeout, last_read_, read_access_, errcode);
 }
 
 } // namespace uxr

@@ -31,7 +31,7 @@ public:
     OutputMessage(
             const dds::xrce::MessageHeader& header,
             size_t len)
-        : buf_(new uint8_t[len]{0}),
+        : buf_(new uint8_t[len]),
           len_(len),
           fastbuffer_(reinterpret_cast<char*>(buf_), len_),
           serializer_(fastbuffer_)
