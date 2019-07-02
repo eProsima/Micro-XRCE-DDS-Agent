@@ -14,8 +14,28 @@
 
 #include <uxr/agent/utils/CLI.hpp>
 
+#ifndef _WIN32
+static bool terminate_flag = false;
+
+static void sigterm_handler(int signo)
+{
+    if (signo == SIGTERM || signo == SIGINT)
+    {
+        terminate_flag = true;
+    }
+}
+#endif
+
 int main(int argc, char** argv)
 {
+
+#ifndef _WIN32
+    if (signal(SIGTERM, &sigterm_handler) == SIG_ERR
+       || signal(SIGINT, &sigterm_handler) == SIG_ERR)
+    {
+        return -1;
+    }
+#endif
 
     /* CLI application. */
     CLI::App app("eProsima Micro XRCE-DDS Agent");
@@ -57,12 +77,20 @@ int main(int argc, char** argv)
     }
 
     /* Waiting until exit. */
+#ifdef _WIN32
     std::cin.clear();
     char exit_flag = 0;
     while ('q' != exit_flag)
     {
         std::cin >> exit_flag;
     }
+#else
+    /* Wait for SIGTERM/SIGINT instead, as reading from stdin may be redirected to /dev/null. */
+    while (!terminate_flag)
+    {
+        sleep(15);
+    }
+#endif
 
     return 0;
 }

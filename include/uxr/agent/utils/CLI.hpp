@@ -26,6 +26,8 @@
 
 #include <termios.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 #endif //_WIN32
 
 #include <uxr/agent/Agent.hpp>
@@ -264,7 +266,11 @@ public:
 private:
     void server_callback()
     {
+#ifdef _WIN32
         std::cout << "Enter 'q' for exit" << std::endl;
+#else
+        std::cout << "Press CTRL+C to exit" << std::endl;
+#endif
         if (launch_server())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
