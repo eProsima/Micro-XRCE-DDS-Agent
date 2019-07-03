@@ -445,6 +445,11 @@ bool TCPv4Agent::read_message(int timeout)
                     rv = true;
                 }
             }
+            else if (0 < ((POLLERR | POLLHUP) & conn.poll_fd->revents))
+            {
+                /* Disconnect failed connections. */
+                close_connection(conn);
+            }
         }
     }
     else
@@ -519,6 +524,10 @@ size_t TCPv4Agent::recv_locking(
             errcode = (0 == poll_rv) ? 0 : 1;
         }
     }
+    else
+    {
+        errcode = 1;
+    }
     return rv;
 }
 
@@ -543,6 +552,10 @@ size_t TCPv4Agent::send_locking(
         {
             errcode = 1;
         }
+    }
+    else
+    {
+        errcode = 1;
     }
     return rv;
 }
