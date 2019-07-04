@@ -75,7 +75,7 @@ bool UDPv4Agent::init()
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
 
-        if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+        if (-1 != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
             poll_fd_.events = POLLIN;
             rv = true;
@@ -92,6 +92,7 @@ bool UDPv4Agent::init()
                 transport_address_.medium_locator().port());
 
 
+// TODO (julian): get local address from getifaddrs.
 //            /* Get local address. */
 //            int fd = socket(PF_INET, SOCK_DGRAM, 0);
 //            struct sockaddr_in temp_addr;
@@ -147,12 +148,12 @@ bool UDPv4Agent::close()
     bool rv = false;
     if (0 == ::close(poll_fd_.fd))
     {
+        poll_fd_.fd = -1;
+        rv = true;
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.medium_locator().port());
-        poll_fd_.fd = -1;
-        rv = true;
     }
     else
     {
@@ -205,12 +206,13 @@ bool UDPv4Agent::recv_message(
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received = recvfrom(poll_fd_.fd,
-                                          buffer_,
-                                          sizeof(buffer_),
-                                          0,
-                                          reinterpret_cast<sockaddr*>(&client_addr),
-                                          &client_addr_len);
+        ssize_t bytes_received =
+                recvfrom(poll_fd_.fd,
+                         buffer_,
+                         sizeof(buffer_),
+                         0,
+                         reinterpret_cast<sockaddr*>(&client_addr),
+                         &client_addr_len);
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
@@ -247,12 +249,13 @@ bool UDPv4Agent::send_message(
     client_addr.sin_port = output_packet.destination.get_port();
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
 
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                (struct sockaddr*)&client_addr,
-                                sizeof(client_addr));
+    ssize_t bytes_sent =
+            sendto(poll_fd_.fd,
+                   output_packet.message->get_buf(),
+                   output_packet.message->get_len(),
+                   0,
+                   reinterpret_cast<struct sockaddr*>(&client_addr),
+                   sizeof(client_addr));
     if (-1 != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())

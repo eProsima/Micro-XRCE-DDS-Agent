@@ -28,6 +28,9 @@
 namespace eprosima {
 namespace uxr {
 
+extern template class Processor<IPv4EndPoint>;
+extern template class Processor<IPv6EndPoint>;
+
 template<typename EndPoint>
 Server<EndPoint>::Server(Middleware::Kind middleware_kind)
     : processor_(new Processor<EndPoint>(*this, *root_, middleware_kind))
@@ -149,7 +152,6 @@ template<typename EndPoint>
 void Server<EndPoint>::push_output_packet(
         OutputPacket<EndPoint> output_packet)
 {
-//    if (output_packet.destination && output_packet.message)
     if (output_packet.message)
     {
         output_scheduler_.push(std::move(output_packet), 0);

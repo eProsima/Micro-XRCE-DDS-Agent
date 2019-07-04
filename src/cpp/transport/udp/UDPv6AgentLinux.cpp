@@ -147,12 +147,12 @@ bool UDPv6Agent::close()
     bool rv = false;
     if (0 == ::close(poll_fd_.fd))
     {
+        poll_fd_.fd = -1;
+        rv = true;
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
             transport_address_.large_locator().port());
-        poll_fd_.fd = -1;
-        rv = true;
     }
     else
     {

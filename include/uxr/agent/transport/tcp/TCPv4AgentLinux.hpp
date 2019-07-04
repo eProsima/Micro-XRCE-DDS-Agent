@@ -15,14 +15,17 @@
 #ifndef UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
 #define UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
 
-#include <uxr/agent/transport/tcp/TCPv4ServerBase.hpp>
+#include <uxr/agent/transport/tcp/TCPServerBase.hpp>
+#include <uxr/agent/transport/tcp/TCPConnection.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
 #ifdef UAGENT_P2P_PROFILE
 #include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
 #endif
-#include <uxr/agent/config.hpp>
+
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <array>
@@ -32,17 +35,14 @@
 namespace eprosima {
 namespace uxr {
 
-class TCPConnectionPlatform : public TCPConnection
+struct TCPv4ConnectionLinux : public TCPv4Connection
 {
-public:
-    TCPConnectionPlatform() = default;
-    ~TCPConnectionPlatform() final = default;
-
-public:
     struct pollfd* poll_fd;
 };
 
-class TCPv4Agent : public TCPv4ServerBase
+extern template class Server<IPv4EndPoint>;
+
+class TCPv4Agent : public Server<IPv4EndPoint>, public TCPServerBase<TCPv4ConnectionLinux>
 {
 public:
     TCPv4Agent(
@@ -69,52 +69,58 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint> output_packet) final;
 
     int get_error() final;
 
-    bool read_message(int timeout);
+    bool read_message(
+            int timeout);
 
     bool open_connection(
             int fd,
             struct sockaddr_in* sockaddr);
 
+    bool close_connection(
+            TCPv4ConnectionLinux& connection);
+
     bool connection_available();
 
     void listener_loop();
 
-    static void init_input_buffer(TCPInputBuffer& buffer);
+    static void init_input_buffer(
+            TCPInputBuffer& buffer);
 
     static void sigpipe_handler(int fd) { (void)fd; }
 
-    bool close_connection(TCPConnection& connection) override;
-
-    size_t recv_locking(
-            TCPConnection& connection,
+    size_t recv_data(
+            TCPv4ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) override;
+            uint8_t& errcode) final;
 
-    size_t send_locking(
-            TCPConnection& connection,
+    size_t send_data(
+            TCPv4ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) override;
+            uint8_t& errcode) final;
 
 private:
-    std::array<TCPConnectionPlatform, TCP_MAX_CONNECTIONS> connections_;
+    std::array<TCPv4ConnectionLinux, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
+    std::map<IPv4EndPoint, uint32_t> endpoint_to_connection_map_;
     std::mutex connections_mtx_;
     struct pollfd listener_poll_;
     std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
     uint8_t buffer_[UINT16_MAX];
+    dds::xrce::TransportAddress transport_address_;
     std::thread listener_thread_;
     std::atomic<bool> running_cond_;
-    std::queue<InputPacket> messages_queue_;
+    std::queue<InputPacket<IPv4EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux discovery_server_;
 #endif
