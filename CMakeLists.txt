@@ -49,7 +49,7 @@ if(UAGENT_SUPERBUILD)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.1.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.1" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
