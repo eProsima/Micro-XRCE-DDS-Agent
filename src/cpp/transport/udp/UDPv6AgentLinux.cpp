@@ -214,10 +214,9 @@ bool UDPv6Agent::recv_message(
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
-            uint16_t port = client_addr.sin6_port;
             std::array<uint8_t, 16> addr;
             std::copy(std::begin(client_addr.sin6_addr.s6_addr), std::end(client_addr.sin6_addr.s6_addr), addr.begin());
-            input_packet.source = IPv6EndPoint(addr, port);
+            input_packet.source = IPv6EndPoint(addr, client_addr.sin6_port);
 //            UXR_AGENT_LOG_MESSAGE(
 //                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
 //                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),

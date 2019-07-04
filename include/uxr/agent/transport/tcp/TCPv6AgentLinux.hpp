@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
-#define UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_
 
 #include <uxr/agent/transport/tcp/TCPServerBase.hpp>
 #include <uxr/agent/transport/Server.hpp>
@@ -33,21 +33,21 @@
 namespace eprosima {
 namespace uxr {
 
-struct TCPv4ConnectionLinux : public TCPv4Connection
+struct TCPv6ConnectionLinux : public TCPv6Connection
 {
     struct pollfd* poll_fd;
 };
 
-extern template class Server<IPv4EndPoint>;
+extern template class Server<IPv6EndPoint>;
 
-class TCPv4Agent : public Server<IPv4EndPoint>, public TCPServerBase<TCPv4ConnectionLinux>
+class TCPv6Agent : public Server<IPv6EndPoint>, public TCPServerBase<TCPv6ConnectionLinux>
 {
 public:
-    TCPv4Agent(
+    TCPv6Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    ~TCPv4Agent() final;
+    ~TCPv6Agent() final;
 
 private:
     bool init() final;
@@ -67,11 +67,11 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket<IPv4EndPoint>& input_packet,
+            InputPacket<IPv6EndPoint>& input_packet,
             int timeout) final;
 
     bool send_message(
-            OutputPacket<IPv4EndPoint> output_packet) final;
+            OutputPacket<IPv6EndPoint> output_packet) final;
 
     int get_error() final;
 
@@ -80,10 +80,10 @@ private:
 
     bool open_connection(
             int fd,
-            struct sockaddr_in& sockaddr);
+            struct sockaddr_in6& sockaddr);
 
     bool close_connection(
-            TCPv4ConnectionLinux& connection);
+            TCPv6ConnectionLinux& connection);
 
     bool connection_available();
 
@@ -95,22 +95,22 @@ private:
     static void sigpipe_handler(int fd) { (void)fd; }
 
     size_t recv_data(
-            TCPv4ConnectionLinux& connection,
+            TCPv6ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
             uint8_t& errcode) final;
 
     size_t send_data(
-            TCPv4ConnectionLinux& connection,
+            TCPv6ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
             uint8_t& errcode) final;
 
 private:
-    std::array<TCPv4ConnectionLinux, TCP_MAX_CONNECTIONS> connections_;
+    std::array<TCPv6ConnectionLinux, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
-    std::map<IPv4EndPoint, uint32_t> endpoint_to_connection_map_;
+    std::map<IPv6EndPoint, uint32_t> endpoint_to_connection_map_;
     std::mutex connections_mtx_;
     struct pollfd listener_poll_;
     std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
@@ -118,7 +118,7 @@ private:
     dds::xrce::TransportAddress transport_address_;
     std::thread listener_thread_;
     std::atomic<bool> running_cond_;
-    std::queue<InputPacket<IPv4EndPoint>> messages_queue_;
+    std::queue<InputPacket<IPv6EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux discovery_server_;
 #endif
@@ -130,4 +130,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_TCPv4_AGENT_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_

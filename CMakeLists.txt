@@ -130,6 +130,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
         src/cpp/transport/tcp/TCPv4AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv6AgentLinux.cpp
 #        src/cpp/transport/serial/SerialServerLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>

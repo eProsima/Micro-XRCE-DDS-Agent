@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -30,10 +30,10 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
-TCPv4Agent::TCPv4Agent(
+TCPv6Agent::TCPv6Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : Server<IPv4EndPoint>{middleware_kind}
+    : Server<IPv6EndPoint>{middleware_kind}
     , TCPServerBase{}
     , connections_{}
     , active_connections_{}
@@ -56,7 +56,7 @@ TCPv4Agent::TCPv4Agent(
     transport_address_.medium_locator(medium_locator);
 }
 
-TCPv4Agent::~TCPv4Agent()
+TCPv6Agent::~TCPv6Agent()
 {
     try
     {
@@ -71,7 +71,7 @@ TCPv4Agent::~TCPv4Agent()
     }
 }
 
-bool TCPv4Agent::init()
+bool TCPv6Agent::init()
 {
     bool rv = false;
 
@@ -79,16 +79,17 @@ bool TCPv4Agent::init()
     signal(SIGPIPE, sigpipe_handler);
 
     /* Listener socket initialization. */
-    listener_poll_.fd = socket(PF_INET, SOCK_STREAM, 0);
+    listener_poll_.fd = socket(PF_INET6, SOCK_STREAM, 0);
 
     if (-1 != listener_poll_.fd)
     {
-        struct sockaddr_in address;
+        /* IP and Port setup. */
+        struct sockaddr_in6 address;
 
-        address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
-        address.sin_addr.s_addr = INADDR_ANY;
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+        memset(&address, 0, sizeof(address));
+        address.sin6_family = AF_INET6;
+        address.sin6_port = htons(transport_address_.medium_locator().port());
+        address.sin6_addr = in6addr_any;
 
         if (-1 != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
@@ -117,7 +118,7 @@ bool TCPv4Agent::init()
             if (-1 != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
             {
                 running_cond_ = true;
-                listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
+                listener_thread_ = std::thread(&TCPv6Agent::listener_loop, this);
                 rv = true;
 
                 UXR_AGENT_LOG_INFO(
@@ -178,7 +179,7 @@ bool TCPv4Agent::init()
     return rv;
 }
 
-bool TCPv4Agent::close()
+bool TCPv6Agent::close()
 {
     /* Stop listener thread. */
     running_cond_ = false;
@@ -235,7 +236,7 @@ bool TCPv4Agent::close_discovery()
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool TCPv4Agent::init_p2p(uint16_t p2p_port)
+bool TCPv6Agent::init_p2p(uint16_t p2p_port)
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
@@ -243,7 +244,7 @@ bool TCPv4Agent::init_p2p(uint16_t p2p_port)
     return agent_discoverer_.run(p2p_port, transport_address_);
 }
 
-bool TCPv4Agent::close_p2p()
+bool TCPv6Agent::close_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
@@ -252,8 +253,8 @@ bool TCPv4Agent::close_p2p()
 }
 #endif
 
-bool TCPv4Agent::recv_message(
-        InputPacket<IPv4EndPoint>& input_packet,
+bool TCPv6Agent::recv_message(
+        InputPacket<IPv6EndPoint>& input_packet,
         int timeout)
 {
     bool rv = true;
@@ -274,8 +275,8 @@ bool TCPv4Agent::recv_message(
     return rv;
 }
 
-bool TCPv4Agent::send_message(
-        OutputPacket<IPv4EndPoint> output_packet)
+bool TCPv6Agent::send_message(
+        OutputPacket<IPv6EndPoint> output_packet)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
@@ -284,7 +285,7 @@ bool TCPv4Agent::send_message(
     auto it = endpoint_to_connection_map_.find(output_packet.destination);
     if (it != endpoint_to_connection_map_.end())
     {
-        TCPv4ConnectionLinux& connection = connections_.at(it->second);
+        TCPv6ConnectionLinux& connection = connections_.at(it->second);
         lock.unlock();
 
         msg_size_buf[0] = uint8_t(0x00FF & output_packet.message->get_len());
@@ -363,23 +364,25 @@ bool TCPv4Agent::send_message(
     return rv;
 }
 
-int TCPv4Agent::get_error()
+int TCPv6Agent::get_error()
 {
     return errno;
 }
 
-bool TCPv4Agent::open_connection(
+bool TCPv6Agent::open_connection(
         int fd,
-        struct sockaddr_in& sockaddr)
+        struct sockaddr_in6& sockaddr)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(connections_mtx_);
     if (!free_connections_.empty())
     {
         uint32_t id = free_connections_.front();
-        TCPv4ConnectionLinux& connection = connections_[size_t(id)];
+        TCPv6ConnectionLinux& connection = connections_[size_t(id)];
         connection.poll_fd->fd = fd;
-        connection.endpoint = IPv4EndPoint(sockaddr.sin_addr.s_addr, sockaddr.sin_port);
+        std::array<uint8_t, 16> addr;
+        std::copy(std::begin(sockaddr.sin6_addr.s6_addr), std::end(sockaddr.sin6_addr.s6_addr), addr.begin());
+        connection.endpoint = IPv6EndPoint(addr, sockaddr.sin6_port);
         connection.active = true;
         init_input_buffer(connection.input_buffer);
 
@@ -391,8 +394,8 @@ bool TCPv4Agent::open_connection(
     return rv;
 }
 
-bool TCPv4Agent::close_connection(
-        TCPv4ConnectionLinux& connection)
+bool TCPv6Agent::close_connection(
+        TCPv6ConnectionLinux& connection)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(connections_mtx_);
@@ -419,14 +422,14 @@ bool TCPv4Agent::close_connection(
     return rv;
 }
 
-void TCPv4Agent::init_input_buffer(
+void TCPv6Agent::init_input_buffer(
         TCPInputBuffer& buffer)
 {
     buffer.state = TCP_BUFFER_EMPTY;
     buffer.msg_size = 0;
 }
 
-bool TCPv4Agent::read_message(
+bool TCPv6Agent::read_message(
         int timeout)
 {
     bool rv = false;
@@ -443,7 +446,7 @@ bool TCPv4Agent::read_message(
                 {
                     if (0 < bytes_read)
                     {
-                        InputPacket<IPv4EndPoint> input_packet;
+                        InputPacket<IPv6EndPoint> input_packet;
                         input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
                         input_packet.source = conn.endpoint;
                         messages_queue_.push(std::move(input_packet));
@@ -467,7 +470,7 @@ bool TCPv4Agent::read_message(
     return rv;
 }
 
-void TCPv4Agent::listener_loop()
+void TCPv6Agent::listener_loop()
 {
     while (running_cond_)
     {
@@ -479,7 +482,7 @@ void TCPv4Agent::listener_loop()
                 if (connection_available())
                 {
                     /* New client connection. */
-                    struct sockaddr_in client_addr;
+                    struct sockaddr_in6 client_addr;
                     socklen_t client_addr_len;
                     int incoming_fd =
                             accept(listener_poll_.fd,
@@ -496,14 +499,14 @@ void TCPv4Agent::listener_loop()
     }
 }
 
-bool TCPv4Agent::connection_available()
+bool TCPv6Agent::connection_available()
 {
     std::lock_guard<std::mutex> lock(connections_mtx_);
     return !free_connections_.empty();
 }
 
-size_t TCPv4Agent::recv_data(
-        TCPv4ConnectionLinux& connection,
+size_t TCPv6Agent::recv_data(
+        TCPv6ConnectionLinux& connection,
         uint8_t* buffer,
         size_t len,
         uint8_t& errcode)
@@ -534,8 +537,8 @@ size_t TCPv4Agent::recv_data(
     return rv;
 }
 
-size_t TCPv4Agent::send_data(
-        TCPv4ConnectionLinux& connection,
+size_t TCPv6Agent::send_data(
+        TCPv6ConnectionLinux& connection,
         uint8_t* buffer,
         size_t len,
         uint8_t& errcode)
