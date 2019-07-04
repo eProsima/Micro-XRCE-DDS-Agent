@@ -41,6 +41,15 @@ if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Lin
 endif()
 
 ###############################################################################
+# Dependencies
+###############################################################################
+set(FAST_RTPS_VERSION 1.8.1)
+set(FAST_CDR_VERSION 1.0.9)
+set(CLI11_VERSION 1.7.1)
+set(SPDLOG_VERSION 1.3.1)
+set(MICRO_XRCE_DDS_CLIENT_VERSION 1.1.0)
+
+###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
@@ -94,17 +103,17 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr "${FAST_CDR_VERSION}" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(CLI11 ${CLI11_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.1.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client ${MICRO_XRCE_DDS_CLIENT_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.8.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps ${FAST_RTPS_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog ${SPDLOG_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################
