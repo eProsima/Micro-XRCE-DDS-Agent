@@ -64,54 +64,59 @@ bool UDPv4Agent::init()
 {
     bool rv = false;
 
-    /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
 
     if (-1 != poll_fd_.fd)
     {
-        /* IP and Port setup. */
         struct sockaddr_in address;
+
         address.sin_family = AF_INET;
         address.sin_port = htons(transport_address_.medium_locator().port());
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+
         if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
         {
-            /* Log. */
+            poll_fd_.events = POLLIN;
+            rv = true;
+
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
                 transport_address_.medium_locator().port()
                 );
 
-            /* Poll setup. */
-            poll_fd_.events = POLLIN;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("running..."),
+                "port: {}",
+                transport_address_.medium_locator().port());
 
-            /* Get local address. */
-            int fd = socket(PF_INET, SOCK_DGRAM, 0);
-            struct sockaddr_in temp_addr;
-            temp_addr.sin_family = AF_INET;
-            temp_addr.sin_port = htons(80);
-            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-            if (0 == connected)
-            {
-                struct sockaddr local_addr;
-                socklen_t local_addr_len = sizeof(local_addr);
-                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-                {
-                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                 uint8_t(local_addr.sa_data[3]),
-                                                                 uint8_t(local_addr.sa_data[4]),
-                                                                 uint8_t(local_addr.sa_data[5])});
-                    rv = true;
-                    UXR_AGENT_LOG_INFO(
-                        UXR_DECORATE_GREEN("running..."),
-                        "port: {}",
-                        transport_address_.medium_locator().port());
-                }
-                ::close(fd);
-            }
+
+//            /* Get local address. */
+//            int fd = socket(PF_INET, SOCK_DGRAM, 0);
+//            struct sockaddr_in temp_addr;
+//            temp_addr.sin_family = AF_INET;
+//            temp_addr.sin_port = htons(80);
+//            temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
+//            int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
+//            if (0 == connected)
+//            {
+//                struct sockaddr local_addr;
+//                socklen_t local_addr_len = sizeof(local_addr);
+//                if (-1 != getsockname(fd, &local_addr, &local_addr_len))
+//                {
+//                    transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+//                                                                 uint8_t(local_addr.sa_data[3]),
+//                                                                 uint8_t(local_addr.sa_data[4]),
+//                                                                 uint8_t(local_addr.sa_data[5])});
+//                    rv = true;
+//                    UXR_AGENT_LOG_INFO(
+//                        UXR_DECORATE_GREEN("running..."),
+//                        "port: {}",
+//                        transport_address_.medium_locator().port());
+//                }
+//                ::close(fd);
+//            }
         }
         else
         {
@@ -195,7 +200,7 @@ bool UDPv4Agent::recv_message(
 {
     bool rv = false;
     struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    socklen_t client_addr_len;
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
@@ -237,9 +242,11 @@ bool UDPv4Agent::send_message(
     bool rv = false;
     struct sockaddr_in client_addr;
 
+    memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = output_packet.destination.get_port();
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
+
     ssize_t bytes_sent = sendto(poll_fd_.fd,
                                 output_packet.message->get_buf(),
                                 output_packet.message->get_len(),

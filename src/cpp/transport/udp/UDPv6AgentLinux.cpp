@@ -64,29 +64,32 @@ bool UDPv6Agent::init()
 {
     bool rv = false;
 
-    /* Socker initialization. */
     poll_fd_.fd = socket(PF_INET6, SOCK_DGRAM, 0);
 
     if (-1 != poll_fd_.fd)
     {
-        /* IP and Port setup. */
         struct sockaddr_in6 address;
+
+        memset(&address, 0, sizeof(address));
         address.sin6_family = AF_INET6;
         address.sin6_addr = in6addr_any;
         address.sin6_port = htons(uint16_t(transport_address_.large_locator().port()));
+
         if (-1 != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
-            /* Log. */
+            poll_fd_.events = POLLIN;
+            rv = true;
+
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
                 transport_address_.large_locator().port()
                 );
 
-            /* Poll setup. */
-            poll_fd_.events = POLLIN;
-
-            rv = true;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("running..."),
+                "port: {}",
+                transport_address_.large_locator().port());
 
 // TODO (julian): get local address from getifaddrs.
 //            /* Get local address. */
@@ -197,7 +200,7 @@ bool UDPv6Agent::recv_message(
 {
     bool rv = false;
     struct sockaddr_in6 client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
+    socklen_t client_addr_len;
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
@@ -240,10 +243,12 @@ bool UDPv6Agent::send_message(
     bool rv = false;
     struct sockaddr_in6 client_addr;
 
+    memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin6_family = AF_INET6;
     client_addr.sin6_port = output_packet.destination.get_port();
     const std::array<uint8_t, 16>& destination = output_packet.destination.get_addr();
     std::copy(destination.begin(), destination.end(), std::begin(client_addr.sin6_addr.s6_addr));
+
     ssize_t bytes_sent = sendto(poll_fd_.fd,
                                 output_packet.message->get_buf(),
                                 output_packet.message->get_len(),
