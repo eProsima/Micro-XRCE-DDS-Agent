@@ -63,7 +63,7 @@ endif()
 if(UAGENT_FAST_PROFILE)
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
-    find_package(fastrtps "1.8.0" EXACT QUIET)
+    find_package(fastrtps "1.8.1" EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
             DOWNLOAD_COMMAND
