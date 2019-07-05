@@ -165,12 +165,13 @@ bool UDPv6Agent::close()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPv4Agent::init_discovery(uint16_t discovery_port)
+bool UDPv6Agent::init_discovery(
+        uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port, transport_address_);
+    return discovery_server_.run(discovery_port);
 }
 
-bool UDPv4Agent::close_discovery()
+bool UDPv6Agent::close_discovery()
 {
     return discovery_server_.stop();
 }

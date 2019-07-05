@@ -225,7 +225,7 @@ bool TCPv4Agent::close()
 #ifdef UAGENT_DISCOVERY_PROFILE
 bool TCPv4Agent::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port, transport_address_);
+    return discovery_server_.run(discovery_port);
 }
 
 bool TCPv4Agent::close_discovery()

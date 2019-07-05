@@ -21,29 +21,40 @@
 #include <thread>
 #include <atomic>
 #include <sys/poll.h>
+#include <type_traits>
 
 namespace eprosima {
 namespace uxr {
 
-class Processor;
-
-class DiscoveryServerLinux : public DiscoveryServer
+template<typename EndPoint>
+class DiscoveryServerLinux : public DiscoveryServer<EndPoint>
 {
 public:
-    DiscoveryServerLinux(const Processor& processor);
+    DiscoveryServerLinux(
+            const Processor<EndPoint>& processor);
 
     ~DiscoveryServerLinux() override = default;
 
 private:
-    bool init(uint16_t discovery_port) final;
+    bool init(
+            uint16_t discovery_port) final;
 
     bool close() final;
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket&& output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint>&& output_packet) final;
+
+    template<typename T = EndPoint>
+    typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type
+    get_interfaces();
+
+    template<typename T = EndPoint>
+    typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type
+    get_interfaces();
 
 private:
     struct pollfd poll_fd_;

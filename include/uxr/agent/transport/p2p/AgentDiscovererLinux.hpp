@@ -31,7 +31,8 @@ public:
     ~AgentDiscovererLinux() = default;
 
 private:
-    bool init(uint16_t p2p_port) final;
+    bool init(
+            uint16_t p2p_port) final;
 
     bool close() final;
 
@@ -39,7 +40,8 @@ private:
             InputMessagePtr& input_message,
             int timeout) final;
 
-    bool send_message(const OutputMessage& output_message) final;
+    bool send_message(
+            const OutputMessage& output_message) final;
 
 private:
     struct pollfd poll_fd_;

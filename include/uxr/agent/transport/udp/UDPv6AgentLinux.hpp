@@ -74,7 +74,7 @@ private:
     uint8_t buffer_[UINT16_MAX];
     dds::xrce::TransportAddress transport_address_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerLinux discovery_server_;
+    DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
 #endif
 #ifdef UAGENT_P2P_PROFILE
     AgentDiscovererLinux agent_discoverer_;

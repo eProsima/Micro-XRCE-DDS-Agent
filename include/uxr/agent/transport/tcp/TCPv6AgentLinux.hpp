@@ -120,7 +120,7 @@ private:
     std::atomic<bool> running_cond_;
     std::queue<InputPacket<IPv6EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerLinux discovery_server_;
+    DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
 #endif
 #ifdef UAGENT_P2P_PROFILE
     AgentDiscovererLinux agent_discoverer_;

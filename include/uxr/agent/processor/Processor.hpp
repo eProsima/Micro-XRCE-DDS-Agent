@@ -33,6 +33,7 @@ namespace eprosima {
 namespace uxr {
 
 class Root;
+class IPv4EndPoint;
 
 template<typename EndPoint>
 class Server;
@@ -62,9 +63,9 @@ public:
             InputPacket<EndPoint>&& input_packet);
 
     bool process_get_info_packet(
-            InputPacket<EndPoint>&& input_packet,
-            dds::xrce::TransportAddress& address,
-            OutputPacket<EndPoint>& output_packet) const;
+            InputPacket<IPv4EndPoint>&& input_packet,
+            std::vector<dds::xrce::TransportAddress>& address,
+            OutputPacket<IPv4EndPoint>& output_packet) const;
 
     void check_heartbeats();
 

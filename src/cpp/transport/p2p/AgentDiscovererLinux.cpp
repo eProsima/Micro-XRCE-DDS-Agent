@@ -31,7 +31,8 @@ AgentDiscovererLinux::AgentDiscovererLinux(
 {
 }
 
-bool AgentDiscovererLinux::init(uint16_t p2p_port)
+bool AgentDiscovererLinux::init(
+        uint16_t p2p_port)
 {
     bool rv = false;
 
@@ -44,7 +45,7 @@ bool AgentDiscovererLinux::init(uint16_t p2p_port)
     address.sin_port = htons(p2p_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-    if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+    if (-1 != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
     {
         /* Log. */
         UXR_AGENT_LOG_DEBUG(
@@ -98,7 +99,8 @@ bool AgentDiscovererLinux::recv_message(
     return rv;
 }
 
-bool AgentDiscovererLinux::send_message(const OutputMessage& output_message)
+bool AgentDiscovererLinux::send_message(
+        const OutputMessage& output_message)
 {
     bool rv = false;
 
@@ -106,12 +108,13 @@ bool AgentDiscovererLinux::send_message(const OutputMessage& output_message)
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = inet_addr(DISCOVERY_IP);
     address.sin_port = htons(DISCOVERY_PORT);
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_message.get_buf(),
-                                output_message.get_len(),
-                                0,
-                                (struct sockaddr*)&address,
-                                sizeof(address));
+    ssize_t bytes_sent =
+            sendto(poll_fd_.fd,
+                   output_message.get_buf(),
+                   output_message.get_len(),
+                   0,
+                   reinterpret_cast<struct sockaddr*>(&address),
+                   sizeof(address));
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_message.get_len());

@@ -730,9 +730,9 @@ bool Processor<EndPoint>::read_data_callback(
 
 template<typename EndPoint>
 bool Processor<EndPoint>::process_get_info_packet(
-        InputPacket<EndPoint>&& input_packet,
-        dds::xrce::TransportAddress& address,
-        OutputPacket<EndPoint>& output_packet) const
+        InputPacket<IPv4EndPoint>&& input_packet,
+        std::vector<dds::xrce::TransportAddress>& address,
+        OutputPacket<IPv4EndPoint>& output_packet) const
 {
     bool rv = false;
 
@@ -750,7 +750,10 @@ bool Processor<EndPoint>::process_get_info_packet(
             if (dds::xrce::STATUS_OK == result_status.status())
             {
                 dds::xrce::AGENT_ActivityInfo agent_info;
-                agent_info.address_seq().push_back(address);
+                for (auto &a : address)
+                {
+                    agent_info.address_seq().push_back(a);
+                }
                 agent_info.availability(1);
 
                 dds::xrce::ActivityInfoVariant info_variant;
