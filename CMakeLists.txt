@@ -162,9 +162,6 @@ set(SRCS
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
-#    src/cpp/transport/udp/UDPv4ServerBase.cpp
-#    src/cpp/transport/tcp/TCPv4ServerBase.cpp
-#    src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
