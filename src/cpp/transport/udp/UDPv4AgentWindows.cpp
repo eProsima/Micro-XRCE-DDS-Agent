@@ -24,13 +24,17 @@ namespace uxr {
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : UDPv4ServerBase(agent_port, middleware_kind)
+    : Server<IPv4EndPoint>{middleware_kind}
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
-{}
+{
+    dds::xrce::TransportAddressMedium medium_locator;
+    medium_locator.port(agent_port);
+    transport_address_.medium_locator(medium_locator);
+}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -149,7 +153,7 @@ bool UDPv4Agent::close()
 #ifdef UAGENT_DISCOVERY_PROFILE
 bool UDPv4Agent::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port, transport_address_);
+    return discovery_server_.run(discovery_port);
 }
 
 bool UDPv4Agent::close_discovery()
@@ -158,34 +162,41 @@ bool UDPv4Agent::close_discovery()
 }
 #endif
 
-bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
+bool UDPv4Agent::recv_message(
+        InputPacket<IPv4EndPoint>& input_packet,
+        int timeout)
 {
     bool rv = false;
-    struct sockaddr client_addr;
+    struct sockaddr_in client_addr;
     int client_addr_len = sizeof(client_addr);
 
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received = recvfrom(poll_fd_.fd,
-                                      reinterpret_cast<char*>(buffer_),
-                                      sizeof(buffer_),
-                                      0,
-                                      &client_addr,
-                                      &client_addr_len);
+        int bytes_received =
+                recvfrom(poll_fd_.fd,
+                         reinterpret_cast<char*>(buffer_),
+                         sizeof(buffer_),
+                         0,
+                         reinterpret_cast<struct sockaddr*>(&client_addr),
+                         &client_addr_len);
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-            uint32_t addr = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_addr.s_addr;
-            uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
-            input_packet.source.reset(new IPv4EndPoint(addr, port));
+            uint32_t addr = client_addr.sin_addr.s_addr;
+            uint16_t port = client_addr.sin_port;
+            input_packet.source = IPv4EndPoint(addr, port);
             rv = true;
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-                input_packet.message->get_buf(),
-                input_packet.message->get_len());
-            rv = true;
+
+            uint32_t raw_client_key;
+            if (Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                    raw_client_key,
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_len());
+            }
         }
     }
     else
@@ -199,31 +210,37 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool UDPv4Agent::send_message(OutputPacket output_packet)
+bool UDPv4Agent::send_message(
+        OutputPacket<IPv4EndPoint> output_packet)
 {
     bool rv = false;
-    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
-    client_addr.sin_port = destination->get_port();
-    client_addr.sin_addr.s_addr = destination->get_addr();
-    int bytes_sent = sendto(poll_fd_.fd,
-                            reinterpret_cast<char*>(output_packet.message->get_buf()),
-                            int(output_packet.message->get_len()),
-                            0,
-                            reinterpret_cast<struct sockaddr*>(&client_addr),
-                            sizeof(client_addr));
+    client_addr.sin_port = output_packet.destination.get_port();
+    client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
+    int bytes_sent =
+            sendto(poll_fd_.fd,
+                   reinterpret_cast<char*>(output_packet.message->get_buf()),
+                   int(output_packet.message->get_len()),
+                   0,
+                   reinterpret_cast<struct sockaddr*>(&client_addr),
+                   sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
         if (size_t(bytes_sent) != output_packet.message->get_len())
         {
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-                output_packet.message->get_buf(),
-                output_packet.message->get_len());
             rv = true;
+
+            uint32_t raw_client_key;
+            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+                    raw_client_key,
+                    output_packet.message->get_buf(),
+                    output_packet.message->get_len());
+            }
         }
     }
 

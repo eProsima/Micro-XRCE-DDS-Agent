@@ -38,7 +38,7 @@ struct TCPv4ConnectionLinux : public TCPv4Connection
     struct pollfd* poll_fd;
 };
 
-extern template class Server<IPv4EndPoint>;
+extern template class Server<IPv4EndPoint>; // Explicit instantiation declaration.
 
 class TCPv4Agent : public Server<IPv4EndPoint>, public TCPServerBase<TCPv4ConnectionLinux>
 {

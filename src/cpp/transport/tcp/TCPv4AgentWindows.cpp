@@ -26,7 +26,8 @@ const uint8_t max_attemps = 16;
 TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : TCPv4ServerBase{agent_port, middleware_kind}
+    : Server<IPv4EndPoint>{middleware_kind}
+    , TCPServerBase{}
     , connections_{}
     , active_connections_{}
     , free_connections_{}
@@ -39,7 +40,11 @@ TCPv4Agent::TCPv4Agent(
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
-{}
+{
+    dds::xrce::TransportAddressMedium medium_locator;
+    medium_locator.port(agent_port);
+    transport_address_.medium_locator(medium_locator);
+}
 
 TCPv4Agent::~TCPv4Agent()
 {
@@ -202,7 +207,7 @@ bool TCPv4Agent::close()
 #ifdef UAGENT_DISCOVERY_PROFILE
 bool TCPv4Agent::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port, transport_address_);
+    return discovery_server_.run(discovery_port);
 }
 
 bool TCPv4Agent::close_discovery()
@@ -212,7 +217,7 @@ bool TCPv4Agent::close_discovery()
 #endif
 
 bool TCPv4Agent::recv_message(
-        InputPacket& input_packet,
+        InputPacket<IPv4EndPoint>& input_packet,
         int timeout)
 {
     bool rv = true;
@@ -224,27 +229,31 @@ bool TCPv4Agent::recv_message(
     {
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
-        UXR_AGENT_LOG_MESSAGE(
-            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
-            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-            input_packet.message->get_buf(),
-            input_packet.message->get_len());
+
+        uint32_t raw_client_key;
+        if (Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
+        }
     }
     return rv;
 }
 
-bool TCPv4Agent::send_message(OutputPacket output_packet)
+bool TCPv4Agent::send_message(
+        OutputPacket<IPv4EndPoint> output_packet)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
-    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
-    uint64_t source_id = (uint64_t(destination->get_addr()) << 16) | destination->get_port();
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
-    auto it = source_to_connection_map_.find(source_id);
-    if (it != source_to_connection_map_.end())
+    auto it = endpoint_to_connection_map_.find(output_packet.destination);
+    if (it != endpoint_to_connection_map_.end())
     {
-        TCPConnection& connection = connections_.at(it->second);
+        TCPv4ConnectionWindows& connection = connections_.at(it->second);
         lock.unlock();
 
         msg_size_buf[0] = uint8_t(0x00FF & output_packet.message->get_len());
@@ -257,7 +266,7 @@ bool TCPv4Agent::send_message(OutputPacket output_packet)
         do
         {
             uint8_t errcode;
-            size_t send_rv = send_locking(connection, msg_size_buf, size_t(2), errcode);
+            size_t send_rv = send_data(connection, msg_size_buf, size_t(2), errcode);
             if (0 < send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
@@ -283,10 +292,11 @@ bool TCPv4Agent::send_message(OutputPacket output_packet)
             do
             {
                 uint8_t errcode;
-                size_t send_rv = send_locking(connection,
-                                              (output_packet.message->get_buf() + bytes_sent),
-                                              size_t(output_packet.message->get_len() - bytes_sent),
-                                              errcode);
+                size_t send_rv =
+                        send_data(connection,
+                                  (output_packet.message->get_buf() + bytes_sent),
+                                  size_t(output_packet.message->get_len() - bytes_sent),
+                                  errcode);
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -306,12 +316,17 @@ bool TCPv4Agent::send_message(OutputPacket output_packet)
 
         if (payload_sent)
         {
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
-                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-                output_packet.message->get_buf(),
-                output_packet.message->get_len());
             rv = true;
+
+            uint32_t raw_client_key;
+            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
+                    raw_client_key,
+                    output_packet.message->get_buf(),
+                    output_packet.message->get_len());
+            }
         }
         else
         {
@@ -329,22 +344,20 @@ int TCPv4Agent::get_error()
 
 bool TCPv4Agent::open_connection(
         SOCKET fd,
-        struct sockaddr_in* sockaddr)
+        struct sockaddr_in& sockaddr)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(connections_mtx_);
     if (!free_connections_.empty())
     {
         uint32_t id = free_connections_.front();
-        TCPConnectionPlatform& connection = connections_[id];
+        TCPv4ConnectionWindows& connection = connections_[id];
         connection.poll_fd->fd = fd;
-        connection.addr = sockaddr->sin_addr.s_addr;
-        connection.port = sockaddr->sin_port;
+        connection.endpoint = IPv4EndPoint(sockaddr.sin_addr.s_addr, sockaddr.sin_port);
         connection.active = true;
         init_input_buffer(connection.input_buffer);
 
-        uint64_t source_id = (uint64_t(connection.addr) << 16) | connection.port;
-        source_to_connection_map_[source_id] = connection.id;
+        endpoint_to_connection_map_[connection.endpoint] = connection.id;
         active_connections_.insert(id);
         free_connections_.pop_front();
         rv = true;
@@ -352,10 +365,10 @@ bool TCPv4Agent::open_connection(
     return rv;
 }
 
-bool TCPv4Agent::close_connection(TCPConnection& connection)
+bool TCPv4Agent::close_connection(
+        TCPv4ConnectionWindows& connection)
 {
     bool rv = false;
-    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it_conn = active_connections_.find(connection.id);
     if (it_conn != active_connections_.end())
@@ -363,27 +376,19 @@ bool TCPv4Agent::close_connection(TCPConnection& connection)
         lock.unlock();
         /* Add lock for close. */
         std::unique_lock<std::mutex> conn_lock(connection.mtx);
-        if (0 == closesocket(connection_platform.poll_fd->fd))
+        if (0 == closesocket(connection.poll_fd->fd))
         {
-            connection_platform.poll_fd->fd = INVALID_SOCKET;
+            connection.poll_fd->fd = INVALID_SOCKET;
             connection.active = false;
             conn_lock.unlock();
 
-            uint64_t source_id = (uint64_t(connection.addr) << 16) | connection.port;
             /* Clear connections map and lists. */
             lock.lock();
-            source_to_connection_map_.erase(source_id);
+            endpoint_to_connection_map_.erase(connection.endpoint);
             active_connections_.erase(it_conn);
             free_connections_.push_back(connection.id);
             lock.unlock();
 
-            std::unique_lock<std::mutex> client_lock(clients_mtx_);
-            auto it_client = source_to_client_map_.find(source_id);
-            if (it_client != source_to_client_map_.end())
-            {
-                client_to_source_map_.erase(it_client->second);
-                source_to_client_map_.erase(it_client->first);
-            }
             rv = true;
         }
     }
@@ -406,14 +411,22 @@ bool TCPv4Agent::read_message(int timeout)
         {
             if (0 < (POLLIN & conn.poll_fd->revents))
             {
-                uint16_t bytes_read = read_data(conn);
-                if (0 < bytes_read)
+                bool read_error;
+                uint16_t bytes_read = read_data(conn, read_error);
+                if (!read_error)
                 {
-                    InputPacket input_packet;
-                    input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
-                    input_packet.source.reset(new IPv4EndPoint(conn.addr, conn.port));
-                    messages_queue_.push(std::move(input_packet));
-                    rv = true;
+                    if (0 < bytes_read)
+                    {
+                        InputPacket<IPv4EndPoint> input_packet;
+                        input_packet.message.reset(new InputMessage(conn.input_buffer.buffer.data(), bytes_read));
+                        input_packet.source = conn.endpoint;
+                        messages_queue_.push(std::move(input_packet));
+                        rv = true;
+                    }
+                }
+                else
+                {
+                    close_connection(conn);
                 }
             }
         }
@@ -440,13 +453,15 @@ void TCPv4Agent::listener_loop()
                 if (connection_available())
                 {
                     /* New client connection. */
-                    struct sockaddr client_addr;
+                    struct sockaddr_in client_addr;
                     int client_addr_len = sizeof(client_addr);
-                    SOCKET incoming_fd = accept(listener_poll_.fd, &client_addr, &client_addr_len);
+                    SOCKET incoming_fd = accept(listener_poll_.fd,
+                                                reinterpret_cast<struct sockaddr*>(&client_addr),
+                                                &client_addr_len);
                     if (INVALID_SOCKET != incoming_fd)
                     {
                         /* Open connection. */
-                        open_connection(incoming_fd, reinterpret_cast<struct sockaddr_in*>(&client_addr));
+                        open_connection(incoming_fd, client_addr);
                     }
                 }
             }
@@ -460,21 +475,20 @@ bool TCPv4Agent::connection_available()
     return !free_connections_.empty();
 }
 
-size_t TCPv4Agent::recv_locking(
-        TCPConnection& connection,
+size_t TCPv4Agent::recv_data(
+        TCPv4ConnectionWindows& connection,
         uint8_t* buffer,
         size_t len,
         uint8_t& errcode)
 {
     size_t rv = 0;
-    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        int poll_rv = WSAPoll(connection_platform.poll_fd, 1, 0);
+        int poll_rv = WSAPoll(connection.poll_fd, 1, 0);
         if (0 < poll_rv)
         {
-            int bytes_received = recv(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
+            int bytes_received = recv(connection.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
             if (SOCKET_ERROR != bytes_received)
             {
                 rv = size_t(bytes_received);
@@ -493,18 +507,17 @@ size_t TCPv4Agent::recv_locking(
     return rv;
 }
 
-size_t TCPv4Agent::send_locking(
-        TCPConnection& connection,
+size_t TCPv4Agent::send_data(
+        TCPv4ConnectionWindows& connection,
         uint8_t* buffer,
         size_t len,
         uint8_t& errcode)
 {
     size_t rv = 0;
-    TCPConnectionPlatform& connection_platform = static_cast<TCPConnectionPlatform&>(connection);
     std::lock_guard<std::mutex> lock(connection.mtx);
     if (connection.active)
     {
-        int bytes_sent = send(connection_platform.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
+        int bytes_sent = send(connection.poll_fd->fd, reinterpret_cast<char*>(buffer), int(len), 0);
         if (SOCKET_ERROR != bytes_sent)
         {
             rv = size_t(bytes_sent);

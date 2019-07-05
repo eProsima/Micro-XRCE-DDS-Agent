@@ -37,9 +37,9 @@ int main(int argc, char** argv)
 
     /* CLI subcommands. */
     eprosima::uxr::cli::UDPv4Subcommand udpv4_subcommand(app);
-    eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
+//    eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
     eprosima::uxr::cli::TCPv4Subcommand tcpv4_subcommand(app);
-    eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
+//    eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
 //#ifndef _WIN32
 //    eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
 //    eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);

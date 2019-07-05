@@ -26,14 +26,17 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerWindows::DiscoveryServerWindows(const Processor& processor)
-    : DiscoveryServer(processor)
+template<typename EndPoint>
+DiscoveryServerWindows<EndPoint>::DiscoveryServerWindows(
+        const Processor<EndPoint>& processor)
+    : DiscoveryServer<EndPoint>(processor)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
-{
-}
+{}
 
-bool DiscoveryServerWindows::init(uint16_t discovery_port)
+template<typename EndPoint>
+bool DiscoveryServerWindows<EndPoint>::init(
+        uint16_t discovery_port)
 {
     bool rv = false;
 
@@ -89,7 +92,8 @@ bool DiscoveryServerWindows::init(uint16_t discovery_port)
     return rv;
 }
 
-bool DiscoveryServerWindows::close()
+template<typename EndPoint>
+bool DiscoveryServerWindows<EndPoint>::close()
 {
     if (INVALID_SOCKET == poll_fd_.fd)
     {
@@ -102,7 +106,7 @@ bool DiscoveryServerWindows::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            DiscoveryServer<EndPoint>::discovery_port_);
         poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
@@ -111,13 +115,14 @@ bool DiscoveryServerWindows::close()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            DiscoveryServer<EndPoint>::discovery_port_);
     }
     return rv;
 }
 
-bool DiscoveryServerWindows::recv_message(
-        InputPacket& input_packet,
+template<typename EndPoint>
+bool DiscoveryServerWindows<EndPoint>::recv_message(
+        InputPacket<IPv4EndPoint>& input_packet,
         int timeout)
 {
     bool rv = false;
@@ -138,7 +143,7 @@ bool DiscoveryServerWindows::recv_message(
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             uint32_t addr = (reinterpret_cast<struct sockaddr_in*>(&client_addr))->sin_addr.s_addr;
             uint16_t port = (reinterpret_cast<struct sockaddr_in*>(&client_addr))->sin_port;
-            input_packet.source.reset(new IPv4EndPoint(addr, port));
+            input_packet.source = IPv4EndPoint(addr, port);
             rv = true;
         }
     }
@@ -153,15 +158,16 @@ bool DiscoveryServerWindows::recv_message(
     return rv;
 }
 
-bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
+template<typename EndPoint>
+bool DiscoveryServerWindows<EndPoint>::send_message(
+        OutputPacket<IPv4EndPoint>&& output_packet)
 {
     bool rv = false;
-    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
-    client_addr.sin_port = destination->get_port();
-    client_addr.sin_addr.s_addr = destination->get_addr();
+    client_addr.sin_port = output_packet.destination.get_port();
+    client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
     int bytes_sent = sendto(poll_fd_.fd,
                             reinterpret_cast<char*>(output_packet.message->get_buf()),
                             int(output_packet.message->get_len()),
@@ -175,6 +181,9 @@ bool DiscoveryServerWindows::send_message(OutputPacket&& output_packet)
 
     return rv;
 }
+
+template class DiscoveryServerWindows<IPv4EndPoint>;
+template class DiscoveryServerWindows<IPv6EndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

@@ -15,7 +15,8 @@
 #ifndef UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 #define UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 
-#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
@@ -27,7 +28,9 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPv4Agent : public UDPv4ServerBase
+extern template class Server<IPv4EndPoint>; // Explicit instantiation declaration.
+
+class UDPv4Agent : public Server<IPv4EndPoint>
 {
 public:
     UXR_AGENT_EXPORT UDPv4Agent(
@@ -54,18 +57,20 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint> output_packet) final;
 
     int get_error() final;
 
 private:
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[UINT16_MAX];
+    dds::xrce::TransportAddress transport_address_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerWindows discovery_server_;
+    DiscoveryServerWindows<IPv4EndPoint> discovery_server_;
 #endif
 };
 

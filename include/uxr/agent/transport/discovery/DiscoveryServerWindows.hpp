@@ -21,29 +21,41 @@
 #include <winsock2.h>
 #include <thread>
 #include <atomic>
+#include <type_traits>
 
 namespace eprosima {
 namespace uxr {
 
-class Processor;
-
-class DiscoveryServerWindows : public DiscoveryServer
+template<typename EndPoint>
+class DiscoveryServerWindows : public DiscoveryServer<EndPoint>
 {
 public:
-    DiscoveryServerWindows(const Processor& processor);
+    DiscoveryServerWindows(
+            const Processor<EndPoint>& processor);
 
     ~DiscoveryServerWindows() override = default;
 
 private:
-    bool init(uint16_t discovery_port) final;
+    bool init(
+            uint16_t discovery_port) final;
 
     bool close() final;
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket&& output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint>&& output_packet) final;
+
+
+    template<typename T = EndPoint>
+    typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type
+    get_interfaces();
+
+    template<typename T = EndPoint>
+    typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type
+    get_interfaces();
 
 private:
     struct pollfd poll_fd_;
