@@ -23,8 +23,8 @@
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
-//#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
-//#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
+#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
 #include <termios.h>
 #include <fcntl.h>
@@ -506,144 +506,190 @@ private:
     CommonOpts common_opts_;
 };
 
-///*************************************************************************************************
-// * Serial Subcommand
-// *************************************************************************************************/
-//#ifndef _WIN32
-//class SerialSubcommand : public ServerSubcommand
-//{
-//public:
-//    SerialSubcommand(CLI::App& app)
-//        : ServerSubcommand{app, "serial", "Launch a Serial server", common_opts_}
-//        , cli_opt_{cli_subcommand_->add_option("--dev", dev_, "Select the serial device")}
-//        , baudrate_opt_{*cli_subcommand_}
-//        , common_opts_{*cli_subcommand_}
-//    {
-//        cli_opt_->required(true);
-//        cli_opt_->check(CLI::ExistingFile);
-//    }
-//
-//private:
-//    bool launch_server() final
-//    {
-//        bool rv = false;
-//        int fd = open(dev_.c_str(), O_RDWR | O_NOCTTY);
-//        if (0 < fd)
-//        {
-//            struct termios attr;
-//            memset(&attr, 0, sizeof(attr));
-//            if (0 == tcgetattr(fd, &attr))
-//            {
-//                /* Setting CONTROL OPTIONS. */
-//                attr.c_cflag |= unsigned(CREAD);    // Enable read.
-//                attr.c_cflag |= unsigned(CLOCAL);   // Set local mode.
-//                attr.c_cflag &= unsigned(~PARENB);  // Disable parity.
-//                attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
-//                attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
-//                attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
-//                attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
-//
-//                /* Setting LOCAL OPTIONS. */
-//                attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
-//                attr.c_lflag &= unsigned(~ECHO);    // Disable echoing of input characters.
-//                attr.c_lflag &= unsigned(~ECHOE);   // Disable echoing the erase character.
-//                attr.c_lflag &= unsigned(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
-//
-//                /* Setting INPUT OPTIONS. */
-//                attr.c_iflag &= unsigned(~IXON);    // Disable output software flow control.
-//                attr.c_iflag &= unsigned(~IXOFF);   // Disable input software flow control.
-//                attr.c_iflag &= unsigned(~INPCK);   // Disable parity check.
-//                attr.c_iflag &= unsigned(~ISTRIP);  // Disable strip parity bits.
-//                attr.c_iflag &= unsigned(~IGNBRK);  // No ignore break condition.
-//                attr.c_iflag &= unsigned(~IGNCR);   // No ignore carrier return.
-//                attr.c_iflag &= unsigned(~INLCR);   // No map NL to CR.
-//                attr.c_iflag &= unsigned(~ICRNL);   // No map CR to NL.
-//
-//                /* Setting OUTPUT OPTIONS. */
-//                attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
-//
-//                /* Setting OUTPUT CHARACTERS. */
-//                attr.c_cc[VMIN] = 10;
-//                attr.c_cc[VTIME] = 1;
-//
-//                /* Get baudrate. */
-//                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
-//
-//                /* Setting BAUD RATE. */
-//                cfsetispeed(&attr, baudrate);
-//                cfsetospeed(&attr, baudrate);
-//
-//                if (0 == tcsetattr(fd, TCSANOW, &attr))
-//                {
-//                    server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
-//                    rv = server_->run();
-//                }
-//            }
-//        }
-//        return rv;
-//    }
-//
-//private:
-//    std::string dev_;
-//    CLI::Option* cli_opt_;
-//    BaudrateOpt baudrate_opt_;
-//    CommonOpts common_opts_;
-//};
-//
-///*************************************************************************************************
-// * Pseudo-Serial Subcommand
-// *************************************************************************************************/
-//class PseudoSerialSubcommand : public ServerSubcommand
-//{
-//public:
-//    PseudoSerialSubcommand(CLI::App& app)
-//        : ServerSubcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
-//        , baudrate_opt_{*cli_subcommand_}
-//        , common_opts_{*cli_subcommand_}
-//    {}
-//
-//private:
-//    bool launch_server() final
-//    {
-//        bool rv = false;
-//
-//        /* Open pseudo-terminal. */
-//        char* dev = nullptr;
-//        int fd = posix_openpt(O_RDWR | O_NOCTTY);
-//        if (-1 != fd)
-//        {
-//            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
-//            {
-//                struct termios attr;
-//                tcgetattr(fd, &attr);
-//                cfmakeraw(&attr);
-//                tcflush(fd, TCIOFLUSH);
-//                tcsetattr(fd, TCSANOW, &attr);
-//
-//                /* Get baudrate. */
-//                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
-//
-//                /* Setting BAUD RATE. */
-//                cfsetispeed(&attr, baudrate);
-//                cfsetospeed(&attr, baudrate);
-//
-//                /* Log. */
-//                std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
-//
-//                /* Run server. */
-//                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
-//                rv = server_->run();
-//            }
-//        }
-//
-//        return rv;
-//    }
-//
-//private:
-//    BaudrateOpt baudrate_opt_;
-//    CommonOpts common_opts_;
-//};
-//#endif
+/*************************************************************************************************
+ * Serial Subcommand
+ *************************************************************************************************/
+#ifndef _WIN32
+class SerialSubcommand : public ServerSubcommand
+{
+public:
+    SerialSubcommand(CLI::App& app)
+        : ServerSubcommand{app, "serial", "Launch a Serial server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("--dev", dev_, "Select the serial device")}
+        , baudrate_opt_{*cli_subcommand_}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+        cli_opt_->check(CLI::ExistingFile);
+    }
+
+private:
+    void launch_server() final
+    {
+        int fd = open(dev_.c_str(), O_RDWR | O_NOCTTY);
+        if (0 < fd)
+        {
+            struct termios attr;
+            memset(&attr, 0, sizeof(attr));
+            if (0 == tcgetattr(fd, &attr))
+            {
+                /* Setting CONTROL OPTIONS. */
+                attr.c_cflag |= unsigned(CREAD);    // Enable read.
+                attr.c_cflag |= unsigned(CLOCAL);   // Set local mode.
+                attr.c_cflag &= unsigned(~PARENB);  // Disable parity.
+                attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
+                attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
+                attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
+                attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+
+                /* Setting LOCAL OPTIONS. */
+                attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
+                attr.c_lflag &= unsigned(~ECHO);    // Disable echoing of input characters.
+                attr.c_lflag &= unsigned(~ECHOE);   // Disable echoing the erase character.
+                attr.c_lflag &= unsigned(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+
+                /* Setting INPUT OPTIONS. */
+                attr.c_iflag &= unsigned(~IXON);    // Disable output software flow control.
+                attr.c_iflag &= unsigned(~IXOFF);   // Disable input software flow control.
+                attr.c_iflag &= unsigned(~INPCK);   // Disable parity check.
+                attr.c_iflag &= unsigned(~ISTRIP);  // Disable strip parity bits.
+                attr.c_iflag &= unsigned(~IGNBRK);  // No ignore break condition.
+                attr.c_iflag &= unsigned(~IGNCR);   // No ignore carrier return.
+                attr.c_iflag &= unsigned(~INLCR);   // No map NL to CR.
+                attr.c_iflag &= unsigned(~ICRNL);   // No map CR to NL.
+
+                /* Setting OUTPUT OPTIONS. */
+                attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
+
+                /* Setting OUTPUT CHARACTERS. */
+                attr.c_cc[VMIN] = 10;
+                attr.c_cc[VTIME] = 1;
+
+                /* Get baudrate. */
+                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&attr, baudrate);
+                cfsetospeed(&attr, baudrate);
+
+                if (0 == tcsetattr(fd, TCSANOW, &attr))
+                {
+                    server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
+                    if (server_->run())
+                    {
+#ifdef UAGENT_DISCOVERY_PROFILE
+                        if (opts_ref_.discovery_opt_.is_enable())
+                        {
+                            server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+                        }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+                        if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                            && opts_ref_.p2p_opt_.is_enable())
+                        {
+                            server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+                        }
+#endif
+                        if (opts_ref_.reference_opt_.is_enable())
+                        {
+                            server_->load_config_file(opts_ref_.reference_opt_.get_file());
+                        }
+
+                        if (opts_ref_.verbose_opt_.is_enable())
+                        {
+                            server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
+    std::string dev_;
+    CLI::Option* cli_opt_;
+    BaudrateOpt baudrate_opt_;
+    CommonOpts common_opts_;
+};
+
+/*************************************************************************************************
+ * Pseudo-Serial Subcommand
+ *************************************************************************************************/
+class PseudoSerialSubcommand : public ServerSubcommand
+{
+public:
+    PseudoSerialSubcommand(CLI::App& app)
+        : ServerSubcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
+        , baudrate_opt_{*cli_subcommand_}
+        , common_opts_{*cli_subcommand_}
+    {}
+
+private:
+    void launch_server() final
+    {
+        /* Open pseudo-terminal. */
+        char* dev = nullptr;
+        int fd = posix_openpt(O_RDWR | O_NOCTTY);
+        if (-1 != fd)
+        {
+            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
+            {
+                struct termios attr;
+                tcgetattr(fd, &attr);
+                cfmakeraw(&attr);
+                tcflush(fd, TCIOFLUSH);
+                tcsetattr(fd, TCSANOW, &attr);
+
+                /* Get baudrate. */
+                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+
+                /* Setting BAUD RATE. */
+                cfsetispeed(&attr, baudrate);
+                cfsetospeed(&attr, baudrate);
+
+                /* Log. */
+                std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
+
+                /* Run server. */
+                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
+                if (server_->run())
+                {
+#ifdef UAGENT_DISCOVERY_PROFILE
+                    if (opts_ref_.discovery_opt_.is_enable())
+                    {
+                        server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+                    }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+                    if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                        && opts_ref_.p2p_opt_.is_enable())
+                    {
+                        server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+                    }
+#endif
+                    if (opts_ref_.reference_opt_.is_enable())
+                    {
+                        server_->load_config_file(opts_ref_.reference_opt_.get_file());
+                    }
+
+                    if (opts_ref_.verbose_opt_.is_enable())
+                    {
+                        server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                    }
+                }
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
+    BaudrateOpt baudrate_opt_;
+    CommonOpts common_opts_;
+};
+#endif
 
 } // cli
 } // uxr

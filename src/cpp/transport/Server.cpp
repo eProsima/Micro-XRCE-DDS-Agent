@@ -20,6 +20,7 @@
 
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
 
 #include <functional>
 
@@ -30,6 +31,7 @@ namespace uxr {
 
 extern template class Processor<IPv4EndPoint>;
 extern template class Processor<IPv6EndPoint>;
+extern template class Processor<SerialEndPoint>;
 
 template<typename EndPoint>
 Server<EndPoint>::Server(Middleware::Kind middleware_kind)
@@ -209,6 +211,7 @@ void Server<EndPoint>::heartbeat_loop()
 
 template class Server<IPv4EndPoint>;
 template class Server<IPv6EndPoint>;
+template class Server<SerialEndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

@@ -15,7 +15,10 @@
 #ifndef UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 #define UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
 
-#include <uxr/agent/transport/serial/SerialServerBase.hpp>
+//#include <uxr/agent/transport/serial/SerialServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/serial/serial_protocol.h>
 
 #include <cstdint>
 #include <cstddef>
@@ -24,7 +27,8 @@
 namespace eprosima {
 namespace uxr {
 
-class SerialAgent : public SerialServerBase
+//class SerialAgent : public SerialServerBase
+class SerialAgent : public Server<SerialEndPoint>
 {
 public:
     SerialAgent(
@@ -40,22 +44,25 @@ private:
     bool close() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(uint16_t /*discovery_port*/) final { return false; }
+    bool init_discovery(
+            uint16_t /*discovery_port*/) final { return false; }
 
     bool close_discovery() final { return false; }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+    bool init_p2p(
+            uint16_t /*p2p_port*/) final { return false; } // TODO
 
     bool close_p2p() final { return false; } // TODO
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<SerialEndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<SerialEndPoint> output_packet) final;
 
     int get_error() final;
 
@@ -71,6 +78,7 @@ private:
             int timeout);
 
 private:
+    uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
     uxrSerialIO serial_io_;

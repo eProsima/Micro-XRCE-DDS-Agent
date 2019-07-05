@@ -27,6 +27,8 @@
 namespace eprosima {
 namespace uxr {
 
+extern template class DiscoveryServerLinux<IPv4EndPoint>;
+
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
