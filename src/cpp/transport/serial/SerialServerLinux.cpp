@@ -145,12 +145,17 @@ bool SerialAgent::recv_message(
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
         input_packet.source = SerialEndPoint(remote_addr);
-//        rv = true;
-//        UXR_AGENT_LOG_MESSAGE(
-//            UXR_DECORATE_YELLOW("[==>> SER <<==]"),
-//            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-//            input_packet.message->get_buf(),
-//            input_packet.message->get_len());
+        rv = true;
+
+        uint32_t raw_client_key;
+        if (Server<SerialEndPoint>::get_client_key(input_packet.source, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> SER <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
+        }
     }
     else
     {
@@ -173,11 +178,16 @@ bool SerialAgent::send_message(
     if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
         rv = true;
-//        UXR_AGENT_LOG_MESSAGE(
-//            UXR_DECORATE_YELLOW("[** <<SER>> **]"),
-//            conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-//            output_packet.message->get_buf(),
-//            output_packet.message->get_len());
+
+        uint32_t raw_client_key;
+        if (Server<SerialEndPoint>::get_client_key(output_packet.destination, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<SER>> **]"),
+                raw_client_key,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
+        }
     }
     errno_ = rv ? 0 : -1;
     return rv;

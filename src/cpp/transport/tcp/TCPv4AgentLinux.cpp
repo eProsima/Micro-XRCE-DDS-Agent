@@ -30,6 +30,9 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
+extern template class DiscoveryServer<IPv4EndPoint>;
+extern template class DiscoveryServerLinux<IPv4EndPoint>;
+
 TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
@@ -124,33 +127,6 @@ bool TCPv4Agent::init()
                     UXR_DECORATE_GREEN("running..."),
                     "port: {}",
                     transport_address_.medium_locator().port());
-
-// TODO (julian): get local address from getifaddrs.
-//                /* Get local address. */
-//                int fd = socket(PF_INET, SOCK_DGRAM, 0);
-//                struct sockaddr_in temp_addr;
-//                temp_addr.sin_family = AF_INET;
-//                temp_addr.sin_port = htons(80);
-//                temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-//                int connected = connect(fd, reinterpret_cast<struct sockaddr*>(&temp_addr), sizeof(temp_addr));
-//                if (0 == connected)
-//                {
-//                    struct sockaddr local_addr;
-//                    socklen_t local_addr_len = sizeof(local_addr);
-//                    if (-1 != getsockname(fd, &local_addr, &local_addr_len))
-//                    {
-//                        transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-//                                                                     uint8_t(local_addr.sa_data[3]),
-//                                                                     uint8_t(local_addr.sa_data[4]),
-//                                                                     uint8_t(local_addr.sa_data[5])});
-//                        rv = true;
-//                        UXR_AGENT_LOG_INFO(
-//                            UXR_DECORATE_GREEN("running..."),
-//                            "port: {}",
-//                            transport_address_.medium_locator().port());
-//                    }
-//                    ::close(fd);
-//                }
             }
             else
             {
@@ -265,11 +241,16 @@ bool TCPv4Agent::recv_message(
     {
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
-//        UXR_AGENT_LOG_MESSAGE(
-//            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
-//            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-//            input_packet.message->get_buf(),
-//            input_packet.message->get_len());
+
+        uint32_t raw_client_key;
+        if (Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
+        }
     }
     return rv;
 }
@@ -347,12 +328,17 @@ bool TCPv4Agent::send_message(
 
         if (payload_sent)
         {
-//            UXR_AGENT_LOG_MESSAGE(
-//                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
-//                conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-//                output_packet.message->get_buf(),
-//                output_packet.message->get_len());
             rv = true;
+
+            uint32_t raw_client_key;
+            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
+            {
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
+                    raw_client_key,
+                    output_packet.message->get_buf(),
+                    output_packet.message->get_len());
+            }
         }
         else
         {
