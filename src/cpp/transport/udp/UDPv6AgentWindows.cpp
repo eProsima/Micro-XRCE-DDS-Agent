@@ -17,6 +17,7 @@
 #include <uxr/agent/logger/Logger.hpp>
 
 #include <string.h>
+#include <ws2ipdef.h>
 
 namespace eprosima {
 namespace uxr {

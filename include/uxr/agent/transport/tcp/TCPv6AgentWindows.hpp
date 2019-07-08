@@ -12,32 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
-#define UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_
 
+#include <uxr/agent/transport/tcp/TCPServerBase.hpp>
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif
 
 #include <winsock2.h>
-#include <cstdint>
-#include <cstddef>
+#include <ws2ipdef.h>
+#include <vector>
+#include <array>
+#include <list>
+#include <set>
 
 namespace eprosima {
 namespace uxr {
 
+struct TCPv6ConnectionWindows : public TCPv6Connection
+{
+    struct pollfd* poll_fd;
+};
+
 extern template class Server<IPv6EndPoint>; // Explicit instantiation declaration.
 
-class UDPv6Agent : public Server<IPv6EndPoint>
+class TCPv6Agent : public Server<IPv6EndPoint>, public TCPServerBase<TCPv6ConnectionWindows>
 {
 public:
-    UXR_AGENT_EXPORT UDPv6Agent(
+    UXR_AGENT_EXPORT TCPv6Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~UDPv6Agent() final;
+    UXR_AGENT_EXPORT ~TCPv6Agent() final;
 
 private:
     bool init() final;
@@ -65,10 +73,47 @@ private:
 
     int get_error() final;
 
+    bool read_message(int timeout);
+
+    bool open_connection(
+            SOCKET fd,
+            struct sockaddr_in6& sockaddr);
+
+    bool close_connection(
+            TCPv6ConnectionWindows& connection);
+
+    bool connection_available();
+
+    void listener_loop();
+
+    static void init_input_buffer(
+            TCPInputBuffer& buffer);
+
+    size_t recv_data(
+            TCPv6ConnectionWindows& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
+
+    size_t send_data(
+            TCPv6ConnectionWindows& connection,
+            uint8_t* buffer,
+            size_t len,
+            uint8_t &errcode) override;
+
 private:
-    WSAPOLLFD poll_fd_;
+    std::array<TCPv6ConnectionWindows, TCP_MAX_CONNECTIONS> connections_;
+    std::set<uint32_t> active_connections_;
+    std::list<uint32_t> free_connections_;
+    std::map<IPv6EndPoint, uint32_t> endpoint_to_connection_map_;
+    std::mutex connections_mtx_;
+    struct pollfd listener_poll_;
+    std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
     uint8_t buffer_[UINT16_MAX];
     dds::xrce::TransportAddress transport_address_;
+    std::thread listener_thread_;
+    std::atomic<bool> running_cond_;
+    std::queue<InputPacket<IPv6EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerWindows<IPv6EndPoint> discovery_server_;
 #endif
@@ -77,4 +122,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCPv6_AGENT_HPP_
