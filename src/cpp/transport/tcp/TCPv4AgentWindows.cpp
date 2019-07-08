@@ -23,6 +23,9 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
+extern template class DiscoveryServer<IPv4EndPoint>; // Explicit instantiation declaration.
+extern template class DiscoveryServerWindows<IPv4EndPoint>; // Explicit instantiation declaration.
+
 TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)

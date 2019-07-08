@@ -21,6 +21,9 @@
 namespace eprosima {
 namespace uxr {
 
+extern template class DiscoveryServer<IPv4EndPoint>; // Explicit instantiation declaration.
+extern template class DiscoveryServerWindows<IPv4EndPoint>; // Explicit instantiation declaration.
+
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)

@@ -235,6 +235,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
         $<$<PLATFORM_ID:Windows>:ws2_32>
+        $<$<PLATFORM_ID:Windows>:iphlpapi>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>

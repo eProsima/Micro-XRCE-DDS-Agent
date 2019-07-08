@@ -289,6 +289,7 @@ DiscoveryServerLinux<EndPoint>::get_interfaces()
         }
         rv = true;
     }
+    freeifaddrs(ifaddr);
 
     return rv;
 }
