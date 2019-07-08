@@ -44,6 +44,7 @@ TCPv6Agent::TCPv6Agent(
     , listener_poll_{}
     , poll_fds_{}
     , buffer_{0}
+    , agent_port_{agent_port}
     , listener_thread_{}
     , running_cond_{false}
     , messages_queue_{}
@@ -53,11 +54,7 @@ TCPv6Agent::TCPv6Agent(
 #ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{*this}
 #endif
-{
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
-}
+{}
 
 TCPv6Agent::~TCPv6Agent()
 {
@@ -91,7 +88,7 @@ bool TCPv6Agent::init()
 
         memset(&address, 0, sizeof(address));
         address.sin6_family = AF_INET6;
-        address.sin6_port = htons(transport_address_.medium_locator().port());
+        address.sin6_port = htons(uint16_t(agent_port_));
         address.sin6_addr = in6addr_any;
 
         if (-1 != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
@@ -100,7 +97,7 @@ bool TCPv6Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
 
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
@@ -127,14 +124,14 @@ bool TCPv6Agent::init()
                 UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("running..."),
                     "port: {}",
-                    transport_address_.medium_locator().port());
+                    agent_port_);
             }
             else
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("listen error"),
                     "port: {}",
-                    transport_address_.medium_locator().port());
+                    agent_port_);
             }
         }
         else
@@ -142,7 +139,7 @@ bool TCPv6Agent::init()
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
     }
     else
@@ -150,7 +147,7 @@ bool TCPv6Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -187,14 +184,14 @@ bool TCPv6Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -218,7 +215,8 @@ bool TCPv6Agent::init_p2p(uint16_t p2p_port)
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
-    return agent_discoverer_.run(p2p_port, transport_address_);
+//    return agent_discoverer_.run(p2p_port, transport_address_);
+    return true;
 }
 
 bool TCPv6Agent::close_p2p()
@@ -367,7 +365,7 @@ bool TCPv6Agent::open_connection(
         uint32_t id = free_connections_.front();
         TCPv6ConnectionLinux& connection = connections_[size_t(id)];
         connection.poll_fd->fd = fd;
-        std::array<uint8_t, 16> addr;
+        std::array<uint8_t, 16> addr{};
         std::copy(std::begin(sockaddr.sin6_addr.s6_addr), std::end(sockaddr.sin6_addr.s6_addr), addr.begin());
         connection.endpoint = IPv6EndPoint(addr, sockaddr.sin6_port);
         connection.active = true;

@@ -48,13 +48,13 @@ private:
     bool send_message(
             OutputPacket<IPv4EndPoint>&& output_packet) final;
 
-    template<typename T = EndPoint>
-    typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type
-    get_interfaces();
+    template<typename T = EndPoint,
+             typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type = 0>
+    bool get_interfaces();
 
-    template<typename T = EndPoint>
-    typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type
-    get_interfaces();
+    template<typename T = EndPoint,
+             typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type = 0>
+    bool get_interfaces();
 
 private:
     struct pollfd poll_fd_;

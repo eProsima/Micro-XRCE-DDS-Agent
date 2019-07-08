@@ -36,8 +36,7 @@ DiscoveryServer<EndPoint>::DiscoveryServer(
     , agent_port_{}
     , discovery_port_{}
     , filter_port_{}
-{
-}
+{}
 
 template<typename EndPoint>
 bool DiscoveryServer<EndPoint>::run(

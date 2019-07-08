@@ -44,6 +44,7 @@ TCPv4Agent::TCPv4Agent(
     , listener_poll_{}
     , poll_fds_{}
     , buffer_{0}
+    , agent_port_{agent_port}
     , listener_thread_{}
     , running_cond_{false}
     , messages_queue_{}
@@ -53,11 +54,7 @@ TCPv4Agent::TCPv4Agent(
 #ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{*this}
 #endif
-{
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
-}
+{}
 
 TCPv4Agent::~TCPv4Agent()
 {
@@ -89,7 +86,7 @@ bool TCPv4Agent::init()
         struct sockaddr_in address;
 
         address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
 
@@ -99,7 +96,7 @@ bool TCPv4Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
 
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
@@ -126,14 +123,14 @@ bool TCPv4Agent::init()
                 UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("running..."),
                     "port: {}",
-                    transport_address_.medium_locator().port());
+                    agent_port_);
             }
             else
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("listen error"),
                     "port: {}",
-                    transport_address_.medium_locator().port());
+                    agent_port_);
             }
         }
         else
@@ -141,7 +138,7 @@ bool TCPv4Agent::init()
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
     }
     else
@@ -149,7 +146,7 @@ bool TCPv4Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -186,14 +183,14 @@ bool TCPv4Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -216,7 +213,8 @@ bool TCPv4Agent::init_p2p(uint16_t p2p_port)
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
-    return agent_discoverer_.run(p2p_port, transport_address_);
+//    return agent_discoverer_.run(p2p_port, transport_address_);
+    return true; // TODO.
 }
 
 bool TCPv4Agent::close_p2p()

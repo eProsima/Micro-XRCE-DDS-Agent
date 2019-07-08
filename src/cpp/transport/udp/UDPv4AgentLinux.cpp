@@ -21,14 +21,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string.h>
-#include <errno.h>
+#include <cstring>
+#include <cerrno>
 
 namespace eprosima {
 namespace uxr {
 
-extern template class DiscoveryServer<IPv4EndPoint>;
-extern template class DiscoveryServerLinux<IPv4EndPoint>;
+extern template class DiscoveryServer<IPv4EndPoint>; // Explicit instantiation declaration.
+extern template class DiscoveryServerLinux<IPv4EndPoint>; // Explicit instantiation declaration.
 
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
@@ -36,17 +36,14 @@ UDPv4Agent::UDPv4Agent(
     : Server<IPv4EndPoint>{middleware_kind}
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
+    , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
 #endif
 #ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{*this}
 #endif
-{
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
-}
+{}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -71,10 +68,10 @@ bool UDPv4Agent::init()
 
     if (-1 != poll_fd_.fd)
     {
-        struct sockaddr_in address;
+        struct sockaddr_in address{};
 
         address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
 
@@ -86,20 +83,19 @@ bool UDPv4Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port()
-                );
+                agent_port_);
 
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
     }
     else
@@ -107,7 +103,7 @@ bool UDPv4Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
 
     return rv;
@@ -128,14 +124,14 @@ bool UDPv4Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -158,7 +154,8 @@ bool UDPv4Agent::init_p2p(uint16_t p2p_port)
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
-    return agent_discoverer_.run(p2p_port, transport_address_);
+//    return agent_discoverer_.run(p2p_port, transport_address_);
+    return true; // TODO.
 }
 
 bool UDPv4Agent::close_p2p()
@@ -175,7 +172,7 @@ bool UDPv4Agent::recv_message(
         int timeout)
 {
     bool rv = false;
-    struct sockaddr_in client_addr;
+    struct sockaddr_in client_addr{};
     socklen_t client_addr_len;
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
@@ -190,7 +187,7 @@ bool UDPv4Agent::recv_message(
                          &client_addr_len);
         if (-1 != bytes_received)
         {
-            input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_received)));
+            input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             uint32_t addr = client_addr.sin_addr.s_addr;
             uint16_t port = client_addr.sin_port;
             input_packet.source = IPv4EndPoint(addr, port);
@@ -222,7 +219,7 @@ bool UDPv4Agent::send_message(
         OutputPacket<IPv4EndPoint> output_packet)
 {
     bool rv = false;
-    struct sockaddr_in client_addr;
+    struct sockaddr_in client_addr{};
 
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;

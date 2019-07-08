@@ -64,6 +64,12 @@ bool DiscoveryServerLinux<EndPoint>::init(
         return false;
     }
 
+    /* Get interface. */
+    if (!get_interfaces())
+    {
+        return false;
+    }
+
     /* Local IP and Port setup. */
     struct sockaddr_in address;
 
@@ -157,12 +163,11 @@ bool DiscoveryServerLinux<EndPoint>::recv_message(
                 uint8_t(client_addr.sa_data[2]),
                 uint8_t(client_addr.sa_data[3]),
                 uint8_t(client_addr.sa_data[4]),
-                uint8_t(client_addr.sa_data[5])
-            };
+                uint8_t(client_addr.sa_data[5])};
             uint16_t remote_port = reinterpret_cast<sockaddr_in*>(&client_addr)->sin_port;
 
             bool addr_filtered = false;
-            for (auto &a : DiscoveryServer<EndPoint>::transport_addresses_)
+            for (const auto& a : DiscoveryServer<EndPoint>::transport_addresses_)
             {
                 if (dds::xrce::ADDRESS_FORMAT_MEDIUM == a._d())
                 {
@@ -205,12 +210,13 @@ bool DiscoveryServerLinux<EndPoint>::send_message(
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = output_packet.destination.get_port();
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                reinterpret_cast<struct sockaddr*>(&client_addr),
-                                sizeof(client_addr));
+    ssize_t bytes_sent =
+            sendto(poll_fd_.fd,
+                   output_packet.message->get_buf(),
+                   output_packet.message->get_len(),
+                   0,
+                   reinterpret_cast<struct sockaddr*>(&client_addr),
+                   sizeof(client_addr));
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
@@ -220,9 +226,8 @@ bool DiscoveryServerLinux<EndPoint>::send_message(
 }
 
 template<typename EndPoint>
-template<typename T>
-typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type
-DiscoveryServerLinux<EndPoint>::get_interfaces()
+template<typename T, typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type>
+bool DiscoveryServerLinux<EndPoint>::get_interfaces()
 {
     bool rv = false;
     struct ifaddrs* ifaddr;
@@ -240,7 +245,8 @@ DiscoveryServerLinux<EndPoint>::get_interfaces()
                                         uint8_t(ptr->ifa_addr->sa_data[3]),
                                         uint8_t(ptr->ifa_addr->sa_data[4]),
                                         uint8_t(ptr->ifa_addr->sa_data[5])});
-                DiscoveryServer<EndPoint>::transport_addresses_.push_bach(medium_locator);
+                this->transport_addresses_.emplace_back();
+                this->transport_addresses_.back().medium_locator(medium_locator);
             }
         }
         rv = true;
@@ -251,9 +257,8 @@ DiscoveryServerLinux<EndPoint>::get_interfaces()
 }
 
 template<typename EndPoint>
-template<typename T>
-typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type
-DiscoveryServerLinux<EndPoint>::get_interfaces()
+template<typename T, typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type>
+bool DiscoveryServerLinux<EndPoint>::get_interfaces()
 {
     bool rv = false;
     struct ifaddrs* ifaddr;
@@ -284,7 +289,8 @@ DiscoveryServerLinux<EndPoint>::get_interfaces()
                                        addr->sin6_addr.s6_addr[13],
                                        addr->sin6_addr.s6_addr[14],
                                        addr->sin6_addr.s6_addr[15]});
-                DiscoveryServer<EndPoint>::transport_addresses_.push_bach(large_locator);
+                this->transport_addresses_.emplace_back();
+                this->transport_addresses_.back().large_locator(large_locator);
             }
         }
         rv = true;
