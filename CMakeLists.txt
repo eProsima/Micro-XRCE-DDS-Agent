@@ -138,6 +138,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentWindows.cpp
+        src/cpp/transport/udp/UDPv6AgentWindows.cpp
         src/cpp/transport/tcp/TCPv4AgentWindows.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
+#include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -21,22 +21,22 @@
 namespace eprosima {
 namespace uxr {
 
-UDPv4Agent::UDPv4Agent(
+UDPv6Agent::UDPv6Agent(
         uint16_t agent_port,
         Middleware::Kind middleware_kind)
-    : Server<IPv4EndPoint>{middleware_kind}
+    : Server<IPv6EndPoint>{middleware_kind}
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
 {
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
+    dds::xrce::TransportAddressLarge large_locator;
+    large_locator.port(agent_port);
+    transport_address_.large_locator(large_locator);
 }
 
-UDPv4Agent::~UDPv4Agent()
+UDPv6Agent::~UDPv6Agent()
 {
     try
     {
@@ -51,21 +51,21 @@ UDPv4Agent::~UDPv4Agent()
     }
 }
 
-bool UDPv4Agent::init()
+bool UDPv6Agent::init()
 {
     bool rv = false;
 
     /* Socker initialization. */
-    poll_fd_.fd = socket(PF_INET, SOCK_DGRAM, 0);
+    poll_fd_.fd = socket(PF_INET6, SOCK_DGRAM, 0);
 
     if (INVALID_SOCKET != poll_fd_.fd)
     {
         /* IP and Port setup. */
-        struct sockaddr_in address;
-        address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
-        address.sin_addr.s_addr = INADDR_ANY;
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+        struct sockaddr_in6 address;
+        address.sin6_family = AF_INET6;
+        address.sin6_port = htons(uint16_t(transport_address_.large_locator().port()));
+        address.sin6_addr = in6addr_any;
+
         if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
             poll_fd_.events = POLLIN;
@@ -74,20 +74,20 @@ bool UDPv4Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port()
+                transport_address_.large_locator().port()
                 );
 
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                transport_address_.large_locator().port());
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                transport_address_.large_locator().port());
         }
     }
     else
@@ -95,13 +95,13 @@ bool UDPv4Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            transport_address_.large_locator().port());
     }
 
     return rv;
 }
 
-bool UDPv4Agent::close()
+bool UDPv6Agent::close()
 {
     if (INVALID_SOCKET == poll_fd_.fd)
     {
@@ -114,7 +114,7 @@ bool UDPv4Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            transport_address_.large_locator().port());
         poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
@@ -123,29 +123,29 @@ bool UDPv4Agent::close()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            transport_address_.large_locator().port());
     }
     return rv;
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPv4Agent::init_discovery(uint16_t discovery_port)
+bool UDPv6Agent::init_discovery(uint16_t discovery_port)
 {
     return discovery_server_.run(discovery_port);
 }
 
-bool UDPv4Agent::close_discovery()
+bool UDPv6Agent::close_discovery()
 {
     return discovery_server_.stop();
 }
 #endif
 
-bool UDPv4Agent::recv_message(
-        InputPacket<IPv4EndPoint>& input_packet,
+bool UDPv6Agent::recv_message(
+        InputPacket<IPv6EndPoint>& input_packet,
         int timeout)
 {
     bool rv = false;
-    struct sockaddr_in client_addr;
+    struct sockaddr_in6 client_addr;
     int client_addr_len = sizeof(client_addr);
 
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
@@ -161,13 +161,13 @@ bool UDPv4Agent::recv_message(
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-            uint32_t addr = client_addr.sin_addr.s_addr;
-            uint16_t port = client_addr.sin_port;
-            input_packet.source = IPv4EndPoint(addr, port);
+            std::array<uint8_t, 16> addr{};
+            std::copy(std::begin(client_addr.sin6_addr.s6_addr), std::end(client_addr.sin6_addr.s6_addr), addr.begin());
+            input_packet.source = IPv6EndPoint(addr, client_addr.sin6_port);
             rv = true;
 
             uint32_t raw_client_key;
-            if (Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key))
+            if (Server<IPv6EndPoint>::get_client_key(input_packet.source, raw_client_key))
             {
                 UXR_AGENT_LOG_MESSAGE(
                     UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
@@ -188,15 +188,17 @@ bool UDPv4Agent::recv_message(
     return rv;
 }
 
-bool UDPv4Agent::send_message(
-        OutputPacket<IPv4EndPoint> output_packet)
+bool UDPv6Agent::send_message(
+        OutputPacket<IPv6EndPoint> output_packet)
 {
     bool rv = false;
-    struct sockaddr_in client_addr;
+    struct sockaddr_in6 client_addr{};
 
-    client_addr.sin_family = AF_INET;
-    client_addr.sin_port = output_packet.destination.get_port();
-    client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
+    client_addr.sin6_family = AF_INET6;
+    client_addr.sin6_port = output_packet.destination.get_port();
+    const std::array<uint8_t, 16>& destination = output_packet.destination.get_addr();
+    std::copy(destination.begin(), destination.end(), std::begin(client_addr.sin6_addr.s6_addr));
+
     int bytes_sent =
             sendto(poll_fd_.fd,
                    reinterpret_cast<char*>(output_packet.message->get_buf()),
@@ -211,7 +213,7 @@ bool UDPv4Agent::send_message(
             rv = true;
 
             uint32_t raw_client_key;
-            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
+            if (Server<IPv6EndPoint>::get_client_key(output_packet.destination, raw_client_key))
             {
                 UXR_AGENT_LOG_MESSAGE(
                     UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
@@ -225,7 +227,7 @@ bool UDPv4Agent::send_message(
     return rv;
 }
 
-int UDPv4Agent::get_error()
+int UDPv6Agent::get_error()
 {
     return WSAGetLastError();
 }

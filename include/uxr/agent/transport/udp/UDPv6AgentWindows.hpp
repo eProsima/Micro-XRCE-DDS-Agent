@@ -22,22 +22,23 @@
 #endif
 
 #include <winsock2.h>
+#include <ws2ipdef.h>
 #include <cstdint>
 #include <cstddef>
 
 namespace eprosima {
 namespace uxr {
 
-extern template class Server<IPv4EndPoint>; // Explicit instantiation declaration.
+extern template class Server<IPv6EndPoint>; // Explicit instantiation declaration.
 
-class UDPv4Agent : public Server<IPv4EndPoint>
+class UDPv6Agent : public Server<IPv6EndPoint>
 {
 public:
-    UXR_AGENT_EXPORT UDPv4Agent(
+    UXR_AGENT_EXPORT UDPv6Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~UDPv4Agent() final;
+    UXR_AGENT_EXPORT ~UDPv6Agent() final;
 
 private:
     bool init() final;
@@ -57,11 +58,11 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket<IPv4EndPoint>& input_packet,
+            InputPacket<IPv6EndPoint>& input_packet,
             int timeout) final;
 
     bool send_message(
-            OutputPacket<IPv4EndPoint> output_packet) final;
+            OutputPacket<IPv6EndPoint> output_packet) final;
 
     int get_error() final;
 
@@ -70,7 +71,7 @@ private:
     uint8_t buffer_[UINT16_MAX];
     dds::xrce::TransportAddress transport_address_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerWindows<IPv4EndPoint> discovery_server_;
+    DiscoveryServerWindows<IPv6EndPoint> discovery_server_;
 #endif
 };
 
