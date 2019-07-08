@@ -37,17 +37,14 @@ TCPv4Agent::TCPv4Agent(
     , listener_poll_{}
     , poll_fds_{}
     , buffer_{0}
+    , agent_port_{agent_port}
     , listener_thread_{}
     , running_cond_{false}
     , messages_queue_{}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
-{
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
-}
+{}
 
 TCPv4Agent::~TCPv4Agent()
 {
@@ -76,7 +73,7 @@ bool TCPv4Agent::init()
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
@@ -85,7 +82,7 @@ bool TCPv4Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
 
             /* Setup listener poll. */
             listener_poll_.events = POLLIN;
@@ -107,39 +104,20 @@ bool TCPv4Agent::init()
             {
                 running_cond_ = true;
                 listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
+                rv = true;
 
-                /* Get local address. */
-                SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
-                struct sockaddr_in temp_addr;
-                temp_addr.sin_family = AF_INET;
-                temp_addr.sin_port = htons(80);
-                temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-                int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-                if (0 == connected)
-                {
-                    struct sockaddr local_addr;
-                    int local_addr_len = sizeof(local_addr);
-                    if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
-                    {
-                        transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                     uint8_t(local_addr.sa_data[3]),
-                                                                     uint8_t(local_addr.sa_data[4]),
-                                                                     uint8_t(local_addr.sa_data[5])});
-                        rv = true;
-                        UXR_AGENT_LOG_INFO(
-                            UXR_DECORATE_GREEN("running..."),
-                            "port: {}",
-                            transport_address_.medium_locator().port());
-                    }
-                    closesocket(fd);
-                }
+                rv = true;
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_GREEN("running..."),
+                    "port: {}",
+                    agent_port_);
             }
             else
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("listen error"),
                     "port: {}",
-                    transport_address_.medium_locator().port());
+                    agent_port_);
             }
         }
         else
@@ -147,7 +125,7 @@ bool TCPv4Agent::init()
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
     }
     else
@@ -155,7 +133,7 @@ bool TCPv4Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
@@ -192,14 +170,14 @@ bool TCPv4Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }

@@ -68,7 +68,8 @@ private:
 private:
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    dds::xrce::TransportAddress transport_address_;
+    uint16_t agent_port_;
+//    dds::xrce::TransportAddress transport_address_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerWindows<IPv6EndPoint> discovery_server_;
 #endif

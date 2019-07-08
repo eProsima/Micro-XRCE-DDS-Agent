@@ -31,14 +31,11 @@ UDPv6Agent::UDPv6Agent(
     : Server<IPv6EndPoint>{middleware_kind}
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
+    , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
-{
-    dds::xrce::TransportAddressLarge large_locator;
-    large_locator.port(agent_port);
-    transport_address_.large_locator(large_locator);
-}
+{}
 
 UDPv6Agent::~UDPv6Agent()
 {
@@ -67,7 +64,7 @@ bool UDPv6Agent::init()
         /* IP and Port setup. */
         struct sockaddr_in6 address;
         address.sin6_family = AF_INET6;
-        address.sin6_port = htons(uint16_t(transport_address_.large_locator().port()));
+        address.sin6_port = htons(agent_port_);
         address.sin6_addr = in6addr_any;
 
         if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
@@ -78,20 +75,19 @@ bool UDPv6Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.large_locator().port()
-                );
+                agent_port_);
 
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "port: {}",
-                transport_address_.large_locator().port());
+                agent_port_);
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.large_locator().port());
+                agent_port_);
         }
     }
     else
@@ -99,7 +95,7 @@ bool UDPv6Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.large_locator().port());
+            agent_port_);
     }
 
     return rv;
@@ -118,7 +114,7 @@ bool UDPv6Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.large_locator().port());
+            agent_port_);
         poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
@@ -127,7 +123,7 @@ bool UDPv6Agent::close()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.large_locator().port());
+            agent_port_);
     }
     return rv;
 }

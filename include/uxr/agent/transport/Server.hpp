@@ -56,16 +56,6 @@ private:
     void push_output_packet(
             OutputPacket<EndPoint> output_packet);
 
-//    virtual void on_create_client(
-//            EndPoint* source,
-//            const dds::xrce::CLIENT_Representation& representation) = 0;
-//
-//    virtual void on_delete_client(EndPoint* source) = 0;
-//
-//    virtual const dds::xrce::ClientKey get_client_key(EndPoint* source) = 0;
-//
-//    virtual std::unique_ptr<EndPoint> get_source(const dds::xrce::ClientKey& client_key) = 0;
-
     virtual bool init() = 0;
 
     virtual bool close() = 0;

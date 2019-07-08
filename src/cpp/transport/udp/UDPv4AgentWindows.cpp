@@ -30,14 +30,11 @@ UDPv4Agent::UDPv4Agent(
     : Server<IPv4EndPoint>{middleware_kind}
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
+    , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
 #endif
-{
-    dds::xrce::TransportAddressMedium medium_locator;
-    medium_locator.port(agent_port);
-    transport_address_.medium_locator(medium_locator);
-}
+{}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -66,7 +63,7 @@ bool UDPv4Agent::init()
         /* IP and Port setup. */
         struct sockaddr_in address;
         address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
+        address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
         memset(address.sin_zero, '\0', sizeof(address.sin_zero));
         if (SOCKET_ERROR != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
@@ -77,20 +74,19 @@ bool UDPv4Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                transport_address_.medium_locator().port()
-                );
+                agent_port_);
 
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
                 "port: {}",
-                transport_address_.medium_locator().port());
+                agent_port_);
         }
     }
     else
@@ -98,7 +94,7 @@ bool UDPv4Agent::init()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
 
     return rv;
@@ -117,7 +113,7 @@ bool UDPv4Agent::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
         poll_fd_.fd = INVALID_SOCKET;
         rv = true;
     }
@@ -126,7 +122,7 @@ bool UDPv4Agent::close()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            agent_port_);
     }
     return rv;
 }
