@@ -17,7 +17,7 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
-#include <uxr/agent/transport/serial/serial_protocol.h>
+#include <uxr/agent/transport/serial/SerialProtocol.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -64,13 +64,11 @@ private:
 
     int get_error() final;
 
-    static size_t write_data(
-            void* instance,
+    size_t write_data(
             uint8_t* buf,
             size_t len);
 
-    static size_t read_data(
-            void* instance,
+    size_t read_data(
             uint8_t* buf,
             size_t len,
             int timeout);
@@ -79,7 +77,7 @@ private:
     uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    uxrSerialIO serial_io_;
+    SerialIO serial_io_;
     int errno_;
 };
 
