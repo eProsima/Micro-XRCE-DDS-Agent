@@ -51,6 +51,7 @@ inline uint16_t TCPServerBase<Connection>::read_data(
         bool& read_error)
 {
     uint16_t rv = 0;
+    read_error = false;
     bool exit_flag = false;
 
     while(!exit_flag)

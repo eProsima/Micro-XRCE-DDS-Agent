@@ -72,10 +72,12 @@ bool TCPv4Agent::init()
     {
         /* IP and Port setup. */
         struct sockaddr_in address;
+
+        ZeroMemory(&address, sizeof(address));
         address.sin_family = AF_INET;
         address.sin_port = htons(agent_port_);
         address.sin_addr.s_addr = INADDR_ANY;
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+
         if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
         {
             /* Log. */

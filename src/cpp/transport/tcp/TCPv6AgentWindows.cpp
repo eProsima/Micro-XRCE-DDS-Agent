@@ -72,6 +72,8 @@ bool TCPv6Agent::init()
     {
         /* IP and Port setup. */
         struct sockaddr_in6 address;
+
+        ZeroMemory(&address, sizeof(address));
         address.sin6_family = AF_INET6;
         address.sin6_port = htons(agent_port_);
         address.sin6_addr = in6addr_any;
