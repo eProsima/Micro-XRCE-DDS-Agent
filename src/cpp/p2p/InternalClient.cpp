@@ -93,18 +93,18 @@ bool InternalClient::run()
                 remote_client_key_,
                 std::bind(&InternalClient::on_new_topic, this, std::placeholders::_1, std::placeholders::_2));
 
-    /* Compute IP. */
     std::string ip = std::to_string(ip_[0]) + ".";
     ip += std::to_string(ip_[1]) + ".";
     ip += std::to_string(ip_[2]) + ".";
     ip += std::to_string(ip_[3]);
 
-    /* Create ProxyClient. */
+    std::string port = std::to_string(port_);
+
     Agent::OpResult result;
     if (agent_.create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, Middleware::Kind::CED, result))
     {
         /* Transport. */
-        if (uxr_init_udp_transport(&transport_, &platform_, UXR_IPv4, ip.c_str(), port_))
+        if (uxr_init_udp_transport(&transport_, &platform_, UXR_IPv4, ip.c_str(), port.c_str()))
         {
             /* Session. */
             uxr_init_session(&session_, &transport_.comm, local_client_key_);
