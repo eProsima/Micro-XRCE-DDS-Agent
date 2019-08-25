@@ -363,6 +363,16 @@ bool TCPv4Agent::close_connection(TCPConnection& connection)
         lock.unlock();
         /* Add lock for close. */
         std::unique_lock<std::mutex> conn_lock(connection.mtx);
+
+        /* Synchronize the stream with the client, to avoid losing bytes currently in flight. */
+        shutdown(connection_platform.poll_fd->fd, SD_SEND);
+        int poll_rv = WSAPoll(connection_platform.poll_fd, 1, 10000);
+        if (0 < poll_rv)
+        {
+            char dummy;
+            while (recv(connection_platform.poll_fd->fd, &dummy, sizeof(dummy), 0) > 0) {};
+        }
+
         if (0 == closesocket(connection_platform.poll_fd->fd))
         {
             connection_platform.poll_fd->fd = INVALID_SOCKET;
