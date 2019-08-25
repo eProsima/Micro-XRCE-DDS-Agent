@@ -68,71 +68,83 @@ bool TCPv4Agent::init()
 
     if (INVALID_SOCKET != listener_poll_.fd)
     {
-        /* IP and Port setup. */
-        struct sockaddr_in address;
-        address.sin_family = AF_INET;
-        address.sin_port = htons(transport_address_.medium_locator().port());
-        address.sin_addr.s_addr = INADDR_ANY;
-        memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-        if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
+        /* Set reuse port. */
+        int reuse = 1;
+        if (-1 != setsockopt(listener_poll_.fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse)))
         {
-            /* Log. */
-            UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_GREEN("port opened"),
-                "port: {}",
-                transport_address_.medium_locator().port());
-
-            /* Setup listener poll. */
-            listener_poll_.events = POLLIN;
-
-            /* Setup connections. */
-            for (size_t i = 0; i < poll_fds_.size(); ++i)
+            /* IP and Port setup. */
+            struct sockaddr_in address;
+            address.sin_family = AF_INET;
+            address.sin_port = htons(transport_address_.medium_locator().port());
+            address.sin_addr.s_addr = INADDR_ANY;
+            memset(address.sin_zero, '\0', sizeof(address.sin_zero));
+            if (SOCKET_ERROR != bind(listener_poll_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
             {
-                poll_fds_[i].fd = INVALID_SOCKET;
-                poll_fds_[i].events = POLLIN;
-                connections_[i].poll_fd = &poll_fds_[i];
-                connections_[i].id = uint32_t(i);
-                connections_[i].active = false;
-                init_input_buffer(connections_[i].input_buffer);
-                free_connections_.push_back(connections_[i].id);
-            }
+                /* Log. */
+                UXR_AGENT_LOG_DEBUG(
+                    UXR_DECORATE_GREEN("port opened"),
+                    "port: {}",
+                    transport_address_.medium_locator().port());
 
-            /* Init listener. */
-            if (SOCKET_ERROR != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
-            {
-                running_cond_ = true;
-                listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
+                /* Setup listener poll. */
+                listener_poll_.events = POLLIN;
 
-                /* Get local address. */
-                SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
-                struct sockaddr_in temp_addr;
-                temp_addr.sin_family = AF_INET;
-                temp_addr.sin_port = htons(80);
-                temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
-                int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
-                if (0 == connected)
+                /* Setup connections. */
+                for (size_t i = 0; i < poll_fds_.size(); ++i)
                 {
-                    struct sockaddr local_addr;
-                    int local_addr_len = sizeof(local_addr);
-                    if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
+                    poll_fds_[i].fd = INVALID_SOCKET;
+                    poll_fds_[i].events = POLLIN;
+                    connections_[i].poll_fd = &poll_fds_[i];
+                    connections_[i].id = uint32_t(i);
+                    connections_[i].active = false;
+                    init_input_buffer(connections_[i].input_buffer);
+                    free_connections_.push_back(connections_[i].id);
+                }
+
+                /* Init listener. */
+                if (SOCKET_ERROR != listen(listener_poll_.fd, TCP_MAX_BACKLOG_CONNECTIONS))
+                {
+                    running_cond_ = true;
+                    listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
+
+                    /* Get local address. */
+                    SOCKET fd = socket(PF_INET, SOCK_DGRAM, 0);
+                    struct sockaddr_in temp_addr;
+                    temp_addr.sin_family = AF_INET;
+                    temp_addr.sin_port = htons(80);
+                    temp_addr.sin_addr.s_addr = inet_addr("1.2.3.4");
+                    int connected = connect(fd, (struct sockaddr *)&temp_addr, sizeof(temp_addr));
+                    if (0 == connected)
                     {
-                        transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
-                                                                     uint8_t(local_addr.sa_data[3]),
-                                                                     uint8_t(local_addr.sa_data[4]),
-                                                                     uint8_t(local_addr.sa_data[5])});
-                        rv = true;
-                        UXR_AGENT_LOG_INFO(
-                            UXR_DECORATE_GREEN("running..."),
-                            "port: {}",
-                            transport_address_.medium_locator().port());
+                        struct sockaddr local_addr;
+                        int local_addr_len = sizeof(local_addr);
+                        if (SOCKET_ERROR != getsockname(fd, &local_addr, &local_addr_len))
+                        {
+                            transport_address_.medium_locator().address({uint8_t(local_addr.sa_data[2]),
+                                                                         uint8_t(local_addr.sa_data[3]),
+                                                                         uint8_t(local_addr.sa_data[4]),
+                                                                         uint8_t(local_addr.sa_data[5])});
+                            rv = true;
+                            UXR_AGENT_LOG_INFO(
+                                UXR_DECORATE_GREEN("running..."),
+                                "port: {}",
+                                transport_address_.medium_locator().port());
+                        }
+                        closesocket(fd);
                     }
-                    closesocket(fd);
+                }
+                else
+                {
+                    UXR_AGENT_LOG_ERROR(
+                        UXR_DECORATE_RED("listen error"),
+                        "port: {}",
+                        transport_address_.medium_locator().port());
                 }
             }
             else
             {
                 UXR_AGENT_LOG_ERROR(
-                    UXR_DECORATE_RED("listen error"),
+                    UXR_DECORATE_RED("bind error"),
                     "port: {}",
                     transport_address_.medium_locator().port());
             }
@@ -140,9 +152,9 @@ bool TCPv4Agent::init()
         else
         {
             UXR_AGENT_LOG_ERROR(
-                UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                transport_address_.medium_locator().port());
+                UXR_DECORATE_RED("socket opt error"),
+                "Port: {}",
+                listener_poll_.fd);
         }
     }
     else
