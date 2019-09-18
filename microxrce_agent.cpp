@@ -13,9 +13,22 @@
 // limitations under the License.
 
 #include <uxr/agent/utils/CLI.hpp>
+#include <csignal>
+
 
 int main(int argc, char** argv)
 {
+#ifndef _WIN32
+   sigset_t signals;
+    sigemptyset(&signals);
+    if(sigaddset(&signals, SIGINT) && sigaddset(&signals, SIGTERM))
+    {
+        std::cerr << "Wrong signalset" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+    sigprocmask( SIG_BLOCK, &signals, nullptr );
+#endif
+
 
     /* CLI application. */
     CLI::App app("eProsima Micro XRCE-DDS Agent");
@@ -28,8 +41,8 @@ int main(int argc, char** argv)
 #ifndef _WIN32
     eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
     eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
-#endif
     eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
+#endif
 
     /* CLI parse. */
     std::string cli_input{};
@@ -56,6 +69,7 @@ int main(int argc, char** argv)
         }
     }
 
+#ifdef  _WIN32
     /* Waiting until exit. */
     std::cin.clear();
     char exit_flag = 0;
@@ -63,6 +77,11 @@ int main(int argc, char** argv)
     {
         std::cin >> exit_flag;
     }
-
+#else
+    /* Wait for SIGTERM/SIGINT instead, as reading from stdin may be redirected to /dev/null. */
+    int n_signal = 0;
+    sigwait(&signals, &n_signal);
+    std::cout << "signal received: " << n_signal << std::endl;
+#endif
     return 0;
 }

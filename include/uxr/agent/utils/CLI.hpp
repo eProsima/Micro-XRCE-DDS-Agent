@@ -264,7 +264,11 @@ public:
 private:
     void server_callback()
     {
+#ifdef _WIN32
         std::cout << "Enter 'q' for exit" << std::endl;
+#else
+        std::cout << "Press CTRL+C to exit" << std::endl;
+#endif
         if (launch_server())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
