@@ -43,11 +43,11 @@ endif()
 ###############################################################################
 # Dependencies
 ###############################################################################
-set(FAST_RTPS_VERSION 1.8.1)
-set(FAST_CDR_VERSION 1.0.9)
-set(CLI11_VERSION 1.7.1)
-set(SPDLOG_VERSION 1.3.1)
-set(MICRO_XRCE_DDS_CLIENT_VERSION 1.1.0)
+set(_fast_rtps_version 1.8.1)
+set(_fast_cdr_version 1.0.9)
+set(_cli11_version 1.7.1)
+set(_spdlog_version 1.3.1)
+set(_micro_xrce_dds_client_version 1.1.0)
 
 ###############################################################################
 # Project
@@ -103,17 +103,17 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "${FAST_CDR_VERSION}" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-find_package(CLI11 ${CLI11_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr ${_fast_cdr_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(CLI11 ${_cli11_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client ${MICRO_XRCE_DDS_CLIENT_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client ${_micro_xrce_dds_client_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps ${FAST_RTPS_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps ${_fast_rtps_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog ${SPDLOG_VERSION} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog ${_spdlog_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################

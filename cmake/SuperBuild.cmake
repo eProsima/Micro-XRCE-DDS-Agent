@@ -19,7 +19,7 @@ unset(_deps)
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
-    find_package(microxrcedds_client "1.1.0" EXACT QUIET)
+    find_package(microxrcedds_client ${_micro_xrce_dds_client_version}  EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
         ExternalProject_Add(uclient
             DOWNLOAD_COMMAND
@@ -41,7 +41,7 @@ endif()
 
 # Fast CDR.
 unset(fastcdr_DIR CACHE)
-find_package(fastcdr "1.0.9" EXACT QUIET)
+find_package(fastcdr ${_fast_cdr_version} EXACT QUIET)
 if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
         DOWNLOAD_COMMAND
@@ -63,7 +63,7 @@ endif()
 if(UAGENT_FAST_PROFILE)
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
-    find_package(fastrtps ${FAST_RTPS_VERSION} EXACT QUIET)
+    find_package(fastrtps ${_fast_rtps_version} EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
             DOWNLOAD_COMMAND
@@ -89,7 +89,7 @@ endif()
 
 # CLI11.
 unset(CLI11_DIR CACHE)
-find_package(CLI11 "1.7.1" EXACT QUIET)
+find_package(CLI11 ${_cli11_version} EXACT QUIET)
 if(NOT CLI11_FOUND)
     ExternalProject_Add(cli11
         DOWNLOAD_COMMAND
@@ -114,7 +114,7 @@ endif()
 if(UAGENT_LOGGER_PROFILE)
     # spdlog.
     unset(spdlog_DIR CACHE)
-    find_package(spdlog "1.3.1" EXACT QUIET)
+    find_package(spdlog ${_spdlog_version} EXACT QUIET)
     if(NOT spdlog_FOUND)
         ExternalProject_Add(spdlog
             DOWNLOAD_COMMAND
