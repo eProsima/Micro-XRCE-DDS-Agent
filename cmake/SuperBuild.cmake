@@ -29,7 +29,7 @@ if(UAGENT_P2P_PROFILE)
             SOURCE_DIR
                 ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/uclient
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
@@ -51,7 +51,7 @@ if(NOT fastcdr_FOUND)
         SOURCE_DIR
             ${PROJECT_SOURCE_DIR}/thirdparty/fastcdr
         INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
+            ${PROJECT_BINARY_DIR}/temp_install/fastcdr
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
@@ -73,7 +73,7 @@ if(UAGENT_FAST_PROFILE)
             SOURCE_DIR
                 ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/fastrtps
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
@@ -99,7 +99,7 @@ if(NOT CLI11_FOUND)
         SOURCE_DIR
             ${PROJECT_SOURCE_DIR}/thirdparty/CLI11
         INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
+            ${PROJECT_BINARY_DIR}/temp_install/cli11
         CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
@@ -124,7 +124,7 @@ if(UAGENT_LOGGER_PROFILE)
             SOURCE_DIR
                 ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/spdlog
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
@@ -154,7 +154,7 @@ if(UAGENT_BUILD_TESTS)
             PREFIX
                 ${PROJECT_BINARY_DIR}/googletest
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/googletest
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -186,3 +186,5 @@ ExternalProject_Add(uagent
     DEPENDS
         ${_deps}
     )
+    
+set(UAGENT_DEPENDS "${_deps}" CACHE INTERNAL "")
