@@ -19,7 +19,7 @@
 int main(int argc, char** argv)
 {
 #ifndef _WIN32
-   sigset_t signals;
+    sigset_t signals;
     sigemptyset(&signals);
     if(sigaddset(&signals, SIGINT) && sigaddset(&signals, SIGTERM))
     {
@@ -81,7 +81,6 @@ int main(int argc, char** argv)
     /* Wait for SIGTERM/SIGINT instead, as reading from stdin may be redirected to /dev/null. */
     int n_signal = 0;
     sigwait(&signals, &n_signal);
-    std::cout << "signal received: " << n_signal << std::endl;
 #endif
     return 0;
 }
