@@ -30,7 +30,7 @@ if(UAGENT_P2P_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -52,7 +52,7 @@ if(NOT fastcdr_FOUND)
             ${PROJECT_SOURCE_DIR}/thirdparty/fastcdr
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
+        CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -74,7 +74,7 @@ if(UAGENT_FAST_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
@@ -100,7 +100,7 @@ if(NOT CLI11_FOUND)
             ${PROJECT_SOURCE_DIR}/thirdparty/CLI11
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
+        CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
@@ -125,7 +125,7 @@ if(UAGENT_LOGGER_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
