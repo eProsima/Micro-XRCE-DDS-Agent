@@ -30,10 +30,10 @@ if(UAGENT_P2P_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
             )
         list(APPEND _deps uclient)
     endif()
@@ -52,10 +52,10 @@ if(NOT fastcdr_FOUND)
             ${PROJECT_SOURCE_DIR}/thirdparty/fastcdr
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
+        CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
         )
     list(APPEND _deps fastcdr)
 endif()
@@ -74,11 +74,11 @@ if(UAGENT_FAST_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DTHIRDPARTY:BOOL=ON
             DEPENDS
                 fastcdr
@@ -100,11 +100,11 @@ if(NOT CLI11_FOUND)
             ${PROJECT_SOURCE_DIR}/thirdparty/CLI11
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
-        CMAKE_ARGS
+        CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
             -DCLI11_TESTING:BOOL=OFF
             -DCLI11_EXAMPLES:BOOL=OFF
         )
@@ -125,11 +125,11 @@ if(UAGENT_LOGGER_PROFILE)
                 ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
-            CMAKE_ARGS
+            CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
                 -DSPDLOG_BUILD_TESTS:BOOL=OFF
                 -DSPDLOG_INSTALL:BOOL=ON
@@ -157,7 +157,6 @@ if(UAGENT_BUILD_TESTS)
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
             BUILD_COMMAND
                 COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target install
