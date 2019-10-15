@@ -31,14 +31,30 @@ option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
-
 if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
-
 if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
 endif()
+
+include(GNUInstallDirs)
+set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
+set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
+
+set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16       CACHE STRING "Reliable streams depth.")
+set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16       CACHE STRING "Best-effort streams depth.")
+set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat period in milliseconds.")
+set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
+set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
+set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
 
 ###############################################################################
 # Dependencies
@@ -69,28 +85,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-###############################################################################
-# Config
-###############################################################################
-# Install path
-include(GNUInstallDirs)
-set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
-set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
-if(WIN32)
-    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
-else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
-endif()
-
-# Configuration options.
-set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16  CACHE STRING "Reliable streams depth.")
-set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16  CACHE STRING "Best-effort streams depth.")
-set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200 CACHE STRING "Heartbeat period in milliseconds.")
-set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100 CACHE STRING "Maximum TCP connection allowed.")
-set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100 CACHE STRING "Maximum TCP backlog connection allowed.")
 
 ###############################################################################
 # Check MSVC architecture

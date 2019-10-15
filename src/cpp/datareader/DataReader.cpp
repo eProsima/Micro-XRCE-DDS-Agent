@@ -31,6 +31,7 @@ constexpr uint8_t MAX_SLEEP_TIME = 100;
 constexpr uint16_t MAX_SAMPLES_ZERO = 0;
 constexpr uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
 constexpr uint16_t MAX_ELAPSED_TIME_UNLIMITED = 0;
+constexpr uint16_t MAX_BYTES_PER_SECOND_UNLIMITED = 0;
 
 namespace  {
 
@@ -219,7 +220,10 @@ void DataReader::read_task(
         read_callback read_cb,
         ReadCallbackArgs cb_args)
 {
-    TokenBucket token_bucket{delivery_control.max_bytes_per_second()};
+    size_t rate = (MAX_BYTES_PER_SECOND_UNLIMITED == delivery_control.max_bytes_per_second())
+            ? SIZE_MAX
+            : delivery_control.max_bytes_per_second();
+    TokenBucket token_bucket{rate};
     bool stop_cond = false;
     uint16_t message_count = 0;
     std::chrono::time_point<std::chrono::steady_clock> init_time

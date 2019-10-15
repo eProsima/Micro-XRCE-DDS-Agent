@@ -16,6 +16,7 @@
 #define UXR_AGENT_SCHEDULER_FCFS_SCHEDULER_HPP_
 
 #include <uxr/agent/scheduler/Scheduler.hpp>
+
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -28,18 +29,32 @@ template<class T>
 class FCFSScheduler : public Scheduler<T>
 {
 public:
-    FCFSScheduler() : queue_(), mtx_(), cond_var_(), running_cond_(false) {}
+    FCFSScheduler(
+            size_t max_size)
+        : queue_()
+        , mtx_()
+        , cond_var_()
+        , running_cond_(false)
+        , max_size_{max_size}
+    {}
 
-    virtual void init() override;
-    virtual void deinit() override;
-    virtual void push(T&& element, uint8_t priority) override;
-    virtual bool pop(T& element) override;
+    void init() final;
+
+    void deinit() final;
+
+    void push(
+            T&& element,
+            uint8_t priority) final;
+
+    bool pop(
+            T& element) final;
 
 private:
     std::queue<T> queue_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
     bool running_cond_;
+    const size_t max_size_;
 };
 
 template<class T>
@@ -58,16 +73,23 @@ inline void FCFSScheduler<T>::deinit()
 }
 
 template<class T>
-inline void FCFSScheduler<T>::push(T&& element, uint8_t priority)
+inline void FCFSScheduler<T>::push(
+        T&& element,
+        uint8_t priority)
 {
     (void) priority;
     std::lock_guard<std::mutex> lock(mtx_);
+    if (max_size_ <= queue_.size())
+    {
+        queue_.pop();
+    }
     queue_.push(std::move(element));
     cond_var_.notify_one();
 }
 
 template<class T>
-inline bool FCFSScheduler<T>::pop(T& element)
+inline bool FCFSScheduler<T>::pop(
+        T& element)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
