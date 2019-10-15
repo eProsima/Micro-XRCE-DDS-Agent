@@ -28,6 +28,8 @@ namespace uxr {
 Server::Server(Middleware::Kind middleware_kind)
     : processor_(new Processor(*this, *root_, middleware_kind))
     , running_cond_(false)
+    , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
+    , output_scheduler_(SERVER_QUEUE_MAX_SIZE)
 {}
 
 Server::~Server()

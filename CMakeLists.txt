@@ -49,11 +49,12 @@ else()
     set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
 endif()
 
-set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16  CACHE STRING "Reliable streams depth.")
-set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16  CACHE STRING "Best-effort streams depth.")
-set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200 CACHE STRING "Heartbeat period in milliseconds.")
-set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100 CACHE STRING "Maximum TCP connection allowed.")
-set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100 CACHE STRING "Maximum TCP backlog connection allowed.")
+set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16       CACHE STRING "Reliable streams depth.")
+set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16       CACHE STRING "Best-effort streams depth.")
+set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat period in milliseconds.")
+set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
+set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
+set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
 
 ###############################################################################
 # Project
