@@ -27,6 +27,12 @@ namespace uxr {
 class ProxyClient
 {
 public:
+    enum class State : uint8_t
+    {
+        alive,
+        dead
+    };
+
     explicit ProxyClient(
             const dds::xrce::CLIENT_Representation& representation,
             Middleware::Kind middleware_kind = Middleware::Kind(0));
@@ -59,6 +65,10 @@ public:
     dds::xrce::SessionId get_session_id() const { return representation_.session_id(); }
 
     Session& session();
+
+    State get_state();
+
+    void reset_time_stamp();
 
 private:
     bool create_object(
@@ -105,6 +115,8 @@ private:
     std::mutex mtx_;
     XRCEObject::ObjectContainer objects_;
     Session session_;
+    State state_;
+    std::chrono::time_point<std::chrono::steady_clock> time_stamp_;
 };
 
 } // namespace uxr
