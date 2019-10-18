@@ -68,7 +68,7 @@ public:
 
     State get_state();
 
-    void reset_time_stamp();
+    void update_timestamp();
 
 private:
     bool create_object(
@@ -116,7 +116,7 @@ private:
     XRCEObject::ObjectContainer objects_;
     Session session_;
     State state_;
-    std::chrono::time_point<std::chrono::steady_clock> time_stamp_;
+    std::chrono::time_point<std::chrono::steady_clock> timestamp_;
 };
 
 } // namespace uxr

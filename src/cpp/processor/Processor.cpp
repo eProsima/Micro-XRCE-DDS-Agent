@@ -59,6 +59,8 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
+            client->update_timestamp();
+
             /* Check whether it is the next message. */
             Session& session = client->session();
             dds::xrce::StreamId stream_id = input_packet.message->get_header().stream_id();
@@ -732,7 +734,8 @@ void Processor::check_heartbeats()
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {
-        if ((output_packet.destination = server_.get_source(client->get_client_key())))
+        if ((output_packet.destination = server_.get_source(client->get_client_key())) &&
+             ProxyClient::State::alive == client->get_state())
         {
             header.session_id(client->get_session_id());
             header.client_key(client->get_client_key());
