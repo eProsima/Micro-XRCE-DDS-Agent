@@ -18,6 +18,7 @@
 #include <uxr/agent/client/session/SessionInfo.hpp>
 #include <uxr/agent/client/session/stream/InputStream.hpp>
 #include <uxr/agent/client/session/stream/OutputStream.hpp>
+#include <uxr/agent/utils/SharedMutex.hpp>
 
 #include <unordered_map>
 #include <memory>
@@ -111,6 +112,11 @@ public:
             dds::xrce::HEARTBEAT_Payload& heartbeat);
 
 private:
+    ReliableOutputStream& get_reliable_output_stream(
+            dds::xrce::StreamId stream_id,
+            utils::SharedLock& shared_lock);
+
+private:
     const SessionInfo session_info_;
 
     NoneInputStream none_istream_;
@@ -123,7 +129,7 @@ private:
     std::unordered_map<dds::xrce::StreamId, BestEffortOutputStream> best_effort_ostreams_;
     std::unordered_map<dds::xrce::StreamId, ReliableOutputStream> reliable_ostreams_;
     std::mutex best_effort_omtx_;
-    std::mutex reliable_omtx_;
+    utils::SharedMutex reliable_omtx_;
 };
 
 inline void Session::reset()
@@ -151,7 +157,7 @@ inline void Session::reset()
     }
     best_effort_olock.unlock();
 
-    std::unique_lock<std::mutex> reliable_olock(reliable_omtx_);
+    utils::SharedLock reliable_olock(reliable_omtx_);
     for (auto& it : reliable_ostreams_)
     {
         it.second.reset();
@@ -252,7 +258,7 @@ inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, I
 
 inline std::vector<uint8_t> Session::get_output_streams()
 {
-    std::lock_guard<std::mutex> lock(reliable_omtx_);
+    utils::SharedLock lock(reliable_omtx_);
     std::vector<uint8_t> result(reliable_ostreams_.size());
     for (auto it = reliable_ostreams_.begin(); it != reliable_ostreams_.end(); ++it)
     {
@@ -278,8 +284,8 @@ inline void Session::push_output_submessage(
     }
     else
     {
-        std::lock_guard<std::mutex> lock(reliable_omtx_);
-        reliable_ostreams_[stream_id].push_submessage(session_info_, stream_id, submessage_id, submessage);
+        utils::SharedLock shared_lock(reliable_omtx_);
+        get_reliable_output_stream(stream_id, shared_lock).push_submessage(session_info_, stream_id, submessage_id, submessage);
     }
 }
 
@@ -299,8 +305,8 @@ inline bool Session::get_next_output_message(
     }
     else
     {
-        std::lock_guard<std::mutex> lock(reliable_omtx_);
-        rv = reliable_ostreams_[stream_id].get_next_message(output_message);
+        utils::SharedLock shared_lock(reliable_omtx_);
+        rv = get_reliable_output_stream(stream_id, shared_lock).get_next_message(output_message);
     }
     return rv;
 }
@@ -313,8 +319,8 @@ inline bool Session::get_output_message(
     bool rv = false;
     if (is_reliable_stream(stream_id))
     {
-        std::lock_guard<std::mutex> lock(reliable_omtx_);
-        rv = reliable_ostreams_[stream_id].get_message(seq_num, output_message);
+        utils::SharedLock shared_lock(reliable_omtx_);
+        rv = get_reliable_output_stream(stream_id, shared_lock).get_message(seq_num, output_message);
     }
     return rv;
 }
@@ -325,8 +331,8 @@ inline void Session::update_from_acknack(
 {
     if (is_reliable_stream(stream_id))
     {
-        std::lock_guard<std::mutex> lock(reliable_omtx_);
-        reliable_ostreams_[stream_id].update_from_acknack(first_unacked);
+        utils::SharedLock shared_lock(reliable_omtx_);
+        get_reliable_output_stream(stream_id, shared_lock).update_from_acknack(first_unacked);
     }
 }
 
@@ -338,13 +344,31 @@ inline bool Session::fill_heartbeat(
     bool rv = false;
     if (is_reliable_stream(stream_id))
     {
-        std::lock_guard<std::mutex> lock(reliable_omtx_);
-        rv = reliable_ostreams_[stream_id].fill_heartbeat(heartbeat);
+        utils::SharedLock shared_lock(reliable_omtx_);
+        rv = get_reliable_output_stream(stream_id, shared_lock).fill_heartbeat(heartbeat);
         heartbeat.stream_id(stream_id);
     }
     return rv;
 }
 
+inline ReliableOutputStream& Session::get_reliable_output_stream(
+        dds::xrce::StreamId stream_id,
+        utils::SharedLock& shared_lock)
+{
+    shared_lock.lock();
+    auto it = reliable_ostreams_.find(stream_id);
+    if (it != reliable_ostreams_.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        shared_lock.unlock();
+        utils::ExclusiveLock exclusive_lock(reliable_omtx_);
+        shared_lock.lock();
+        return reliable_ostreams_[stream_id];
+    }
+}
 
 } // namespace uxr
 } // namespace eprosima
