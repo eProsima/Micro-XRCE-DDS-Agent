@@ -285,7 +285,8 @@ inline void Session::push_output_submessage(
     else
     {
         utils::SharedLock shared_lock(reliable_omtx_);
-        get_reliable_output_stream(stream_id, shared_lock).push_submessage(session_info_, stream_id, submessage_id, submessage);
+        get_reliable_output_stream(stream_id, shared_lock).push_submessage(
+            session_info_, stream_id, submessage_id, submessage, std::chrono::milliseconds(1000));
     }
 }
 
