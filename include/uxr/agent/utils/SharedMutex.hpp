@@ -15,6 +15,7 @@
 #ifndef UXR_UTILS_SHAREDMUTEX_HPP_
 #define UXR_UTILS_SHAREDMUTEX_HPP_
 
+#include <thread>
 #include <mutex>
 #include <condition_variable>
 
@@ -40,6 +41,7 @@ private:
     std::condition_variable cv_;
     size_t shared_counter_;
     bool exclusively_locked_;
+    std::thread::id exclusive_thread_id_;
 };
 
 class SharedLock
@@ -48,26 +50,47 @@ public:
     SharedLock(
             SharedMutex& shared_mtx)
         : shared_mtx_{shared_mtx}
+        , locked_{false}
     {
-        std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
-        shared_mtx_.cv_.wait(
-            lock,
-            [&]{ return !shared_mtx_.exclusively_locked_; });
-        ++shared_mtx_.shared_counter_;
+        lock();
     }
 
     ~SharedLock()
     {
-        std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
-        --shared_mtx_.shared_counter_;
-        if (0 == shared_mtx_.shared_counter_)
+        unlock();
+    }
+
+    void lock()
+    {
+        if (!locked_)
         {
-            shared_mtx_.cv_.notify_one();
+            std::thread::id thread_id = std::this_thread::get_id();
+            std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
+            shared_mtx_.cv_.wait(
+                lock,
+                [&]{ return !shared_mtx_.exclusively_locked_ || thread_id == shared_mtx_.exclusive_thread_id_; });
+            ++shared_mtx_.shared_counter_;
+            locked_ = true;
+        }
+    }
+
+    void unlock()
+    {
+        if (locked_)
+        {
+            std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
+            --shared_mtx_.shared_counter_;
+            if (0 == shared_mtx_.shared_counter_)
+            {
+                shared_mtx_.cv_.notify_one();
+            }
+            locked_ = false;
         }
     }
 
 private:
     SharedMutex& shared_mtx_;
+    bool locked_;
 };
 
 class ExclusiveLock
@@ -76,23 +99,44 @@ public:
     ExclusiveLock(
             SharedMutex& shared_mtx)
         : shared_mtx_{shared_mtx}
+        , locked_{false}
     {
-        std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
-        shared_mtx_.cv_.wait(
-            lock,
-            [&]{ return (0 == shared_mtx_.shared_counter_) &&  !shared_mtx_.exclusively_locked_; });
-        shared_mtx_.exclusively_locked_ = true;
+        lock();
     }
 
     ~ExclusiveLock()
     {
-        std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
-        shared_mtx_.exclusively_locked_ = false;
-        shared_mtx_.cv_.notify_all();
+        unlock();
+    }
+
+    void lock()
+    {
+        if (!locked_)
+        {
+            std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
+            shared_mtx_.cv_.wait(
+                lock,
+                [&]{ return (0 == shared_mtx_.shared_counter_) &&  !shared_mtx_.exclusively_locked_; });
+            shared_mtx_.exclusively_locked_ = true;
+            shared_mtx_.exclusive_thread_id_ = std::this_thread::get_id();
+            locked_ = true;
+        }
+    }
+
+    void unlock()
+    {
+        if (locked_)
+        {
+            std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
+            shared_mtx_.exclusively_locked_ = false;
+            shared_mtx_.cv_.notify_all();
+            locked_ = false;
+        }
     }
 
 private:
     SharedMutex& shared_mtx_;
+    bool locked_;
 };
 
 
