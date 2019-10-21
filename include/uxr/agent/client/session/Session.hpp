@@ -89,10 +89,11 @@ public:
     std::vector<uint8_t> get_output_streams();
 
     template<class T>
-    void push_output_submessage(
+    bool push_output_submessage(
             dds::xrce::StreamId stream_id,
             dds::xrce::SubmessageId submessage_id,
-            const T& submessage);
+            const T& submessage,
+            std::chrono::milliseconds timeout);
 
     bool get_next_output_message(
             dds::xrce::StreamId stream_id,
@@ -268,26 +269,29 @@ inline std::vector<uint8_t> Session::get_output_streams()
 }
 
 template<class T>
-inline void Session::push_output_submessage(
+inline bool Session::push_output_submessage(
         dds::xrce::StreamId stream_id,
         dds::xrce::SubmessageId submessage_id,
-        const T& submessage)
+        const T& submessage,
+        std::chrono::milliseconds timeout)
 {
+    bool rv = false;
     if (is_none_stream(stream_id))
     {
-        none_ostream_.push_submessage(session_info_, submessage_id, submessage);
+        rv = none_ostream_.push_submessage(session_info_, submessage_id, submessage);
     }
     else if (is_besteffort_stream(stream_id))
     {
         std::lock_guard<std::mutex> lock(best_effort_omtx_);
-        best_effort_ostreams_[stream_id].push_submessage(session_info_, stream_id, submessage_id, submessage);
+        rv = best_effort_ostreams_[stream_id].push_submessage(session_info_, stream_id, submessage_id, submessage);
     }
     else
     {
         utils::SharedLock shared_lock(reliable_omtx_);
-        get_reliable_output_stream(stream_id, shared_lock).push_submessage(
-            session_info_, stream_id, submessage_id, submessage, std::chrono::milliseconds(1000));
+        rv = get_reliable_output_stream(stream_id, shared_lock).push_submessage(
+            session_info_, stream_id, submessage_id, submessage, timeout);
     }
+    return rv;
 }
 
 inline bool Session::get_next_output_message(

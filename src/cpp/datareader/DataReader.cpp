@@ -27,6 +27,7 @@ namespace eprosima {
 namespace uxr {
 
 constexpr int READ_TIMEOUT = 100;
+constexpr uint8_t PUSH_SUBMESSAGE_TIMEOUT = 100;
 constexpr uint8_t MAX_SLEEP_TIME = 100;
 constexpr uint16_t MAX_SAMPLES_ZERO = 0;
 constexpr uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
@@ -245,13 +246,20 @@ void DataReader::read_task(
 
             if (token_bucket.get_tokens(data.size()))
             {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-                    get_raw_id(),
-                    data.data(),
-                    data.size());
-                read_cb(cb_args, data);
-                ++message_count;
+                bool push_submessage = false;
+                do {
+                    push_submessage = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
+                } while (running_cond_ && !push_submessage);
+
+                if (push_submessage)
+                {
+                    UXR_AGENT_LOG_MESSAGE(
+                        UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+                        get_raw_id(),
+                        data.data(),
+                        data.size());
+                    ++message_count;
+                }
             }
         }
 
