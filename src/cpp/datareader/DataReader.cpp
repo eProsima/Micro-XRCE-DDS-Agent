@@ -246,12 +246,12 @@ void DataReader::read_task(
 
             if (token_bucket.get_tokens(data.size()))
             {
-                bool push_submessage = false;
+                bool submessage_pushed = false;
                 do {
-                    push_submessage = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
-                } while (running_cond_ && !push_submessage);
+                    submessage_pushed = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
+                } while (running_cond_ && !submessage_pushed);
 
-                if (push_submessage)
+                if (submessage_pushed)
                 {
                     UXR_AGENT_LOG_MESSAGE(
                         UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
