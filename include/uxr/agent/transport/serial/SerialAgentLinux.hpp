@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_
+#define UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_
 
-//#include <uxr/agent/transport/serial/SerialServerBase.hpp>
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
 #include <uxr/agent/transport/serial/serial_protocol.h>
@@ -27,7 +26,6 @@
 namespace eprosima {
 namespace uxr {
 
-//class SerialAgent : public SerialServerBase
 class SerialAgent : public Server<SerialEndPoint>
 {
 public:
@@ -88,4 +86,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_SERIAL_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_

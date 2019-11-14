@@ -25,7 +25,7 @@
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
-#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/serial/SerialAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
 #include <termios.h>
@@ -270,12 +270,9 @@ private:
     {
 #ifdef _WIN32
         std::cout << "Enter 'q' for exit" << std::endl;
-<<<<<<< HEAD
 #else
         std::cout << "Press CTRL+C to exit" << std::endl;
 #endif
-        if (launch_server())
-=======
         launch_server();
     }
 
@@ -308,7 +305,6 @@ private:
     {
         server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
         if (server_->run())
->>>>>>> Refs #5371. Add udp4 and udp6 command to CLI.
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())

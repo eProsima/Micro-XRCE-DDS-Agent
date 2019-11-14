@@ -241,8 +241,6 @@ bool Processor<EndPoint>::process_create_client_submessage(
                 server_.establish_session(input_packet.source,
                                           conversion::clientkey_to_raw(client_payload.client_representation().client_key()),
                                           client_payload.client_representation().session_id());
-//                server_.on_create_client(input_packet.source.get(),
-//                                          client_payload.client_representation());
             }
             /* STATUS_AGENT payload. */
             dds::xrce::STATUS_AGENT_Payload status_agent;

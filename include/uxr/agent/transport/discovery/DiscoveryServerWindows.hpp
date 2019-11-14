@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
-#define UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_
+#define UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_
 
 #include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
 #include <uxr/agent/message/Packet.hpp>
@@ -48,17 +48,7 @@ private:
     bool send_message(
             OutputPacket<IPv4EndPoint>&& output_packet) final;
 
-    template<typename T = EndPoint,
-             typename std::enable_if<std::is_same<T, IPv4EndPoint>::value, bool>::type = 0>
-    bool get_interfaces();
-
-    template<typename T = EndPoint,
-             typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type = 0>
-    bool get_interfaces();
-
-//    template<typename T = EndPoint>
-//    typename std::enable_if<std::is_same<T, IPv6EndPoint>::value, bool>::type
-//    get_interfaces();
+    bool update_interfaces();
 
 private:
     struct pollfd poll_fd_;
@@ -68,4 +58,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#endif // UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_

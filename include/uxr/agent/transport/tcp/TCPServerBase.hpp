@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
-#define UXR_AGENT_TRANSPORT_TCP_SERVER_BASE_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TCP_TCPSERVERBASE_HPP_
+#define UXR_AGENT_TRANSPORT_TCP_TCPSERVERBASE_HPP_
 
 #include <uxr/agent/transport/tcp/TCPConnection.hpp>
 
@@ -184,4 +184,4 @@ inline uint16_t TCPServerBase<Connection>::read_data(
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_TCPv4_SERVER_BASE_HPP_
+#endif // UXR_AGENT_TRANSPORT_TCP_TCPSERVERBASE_HPP_

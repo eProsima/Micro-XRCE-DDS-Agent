@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_SESSION_MANAGER_HPP_
-#define UXR_AGENT_TRANSPORT_SESSION_MANAGER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_SESSIONMANAGER_HPP_
+#define UXR_AGENT_TRANSPORT_SESSIONMANAGER_HPP_
 
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -23,6 +23,11 @@
 
 namespace eprosima {
 namespace uxr {
+
+inline constexpr bool has_session_client_key(uint8_t session_id)
+{
+    return 128 > session_id;
+}
 
 template<typename EndPoint>
 class SessionManager
@@ -63,6 +68,11 @@ void SessionManager<EndPoint>::establish_session(
     {
         endpoint_to_client_map_.erase(it_client->second);
         it_client->second = endpoint;
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session re-established"),
+            "client_key: 0x{:08}, address: {}",
+            client_key,
+            endpoint);
     }
     else
     {
@@ -74,17 +84,12 @@ void SessionManager<EndPoint>::establish_session(
             endpoint);
     }
 
-    if (127 < session_id)
+    if (not has_session_client_key(session_id))
     {
         auto it_endpoint = endpoint_to_client_map_.find(endpoint);
         if (it_endpoint != endpoint_to_client_map_.end())
         {
             it_endpoint->second = client_key;
-            UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("address updated"),
-                "client_ket: 0x{:08}, address: {}",
-                client_key,
-                endpoint);
         }
         else
         {
@@ -151,4 +156,4 @@ bool SessionManager<EndPoint>::get_endpoint(
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_SESSION_MANAGER_HPP_
+#endif // UXR_AGENT_TRANSPORT_SESSIONMANAGER_HPP_

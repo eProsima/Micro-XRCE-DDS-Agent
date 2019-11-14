@@ -45,7 +45,6 @@ int main(int argc, char** argv)
     eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
 #endif
     eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
-#endif
 
     /* CLI parse. */
     std::string cli_input{};
