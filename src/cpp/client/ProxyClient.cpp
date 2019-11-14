@@ -606,10 +606,14 @@ bool ProxyClient::delete_object_unlock(
 
 ProxyClient::State ProxyClient::get_state()
 {
-    using namespace std::chrono;
-    return (duration_cast<milliseconds>(steady_clock::now() - timestamp_) < CLIENT_DEAD_TIME)
+    if (State::alive == state_)
+    {
+        using namespace std::chrono;
+        state_ = (duration_cast<milliseconds>(steady_clock::now() - timestamp_) < CLIENT_DEAD_TIME)
             ? State::alive
             : State::dead;
+    }
+    return state_;
 }
 
 void ProxyClient::update_timestamp()
