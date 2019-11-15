@@ -41,7 +41,7 @@ struct ReadCallbackArgs
     dds::xrce::RequestId request_id;
 };
 
-typedef const std::function<void (const ReadCallbackArgs&, std::vector<uint8_t>)> read_callback;
+typedef const std::function<bool (const ReadCallbackArgs&, std::vector<uint8_t>, std::chrono::milliseconds)> read_callback;
 
 /**
  * @brief The DataReader class

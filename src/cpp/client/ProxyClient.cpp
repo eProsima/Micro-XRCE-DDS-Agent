@@ -37,6 +37,8 @@ ProxyClient::ProxyClient(
     : representation_(representation)
     , objects_()
     , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
+    , state_{State::alive}
+    , timestamp_{std::chrono::steady_clock::now()}
 {
     switch (middleware_kind)
     {
@@ -600,6 +602,23 @@ bool ProxyClient::delete_object_unlock(
             conversion::objectid_to_raw(object_id));
     }
     return rv;
+}
+
+ProxyClient::State ProxyClient::get_state()
+{
+    if (State::alive == state_)
+    {
+        using namespace std::chrono;
+        state_ = (duration_cast<milliseconds>(steady_clock::now() - timestamp_) < CLIENT_DEAD_TIME)
+            ? State::alive
+            : State::dead;
+    }
+    return state_;
+}
+
+void ProxyClient::update_timestamp()
+{
+    timestamp_ = std::chrono::steady_clock::now();
 }
 
 } // namespace uxr
