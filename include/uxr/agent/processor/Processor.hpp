@@ -111,9 +111,10 @@ private:
 //            ProxyClient& client,
 //            InputPacket& input_packet);
 
-    void read_data_callback(
+    bool read_data_callback(
             const ReadCallbackArgs& cb_args,
-            const std::vector<uint8_t>& buffer);
+            const std::vector<uint8_t>& buffer,
+            std::chrono::milliseconds timeout);
 
 private:
     Server& server_;

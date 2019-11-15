@@ -25,6 +25,7 @@
 #include <mutex>
 #include <array>
 #include <map>
+#include <condition_variable>
 
 namespace eprosima {
 namespace uxr {
@@ -221,7 +222,8 @@ public:
             const SessionInfo& session_info,
             dds::xrce::StreamId stream_id,
             dds::xrce::SubmessageId submessage_id,
-            const T& submessage);
+            const T& submessage,
+            std::chrono::milliseconds timeout);
 
     bool get_next_message(OutputMessagePtr& output_message);
 
@@ -239,6 +241,7 @@ private:
     SeqNum last_sent_;
     SeqNum first_unacked_;
     std::mutex mtx_;
+    std::condition_variable cv_;
 };
 
 //inline bool ReliableOutputStream::push_message(OutputMessagePtr& output_message)
@@ -268,11 +271,16 @@ inline bool ReliableOutputStream::push_submessage(
         const SessionInfo& session_info,
         dds::xrce::StreamId stream_id,
         dds::xrce::SubmessageId submessage_id,
-        const T& submessage)
+        const T& submessage,
+        std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    std::lock_guard<std::mutex> lock(mtx_);
-    if (last_unacked_ < first_unacked_ + SeqNum(RELIABLE_STREAM_DEPTH - 1))
+    std::unique_lock<std::mutex> lock(mtx_);
+    auto now = std::chrono::steady_clock::now();
+
+    if (cv_.wait_until(
+            lock,
+            now + timeout, [&](){ return last_unacked_ < first_unacked_ + SeqNum(RELIABLE_STREAM_DEPTH - 1); }))
     {
         /* Message header. */
         dds::xrce::MessageHeader message_header;
@@ -397,11 +405,13 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
             messages_.erase(first_unacked_);
             first_unacked_ += 1;
         }
+        cv_.notify_one();
     }
 }
 
 inline bool ReliableOutputStream::fill_heartbeat(dds::xrce::HEARTBEAT_Payload& heartbeat)
 {
+    std::lock_guard<std::mutex> lock(mtx_);
     heartbeat.first_unacked_seq_nr(first_unacked_);
     heartbeat.last_unacked_seq_nr(last_unacked_);
     return !messages_.empty();
