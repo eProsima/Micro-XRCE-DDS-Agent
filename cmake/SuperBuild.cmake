@@ -174,8 +174,8 @@ if(UAGENT_BUILD_TESTS)
             INSTALL_COMMAND
                 ""
             )
-        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
-        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
+        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install/googletest CACHE INTERNAL "")
+        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install/googletest CACHE INTERNAL "")
         set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
     endif()
