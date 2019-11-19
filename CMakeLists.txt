@@ -61,7 +61,7 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dea
 # Dependencies
 ###############################################################################
 set(_fast_rtps_version 1.8.3)
-set(_fast_cdr_version 1.0.9)
+set(_fast_cdr_version 1.0.10)
 set(_cli11_version 1.7.1)
 set(_spdlog_version 1.3.1)
 set(_micro_xrce_dds_client_version 1.1.0)
