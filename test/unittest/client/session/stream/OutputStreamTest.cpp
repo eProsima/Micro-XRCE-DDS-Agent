@@ -171,9 +171,19 @@ TEST_F(ReliableOutputStreamTest, StreamCapacity)
     dds::xrce::WRITE_DATA_Payload_Data write_data{};
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
     {
-        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+        ASSERT_TRUE(reliable_stream_.push_submessage(
+            session_info_,
+            stream_id_,
+            dds::xrce::WRITE_DATA,
+            write_data,
+            std::chrono::milliseconds(500)));
     }
-    ASSERT_FALSE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    ASSERT_FALSE(reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500)));
 
     OutputMessagePtr output_message;
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
@@ -197,10 +207,20 @@ TEST_F(ReliableOutputStreamTest, MaximumMessageSize)
     const size_t bounded_size = mtu - headers_size - write_data.BaseObjectRequest::getCdrSerializedSize();
 
     write_data.data().serialized_data().resize(bounded_size);
-    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    ASSERT_TRUE(reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500)));
 
     write_data.data().serialized_data().resize(bounded_size + 1);
-    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    ASSERT_TRUE(reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500)));
 }
 
 /**
@@ -235,7 +255,12 @@ TEST_F(ReliableOutputStreamTest, Fragmentation)
     for (int i = 1; i < RELIABLE_STREAM_DEPTH; ++i)
     {
         write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size));
-        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+        ASSERT_TRUE(reliable_stream_.push_submessage(
+            session_info_,
+            stream_id_,
+            dds::xrce::WRITE_DATA,
+            write_data,
+            std::chrono::milliseconds(500)));
 
         const int n_fragments = i + 1;
         OutputMessagePtr output_message;
@@ -255,7 +280,12 @@ TEST_F(ReliableOutputStreamTest, Fragmentation)
     for (int i = 2; i < RELIABLE_STREAM_DEPTH; ++i)
     {
         write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size) + 1);
-        ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+        ASSERT_TRUE(reliable_stream_.push_submessage(
+            session_info_,
+            stream_id_,
+            dds::xrce::WRITE_DATA,
+            write_data,
+            std::chrono::milliseconds(500)));
 
         const int n_fragments = i + 2;
         OutputMessagePtr output_message;
@@ -295,14 +325,22 @@ TEST_F(ReliableOutputStreamTest, PushMessages)
     dds::xrce::HEARTBEAT_Payload hearbeat;
 
     dds::xrce::WRITE_DATA_Payload_Data write_data{};
-    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    ASSERT_TRUE(reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA, write_data,
+        std::chrono::milliseconds(500)));
     expected_last_unacked += 1;
 
     reliable_stream_.fill_heartbeat(hearbeat);
     ASSERT_EQ(hearbeat.first_unacked_seq_nr(), expected_first_unacked);
     ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
 
-    ASSERT_TRUE(reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data));
+    ASSERT_TRUE(reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA, write_data,
+        std::chrono::milliseconds(500)));
     expected_last_unacked += 1;
 
     reliable_stream_.fill_heartbeat(hearbeat);
@@ -321,8 +359,18 @@ TEST_F(ReliableOutputStreamTest, GetMessages)
     dds::xrce::HEARTBEAT_Payload hearbeat;
 
     dds::xrce::WRITE_DATA_Payload_Data write_data{};
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
     expected_last_unacked += 2;
 
     OutputMessagePtr output_message;
@@ -353,10 +401,34 @@ TEST_F(ReliableOutputStreamTest, UpdateFromAcknack)
     dds::xrce::HEARTBEAT_Payload hearbeat;
 
     dds::xrce::WRITE_DATA_Payload_Data write_data{};
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
-    reliable_stream_.push_submessage(session_info_, stream_id_, dds::xrce::WRITE_DATA, write_data);
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
+
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
+
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
+
+    reliable_stream_.push_submessage(
+        session_info_,
+        stream_id_,
+        dds::xrce::WRITE_DATA,
+        write_data,
+        std::chrono::milliseconds(500));
+
     expected_last_unacked += 4;
 
     OutputMessagePtr output_message;

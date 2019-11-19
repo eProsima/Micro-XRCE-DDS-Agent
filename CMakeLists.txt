@@ -55,6 +55,7 @@ set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat 
 set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
 set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
+set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dead time in milliseconds.")
 
 ###############################################################################
 # Dependencies
@@ -214,7 +215,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION
         ${PROJECT_VERSION}
     SOVERSION
-        ${PROJECT_VERSION_MAJOR}
+        ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     CXX_STANDARD
         11
     CXX_STANDARD_REQUIRED
@@ -527,7 +528,7 @@ if(WIN32 AND UAGENT_INSTALLER)
     elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2015" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2017" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2019")
         set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\VC,redist.x86,x86,14.21,bundle")
         set(REDIST_VERSION "14.21.27702.2")
-        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x86.exe")       
+        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x86.exe")
         set(REDIST_EXEC "VC_redist.x86.exe")
     endif()
 

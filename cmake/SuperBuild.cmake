@@ -195,5 +195,5 @@ ExternalProject_Add(uagent
     DEPENDS
         ${_deps}
     )
-    
+
 set(UAGENT_DEPENDS "${_deps}" CACHE INTERNAL "")
