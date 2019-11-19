@@ -59,7 +59,7 @@ set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum se
 ###############################################################################
 # Dependencies
 ###############################################################################
-set(_fast_rtps_version 1.8.1)
+set(_fast_rtps_version 1.8.3)
 set(_fast_cdr_version 1.0.9)
 set(_cli11_version 1.7.1)
 set(_spdlog_version 1.3.1)
@@ -74,7 +74,7 @@ if(UAGENT_SUPERBUILD)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.1.1" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.2" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
