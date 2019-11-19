@@ -65,14 +65,14 @@ set(_fast_rtps_version 1.8.2)
 set(_fast_cdr_version 1.0.10)
 set(_cli11_version 1.7.1)
 set(_spdlog_version 1.3.1)
-set(_micro_xrce_dds_client_version 1.1.3)
+set(_micro_xrce_dds_client_version 1.2.0)
 
 ###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.2.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
