@@ -81,8 +81,8 @@ bool update_interfaces<eprosima::uxr::IPv4EndPoint>(
                          uint8_t(unicast_addr->Address.lpSockaddr->sa_data[3]),
                          uint8_t(unicast_addr->Address.lpSockaddr->sa_data[4]),
                          uint8_t(unicast_addr->Address.lpSockaddr->sa_data[5])});
-                    transport_addresses_.emplace_back();
-                    transport_addresses_.back().medium_locator(medium_locator);
+                    transport_addresses.emplace_back();
+                    transport_addresses.back().medium_locator(medium_locator);
                 }
                 unicast_addr = unicast_addr->Next;
             }
