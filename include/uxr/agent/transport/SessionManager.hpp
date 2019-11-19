@@ -84,7 +84,7 @@ void SessionManager<EndPoint>::establish_session(
             endpoint);
     }
 
-    if (not has_session_client_key(session_id))
+    if (!has_session_client_key(session_id))
     {
         auto it_endpoint = endpoint_to_client_map_.find(endpoint);
         if (it_endpoint != endpoint_to_client_map_.end())
