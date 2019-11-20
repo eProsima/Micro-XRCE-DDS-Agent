@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <iostream>
+#include <iomanip>
 #include <array>
 
 namespace eprosima {
@@ -45,17 +46,31 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const IPv6EndPoint& endpoint)
     {
-        char ip_str[40];
-        sprintf(ip_str, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-            int(endpoint.addr_.at(0)), int(endpoint.addr_.at(1)),
-            int(endpoint.addr_.at(2)), int(endpoint.addr_.at(3)),
-            int(endpoint.addr_.at(4)), int(endpoint.addr_.at(5)),
-            int(endpoint.addr_.at(6)), int(endpoint.addr_.at(7)),
-            int(endpoint.addr_.at(8)), int(endpoint.addr_.at(9)),
-            int(endpoint.addr_.at(10)), int(endpoint.addr_.at(11)),
-            int(endpoint.addr_.at(12)), int(endpoint.addr_.at(13)),
-            int(endpoint.addr_.at(14)), int(endpoint.addr_.at(15)));
-        os << ip_str << ":" << endpoint.port_;
+        os << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(0))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(1))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(2))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(3))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(4))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(5))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(6))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(7))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(8))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(9))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(10))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(11))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(12))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(13))
+           << ":"
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(14))
+           << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(15))
+           << ":" << endpoint.port_;
+
         return os;
     }
 
