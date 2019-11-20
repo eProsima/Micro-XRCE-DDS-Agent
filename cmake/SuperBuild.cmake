@@ -150,6 +150,7 @@ if(UAGENT_LOGGER_PROFILE)
     endif()
 endif()
 
+# googletest.
 if(UAGENT_BUILD_TESTS)
     unset(googletest_DIR CACHE)
     enable_language(CXX)
@@ -181,6 +182,26 @@ if(UAGENT_BUILD_TESTS)
         set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
     endif()
+endif()
+
+# sanitizers.
+unset(Sanitizers_DIR CACHE)
+find_package(Sanitizers QUIET)
+if(NOT Sanitizers_FOUND)
+    ExternalProject_Add(sanitizers
+        GIT_REPOSITORY
+            https://github.com/arsenm/sanitizers-cmake
+        GIT_PROGRESS
+            TRUE
+        PREFIX
+            ${PROJECT_BINARY_DIR}/sanitizers
+        BUILD_COMMAND
+            ""
+        INSTALL_COMMAND
+            ""
+        )
+    ExternalProject_Get_Property(sanitizers SOURCE_DIR)
+    set(SANITIZERS_ROOT ${SOURCE_DIR} CACHE INTERNAL "")
 endif()
 
 # Main project.
