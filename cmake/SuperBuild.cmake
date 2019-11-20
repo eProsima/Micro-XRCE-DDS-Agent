@@ -22,12 +22,14 @@ if(UAGENT_P2P_PROFILE)
     find_package(microxrcedds_client "1.1.0" EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
         ExternalProject_Add(uclient
-            DOWNLOAD_COMMAND
-                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/uxrclient/
+            GIT_REPOSITORY
+                https://github.com/eProsima/Micro-XRCE-DDS-Client.git
+            GIT_TAG
+                v1.1.0
+            GIT_PROGRESS
+                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
-            SOURCE_DIR
-                ${PROJECT_SOURCE_DIR}/thirdparty/uxrclient
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
@@ -44,12 +46,14 @@ unset(fastcdr_DIR CACHE)
 find_package(fastcdr "1.0.9" EXACT QUIET)
 if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
-        DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastcdr/
+        GIT_REPOSITORY
+            https://github.com/eProsima/Fast-CDR.git
+        GIT_TAG
+            v1.0.9
+        GIT_PROGRESS
+            TRUE
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
-        SOURCE_DIR
-            ${PROJECT_SOURCE_DIR}/thirdparty/fastcdr
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_CACHE_ARGS
@@ -66,12 +70,14 @@ if(UAGENT_FAST_PROFILE)
     find_package(fastrtps "1.8.0" EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
-            DOWNLOAD_COMMAND
-                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/fastrtps/
+            GIT_REPOSITORY
+                https://github.com/eProsima/Fast-RTPS.git
+            GIT_TAG
+                v1.8.0
+            GIT_PROGRESS
+                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastrtps
-            SOURCE_DIR
-                ${PROJECT_SOURCE_DIR}/thirdparty/fastrtps
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
@@ -93,12 +99,14 @@ unset(CLI11_DIR CACHE)
 find_package(CLI11 "1.7.1" EXACT QUIET)
 if(NOT CLI11_FOUND)
     ExternalProject_Add(cli11
-        DOWNLOAD_COMMAND
-            cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/CLI11/
+        GIT_REPOSITORY
+            https://github.com/CLIUtils/CLI11.git
+        GIT_TAG
+            v1.7.1
+        GIT_PROGRESS
+            TRUE
         PREFIX
             ${PROJECT_BINARY_DIR}/CLI11
-        SOURCE_DIR
-            ${PROJECT_SOURCE_DIR}/thirdparty/CLI11
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_CACHE_ARGS
@@ -118,12 +126,14 @@ if(UAGENT_LOGGER_PROFILE)
     find_package(spdlog "1.3.1" EXACT QUIET)
     if(NOT spdlog_FOUND)
         ExternalProject_Add(spdlog
-            DOWNLOAD_COMMAND
-                cd ${PROJECT_SOURCE_DIR} && git submodule update --init thirdparty/spdlog/
+            GIT_REPOSITORY
+                https://github.com/gabime/spdlog.git
+            GIT_TAG
+                v1.3.1
+            GIT_PROGRESS
+                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/spdlog
-            SOURCE_DIR
-                ${PROJECT_SOURCE_DIR}/thirdparty/spdlog
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
