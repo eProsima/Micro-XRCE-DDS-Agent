@@ -67,7 +67,7 @@ if(UAGENT_SUPERBUILD)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
 else()
-    project(microxrcedds_agent VERSION "1.1.2" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.3" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -93,7 +93,7 @@ endif()
 find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.1.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client "1.1.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
@@ -106,35 +106,7 @@ endif()
 ###############################################################################
 # Load external CMake Modules.
 ###############################################################################
-if(CMAKE_VERSION VERSION_LESS 3.11.4)
-    set(SANITIZER_PACKAGE "sanitizers-cmake")
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/CMakeLists.txt")
-        message(STATUS "${SANITIZER_PACKAGE} thirdparty is being updated...")
-        execute_process(
-            COMMAND git submodule update --recursive --init "thirdparty/${SANITIZER_PACKAGE}"
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            RESULT_VARIABLE EXECUTE_RESULT
-        )
-        if(NOT EXECUTE_RESULT EQUAL 0)
-            message(WARNING "Cannot configure Git submodule ${SANITIZER_PACKAGE}.")
-        endif()
-    endif()
-
-    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/cmake" ${CMAKE_MODULE_PATH})
-    unset(SANITIZER_PACKAGE)
-else()
-    set(SANITIZER_PACKAGE "sanitizers-cmake")
-    include(FetchContent)
-    FetchContent_Declare(sanitizers-cmake
-        GIT_REPOSITORY https://github.com/arsenm/sanitizers-cmake.git
-        GIT_TAG master
-    )
-    FetchContent_GetProperties(sanitizers-cmake)
-    if(NOT sanitizers-cmake_POPULATED)
-        FetchContent_Populate(sanitizers-cmake)
-        LIST(APPEND CMAKE_MODULE_PATH "${sanitizers-cmake_SOURCE_DIR}/cmake")
-    endif()
-endif()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SANITIZERS_ROOT}/cmake)
 find_package(Sanitizers REQUIRED)
 if(SANITIZE_ADDRESS)
     message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
@@ -527,7 +499,7 @@ if(WIN32 AND UAGENT_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/packaging/windows)
 
     include(CPack)
 endif()
