@@ -62,12 +62,12 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dea
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
-if(UAGENT_SUPERBUILD)
+if(NOT UAGENT_SUPERBUILD)
+    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
-else()
-    project(microxrcedds_agent VERSION "1.1.3" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
