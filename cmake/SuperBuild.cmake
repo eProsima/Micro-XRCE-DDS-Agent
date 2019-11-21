@@ -41,7 +41,7 @@ endif()
 
 # Fast CDR.
 unset(fastcdr_DIR CACHE)
-find_package(fastcdr "1.0.9" EXACT QUIET)
+find_package(fastcdr "1.0.10" EXACT QUIET)
 if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
         GIT_REPOSITORY
@@ -63,7 +63,7 @@ endif()
 if(UAGENT_FAST_PROFILE)
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
-    find_package(fastrtps "1.8.0" EXACT QUIET)
+    find_package(fastrtps "1.8.2" EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
             GIT_REPOSITORY
