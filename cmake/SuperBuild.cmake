@@ -80,6 +80,7 @@ if(UAGENT_FAST_PROFILE)
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DTHIRDPARTY:BOOL=ON
+                -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
                 fastcdr
             )
