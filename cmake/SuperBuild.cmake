@@ -26,8 +26,6 @@ if(UAGENT_P2P_PROFILE)
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
                 v1.1.0
-            GIT_PROGRESS
-                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
             INSTALL_DIR
@@ -50,8 +48,6 @@ if(NOT fastcdr_FOUND)
             https://github.com/eProsima/Fast-CDR.git
         GIT_TAG
             v1.0.9
-        GIT_PROGRESS
-            TRUE
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
         INSTALL_DIR
@@ -74,8 +70,6 @@ if(UAGENT_FAST_PROFILE)
                 https://github.com/eProsima/Fast-RTPS.git
             GIT_TAG
                 v1.8.0
-            GIT_PROGRESS
-                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastrtps
             INSTALL_DIR
@@ -103,8 +97,6 @@ if(NOT CLI11_FOUND)
             https://github.com/CLIUtils/CLI11.git
         GIT_TAG
             v1.7.1
-        GIT_PROGRESS
-            TRUE
         PREFIX
             ${PROJECT_BINARY_DIR}/CLI11
         INSTALL_DIR
@@ -130,8 +122,6 @@ if(UAGENT_LOGGER_PROFILE)
                 https://github.com/gabime/spdlog.git
             GIT_TAG
                 v1.3.1
-            GIT_PROGRESS
-                TRUE
             PREFIX
                 ${PROJECT_BINARY_DIR}/spdlog
             INSTALL_DIR
@@ -191,8 +181,6 @@ if(NOT Sanitizers_FOUND)
     ExternalProject_Add(sanitizers
         GIT_REPOSITORY
             https://github.com/arsenm/sanitizers-cmake
-        GIT_PROGRESS
-            TRUE
         PREFIX
             ${PROJECT_BINARY_DIR}/sanitizers
         BUILD_COMMAND
@@ -202,6 +190,7 @@ if(NOT Sanitizers_FOUND)
         )
     ExternalProject_Get_Property(sanitizers SOURCE_DIR)
     set(SANITIZERS_ROOT ${SOURCE_DIR} CACHE INTERNAL "")
+    list(APPEND _deps sanitizers)
 endif()
 
 # Main project.
