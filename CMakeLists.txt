@@ -30,6 +30,7 @@ option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
+option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
@@ -60,22 +61,22 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dea
 ###############################################################################
 # Dependencies
 ###############################################################################
-set(_fast_rtps_version 1.8.3)
-set(_fast_cdr_version 1.0.9)
+set(_fast_rtps_version 1.8.2)
+set(_fast_cdr_version 1.0.10)
 set(_cli11_version 1.7.1)
 set(_spdlog_version 1.3.1)
-set(_micro_xrce_dds_client_version 1.1.0)
+set(_micro_xrce_dds_client_version 1.1.3)
 
 ###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
-if(UAGENT_SUPERBUILD)
+if(NOT UAGENT_SUPERBUILD)
+    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
-else()
-    project(microxrcedds_agent VERSION "1.1.2" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -114,35 +115,7 @@ endif()
 ###############################################################################
 # Load external CMake Modules.
 ###############################################################################
-if(CMAKE_VERSION VERSION_LESS 3.11.4)
-    set(SANITIZER_PACKAGE "sanitizers-cmake")
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/CMakeLists.txt")
-        message(STATUS "${SANITIZER_PACKAGE} thirdparty is being updated...")
-        execute_process(
-            COMMAND git submodule update --recursive --init "thirdparty/${SANITIZER_PACKAGE}"
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            RESULT_VARIABLE EXECUTE_RESULT
-        )
-        if(NOT EXECUTE_RESULT EQUAL 0)
-            message(WARNING "Cannot configure Git submodule ${SANITIZER_PACKAGE}.")
-        endif()
-    endif()
-
-    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/thirdparty/${SANITIZER_PACKAGE}/cmake" ${CMAKE_MODULE_PATH})
-    unset(SANITIZER_PACKAGE)
-else()
-    set(SANITIZER_PACKAGE "sanitizers-cmake")
-    include(FetchContent)
-    FetchContent_Declare(sanitizers-cmake
-        GIT_REPOSITORY https://github.com/arsenm/sanitizers-cmake.git
-        GIT_TAG master
-    )
-    FetchContent_GetProperties(sanitizers-cmake)
-    if(NOT sanitizers-cmake_POPULATED)
-        FetchContent_Populate(sanitizers-cmake)
-        LIST(APPEND CMAKE_MODULE_PATH "${sanitizers-cmake_SOURCE_DIR}/cmake")
-    endif()
-endif()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SANITIZERS_ROOT}/cmake)
 find_package(Sanitizers REQUIRED)
 if(SANITIZE_ADDRESS)
     message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
@@ -540,7 +513,7 @@ if(WIN32 AND UAGENT_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/packaging/windows)
 
     include(CPack)
 endif()
