@@ -59,6 +59,8 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dea
 ###############################################################################
 set(_deps "")
 
+set(_foonathan_memory_tag master)
+
 set(_fastcdr_version 1.0.10)
 set(_fastcdr_tag v1.0.11)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
