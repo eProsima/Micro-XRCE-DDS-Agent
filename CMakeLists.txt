@@ -106,7 +106,7 @@ endif()
 ###############################################################################
 # Load external CMake Modules.
 ###############################################################################
-set(CMAKE_MODULE_PATH "${SANITIZERS_ROOT}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SANITIZERS_ROOT}/cmake)
 find_package(Sanitizers REQUIRED)
 if(SANITIZE_ADDRESS)
     message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
@@ -499,7 +499,7 @@ if(WIN32 AND UAGENT_INSTALLER)
     set(CPACK_INSTALL_SCRIPT "${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake")
 
     # Update CMAKE_MODULE_PATH to find NSIS.template.in
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/packaging/windows")
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/packaging/windows)
 
     include(CPack)
 endif()
