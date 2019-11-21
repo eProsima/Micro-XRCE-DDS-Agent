@@ -59,8 +59,6 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dea
 ###############################################################################
 set(_deps "")
 
-set(_foonathan_memory_tag master)
-
 set(_fastcdr_version 1.0.10)
 set(_fastcdr_tag v1.0.11)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
@@ -70,8 +68,8 @@ set(_cli11_tag v1.7.1)
 list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.2.1)
-    set(_microxrcedds_client_tag develop)
+    set(_microxrcedds_client_version 1.2.0)
+    set(_microxrcedds_client_tag d613a67204e5a50b1c3818e4bae4feb59b0b1596)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
@@ -79,6 +77,8 @@ if(UAGENT_FAST_PROFILE)
     set(_fastrtps_version 1.9.3)
     set(_fastrtps_tag v1.9.3)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+
+    set(_foonathan_memory_tag master)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
