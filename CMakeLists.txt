@@ -106,7 +106,7 @@ endif()
 ###############################################################################
 # Load external CMake Modules.
 ###############################################################################
-list(APPEND CMAKE_MODULE_PATH "${SANITIZERS_ROOT}/cmake")
+set(CMAKE_MODULE_PATH "${SANITIZERS_ROOT}/cmake" ${CMAKE_MODULE_PATH})
 find_package(Sanitizers REQUIRED)
 if(SANITIZE_ADDRESS)
     message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
