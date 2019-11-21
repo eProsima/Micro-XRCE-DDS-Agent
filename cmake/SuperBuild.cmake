@@ -19,13 +19,13 @@ unset(_deps)
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
-    find_package(microxrcedds_client "1.1.2" EXACT QUIET)
+    find_package(microxrcedds_client "1.1.3" EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
         ExternalProject_Add(uclient
             GIT_REPOSITORY
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
-                v1.1.2
+                v1.1.3
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
             INSTALL_DIR
@@ -47,7 +47,7 @@ if(NOT fastcdr_FOUND)
         GIT_REPOSITORY
             https://github.com/eProsima/Fast-CDR.git
         GIT_TAG
-            v1.0.9
+            v1.0.11
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
         INSTALL_DIR
