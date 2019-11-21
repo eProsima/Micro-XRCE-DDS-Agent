@@ -69,7 +69,7 @@ if(UAGENT_FAST_PROFILE)
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-RTPS.git
             GIT_TAG
-                v1.8.0
+                v1.8.2
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastrtps
             INSTALL_DIR
