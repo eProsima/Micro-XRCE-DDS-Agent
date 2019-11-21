@@ -88,7 +88,6 @@ if(UAGENT_FAST_PROFILE)
     endif()
 endif()
 
-
 # CLI11.
 unset(CLI11_DIR CACHE)
 find_package(CLI11 "1.7.1" EXACT QUIET)
