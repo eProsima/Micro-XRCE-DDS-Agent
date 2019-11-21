@@ -25,7 +25,7 @@ if(UAGENT_P2P_PROFILE)
             GIT_REPOSITORY
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
-                v1.1.3
+                d613a67204e5a50b1c3818e4bae4feb59b0b1596
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
             INSTALL_DIR
