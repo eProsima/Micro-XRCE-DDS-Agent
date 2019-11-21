@@ -62,12 +62,12 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dea
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
-if(UAGENT_SUPERBUILD)
+if(NOT UAGENT_SUPERBUILD)
+    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
     return()
-else()
-    project(microxrcedds_agent VERSION "1.1.3" LANGUAGES C CXX)
 endif()
 
 # Set CMAKE_BUILD_TYPE to Release by default.
@@ -90,14 +90,14 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.9" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+find_package(fastcdr "1.0.10" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.1.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(microxrcedds_client "1.1.3" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
     find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.8.0" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(fastrtps "1.8.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
     find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
