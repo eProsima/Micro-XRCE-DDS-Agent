@@ -100,7 +100,7 @@ if(UAGENT_FAST_PROFILE)
     find_package(fastrtps "1.8.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog "1.4.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################
