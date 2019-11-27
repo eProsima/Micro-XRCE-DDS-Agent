@@ -616,8 +616,9 @@ ProxyClient::State ProxyClient::get_state()
     return state_;
 }
 
-void ProxyClient::update_timestamp()
+void ProxyClient::update_state()
 {
+    state_ = State::alive;
     timestamp_ = std::chrono::steady_clock::now();
 }
 
