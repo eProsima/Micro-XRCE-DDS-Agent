@@ -606,6 +606,7 @@ bool ProxyClient::delete_object_unlock(
 
 ProxyClient::State ProxyClient::get_state()
 {
+    std::lock_guard<std::mutex> lock(state_mtx_);
     if (State::alive == state_)
     {
         using namespace std::chrono;
@@ -618,6 +619,7 @@ ProxyClient::State ProxyClient::get_state()
 
 void ProxyClient::update_state()
 {
+    std::lock_guard<std::mutex> lock(state_mtx_);
     state_ = State::alive;
     timestamp_ = std::chrono::steady_clock::now();
 }

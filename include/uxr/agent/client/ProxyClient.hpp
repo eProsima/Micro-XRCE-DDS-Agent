@@ -115,6 +115,7 @@ private:
     std::mutex mtx_;
     XRCEObject::ObjectContainer objects_;
     Session session_;
+    std::mutex state_mtx_;
     State state_;
     std::chrono::time_point<std::chrono::steady_clock> timestamp_;
 };
