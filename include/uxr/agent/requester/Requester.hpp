@@ -32,8 +32,7 @@ public:
     static std::unique_ptr<Requester> create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
-        const dds::xrce::REQUESTER_Representation& representation,
-        const ObjectContainer& root_objects);
+        const dds::xrce::REQUESTER_Representation& representation);
 
     ~Requester() override;
 
@@ -52,6 +51,14 @@ public:
         const dds::xrce::READ_DATA_Payload& read_data,
         read_callback read_cb,
         const ReadCallbackArgs& cb_args);
+
+    bool matched(
+        const dds::xrce::ObjectVariant& new_object_rep) const override;
+
+    void release(
+        ObjectContainer&) override {};
+
+    Middleware& get_middleware() const override;
 
 private:
     Requester(
