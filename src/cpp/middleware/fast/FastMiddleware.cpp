@@ -162,6 +162,38 @@ bool FastMiddleware::create_datawriter_by_xml(uint16_t datawriter_id,
     return rv;
 }
 
+bool FastMiddleware::create_requester_by_ref(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    return false;
+}
+
+bool FastMiddleware::create_requester_by_xml(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    return false;
+}
+
+bool FastMiddleware::create_replier_by_ref(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    return false;
+}
+
+bool FastMiddleware::create_replier_by_xml(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    return false;
+}
+
 bool FastMiddleware::create_datareader_by_ref(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& ref,
@@ -244,6 +276,16 @@ bool FastMiddleware::delete_datawriter(uint16_t datawriter_id)
 bool FastMiddleware::delete_datareader(uint16_t datareader_id)
 {
     return  (0 != datareaders_.erase(datareader_id));
+}
+
+bool FastMiddleware::delete_requester(uint16_t requester_id)
+{
+    return false;
+}
+
+bool FastMiddleware::delete_replier(uint16_t replier_id)
+{
+    return false;
 }
 
 /**********************************************************************************************************************
@@ -372,6 +414,34 @@ bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const s
         rv = it->second->match_from_xml(xml);
     }
     return rv;
+}
+
+bool FastMiddleware::matched_requester_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    return false;
+}
+
+bool FastMiddleware::matched_requester_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    return false;
+}
+
+bool FastMiddleware::matched_replier_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    return false;
+}
+
+bool FastMiddleware::matched_replier_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    return false;
 }
 
 } // namespace uxr

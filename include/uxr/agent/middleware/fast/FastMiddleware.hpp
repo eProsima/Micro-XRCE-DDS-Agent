@@ -91,6 +91,26 @@ public:
             const std::string& xml,
             uint16_t& associated_topic_id) override;
 
+    bool create_requester_by_ref(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    bool create_requester_by_xml(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
+    bool create_replier_by_ref(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    bool create_replier_by_xml(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
@@ -105,6 +125,10 @@ public:
     bool delete_datawriter(uint16_t datawriter_id) override;
 
     bool delete_datareader(uint16_t datareader_id) override;
+
+    bool delete_requester(uint16_t requester_id) override;
+
+    bool delete_replier(uint16_t replier_id) override;
 
 /**********************************************************************************************************************
  * Write/Read functions.
@@ -153,6 +177,22 @@ public:
 
     bool matched_datareader_from_xml(
             uint16_t datareader_id,
+            const std::string& xml) const override;
+
+    bool matched_requester_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    bool matched_requester_from_xml(
+            uint16_t participant_id,
+            const std::string& xml) const override;
+
+    bool matched_replier_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    bool matched_replier_from_xml(
+            uint16_t participant_id,
             const std::string& xml) const override;
 
 private:

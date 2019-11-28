@@ -310,6 +310,38 @@ bool CedMiddleware::create_datareader_by_xml(
     return rv;
 }
 
+bool CedMiddleware::create_requester_by_ref(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    return false;
+}
+
+bool CedMiddleware::create_requester_by_xml(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    return false;
+}
+
+bool CedMiddleware::create_replier_by_ref(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    return false;
+}
+
+bool CedMiddleware::create_replier_by_xml(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    return false;
+}
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
@@ -341,6 +373,16 @@ bool CedMiddleware::delete_datawriter(uint16_t datawriter_id)
 bool CedMiddleware::delete_datareader(uint16_t datareader_id)
 {
     return (0 != datareaders_.erase(datareader_id));
+}
+
+bool CedMiddleware::delete_requester(uint16_t requester_id)
+{
+    return false;
+}
+
+bool CedMiddleware::delete_replier(uint16_t replier_id)
+{
+    return false;
 }
 
 /**********************************************************************************************************************
@@ -482,6 +524,34 @@ bool CedMiddleware::matched_datareader_from_xml(
         rv = (xml == it->second->topic_name()); // TODO: parse XML.
     }
     return rv;
+}
+
+bool CedMiddleware::matched_requester_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    return false;
+}
+
+bool CedMiddleware::matched_requester_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    return false;
+}
+
+bool CedMiddleware::matched_replier_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    return false;
+}
+
+bool CedMiddleware::matched_replier_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    return false;
 }
 
 } // namespace uxr

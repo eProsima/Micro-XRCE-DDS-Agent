@@ -194,6 +194,62 @@ public:
             uint16_t& associated_topic_id) override;
 
     /**
+     * @brief Not implemented.
+     * 
+     * @param requester_id 
+     * @param participant_id 
+     * @param ref 
+     * @return true 
+     * @return false 
+     */
+    bool create_requester_by_ref(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param requester_id 
+     * @param participant_id 
+     * @param xml
+     * @return true 
+     * @return false 
+     */
+    bool create_requester_by_xml(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param replier_id 
+     * @param participant_id 
+     * @param ref 
+     * @return true 
+     * @return false 
+     */
+    bool create_replier_by_ref(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param replier_id 
+     * @param participant_id 
+     * @param xml
+     * @return true 
+     * @return false 
+     */
+    bool create_replier_by_xml(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
+    /**
      * @brief Removes a CedParticipant from the participants register.
      * @param participant_id    The CedParticipant identifier.
      * @return  true in case of the CedParticipant was found and removed, false in other case.
@@ -234,6 +290,24 @@ public:
      * @return  true in case of the CedDataReader was found and removed, false in other case.
      */
     bool delete_datareader(uint16_t datareader_id) override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param requester_id 
+     * @return true 
+     * @return false 
+     */
+    bool delete_requester(uint16_t requester_id) override;
+
+    /**
+     * @brief Not implemented
+     * 
+     * @param replier_id 
+     * @return true 
+     * @return false 
+     */
+    bool delete_replier(uint16_t replier_id) override;
 
     /**
      * @brief Writes data using the CedDataWriter identified by the datawriter_id parameter.
@@ -364,6 +438,54 @@ public:
      */
     bool matched_datareader_from_xml(
             uint16_t datareader_id,
+            const std::string& xml) const override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param participant_id 
+     * @param ref 
+     * @return true 
+     * @return false 
+     */
+    bool matched_requester_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param participant_id 
+     * @param xml 
+     * @return true 
+     * @return false 
+     */
+    bool matched_requester_from_xml(
+            uint16_t participant_id,
+            const std::string& xml) const override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param participant_id 
+     * @param ref 
+     * @return true 
+     * @return false 
+     */
+    bool matched_replier_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param participant_id 
+     * @param xml 
+     * @return true 
+     * @return false 
+     */
+    bool matched_replier_from_xml(
+            uint16_t participant_id,
             const std::string& xml) const override;
 
 private:
