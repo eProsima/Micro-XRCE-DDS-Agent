@@ -170,6 +170,8 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
+    src/cpp/requester/Requester.cpp
+    src/cpp/replier/Replier.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
