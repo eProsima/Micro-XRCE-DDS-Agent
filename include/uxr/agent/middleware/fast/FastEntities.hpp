@@ -18,6 +18,8 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastrtps/attributes/RequesterAttributes.h>
+#include <fastrtps/attributes/ReplierAttributes.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 
@@ -217,6 +219,100 @@ private:
     std::atomic<uint64_t> unread_count_;
 };
 
+
+/**********************************************************************************************************************
+ * FastRequester
+ **********************************************************************************************************************/
+class FastRequester : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+{
+public:
+    FastRequester(
+            const std::shared_ptr<FastParticipant>& participant);
+
+    ~FastRequester() override;
+
+    bool create_by_ref(
+            const std::string& ref);
+
+    bool create_by_attributes(
+            const fastrtps::RequesterAttributes& attrs);
+
+    bool match_from_ref(
+            const std::string& ref) const;
+
+    bool match_from_xml(
+            const std::string& xml) const;
+
+    bool write(
+            const std::vector<uint8_t>& data);
+
+    bool read(
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout);
+
+    void onPublicationMatched(
+            fastrtps::Publisher*,
+            fastrtps::rtps::MatchingInfo& info) override;
+
+    void onSubscriptionMatched(
+            fastrtps::Subscriber* sub,
+            fastrtps::rtps::MatchingInfo& info) override;
+
+    void onNewDataMessage(
+            fastrtps::Subscriber*) override;
+
+private:
+    std::shared_ptr<FastParticipant> participant_;
+    TopicPubSubType request_topic_;
+    TopicPubSubType reply_topic_;
+    fastrtps::Publisher* publisher_ptr_;
+    fastrtps::Subscriber* subscriber_ptr_;
+};
+
+/**********************************************************************************************************************
+ * FastReplier
+ **********************************************************************************************************************/
+class FastReplier : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+{
+public:
+    FastReplier(
+            const std::shared_ptr<FastParticipant>& participant);
+
+    ~FastReplier() override;
+
+    bool create_by_ref(
+            const std::string& ref);
+
+    bool create_by_attributes(
+            const fastrtps::ReplierAttributes& attrs);
+
+    bool match_from_ref(
+            const std::string& ref) const;
+
+    bool match_from_xml(
+            const std::string& xml) const;
+
+    bool write(
+            const std::vector<uint8_t>& data);
+
+    bool read(
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout);
+
+    void onPublicationMatched(
+            fastrtps::Publisher*,
+            fastrtps::rtps::MatchingInfo& info) override;
+
+    void onSubscriptionMatched(
+            fastrtps::Subscriber* sub,
+            fastrtps::rtps::MatchingInfo& info) override;
+
+    void onNewDataMessage(
+            fastrtps::Subscriber*) override;
+
+private:
+    std::shared_ptr<FastParticipant> participant_;
+};
 
 } // namespace uxr
 } // namespace eprosima
