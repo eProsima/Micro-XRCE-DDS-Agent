@@ -453,16 +453,46 @@ bool FastRequester::create_by_attributes(
 
 void FastRequester::onPublicationMatched(
         fastrtps::Publisher*,
-        fastrtps::rtps::MatchingInfo&)
+        fastrtps::rtps::MatchingInfo& info)
 {
-    // TODO
+    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+    else
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
 }
 
 void FastRequester::onSubscriptionMatched(
         fastrtps::Subscriber*,
-        fastrtps::rtps::MatchingInfo&)
+        fastrtps::rtps::MatchingInfo& info)
 {
-    // TODO
+    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+    else
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
 }
 
 void FastRequester::onNewDataMessage(
