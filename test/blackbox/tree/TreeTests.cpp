@@ -308,6 +308,19 @@ TEST_F(TreeTests, REFTree)
     response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
+    /*
+     * Create requester.
+     */
+    std::string requester_ref = "shapetype_requester";
+    dds::xrce::REQUESTER_Representation requester_representation;
+    requester_representation.participant_id(participant_id);
+    requester_representation.representation().object_reference(requester_ref);
+    object_variant.requester(requester_representation);
+
+    dds::xrce::ObjectPrefix requester_id = {0x00, 0x17};
+    response = client->create_object(creation_mode, requester_id, object_variant);
+    ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
+
     /* Participant destruction. */
     response = client->delete_object(participant_id);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
@@ -707,6 +720,11 @@ TEST_F(TreeTests, CreationModeXMLTree)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
     response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
+
+    /*
+     * Create requester.
+     */
+    // TODO (julianbermudez)
 }
 
 TEST_F(TreeTests, CreationModeREFTree)
@@ -991,6 +1009,11 @@ TEST_F(TreeTests, CreationModeREFTree)
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
     response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK_MATCHED, response.status());
+
+    /*
+     * Create requester.
+     */
+    // TODO (julianbermudez)
 }
 
 } // namespace testing

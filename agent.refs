@@ -23,4 +23,9 @@
         <name>Square</name>
         <dataType>ShapeType</dataType>
     </topic>
+    <requester profile_name="shape_requester"
+               service_name="shape_service"
+               request_type="request_type"
+               reply_type="reply_type">
+    </requester>
 </profiles>

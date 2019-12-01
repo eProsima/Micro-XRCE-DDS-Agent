@@ -167,7 +167,18 @@ bool FastMiddleware::create_requester_by_ref(
         uint16_t participant_id,
         const std::string& ref)
 {
-    return false;
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
+        if (requester->create_by_ref(ref))
+        {
+            requesters_.emplace(requester_id, std::move(requester));
+            rv = true;
+        }
+    }
+    return rv;
 }
 
 bool FastMiddleware::create_requester_by_xml(
