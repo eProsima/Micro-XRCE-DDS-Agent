@@ -165,6 +165,44 @@ TEST_F(TreeTests, XMLTree)
     response = client->create_object(creation_mode, datareader_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
+    /*
+     * Create requester.
+     */
+    std::string requester_xml = R"(
+        <dds>
+            <requester profile_name="test_requester_profile"
+                       service_name="service_name"
+                       request_type="request_type"
+                       reply_type="reply_type">
+                <publisher>
+                    <topic>
+                        <name>otherSamplePubSubTopic</name>
+                        <dataType>otherSamplePubSubTopicType</dataType>
+                    </topic>
+                    <qos>
+                        <liveliness>
+                            <kind>MANUAL_BY_TOPIC</kind>
+                        </liveliness>
+                    </qos>
+                </publisher>
+                <subscriber>
+                    <qos>
+                        <liveliness>
+                            <kind>MANUAL_BY_TOPIC</kind>
+                        </liveliness>
+                    </qos>
+                </subscriber>
+            </requester>
+        </dds>)";
+    dds::xrce::REQUESTER_Representation requester_representation;
+    requester_representation.participant_id(participant_id);
+    requester_representation.representation().xml_string_representation(requester_xml);
+    object_variant.requester(requester_representation);
+
+    dds::xrce::ObjectPrefix requester_id = {0x00, 0x17};
+    response = client->create_object(creation_mode, requester_id, object_variant);
+    ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
+
     /* Participant destruction. */
     response = client->delete_object(participant_id);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());

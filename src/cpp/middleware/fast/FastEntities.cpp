@@ -391,5 +391,85 @@ void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
     cv_.notify_one();
 }
 
+/**********************************************************************************************************************
+ * FastRequester
+ **********************************************************************************************************************/
+FastRequester::FastRequester(
+        const std::shared_ptr<FastParticipant>& participant)
+    : participant_{participant}
+    , request_topic_{false}
+    , reply_topic_{false}
+    , publisher_ptr_{nullptr}
+    , subscriber_ptr_{nullptr}
+{}
+
+FastRequester::~FastRequester()
+{
+    fastrtps::Domain::removePublisher(publisher_ptr_);
+    fastrtps::Domain::removeSubscriber(subscriber_ptr_);
+}
+
+bool FastRequester::create_by_ref(
+        const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::RequesterAttributes requester_attrs;
+
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillRequesterAttributes(ref, requester_attrs))
+    {
+        rv = create_by_attributes(requester_attrs);
+    }
+
+    return rv;
+}
+
+bool FastRequester::create_by_attributes(
+        const fastrtps::RequesterAttributes& attrs)
+{
+    bool rv = false;
+
+    const fastrtps::TopicAttributes& request_topic_attrs = attrs.publisher.topic;
+    request_topic_.setName(request_topic_attrs.getTopicDataType().c_str());
+    request_topic_.m_isGetKeyDefined =
+        (request_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+
+    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.subscriber.topic;
+    reply_topic_.setName(reply_topic_attrs.getTopicDataType().c_str());
+    reply_topic_.m_isGetKeyDefined =
+        (reply_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+
+    fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
+    if (fastrtps::Domain::registerType(participant_ptr, &request_topic_) &&
+        fastrtps::Domain::registerType(participant_ptr, &reply_topic_))
+    {
+        publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
+        subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
+        rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
+    }
+
+    return rv;
+}
+
+void FastRequester::onPublicationMatched(
+        fastrtps::Publisher*,
+        fastrtps::rtps::MatchingInfo&)
+{
+    // TODO
+}
+
+void FastRequester::onSubscriptionMatched(
+        fastrtps::Subscriber*,
+        fastrtps::rtps::MatchingInfo&)
+{
+    // TODO
+}
+
+void FastRequester::onNewDataMessage(
+        fastrtps::Subscriber*)
+{
+    // TODO
+}
+
 } // namespace uxr
 } // namespace eprosima

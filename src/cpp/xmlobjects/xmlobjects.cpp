@@ -22,6 +22,8 @@ using eprosima::fastrtps::ParticipantAttributes;
 using eprosima::fastrtps::PublisherAttributes;
 using eprosima::fastrtps::SubscriberAttributes;
 using eprosima::fastrtps::TopicAttributes;
+using eprosima::fastrtps::RequesterAttributes;
+using eprosima::fastrtps::ReplierAttributes;
 using eprosima::fastrtps::xmlparser::BaseNode;
 using eprosima::fastrtps::xmlparser::DataNode;
 using eprosima::fastrtps::xmlparser::NodeType;
@@ -96,6 +98,48 @@ bool eprosima::uxr::xmlobjects::parse_topic(const char* source, std::size_t sour
             if (profile->getType() == NodeType::TOPIC)
             {
                 topic = *(dynamic_cast<DataNode<TopicAttributes>*>(profile.get())->get());
+                ret   = true;
+            }
+        }
+    }
+    return ret;
+}
+
+bool eprosima::uxr::xmlobjects::parse_requester(
+        const char* source,
+        std::size_t source_size,
+        RequesterAttributes& requester)
+{
+    bool ret = false;
+    std::unique_ptr<BaseNode> root;
+    if (XMLParser::loadXML(source, source_size, root) == XMLP_ret::XML_OK)
+    {
+        for (const auto& profile : root->getChildren())
+        {
+            if (profile->getType() == NodeType::REQUESTER)
+            {
+                requester = *(dynamic_cast<DataNode<RequesterAttributes>*>(profile.get())->get());
+                ret   = true;
+            }
+        }
+    }
+    return ret;
+}
+
+bool eprosima::uxr::xmlobjects::parse_replier(
+        const char* source,
+        std::size_t source_size,
+        ReplierAttributes& replier)
+{
+    bool ret = false;
+    std::unique_ptr<BaseNode> root;
+    if (XMLParser::loadXML(source, source_size, root) == XMLP_ret::XML_OK)
+    {
+        for (const auto& profile : root->getChildren())
+        {
+            if (profile->getType() == NodeType::REPLIER)
+            {
+                replier = *(dynamic_cast<DataNode<ReplierAttributes>*>(profile.get())->get());
                 ret   = true;
             }
         }

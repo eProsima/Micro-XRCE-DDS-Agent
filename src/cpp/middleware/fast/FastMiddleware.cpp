@@ -175,7 +175,22 @@ bool FastMiddleware::create_requester_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    return false;
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        fastrtps::RequesterAttributes attrs;
+        if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
+        {
+            std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
+            if (requester->create_by_attributes(attrs))
+            {
+                requesters_.emplace(requester_id, std::move(requester));
+                rv = true;
+            }
+        }
+    }
+    return rv;
 }
 
 bool FastMiddleware::create_replier_by_ref(
@@ -275,12 +290,12 @@ bool FastMiddleware::delete_datawriter(uint16_t datawriter_id)
 
 bool FastMiddleware::delete_datareader(uint16_t datareader_id)
 {
-    return  (0 != datareaders_.erase(datareader_id));
+    return (0 != datareaders_.erase(datareader_id));
 }
 
 bool FastMiddleware::delete_requester(uint16_t requester_id)
 {
-    return false;
+    return (0 != requesters_.erase(requester_id));
 }
 
 bool FastMiddleware::delete_replier(uint16_t replier_id)
