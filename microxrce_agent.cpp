@@ -36,13 +36,15 @@ int main(int argc, char** argv)
     app.get_formatter()->column_width(42);
 
     /* CLI subcommands. */
-    eprosima::uxr::cli::UDPSubcommand udp_subcommand(app);
-    eprosima::uxr::cli::TCPSubcommand tcp_subcommand(app);
+    eprosima::uxr::cli::UDPv4Subcommand udpv4_subcommand(app);
+    eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
+    eprosima::uxr::cli::TCPv4Subcommand tcpv4_subcommand(app);
+    eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
 #ifndef _WIN32
     eprosima::uxr::cli::SerialSubcommand serial_subcommand(app);
     eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
-    eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 #endif
+    eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 
     /* CLI parse. */
     std::string cli_input{};

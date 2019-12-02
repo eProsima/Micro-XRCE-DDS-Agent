@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/serial/SerialAgentLinux.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -25,7 +25,8 @@ SerialAgent::SerialAgent(
         int fd,
         uint8_t addr,
         Middleware::Kind middleware_kind)
-    : SerialServerBase(addr, middleware_kind)
+    : Server<SerialEndPoint>{middleware_kind}
+    , addr_{addr}
     , poll_fd_()
     , buffer_{0}
     , serial_io_()
@@ -91,7 +92,10 @@ bool SerialAgent::close()
     return rv;
 }
 
-size_t SerialAgent::write_data(void* instance, uint8_t* buf, size_t len)
+size_t SerialAgent::write_data(
+        void* instance,
+        uint8_t* buf,
+        size_t len)
 {
     size_t rv = 0;
     SerialAgent* server = static_cast<SerialAgent*>(instance);
@@ -103,7 +107,11 @@ size_t SerialAgent::write_data(void* instance, uint8_t* buf, size_t len)
     return rv;
 }
 
-size_t SerialAgent::read_data(void* instance, uint8_t* buf, size_t len, int timeout)
+size_t SerialAgent::read_data(
+        void* instance,
+        uint8_t* buf,
+        size_t len,
+        int timeout)
 {
     size_t rv = 0;
     SerialAgent* server = static_cast<SerialAgent*>(instance);
@@ -119,27 +127,35 @@ size_t SerialAgent::read_data(void* instance, uint8_t* buf, size_t len, int time
     return rv;
 }
 
-bool SerialAgent::recv_message(InputPacket& input_packet, int timeout)
+bool SerialAgent::recv_message(
+        InputPacket<SerialEndPoint>& input_packet,
+        int timeout)
 {
     bool rv = false;
     uint8_t remote_addr;
-    size_t bytes_read = uxr_read_serial_msg(&serial_io_,
-                                            read_data,
-                                            this,
-                                            buffer_,
-                                            sizeof(buffer_),
-                                            &remote_addr,
-                                            timeout);
+    size_t bytes_read =
+            uxr_read_serial_msg(&serial_io_,
+                                read_data,
+                                this,
+                                buffer_,
+                                sizeof(buffer_),
+                                &remote_addr,
+                                timeout);
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
-        input_packet.source.reset(new SerialEndPoint(remote_addr));
+        input_packet.source = SerialEndPoint(remote_addr);
         rv = true;
-        UXR_AGENT_LOG_MESSAGE(
-            UXR_DECORATE_YELLOW("[==>> SER <<==]"),
-            conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
-            input_packet.message->get_buf(),
-            input_packet.message->get_len());
+
+        uint32_t raw_client_key;
+        if (Server<SerialEndPoint>::get_client_key(input_packet.source, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> SER <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
+        }
     }
     else
     {
@@ -148,24 +164,30 @@ bool SerialAgent::recv_message(InputPacket& input_packet, int timeout)
     return rv;
 }
 
-bool SerialAgent::send_message(OutputPacket output_packet)
+bool SerialAgent::send_message(
+        OutputPacket<SerialEndPoint> output_packet)
 {
     bool rv = false;
-    const SerialEndPoint* destination = static_cast<const SerialEndPoint*>(output_packet.destination.get());
-    size_t bytes_written = uxr_write_serial_msg(&serial_io_,
-                                                write_data,
-                                                this,
-                                                output_packet.message->get_buf(),
-                                                output_packet.message->get_len(),
-                                                destination->get_addr());
+    size_t bytes_written =
+            uxr_write_serial_msg(&serial_io_,
+                                 write_data,
+                                 this,
+                                 output_packet.message->get_buf(),
+                                 output_packet.message->get_len(),
+                                 output_packet.destination.get_addr());
     if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
         rv = true;
-        UXR_AGENT_LOG_MESSAGE(
-            UXR_DECORATE_YELLOW("[** <<SER>> **]"),
-            conversion::clientkey_to_raw(get_client_key(output_packet.destination.get())),
-            output_packet.message->get_buf(),
-            output_packet.message->get_len());
+
+        uint32_t raw_client_key;
+        if (Server<SerialEndPoint>::get_client_key(output_packet.destination, raw_client_key))
+        {
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<SER>> **]"),
+                raw_client_key,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
+        }
     }
     errno_ = rv ? 0 : -1;
     return rv;

@@ -178,7 +178,7 @@ public:
             const std::string& topic_name,
             uint16_t& topic_id) const;
 
-    int16_t domain_id() const { return domain_id_; }
+    int16_t get_domain_id() const { return domain_id_; }
 
 private:
     int16_t domain_id_;
@@ -199,7 +199,7 @@ public:
     {}
     ~CedTopic();
 
-    CedGlobalTopic* global_topic() const;
+    CedGlobalTopic* get_global_topic() const;
 
     const std::string& name() { return global_topic_->name(); }
 
@@ -220,7 +220,7 @@ public:
     {}
     ~CedPublisher() = default;
 
-    const std::shared_ptr<CedParticipant>& participant() const { return participant_; }
+    const std::shared_ptr<CedParticipant>& get_participant() const { return participant_; }
 
 private:
     const std::shared_ptr<CedParticipant> participant_;
@@ -238,7 +238,7 @@ public:
     {}
     ~CedSubscriber() = default;
 
-    const std::shared_ptr<CedParticipant>& participant() const { return  participant_; }
+    const std::shared_ptr<CedParticipant>& get_participant() const { return  participant_; }
 
 private:
     const std::shared_ptr<CedParticipant>& participant_;
@@ -266,7 +266,7 @@ public:
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const;
 
-    const std::string& topic_name() const { return topic_->global_topic()->name(); }
+    const std::string& topic_name() const { return topic_->get_global_topic()->name(); }
 
 private:
     const std::shared_ptr<CedPublisher> publisher_;
@@ -297,7 +297,7 @@ public:
             std::chrono::milliseconds timeout,
             uint8_t& errcode);
 
-    const std::string& topic_name() const { return topic_->global_topic()->name(); }
+    const std::string& topic_name() const { return topic_->get_global_topic()->name(); }
 
 private:
     const std::shared_ptr<CedSubscriber> subscriber_;

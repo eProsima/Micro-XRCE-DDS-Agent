@@ -16,6 +16,8 @@
 #define UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_HPP_
 
 #include <uxr/agent/message/Packet.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 
 #include <thread>
 #include <atomic>
@@ -24,33 +26,37 @@
 namespace eprosima {
 namespace uxr {
 
+template<typename EndPoint>
 class Processor;
 
+template<typename EndPoint>
 class DiscoveryServer
 {
 public:
-    DiscoveryServer(const Processor& processor);
+    DiscoveryServer(
+            const Processor<EndPoint>& processor);
 
     virtual ~DiscoveryServer() = default;
 
     bool run(
-            uint16_t discovery_port,
-            const dds::xrce::TransportAddress& transport_address_);
+            uint16_t discovery_port);
 
     bool stop();
 
     void set_filter_port(uint16_t filter_port) { filter_port_ = filter_port; }
 
 private:
-    virtual bool init(uint16_t discovery_port) = 0;
+    virtual bool init(
+            uint16_t discovery_port) = 0;
 
     virtual bool close() = 0;
 
     virtual bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) = 0;
 
-    virtual bool send_message(OutputPacket&& output_packet) = 0;
+    virtual bool send_message(
+            OutputPacket<IPv4EndPoint>&& output_packet) = 0;
 
     void discovery_loop();
 
@@ -58,10 +64,12 @@ private:
     std::mutex mtx_;
     std::thread thread_;
     std::atomic<bool> running_cond_;
-    const Processor& processor_;
+    const Processor<EndPoint>& processor_;
 
 protected:
-    dds::xrce::TransportAddress transport_address_;
+    std::vector<dds::xrce::TransportAddress> transport_addresses_;
+    uint16_t agent_port_;
+    uint16_t discovery_port_;
     uint16_t filter_port_;
 };
 

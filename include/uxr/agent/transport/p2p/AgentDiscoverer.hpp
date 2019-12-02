@@ -50,7 +50,8 @@ public:
             uint16_t port);
 
 private:
-    virtual bool init(uint16_t p2p_port) = 0;
+    virtual bool init(
+            uint16_t p2p_port) = 0;
 
     virtual bool close() = 0;
 
@@ -58,7 +59,8 @@ private:
             InputMessagePtr& input_message,
             int timeout) = 0;
 
-    virtual bool send_message(const OutputMessage& output_message) = 0;
+    virtual bool send_message(
+            const OutputMessage& output_message) = 0;
 
     void loop();
 

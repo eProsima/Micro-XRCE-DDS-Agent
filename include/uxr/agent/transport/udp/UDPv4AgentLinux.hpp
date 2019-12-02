@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_
 
-#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
-#include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
+#include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
+#endif
+#ifdef UAGENT_P2P_PROFILE
+#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
 #endif
 
-#include <winsock2.h>
 #include <cstdint>
 #include <cstddef>
+#include <sys/poll.h>
+#include <unordered_map>
 
 namespace eprosima {
 namespace uxr {
 
-class UDPv4Agent : public UDPServerBase
+extern template class Server<IPv4EndPoint>; // Explicit instantiation declaration.
+
+class UDPv4Agent : public Server<IPv4EndPoint>
 {
 public:
-    UXR_AGENT_EXPORT UDPv4Agent(
-            uint16_t agent_port,
+    UDPv4Agent(
+            uint16_t port,
             Middleware::Kind middleware_kind);
 
-    UXR_AGENT_EXPORT ~UDPv4Agent() final;
+    ~UDPv4Agent() final;
 
 private:
     bool init() final;
@@ -48,28 +55,33 @@ private:
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
+    bool init_p2p(uint16_t p2p_port) final;
 
-    bool close_p2p() final { return false; } // TODO
+    bool close_p2p() final;
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint> output_packet) final;
 
     int get_error() final;
 
 private:
-    WSAPOLLFD poll_fd_;
+    struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
+    uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerWindows discovery_server_;
+    DiscoveryServerLinux<IPv4EndPoint> discovery_server_;
+#endif
+#ifdef UAGENT_P2P_PROFILE
+    AgentDiscovererLinux agent_discoverer_;
 #endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDPv4_AGENT_HPP_

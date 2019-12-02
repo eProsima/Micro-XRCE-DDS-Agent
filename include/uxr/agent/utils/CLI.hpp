@@ -16,12 +16,16 @@
 #define UXR_AGENT_UTILS_CLI_HPP_
 
 #ifdef _WIN32
-#include <uxr/agent/transport/udp/UDPServerWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
+#include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv6AgentWindows.hpp>
 #else
-#include <uxr/agent/transport/udp/UDPServerLinux.hpp>
-#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
-#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/udp/UDPv4AgentLinux.hpp>
+#include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
+#include <uxr/agent/transport/serial/SerialAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
 #include <termios.h>
@@ -269,7 +273,38 @@ private:
 #else
         std::cout << "Press CTRL+C to exit" << std::endl;
 #endif
-        if (launch_server())
+        launch_server();
+    }
+
+    virtual void launch_server() = 0;
+
+protected:
+    CLI::App* cli_subcommand_;
+    const CommonOpts& opts_ref_;
+};
+
+
+/*************************************************************************************************
+ * UDPv6 Subcommand
+ *************************************************************************************************/
+class UDPv4Subcommand : public ServerSubcommand
+{
+public:
+    UDPv4Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "udp4", "Launch a UDP/IPv4 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~UDPv4Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->run())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -297,68 +332,173 @@ private:
         }
     }
 
-    virtual bool launch_server() = 0;
-
-protected:
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
-    const CommonOpts& opts_ref_;
-};
-
-
-/*************************************************************************************************
- * UDP Subcommand
- *************************************************************************************************/
-class UDPSubcommand : public ServerSubcommand
-{
-public:
-    UDPSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "udp", "Launch a UDP server", common_opts_}
-        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
-        , common_opts_{*cli_subcommand_}
-    {
-        cli_opt_->required(true);
-    }
-
-    ~UDPSubcommand() final = default;
-
 private:
-    bool launch_server()
-    {
-        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        return server_->run();
-    }
-
-private:
+    std::unique_ptr<eprosima::uxr::UDPv4Agent> server_;
     uint16_t port_;
     CLI::Option* cli_opt_;
     CommonOpts common_opts_;
 };
 
 /*************************************************************************************************
- * TCP Subcommand
+ * UDPv6 Subcommand
  *************************************************************************************************/
-class TCPSubcommand : public ServerSubcommand
+class UDPv6Subcommand : public ServerSubcommand
 {
 public:
-    TCPSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "tcp", "Launch a TCP server", common_opts_}
+    UDPv6Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "udp6", "Launch a UDP/IPv6 server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
         , common_opts_{*cli_subcommand_}
     {
         cli_opt_->required(true);
     }
 
-    ~TCPSubcommand() final = default;
+    ~UDPv6Subcommand() final = default;
 
 private:
-    bool launch_server()
+    void launch_server()
     {
-        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        return server_->run();
+        server_.reset(new eprosima::uxr::UDPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->run())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::UDPv6Agent> server_;
+    uint16_t port_;
+    CLI::Option* cli_opt_;
+    CommonOpts common_opts_;
+};
+
+/*************************************************************************************************
+ * TCPv4 Subcommand
+ *************************************************************************************************/
+class TCPv4Subcommand : public ServerSubcommand
+{
+public:
+    TCPv4Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "tcp4", "Launch a TCP/IPv4 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~TCPv4Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->run())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::TCPv4Agent> server_;
+    uint16_t port_;
+    CLI::Option* cli_opt_;
+    CommonOpts common_opts_;
+};
+
+/*************************************************************************************************
+ * TCPv6 Subcommand
+ *************************************************************************************************/
+class TCPv6Subcommand : public ServerSubcommand
+{
+public:
+    TCPv6Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "tcp6", "Launch a TCP/IPv6 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~TCPv6Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::TCPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->run())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::TCPv6Agent> server_;
     uint16_t port_;
     CLI::Option* cli_opt_;
     CommonOpts common_opts_;
@@ -382,9 +522,8 @@ public:
     }
 
 private:
-    bool launch_server() final
+    void launch_server() final
     {
-        bool rv = false;
         int fd = open(dev_.c_str(), O_RDWR | O_NOCTTY);
         if (0 < fd)
         {
@@ -434,14 +573,39 @@ private:
                 if (0 == tcsetattr(fd, TCSANOW, &attr))
                 {
                     server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
-                    rv = server_->run();
+                    if (server_->run())
+                    {
+#ifdef UAGENT_DISCOVERY_PROFILE
+                        if (opts_ref_.discovery_opt_.is_enable())
+                        {
+                            server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+                        }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+                        if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                            && opts_ref_.p2p_opt_.is_enable())
+                        {
+                            server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+                        }
+#endif
+                        if (opts_ref_.reference_opt_.is_enable())
+                        {
+                            server_->load_config_file(opts_ref_.reference_opt_.get_file());
+                        }
+
+                        if (opts_ref_.verbose_opt_.is_enable())
+                        {
+                            server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                        }
+                    }
                 }
             }
         }
-        return rv;
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
     std::string dev_;
     CLI::Option* cli_opt_;
     BaudrateOpt baudrate_opt_;
@@ -461,10 +625,8 @@ public:
     {}
 
 private:
-    bool launch_server() final
+    void launch_server() final
     {
-        bool rv = false;
-
         /* Open pseudo-terminal. */
         char* dev = nullptr;
         int fd = posix_openpt(O_RDWR | O_NOCTTY);
@@ -490,14 +652,38 @@ private:
 
                 /* Run server. */
                 server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
-                rv = server_->run();
+                if (server_->run())
+                {
+#ifdef UAGENT_DISCOVERY_PROFILE
+                    if (opts_ref_.discovery_opt_.is_enable())
+                    {
+                        server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+                    }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+                    if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                        && opts_ref_.p2p_opt_.is_enable())
+                    {
+                        server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+                    }
+#endif
+                    if (opts_ref_.reference_opt_.is_enable())
+                    {
+                        server_->load_config_file(opts_ref_.reference_opt_.get_file());
+                    }
+
+                    if (opts_ref_.verbose_opt_.is_enable())
+                    {
+                        server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+                    }
+                }
             }
         }
-
-        return rv;
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
     BaudrateOpt baudrate_opt_;
     CommonOpts common_opts_;
 };

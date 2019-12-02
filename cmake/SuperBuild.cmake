@@ -25,7 +25,7 @@ if(UAGENT_P2P_PROFILE)
             GIT_REPOSITORY
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
-                v1.1.3
+                d613a67204e5a50b1c3818e4bae4feb59b0b1596
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
             INSTALL_DIR
@@ -34,6 +34,7 @@ if(UAGENT_P2P_PROFILE)
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
             )
         list(APPEND _deps uclient)
     endif()
@@ -56,6 +57,7 @@ if(NOT fastcdr_FOUND)
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
         PATCH_COMMAND
             COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
             COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
@@ -81,9 +83,10 @@ if(UAGENT_FAST_PROFILE)
                 ${PROJECT_BINARY_DIR}/temp_install/fastrtps
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install
                 -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 -DTHIRDPARTY:BOOL=ON
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
@@ -113,9 +116,10 @@ if(NOT CLI11_FOUND)
             ${PROJECT_BINARY_DIR}/temp_install/cli11
         CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
             -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
             -DCLI11_TESTING:BOOL=OFF
             -DCLI11_EXAMPLES:BOOL=OFF
         )
@@ -138,9 +142,10 @@ if(UAGENT_LOGGER_PROFILE)
                 ${PROJECT_BINARY_DIR}/temp_install/spdlog
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
                 -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
                 -DSPDLOG_BUILD_BENCH:BOOL=OFF
                 -DSPDLOG_BUILD_TESTS:BOOL=OFF
@@ -170,6 +175,7 @@ if(UAGENT_BUILD_TESTS)
                 ${PROJECT_BINARY_DIR}/temp_install/googletest
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
             BUILD_COMMAND
                 COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target install

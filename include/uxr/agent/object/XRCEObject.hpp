@@ -42,7 +42,7 @@ public:
     typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, ObjectIdHash> ObjectContainer;
 
     explicit XRCEObject(const dds::xrce::ObjectId& object_id)
-        : id_{object_id}
+        : id_(object_id)
     {}
 
     virtual ~XRCEObject() = 0;

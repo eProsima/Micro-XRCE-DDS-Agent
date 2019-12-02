@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
 
-#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
@@ -31,14 +32,16 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPv4Agent : public UDPServerBase
+extern template class Server<IPv6EndPoint>; // Explicit instantiation declaration.
+
+class UDPv6Agent : public Server<IPv6EndPoint>
 {
 public:
-    UDPv4Agent(
+    UDPv6Agent(
             uint16_t port,
             Middleware::Kind middleware_kind);
 
-    ~UDPv4Agent() final;
+    ~UDPv6Agent() final;
 
 private:
     bool init() final;
@@ -58,19 +61,20 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv6EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv6EndPoint> output_packet) final;
 
     int get_error() final;
 
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    uint16_t port_;
+    uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerLinux discovery_server_;
+    DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
 #endif
 #ifdef UAGENT_P2P_PROFILE
     AgentDiscovererLinux agent_discoverer_;
@@ -80,4 +84,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_

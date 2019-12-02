@@ -24,8 +24,8 @@ namespace time {
 
 inline void get_epoch_time(int32_t& sec, uint32_t& nsec)
 {
-    auto epoch_time{std::chrono::duration_cast<std::chrono::nanoseconds>
-                    (std::chrono::high_resolution_clock::now().time_since_epoch()).count()};
+    auto epoch_time(std::chrono::duration_cast<std::chrono::nanoseconds>
+                    (std::chrono::high_resolution_clock::now().time_since_epoch()).count());
     sec = int32_t(epoch_time / std::nano::den);
     nsec = uint32_t(epoch_time % std::nano::den);
 }

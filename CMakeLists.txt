@@ -65,14 +65,14 @@ set(_fast_rtps_version 1.8.2)
 set(_fast_cdr_version 1.0.10)
 set(_cli11_version 1.7.1)
 set(_spdlog_version 1.3.1)
-set(_micro_xrce_dds_client_version 1.1.3)
+set(_micro_xrce_dds_client_version 1.2.0)
 
 ###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.2.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -127,16 +127,20 @@ endif()
 # Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
-        src/cpp/transport/udp/UDPServerLinux.cpp
-        src/cpp/transport/tcp/TCPServerLinux.cpp
-        src/cpp/transport/serial/SerialServerLinux.cpp
+        src/cpp/transport/udp/UDPv4AgentLinux.cpp
+        src/cpp/transport/udp/UDPv6AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv4AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv6AgentLinux.cpp
+        src/cpp/transport/serial/SerialAgentLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
-        src/cpp/transport/udp/UDPServerWindows.cpp
-        src/cpp/transport/tcp/TCPServerWindows.cpp
+        src/cpp/transport/udp/UDPv4AgentWindows.cpp
+        src/cpp/transport/udp/UDPv6AgentWindows.cpp
+        src/cpp/transport/tcp/TCPv4AgentWindows.cpp
+        src/cpp/transport/tcp/TCPv6AgentWindows.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
@@ -160,9 +164,6 @@ set(SRCS
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/udp/UDPServerBase.cpp
-    src/cpp/transport/tcp/TCPServerBase.cpp
-    src/cpp/transport/serial/SerialServerBase.cpp
     src/cpp/transport/serial/serial_protocol.c
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
@@ -235,6 +236,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
         $<$<PLATFORM_ID:Windows>:ws2_32>
+        $<$<PLATFORM_ID:Windows>:iphlpapi>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
