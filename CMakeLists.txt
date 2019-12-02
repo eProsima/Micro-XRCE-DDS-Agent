@@ -63,7 +63,7 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dea
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.5" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
