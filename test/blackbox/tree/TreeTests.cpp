@@ -208,10 +208,10 @@ TEST_F(TreeTests, XMLTree)
      */
     std::string replier_xml = R"(
         <dds>
-            <replier profile_name="test_requester_profile"
-                       service_name="service_name"
-                       request_type="request_type"
-                       reply_type="reply_type">
+            <replier profile_name="test_replier_profile"
+                     service_name="service_name"
+                     request_type="request_type"
+                     reply_type="reply_type">
                 <publisher>
                     <topic>
                         <name>otherSamplePubSubTopic</name>
