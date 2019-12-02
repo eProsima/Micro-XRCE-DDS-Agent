@@ -209,7 +209,18 @@ bool FastMiddleware::create_replier_by_ref(
         uint16_t participant_id,
         const std::string& ref)
 {
-    return false;
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
+        if (replier->create_by_ref(ref))
+        {
+            repliers_.emplace(replier_id, std::move(replier));
+            rv = true;
+        }
+    }
+    return rv;
 }
 
 bool FastMiddleware::create_replier_by_xml(
@@ -217,7 +228,22 @@ bool FastMiddleware::create_replier_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    return false;
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        fastrtps::ReplierAttributes attrs;
+        if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
+        {
+            std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
+            if (replier->create_by_attributes(attrs))
+            {
+                repliers_.emplace(replier_id, std::move(replier));
+                rv = true;
+            }
+        }
+    }
+    return rv;
 }
 
 bool FastMiddleware::create_datareader_by_ref(uint16_t datareader_id,

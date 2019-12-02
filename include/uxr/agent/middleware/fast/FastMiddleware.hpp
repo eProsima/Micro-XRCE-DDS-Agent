@@ -203,6 +203,7 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
     std::unordered_map<uint16_t, std::shared_ptr<FastRequester>> requesters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastReplier>> repliers_;
 };
 
 } // namespace uxr

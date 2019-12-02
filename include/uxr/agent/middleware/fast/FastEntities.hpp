@@ -312,6 +312,10 @@ public:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
+    TopicPubSubType request_topic_;
+    TopicPubSubType reply_topic_;
+    fastrtps::Publisher* publisher_ptr_;
+    fastrtps::Subscriber* subscriber_ptr_;
 };
 
 } // namespace uxr

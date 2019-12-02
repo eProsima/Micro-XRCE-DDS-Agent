@@ -203,6 +203,44 @@ TEST_F(TreeTests, XMLTree)
     response = client->create_object(creation_mode, requester_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
+    /*
+     * Create replier.
+     */
+    std::string replier_xml = R"(
+        <dds>
+            <replier profile_name="test_requester_profile"
+                       service_name="service_name"
+                       request_type="request_type"
+                       reply_type="reply_type">
+                <publisher>
+                    <topic>
+                        <name>otherSamplePubSubTopic</name>
+                        <dataType>otherSamplePubSubTopicType</dataType>
+                    </topic>
+                    <qos>
+                        <liveliness>
+                            <kind>MANUAL_BY_TOPIC</kind>
+                        </liveliness>
+                    </qos>
+                </publisher>
+                <subscriber>
+                    <qos>
+                        <liveliness>
+                            <kind>MANUAL_BY_TOPIC</kind>
+                        </liveliness>
+                    </qos>
+                </subscriber>
+            </replier>
+        </dds>)";
+    dds::xrce::REPLIER_Representation replier_representation;
+    replier_representation.participant_id(participant_id);
+    replier_representation.representation().xml_string_representation(replier_xml);
+    object_variant.replier(replier_representation);
+
+    dds::xrce::ObjectPrefix replier_id = {0x00, 0x18};
+    response = client->create_object(creation_mode, replier_id, object_variant);
+    ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
+
     /* Participant destruction. */
     response = client->delete_object(participant_id);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
@@ -319,6 +357,19 @@ TEST_F(TreeTests, REFTree)
 
     dds::xrce::ObjectPrefix requester_id = {0x00, 0x17};
     response = client->create_object(creation_mode, requester_id, object_variant);
+    ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
+
+    /*
+     * Create replier.
+     */
+    std::string replier_ref = "shapetype_replier";
+    dds::xrce::REPLIER_Representation replier_representation;
+    replier_representation.participant_id(participant_id);
+    replier_representation.representation().object_reference(replier_ref);
+    object_variant.replier(replier_representation);
+
+    dds::xrce::ObjectPrefix replier_id = {0x00, 0x18};
+    response = client->create_object(creation_mode, replier_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     /* Participant destruction. */
@@ -725,6 +776,11 @@ TEST_F(TreeTests, CreationModeXMLTree)
      * Create requester.
      */
     // TODO (julianbermudez)
+
+    /*
+     * Create replier.
+     */
+    // TODO (julianbermudez)
 }
 
 TEST_F(TreeTests, CreationModeREFTree)
@@ -1012,6 +1068,11 @@ TEST_F(TreeTests, CreationModeREFTree)
 
     /*
      * Create requester.
+     */
+    // TODO (julianbermudez)
+
+    /*
+     * Create replier.
      */
     // TODO (julianbermudez)
 }
