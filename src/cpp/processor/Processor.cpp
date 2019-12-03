@@ -59,7 +59,7 @@ void Processor::process_input_packet(InputPacket&& input_packet)
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
-            client->update_timestamp();
+            client->update_state();
 
             /* Check whether it is the next message. */
             Session& session = client->session();

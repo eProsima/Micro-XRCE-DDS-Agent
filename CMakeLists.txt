@@ -56,14 +56,14 @@ set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat 
 set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
 set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
-set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dead time in milliseconds.")
+set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dead time in milliseconds.")
 
 ###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.4" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.5" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -100,7 +100,7 @@ if(UAGENT_FAST_PROFILE)
     find_package(fastrtps "1.8.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog "1.3.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
+    find_package(spdlog "1.4.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
 endif()
 
 ###############################################################################

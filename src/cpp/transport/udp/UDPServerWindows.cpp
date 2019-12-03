@@ -179,7 +179,6 @@ bool UDPv4Agent::recv_message(InputPacket& input_packet, int timeout)
             uint32_t addr = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_addr.s_addr;
             uint16_t port = reinterpret_cast<struct sockaddr_in*>(&client_addr)->sin_port;
             input_packet.source.reset(new IPv4EndPoint(addr, port));
-            rv = true;
             UXR_AGENT_LOG_MESSAGE(
                 UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
                 conversion::clientkey_to_raw(get_client_key(input_packet.source.get())),
@@ -216,7 +215,7 @@ bool UDPv4Agent::send_message(OutputPacket output_packet)
                             sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
-        if (size_t(bytes_sent) != output_packet.message->get_len())
+        if (size_t(bytes_sent) == output_packet.message->get_len())
         {
             UXR_AGENT_LOG_MESSAGE(
                 UXR_DECORATE_YELLOW("[** <<UDP>> **]"),

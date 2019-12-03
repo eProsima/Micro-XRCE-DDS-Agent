@@ -115,13 +115,13 @@ endif()
 if(UAGENT_LOGGER_PROFILE)
     # spdlog.
     unset(spdlog_DIR CACHE)
-    find_package(spdlog "1.3.1" EXACT QUIET)
+    find_package(spdlog "1.4.2" EXACT QUIET)
     if(NOT spdlog_FOUND)
         ExternalProject_Add(spdlog
             GIT_REPOSITORY
                 https://github.com/gabime/spdlog.git
             GIT_TAG
-                v1.3.1
+                v1.4.2
             PREFIX
                 ${PROJECT_BINARY_DIR}/spdlog
             INSTALL_DIR
@@ -131,6 +131,7 @@ if(UAGENT_LOGGER_PROFILE)
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
                 -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
                 -DSPDLOG_BUILD_BENCH:BOOL=OFF
                 -DSPDLOG_BUILD_TESTS:BOOL=OFF
