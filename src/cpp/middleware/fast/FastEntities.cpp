@@ -21,6 +21,8 @@
 #include <fastrtps/subscriber/Subscriber.h>
 #include <fastrtps/subscriber/SampleInfo.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastcdr/FastBuffer.h>
+#include <fastcdr/Cdr.h>
 #include "../../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
@@ -401,6 +403,7 @@ FastRequester::FastRequester(
     , reply_topic_{false}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
+    , sequence_number{}
 {}
 
 FastRequester::~FastRequester()
@@ -446,6 +449,42 @@ bool FastRequester::create_by_attributes(
     publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
     subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
+
+    return rv;
+}
+
+bool FastRequester::write(
+        const std::vector<uint8_t>& data)
+{
+    bool rv = true;
+
+    dds::SampleIdentity sample_identity;
+    std::copy(
+        std::begin(publisher_ptr_->getGuid().guidPrefix.value),
+        std::end(publisher_ptr_->getGuid().guidPrefix.value),
+        sample_identity.writer_guid().guidPrefix().begin());
+    std::copy(
+        std::begin(publisher_ptr_->getGuid().entityId.value),
+        std::begin(publisher_ptr_->getGuid().entityId.value) + 3,
+        sample_identity.writer_guid().entityId().entityKey().begin());
+    sample_identity.writer_guid().entityId().entityKind() = publisher_ptr_->getGuid().entityId.value[3];
+
+    ++sequence_number.low();
+    sample_identity.sequence_number() = sequence_number;
+
+    std::vector<uint8_t> output_data(sample_identity.getCdrSerializedSize() + data.size());
+    fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(output_data.data()), output_data.size()};
+    fastcdr::Cdr serializer(fastbuffer);
+
+    try
+    {
+        sample_identity.serialize(serializer);
+        serializer.serializeArray(data.data(), data.size());
+    }
+    catch(const std::exception& e)
+    {
+        rv = false;
+    }
 
     return rv;
 }
@@ -557,6 +596,12 @@ bool FastReplier::create_by_attributes(
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
 
     return rv;
+}
+
+bool FastReplier::write(
+        const std::vector<uint8_t>& data)
+{
+    return publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
 void FastReplier::onPublicationMatched(

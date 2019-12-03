@@ -14,6 +14,7 @@
 
 #include <uxr/agent/requester/Requester.hpp>
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -66,8 +67,17 @@ Requester::~Requester()
 bool Requester::write(
         dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
-    // TODO.
-    return false;
+    bool rv = false;
+    if (get_middleware().write_request(get_raw_id(), write_data.data().serialized_data()))
+    {
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
+            get_raw_id(),
+            write_data.data().serialized_data().data(),
+            write_data.data().serialized_data().size());
+        rv = true;
+    }
+    return rv;
 }
 
 bool Requester::write(

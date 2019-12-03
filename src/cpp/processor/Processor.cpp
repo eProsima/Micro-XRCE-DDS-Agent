@@ -15,6 +15,8 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 #include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/requester/Requester.hpp>
+#include <uxr/agent/replier/Replier.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/utils/Time.hpp>
@@ -402,11 +404,41 @@ bool Processor<EndPoint>::process_write_data_submessage(
             data_payload.data().resize(submessage_length - data_payload.BaseObjectRequest::getCdrSerializedSize(0));
             if (input_packet.message->get_payload(data_payload))
             {
-                std::shared_ptr<DataWriter> data_writer =
-                        std::dynamic_pointer_cast<DataWriter>(client.get_object(data_payload.object_id()));
-                if (nullptr != data_writer)
+                const dds::xrce::ObjectId& object_id = data_payload.object_id();
+                switch (object_id[1] & 0x0F)
                 {
-                    written = data_writer->write(data_payload);
+                    case dds::xrce::OBJK_DATAWRITER:
+                    {
+                        std::shared_ptr<DataWriter> data_writer =
+                                std::dynamic_pointer_cast<DataWriter>(client.get_object(object_id));
+                        if (nullptr != data_writer)
+                        {
+                            written = data_writer->write(data_payload);
+                        }
+                        break;
+                    }
+                    case dds::xrce::OBJK_REQUESTER:
+                    {
+                        std::shared_ptr<Requester> requester =
+                                std::dynamic_pointer_cast<Requester>(client.get_object(object_id));
+                        if (nullptr != requester)
+                        {
+                            written = requester->write(data_payload);
+                        }
+                        break;
+                    }
+                    case dds::xrce::OBJK_REPLIER:
+                    {
+                        std::shared_ptr<Replier> replier =
+                                std::dynamic_pointer_cast<Replier>(client.get_object(object_id));
+                        if (nullptr != replier)
+                        {
+                            written = replier->write(data_payload);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
                 deserialized = true;
             }

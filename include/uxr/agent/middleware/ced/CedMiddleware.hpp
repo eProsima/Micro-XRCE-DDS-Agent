@@ -320,6 +320,30 @@ public:
             const std::vector<uint8_t>& data) override;
 
     /**
+     * @brief Not implemented.
+     * 
+     * @param requester_id 
+     * @param data 
+     * @return true 
+     * @return false 
+     */
+    bool write_request(
+            uint16_t requester_id,
+            const std::vector<uint8_t>& data) override { return false; }
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @param replier_it 
+     * @param data 
+     * @return true 
+     * @return false 
+     */
+    bool write_reply(
+            uint16_t replier_it,
+            const std::vector<uint8_t>& data) override { return false; }
+
+    /**
      * @brief Read data using the CedDataReader identified by the datareader_id paramenter.
      *        This is a blocking function that will block at most "timeout" milleseconds.
      * @param datareader_id The CedDataReader's identifier.

@@ -148,6 +148,14 @@ public:
             uint16_t datawriter_id,
             const std::vector<uint8_t>& data) = 0;
 
+    virtual bool write_request(
+            uint16_t requester_id,
+            const std::vector<uint8_t>& data) = 0;
+
+    virtual bool write_reply(
+            uint16_t replier_id,
+            const std::vector<uint8_t>& data) = 0;
+
     virtual bool read_data(
             uint16_t datareader_id,
             std::vector<uint8_t>& data,

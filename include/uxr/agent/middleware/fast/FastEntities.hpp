@@ -18,10 +18,11 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/attributes/RequesterAttributes.h>
+#include <fastrtps/attributes/RequesterAttributes.h> // TODO (julianbermudez): remove and user forward declaration.
 #include <fastrtps/attributes/ReplierAttributes.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
 
 #include <unordered_map>
 #include <condition_variable>
@@ -267,6 +268,7 @@ private:
     TopicPubSubType reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
+    dds::SequenceNumber_t sequence_number;
 };
 
 /**********************************************************************************************************************
