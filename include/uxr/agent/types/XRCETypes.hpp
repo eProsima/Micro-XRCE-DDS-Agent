@@ -10968,6 +10968,267 @@ enum SubmessageId : uint8_t
     PERFORMANCE     = 255
 };
 
-} } // namespace 
+} // namespace xrce
+
+typedef std::array<uint8_t, 12> GuidPrefix_t;
+
+class EntityId_t
+{
+public:
+    EntityId_t() = default;
+
+    ~EntityId_t() = default;
+
+    EntityId_t(const EntityId_t &x);
+
+    EntityId_t(EntityId_t &&x);
+
+    EntityId_t& operator=(const EntityId_t &x);
+
+    EntityId_t& operator=(EntityId_t &&x);
+
+    inline void entityKey(const std::array<uint8_t, 3> &_entityKey)
+    {
+        m_entityKey = _entityKey;
+    }
+
+    inline void entityKey(std::array<uint8_t, 3> &&_entityKey)
+    {
+        m_entityKey = std::move(_entityKey);
+    }
+
+    inline const std::array<uint8_t, 3>& entityKey() const
+    {
+        return m_entityKey;
+    }
+
+    inline std::array<uint8_t, 3>& entityKey()
+    {
+        return m_entityKey;
+    }
+
+    inline void entityKind(uint8_t _entityKind)
+    {
+        m_entityKind = _entityKind;
+    }
+
+    inline uint8_t entityKind() const
+    {
+        return m_entityKind;
+    }
+
+    inline uint8_t& entityKind()
+    {
+        return m_entityKind;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    std::array<uint8_t, 3> m_entityKey;
+    uint8_t m_entityKind;
+};
+
+class GUID_t
+{
+public:
+    GUID_t() = default;
+
+    ~GUID_t() = default;
+
+    GUID_t(const GUID_t &x);
+
+    GUID_t(GUID_t &&x);
+
+    GUID_t& operator=(const GUID_t &x);
+
+    GUID_t& operator=(GUID_t &&x);
+
+    inline void guidPrefix(const GuidPrefix_t &_guidPrefix)
+    {
+        m_guidPrefix = _guidPrefix;
+    }
+
+    inline void guidPrefix(GuidPrefix_t &&_guidPrefix)
+    {
+        m_guidPrefix = std::move(_guidPrefix);
+    }
+
+    inline const GuidPrefix_t& guidPrefix() const
+    {
+        return m_guidPrefix;
+    }
+
+    inline GuidPrefix_t& guidPrefix()
+    {
+        return m_guidPrefix;
+    }
+
+    inline void entityId(const EntityId_t &_entityId)
+    {
+        m_entityId = _entityId;
+    }
+
+    inline void entityId(EntityId_t &&_entityId)
+    {
+        m_entityId = _entityId;
+    }
+
+    inline const EntityId_t& entityId() const
+    {
+        return m_entityId;
+    }
+
+    inline EntityId_t& entityId()
+    {
+        return m_entityId;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    GuidPrefix_t m_guidPrefix;
+    EntityId_t m_entityId;
+};
+
+class SequenceNumber_t
+{
+public:
+    SequenceNumber_t() = default;
+
+    ~SequenceNumber_t() = default;
+
+    SequenceNumber_t(const SequenceNumber_t &x) = default;
+
+    SequenceNumber_t(SequenceNumber_t &x) = default;
+
+    SequenceNumber_t& operator=(const SequenceNumber_t &x) = default;
+
+    SequenceNumber_t& operator=(SequenceNumber_t &&x) = default;
+
+    inline void high(int32_t _high)
+    {
+        m_high = _high;
+    }
+
+    inline int32_t high() const
+    {
+        return m_high;
+    }
+
+    inline int32_t& high()
+    {
+        return m_high;
+    }
+
+    inline void low(uint32_t _low)
+    {
+        m_low = _low;
+    }
+
+    inline uint32_t low() const
+    {
+        return m_low;
+    }
+
+    inline uint32_t& low()
+    {
+        return m_low;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    int32_t m_high;
+    uint32_t m_low;
+};
+
+class SampleIdentity
+{
+public:
+    SampleIdentity() = default;
+
+    ~SampleIdentity() = default;
+
+    SampleIdentity(const SampleIdentity &x);
+
+    SampleIdentity(SampleIdentity &&x);
+
+    SampleIdentity& operator=(const SampleIdentity &x);
+
+    SampleIdentity& operator=(SampleIdentity &&x);
+
+    inline void writer_guid(const GUID_t &_writer_guid)
+    {
+        m_writer_guid = _writer_guid;
+    }
+
+    inline void writer_guid(GUID_t &&_writer_guid)
+    {
+        m_writer_guid = std::move(_writer_guid);
+    }
+
+    inline const GUID_t& writer_guid() const
+    {
+        return m_writer_guid;
+    }
+
+    inline GUID_t& writer_guid()
+    {
+        return m_writer_guid;
+    }
+
+    inline void sequence_number(const SequenceNumber_t &_sequece_number)
+    {
+        m_sequence_number = _sequece_number;
+    }
+
+    inline void sequence_number(SequenceNumber_t &&_sequence_number)
+    {
+        m_sequence_number = std::move(_sequence_number);
+    }
+
+    inline const SequenceNumber_t& sequence_number() const
+    {
+        return m_sequence_number;
+    }
+
+    inline SequenceNumber_t& sequence_number()
+    {
+        return m_sequence_number;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    GUID_t m_writer_guid;
+    SequenceNumber_t m_sequence_number;
+};
+
+} // namespace dds
 
 #endif //_UXR_AGENT_TYPES_XRCETYPES_HPP_

@@ -8766,3 +8766,131 @@ void dds::xrce::TIMESTAMP_REPLY_Payload::deserialize(eprosima::fastcdr::Cdr &dcd
     dcdr >> m_receive_timestamp;
     dcdr >> m_originate_timestamp;
 }
+
+size_t dds::EntityId_t::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::EntityId_t::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::EntityId_t::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_entityKey;
+    scdr << m_entityKind;
+}
+
+void dds::EntityId_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr >> m_entityKey;
+    dcdr >> m_entityKind;
+}
+
+size_t dds::GUID_t::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += ((12) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += dds::EntityId_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::GUID_t::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_aligment = current_alignment;
+
+    current_alignment += ((12) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
+    current_alignment += m_entityId.getCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_aligment;
+}
+
+void dds::GUID_t::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_guidPrefix;
+    scdr << m_entityId;
+}
+
+void dds::GUID_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr >> m_guidPrefix;
+    dcdr >> m_entityId;
+}
+
+size_t dds::SequenceNumber_t::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::SequenceNumber_t::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::SequenceNumber_t::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_high;
+    scdr << m_low;
+}
+
+void dds::SequenceNumber_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr << m_high;
+    dcdr << m_low;
+}
+
+size_t dds::SampleIdentity::getMaxCdrSerializedSize(size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += dds::GUID_t::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::GUID_t::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::SampleIdentity::getCdrSerializedSize(size_t current_alignment) const
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += m_writer_guid.getCdrSerializedSize(current_alignment);
+    current_alignment += m_sequence_number.getCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::SampleIdentity::serialize(eprosima::fastcdr::Cdr &scdr) const
+{
+    scdr << m_writer_guid;
+    scdr << m_sequence_number;
+}
+
+void dds::SampleIdentity::deserialize(eprosima::fastcdr::Cdr &dcdr)
+{
+    dcdr << m_writer_guid;
+    dcdr << m_sequence_number;
+}
