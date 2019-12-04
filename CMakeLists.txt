@@ -32,9 +32,16 @@ option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
+
+option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
+if(UAGENT_BUILD_CI_TESTS)
+    set(UAGENT_BUILD_TESTS ON)
+endif()
+
 if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
+
 if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
 endif()
@@ -268,6 +275,10 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 # Testing
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
+
+if(UAGENT_BUILD_CI_TESTS)
+    include(CTest)
+endif()
 
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
