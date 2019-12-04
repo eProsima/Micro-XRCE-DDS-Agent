@@ -33,7 +33,7 @@ if(_have_fprofile_abs_path)
     set(_cxx_flags "${_cxx_flags} -fprofile-abs-path")
 endif()
 
-ExternalProject_Add(microxrcedds_client
+ExternalProject_Add(microxrcedds_agent
     SOURCE_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}/../../
     BINARY_DIR
@@ -55,6 +55,7 @@ ExternalProject_Add(microxrcedds_client
         -DCMAKE_EXE_LINKER_FLAGS:STRING=${_exe_linker_flags}
         -DCMAKE_SHARED_LINKER_FLAGS:STRING=${_shared_linker_flags}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
         -DUAGENT_BUILD_CI_TESTS:BOOL=ON
         -DGTEST_INDIVIDUAL:BOOL=ON
     )

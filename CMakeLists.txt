@@ -278,6 +278,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_CI_TESTS)
     include(CTest)
+    add_subdirectory(test/case)
 endif()
 
 if(UAGENT_BUILD_TESTS)

@@ -16,6 +16,9 @@ include(ExternalProject)
 
 unset(_deps)
 
+enable_language(C)
+enable_language(CXX)
+
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
