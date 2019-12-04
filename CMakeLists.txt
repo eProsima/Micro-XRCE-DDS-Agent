@@ -66,11 +66,42 @@ set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum se
 set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dead time in milliseconds.")
 
 ###############################################################################
+# Dependencies
+###############################################################################
+set(_deps "")
+
+set(_fastcdr_version 1.0.10)
+set(_fastcdr_tag v1.0.11)
+list(APPEND _deps "fastcdr\;${_fastcdr_version}")
+
+set(_cli11_version 1.7.1)
+set(_cli11_tag v1.7.1)
+list(APPEND _deps "CLI11\;${_cli11_version}")
+
+if(UAGENT_P2P_PROFILE)
+    set(_microxrcedds_client_version 1.1.4)
+    set(_microxrcedds_client_tag v1.1.4)
+    list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
+endif()
+
+if(UAGENT_FAST_PROFILE)
+    set(_fastrtps_version 1.8.2)
+    set(_fastrtps_tag v1.8.2)
+    list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+endif()
+
+if(UAGENT_LOGGER_PROFILE)
+    set(_spdlog_version 1.4.2)
+    set(_spdlog_tag v1.4.2)
+    list(APPEND _deps "spdlog\;${_spdlog_version}")
+endif()
+
+###############################################################################
 # Project
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.5" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.1.6" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -97,18 +128,13 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr "1.0.10" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-find_package(CLI11 "1.7.1" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client "1.1.3" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-endif()
-if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps "1.8.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-endif()
-if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog "1.4.2" EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install)
-endif()
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install)
+
+foreach(d ${_deps})
+    list(GET d 0 _name)
+    list(GET d 1 _version)
+    find_package(${_name} ${_version} EXACT REQUIRED)
+endforeach()
 
 ###############################################################################
 # Load external CMake Modules.

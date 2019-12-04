@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
-project(packaging LANGUAGES C)
+project(packaging LANGUAGES CXX)
 
 find_package(microxrcedds_agent EXACT ${REQUIRED_VERSION} REQUIRED)
 
