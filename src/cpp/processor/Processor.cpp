@@ -423,7 +423,7 @@ bool Processor<EndPoint>::process_write_data_submessage(
                                 std::dynamic_pointer_cast<Requester>(client.get_object(object_id));
                         if (nullptr != requester)
                         {
-                            written = requester->write(data_payload);
+                            written = requester->write(data_payload, data_payload.request_id());
                         }
                         break;
                     }

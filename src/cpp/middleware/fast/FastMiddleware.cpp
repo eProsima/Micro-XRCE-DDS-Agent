@@ -358,13 +358,14 @@ bool FastMiddleware::write_data(
 
 bool FastMiddleware::write_request(
         uint16_t requester_id,
+        uint32_t sequence_number,
         const std::vector<uint8_t>& data)
 {
     bool rv = false;
     auto it = requesters_.find(requester_id);
     if (requesters_.end() != it)
     {
-        rv = it->second->write(data);
+        rv = it->second->write(sequence_number, data);
     }
     return rv;
 }

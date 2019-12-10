@@ -42,7 +42,8 @@ public:
     Requester& operator=(const Requester&) = delete;
 
     bool write(
-        dds::xrce::WRITE_DATA_Payload_Data& write_data);
+        dds::xrce::WRITE_DATA_Payload_Data& write_data,
+        const dds::xrce::RequestId& request_id);
 
     bool write(
         const std::vector<uint8_t>& data);

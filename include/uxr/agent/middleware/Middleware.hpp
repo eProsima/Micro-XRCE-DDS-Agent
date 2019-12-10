@@ -150,6 +150,7 @@ public:
 
     virtual bool write_request(
             uint16_t requester_id,
+            uint32_t sequence_number,
             const std::vector<uint8_t>& data) = 0;
 
     virtual bool write_reply(

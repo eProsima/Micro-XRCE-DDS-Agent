@@ -139,6 +139,7 @@ public:
 
     bool write_request(
             uint16_t requester_id,
+            uint32_t sequence_number,
             const std::vector<uint8_t>& data) override;
 
     bool write_reply(

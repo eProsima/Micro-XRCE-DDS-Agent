@@ -245,6 +245,7 @@ public:
             const std::string& xml) const;
 
     bool write(
+            uint32_t sequence_number,
             const std::vector<uint8_t>& data);
 
     bool read(
@@ -268,7 +269,6 @@ private:
     TopicPubSubType reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
-    dds::SequenceNumber_t sequence_number;
 };
 
 /**********************************************************************************************************************

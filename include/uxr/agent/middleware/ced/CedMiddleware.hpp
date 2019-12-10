@@ -323,12 +323,14 @@ public:
      * @brief Not implemented.
      * 
      * @param requester_id 
+     * @param sequence_number
      * @param data 
      * @return true 
      * @return false 
      */
     bool write_request(
             uint16_t requester_id,
+            uint32_t sequence_numeber,
             const std::vector<uint8_t>& data) override { return false; }
 
     /**

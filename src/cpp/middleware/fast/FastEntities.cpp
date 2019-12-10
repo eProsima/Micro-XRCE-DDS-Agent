@@ -403,7 +403,6 @@ FastRequester::FastRequester(
     , reply_topic_{false}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
-    , sequence_number{}
 {}
 
 FastRequester::~FastRequester()
@@ -454,6 +453,7 @@ bool FastRequester::create_by_attributes(
 }
 
 bool FastRequester::write(
+        uint32_t sequence_number,
         const std::vector<uint8_t>& data)
 {
     bool rv = true;
@@ -469,8 +469,8 @@ bool FastRequester::write(
         sample_identity.writer_guid().entityId().entityKey().begin());
     sample_identity.writer_guid().entityId().entityKind() = publisher_ptr_->getGuid().entityId.value[3];
 
-    ++sequence_number.low();
-    sample_identity.sequence_number() = sequence_number;
+    sample_identity.sequence_number().high() = 0;
+    sample_identity.sequence_number().low() = sequence_number;
 
     std::vector<uint8_t> output_data(sample_identity.getCdrSerializedSize() + data.size());
     fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(output_data.data()), output_data.size()};
@@ -480,6 +480,7 @@ bool FastRequester::write(
     {
         sample_identity.serialize(serializer);
         serializer.serializeArray(data.data(), data.size());
+        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
     }
     catch(const std::exception& e)
     {

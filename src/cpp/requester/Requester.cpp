@@ -65,10 +65,13 @@ Requester::~Requester()
 }
 
 bool Requester::write(
-        dds::xrce::WRITE_DATA_Payload_Data& write_data)
+        dds::xrce::WRITE_DATA_Payload_Data& write_data,
+        const dds::xrce::RequestId& request_id)
 {
     bool rv = false;
-    if (get_middleware().write_request(get_raw_id(), write_data.data().serialized_data()))
+    uint32_t sequence_number = (get_raw_id() << 16) + (request_id[0] << 8) + (request_id[1]);
+
+    if (get_middleware().write_request(get_raw_id(), sequence_number,  write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -77,6 +80,7 @@ bool Requester::write(
             write_data.data().serialized_data().size());
         rv = true;
     }
+
     return rv;
 }
 
