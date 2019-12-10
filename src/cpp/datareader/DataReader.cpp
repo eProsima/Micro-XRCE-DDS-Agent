@@ -16,7 +16,7 @@
 #include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
-#include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -64,7 +64,7 @@ std::unique_ptr<DataReader> DataReader::create(
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
     std::shared_ptr<Topic> topic;
 
-    Middleware& middleware = subscriber->get_middleware();
+    Middleware& middleware = subscriber->get_participant()->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
@@ -118,7 +118,7 @@ DataReader::~DataReader() noexcept
     stop_read();
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware().delete_datareader(get_raw_id());
+    subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());
 }
 
 bool DataReader::matched(
@@ -136,24 +136,19 @@ bool DataReader::matched(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_reader().representation().object_reference();
-            rv = get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
+            rv = subscriber_->get_participant()->get_proxy_client()->get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
-            rv = get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
+            rv = subscriber_->get_participant()->get_proxy_client()->get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
     return rv;
-}
-
-Middleware& DataReader::get_middleware() const
-{
-    return subscriber_->get_middleware();
 }
 
 bool DataReader::read(
@@ -206,14 +201,23 @@ bool DataReader::start_read(
 
 bool DataReader::stop_read()
 {
+    bool rv = true;
     std::lock_guard<std::mutex> lock(mtx_);
-    running_cond_ = false;
 
-    if (read_thread_.joinable())
+    if (running_cond_)
     {
-        read_thread_.join();
+        running_cond_ = false;
+
+        if (read_thread_.joinable())
+        {
+            read_thread_.join();
+        }
+        else
+        {
+            rv = false;
+        }
     }
-    return true;
+    return rv;
 }
 
 void DataReader::read_task(
@@ -221,6 +225,7 @@ void DataReader::read_task(
         read_callback read_cb,
         ReadCallbackArgs cb_args)
 {
+    cb_args.client = subscriber_->get_participant()->get_proxy_client();
     size_t rate = (MAX_BYTES_PER_SECOND_UNLIMITED == delivery_control.max_bytes_per_second())
             ? SIZE_MAX
             : delivery_control.max_bytes_per_second();
@@ -235,7 +240,7 @@ void DataReader::read_task(
     while (running_cond_ && !stop_cond)
     {
         std::chrono::milliseconds read_timeout = get_read_timeout(final_time, delivery_control.max_elapsed_time());
-        if (get_middleware().read_data(get_raw_id(), data, read_timeout))
+        if (subscriber_->get_participant()->get_proxy_client()->get_middleware().read_data(get_raw_id(), data, read_timeout))
         {
             bool submessage_pushed = false;
             do

@@ -195,6 +195,11 @@ std::shared_ptr<XRCEObject> ProxyClient::get_object(const dds::xrce::ObjectId& o
     return object;
 }
 
+void ProxyClient::release()
+{
+    objects_.clear();
+}
+
 Session& ProxyClient::session()
 {
     return session_;
@@ -248,7 +253,7 @@ bool ProxyClient::create_participant(
 {
     bool rv = false;
 
-    if (std::unique_ptr<Participant> participant = Participant::create(object_id, representation, *middleware_))
+    if (std::unique_ptr<Participant> participant = Participant::create(object_id, shared_from_this(), representation))
     {
         if (objects_.emplace(object_id, std::move(participant)).second)
         {

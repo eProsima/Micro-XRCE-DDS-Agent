@@ -16,7 +16,7 @@
 #include <uxr/agent/publisher/Publisher.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
-#include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
@@ -32,7 +32,7 @@ std::unique_ptr<DataWriter> DataWriter::create(
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
     std::shared_ptr<Topic> topic;
 
-    Middleware& middleware = publisher->get_middleware();
+    Middleware& middleware = publisher->get_participant()->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
@@ -81,7 +81,7 @@ DataWriter::~DataWriter()
 {
     publisher_->untie_object(get_id());
     topic_->untie_object(get_id());
-    get_middleware().delete_datawriter(get_raw_id());
+    publisher_->get_participant()->get_proxy_client()->get_middleware().delete_datawriter(get_raw_id());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -98,13 +98,13 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_writer().representation().object_reference();
-            rv = get_middleware().matched_datawriter_from_ref(get_raw_id(), ref);
+            rv = publisher_->get_participant()->get_proxy_client()->get_middleware().matched_datawriter_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_writer().representation().xml_string_representation();
-            rv = get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
+            rv = publisher_->get_participant()->get_proxy_client()->get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -116,7 +116,7 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     bool rv = false;
-    if (get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
+    if (publisher_->get_participant()->get_proxy_client()->get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -131,7 +131,7 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 bool DataWriter::write(const std::vector<uint8_t>& data)
 {
     bool rv = false;
-    if (get_middleware().write_data(get_raw_id(), data))
+    if (publisher_->get_participant()->get_proxy_client()->get_middleware().write_data(get_raw_id(), data))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -142,12 +142,6 @@ bool DataWriter::write(const std::vector<uint8_t>& data)
     }
     return rv;
 }
-
-Middleware& DataWriter::get_middleware() const
-{
-    return publisher_->get_middleware();
-}
-
 
 } // namespace uxr
 } // namespace eprosima
