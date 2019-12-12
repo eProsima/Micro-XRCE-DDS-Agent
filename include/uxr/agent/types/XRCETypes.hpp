@@ -10979,13 +10979,18 @@ public:
 
     ~EntityId_t() = default;
 
-    EntityId_t(const EntityId_t &x);
+    EntityId_t(const EntityId_t &x) = default;
 
-    EntityId_t(EntityId_t &&x);
+    EntityId_t(EntityId_t &&x) = default;
 
-    EntityId_t& operator=(const EntityId_t &x);
+    EntityId_t& operator=(const EntityId_t &x) = default;
 
-    EntityId_t& operator=(EntityId_t &&x);
+    EntityId_t& operator=(EntityId_t &&x) = default;
+
+    bool operator==(const EntityId_t& b) const
+    {
+        return (this->m_entityKey == b.m_entityKey) && (this->m_entityKind == b.m_entityKind);
+    }
 
     inline void entityKey(const std::array<uint8_t, 3> &_entityKey)
     {
@@ -11046,9 +11051,14 @@ public:
 
     GUID_t(GUID_t &&x);
 
-    GUID_t& operator=(const GUID_t &x);
+    GUID_t& operator=(const GUID_t &x) = default;
 
-    GUID_t& operator=(GUID_t &&x);
+    GUID_t& operator=(GUID_t &&x) = default;
+
+    bool operator==(const GUID_t& b) const
+    {
+        return (this->m_guidPrefix == b.m_guidPrefix) && (this->m_entityId == b.m_entityId);
+    }
 
     inline void guidPrefix(const GuidPrefix_t &_guidPrefix)
     {

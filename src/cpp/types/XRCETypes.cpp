@@ -8859,8 +8859,8 @@ void dds::SequenceNumber_t::serialize(eprosima::fastcdr::Cdr &scdr) const
 
 void dds::SequenceNumber_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr << m_high;
-    dcdr << m_low;
+    dcdr >> m_high;
+    dcdr >> m_low;
 }
 
 size_t dds::SampleIdentity::getMaxCdrSerializedSize(size_t current_alignment)
@@ -8891,6 +8891,6 @@ void dds::SampleIdentity::serialize(eprosima::fastcdr::Cdr &scdr) const
 
 void dds::SampleIdentity::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr << m_writer_guid;
-    dcdr << m_sequence_number;
+    dcdr >> m_writer_guid;
+    dcdr >> m_sequence_number;
 }

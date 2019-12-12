@@ -16,7 +16,7 @@
 #define UXR_AGENT_REPLIER_REPLIER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-#include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/reader/Reader.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -41,9 +41,6 @@ public:
 
     bool write(
         dds::xrce::WRITE_DATA_Payload_Data& write_data);
-
-    bool write(
-        const std::vector<uint8_t>& data);
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,

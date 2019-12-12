@@ -167,6 +167,12 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) = 0;
 
+    virtual bool read_reply(
+            uint16_t requester_id,
+            uint32_t& sequence_number,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) = 0;
+
 /**********************************************************************************************************************
  * Matched functions.
  **********************************************************************************************************************/

@@ -411,6 +411,21 @@ bool FastMiddleware::read_request(
     return rv;
 }
 
+bool FastMiddleware::read_reply(
+        uint16_t requester_id,
+        uint32_t& sequence_number,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->read(sequence_number, data, timeout);
+    }
+    return rv;
+}
+
 /**********************************************************************************************************************
  * Matched functions.
  **********************************************************************************************************************/

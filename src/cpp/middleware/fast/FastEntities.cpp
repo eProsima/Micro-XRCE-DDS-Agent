@@ -403,7 +403,9 @@ FastRequester::FastRequester(
     , reply_topic_{false}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
-{}
+    , publisher_id_{}
+{
+}
 
 FastRequester::~FastRequester()
 {
@@ -449,6 +451,19 @@ bool FastRequester::create_by_attributes(
     subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
 
+    if (rv)
+    {
+        std::copy(
+            std::begin(publisher_ptr_->getGuid().guidPrefix.value),
+            std::end(publisher_ptr_->getGuid().guidPrefix.value),
+            publisher_id_.guidPrefix().begin());
+        std::copy(
+            std::begin(publisher_ptr_->getGuid().entityId.value),
+            std::begin(publisher_ptr_->getGuid().entityId.value) + 3,
+            publisher_id_.entityId().entityKey().begin());
+        publisher_id_.entityId().entityKind() = publisher_ptr_->getGuid().entityId.value[3];
+    }
+
     return rv;
 }
 
@@ -459,16 +474,7 @@ bool FastRequester::write(
     bool rv = true;
 
     dds::SampleIdentity sample_identity;
-    std::copy(
-        std::begin(publisher_ptr_->getGuid().guidPrefix.value),
-        std::end(publisher_ptr_->getGuid().guidPrefix.value),
-        sample_identity.writer_guid().guidPrefix().begin());
-    std::copy(
-        std::begin(publisher_ptr_->getGuid().entityId.value),
-        std::begin(publisher_ptr_->getGuid().entityId.value) + 3,
-        sample_identity.writer_guid().entityId().entityKey().begin());
-    sample_identity.writer_guid().entityId().entityKind() = publisher_ptr_->getGuid().entityId.value[3];
-
+    sample_identity.writer_guid() = publisher_id_;
     sample_identity.sequence_number().high() = 0;
     sample_identity.sequence_number().low() = sequence_number;
 
@@ -485,6 +491,61 @@ bool FastRequester::write(
     catch(const std::exception& e)
     {
         rv = false;
+    }
+
+    return rv;
+}
+
+bool FastRequester::read(
+        uint32_t& sequence_number,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    std::vector<uint8_t> temp_data;
+    auto now = std::chrono::steady_clock::now();
+    bool rv = false;
+    if (unread_count_ != 0)
+    {
+        fastrtps::SampleInfo_t info;
+        rv = subscriber_ptr_->takeNextData(&temp_data, &info);
+        unread_count_ = subscriber_ptr_->getUnreadCount();
+    }
+    else
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
+        {
+            lock.unlock();
+            fastrtps::SampleInfo_t info;
+            rv = subscriber_ptr_->takeNextData(&temp_data, &info);
+            unread_count_ = subscriber_ptr_->getUnreadCount();
+        }
+    }
+
+    if (rv)
+    {
+        dds::SampleIdentity sample_identity;
+        fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(temp_data.data()), temp_data.size()};
+        fastcdr::Cdr serializer(fastbuffer);
+
+        try
+        {
+            sample_identity.deserialize(serializer);
+            data.resize(temp_data.size() - serializer.getSerializedDataLength());
+            if (sample_identity.writer_guid() == publisher_id_)
+            {
+                sequence_number = sample_identity.sequence_number().low();
+                serializer.deserializeArray(data.data(), data.size());
+            }
+            else
+            {
+                rv = false;
+            }
+        }
+        catch(const std::exception& e)
+        {
+            rv = false;
+        }
     }
 
     return rv;
@@ -537,7 +598,9 @@ void FastRequester::onSubscriptionMatched(
 void FastRequester::onNewDataMessage(
         fastrtps::Subscriber*)
 {
-    // TODO
+    unread_count_ = subscriber_ptr_->getUnreadCount();
+    std::unique_lock<std::mutex> lock(mtx_);
+    cv_.notify_one();
 }
 
 /**********************************************************************************************************************

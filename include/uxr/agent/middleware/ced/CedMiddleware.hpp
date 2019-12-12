@@ -321,29 +321,18 @@ public:
 
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @param sequence_number
-     * @param data 
-     * @return true 
-     * @return false 
      */
     bool write_request(
-            uint16_t requester_id,
-            uint32_t sequence_numeber,
-            const std::vector<uint8_t>& data) override { return false; }
+            uint16_t,
+            uint32_t,
+            const std::vector<uint8_t>&) override { return false; }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param replier_it 
-     * @param data 
-     * @return true 
-     * @return false 
      */
     bool write_reply(
-            uint16_t replier_it,
-            const std::vector<uint8_t>& data) override { return false; }
+            uint16_t,
+            const std::vector<uint8_t>&) override { return false; }
 
     /**
      * @brief Read data using the CedDataReader identified by the datareader_id paramenter.
@@ -360,17 +349,20 @@ public:
 
     /**
      * @brief Not implemented.
-     * 
-     * @param datareader_id 
-     * @param data 
-     * @param timeout 
-     * @return true 
-     * @return false 
      */
     bool read_request(
-            uint16_t replier_id,
-            std::vector<uint8_t>& data,
-            std::chrono::milliseconds timeout) override { return false; };
+            uint16_t,
+            std::vector<uint8_t>&,
+            std::chrono::milliseconds) override { return false; };
+
+    /**
+     * @brief 
+     */
+    bool read_reply(
+            uint16_t,
+            uint32_t&,
+            std::vector<uint8_t>&,
+            std::chrono::milliseconds) override { return false; };
 
     /**
      * @brief Checks whether an existing CedParticipant, identified by the participant_id, matches with a new

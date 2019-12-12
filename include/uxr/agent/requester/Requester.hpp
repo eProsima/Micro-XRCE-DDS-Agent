@@ -24,9 +24,6 @@ namespace uxr {
 class Participant;
 class Middleware;
 
-class ReadCallbackArgs; // TODO: remove.
-typedef const std::function<bool (const ReadCallbackArgs&, std::vector<uint8_t>, std::chrono::milliseconds)> read_callback; // TODO: remove.
-
 class Requester : public XRCEObject
 {
 public:
@@ -46,9 +43,6 @@ public:
         dds::xrce::WRITE_DATA_Payload_Data& write_data,
         const dds::xrce::RequestId& request_id);
 
-    bool write(
-        const std::vector<uint8_t>& data);
-
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
@@ -67,8 +61,14 @@ private:
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant);
 
+    bool read_fn(
+        bool,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout);
+
 private:
     std::shared_ptr<Participant> participant_;
+    Reader<bool> reader_;
 };
 
 } // namespace uxr

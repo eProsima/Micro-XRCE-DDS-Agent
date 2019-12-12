@@ -249,6 +249,7 @@ public:
             const std::vector<uint8_t>& data);
 
     bool read(
+            uint32_t& sequence_number,
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
@@ -269,6 +270,10 @@ private:
     TopicPubSubType reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
+    dds::GUID_t publisher_id_;
+    std::mutex mtx_;
+    std::condition_variable cv_;
+    std::atomic<uint64_t> unread_count_;
 };
 
 /**********************************************************************************************************************

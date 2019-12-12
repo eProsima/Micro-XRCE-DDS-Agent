@@ -116,13 +116,6 @@ bool Replier::write(
         rv = true;
     }
     return rv;
-    // TODO.
-}
-
-bool Replier::write(
-        const std::vector<uint8_t>& data)
-{
-    // TODO.            
 }
 
 bool Replier::read(
