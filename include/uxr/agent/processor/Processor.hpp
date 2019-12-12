@@ -46,7 +46,7 @@ struct InputPacket;
 template<typename EndPoint>
 struct OutputPacket;
 
-struct ReadCallbackArgs;
+struct WriteFnArgs;
 
 template<typename EndPoint>
 class Processor
@@ -122,7 +122,7 @@ private:
 //            InputPacket& input_packet);
 
     bool read_data_callback(
-            const ReadCallbackArgs& cb_args,
+            const WriteFnArgs& write_args,
             const std::vector<uint8_t>& buffer,
             std::chrono::milliseconds timeout);
 

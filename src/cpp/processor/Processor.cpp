@@ -479,15 +479,15 @@ bool Processor<EndPoint>::process_read_data_submessage(
         if (dds::xrce::STATUS_OK == status)
         {
             /* Set callback args. */
-            ReadCallbackArgs cb_args;
-            cb_args.client_key = client.get_client_key();
-            cb_args.stream_id = read_payload.read_specification().preferred_stream_id();
-            cb_args.object_id = read_payload.object_id();
-            cb_args.request_id = read_payload.request_id();
+            WriteFnArgs write_args;
+            write_args.client_key = client.get_client_key();
+            write_args.stream_id = read_payload.read_specification().preferred_stream_id();
+            write_args.object_id = read_payload.object_id();
+            write_args.request_id = read_payload.request_id();
 
             /* Launch read data. */
             using namespace std::placeholders;
-            if (!data_reader->read(read_payload, std::bind(&Processor::read_data_callback, this, _1, _2, _3), cb_args))
+            if (!data_reader->read(read_payload, std::bind(&Processor::read_data_callback, this, _1, _2, _3), write_args))
             {
                 status = dds::xrce::STATUS_ERR_RESOURCES;
             }
@@ -723,7 +723,7 @@ bool Processor<EndPoint>::process_timestamp_submessage(
 
 template<typename EndPoint>
 bool Processor<EndPoint>::read_data_callback(
-        const ReadCallbackArgs& cb_args,
+        const WriteFnArgs& cb_args,
         const std::vector<uint8_t>& buffer,
         std::chrono::milliseconds timeout)
 {
