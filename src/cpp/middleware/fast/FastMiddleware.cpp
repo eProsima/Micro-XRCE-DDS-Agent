@@ -394,7 +394,20 @@ bool FastMiddleware::read_data(
     {
         rv = it->second->read(data, timeout);
     }
-    (void) datareader_id;
+    return rv;
+}
+
+bool FastMiddleware::read_request(
+        uint16_t replier_id,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    auto it = repliers_.find(replier_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->read(data, timeout);
+    }
     return rv;
 }
 

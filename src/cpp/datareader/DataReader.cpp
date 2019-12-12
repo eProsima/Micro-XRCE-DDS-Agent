@@ -83,7 +83,6 @@ DataReader::DataReader(
 
 DataReader::~DataReader() noexcept
 {
-    reader_.stop_reading();
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
     subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());

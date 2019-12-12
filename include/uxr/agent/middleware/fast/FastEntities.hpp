@@ -318,6 +318,9 @@ private:
     TopicPubSubType reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
+    std::mutex mtx_;
+    std::condition_variable cv_;
+    std::atomic<uint64_t> unread_count_;
 };
 
 } // namespace uxr

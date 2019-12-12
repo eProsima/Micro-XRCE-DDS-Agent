@@ -16,15 +16,13 @@
 #define UXR_AGENT_REPLIER_REPLIER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
+#include <uxr/agent/datareader/DataReader.hpp>
 
 namespace eprosima {
 namespace uxr {
 
 class Participant;
 class Middleware;
-
-class ReadCallbackArgs; // TODO: remove.
-typedef const std::function<bool (const ReadCallbackArgs&, std::vector<uint8_t>, std::chrono::milliseconds)> read_callback; // TODO: remove.
 
 class Replier : public XRCEObject
 {
@@ -49,8 +47,8 @@ public:
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args);
+        Reader<bool>::WriteFn write_fn,
+        const WriteFnArgs& write_args);
 
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const override;
@@ -65,8 +63,14 @@ private:
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant);
 
+    bool read_fn(
+        bool,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout);
+
 private:
     std::shared_ptr<Participant> participant_;
+    Reader<bool> reader_;
 };
 
 } // namespace uxr

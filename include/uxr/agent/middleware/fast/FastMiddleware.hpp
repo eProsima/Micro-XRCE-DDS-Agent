@@ -151,6 +151,11 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) override;
 
+    bool read_request(
+            uint16_t replier_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) override;
+
 /**********************************************************************************************************************
  * Matched functions.
  **********************************************************************************************************************/

@@ -359,6 +359,20 @@ public:
             std::chrono::milliseconds timeout) override;
 
     /**
+     * @brief Not implemented.
+     * 
+     * @param datareader_id 
+     * @param data 
+     * @param timeout 
+     * @return true 
+     * @return false 
+     */
+    bool read_request(
+            uint16_t replier_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) override { return false; };
+
+    /**
      * @brief Checks whether an existing CedParticipant, identified by the participant_id, matches with a new
      *        CedParticipant that would result from the creation of a new one using the domain_id and the reference
      *        representation.

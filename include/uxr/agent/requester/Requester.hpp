@@ -16,6 +16,7 @@
 #define UXR_AGENT_REQUESTER_REQUESTER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
+#include <uxr/agent/replier/Replier.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -50,8 +51,8 @@ public:
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args);
+        Reader<bool>::WriteFn write_fn,
+        const WriteFnArgs& write_args);
 
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const override;

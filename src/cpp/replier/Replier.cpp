@@ -15,6 +15,8 @@
 #include <uxr/agent/replier/Replier.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/logger/Logger.hpp>
+#include <uxr/agent/utils/TokenBucket.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -64,37 +66,6 @@ Replier::~Replier()
     get_middleware().delete_replier(get_raw_id());
 }
 
-bool Replier::write(
-        dds::xrce::WRITE_DATA_Payload_Data& write_data)
-{
-    bool rv = false;
-    if (get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
-    {
-        UXR_AGENT_LOG_MESSAGE(
-            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
-            get_raw_id(),
-            write_data.data().serialized_data().data(),
-            write_data.data().serialized_data().size());
-        rv = true;
-    }
-    return rv;
-    // TODO.
-}
-
-bool Replier::write(
-        const std::vector<uint8_t>& data)
-{
-    // TODO.            
-}
-
-bool Replier::read(
-        const dds::xrce::READ_DATA_Payload& read_data,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args)
-{
-    // TODO.
-}
-
 bool Replier::matched(
         const dds::xrce::ObjectVariant& new_object_rep) const
 {
@@ -128,6 +99,88 @@ bool Replier::matched(
 Middleware& Replier::get_middleware() const
 {
     return participant_->get_middleware();
+}
+
+
+bool Replier::write(
+        dds::xrce::WRITE_DATA_Payload_Data& write_data)
+{
+    bool rv = false;
+    if (get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
+    {
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
+            get_raw_id(),
+            write_data.data().serialized_data().data(),
+            write_data.data().serialized_data().size());
+        rv = true;
+    }
+    return rv;
+    // TODO.
+}
+
+bool Replier::write(
+        const std::vector<uint8_t>& data)
+{
+    // TODO.            
+}
+
+bool Replier::read(
+        const dds::xrce::READ_DATA_Payload& read_data,
+        Reader<bool>::WriteFn write_fn,
+        const WriteFnArgs& write_args)
+{
+    dds::xrce::DataDeliveryControl delivery_control;
+    if (read_data.read_specification().has_delivery_control())
+    {
+        delivery_control = read_data.read_specification().delivery_control();
+    }
+    else
+    {
+        delivery_control.max_elapsed_time(0);
+        delivery_control.max_bytes_per_second(0);
+        delivery_control.max_samples(1);
+    }
+
+    /* TODO (julianbermudez): implement different formats.
+    switch (read_data.read_specification().data_format())
+    {
+        case dds::xrce::FORMAT_DATA:
+            break;
+        case dds::xrce::FORMAT_SAMPLE:
+            break;
+        case dds::xrce::FORMAT_DATA_SEQ:
+            break;
+        case dds::xrce::FORMAT_SAMPLE_SEQ:
+            break;
+        case dds::xrce::FORMAT_PACKED_SAMPLES:
+            break;
+        default:
+            break;
+    }
+    */
+
+    using namespace std::placeholders;
+    return (reader_.stop_reading() &&
+            reader_.start_reading(delivery_control, std::bind(&Replier::read_fn, this, _1, _2, _3), false, write_fn, write_args));
+}
+
+bool Replier::read_fn(
+        bool,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    if (get_middleware().read_request(get_raw_id(), data, timeout))
+    {
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+            get_raw_id(),
+            data.data(),
+            data.size());
+        rv = true;
+    }
+    return rv;
 }
 
 } // namespace uxr

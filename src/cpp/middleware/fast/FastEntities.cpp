@@ -480,7 +480,7 @@ bool FastRequester::write(
     {
         sample_identity.serialize(serializer);
         serializer.serializeArray(data.data(), data.size());
-        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
+        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data));
     }
     catch(const std::exception& e)
     {
@@ -550,6 +550,7 @@ FastReplier::FastReplier(
     , reply_topic_{false}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
+    , unread_count_{0}
 {}
 
 FastReplier::~FastReplier()
@@ -605,6 +606,32 @@ bool FastReplier::write(
     return publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
+bool FastReplier::read(
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    auto now = std::chrono::steady_clock::now();
+    bool rv = false;
+    if (unread_count_ != 0)
+    {
+        fastrtps::SampleInfo_t info;
+        rv = subscriber_ptr_->takeNextData(&data, &info);
+        unread_count_ = subscriber_ptr_->getUnreadCount();
+    }
+    else
+    {
+        std::unique_lock<std::mutex> lock(mtx_);
+        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
+        {
+            lock.unlock();
+            fastrtps::SampleInfo_t info;
+            rv = subscriber_ptr_->takeNextData(&data, &info);
+            unread_count_ = subscriber_ptr_->getUnreadCount();
+        }
+    }
+    return rv;
+}
+
 void FastReplier::onPublicationMatched(
         fastrtps::Publisher*,
         fastrtps::rtps::MatchingInfo& info)
@@ -652,7 +679,9 @@ void FastReplier::onSubscriptionMatched(
 void FastReplier::onNewDataMessage(
         fastrtps::Subscriber*)
 {
-    // TODO
+    unread_count_ = subscriber_ptr_->getUnreadCount();
+    std::unique_lock<std::mutex> lock(mtx_);
+    cv_.notify_one();
 }
 
 } // namespace uxr

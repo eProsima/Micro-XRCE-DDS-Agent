@@ -44,6 +44,8 @@ public:
     typedef const std::function<bool (WA, const std::vector<uint8_t>&, std::chrono::milliseconds)> WriteFn;
 
 public:
+    ~Reader();
+
     bool start_reading(
         const dds::xrce::DataDeliveryControl& delivery_control,
         ReadFn read_fn,
@@ -75,6 +77,12 @@ private:
 
 template<typename RA, typename WA>
 constexpr std::chrono::milliseconds Reader<RA, WA>::rw_timeout;
+
+template<typename RA, typename WA>
+inline Reader<RA, WA>::~Reader()
+{
+    stop_reading();
+}
 
 template<typename RA, typename WA>
 inline bool Reader<RA, WA>::start_reading(
