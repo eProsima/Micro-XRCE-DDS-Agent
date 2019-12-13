@@ -19,6 +19,8 @@ add_test(
         ${CMAKE_COMMAND} 
             -DINSTALL_PATH=${CMAKE_INSTALL_PREFIX}
             -DLIBRARY_NAME=$<TARGET_FILE_NAME:${PROJECT_NAME}> 
+            -DLIBRARY_TYPE=$<TARGET_PROPERTY:${PROJECT_NAME},TYPE>
+            -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME}
             -DEXECUTABLE_NAME=$<TARGET_FILE_NAME:MicroXRCEAgent>
             -P ${CMAKE_CURRENT_SOURCE_DIR}/installation/InstallationTest.cmake
     )
