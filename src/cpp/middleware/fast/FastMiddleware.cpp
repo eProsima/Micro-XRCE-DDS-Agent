@@ -337,7 +337,7 @@ bool FastMiddleware::delete_requester(uint16_t requester_id)
 
 bool FastMiddleware::delete_replier(uint16_t replier_id)
 {
-    return false;
+    return (0 != repliers_.erase(replier_id));
 }
 
 /**********************************************************************************************************************

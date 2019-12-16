@@ -18,8 +18,6 @@
 #include <fastrtps/participant/ParticipantListener.h>
 #include <fastrtps/publisher/PublisherListener.h>
 #include <fastrtps/subscriber/SubscriberListener.h>
-#include <fastrtps/attributes/RequesterAttributes.h> // TODO (julianbermudez): remove and user forward declaration.
-#include <fastrtps/attributes/ReplierAttributes.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/types/XRCETypes.hpp>
@@ -34,6 +32,8 @@ namespace fastrtps {
 class ParticipantAttributes;
 class PublisherAttributes;
 class SubscriberAttributes;
+class RequesterAttributes;
+class ReplierAttributes;
 
 } // namespace fastrtps
 } // namespace eprosima
