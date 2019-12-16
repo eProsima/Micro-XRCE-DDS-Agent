@@ -16,22 +16,28 @@ include(ExternalProject)
 
 unset(_deps)
 
+enable_language(C)
+enable_language(CXX)
+
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
-    find_package(microxrcedds_client "1.1.3" EXACT QUIET)
+    find_package(microxrcedds_client ${_microxrcedds_client_version} EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
         ExternalProject_Add(uclient
             GIT_REPOSITORY
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
-                v1.1.3
+                ${_microxrcedds_client_tag}
             PREFIX
                 ${PROJECT_BINARY_DIR}/uclient
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
             )
@@ -41,19 +47,22 @@ endif()
 
 # Fast CDR.
 unset(fastcdr_DIR CACHE)
-find_package(fastcdr "1.0.10" EXACT QUIET)
+find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
 if(NOT fastcdr_FOUND)
     ExternalProject_Add(fastcdr
         GIT_REPOSITORY
             https://github.com/eProsima/Fast-CDR.git
         GIT_TAG
-            v1.0.11
+            ${_fastcdr_tag}
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
         INSTALL_DIR
             ${PROJECT_BINARY_DIR}/temp_install
         CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
             -DBUILD_SHARED_LIBS:BOOL=ON
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
         )
@@ -63,13 +72,13 @@ endif()
 if(UAGENT_FAST_PROFILE)
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
-    find_package(fastrtps "1.8.2" EXACT QUIET)
+    find_package(fastrtps ${_fastrtps_version} EXACT QUIET)
     if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastrtps
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-RTPS.git
             GIT_TAG
-                v1.8.2
+                ${_fastrtps_tag}
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastrtps
             INSTALL_DIR
@@ -77,8 +86,10 @@ if(UAGENT_FAST_PROFILE)
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install"
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
                 -DTHIRDPARTY:BOOL=ON
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
@@ -90,13 +101,13 @@ endif()
 
 # CLI11.
 unset(CLI11_DIR CACHE)
-find_package(CLI11 "1.7.1" EXACT QUIET)
+find_package(CLI11 ${_cli11_version} EXACT QUIET)
 if(NOT CLI11_FOUND)
     ExternalProject_Add(cli11
         GIT_REPOSITORY
             https://github.com/CLIUtils/CLI11.git
         GIT_TAG
-            v1.7.1
+            ${_cli11_tag}
         PREFIX
             ${PROJECT_BINARY_DIR}/CLI11
         INSTALL_DIR
@@ -104,8 +115,10 @@ if(NOT CLI11_FOUND)
         CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
+            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
             -DCLI11_TESTING:BOOL=OFF
             -DCLI11_EXAMPLES:BOOL=OFF
         )
@@ -115,13 +128,13 @@ endif()
 if(UAGENT_LOGGER_PROFILE)
     # spdlog.
     unset(spdlog_DIR CACHE)
-    find_package(spdlog "1.4.2" EXACT QUIET)
+    find_package(spdlog ${_spdlog_version} EXACT QUIET)
     if(NOT spdlog_FOUND)
         ExternalProject_Add(spdlog
             GIT_REPOSITORY
                 https://github.com/gabime/spdlog.git
             GIT_TAG
-                v1.4.2
+                ${_spdlog_tag}
             PREFIX
                 ${PROJECT_BINARY_DIR}/spdlog
             INSTALL_DIR
@@ -129,8 +142,10 @@ if(UAGENT_LOGGER_PROFILE)
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}"
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
                 -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
                 -DSPDLOG_BUILD_EXAMPLES:BOOL=OFF
                 -DSPDLOG_BUILD_BENCH:BOOL=OFF

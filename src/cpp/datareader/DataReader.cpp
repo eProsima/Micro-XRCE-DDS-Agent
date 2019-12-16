@@ -28,7 +28,7 @@ namespace uxr {
 
 constexpr int READ_TIMEOUT = 100;
 constexpr uint8_t PUSH_SUBMESSAGE_TIMEOUT = 100;
-constexpr uint8_t MAX_SLEEP_TIME = 100;
+constexpr std::chrono::milliseconds MAX_SLEEP_TIME{100};
 constexpr uint16_t MAX_SAMPLES_ZERO = 0;
 constexpr uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
 constexpr uint16_t MAX_ELAPSED_TIME_UNLIMITED = 0;
@@ -237,30 +237,26 @@ void DataReader::read_task(
         std::chrono::milliseconds read_timeout = get_read_timeout(final_time, delivery_control.max_elapsed_time());
         if (get_middleware().read_data(get_raw_id(), data, read_timeout))
         {
-            std::chrono::milliseconds wait_time = token_bucket.wait_time(data.size());
-            while (running_cond_ && wait_time.count())
+            bool submessage_pushed = false;
+            do
             {
-                std::this_thread::sleep_for(std::min(std::chrono::milliseconds(MAX_SLEEP_TIME), wait_time));
-                wait_time = token_bucket.wait_time(data.size());
-            }
-
-            if (token_bucket.get_tokens(data.size()))
-            {
-                bool submessage_pushed = false;
-                do {
-                    submessage_pushed = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
-                } while (running_cond_ && !submessage_pushed);
-
-                if (submessage_pushed)
+                if (token_bucket.consume_tokens(data.size(), MAX_SLEEP_TIME))
                 {
-                    UXR_AGENT_LOG_MESSAGE(
-                        UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-                        get_raw_id(),
-                        data.data(),
-                        data.size());
-                    ++message_count;
+                    do {
+                        submessage_pushed = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
+                    } while (running_cond_ && !submessage_pushed);
+
+                    if (submessage_pushed)
+                    {
+                        UXR_AGENT_LOG_MESSAGE(
+                            UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+                            get_raw_id(),
+                            data.data(),
+                            data.size());
+                        ++message_count;
+                    }
                 }
-            }
+            } while (running_cond_ && !submessage_pushed);
         }
 
         stop_cond = ((MAX_SAMPLES_UNLIMITED != delivery_control.max_samples()) &&
