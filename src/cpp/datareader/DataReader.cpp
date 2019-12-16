@@ -240,7 +240,7 @@ void DataReader::read_task(
             bool submessage_pushed = false;
             do
             {
-                if (token_bucket.consume_tokens(data.size(), MAX_SLEEP_TIME))    /* code */
+                if (token_bucket.consume_tokens(data.size(), MAX_SLEEP_TIME))
                 {
                     do {
                         submessage_pushed = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));

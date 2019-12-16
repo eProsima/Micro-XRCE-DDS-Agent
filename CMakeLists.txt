@@ -302,8 +302,11 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
-if(UAGENT_BUILD_CI_TESTS)
+if(UAGENT_BUILD_CI_TESTS OR UAGENT_BUILD_TESTS)
     include(CTest)
+endif()
+
+if(UAGENT_BUILD_CI_TESTS)
     add_subdirectory(test/case)
 endif()
 
@@ -316,8 +319,6 @@ if(UAGENT_BUILD_TESTS)
     find_package(GTest REQUIRED)
     find_package(GMock REQUIRED)
     find_package(Threads REQUIRED)
-    enable_testing()
-    include(CTest)
 
     if(UAGENT_FAST_PROFILE)
         add_subdirectory(test/unittest)
