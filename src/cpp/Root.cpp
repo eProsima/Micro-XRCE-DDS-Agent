@@ -291,6 +291,11 @@ void Root::set_verbose_level(uint8_t verbose_level)
 void Root::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
+    for (auto it = clients_.begin(); it != clients_.end(); )
+    {
+        it->second->release();
+        it = clients_.erase(it);
+    }
     clients_.clear();
     current_client_ = clients_.begin();
 }
