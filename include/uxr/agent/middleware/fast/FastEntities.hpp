@@ -265,6 +265,9 @@ public:
             fastrtps::Subscriber*) override;
 
 private:
+    bool match(const fastrtps::RequesterAttributes& attrs) const;
+
+private:
     std::shared_ptr<FastParticipant> participant_;
     TopicPubSubType request_topic_;
     TopicPubSubType reply_topic_;
@@ -316,6 +319,9 @@ public:
 
     void onNewDataMessage(
             fastrtps::Subscriber*) override;
+
+private:
+    bool match(const fastrtps::ReplierAttributes& attrs) const;
 
 private:
     std::shared_ptr<FastParticipant> participant_;

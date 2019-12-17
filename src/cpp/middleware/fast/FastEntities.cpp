@@ -467,6 +467,29 @@ bool FastRequester::create_by_attributes(
     return rv;
 }
 
+bool FastRequester::match_from_ref(const std::string& ref) const
+{
+    bool rv = false;
+    fastrtps::RequesterAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillRequesterAttributes(ref, new_attributes))
+    {
+        rv = match(new_attributes);
+    }
+    return rv;
+}
+
+bool FastRequester::match_from_xml(const std::string& xml) const
+{
+    bool rv = false;
+    fastrtps::RequesterAttributes new_attributes;
+    if (xmlobjects::parse_requester(xml.data(), xml.size(), new_attributes))
+    {
+        rv = match(new_attributes);
+    }
+    return rv;
+}
+
 bool FastRequester::write(
         uint32_t sequence_number,
         const std::vector<uint8_t>& data)
@@ -603,6 +626,22 @@ void FastRequester::onNewDataMessage(
     cv_.notify_one();
 }
 
+bool FastRequester::match(const fastrtps::RequesterAttributes& attrs) const
+{
+    bool rv = false;
+    if ((0 == std::strcmp(request_topic_.getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
+         (  request_topic_.m_isGetKeyDefined ==
+            (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
+        (0 == std::strcmp(reply_topic_.getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
+         (  reply_topic_.m_isGetKeyDefined ==
+            (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
+    {
+        rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
+               attrs.subscriber == subscriber_ptr_->getAttributes());
+    }
+    return rv;
+}
+
 /**********************************************************************************************************************
  * FastReplier
  **********************************************************************************************************************/
@@ -660,6 +699,29 @@ bool FastReplier::create_by_attributes(
     subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
 
+    return rv;
+}
+
+bool FastReplier::match_from_ref(const std::string& ref) const
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes new_attributes;
+    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
+        fastrtps::xmlparser::XMLProfileManager::fillReplierAttributes(ref, new_attributes))
+    {
+        rv = match(new_attributes);
+    }
+    return rv;
+}
+
+bool FastReplier::match_from_xml(const std::string& xml) const
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes new_attributes;
+    if (xmlobjects::parse_replier(xml.data(), xml.size(), new_attributes))
+    {
+        rv = match(new_attributes);
+    }
     return rv;
 }
 
@@ -745,6 +807,22 @@ void FastReplier::onNewDataMessage(
     unread_count_ = subscriber_ptr_->getUnreadCount();
     std::unique_lock<std::mutex> lock(mtx_);
     cv_.notify_one();
+}
+
+bool FastReplier::match(const fastrtps::ReplierAttributes& attrs) const
+{
+    bool rv = false;
+    if ((0 == std::strcmp(reply_topic_.getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
+         (  reply_topic_.m_isGetKeyDefined ==
+            (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
+        (0 == std::strcmp(request_topic_.getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
+         (  request_topic_.m_isGetKeyDefined ==
+            (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
+    {
+        rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
+               attrs.subscriber == subscriber_ptr_->getAttributes());
+    }
+    return rv;
 }
 
 } // namespace uxr

@@ -527,28 +527,52 @@ bool FastMiddleware::matched_requester_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
 {
-    return false;
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastMiddleware::matched_requester_from_xml(
         uint16_t requester_id,
         const std::string& xml) const
 {
-    return false;
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
+    }
+    return rv;
 }
 
 bool FastMiddleware::matched_replier_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
 {
-    return false;
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastMiddleware::matched_replier_from_xml(
         uint16_t requester_id,
         const std::string& xml) const
 {
-    return false;
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
+    }
+    return rv;
 }
 
 } // namespace uxr
