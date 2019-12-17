@@ -18,6 +18,7 @@
 #include <chrono>
 #include <mutex>
 #include <algorithm>
+#include <thread>
 
 namespace eprosima {
 namespace uxr {
@@ -28,100 +29,85 @@ class TokenBucket
 public:
     explicit TokenBucket(
             size_t rate,
-            size_t burst = min_rate_);
+            size_t capacity = 0);
 
     TokenBucket(TokenBucket&&) = delete;
     TokenBucket(const TokenBucket&) = delete;
     TokenBucket& operator=(TokenBucket&&) = delete;
     TokenBucket& operator=(const TokenBucket&) = delete;
 
-    std::chrono::milliseconds wait_time(size_t tokens_required);
+    template<typename T>
+    bool consume_tokens(
+            size_t required_tokens,
+            T&& timeout);
 
-    bool get_tokens(size_t tokens_required);
-
-private:
-    size_t get_tokens_available(const std::chrono::steady_clock::time_point& current_time);
-
-    constexpr static uint64_t elapsed_time(
-            const std::chrono::steady_clock::time_point& ref_time,
-            const std::chrono::steady_clock::time_point& current_time);
+    size_t get_rate() { return rate_; }
+    size_t get_capacity() { return capacity_; }
+    size_t get_available_tokens() { return tokens_; }
 
 private:
-    static constexpr size_t min_rate_ = 64000; // 64KB
-    size_t capacity_;
+    const size_t rate_;
+    const size_t capacity_;
     size_t tokens_;
-    size_t rate_;
     std::chrono::steady_clock::time_point timestamp_;
-
-    std::mutex mtx_;
 };
 
-inline TokenBucket::TokenBucket(size_t rate, size_t burst)
-    : capacity_(burst),
-      rate_(rate)
+inline TokenBucket::TokenBucket(
+        size_t rate,
+        size_t capacity)
+    : rate_(rate)
+    , capacity_((capacity == 0) ? rate : capacity)
 {
-    // Adjust to min rate
-    if (rate_ == 0)
-    {
-        rate_ = min_rate_;
-    }
-
-    // Adjust capacity to rate
-    if (rate_ > capacity_)
-    {
-        capacity_ = rate_;
-    }
-
-    // Adjust capacity to min rate if we use any kind of burst
-    if ((burst != 0) && (capacity_ < min_rate_))
-    {
-        capacity_ = min_rate_;
-    }
-
-    tokens_    = std::min(capacity_, rate_);
+    tokens_    = capacity_;
     timestamp_ = std::chrono::steady_clock::now();
 }
 
-inline std::chrono::milliseconds TokenBucket::wait_time(size_t tokens_required)
+template<typename T>
+inline bool TokenBucket::consume_tokens(
+        size_t required_tokens,
+        T&& timeout)
 {
-    std::chrono::milliseconds rv(0);
-    std::lock_guard<std::mutex> lock(mtx_);
-    size_t tokens_available = get_tokens_available(std::chrono::steady_clock::now());
-    if (tokens_required > tokens_available)
-    {
-        rv = std::chrono::milliseconds(
-                    std::max(uint64_t(1),
-                             uint64_t((std::milli::den * (tokens_available - tokens_required)) / rate_)));
-    }
-    return rv;
-}
+    using namespace std::chrono;
 
-inline bool TokenBucket::get_tokens(size_t tokens_required)
-{
-    bool rv = false;
-    std::lock_guard<std::mutex> lock(mtx_);
-    auto current_time = std::chrono::steady_clock::now();
-    size_t available_tokens = get_tokens_available(current_time);
-    if (tokens_required <= available_tokens)
+    if (required_tokens > capacity_)
     {
-        tokens_ = available_tokens - tokens_required;
-        timestamp_ = current_time;
+        return false;
+    }
+
+    bool rv = false;
+    const steady_clock::time_point init_time = steady_clock::now();
+    const size_t current_tokens = std::min(
+        capacity_,
+        tokens_ + size_t((rate_ * uint64_t(duration_cast<milliseconds>(init_time - timestamp_).count())) / std::milli::den));
+
+    if (current_tokens < required_tokens)
+    {
+        const steady_clock::time_point final_time =
+            init_time +
+            std::min(
+                milliseconds(uint64_t((std::milli::den * (tokens_ - required_tokens)) / rate_)),
+                duration_cast<milliseconds>(std::forward<T>(timeout)));
+        const size_t expected_tokens = std::min(
+            capacity_,
+            tokens_ + size_t((rate_ * uint64_t(duration_cast<milliseconds>(final_time - timestamp_).count())) / std::milli::den));
+
+        if (expected_tokens >= required_tokens)
+        {
+            tokens_ = expected_tokens - required_tokens;
+            timestamp_ = final_time;
+            rv = true;
+        }
+
+        std::this_thread::sleep_until(final_time);
+    }
+    else
+    {
+        tokens_ = current_tokens - required_tokens;
+        timestamp_ = init_time;
         rv = true;
     }
+
     return rv;
-}
-
-inline size_t TokenBucket::get_tokens_available(
-        const std::chrono::steady_clock::time_point& current_time)
-{
-    return std::min(capacity_, tokens_ + size_t((rate_ * elapsed_time(timestamp_, current_time)) / std::milli::den));
-}
-
-inline constexpr uint64_t TokenBucket::elapsed_time(
-        const std::chrono::steady_clock::time_point& ref_time,
-        const std::chrono::steady_clock::time_point& current_time)
-{
-    return uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(current_time - ref_time).count());
 }
 
 } // namespace utils

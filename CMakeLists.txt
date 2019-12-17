@@ -32,9 +32,16 @@ option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
+
+option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
+if(UAGENT_BUILD_CI_TESTS)
+    set(UAGENT_BUILD_TESTS ON)
+endif()
+
 if(NOT UAGENT_CED_PROFILE)
     set(UAGENT_P2P_PROFILE OFF)
 endif()
+
 if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
 endif()
@@ -56,7 +63,38 @@ set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat 
 set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
 set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
-set(UAGENT_CONFIG_CLIENT_DEAD_TIME             1000     CACHE STRING "Client dead time in milliseconds.")
+set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dead time in milliseconds.")
+
+###############################################################################
+# Dependencies
+###############################################################################
+set(_deps "")
+
+set(_fastcdr_version 1.0.10)
+set(_fastcdr_tag v1.0.11)
+list(APPEND _deps "fastcdr\;${_fastcdr_version}")
+
+set(_cli11_version 1.7.1)
+set(_cli11_tag v1.7.1)
+list(APPEND _deps "CLI11\;${_cli11_version}")
+
+if(UAGENT_P2P_PROFILE)
+    set(_microxrcedds_client_version 1.1.5)
+    set(_microxrcedds_client_tag v1.1.5)
+    list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
+endif()
+
+if(UAGENT_FAST_PROFILE)
+    set(_fastrtps_version 1.8.2)
+    set(_fastrtps_tag v1.8.2)
+    list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+endif()
+
+if(UAGENT_LOGGER_PROFILE)
+    set(_spdlog_version 1.4.2)
+    set(_spdlog_tag v1.4.2)
+    list(APPEND _deps "spdlog\;${_spdlog_version}")
+endif()
 
 ###############################################################################
 # Dependencies
@@ -99,18 +137,13 @@ endif()
 ###############################################################################
 # Load external dependencies.
 ###############################################################################
-find_package(fastcdr ${_fast_cdr_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/fastcdr)
-find_package(CLI11 ${_cli11_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/cli11)
-if(UAGENT_P2P_PROFILE)
-    find_package(microxrcedds_client ${_micro_xrce_dds_client_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/uclient)
-    find_package(microcdr REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/uclient)
-endif()
-if(UAGENT_FAST_PROFILE)
-    find_package(fastrtps ${_fast_rtps_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/fastrtps)
-endif()
-if(UAGENT_LOGGER_PROFILE)
-    find_package(spdlog ${_spdlog_version} EXACT REQUIRED PATHS ${PROJECT_BINARY_DIR}/temp_install/spdlog)
-endif()
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install)
+
+foreach(d ${_deps})
+    list(GET d 0 _name)
+    list(GET d 1 _version)
+    find_package(${_name} ${_version} EXACT REQUIRED)
+endforeach()
 
 ###############################################################################
 # Load external CMake Modules.
@@ -280,6 +313,14 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
+if(UAGENT_BUILD_CI_TESTS OR UAGENT_BUILD_TESTS)
+    include(CTest)
+endif()
+
+if(UAGENT_BUILD_CI_TESTS)
+    add_subdirectory(test/case)
+endif()
+
 if(UAGENT_BUILD_TESTS)
     include(${PROJECT_SOURCE_DIR}/cmake/common/gtest.cmake)
     if(UAGENT_USE_INTERNAL_GTEST)
@@ -289,8 +330,6 @@ if(UAGENT_BUILD_TESTS)
     find_package(GTest REQUIRED)
     find_package(GMock REQUIRED)
     find_package(Threads REQUIRED)
-    enable_testing()
-    include(CTest)
 
     if(UAGENT_FAST_PROFILE)
         add_subdirectory(test/unittest)
@@ -411,6 +450,7 @@ write_basic_package_version_file(
 install(
     FILES
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
+        ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}ConfigVersion.cmake
     DESTINATION
         ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
     )

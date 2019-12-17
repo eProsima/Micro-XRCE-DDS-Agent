@@ -14,7 +14,7 @@
 
 #include <uxr/agent/publisher/Publisher.hpp>
 #include <uxr/agent/participant/Participant.hpp>
-#include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -27,7 +27,7 @@ std::unique_ptr<Publisher> Publisher::create(
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_middleware();
+    Middleware& middleware = participant->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
@@ -58,7 +58,7 @@ Publisher::Publisher(
 Publisher::~Publisher()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_publisher(get_raw_id());
+    participant_->get_proxy_client()->get_middleware().delete_publisher(get_raw_id());
 }
 
 void Publisher::release(ObjectContainer& root_objects)
@@ -69,11 +69,6 @@ void Publisher::release(ObjectContainer& root_objects)
         root_objects.at(*obj)->release(root_objects);
         root_objects.erase(*obj);
     }
-}
-
-Middleware& Publisher::get_middleware() const
-{
-    return participant_->get_middleware();
 }
 
 } // namespace uxr

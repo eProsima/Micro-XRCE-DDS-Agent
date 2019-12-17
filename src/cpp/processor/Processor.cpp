@@ -75,7 +75,7 @@ void Processor<EndPoint>::process_input_packet(
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
         if (nullptr != client)
         {
-            client->update_timestamp();
+            client->update_state();
 
             /* Check whether it is the next message. */
             Session& session = client->session();
@@ -696,7 +696,6 @@ bool Processor<EndPoint>::read_data_callback(
         std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    std::shared_ptr<ProxyClient> client = root_.get_client(cb_args.client_key);
 
     /* DATA payload. */
     dds::xrce::DATA_Payload_Data data_payload;
@@ -711,10 +710,10 @@ bool Processor<EndPoint>::read_data_callback(
     if (server_.get_endpoint(conversion::clientkey_to_raw(cb_args.client_key), output_packet.destination))
     {
         /* Push submessage into the output stream. */
-        rv = client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload, timeout);
+        rv = cb_args.client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload, timeout);
 
         /* Set output message. */
-        while (client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
+        while (cb_args.client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
         {
             /* Send message. */
             server_.push_output_packet(output_packet);

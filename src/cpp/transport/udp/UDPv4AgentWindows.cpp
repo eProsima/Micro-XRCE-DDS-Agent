@@ -207,7 +207,7 @@ bool UDPv4Agent::send_message(
                    sizeof(client_addr));
     if (SOCKET_ERROR != bytes_sent)
     {
-        if (size_t(bytes_sent) != output_packet.message->get_len())
+        if (size_t(bytes_sent) == output_packet.message->get_len())
         {
             rv = true;
 

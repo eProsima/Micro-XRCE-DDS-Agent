@@ -24,7 +24,7 @@
 namespace eprosima {
 namespace uxr {
 
-class ProxyClient
+class ProxyClient : public std::enable_shared_from_this<ProxyClient>
 {
 public:
     enum class State : uint8_t
@@ -64,11 +64,15 @@ public:
 
     dds::xrce::SessionId get_session_id() const { return representation_.session_id(); }
 
+    void release();
+
     Session& session();
 
     State get_state();
 
-    void update_timestamp();
+    void update_state();
+
+    Middleware& get_middleware() { return *middleware_ ; };
 
 private:
     bool create_object(
@@ -115,6 +119,7 @@ private:
     std::mutex mtx_;
     XRCEObject::ObjectContainer objects_;
     Session session_;
+    std::mutex state_mtx_;
     State state_;
     std::chrono::time_point<std::chrono::steady_clock> timestamp_;
 };
