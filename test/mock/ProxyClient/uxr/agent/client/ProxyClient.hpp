@@ -42,6 +42,8 @@ public:
 
     MOCK_METHOD0(get_session_id, dds::xrce::SessionId());
     MOCK_METHOD0(session, Session&());
+
+    void release() {}
 };
 
 } // namespace uxr

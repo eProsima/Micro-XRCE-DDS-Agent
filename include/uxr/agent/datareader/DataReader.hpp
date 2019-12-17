@@ -26,15 +26,16 @@
 namespace eprosima {
 namespace uxr {
 
+class ProxyClient;
 class Subscriber;
 class Topic;
-class Middleware;
 
 /**
  * Callback data structure.
  */
 struct ReadCallbackArgs
 {
+    std::shared_ptr<ProxyClient> client;
     dds::xrce::ClientKey client_key;
     dds::xrce::StreamId stream_id;
     dds::xrce::ObjectId object_id;
@@ -67,8 +68,6 @@ public:
 
     bool matched(
             const dds::xrce::ObjectVariant& new_object_rep) const override;
-
-    Middleware& get_middleware() const override;
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,

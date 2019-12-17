@@ -43,7 +43,14 @@ Root::Root()
 }
 
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
-Root::~Root() = default;
+Root::~Root()
+{
+    for (auto it = clients_.begin(); it != clients_.end(); )
+    {
+        it->second->release();
+        it = clients_.erase(it);
+    }
+}
 
 dds::xrce::ResultStatus Root::create_client(
         const dds::xrce::CLIENT_Representation& client_representation,
@@ -157,13 +164,14 @@ dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
 dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
-    if (get_client(client_key))
+    if (std::shared_ptr<ProxyClient> client = get_client(client_key))
     {
         std::lock_guard<std::mutex> lock(mtx_);
         if (current_client_ != clients_.end() && client_key == current_client_->first)
         {
             ++current_client_;
         }
+        client->release();
         clients_.erase(client_key);
         result_status.status(dds::xrce::STATUS_OK);
         UXR_AGENT_LOG_INFO(
@@ -283,6 +291,11 @@ void Root::set_verbose_level(uint8_t verbose_level)
 void Root::reset()
 {
     std::lock_guard<std::mutex> lock(mtx_);
+    for (auto it = clients_.begin(); it != clients_.end(); )
+    {
+        it->second->release();
+        it = clients_.erase(it);
+    }
     clients_.clear();
     current_client_ = clients_.begin();
 }
