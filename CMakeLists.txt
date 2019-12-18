@@ -74,8 +74,8 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 1.8.2)
-    set(_fastrtps_tag v1.8.2)
+    set(_fastrtps_version 1.8.3)
+    set(_fastrtps_tag feature/xml_services_1.8.x)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
