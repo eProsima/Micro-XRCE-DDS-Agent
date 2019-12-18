@@ -15,6 +15,7 @@
 include(ExternalProject)
 
 unset(_deps)
+unset(_versioned_deps)
 
 enable_language(C)
 enable_language(CXX)
@@ -43,6 +44,7 @@ if(UAGENT_P2P_PROFILE)
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
             )
         list(APPEND _deps microxrcedds_client)
+        list(APPEND _versioned_deps microxrcedds_client-${_microxrcedds_client_version})
     endif()
 endif()
 
@@ -74,6 +76,7 @@ if(NOT fastcdr_FOUND)
             COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
         )
     list(APPEND _deps fastcdr)
+    list(APPEND _versioned_deps fastcdr-${_fastcdr_version})
 endif()
 
 if(UAGENT_FAST_PROFILE)
@@ -110,6 +113,7 @@ if(UAGENT_FAST_PROFILE)
                 COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
             )
         list(APPEND _deps fastrtps)
+        list(APPEND _versioned_deps fastrtps-${_fastrtps_version})
     endif()
 endif()
 
@@ -139,6 +143,7 @@ if(NOT CLI11_FOUND)
             -DCLI11_EXAMPLES:BOOL=OFF
         )
     list(APPEND _deps cli11)
+    list(APPEND _versioned_deps cli11-${_cli11_version})
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -171,6 +176,7 @@ if(UAGENT_LOGGER_PROFILE)
                 -DSPDLOG_INSTALL:BOOL=ON
             )
         list(APPEND _deps spdlog)
+        list(APPEND _versioned_deps spdlog-${_spdlog_version})
     endif()
 endif()
 
@@ -206,6 +212,7 @@ if(UAGENT_BUILD_TESTS)
         set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install/googletest CACHE INTERNAL "")
         set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
+        list(APPEND _versioned_deps googletest)
     endif()
 endif()
 
@@ -242,3 +249,5 @@ ExternalProject_Add(uagent
     DEPENDS
         ${_deps}
     )
+
+ set(UAGENT_DEPENDS "${_versioned_deps}" CACHE INTERNAL "")

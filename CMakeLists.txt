@@ -276,7 +276,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
     )
@@ -460,17 +460,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Install dependencies.
+message(WARNING ${UAGENT_DEPENDS})
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
-    foreach(dependency ${_deps})
-        list(GET dependency 0 _name)
-        list(GET dependency 1 _version)
+    file(GLOB dependencies RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
+    foreach(dependency ${dependencies})
         install(
             DIRECTORY
-                ${CMAKE_BINARY_DIR}/temp_install/${_name}-${_version}
+                ${CMAKE_BINARY_DIR}/temp_install/${dependency}
             DESTINATION .
             USE_SOURCE_PERMISSIONS
             COMPONENT
-                ${_name}
+                ${dependency}
         )
     endforeach()
 endif()
