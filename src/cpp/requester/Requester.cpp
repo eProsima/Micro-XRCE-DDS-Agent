@@ -14,6 +14,7 @@
 
 #include <uxr/agent/requester/Requester.hpp>
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 
@@ -31,7 +32,7 @@ std::unique_ptr<Requester> Requester::create(
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_middleware();
+    Middleware& middleware = participant->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
@@ -65,7 +66,7 @@ Requester::Requester(
 Requester::~Requester()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_requester(get_raw_id());
+    participant_->get_proxy_client()->get_middleware().delete_requester(get_raw_id());
 }
 
 bool Requester::matched(
@@ -83,24 +84,19 @@ bool Requester::matched(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.requester().representation().object_reference();
-            rv = get_middleware().matched_requester_from_ref(get_raw_id(), ref);
+            rv = participant_->get_proxy_client()->get_middleware().matched_requester_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.requester().representation().object_reference();
-            rv = get_middleware().matched_requester_from_xml(get_raw_id(), xml);
+            rv = participant_->get_proxy_client()->get_middleware().matched_requester_from_xml(get_raw_id(), xml);
             break;
         }
         default:
             break;
     }
     return rv;
-}
-
-Middleware& Requester::get_middleware() const
-{
-    return participant_->get_middleware();
 }
 
 bool Requester::write(
@@ -110,7 +106,7 @@ bool Requester::write(
     bool rv = false;
     uint32_t sequence_number = (get_raw_id() << 16) + (request_id[0] << 8) + (request_id[1]);
 
-    if (get_middleware().write_request(get_raw_id(), sequence_number,  write_data.data().serialized_data()))
+    if (participant_->get_proxy_client()->get_middleware().write_request(get_raw_id(), sequence_number,  write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -126,7 +122,7 @@ bool Requester::write(
 bool Requester::read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
-        const WriteFnArgs& write_args)
+        WriteFnArgs& write_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -158,6 +154,8 @@ bool Requester::read(
     }
     */
 
+    write_args.client = participant_->get_proxy_client();
+
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
             reader_.start_reading(delivery_control, std::bind(&Requester::read_fn, this, _1, _2, _3), false, write_fn, write_args));
@@ -174,7 +172,7 @@ bool Requester::read_fn(
     dds::xrce::BaseObjectRequest request;
     std::vector<uint8_t> temp_data;
 
-    if (get_middleware().read_reply(get_raw_id(), sequence_number, temp_data, timeout))
+    if (participant_->get_proxy_client()->get_middleware().read_reply(get_raw_id(), sequence_number, temp_data, timeout))
     {
         request.object_id() = get_id();
         request.request_id()[0] = uint8_t((sequence_number >> 8) & 0xFF);

@@ -15,8 +15,8 @@
 #include "xmlobjects.h"
 
 #include <fastrtps/attributes/all_attributes.h>
-#include <fastrtps/attributes/ReplierAttributes.h>
-#include <fastrtps/attributes/RequesterAttributes.h>
+#include <fastrtps/attributes/ReplierAttributes.hpp>
+#include <fastrtps/attributes/RequesterAttributes.hpp>
 #include <fastrtps/xmlparser/XMLParser.h>
 #include <fastrtps/xmlparser/XMLTree.h>
 

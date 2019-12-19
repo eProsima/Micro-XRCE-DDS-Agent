@@ -27,6 +27,8 @@
 namespace eprosima {
 namespace uxr {
 
+class ProxyClient;
+
 struct WriteFnArgs
 {
     std::shared_ptr<ProxyClient> client;
@@ -152,26 +154,21 @@ inline void Reader<RA, WA>::read_task(
         timeout = std::min(rw_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
         if (read_fn(read_args_, data, timeout))
         {
-            milliseconds wait_time = token_bucket.wait_time(data.size());
-            while (running_cond_ && wait_time.count())
-            {
-                std::this_thread::sleep_for(std::min(rw_timeout, wait_time));
-                wait_time = token_bucket.wait_time(data.size());
-            }
-
-            if (token_bucket.get_tokens(data.size()))
-            {
-                bool submessage_pushed = false;
-                do {
-                    timeout = std::min(rw_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
-                    submessage_pushed = write_fn(write_args_, data, timeout);
-                } while (running_cond_ && !submessage_pushed);
-
-                if (submessage_pushed)
+            bool submessage_pushed = false;
+            do {
+                if (token_bucket.consume_tokens(data.size(), timeout))
                 {
-                    ++message_count;
+                    do {
+                        timeout = std::min(rw_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
+                        submessage_pushed = write_fn(write_args_, data, timeout);
+                    } while (running_cond_ && !submessage_pushed);
+
+                    if (submessage_pushed)
+                    {
+                        ++message_count;
+                    }
                 }
-            }
+            } while(running_cond_ && !submessage_pushed);
         }
 
         stop_cond = ((max_samples_unlimited != delivery_control_.max_samples()) &&

@@ -53,7 +53,7 @@ public:
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
-        const WriteFnArgs& cb_args);
+        WriteFnArgs& cb_args);
 
 private:
     DataReader(

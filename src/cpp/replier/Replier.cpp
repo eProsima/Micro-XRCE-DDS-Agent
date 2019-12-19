@@ -14,6 +14,7 @@
 
 #include <uxr/agent/replier/Replier.hpp>
 #include <uxr/agent/participant/Participant.hpp>
+#include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 #include <uxr/agent/utils/TokenBucket.hpp>
 #include <uxr/agent/logger/Logger.hpp>
@@ -29,7 +30,7 @@ std::unique_ptr<Replier> Replier::create(
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_middleware();
+    Middleware& middleware = participant->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
@@ -63,7 +64,7 @@ Replier::Replier(
 Replier::~Replier()
 {
     participant_->untie_object(get_id());
-    get_middleware().delete_replier(get_raw_id());
+    participant_->get_proxy_client()->get_middleware().delete_replier(get_raw_id());
 }
 
 bool Replier::matched(
@@ -81,13 +82,13 @@ bool Replier::matched(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.replier().representation().object_reference();
-            rv = get_middleware().matched_replier_from_ref(get_raw_id(), ref);
+            rv = participant_->get_proxy_client()->get_middleware().matched_replier_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.replier().representation().object_reference();
-            rv = get_middleware().matched_replier_from_xml(get_raw_id(), xml);
+            rv = participant_->get_proxy_client()->get_middleware().matched_replier_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -96,17 +97,11 @@ bool Replier::matched(
     return rv;
 }
 
-Middleware& Replier::get_middleware() const
-{
-    return participant_->get_middleware();
-}
-
-
 bool Replier::write(
         dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     bool rv = false;
-    if (get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
+    if (participant_->get_proxy_client()->get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -121,7 +116,7 @@ bool Replier::write(
 bool Replier::read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
-        const WriteFnArgs& write_args)
+        WriteFnArgs& write_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -153,6 +148,8 @@ bool Replier::read(
     }
     */
 
+    write_args.client = participant_->get_proxy_client();
+
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
             reader_.start_reading(delivery_control, std::bind(&Replier::read_fn, this, _1, _2, _3), false, write_fn, write_args));
@@ -164,7 +161,7 @@ bool Replier::read_fn(
         std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    if (get_middleware().read_request(get_raw_id(), data, timeout))
+    if (participant_->get_proxy_client()->get_middleware().read_request(get_raw_id(), data, timeout))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[==>> DDS <<==]"),

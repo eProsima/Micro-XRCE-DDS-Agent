@@ -121,7 +121,7 @@ bool DataReader::matched(
 bool DataReader::read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
-        const WriteFnArgs& write_args)
+        WriteFnArgs& write_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -153,6 +153,8 @@ bool DataReader::read(
     }
     */
 
+    write_args.client = subscriber_->get_participant()->get_proxy_client();
+
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
             reader_.start_reading(delivery_control, std::bind(&DataReader::read_fn, this, _1, _2, _3), false, write_fn, write_args));
@@ -164,7 +166,7 @@ bool DataReader::read_fn(
         std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    if (get_middleware().read_data(get_raw_id(), data, timeout))
+    if (subscriber_->get_participant()->get_proxy_client()->get_middleware().read_data(get_raw_id(), data, timeout))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[==>> DDS <<==]"),

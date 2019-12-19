@@ -46,15 +46,13 @@ public:
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
         Reader<bool>::WriteFn write_fn,
-        const WriteFnArgs& write_args);
+        WriteFnArgs& write_args);
 
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const override;
 
     void release(
         ObjectContainer&) override {};
-
-    Middleware& get_middleware() const override;
 
 private:
     Requester(
