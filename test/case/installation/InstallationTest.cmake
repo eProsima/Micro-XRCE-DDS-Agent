@@ -22,7 +22,7 @@ endforeach()
 
 # Check library.
 if((SYSTEM_NAME STREQUAL "Windows") AND (LIBRARY_TYPE STREQUAL "SHARED_LIBRARY"))
-    if(NOT EXISTS ${INSTALL_PATH}/bin/${LIBRARY_NAME})
+    if(NOT EXISTS ${INSTALL_PATH}/${INSTALL_SUFFIX}/bin/${LIBRARY_NAME})
         message(FATAL_ERROR "Library bin/${LIBRARY_NAME} not found.")
     endif()
 else()
