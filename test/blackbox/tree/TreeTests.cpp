@@ -241,6 +241,7 @@ TEST_F(TreeTests, XMLTree)
     response = client->create_object(creation_mode, replier_id, object_variant);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
+
     /* Participant destruction. */
     response = client->delete_object(participant_id);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());

@@ -57,6 +57,7 @@ Replier::Replier(
         const std::shared_ptr<Participant>& participant)
     : XRCEObject(object_id)
     , participant_(participant)
+    , reader_{}
 {
     participant_->tie_object(object_id);
 }

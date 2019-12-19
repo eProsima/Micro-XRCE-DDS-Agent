@@ -11122,7 +11122,7 @@ public:
 
     SequenceNumber_t(const SequenceNumber_t &x) = default;
 
-    SequenceNumber_t(SequenceNumber_t &x) = default;
+    SequenceNumber_t(SequenceNumber_t &&x) = default;
 
     SequenceNumber_t& operator=(const SequenceNumber_t &x) = default;
 

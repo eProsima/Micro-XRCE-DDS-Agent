@@ -70,15 +70,12 @@ private:
     std::thread thread_;
     std::mutex mtx_;
 
-    static constexpr std::chrono::milliseconds rw_timeout{100};
+    static constexpr uint8_t rw_timeout = 100;
     static constexpr uint16_t max_samples_zero = 0;
     static constexpr uint16_t max_samples_unlimited = 0xFFFF;
     static constexpr uint16_t max_elapsed_time_unlimited = 0;
     static constexpr uint16_t max_bytes_per_second_unlimited = 0;
 };
-
-template<typename RA, typename WA>
-constexpr std::chrono::milliseconds Reader<RA, WA>::rw_timeout;
 
 template<typename RA, typename WA>
 inline Reader<RA, WA>::~Reader()
@@ -136,6 +133,8 @@ inline void Reader<RA, WA>::read_task(
     using namespace eprosima::uxr::utils;
     using namespace std::chrono;
 
+    constexpr std::chrono::milliseconds max_timeout{rw_timeout};
+
     size_t rate = (max_bytes_per_second_unlimited == delivery_control_.max_bytes_per_second())
         ? SIZE_MAX
         : delivery_control_.max_bytes_per_second();
@@ -151,7 +150,7 @@ inline void Reader<RA, WA>::read_task(
     milliseconds timeout;
     while (running_cond_ && !stop_cond)
     {
-        timeout = std::min(rw_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
+        timeout = std::min(max_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
         if (read_fn(read_args_, data, timeout))
         {
             bool submessage_pushed = false;
@@ -159,7 +158,7 @@ inline void Reader<RA, WA>::read_task(
                 if (token_bucket.consume_tokens(data.size(), timeout))
                 {
                     do {
-                        timeout = std::min(rw_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
+                        timeout = std::min(max_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
                         submessage_pushed = write_fn(write_args_, data, timeout);
                     } while (running_cond_ && !submessage_pushed);
 

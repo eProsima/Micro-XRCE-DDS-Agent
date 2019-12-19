@@ -467,7 +467,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Install dependencies.
-message(WARNING ${UAGENT_DEPENDS})
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     file(GLOB dependencies RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
     foreach(dependency ${dependencies})

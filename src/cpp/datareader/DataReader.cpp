@@ -76,6 +76,7 @@ DataReader::DataReader(
     : XRCEObject(object_id)
     , subscriber_(subscriber)
     , topic_(topic)
+    , reader_{}
 {
     subscriber_->tie_object(object_id);
     topic_->tie_object(object_id);
