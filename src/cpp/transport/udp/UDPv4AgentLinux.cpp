@@ -173,7 +173,7 @@ bool UDPv4Agent::recv_message(
 {
     bool rv = false;
     struct sockaddr_in client_addr{};
-    socklen_t client_addr_len;
+    socklen_t client_addr_len = sizeof(struct sockaddr_in);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)

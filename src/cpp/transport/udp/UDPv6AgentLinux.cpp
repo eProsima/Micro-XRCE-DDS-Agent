@@ -175,7 +175,7 @@ bool UDPv6Agent::recv_message(
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
-    socklen_t client_addr_len;
+    socklen_t client_addr_len = sizeof(struct sockaddr_in6);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
