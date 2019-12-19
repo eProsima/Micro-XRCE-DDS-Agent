@@ -46,17 +46,6 @@ if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Lin
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
-include(GNUInstallDirs)
-set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
-set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
-if(WIN32)
-    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
-else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
-endif()
-
 set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16       CACHE STRING "Reliable streams depth.")
 set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16       CACHE STRING "Best-effort streams depth.")
 set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat period in milliseconds.")
@@ -79,8 +68,8 @@ set(_cli11_tag v1.7.1)
 list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.1.5)
-    set(_microxrcedds_client_tag v1.1.5)
+    set(_microxrcedds_client_version 1.2.1)
+    set(_microxrcedds_client_tag develop)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
@@ -95,15 +84,6 @@ if(UAGENT_LOGGER_PROFILE)
     set(_spdlog_tag v1.4.2)
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
-
-###############################################################################
-# Dependencies
-###############################################################################
-set(_fast_rtps_version 1.8.2)
-set(_fast_cdr_version 1.0.10)
-set(_cli11_version 1.7.1)
-set(_spdlog_version 1.3.1)
-set(_micro_xrce_dds_client_version 1.2.0)
 
 ###############################################################################
 # Project
@@ -212,6 +192,20 @@ set(SRCS
     )
 
 ###############################################################################
+# Set install directories
+###############################################################################
+include(GNUInstallDirs)
+set(BIN_INSTALL_DIR     ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
+set(LIB_INSTALL_DIR     ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR    ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
+
+###############################################################################
 # Targets
 ###############################################################################
 # Library
@@ -282,7 +276,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
     )
@@ -466,11 +460,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Install dependencies.
+message(WARNING ${UAGENT_DEPENDS})
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
-    foreach(dependency ${UAGENT_DEPENDS})
+    file(GLOB dependencies RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
+    foreach(dependency ${dependencies})
         install(
             DIRECTORY
-                ${CMAKE_BINARY_DIR}/temp_install/${dependency}/
+                ${CMAKE_BINARY_DIR}/temp_install/${dependency}
             DESTINATION .
             USE_SOURCE_PERMISSIONS
             COMPONENT
