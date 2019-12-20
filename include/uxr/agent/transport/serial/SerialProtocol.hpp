@@ -261,7 +261,7 @@ inline size_t SerialIO::write_msg(
             if (0 < bytes_written)
             {
                 cond = true;
-                write_buffer_pos_ -= bytes_written;
+                write_buffer_pos_ -= (uint8_t)bytes_written;
             }
             else
             {
@@ -277,7 +277,7 @@ inline size_t SerialIO::write_msg(
             if (0 < bytes_written)
             {
                 cond = true;
-                write_buffer_pos_ -= bytes_written;
+                write_buffer_pos_ -= (uint8_t)bytes_written;
             }
             else
             {
