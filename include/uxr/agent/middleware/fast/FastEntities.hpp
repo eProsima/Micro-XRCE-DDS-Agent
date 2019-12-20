@@ -41,18 +41,19 @@ class ReplierAttributes;
 namespace eprosima {
 namespace uxr {
 
-class FastTopic;
+class FastType;
 
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
-class FastParticipant : public fastrtps::ParticipantListener
+class FastParticipant : public fastrtps::ParticipantListener,  public std::enable_shared_from_this<FastParticipant>
 {
 public:
     FastParticipant(int16_t domain_id)
         : domain_id_(domain_id)
         , ptr_(nullptr)
-        , topics_register_{}
+        , topics_{}
+        , type_register_{}
     {}
 
     ~FastParticipant() override;
@@ -74,10 +75,12 @@ public:
     fastrtps::Participant* get_ptr() const { return ptr_; }
 
     bool register_topic(
-            FastTopic* const topic,
-            uint16_t topic_id);
+            const fastrtps::TopicAttributes& attrs,
+            std::shared_ptr<FastType>& type,
+            uint16_t topic_id = 0);
 
-    bool unregister_topic(const FastTopic* const topic);
+    bool unregister_topic(
+            const std::string& topic_name);
 
     bool find_topic(
             const std::string& topic_name,
@@ -88,18 +91,32 @@ public:
 private:
     int16_t domain_id_;
     fastrtps::Participant* ptr_;
-    std::unordered_map<std::string, uint16_t> topics_register_;
+    std::unordered_map<std::string, uint16_t> topics_;
+    std::unordered_map<std::string, std::weak_ptr<FastType>> type_register_;
 };
 
 /**********************************************************************************************************************
  * FastTopic
  **********************************************************************************************************************/
-class FastTopic : public TopicPubSubType
+class FastType : public TopicPubSubType
 {
 public:
-    FastTopic(const std::shared_ptr<FastParticipant>& participant);
+    FastType(
+            const std::shared_ptr<FastParticipant>& participant);
 
-    ~FastTopic();
+    ~FastType();
+
+private:
+    std::shared_ptr<FastParticipant> participant_;
+};
+
+class FastTopic
+{
+public:
+    FastTopic(
+            const std::shared_ptr<FastParticipant>& participant);
+
+    ~FastTopic() = default;
 
     bool create_by_attributes(
             const fastrtps::TopicAttributes& attrs,
@@ -111,6 +128,7 @@ public:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
+    std::shared_ptr<FastType> type_;
 };
 
 /**********************************************************************************************************************
@@ -269,8 +287,8 @@ private:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
-    TopicPubSubType request_topic_;
-    TopicPubSubType reply_topic_;
+    std::shared_ptr<FastType> request_topic_;
+    std::shared_ptr<FastType> reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
     dds::GUID_t publisher_id_;
@@ -325,8 +343,8 @@ private:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
-    TopicPubSubType request_topic_;
-    TopicPubSubType reply_topic_;
+    std::shared_ptr<FastType> request_topic_;
+    std::shared_ptr<FastType> reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
     std::mutex mtx_;

@@ -94,27 +94,41 @@ void FastParticipant::onParticipantDiscovery(
 }
 
 bool FastParticipant::register_topic(
-        FastTopic* const topic,
+        const fastrtps::TopicAttributes& attrs,
+        std::shared_ptr<FastType>& type,
         uint16_t topic_id)
 {
     // TODO (#5057): allow more than one topic.
     bool rv = false;
-    auto it = topics_register_.find(topic->getName());
-    if (topics_register_.end() == it)
+    auto it = type_register_.find(attrs.getTopicDataType().c_str());
+    if (type_register_.end() == it)
     {
-        fastrtps::Domain::registerType(ptr_, topic);
-        topics_register_[topic->getName()] = topic_id;
+        type = std::make_shared<FastType>(shared_from_this());
+        type->setName(attrs.getTopicDataType().c_str());
+        type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+        rv = fastrtps::Domain::registerType(ptr_, type.get());
+        if (rv)
+        {
+            topics_.emplace(type->getName(), topic_id);
+            type_register_.emplace(type->getName(), type);
+        }
+    }
+    else
+    {
+        type = it->second.lock();
         rv = true;
     }
+
     return rv;
 }
 
-bool FastParticipant::unregister_topic(const FastTopic* const topic)
+bool FastParticipant::unregister_topic(
+        const std::string& topic_name)
 {
     bool rv = false;
-    if (0 != topics_register_.erase(topic->getName()))
+    if ((0 != type_register_.erase(topic_name)) && (0 != topics_.erase(topic_name)))
     {
-        fastrtps::Domain::unregisterType(ptr_, topic->getName());
+        fastrtps::Domain::unregisterType(ptr_, topic_name.c_str());
         rv = true;
     }
     return rv;
@@ -125,8 +139,8 @@ bool FastParticipant::find_topic(
         uint16_t& topic_id)
 {
     bool rv = false;
-    auto it = topics_register_.find(topic_name);
-    if (topics_register_.end() != it)
+    auto it = topics_.find(topic_name);
+    if (topics_.end() != it)
     {
         topic_id = it->second;
         rv = true;
@@ -137,24 +151,29 @@ bool FastParticipant::find_topic(
 /**********************************************************************************************************************
  * FastTopic
  **********************************************************************************************************************/
-FastTopic::FastTopic(const std::shared_ptr<FastParticipant>& participant)
+FastType::FastType(
+        const std::shared_ptr<FastParticipant>& participant)
     : TopicPubSubType{false}
-    , participant_(participant)
+    , participant_{participant}
 {}
 
-FastTopic::~FastTopic()
+FastType::~FastType()
 {
-    participant_->unregister_topic(this);
+    participant_->unregister_topic(getName());
 }
+
+FastTopic::FastTopic(
+        const std::shared_ptr<FastParticipant>& participant)
+    : participant_(participant)
+    , type_{nullptr}
+{}
 
 bool FastTopic::create_by_attributes(
         const fastrtps::TopicAttributes& attrs,
         uint16_t topic_id)
 {
     bool rv = false;
-    setName(attrs.getTopicDataType().c_str());
-    m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-    if (participant_->register_topic(this, topic_id))
+    if (participant_->register_topic(attrs, type_, topic_id))
     {
         rv = true;
     }
@@ -168,8 +187,8 @@ bool FastTopic::match_from_ref(const std::string& ref) const
     if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
         fastrtps::xmlparser::XMLProfileManager::fillTopicAttributes(ref, new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
-             (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+        rv = (0 == std::strcmp(type_->getName(), new_attributes.getTopicDataType().c_str())) &&
+             (type_->m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
 }
@@ -180,8 +199,8 @@ bool FastTopic::match_from_xml(const std::string& xml) const
     fastrtps::TopicAttributes new_attributes;
     if (xmlobjects::parse_topic(xml.data(), xml.size(), new_attributes))
     {
-        rv = (0 == std::strcmp(getName(), new_attributes.getTopicDataType().c_str())) &&
-             (m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+        rv = (0 == std::strcmp(type_->getName(), new_attributes.getTopicDataType().c_str())) &&
+             (type_->m_isGetKeyDefined == (new_attributes.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
     }
     return rv;
 }
@@ -399,8 +418,8 @@ void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
 FastRequester::FastRequester(
         const std::shared_ptr<FastParticipant>& participant)
     : participant_{participant}
-    , request_topic_{false}
-    , reply_topic_{false}
+    , request_topic_{nullptr}
+    , reply_topic_{nullptr}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
     , publisher_id_{}
@@ -431,22 +450,20 @@ bool FastRequester::create_by_ref(
 bool FastRequester::create_by_attributes(
         const fastrtps::RequesterAttributes& attrs)
 {
-    bool rv = false;
-
     const fastrtps::TopicAttributes& request_topic_attrs = attrs.publisher.topic;
-    request_topic_.setName(request_topic_attrs.getTopicDataType().c_str());
-    request_topic_.m_isGetKeyDefined =
-        (request_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    if (!participant_->register_topic(request_topic_attrs, request_topic_))
+    {
+        return false;
+    }
 
     const fastrtps::TopicAttributes& reply_topic_attrs = attrs.subscriber.topic;
-    reply_topic_.setName(reply_topic_attrs.getTopicDataType().c_str());
-    reply_topic_.m_isGetKeyDefined =
-        (reply_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
+    {
+        return false;
+    }
 
+    bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
-    fastrtps::Domain::registerType(participant_ptr, &request_topic_);
-    fastrtps::Domain::registerType(participant_ptr, &reply_topic_);
-
     publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
     subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
@@ -511,7 +528,7 @@ bool FastRequester::write(
         serializer.serializeArray(data.data(), data.size());
         rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data));
     }
-    catch(const std::exception& e)
+    catch(const std::exception&)
     {
         rv = false;
     }
@@ -565,7 +582,7 @@ bool FastRequester::read(
                 rv = false;
             }
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             rv = false;
         }
@@ -629,11 +646,11 @@ void FastRequester::onNewDataMessage(
 bool FastRequester::match(const fastrtps::RequesterAttributes& attrs) const
 {
     bool rv = false;
-    if ((0 == std::strcmp(request_topic_.getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
-         (  request_topic_.m_isGetKeyDefined ==
+    if ((0 == std::strcmp(request_topic_->getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
+         (  request_topic_->m_isGetKeyDefined ==
             (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
-        (0 == std::strcmp(reply_topic_.getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
-         (  reply_topic_.m_isGetKeyDefined ==
+        (0 == std::strcmp(reply_topic_->getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
+         (  reply_topic_->m_isGetKeyDefined ==
             (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
     {
         rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
@@ -648,8 +665,8 @@ bool FastRequester::match(const fastrtps::RequesterAttributes& attrs) const
 FastReplier::FastReplier(
         const std::shared_ptr<FastParticipant>& participant)
     : participant_{participant}
-    , request_topic_{false}
-    , reply_topic_{false}
+    , request_topic_{nullptr}
+    , reply_topic_{nullptr}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
     , unread_count_{0}
@@ -679,22 +696,21 @@ bool FastReplier::create_by_ref(
 bool FastReplier::create_by_attributes(
         const fastrtps::ReplierAttributes& attrs)
 {
-    bool rv = false;
 
     const fastrtps::TopicAttributes& request_topic_attrs = attrs.subscriber.topic;
-    request_topic_.setName(request_topic_attrs.getTopicDataType().c_str());
-    request_topic_.m_isGetKeyDefined =
-        (request_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    if (!participant_->register_topic(request_topic_attrs, request_topic_))
+    {
+        return false;
+    }
 
     const fastrtps::TopicAttributes& reply_topic_attrs = attrs.publisher.topic;
-    reply_topic_.setName(reply_topic_attrs.getTopicDataType().c_str());
-    reply_topic_.m_isGetKeyDefined =
-        (reply_topic_attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
+    {
+        return false;
+    }
 
+    bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
-    fastrtps::Domain::registerType(participant_ptr, &request_topic_);
-    fastrtps::Domain::registerType(participant_ptr, &reply_topic_);
-
     publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
     subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
     rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
@@ -812,11 +828,11 @@ void FastReplier::onNewDataMessage(
 bool FastReplier::match(const fastrtps::ReplierAttributes& attrs) const
 {
     bool rv = false;
-    if ((0 == std::strcmp(reply_topic_.getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
-         (  reply_topic_.m_isGetKeyDefined ==
+    if ((0 == std::strcmp(reply_topic_->getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
+         (  reply_topic_->m_isGetKeyDefined ==
             (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
-        (0 == std::strcmp(request_topic_.getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
-         (  request_topic_.m_isGetKeyDefined ==
+        (0 == std::strcmp(request_topic_->getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
+         (  request_topic_->m_isGetKeyDefined ==
             (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
     {
         rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
