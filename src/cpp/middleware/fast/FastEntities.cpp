@@ -423,6 +423,7 @@ FastRequester::FastRequester(
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
     , publisher_id_{}
+    , sequence_to_sequence_{}
 {
 }
 
@@ -513,20 +514,16 @@ bool FastRequester::write(
 {
     bool rv = true;
 
-    dds::SampleIdentity sample_identity;
-    sample_identity.writer_guid() = publisher_id_;
-    sample_identity.sequence_number().high() = 0;
-    sample_identity.sequence_number().low() = sequence_number;
-
-    std::vector<uint8_t> output_data(sample_identity.getCdrSerializedSize() + data.size());
-    fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(output_data.data()), output_data.size()};
-    fastcdr::Cdr serializer(fastbuffer);
-
     try
     {
-        sample_identity.serialize(serializer);
-        serializer.serializeArray(data.data(), data.size());
-        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data));
+        fastrtps::rtps::WriteParams wparams;
+        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data), wparams);
+        if (rv)
+        {
+            int64_t sequence = (int64_t)wparams.sample_identity().sequence_number().high << 32;
+            sequence += wparams.sample_identity().sequence_number().low;
+            sequence_to_sequence_.emplace(sequence, sequence_number);
+        }
     }
     catch(const std::exception&)
     {
@@ -541,13 +538,12 @@ bool FastRequester::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-    std::vector<uint8_t> temp_data;
     auto now = std::chrono::steady_clock::now();
     bool rv = false;
+    fastrtps::SampleInfo_t info;
     if (unread_count_ != 0)
     {
-        fastrtps::SampleInfo_t info;
-        rv = subscriber_ptr_->takeNextData(&temp_data, &info);
+        rv = subscriber_ptr_->takeNextData(&data, &info);
         unread_count_ = subscriber_ptr_->getUnreadCount();
     }
     else
@@ -556,26 +552,29 @@ bool FastRequester::read(
         if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
         {
             lock.unlock();
-            fastrtps::SampleInfo_t info;
-            rv = subscriber_ptr_->takeNextData(&temp_data, &info);
+            rv = subscriber_ptr_->takeNextData(&data, &info);
             unread_count_ = subscriber_ptr_->getUnreadCount();
         }
     }
 
     if (rv)
     {
-        dds::SampleIdentity sample_identity;
-        fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(temp_data.data()), temp_data.size()};
-        fastcdr::Cdr serializer(fastbuffer);
-
         try
         {
-            sample_identity.deserialize(serializer);
-            data.resize(temp_data.size() - serializer.getSerializedDataLength());
-            if (sample_identity.writer_guid() == publisher_id_)
+            if (info.related_sample_identity.writer_guid() == publisher_ptr_->getGuid())
             {
-                sequence_number = sample_identity.sequence_number().low();
-                serializer.deserializeArray(data.data(), data.size());
+                int64_t sequence = (int64_t)info.related_sample_identity.sequence_number().high << 32;
+                sequence += info.related_sample_identity.sequence_number().low;
+                auto it = sequence_to_sequence_.find(sequence);
+                if (it != sequence_to_sequence_.end())
+                {
+                    sequence_number = it->second;
+                    sequence_to_sequence_.erase(it);
+                }
+                else
+                {
+                    rv = false;
+                }
             }
             else
             {
@@ -741,22 +740,72 @@ bool FastReplier::match_from_xml(const std::string& xml) const
     return rv;
 }
 
+void transform_sample_identity(
+        const fastrtps::rtps::SampleIdentity& fast_identity,
+        dds::SampleIdentity& dds_identity)
+{
+    std::copy(
+        std::begin(fast_identity.writer_guid().guidPrefix.value),
+        std::end(fast_identity.writer_guid().guidPrefix.value),
+        dds_identity.writer_guid().guidPrefix().begin());
+    std::copy(
+        std::begin(fast_identity.writer_guid().entityId.value),
+        std::begin(fast_identity.writer_guid().entityId.value) + 3,
+        dds_identity.writer_guid().entityId().entityKey().begin());
+    dds_identity.writer_guid().entityId().entityKind() = fast_identity.writer_guid().entityId.value[3];
+
+    dds_identity.sequence_number().high() = fast_identity.sequence_number().high;
+    dds_identity.sequence_number().low() = fast_identity.sequence_number().low;
+}
+
+void transport_sample_identity(
+        const dds::SampleIdentity& dds_identity,
+        fastrtps::rtps::SampleIdentity& fast_identity)
+{
+    std::copy(
+        dds_identity.writer_guid().guidPrefix().begin(),
+        dds_identity.writer_guid().guidPrefix().end(),
+        std::begin(fast_identity.writer_guid().guidPrefix.value));
+    std::copy(
+        dds_identity.writer_guid().entityId().entityKey().begin(),
+        dds_identity.writer_guid().entityId().entityKey().end(),
+        std::begin(fast_identity.writer_guid().entityId.value));
+    fast_identity.writer_guid().entityId.value[3] = dds_identity.writer_guid().entityId().entityKind();
+
+    fast_identity.sequence_number().high = dds_identity.sequence_number().high();
+    fast_identity.sequence_number().low = dds_identity.sequence_number().low();
+}
+
 bool FastReplier::write(
         const std::vector<uint8_t>& data)
 {
-    return publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
+    fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(data.data())), data.size()};
+    fastcdr::Cdr deserializer(fastbuffer);
+
+    dds::SampleIdentity sample_identity;
+    sample_identity.deserialize(deserializer);
+
+    fastrtps::rtps::WriteParams wparams;
+    transport_sample_identity(sample_identity, wparams.related_sample_identity());
+
+    std::vector<uint8_t> output_data(data.size() - deserializer.getSerializedDataLength());
+    deserializer.deserializeArray(output_data.data(), output_data.size());
+
+    return publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data), wparams);
 }
 
 bool FastReplier::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
+    std::vector<uint8_t> temp_data;
     auto now = std::chrono::steady_clock::now();
     bool rv = false;
+    fastrtps::SampleInfo_t info;
+
     if (unread_count_ != 0)
     {
-        fastrtps::SampleInfo_t info;
-        rv = subscriber_ptr_->takeNextData(&data, &info);
+        rv = subscriber_ptr_->takeNextData(&temp_data, &info);
         unread_count_ = subscriber_ptr_->getUnreadCount();
     }
     else
@@ -765,11 +814,33 @@ bool FastReplier::read(
         if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
         {
             lock.unlock();
-            fastrtps::SampleInfo_t info;
-            rv = subscriber_ptr_->takeNextData(&data, &info);
+            rv = subscriber_ptr_->takeNextData(&temp_data, &info);
             unread_count_ = subscriber_ptr_->getUnreadCount();
         }
     }
+
+    if (rv)
+    {
+        dds::SampleIdentity sample_identity;
+        transform_sample_identity(info.sample_identity, sample_identity);
+
+        data.clear();
+        data.resize(sample_identity.getCdrSerializedSize() + temp_data.size());
+
+        fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(data.data()), data.size()};
+        fastcdr::Cdr serializer(fastbuffer);
+
+        try
+        {
+            sample_identity.serialize(serializer);
+            serializer.serializeArray(temp_data.data(), temp_data.size());
+        }
+        catch(const std::exception&)
+        {
+            rv = false;
+        }
+    }
+
     return rv;
 }
 

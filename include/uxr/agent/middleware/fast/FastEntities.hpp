@@ -295,6 +295,7 @@ private:
     std::mutex mtx_;
     std::condition_variable cv_;
     std::atomic<uint64_t> unread_count_;
+    std::map<int64_t, uint32_t> sequence_to_sequence_;
 };
 
 /**********************************************************************************************************************
