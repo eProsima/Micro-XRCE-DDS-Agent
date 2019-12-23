@@ -69,13 +69,13 @@ list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
     set(_microxrcedds_client_version 1.2.1)
-    set(_microxrcedds_client_tag feature/services)
+    set(_microxrcedds_client_tag develop)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
 if(UAGENT_FAST_PROFILE)
     set(_fastrtps_version 1.8.3)
-    set(_fastrtps_tag feature/xml_services_1.8.x)
+    set(_fastrtps_tag b257a33)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
