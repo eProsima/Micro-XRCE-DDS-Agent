@@ -878,6 +878,113 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
+TEST_F(AgentUnitTests, CreateRequesterByRef)
+{
+    Agent::OpResult result;
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* ref_one = "shapetype_requester";
+
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t requester_id = 0x00;
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create Requester.
+     */
+    agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
+    EXPECT_TRUE(agent_.create_requester_by_ref(client_key_, requester_id, participant_id, ref_one, flag, result));
+
+    // TODO (julianbermudez): complete tests.
+}
+
+TEST_F(AgentUnitTests, CreateRequesterByXML)
+{
+    Agent::OpResult result;
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* xml_one = R"(
+        <dds>
+            <requester profile_name="test_requester_profile"
+                       service_name="service_name"
+                       request_type="request_type"
+                       reply_type="reply_type">
+            </requester>
+        </dds>
+    )";
+
+    const uint16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t requester_id = 0x00;
+
+    uint8_t flag = 0x00;
+
+    /*
+     *  Create requester.
+     */
+    agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
+    EXPECT_TRUE(agent_.create_requester_by_xml(client_key_, requester_id, participant_id, xml_one, flag, result));
+
+    // TODO (julianbermudez): complete tests.
+}
+
+TEST_F(AgentUnitTests, CreateReplierByRef)
+{
+    Agent::OpResult result;
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* ref_one = "shapetype_replier";
+
+    const int16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t replier_id = 0x00;
+
+    uint8_t flag = 0x00;
+
+    /*
+     * Create Requester.
+     */
+    agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
+    EXPECT_TRUE(agent_.create_replier_by_ref(client_key_, replier_id, participant_id, ref_one, flag, result));
+
+    // TODO (julianbermudez): complete tests.
+}
+
+TEST_F(AgentUnitTests, CreateReplierByXML)
+{
+    Agent::OpResult result;
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+
+    const char* participant_ref = "default_xrce_participant";
+    const char* xml_one = R"(
+        <dds>
+            <replier profile_name="test_requester_profile"
+                     service_name="service_name"
+                     request_type="request_type"
+                     reply_type="reply_type">
+            </replier>
+        </dds>
+    )";
+
+    const uint16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    const uint16_t replier_id = 0x00;
+
+    uint8_t flag = 0x00;
+
+    /*
+     *  Create requester.
+     */
+    agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
+    EXPECT_TRUE(agent_.create_replier_by_xml(client_key_, replier_id, participant_id, xml_one, flag, result));
+
+    // TODO (julianbermudez): complete tests.
+}
 
 } // namespace testing
 } // namespace uxr

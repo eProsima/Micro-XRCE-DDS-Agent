@@ -74,8 +74,8 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 1.8.2)
-    set(_fastrtps_tag v1.8.2)
+    set(_fastrtps_version 1.8.3)
+    set(_fastrtps_tag b257a33)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
@@ -90,7 +90,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.2.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.3.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -170,6 +170,8 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
+    src/cpp/requester/Requester.cpp
+    src/cpp/replier/Replier.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
@@ -272,13 +274,18 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Linux>:pthread>
     )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME} BEFORE
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+        $<TARGET_PROPERTY:fastcdr,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastrtps,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:$<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microxrcedds_client,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microcdr,INTERFACE_INCLUDE_DIRECTORIES>>
     )
 
 # Executable
@@ -460,7 +467,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Install dependencies.
-message(WARNING ${UAGENT_DEPENDS})
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     file(GLOB dependencies RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
     foreach(dependency ${dependencies})

@@ -15,6 +15,8 @@
 #include <uxr/agent/processor/Processor.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 #include <uxr/agent/datareader/DataReader.hpp>
+#include <uxr/agent/requester/Requester.hpp>
+#include <uxr/agent/replier/Replier.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/utils/Time.hpp>
@@ -402,11 +404,41 @@ bool Processor<EndPoint>::process_write_data_submessage(
             data_payload.data().resize(submessage_length - data_payload.BaseObjectRequest::getCdrSerializedSize(0));
             if (input_packet.message->get_payload(data_payload))
             {
-                std::shared_ptr<DataWriter> data_writer =
-                        std::dynamic_pointer_cast<DataWriter>(client.get_object(data_payload.object_id()));
-                if (nullptr != data_writer)
+                const dds::xrce::ObjectId& object_id = data_payload.object_id();
+                switch (object_id[1] & 0x0F)
                 {
-                    written = data_writer->write(data_payload);
+                    case dds::xrce::OBJK_DATAWRITER:
+                    {
+                        std::shared_ptr<DataWriter> data_writer =
+                                std::dynamic_pointer_cast<DataWriter>(client.get_object(object_id));
+                        if (nullptr != data_writer)
+                        {
+                            written = data_writer->write(data_payload);
+                        }
+                        break;
+                    }
+                    case dds::xrce::OBJK_REQUESTER:
+                    {
+                        std::shared_ptr<Requester> requester =
+                                std::dynamic_pointer_cast<Requester>(client.get_object(object_id));
+                        if (nullptr != requester)
+                        {
+                            written = requester->write(data_payload, data_payload.request_id());
+                        }
+                        break;
+                    }
+                    case dds::xrce::OBJK_REPLIER:
+                    {
+                        std::shared_ptr<Replier> replier =
+                                std::dynamic_pointer_cast<Replier>(client.get_object(object_id));
+                        if (nullptr != replier)
+                        {
+                            written = replier->write(data_payload);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
                 deserialized = true;
             }
@@ -440,22 +472,58 @@ bool Processor<EndPoint>::process_read_data_submessage(
     dds::xrce::READ_DATA_Payload read_payload;
     if (input_packet.message->get_payload(read_payload))
     {
-        std::shared_ptr<DataReader> data_reader =
-                std::dynamic_pointer_cast<DataReader>(client.get_object(read_payload.object_id()));
-        dds::xrce::StatusValue status = (nullptr != data_reader) ? dds::xrce::STATUS_OK
-                                                                 : dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+        const dds::xrce::ObjectId& object_id = read_payload.object_id();
+        std::shared_ptr<XRCEObject> reader_object;
+
+        switch (object_id[1] & 0x0F)
+        {
+            case dds::xrce::OBJK_DATAREADER:
+                reader_object = std::dynamic_pointer_cast<DataReader>(client.get_object(read_payload.object_id()));
+                break;
+            case dds::xrce::OBJK_REQUESTER:
+                reader_object = std::dynamic_pointer_cast<Requester>(client.get_object(read_payload.object_id()));
+                break;
+            case dds::xrce::OBJK_REPLIER:
+                reader_object = std::dynamic_pointer_cast<Replier>(client.get_object(read_payload.object_id()));
+                break;
+            default:
+                break;
+        }
+
+        dds::xrce::StatusValue status = (nullptr != reader_object)
+                ? dds::xrce::STATUS_OK
+                : dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE;
+
         if (dds::xrce::STATUS_OK == status)
         {
             /* Set callback args. */
-            ReadCallbackArgs cb_args;
-            cb_args.client_key = client.get_client_key();
-            cb_args.stream_id = read_payload.read_specification().preferred_stream_id();
-            cb_args.object_id = read_payload.object_id();
-            cb_args.request_id = read_payload.request_id();
+            WriteFnArgs write_args;
+            write_args.client_key = client.get_client_key();
+            write_args.stream_id = read_payload.read_specification().preferred_stream_id();
+            write_args.object_id = read_payload.object_id();
+            write_args.request_id = read_payload.request_id();
 
             /* Launch read data. */
             using namespace std::placeholders;
-            if (!data_reader->read(read_payload, std::bind(&Processor::read_data_callback, this, _1, _2, _3), cb_args))
+            Reader<bool>::WriteFn write_fn = std::bind(&Processor::read_data_callback, this, _1, _2, _3);
+            bool reading = false;
+
+            switch (object_id[1] & 0x0F)
+            {
+                case dds::xrce::OBJK_DATAREADER:
+                    reading = std::dynamic_pointer_cast<DataReader>(reader_object)->read(read_payload, write_fn, write_args);
+                    break;
+                case dds::xrce::OBJK_REQUESTER:
+                    reading = std::dynamic_pointer_cast<Requester>(reader_object)->read(read_payload, write_fn, write_args);
+                    break;
+                case dds::xrce::OBJK_REPLIER:
+                    reading = std::dynamic_pointer_cast<Replier>(reader_object)->read(read_payload, write_fn, write_args);
+                    break;
+                default:
+                    break;
+            }
+
+            if (!reading)
             {
                 status = dds::xrce::STATUS_ERR_RESOURCES;
             }
@@ -691,7 +759,7 @@ bool Processor<EndPoint>::process_timestamp_submessage(
 
 template<typename EndPoint>
 bool Processor<EndPoint>::read_data_callback(
-        const ReadCallbackArgs& cb_args,
+        const WriteFnArgs& cb_args,
         const std::vector<uint8_t>& buffer,
         std::chrono::milliseconds timeout)
 {

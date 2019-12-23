@@ -162,6 +162,90 @@ bool FastMiddleware::create_datawriter_by_xml(uint16_t datawriter_id,
     return rv;
 }
 
+bool FastMiddleware::create_requester_by_ref(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
+        if (requester->create_by_ref(ref))
+        {
+            requesters_.emplace(requester_id, std::move(requester));
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+bool FastMiddleware::create_requester_by_xml(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        fastrtps::RequesterAttributes attrs;
+        if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
+        {
+            std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
+            if (requester->create_by_attributes(attrs))
+            {
+                requesters_.emplace(requester_id, std::move(requester));
+                rv = true;
+            }
+        }
+    }
+    return rv;
+}
+
+bool FastMiddleware::create_replier_by_ref(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& ref)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
+        if (replier->create_by_ref(ref))
+        {
+            repliers_.emplace(replier_id, std::move(replier));
+            rv = true;
+        }
+    }
+    return rv;
+}
+
+bool FastMiddleware::create_replier_by_xml(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const std::string& xml)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        fastrtps::ReplierAttributes attrs;
+        if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
+        {
+            std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
+            if (replier->create_by_attributes(attrs))
+            {
+                repliers_.emplace(replier_id, std::move(replier));
+                rv = true;
+            }
+        }
+    }
+    return rv;
+}
+
 bool FastMiddleware::create_datareader_by_ref(uint16_t datareader_id,
                                                 uint16_t subscriber_id,
                                                 const std::string& ref,
@@ -243,7 +327,17 @@ bool FastMiddleware::delete_datawriter(uint16_t datawriter_id)
 
 bool FastMiddleware::delete_datareader(uint16_t datareader_id)
 {
-    return  (0 != datareaders_.erase(datareader_id));
+    return (0 != datareaders_.erase(datareader_id));
+}
+
+bool FastMiddleware::delete_requester(uint16_t requester_id)
+{
+    return (0 != requesters_.erase(requester_id));
+}
+
+bool FastMiddleware::delete_replier(uint16_t replier_id)
+{
+    return (0 != repliers_.erase(replier_id));
 }
 
 /**********************************************************************************************************************
@@ -262,6 +356,33 @@ bool FastMiddleware::write_data(
     return rv;
 }
 
+bool FastMiddleware::write_request(
+        uint16_t requester_id,
+        uint32_t sequence_number,
+        const std::vector<uint8_t>& data)
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->write(sequence_number, data);
+    }
+    return rv;
+}
+
+bool FastMiddleware::write_reply(
+        uint16_t replier_id,
+        const std::vector<uint8_t>& data)
+{
+    bool rv = false;
+    auto it = repliers_.find(replier_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->write(data);
+    }
+    return rv;
+}
+
 bool FastMiddleware::read_data(
         uint16_t datareader_id,
         std::vector<uint8_t>& data,
@@ -273,7 +394,35 @@ bool FastMiddleware::read_data(
     {
         rv = it->second->read(data, timeout);
     }
-    (void) datareader_id;
+    return rv;
+}
+
+bool FastMiddleware::read_request(
+        uint16_t replier_id,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    auto it = repliers_.find(replier_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->read(data, timeout);
+    }
+    return rv;
+}
+
+bool FastMiddleware::read_reply(
+        uint16_t requester_id,
+        uint32_t& sequence_number,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->read(sequence_number, data, timeout);
+    }
     return rv;
 }
 
@@ -370,6 +519,58 @@ bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const s
     if (datareaders_.end() != it)
     {
         rv = it->second->match_from_xml(xml);
+    }
+    return rv;
+}
+
+bool FastMiddleware::matched_requester_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
+}
+
+bool FastMiddleware::matched_requester_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
+    }
+    return rv;
+}
+
+bool FastMiddleware::matched_replier_from_ref(
+        uint16_t requester_id,
+        const std::string& ref) const
+{
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
+}
+
+bool FastMiddleware::matched_replier_from_xml(
+        uint16_t requester_id,
+        const std::string& xml) const
+{
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
     }
     return rv;
 }

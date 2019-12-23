@@ -91,4 +91,14 @@
         <name>HelloWorldTopic</name>
         <dataType>HelloWorld</dataType>
     </topic>
+    <requester profile_name="shapetype_requester"
+               service_name="shapetype_service"
+               request_type="request_type"
+               reply_type="reply_type">
+    </requester>
+    <replier profile_name="shapetype_replier"
+             service_name="shapetype_service"
+             request_type="request_type"
+             reply_type="reply_type">
+    </replier>
 </profiles>

@@ -49,6 +49,8 @@ const ObjectKind OBJK_PUBLISHER     = 0x03;
 const ObjectKind OBJK_SUBSCRIBER    = 0x04;
 const ObjectKind OBJK_DATAWRITER    = 0x05;
 const ObjectKind OBJK_DATAREADER    = 0x06;
+const ObjectKind OBJK_REQUESTER     = 0x07;
+const ObjectKind OBJK_REPLIER       = 0x08;
 const ObjectKind OBJK_TYPE          = 0x0A;
 const ObjectKind OBJK_QOSPROFILE    = 0x0B;
 const ObjectKind OBJK_APPLICATION   = 0x0C;
@@ -3379,6 +3381,226 @@ private:
 };
 
 /*!
+ * @brief This class represents the structure REQUESTER_Representation defined by the user in the IDL file.
+ * @ingroup TYPESMOD
+ */
+class REQUESTER_Representation : public OBJK_Representation3_Base
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    REQUESTER_Representation();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~REQUESTER_Representation();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object REQUESTER_Representation that will be copied.
+     */
+    REQUESTER_Representation(const REQUESTER_Representation &x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object REQUESTER_Representation that will be copied.
+     */
+    REQUESTER_Representation(REQUESTER_Representation &&x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object REQUESTER_Representation that will be copied.
+     */
+    REQUESTER_Representation& operator=(const REQUESTER_Representation &x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object REQUESTER_Representation that will be copied.
+     */
+    REQUESTER_Representation& operator=(REQUESTER_Representation &&x);
+
+    /*!
+     * @brief This function copies the value in member participant_id
+     * @param _participant_id New value to be copied in member participant_id
+     */
+    inline void participant_id(const ObjectId &_participant_id)
+    {
+        m_participant_id = _participant_id;
+    }
+
+    /*!
+     * @brief This function moves the value in member participant_id
+     * @param _participant_id New value to be moved in member participant_id
+     */
+    inline void participant_id(ObjectId &&_participant_id)
+    {
+        m_participant_id = std::move(_participant_id);
+    }
+
+    /*!
+     * @brief This function returns a constant reference to member participant_id
+     * @return Constant reference to member participant_id
+     */
+    inline const ObjectId& participant_id() const
+    {
+        return m_participant_id;
+    }
+
+    /*!
+     * @brief This function returns a reference to member participant_id
+     * @return Reference to member participant_id
+     */
+    inline ObjectId& participant_id()
+    {
+        return m_participant_id;
+    }
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    ObjectId m_participant_id;
+};
+
+/*!
+ * @brief This class represents the structure REPLIER_Representation defined by the user in the IDL file.
+ * @ingroup TYPESMOD
+ */
+class REPLIER_Representation : public OBJK_Representation3_Base
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    REPLIER_Representation();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~REPLIER_Representation();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object REPLIER_Representation that will be copied.
+     */
+    REPLIER_Representation(const REPLIER_Representation &x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object REPLIER_Representation that will be copied.
+     */
+    REPLIER_Representation(REPLIER_Representation &&x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object REPLIER_Representation that will be copied.
+     */
+    REPLIER_Representation& operator=(const REPLIER_Representation &x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object REPLIER_Representation that will be copied.
+     */
+    REPLIER_Representation& operator=(REPLIER_Representation &&x);
+
+    /*!
+     * @brief This function copies the value in member participant_id
+     * @param _participant_id New value to be copied in member participant_id
+     */
+    inline void participant_id(const ObjectId &_participant_id)
+    {
+        m_participant_id = _participant_id;
+    }
+
+    /*!
+     * @brief This function moves the value in member participant_id
+     * @param _participant_id New value to be moved in member participant_id
+     */
+    inline void participant_id(ObjectId &&_participant_id)
+    {
+        m_participant_id = std::move(_participant_id);
+    }
+
+    /*!
+     * @brief This function returns a constant reference to member participant_id
+     * @return Constant reference to member participant_id
+     */
+    inline const ObjectId& participant_id() const
+    {
+        return m_participant_id;
+    }
+
+    /*!
+     * @brief This function returns a reference to member participant_id
+     * @return Reference to member participant_id
+     */
+    inline ObjectId& participant_id()
+    {
+        return m_participant_id;
+    }
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    ObjectId m_participant_id;
+};
+
+/*!
  * @brief This class represents the structure OBJK_DomainParticipant_Binary defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
@@ -5263,6 +5485,58 @@ public:
      * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_Representation& data_reader();
+
+    /*!
+     * @brief This function copies the value in member requester
+     * @param _requester New value to be copied in member requester
+     */
+    void requester(const REQUESTER_Representation &_requester);
+
+    /*!
+     * @brief This function moves the value in member requester
+     * @param _requester New value to be moved in member requester
+     */
+    void requester(REQUESTER_Representation &&_requester);
+
+    /*!
+     * @brief This function returns a constant reference to member requester
+     * @return Constant reference to member requester
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    const REQUESTER_Representation& requester() const;
+
+    /*!
+     * @brief This function returns a reference to member requester
+     * @return Reference to member requester
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    REQUESTER_Representation& requester();
+
+    /*!
+     * @brief This function copies the value in member replier
+     * @param _replier New value to be copied in member replier
+     */
+    void replier(const REPLIER_Representation &_replier);
+
+    /*!
+     * @brief This function moves the value in member replier
+     * @param _replier New value to be moved in member replier
+     */
+    void replier(REPLIER_Representation &&_replier);
+
+    /*!
+     * @brief This function returns a constant reference to member replier
+     * @return Constant replier to member replier
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    const REPLIER_Representation& replier() const;
+
+    /*!
+     * @brief This function returns a reference to member replier
+     * @return Reference to member replier
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     */
+    REPLIER_Representation& replier();
     
     /*!
      * @brief This function returns the maximum serialized size of an object
@@ -5306,6 +5580,8 @@ private:
     OBJK_SUBSCRIBER_Representation m_subscriber;
     DATAWRITER_Representation m_data_writer;
     DATAREADER_Representation m_data_reader;
+    REQUESTER_Representation m_requester;
+    REPLIER_Representation m_replier;
 };
 /*!
  * @brief This class represents the structure CreationMode defined by the user in the IDL file.
@@ -10692,6 +10968,277 @@ enum SubmessageId : uint8_t
     PERFORMANCE     = 255
 };
 
-} } // namespace 
+} // namespace xrce
+
+typedef std::array<uint8_t, 12> GuidPrefix_t;
+
+class EntityId_t
+{
+public:
+    EntityId_t() = default;
+
+    ~EntityId_t() = default;
+
+    EntityId_t(const EntityId_t &x) = default;
+
+    EntityId_t(EntityId_t &&x) = default;
+
+    EntityId_t& operator=(const EntityId_t &x) = default;
+
+    EntityId_t& operator=(EntityId_t &&x) = default;
+
+    bool operator==(const EntityId_t& b) const
+    {
+        return (this->m_entityKey == b.m_entityKey) && (this->m_entityKind == b.m_entityKind);
+    }
+
+    inline void entityKey(const std::array<uint8_t, 3> &_entityKey)
+    {
+        m_entityKey = _entityKey;
+    }
+
+    inline void entityKey(std::array<uint8_t, 3> &&_entityKey)
+    {
+        m_entityKey = std::move(_entityKey);
+    }
+
+    inline const std::array<uint8_t, 3>& entityKey() const
+    {
+        return m_entityKey;
+    }
+
+    inline std::array<uint8_t, 3>& entityKey()
+    {
+        return m_entityKey;
+    }
+
+    inline void entityKind(uint8_t _entityKind)
+    {
+        m_entityKind = _entityKind;
+    }
+
+    inline uint8_t entityKind() const
+    {
+        return m_entityKind;
+    }
+
+    inline uint8_t& entityKind()
+    {
+        return m_entityKind;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    std::array<uint8_t, 3> m_entityKey;
+    uint8_t m_entityKind;
+};
+
+class GUID_t
+{
+public:
+    GUID_t() = default;
+
+    ~GUID_t() = default;
+
+    GUID_t(const GUID_t &x);
+
+    GUID_t(GUID_t &&x);
+
+    GUID_t& operator=(const GUID_t &x) = default;
+
+    GUID_t& operator=(GUID_t &&x) = default;
+
+    bool operator==(const GUID_t& b) const
+    {
+        return (this->m_guidPrefix == b.m_guidPrefix) && (this->m_entityId == b.m_entityId);
+    }
+
+    inline void guidPrefix(const GuidPrefix_t &_guidPrefix)
+    {
+        m_guidPrefix = _guidPrefix;
+    }
+
+    inline void guidPrefix(GuidPrefix_t &&_guidPrefix)
+    {
+        m_guidPrefix = std::move(_guidPrefix);
+    }
+
+    inline const GuidPrefix_t& guidPrefix() const
+    {
+        return m_guidPrefix;
+    }
+
+    inline GuidPrefix_t& guidPrefix()
+    {
+        return m_guidPrefix;
+    }
+
+    inline void entityId(const EntityId_t &_entityId)
+    {
+        m_entityId = _entityId;
+    }
+
+    inline void entityId(EntityId_t &&_entityId)
+    {
+        m_entityId = _entityId;
+    }
+
+    inline const EntityId_t& entityId() const
+    {
+        return m_entityId;
+    }
+
+    inline EntityId_t& entityId()
+    {
+        return m_entityId;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    GuidPrefix_t m_guidPrefix;
+    EntityId_t m_entityId;
+};
+
+class SequenceNumber_t
+{
+public:
+    SequenceNumber_t() = default;
+
+    ~SequenceNumber_t() = default;
+
+    SequenceNumber_t(const SequenceNumber_t &x) = default;
+
+    SequenceNumber_t(SequenceNumber_t &&x) = default;
+
+    SequenceNumber_t& operator=(const SequenceNumber_t &x) = default;
+
+    SequenceNumber_t& operator=(SequenceNumber_t &&x) = default;
+
+    inline void high(int32_t _high)
+    {
+        m_high = _high;
+    }
+
+    inline int32_t high() const
+    {
+        return m_high;
+    }
+
+    inline int32_t& high()
+    {
+        return m_high;
+    }
+
+    inline void low(uint32_t _low)
+    {
+        m_low = _low;
+    }
+
+    inline uint32_t low() const
+    {
+        return m_low;
+    }
+
+    inline uint32_t& low()
+    {
+        return m_low;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    int32_t m_high;
+    uint32_t m_low;
+};
+
+class SampleIdentity
+{
+public:
+    SampleIdentity() = default;
+
+    ~SampleIdentity() = default;
+
+    SampleIdentity(const SampleIdentity &x);
+
+    SampleIdentity(SampleIdentity &&x);
+
+    SampleIdentity& operator=(const SampleIdentity &x);
+
+    SampleIdentity& operator=(SampleIdentity &&x);
+
+    inline void writer_guid(const GUID_t &_writer_guid)
+    {
+        m_writer_guid = _writer_guid;
+    }
+
+    inline void writer_guid(GUID_t &&_writer_guid)
+    {
+        m_writer_guid = std::move(_writer_guid);
+    }
+
+    inline const GUID_t& writer_guid() const
+    {
+        return m_writer_guid;
+    }
+
+    inline GUID_t& writer_guid()
+    {
+        return m_writer_guid;
+    }
+
+    inline void sequence_number(const SequenceNumber_t &_sequece_number)
+    {
+        m_sequence_number = _sequece_number;
+    }
+
+    inline void sequence_number(SequenceNumber_t &&_sequence_number)
+    {
+        m_sequence_number = std::move(_sequence_number);
+    }
+
+    inline const SequenceNumber_t& sequence_number() const
+    {
+        return m_sequence_number;
+    }
+
+    inline SequenceNumber_t& sequence_number()
+    {
+        return m_sequence_number;
+    }
+
+    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+
+    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+
+    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+
+    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+
+private:
+    GUID_t m_writer_guid;
+    SequenceNumber_t m_sequence_number;
+};
+
+} // namespace dds
 
 #endif //_UXR_AGENT_TYPES_XRCETYPES_HPP_

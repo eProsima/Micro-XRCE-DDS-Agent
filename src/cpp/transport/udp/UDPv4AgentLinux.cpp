@@ -183,7 +183,7 @@ bool UDPv4Agent::recv_message(
                          buffer_,
                          sizeof(buffer_),
                          0,
-                         reinterpret_cast<sockaddr*>(&client_addr),
+                         reinterpret_cast<struct sockaddr*>(&client_addr),
                          &client_addr_len);
         if (-1 != bytes_received)
         {

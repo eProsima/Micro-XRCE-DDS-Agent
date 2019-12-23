@@ -25,16 +25,41 @@ class ParticipantAttributes;
 class PublisherAttributes;
 class SubscriberAttributes;
 class TopicAttributes;
+class RequesterAttributes;
+class ReplierAttributes;
 } // namespace fastrtps
 namespace uxr {
 namespace xmlobjects {
 
-bool parse_participant(const char* source, std::size_t source_size,
-                       eprosima::fastrtps::ParticipantAttributes& participant);
-bool parse_publisher(const char* source, std::size_t source_size, eprosima::fastrtps::PublisherAttributes& publisher);
-bool parse_subscriber(const char* source, std::size_t source_size,
-                      eprosima::fastrtps::SubscriberAttributes& subscriber);
-bool parse_topic(const char* source, std::size_t source_size, eprosima::fastrtps::TopicAttributes& topic);
+bool parse_participant(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::ParticipantAttributes& participant);
+
+bool parse_publisher(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::PublisherAttributes& publisher);
+
+bool parse_subscriber(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::SubscriberAttributes& subscriber);
+
+bool parse_topic(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::TopicAttributes& topic);
+
+bool parse_requester(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::RequesterAttributes& requester);
+
+bool parse_replier(
+    const char* source,
+    std::size_t source_size,
+    eprosima::fastrtps::ReplierAttributes& replier);
 
 } // namespace xmlobjects
 } // namespace uxr

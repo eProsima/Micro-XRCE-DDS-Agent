@@ -17,6 +17,8 @@
 #include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/datareader/DataReader.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
+#include <uxr/agent/requester/Requester.hpp>
+#include <uxr/agent/replier/Replier.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -231,6 +233,12 @@ bool ProxyClient::create_object(
         case dds::xrce::OBJK_DATAREADER:
             rv = create_datareader(object_id, representation.data_reader(), result_status);
             break;
+        case dds::xrce::OBJK_REQUESTER:
+            rv = create_requester(object_id, representation.requester(), result_status);
+            break;
+        case dds::xrce::OBJK_REPLIER:
+            rv = create_replier(object_id, representation.replier(), result_status);
+            break;
         case dds::xrce::OBJK_APPLICATION:
             /* TODO (Julian). */
             break;
@@ -277,7 +285,7 @@ bool ProxyClient::create_participant(
     else
     {
         UXR_AGENT_LOG_DEBUG(
-            UXR_DECORATE_RED("dds error"),
+            UXR_DECORATE_RED("DDS error"),
             UXR_CREATE_PARTICIPANT_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
@@ -327,7 +335,7 @@ bool ProxyClient::create_topic(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_RED("resources error"),
+                UXR_DECORATE_RED("DDS error"),
                 UXR_CREATE_TOPIC_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
@@ -386,7 +394,7 @@ bool ProxyClient::create_publisher(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_RED("resources error"),
+                UXR_DECORATE_RED("DDS error"),
                 UXR_CREATE_PUBLISHER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
@@ -445,7 +453,7 @@ bool ProxyClient::create_subscriber(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_RED("resources error"),
+                UXR_DECORATE_RED("DDS error"),
                 UXR_CREATE_SUBSCRIBER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
@@ -504,7 +512,7 @@ bool ProxyClient::create_datawriter(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_RED("resources error"),
+                UXR_DECORATE_RED("DDS error"),
                 UXR_CREATE_DATAWRITER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
@@ -563,7 +571,7 @@ bool ProxyClient::create_datareader(
         {
             result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
             UXR_AGENT_LOG_DEBUG(
-                UXR_DECORATE_RED("resources error"),
+                UXR_DECORATE_RED("DDS error"),
                 UXR_CREATE_DATAREADER_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
                 conversion::objectid_to_raw(object_id));
@@ -575,6 +583,124 @@ bool ProxyClient::create_datareader(
         UXR_AGENT_LOG_DEBUG(
             UXR_DECORATE_RED("unknown participant"),
             UXR_CREATE_DATAREADER_PATTERN,
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
+    }
+
+    return rv;
+}
+
+bool ProxyClient::create_requester(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::REQUESTER_Representation& representation,
+        dds::xrce::ResultStatus& result_status)
+{
+    bool rv = false;
+    dds::xrce::ObjectId participant_id;
+    participant_id[0] = representation.participant_id()[0];
+    participant_id[1] = (representation.participant_id()[1] & 0xF0) | dds::xrce::OBJK_PARTICIPANT;
+
+    auto it = objects_.find(participant_id);
+    if (it != objects_.end())
+    {
+        std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+        if (std::unique_ptr<Requester> requester = Requester::create(object_id, participant, representation))
+        {
+            if (objects_.emplace(object_id, std::move(requester)).second)
+            {
+                UXR_AGENT_LOG_DEBUG(
+                    UXR_DECORATE_GREEN("requester created"),
+                    UXR_CREATE_REQUESTER_PATTERN,
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(participant_id));
+                rv = true;
+            }
+            else
+            {
+                result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+                UXR_AGENT_LOG_DEBUG(
+                    UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_REQUESTER_PATTERN,
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
+            }
+        }
+        else
+        {
+            result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_RED("DDS error"),
+                UXR_CREATE_REQUESTER_PATTERN,
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
+        }
+    }
+    else
+    {
+        result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_SUBSCRIBER_PATTERN,
+            conversion::clientkey_to_raw(representation_.client_key()),
+            conversion::objectid_to_raw(object_id));
+    }
+
+    return rv;
+}
+
+bool ProxyClient::create_replier(
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::REPLIER_Representation& representation,
+        dds::xrce::ResultStatus& result_status)
+{
+    bool rv = false;
+    dds::xrce::ObjectId participant_id;
+    participant_id[0] = representation.participant_id()[0];
+    participant_id[1] = (representation.participant_id()[1] & 0xF0) | dds::xrce::OBJK_PARTICIPANT;
+
+    auto it = objects_.find(participant_id);
+    if (it != objects_.end())
+    {
+        std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
+        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant, representation))
+        {
+            if (objects_.emplace(object_id, std::move(requester)).second)
+            {
+                UXR_AGENT_LOG_DEBUG(
+                    UXR_DECORATE_GREEN("replier created"),
+                    UXR_CREATE_REQUESTER_PATTERN,
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id),
+                    conversion::objectid_to_raw(participant_id));
+                rv = true;
+            }
+            else
+            {
+                result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+                UXR_AGENT_LOG_DEBUG(
+                    UXR_DECORATE_RED("resources error"),
+                    UXR_CREATE_REQUESTER_PATTERN,
+                    conversion::clientkey_to_raw(representation_.client_key()),
+                    conversion::objectid_to_raw(object_id));
+            }
+        }
+        else
+        {
+            result_status.status(dds::xrce::STATUS_ERR_DDS_ERROR);
+            UXR_AGENT_LOG_DEBUG(
+                UXR_DECORATE_RED("DDS error"),
+                UXR_CREATE_REQUESTER_PATTERN,
+                conversion::clientkey_to_raw(representation_.client_key()),
+                conversion::objectid_to_raw(object_id));
+        }
+    }
+    else
+    {
+        result_status.status(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE);
+        UXR_AGENT_LOG_DEBUG(
+            UXR_DECORATE_RED("unknown participant"),
+            UXR_CREATE_SUBSCRIBER_PATTERN,
             conversion::clientkey_to_raw(representation_.client_key()),
             conversion::objectid_to_raw(object_id));
     }
