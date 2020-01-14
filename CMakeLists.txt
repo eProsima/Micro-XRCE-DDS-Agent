@@ -273,9 +273,10 @@ target_link_libraries(${PROJECT_NAME}
         fastcdr
         $<$<PLATFORM_ID:Windows>:ws2_32>
         $<$<PLATFORM_ID:Windows>:iphlpapi>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
+        CLI11::CLI11
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
-        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
@@ -300,8 +301,6 @@ add_executable(MicroXRCEAgent microxrce_agent.cpp)
 target_link_libraries(MicroXRCEAgent
     PRIVATE
         ${PROJECT_NAME}
-        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
-        CLI11::CLI11
     )
 
 set_target_properties(MicroXRCEAgent PROPERTIES
