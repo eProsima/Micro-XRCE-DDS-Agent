@@ -23,6 +23,8 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
+option(UAGENT_MERGE_INSTALL "Install dependencies and Agent in the same prefix." OFF)
+option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
@@ -31,7 +33,6 @@ option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
-option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -196,11 +197,17 @@ set(SRCS
 ###############################################################################
 # Set install directories
 ###############################################################################
+if(UAGENT_MERGE_INSTALL)
+    set(_install_prefix "")
+else()
+    set(_install_prefix ${PROJECT_NAME}-${PROJECT_VERSION}/)
+endif()
+
 include(GNUInstallDirs)
-set(BIN_INSTALL_DIR     ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
-set(LIB_INSTALL_DIR     ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR    ${PROJECT_NAME}-${PROJECT_VERSION}/${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
+set(BIN_INSTALL_DIR     ${_install_prefix}${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR ${_install_prefix}${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
+set(LIB_INSTALL_DIR     ${_install_prefix}${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR    ${_install_prefix}${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
 if(WIN32)
     set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 else()
@@ -467,16 +474,23 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Install dependencies.
+if(UAGENT_MERGE_INSTALL)
+    set(_install_suffix /)
+else()
+    set(_install_suffix "")
+endif()
+
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
-    file(GLOB dependencies RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
-    foreach(dependency ${dependencies})
+    file(GLOB _deps RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
+    foreach(_d ${_deps})
         install(
             DIRECTORY
-                ${CMAKE_BINARY_DIR}/temp_install/${dependency}
-            DESTINATION .
-            USE_SOURCE_PERMISSIONS
+                ${CMAKE_BINARY_DIR}/temp_install/${_d}${_install_suffix}
+            DESTINATION
+                ${CMAKE_INSTALL_PREFIX}
             COMPONENT
-                ${dependency}
+                ${_d}
+            USE_SOURCE_PERMISSIONS
         )
     endforeach()
 endif()

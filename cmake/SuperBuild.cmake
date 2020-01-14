@@ -15,7 +15,6 @@
 include(ExternalProject)
 
 unset(_deps)
-unset(_versioned_deps)
 
 enable_language(C)
 enable_language(CXX)
@@ -42,6 +41,7 @@ if(UAGENT_P2P_PROFILE)
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                -DUCLIENT_MERGE_INSTALL:BOOL=OFF
             )
         list(APPEND _deps microxrcedds_client)
     endif()
