@@ -32,7 +32,7 @@ if(UAGENT_P2P_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/
+                ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
@@ -41,7 +41,6 @@ if(UAGENT_P2P_PROFILE)
                 -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-                -DUCLIENT_MERGE_INSTALL:BOOL=OFF
             )
         list(APPEND _deps microxrcedds_client)
     endif()
