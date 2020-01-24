@@ -15,7 +15,6 @@
 include(ExternalProject)
 
 unset(_deps)
-unset(_versioned_deps)
 
 enable_language(C)
 enable_language(CXX)
@@ -33,7 +32,7 @@ if(UAGENT_P2P_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/
+                ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
