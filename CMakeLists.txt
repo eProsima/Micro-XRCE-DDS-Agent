@@ -299,6 +299,8 @@ add_executable(MicroXRCEAgent microxrce_agent.cpp)
 target_link_libraries(MicroXRCEAgent
     PRIVATE
         ${PROJECT_NAME}
+        $<$<BOOL:$<PLATFORM_ID:Linux>>:rt>
+        $<$<BOOL:$<PLATFORM_ID:Linux>>:dl>
     )
 
 set_target_properties(MicroXRCEAgent PROPERTIES
