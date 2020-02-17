@@ -22,75 +22,18 @@ namespace eprosima {
 namespace uxr {
 
 SerialAgent::SerialAgent(
-        int fd,
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : Server<SerialEndPoint>{middleware_kind}
     , addr_{addr}
-    , poll_fd_()
+    , poll_fd_{}
     , buffer_{0}
     , serial_io_(
           addr,
           std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2),
           std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
     , errno_(0)
-{
-    poll_fd_.fd = fd;
-}
-
-SerialAgent::~SerialAgent()
-{
-    try
-    {
-        stop();
-    }
-    catch (std::exception& e)
-    {
-        UXR_AGENT_LOG_CRITICAL(
-            UXR_DECORATE_RED("error stopping server"),
-            "exception: {}",
-            e.what());
-    }
-}
-
-bool SerialAgent::init()
-{
-    /* Poll setup. */
-    poll_fd_.events = POLLIN;
-
-    UXR_AGENT_LOG_INFO(
-        UXR_DECORATE_GREEN("running..."),
-        "fd: {}",
-        poll_fd_.fd);
-
-    return true;
-}
-
-bool SerialAgent::close()
-{
-    if (-1 == poll_fd_.fd)
-    {
-        return true;
-    }
-
-    bool rv = false;
-    if (0 == ::close(poll_fd_.fd))
-    {
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("server stopped"),
-            "fd: {}",
-            poll_fd_.fd);
-        rv = true;
-    }
-    else
-    {
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("close server error"),
-            "fd: {}",
-            poll_fd_.fd);
-    }
-    return rv;
-}
+{}
 
 size_t SerialAgent::write_data(
         uint8_t* buf,
