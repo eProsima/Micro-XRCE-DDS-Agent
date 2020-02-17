@@ -87,16 +87,16 @@ bool UDPv4Agent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                agent_port_);
+                "port: {}, bind errno: {}",
+                agent_port_, errno);
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, socket errno: {}",
+            agent_port_, errno);
     }
 
     return rv;

@@ -30,16 +30,13 @@ class SerialAgent : public Server<SerialEndPoint>
 {
 public:
     SerialAgent(
-            int fd,
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-    ~SerialAgent() final;
-
 private:
-    bool init() final;
+    virtual bool init() = 0;
 
-    bool close() final;
+    virtual bool close() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(
@@ -73,8 +70,8 @@ private:
             size_t len,
             int timeout);
 
-private:
-    uint8_t addr_;
+protected:
+    const uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
     SerialIO serial_io_;
