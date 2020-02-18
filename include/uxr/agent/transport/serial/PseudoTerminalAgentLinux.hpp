@@ -35,7 +35,7 @@ public:
 
 private:
     bool init() final;
-    bool close() final;
+    bool fini() final;
 
 private:
     int open_flags_;

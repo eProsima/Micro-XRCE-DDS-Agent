@@ -36,20 +36,20 @@ public:
 private:
     virtual bool init() = 0;
 
-    virtual bool close() = 0;
+    virtual bool fini() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(
             uint16_t /*discovery_port*/) final { return false; }
 
-    bool close_discovery() final { return false; }
+    bool fini_discovery() final { return false; }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(
             uint16_t /*p2p_port*/) final { return false; } // TODO
 
-    bool close_p2p() final { return false; } // TODO
+    bool fini_p2p() final { return false; } // TODO
 #endif
 
     bool recv_message(

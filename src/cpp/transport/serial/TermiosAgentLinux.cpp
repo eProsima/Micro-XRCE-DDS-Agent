@@ -84,7 +84,7 @@ bool TermiosAgent::init()
     return rv;
 }
 
-bool TermiosAgent::close()
+bool TermiosAgent::fini()
 {
     if (-1 == poll_fd_.fd)
     {

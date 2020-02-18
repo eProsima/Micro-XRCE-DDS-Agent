@@ -110,7 +110,7 @@ bool UDPv6Agent::init()
     return rv;
 }
 
-bool UDPv6Agent::close()
+bool UDPv6Agent::fini()
 {
     if (-1 == poll_fd_.fd)
     {
@@ -144,7 +144,7 @@ bool UDPv6Agent::init_discovery(
     return discovery_server_.run(discovery_port);
 }
 
-bool UDPv6Agent::close_discovery()
+bool UDPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -160,7 +160,7 @@ bool UDPv6Agent::init_p2p(uint16_t p2p_port)
     return true; // TODO.
 }
 
-bool UDPv6Agent::close_p2p()
+bool UDPv6Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);

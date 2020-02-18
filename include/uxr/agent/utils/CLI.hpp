@@ -304,7 +304,7 @@ private:
     void launch_server()
     {
         server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -359,7 +359,7 @@ private:
     void launch_server()
     {
         server_.reset(new eprosima::uxr::UDPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -414,7 +414,7 @@ private:
     void launch_server()
     {
         server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -469,7 +469,7 @@ private:
     void launch_server()
     {
         server_.reset(new eprosima::uxr::TCPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -566,7 +566,7 @@ private:
         server_.reset(
             new eprosima::uxr::TermiosAgent(
                 dev_.c_str(), O_RDWR | O_NOCTTY, attr, 0, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -620,7 +620,7 @@ private:
         server_.reset(
             new eprosima::uxr::PseudoTerminalAgent(
                 O_RDWR | O_NOCTTY, baudrate_opt_.get_baudrate().c_str(), 0, common_opts_.middleware_opt_.get_kind()));
-        if (server_->run())
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())

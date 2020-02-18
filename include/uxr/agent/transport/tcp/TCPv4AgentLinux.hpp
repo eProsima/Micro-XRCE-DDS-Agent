@@ -52,18 +52,18 @@ public:
 private:
     bool init() final;
 
-    bool close() final;
+    bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t discovery_port) final;
 
-    bool close_discovery() final;
+    bool fini_discovery() final;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t p2p_port) final;
 
-    bool close_p2p() final;
+    bool fini_p2p() final;
 #endif
 
     bool recv_message(
