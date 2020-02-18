@@ -39,6 +39,7 @@ Server<EndPoint>::Server(Middleware::Kind middleware_kind)
     , running_cond_(false)
     , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
     , output_scheduler_(SERVER_QUEUE_MAX_SIZE)
+    , transport_rc_{TransportRc::ok}
 {}
 
 template<typename EndPoint>
@@ -166,9 +167,18 @@ void Server<EndPoint>::receiver_loop()
     InputPacket<EndPoint> input_packet;
     while (running_cond_)
     {
-        if (recv_message(input_packet, RECEIVE_TIMEOUT))
+        TransportRc transport_rc;
+        if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
             input_scheduler_.push(std::move(input_packet), 0);
+        }
+        else
+        {
+            transport_rc_.store(transport_rc);
+            if (TransportRc::error == transport_rc)
+            {
+                // TODO: notify ErrorHandler thread.
+            }
         }
     }
 }
@@ -181,7 +191,16 @@ void Server<EndPoint>::sender_loop()
     {
         if (output_scheduler_.pop(output_packet))
         {
-            send_message(output_packet);
+            TransportRc transport_rc;
+            if (!send_message(output_packet, transport_rc))
+            {
+                transport_rc_.store(transport_rc);
+                if (TransportRc::error == transport_rc)
+                {
+                    // TODO: notify ErrorHandler thread.
+                }
+                // TODO: push_from output_packet.
+            }
         }
     }
 }

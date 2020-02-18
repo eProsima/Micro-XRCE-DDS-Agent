@@ -32,7 +32,6 @@ SerialAgent::SerialAgent(
           addr,
           std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2),
           std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-    , errno_(0)
 {}
 
 size_t SerialAgent::write_data(
@@ -68,7 +67,8 @@ size_t SerialAgent::read_data(
 
 bool SerialAgent::recv_message(
         InputPacket<SerialEndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     uint8_t remote_addr;
@@ -91,13 +91,14 @@ bool SerialAgent::recv_message(
     }
     else
     {
-        errno_ = -1;
+        transport_rc = TransportRc::error;
     }
     return rv;
 }
 
 bool SerialAgent::send_message(
-        OutputPacket<SerialEndPoint> output_packet)
+        OutputPacket<SerialEndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     size_t bytes_written =
@@ -119,13 +120,8 @@ bool SerialAgent::send_message(
                 output_packet.message->get_len());
         }
     }
-    errno_ = rv ? 0 : -1;
+    transport_rc = rv ? TransportRc::ok : TransportRc::error;
     return rv;
-}
-
-int SerialAgent::get_error()
-{
-    return errno_;
 }
 
 } // namespace uxr

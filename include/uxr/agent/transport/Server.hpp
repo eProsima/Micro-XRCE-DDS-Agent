@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #define UXR_AGENT_TRANSPORT_SERVER_HPP_
 
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/transport/TransportRc.hpp>
 #include <uxr/agent/transport/SessionManager.hpp>
 #include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
@@ -74,12 +75,14 @@ private:
 
     virtual bool recv_message(
             InputPacket<EndPoint>& input_packet,
-            int timeout) = 0;
+            int timeout,
+            TransportRc& transport_rc) = 0;
 
     virtual bool send_message(
-            OutputPacket<EndPoint> output_packet) = 0;
+            OutputPacket<EndPoint> output_packet,
+            TransportRc& transport_rc) = 0;
 
-    virtual int get_error() = 0;
+    virtual bool handle_error(TransportRc transport_rc) = 0;
 
     void receiver_loop();
 
@@ -101,6 +104,7 @@ private:
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket<EndPoint>> input_scheduler_;
     FCFSScheduler<OutputPacket<EndPoint>> output_scheduler_;
+    std::atomic<TransportRc> transport_rc_;
 };
 
 } // namespace uxr

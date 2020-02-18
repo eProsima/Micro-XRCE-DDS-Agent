@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -171,7 +171,8 @@ bool UDPv6Agent::fini_p2p()
 
 bool UDPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
@@ -205,20 +206,22 @@ bool UDPv6Agent::recv_message(
                     input_packet.message->get_len());
             }
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            errno = ETIME;
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
     }
 
     return rv;
 }
 
 bool UDPv6Agent::send_message(
-        OutputPacket<IPv6EndPoint> output_packet)
+        OutputPacket<IPv6EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
@@ -253,13 +256,13 @@ bool UDPv6Agent::send_message(
             }
         }
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
+    
 
     return rv;
-}
-
-int UDPv6Agent::get_error()
-{
-    return errno;
 }
 
 } // namespace uxr
