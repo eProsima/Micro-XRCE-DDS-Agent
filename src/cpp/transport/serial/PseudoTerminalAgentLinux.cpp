@@ -79,7 +79,7 @@ bool PseudoTerminalAgent::init()
     return rv;
 }
 
-bool PseudoTerminalAgent::close()
+bool PseudoTerminalAgent::fini()
 {
     if (-1 == poll_fd_.fd)
     {

@@ -48,7 +48,7 @@ Server<EndPoint>::~Server()
 }
 
 template<typename EndPoint>
-bool Server<EndPoint>::run()
+bool Server<EndPoint>::start()
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -103,12 +103,12 @@ bool Server<EndPoint>::stop()
     /* Close servers. */
     bool rv = true;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv &= close_discovery();
+    rv &= fini_discovery();
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv &= close_p2p();
+    rv &= fini_p2p();
 #endif
-    rv &= close();
+    rv &= fini();
     return rv;
 }
 
@@ -127,7 +127,7 @@ bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
 template<typename EndPoint>
 bool Server<EndPoint>::disable_discovery()
 {
-    return close_discovery();
+    return fini_discovery();
 }
 #endif
 
@@ -146,7 +146,7 @@ bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
 template<typename EndPoint>
 bool Server<EndPoint>::disable_p2p()
 {
-    return close_p2p();
+    return fini_p2p();
 }
 #endif
 

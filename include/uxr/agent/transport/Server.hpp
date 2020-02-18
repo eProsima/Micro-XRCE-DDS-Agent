@@ -39,7 +39,7 @@ public:
 
     virtual ~Server();
 
-    UXR_AGENT_EXPORT bool run();
+    UXR_AGENT_EXPORT bool start();
     UXR_AGENT_EXPORT bool stop();
 
 #ifdef UAGENT_DISCOVERY_PROFILE
@@ -58,18 +58,18 @@ private:
 
     virtual bool init() = 0;
 
-    virtual bool close() = 0;
+    virtual bool fini() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     virtual bool init_discovery(uint16_t discovery_port) = 0;
 
-    virtual bool close_discovery() = 0;
+    virtual bool fini_discovery() = 0;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     virtual bool init_p2p(uint16_t p2p_port) = 0;
 
-    virtual bool close_p2p() = 0;
+    virtual bool fini_p2p() = 0;
 #endif
 
     virtual bool recv_message(

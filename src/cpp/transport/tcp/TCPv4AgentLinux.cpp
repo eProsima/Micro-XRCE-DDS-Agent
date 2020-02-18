@@ -151,7 +151,7 @@ bool TCPv4Agent::init()
     return rv;
 }
 
-bool TCPv4Agent::close()
+bool TCPv4Agent::fini()
 {
     /* Stop listener thread. */
     running_cond_ = false;
@@ -201,7 +201,7 @@ bool TCPv4Agent::init_discovery(uint16_t discovery_port)
     return discovery_server_.run(discovery_port);
 }
 
-bool TCPv4Agent::close_discovery()
+bool TCPv4Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -217,7 +217,7 @@ bool TCPv4Agent::init_p2p(uint16_t p2p_port)
     return true; // TODO.
 }
 
-bool TCPv4Agent::close_p2p()
+bool TCPv4Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);

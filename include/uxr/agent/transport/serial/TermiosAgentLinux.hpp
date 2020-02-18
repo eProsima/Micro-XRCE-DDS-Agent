@@ -36,7 +36,7 @@ public:
 
 private:
     bool init() final;
-    bool close() final;
+    bool fini() final;
 
 private:
     const std::string dev_;

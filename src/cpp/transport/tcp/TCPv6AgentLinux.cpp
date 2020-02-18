@@ -152,7 +152,7 @@ bool TCPv6Agent::init()
     return rv;
 }
 
-bool TCPv6Agent::close()
+bool TCPv6Agent::fini()
 {
     /* Stop listener thread. */
     running_cond_ = false;
@@ -203,7 +203,7 @@ bool TCPv6Agent::init_discovery(
     return discovery_server_.run(discovery_port);
 }
 
-bool TCPv6Agent::close_discovery()
+bool TCPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -219,7 +219,7 @@ bool TCPv6Agent::init_p2p(uint16_t p2p_port)
     return true;
 }
 
-bool TCPv6Agent::close_p2p()
+bool TCPv6Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
