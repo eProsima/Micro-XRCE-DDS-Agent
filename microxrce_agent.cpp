@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
 #ifndef _WIN32
     eprosima::uxr::cli::TermiosSubcommand termios_subcommand(app);
-//    eprosima::uxr::cli::PseudoSerialSubcommand pseudo_serial_subcommand(app);
+    eprosima::uxr::cli::PseudoTerminalSubcommand pseudo_serial_subcommand(app);
 #endif
     eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 

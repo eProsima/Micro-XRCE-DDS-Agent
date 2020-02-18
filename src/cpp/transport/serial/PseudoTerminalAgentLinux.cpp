@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
+#include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
+#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 
 namespace eprosima {
 namespace uxr {
 
-TermiosAgent::TermiosAgent(
-        char const * dev,
+PseudoTerminalAgent::PseudoTerminalAgent(
         int open_flags,
-        termios const & termios_attrs,
+        char const * baudrate,
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : SerialAgent(addr, middleware_kind)
-    , dev_{dev}
     , open_flags_{open_flags}
-    , termios_attrs_{termios_attrs}
+    , baudrate_{getBaudRate(baudrate)}
 {}
 
-TermiosAgent::~TermiosAgent()
+PseudoTerminalAgent::~PseudoTerminalAgent()
 {
     try
     {
@@ -47,44 +47,39 @@ TermiosAgent::~TermiosAgent()
     }
 }
 
-bool TermiosAgent::init()
+bool PseudoTerminalAgent::init()
 {
     bool rv = false;
-    poll_fd_.fd = open(dev_.c_str(), open_flags_);
-    if (0 < poll_fd_.fd)
+    char* dev = nullptr;
+
+    poll_fd_.fd = posix_openpt(open_flags_);
+    if ((-1 != poll_fd_.fd) && (0 == grantpt(poll_fd_.fd)) && (0 == unlockpt(poll_fd_.fd)) && (dev = ptsname(poll_fd_.fd)))
     {
-        if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &termios_attrs_))
-        {
-            /* Init serial IO. */
-            uxr_init_serial_io(&serial_io_, addr_);
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("Pseudoterminal opened at"),
+            "dev: {}",
+            dev);
 
-            /* Poll setup. */
-            poll_fd_.events = POLLIN;
-
-            UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("running..."),
-                "fd: {}",
-                poll_fd_.fd);
-        }
-        else
-        {
-            UXR_AGENT_LOG_ERROR(
-                UXR_DECORATE_RED("set termios attributes error"),
-                "tcsetattr errno: {}",
-                errno);
-        }
+        struct termios attrs;
+        tcgetattr(poll_fd_.fd, &attrs);
+        cfmakeraw(&attrs);
+        tcflush(poll_fd_.fd, TCIOFLUSH);
+        cfsetispeed(&attrs, baudrate_);
+        cfsetospeed(&attrs, baudrate_);
+        tcsetattr(poll_fd_.fd, TCSANOW, &attrs);
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
-            UXR_DECORATE_RED("open device error"),
-            "device: {}, open errno: {}",
-            dev_, errno);
+            UXR_DECORATE_RED("open pseudoterminal error"),
+            "open errno: {}",
+            errno);
     }
+
     return rv;
 }
 
-bool TermiosAgent::close()
+bool PseudoTerminalAgent::close()
 {
     if (-1 == poll_fd_.fd)
     {
@@ -109,7 +104,6 @@ bool TermiosAgent::close()
     }
     return rv;
 }
-
 
 } // namespace uxr
 } // namespace eprosima

@@ -26,6 +26,7 @@
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
 #include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
+#include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
 #include <termios.h>
@@ -141,8 +142,7 @@ public:
     BaudrateOpt(CLI::App& subcommand)
         : baudrate_("115200")
         , cli_opt_{subcommand.add_option("-b,--baudrate", baudrate_, "Select the baudrate", true)}
-    {
-    }
+    {}
 
     bool is_enable() const { return bool(*cli_opt_); }
     const std::string& get_baudrate() const { return baudrate_; }
@@ -153,7 +153,7 @@ protected:
 };
 
 /*************************************************************************************************
- * Baudrate CLI Option
+ * Refernce CLI Option
  *************************************************************************************************/
 class ReferenceOpt
 {
@@ -603,80 +603,56 @@ private:
 };
 
 /*************************************************************************************************
- * Pseudo-Serial Subcommand
+ * PseudoTerminal Subcommand
  *************************************************************************************************/
-//class PseudoSerialSubcommand : public ServerSubcommand
-//{
-//public:
-//    PseudoSerialSubcommand(CLI::App& app)
-//        : ServerSubcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
-//        , baudrate_opt_{*cli_subcommand_}
-//        , common_opts_{*cli_subcommand_}
-//    {}
-//
-//private:
-//    void launch_server() final
-//    {
-//        /* Open pseudo-terminal. */
-//        char* dev = nullptr;
-//        int fd = posix_openpt(O_RDWR | O_NOCTTY);
-//        if (-1 != fd)
-//        {
-//            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
-//            {
-//                struct termios attr;
-//                tcgetattr(fd, &attr);
-//                cfmakeraw(&attr);
-//                tcflush(fd, TCIOFLUSH);
-//                tcsetattr(fd, TCSANOW, &attr);
-//
-//                /* Get baudrate. */
-//                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
-//
-//                /* Setting BAUD RATE. */
-//                cfsetispeed(&attr, baudrate);
-//                cfsetospeed(&attr, baudrate);
-//
-//                /* Log. */
-//                std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
-//
-//                /* Run server. */
-//                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
-//                if (server_->run())
-//                {
-//#ifdef UAGENT_DISCOVERY_PROFILE
-//                    if (opts_ref_.discovery_opt_.is_enable())
-//                    {
-//                        server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
-//                    }
-//#endif
-//
-//#ifdef UAGENT_P2P_PROFILE
-//                    if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
-//                        && opts_ref_.p2p_opt_.is_enable())
-//                    {
-//                        server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
-//                    }
-//#endif
-//                    if (opts_ref_.reference_opt_.is_enable())
-//                    {
-//                        server_->load_config_file(opts_ref_.reference_opt_.get_file());
-//                    }
-//
-//                    if (opts_ref_.verbose_opt_.is_enable())
-//                    {
-//                        server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//private:
-//    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
-//    BaudrateOpt baudrate_opt_;
-//    CommonOpts common_opts_;
-//};
+class PseudoTerminalSubcommand : public ServerSubcommand
+{
+public:
+    PseudoTerminalSubcommand(CLI::App& app)
+        : ServerSubcommand{app, "pseudoterminal", "Launch a pseudoterminal server", common_opts_}
+        , baudrate_opt_{*cli_subcommand_}
+        , common_opts_{*cli_subcommand_}
+    {}
+
+private:
+    void launch_server() final
+    {
+        server_.reset(
+            new eprosima::uxr::PseudoTerminalAgent(
+                O_RDWR | O_NOCTTY, baudrate_opt_.get_baudrate().c_str(), 0, common_opts_.middleware_opt_.get_kind()));
+        if (server_->run())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
+    BaudrateOpt baudrate_opt_;
+    CommonOpts common_opts_;
+};
 #endif
 
 } // cli
