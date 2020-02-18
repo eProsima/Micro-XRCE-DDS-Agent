@@ -5856,14 +5856,6 @@ private:
     uint8_t m_implementation_status;
 };
 
-const uint8_t STATUS_LAST_OP_NONE = 0;
-const uint8_t STATUS_LAST_OP_CREATE = 1;
-const uint8_t STATUS_LAST_OP_UPDATE = 2;
-const uint8_t STATUS_LAST_OP_DELETE = 3;
-const uint8_t STATUS_LAST_OP_LOOKUP = 4;
-const uint8_t STATUS_LAST_OP_READ = 5;
-const uint8_t STATUS_LAST_OP_WRITE = 6;
-
 /*!
  * @brief This class represents the enumeration InfoMask defined by the user in the IDL file.
  * @ingroup TYPESMOD
