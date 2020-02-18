@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,12 +68,14 @@ private:
 
     bool recv_message(
             InputPacket<IPv6EndPoint>& input_packet,
-            int timeout) final;
+            int timeout,
+            TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<IPv6EndPoint> output_packet) final;
+            OutputPacket<IPv6EndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    int get_error() final;
+    bool handle_error(TransportRc transport_rc) final { return false; }
 
     bool read_message(
             int timeout);
@@ -98,13 +100,13 @@ private:
             TCPv6ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) final;
+            TransportRc& transport_rc) final;
 
     size_t send_data(
             TCPv6ConnectionLinux& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) final;
+            TransportRc& transport_rc) final;
 
 private:
     std::array<TCPv6ConnectionLinux, TCP_MAX_CONNECTIONS> connections_;

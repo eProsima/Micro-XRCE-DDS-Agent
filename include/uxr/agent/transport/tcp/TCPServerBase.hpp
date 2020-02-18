@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #define UXR_AGENT_TRANSPORT_TCP_TCPSERVERBASE_HPP_
 
 #include <uxr/agent/transport/tcp/TCPConnection.hpp>
+#include <uxr/agent/transport/TransportRc.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -31,13 +32,13 @@ private:
             Connection& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) = 0;
+            TransportRc& transport_rc) = 0;
 
     virtual size_t send_data(
             Connection& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t& errcode) = 0;
+            TransportRc& transport_rc) = 0;
 
 protected:
     uint16_t read_data(
@@ -53,8 +54,9 @@ inline uint16_t TCPServerBase<Connection>::read_data(
     uint16_t rv = 0;
     read_error = false;
     bool exit_flag = false;
+    TransportRc transport_rc = TransportRc::ok;
 
-    while(!exit_flag)
+    do
     {
         switch (connection.input_buffer.state)
         {
@@ -62,8 +64,7 @@ inline uint16_t TCPServerBase<Connection>::read_data(
             {
                 connection.input_buffer.position = 0;
                 uint8_t size_buf[2];
-                uint8_t errcode = 0;
-                size_t bytes_received = recv_data(connection, size_buf, 2, errcode);
+                size_t bytes_received = recv_data(connection, size_buf, 2, transport_rc);
                 if (0 < bytes_received)
                 {
                     connection.input_buffer.msg_size = 0;
@@ -81,18 +82,12 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                         connection.input_buffer.state = TCP_SIZE_INCOMPLETE;
                     }
                 }
-                else
-                {
-                    read_error = (0 < errcode);
-                    exit_flag = true;
-                }
                 break;
             }
             case TCP_SIZE_INCOMPLETE:
             {
                 uint8_t size_msb;
-                uint8_t errcode = 0;
-                size_t bytes_received = recv_data(connection, &size_msb, 1, errcode);
+                size_t bytes_received = recv_data(connection, &size_msb, 1, transport_rc);
                 if (0 < bytes_received)
                 {
                     connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
@@ -105,22 +100,16 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                         connection.input_buffer.state = TCP_BUFFER_EMPTY;
                     }
                 }
-                else
-                {
-                    read_error = (0 < errcode);
-                    exit_flag = true;
-                }
                 break;
             }
             case TCP_SIZE_READ:
             {
                 connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
-                uint8_t errcode = 0;
                 size_t bytes_received =
                         recv_data(connection,
                                   connection.input_buffer.buffer.data(),
                                   connection.input_buffer.buffer.size(),
-                                  errcode);
+                                  transport_rc);
                 if (0 < bytes_received)
                 {
                     if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
@@ -134,21 +123,15 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                         exit_flag = true;
                     }
                 }
-                else
-                {
-                    read_error = (0 < errcode);
-                    exit_flag = true;
-                }
                 break;
             }
             case TCP_MESSAGE_INCOMPLETE:
             {
-                uint8_t errcode = 0;
                 size_t bytes_received =
                         recv_data(connection,
                                   connection.input_buffer.buffer.data() + connection.input_buffer.position,
                                   connection.input_buffer.buffer.size() - connection.input_buffer.position,
-                                  errcode);
+                                  transport_rc);
                 if (0 < bytes_received)
                 {
                     connection.input_buffer.position += uint16_t(bytes_received);
@@ -161,11 +144,6 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                         exit_flag = true;
                     }
                 }
-                else
-                {
-                    read_error = (0 < errcode);
-                    exit_flag = true;
-                }
                 break;
             }
             case TCP_MESSAGE_AVAILABLE:
@@ -176,7 +154,9 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                 break;
             }
         }
-    }
+    } while(!exit_flag && (TransportRc::ok == transport_rc));
+
+    read_error = (TransportRc::ok != transport_rc);
 
     return rv;
 }

@@ -62,12 +62,14 @@ private:
 
     bool recv_message(
             InputPacket<IPv4EndPoint>& input_packet,
-            int timeout) final;
+            int timeout,
+            TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<IPv4EndPoint> output_packet) final;
+            OutputPacket<IPv4EndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    int get_error() final;
+    bool handle_error(TransportRc transport_rc) final { return false; }
 
 private:
     struct pollfd poll_fd_;

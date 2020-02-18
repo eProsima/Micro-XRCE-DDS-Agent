@@ -169,7 +169,8 @@ bool UDPv4Agent::fini_p2p()
 
 bool UDPv4Agent::recv_message(
         InputPacket<IPv4EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in client_addr{};
@@ -203,12 +204,16 @@ bool UDPv4Agent::recv_message(
                     input_packet.message->get_len());
             }
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
     }
     else
     {
         if (0 == poll_rv)
         {
-            errno = ETIME;
+            transport_rc = TransportRc::timeout;
         }
     }
 
@@ -216,7 +221,8 @@ bool UDPv4Agent::recv_message(
 }
 
 bool UDPv4Agent::send_message(
-        OutputPacket<IPv4EndPoint> output_packet)
+        OutputPacket<IPv4EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in client_addr{};
@@ -250,13 +256,12 @@ bool UDPv4Agent::send_message(
             }
         }
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
 
     return rv;
-}
-
-int UDPv4Agent::get_error()
-{
-    return errno;
 }
 
 } // namespace uxr

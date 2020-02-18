@@ -12,38 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_SERIAL_PSEUDOTERMINALAGENTLINUX_HPP_
-#define UXR_AGENT_TRANSPORT_SERIAL_PSEUDOTERMINALAGENTLINUX_HPP_
+#ifndef UXR_AGENT_TRANSPORT_TRANSPORTRC_HPP_
+#define UXR_AGENT_TRANSPORT_TRANSPORTRC_HPP_
 
-#include <uxr/agent/transport/serial/SerialAgentLinux.hpp>
-
-#include <termios.h>
+#include <cstdint>
 
 namespace eprosima {
 namespace uxr {
 
-class PseudoTerminalAgent : public SerialAgent
+enum class TransportRc : uint8_t
 {
-public:
-    PseudoTerminalAgent(
-            int open_flags,
-            char const * baudrate,
-            uint8_t addr,
-            Middleware::Kind middleware_kind);
-
-    ~PseudoTerminalAgent();
-
-private:
-    bool init() final;
-    bool fini() final;
-    bool handle_error(TransportRc transport_rc) final { return false; }
-
-private:
-    int open_flags_;
-    speed_t baudrate_;
+    ok,
+    error,
+    timeout,
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_SERIAL_PSEUDOTERMINALAGENTLINUX_HPP_
+
+#endif // UXR_AGENT_TRANSPORT_TRANSPORTRC_HPP_

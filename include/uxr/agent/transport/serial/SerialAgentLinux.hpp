@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,12 +54,12 @@ private:
 
     bool recv_message(
             InputPacket<SerialEndPoint>& input_packet,
-            int timeout) final;
+            int timeout,
+            TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<SerialEndPoint> output_packet) final;
-
-    int get_error() final;
+            OutputPacket<SerialEndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
     size_t write_data(
             uint8_t* buf,
@@ -75,7 +75,6 @@ protected:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
     SerialIO serial_io_;
-    int errno_;
 };
 
 } // namespace uxr

@@ -230,12 +230,13 @@ bool TCPv6Agent::fini_p2p()
 
 bool TCPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = true;
     if (messages_queue_.empty() && !read_message(timeout))
     {
-        rv = false;
+        transport_rc = TransportRc::timeout;
     }
     else
     {
@@ -256,7 +257,8 @@ bool TCPv6Agent::recv_message(
 }
 
 bool TCPv6Agent::send_message(
-        OutputPacket<IPv6EndPoint> output_packet)
+        OutputPacket<IPv6EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
@@ -277,8 +279,7 @@ bool TCPv6Agent::send_message(
         bool size_sent = false;
         do
         {
-            uint8_t errcode;
-            size_t send_rv = send_data(connection, msg_size_buf, 2, errcode);
+            size_t send_rv = send_data(connection, msg_size_buf, 2, transport_rc);
             if (0 < send_rv)
             {
                 bytes_sent += uint16_t(send_rv);
@@ -286,7 +287,7 @@ bool TCPv6Agent::send_message(
             }
             else
             {
-                if (0 < errcode)
+                if (TransportRc::ok != transport_rc)
                 {
                     break;
                 }
@@ -303,12 +304,11 @@ bool TCPv6Agent::send_message(
             bytes_sent = 0;
             do
             {
-                uint8_t errcode;
                 size_t send_rv =
                         send_data(connection,
                                   output_packet.message->get_buf() + bytes_sent,
                                   output_packet.message->get_len() - bytes_sent,
-                                  errcode);
+                                  transport_rc);
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -316,7 +316,7 @@ bool TCPv6Agent::send_message(
                 }
                 else
                 {
-                    if (0 < errcode)
+                    if (TransportRc::ok != transport_rc)
                     {
                         break;
                     }
@@ -347,11 +347,6 @@ bool TCPv6Agent::send_message(
     }
 
     return rv;
-}
-
-int TCPv6Agent::get_error()
-{
-    return errno;
 }
 
 bool TCPv6Agent::open_connection(
@@ -494,7 +489,7 @@ size_t TCPv6Agent::recv_data(
         TCPv6ConnectionLinux& connection,
         uint8_t* buffer,
         size_t len,
-        uint8_t& errcode)
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     std::lock_guard<std::mutex> lock(connection.mtx);
@@ -507,16 +502,16 @@ size_t TCPv6Agent::recv_data(
             if (0 < bytes_received)
             {
                 rv = size_t(bytes_received);
-                errcode = 0;
+                transport_rc = TransportRc::ok;
             }
             else
             {
-                errcode = 1;
+                transport_rc = TransportRc::error;
             }
         }
         else
         {
-            errcode = (0 == poll_rv) ? 0 : 1;
+            transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
         }
     }
     return rv;
@@ -526,7 +521,7 @@ size_t TCPv6Agent::send_data(
         TCPv6ConnectionLinux& connection,
         uint8_t* buffer,
         size_t len,
-        uint8_t& errcode)
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     std::lock_guard<std::mutex> lock(connection.mtx);
@@ -536,11 +531,11 @@ size_t TCPv6Agent::send_data(
         if (-1 != bytes_sent)
         {
             rv = size_t(bytes_sent);
-            errcode = 0;
+            transport_rc = TransportRc::ok;
         }
         else
         {
-            errcode = 1;
+            transport_rc = TransportRc::error;
         }
     }
     return rv;
