@@ -70,7 +70,7 @@ bool TermiosAgent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("set termios attributes error"),
-                "tcsetattr errno: {}",
+                "errno: {}",
                 errno);
         }
     }
@@ -78,7 +78,7 @@ bool TermiosAgent::init()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("open device error"),
-            "device: {}, open errno: {}",
+            "device: {}, errno: {}",
             dev_, errno);
     }
     return rv;
@@ -104,12 +104,17 @@ bool TermiosAgent::fini()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("close server error"),
-            "fd: {}, close errno: {}",
+            "fd: {}, errno: {}",
             poll_fd_.fd, errno);
     }
     return rv;
 }
 
+bool TermiosAgent::handle_error(
+        TransportRc /*transport_rc*/)
+{
+    return fini() && init();
+}
 
 } // namespace uxr
 } // namespace eprosima

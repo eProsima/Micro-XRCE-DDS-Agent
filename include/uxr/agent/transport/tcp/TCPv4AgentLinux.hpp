@@ -75,7 +75,8 @@ private:
             OutputPacket<IPv4EndPoint> output_packet,
             TransportRc& transport_rc) final;
 
-    bool handle_error(TransportRc transport_rc) final { return false; }
+    bool handle_error(
+            TransportRc transport_rc) final;
 
     bool read_message(
             int timeout);

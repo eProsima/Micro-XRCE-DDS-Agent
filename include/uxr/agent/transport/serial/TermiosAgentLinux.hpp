@@ -37,7 +37,8 @@ public:
 private:
     bool init() final;
     bool fini() final;
-    bool handle_error(TransportRc transport_rc) final { return false; }
+    bool handle_error(
+            TransportRc transport_rc) final;
 
 private:
     const std::string dev_;

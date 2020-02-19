@@ -36,7 +36,8 @@ public:
 private:
     bool init() final;
     bool fini() final;
-    bool handle_error(TransportRc transport_rc) final { return false; }
+    bool handle_error(
+            TransportRc transport_rc);
 
 private:
     int open_flags_;
