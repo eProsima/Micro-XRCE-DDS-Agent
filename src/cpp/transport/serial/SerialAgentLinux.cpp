@@ -30,13 +30,14 @@ SerialAgent::SerialAgent(
     , buffer_{0}
     , serial_io_(
           addr,
-          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2),
-          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 {}
 
 size_t SerialAgent::write_data(
         uint8_t* buf,
-        size_t len)
+        size_t len,
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     ssize_t bytes_written = ::write(poll_fd_.fd, buf, len);
@@ -44,13 +45,18 @@ size_t SerialAgent::write_data(
     {
         rv = size_t(bytes_written);
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
     return rv;
 }
 
 size_t SerialAgent::read_data(
         uint8_t* buf,
         size_t len,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
@@ -61,6 +67,14 @@ size_t SerialAgent::read_data(
         {
             rv = size_t(bytes_read);
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
+    }
+    else
+    {
+        transport_rc = (poll_rv == 0) ? TransportRc::timeout : TransportRc::error;
     }
     return rv;
 }
@@ -72,7 +86,7 @@ bool SerialAgent::recv_message(
 {
     bool rv = false;
     uint8_t remote_addr;
-    size_t bytes_read = serial_io_.read_msg(buffer_,sizeof (buffer_), remote_addr, timeout);
+    size_t bytes_read = serial_io_.read_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
@@ -89,10 +103,6 @@ bool SerialAgent::recv_message(
                 input_packet.message->get_len());
         }
     }
-    else
-    {
-        transport_rc = TransportRc::error;
-    }
     return rv;
 }
 
@@ -105,7 +115,8 @@ bool SerialAgent::send_message(
             serial_io_.write_msg(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
-                output_packet.destination.get_addr());
+                output_packet.destination.get_addr(),
+                transport_rc);
     if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
         rv = true;
@@ -120,7 +131,6 @@ bool SerialAgent::send_message(
                 output_packet.message->get_len());
         }
     }
-    transport_rc = rv ? TransportRc::ok : TransportRc::error;
     return rv;
 }
 
