@@ -15,6 +15,8 @@
 #ifndef UXR_AGENT_TRANSPORT_SERIAL_PROTOCOL_HPP_
 #define UXR_AGENT_TRANSPORT_SERIAL_PROTOCOL_HPP_
 
+#include <uxr/agent/transport/TransportRc.hpp>
+
 #include <cstdint>
 #include <cstddef>
 #include <functional>
@@ -22,8 +24,8 @@
 namespace eprosima {
 namespace uxr {
 
-typedef const std::function<size_t (uint8_t*, size_t)> WriteCallback;
-typedef const std::function<size_t (uint8_t*, size_t, int)> ReadCallback;
+typedef const std::function<size_t (uint8_t*, size_t, TransportRc&)> WriteCallback;
+typedef const std::function<size_t (uint8_t*, size_t, int, TransportRc&)> ReadCallback;
 
 class SerialIO
 {
@@ -87,13 +89,15 @@ public:
     size_t write_msg(
             const uint8_t* buf,
             size_t len,
-            uint8_t remote_addr);
+            uint8_t remote_addr,
+            TransportRc& transport_rc);
 
     size_t read_msg(
             uint8_t* buf,
             size_t len,
             uint8_t& remote_addr,
-            int timeout);
+            int timeout,
+            TransportRc& transport_rc);
 
 private:
     static void update_crc(
@@ -202,7 +206,8 @@ inline bool SerialIO::add_next_octet(
 inline size_t SerialIO::write_msg(
         const uint8_t *buf,
         size_t len,
-        uint8_t remote_addr)
+        uint8_t remote_addr,
+        TransportRc& transport_rc)
 {
     /* Buffer being flag. */
     write_buffer_[0] = framing_begin_flag;
@@ -229,7 +234,7 @@ inline size_t SerialIO::write_msg(
         }
         else
         {
-            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_);
+            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_, transport_rc);
             if (0 < bytes_written)
             {
                 cond = true;
@@ -257,7 +262,7 @@ inline size_t SerialIO::write_msg(
         }
         else
         {
-            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_);
+            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_, transport_rc);
             if (0 < bytes_written)
             {
                 cond = true;
@@ -273,7 +278,7 @@ inline size_t SerialIO::write_msg(
     /* Flus write buffer. */
     if (cond && (0 < write_buffer_pos_))
     {
-            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_);
+            size_t bytes_written = write_callback_(write_buffer_, write_buffer_pos_, transport_rc);
             if (0 < bytes_written)
             {
                 cond = true;
@@ -292,7 +297,8 @@ inline size_t SerialIO::read_msg(
         uint8_t* buf,
         size_t len,
         uint8_t& remote_addr,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
 
@@ -325,13 +331,13 @@ inline size_t SerialIO::read_msg(
     size_t bytes_read[2] = {0};
     if (0 < av_len[0])
     {
-        bytes_read[0] = read_callback_(&read_buffer_[read_buffer_head_], av_len[0], timeout);
+        bytes_read[0] = read_callback_(&read_buffer_[read_buffer_head_], av_len[0], timeout, transport_rc);
         read_buffer_head_ = uint8_t(size_t(read_buffer_head_ + bytes_read[0]) % sizeof(read_buffer_));
         if (0 < bytes_read[0])
         {
             if ((bytes_read[0] == av_len[0]) && (0 < av_len[1]))
             {
-                bytes_read[1] = read_callback_(&read_buffer_[read_buffer_head_], av_len[1], 0);
+                bytes_read[1] = read_callback_(&read_buffer_[read_buffer_head_], av_len[1], 0, transport_rc);
                 read_buffer_head_ = uint8_t(size_t(read_buffer_head_ + bytes_read[1]) % sizeof(read_buffer_));
             }
         }

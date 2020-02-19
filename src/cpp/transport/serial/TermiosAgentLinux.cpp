@@ -69,7 +69,6 @@ bool TermiosAgent::init()
             if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
             {
                 rv = true;
-                uxr_init_serial_io(&serial_io_, addr_);
                 poll_fd_.events = POLLIN;
 
                 UXR_AGENT_LOG_INFO(

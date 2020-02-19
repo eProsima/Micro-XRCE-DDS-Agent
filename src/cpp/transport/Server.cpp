@@ -245,15 +245,16 @@ void Server<EndPoint>::error_handler_loop()
     while (running_cond_)
     {
         std::unique_lock<std::mutex> lock(error_mtx_);
-        error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ != TransportRc::ok)); });
+        error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ == TransportRc::ok)); });
         if (running_cond_ && transport_rc_ != TransportRc::ok)
         {
             bool error_handled = handle_error(transport_rc_);
             while (running_cond_ && !error_handled)
             {
                 error_handled = handle_error(transport_rc_);
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
+            transport_rc_ = TransportRc::ok;
         }
     }
 }

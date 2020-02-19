@@ -63,12 +63,14 @@ private:
 
     size_t write_data(
             uint8_t* buf,
-            size_t len);
+            size_t len,
+            TransportRc& transport_rc);
 
     size_t read_data(
             uint8_t* buf,
             size_t len,
-            int timeout);
+            int timeout,
+            TransportRc& transport_rc);
 
 protected:
     const uint8_t addr_;
