@@ -92,6 +92,8 @@ private:
 
     void heartbeat_loop();
 
+    void error_handler_loop();
+
 protected:
     Processor<EndPoint>* processor_;
 
@@ -101,10 +103,13 @@ private:
     std::thread sender_thread_;
     std::thread processing_thread_;
     std::thread heartbeat_thread_;
+    std::thread error_handler_thread_;
     std::atomic<bool> running_cond_;
     FCFSScheduler<InputPacket<EndPoint>> input_scheduler_;
     FCFSScheduler<OutputPacket<EndPoint>> output_scheduler_;
-    std::atomic<TransportRc> transport_rc_;
+    TransportRc transport_rc_;
+    std::mutex error_mtx_;
+    std::condition_variable error_cv_;
 };
 
 } // namespace uxr
