@@ -40,6 +40,8 @@ Server<EndPoint>::Server(Middleware::Kind middleware_kind)
     , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
     , output_scheduler_(SERVER_QUEUE_MAX_SIZE)
     , transport_rc_{TransportRc::ok}
+    , error_mtx_{}
+    , error_cv_{}
 {}
 
 template<typename EndPoint>
@@ -65,6 +67,7 @@ bool Server<EndPoint>::start()
 
     /* Thread initialization. */
     running_cond_ = true;
+    error_handler_thread_ = std::thread(&Server::error_handler_loop, this);
     receiver_thread_ = std::thread(&Server::receiver_loop, this);
     sender_thread_ = std::thread(&Server::sender_loop, this);
     processing_thread_ = std::thread(&Server::processing_loop, this);
@@ -83,6 +86,8 @@ bool Server<EndPoint>::stop()
     input_scheduler_.deinit();
     output_scheduler_.deinit();
 
+    error_cv_.notify_one();
+
     /* Join threads. */
     if (receiver_thread_.joinable())
     {
@@ -99,6 +104,10 @@ bool Server<EndPoint>::stop()
     if (heartbeat_thread_.joinable())
     {
         heartbeat_thread_.join();
+    }
+    if (error_handler_thread_.joinable())
+    {
+        error_handler_thread_.join();
     }
 
     /* Close servers. */
@@ -174,10 +183,11 @@ void Server<EndPoint>::receiver_loop()
         }
         else
         {
-            transport_rc_.store(transport_rc);
+            std::unique_lock<std::mutex> lock(error_mtx_);
+            transport_rc_ = transport_rc;
             if (TransportRc::error == transport_rc)
             {
-                // TODO: notify ErrorHandler thread.
+                error_cv_.notify_one();
             }
         }
     }
@@ -194,10 +204,11 @@ void Server<EndPoint>::sender_loop()
             TransportRc transport_rc;
             if (!send_message(output_packet, transport_rc))
             {
-                transport_rc_.store(transport_rc);
+                std::unique_lock<std::mutex> lock(error_mtx_);
+                transport_rc_ = transport_rc;
                 if (TransportRc::error == transport_rc)
                 {
-                    // TODO: notify ErrorHandler thread.
+                    error_cv_.notify_one();
                 }
                 // TODO: push_from output_packet.
             }
@@ -225,6 +236,25 @@ void Server<EndPoint>::heartbeat_loop()
     {
         processor_->check_heartbeats();
         std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
+    }
+}
+
+template<typename EndPoint>
+void Server<EndPoint>::error_handler_loop()
+{
+    while (running_cond_)
+    {
+        std::unique_lock<std::mutex> lock(error_mtx_);
+        error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ != TransportRc::ok)); });
+        if (transport_rc_ != TransportRc::ok)
+        {
+            bool error_handled = handle_error(transport_rc_);
+            while (running_cond_ && !error_handled)
+            {
+                error_handled = handle_error(transport_rc_);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
     }
 }
 
