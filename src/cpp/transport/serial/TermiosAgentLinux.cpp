@@ -53,23 +53,42 @@ bool TermiosAgent::init()
     poll_fd_.fd = open(dev_.c_str(), open_flags_);
     if (0 < poll_fd_.fd)
     {
-        if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &termios_attrs_))
+        struct termios new_attrs;
+        memset(&new_attrs, 0, sizeof(new_attrs));
+        if (0 == tcgetattr(poll_fd_.fd, &new_attrs))
         {
-            /* Init serial IO. */
-            uxr_init_serial_io(&serial_io_, addr_);
+            new_attrs.c_cflag = termios_attrs_.c_cflag;
+            new_attrs.c_lflag = termios_attrs_.c_lflag;
+            new_attrs.c_iflag = termios_attrs_.c_iflag;
+            new_attrs.c_oflag = termios_attrs_.c_oflag;
+            new_attrs.c_cc[VMIN] = termios_attrs_.c_cc[VMIN];
+            new_attrs.c_cc[VTIME] = termios_attrs_.c_cc[VTIME];
+            new_attrs.c_ispeed = termios_attrs_.c_ispeed;
+            new_attrs.c_ospeed = termios_attrs_.c_ospeed;
 
-            /* Poll setup. */
-            poll_fd_.events = POLLIN;
+            if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
+            {
+                rv = true;
+                uxr_init_serial_io(&serial_io_, addr_);
+                poll_fd_.events = POLLIN;
 
-            UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("running..."),
-                "fd: {}",
-                poll_fd_.fd);
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_GREEN("running..."),
+                    "fd: {}",
+                    poll_fd_.fd);
+            }
+            else
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("set termios attributes error"),
+                    "errno: {}",
+                    errno);
+            }
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
-                UXR_DECORATE_RED("set termios attributes error"),
+                UXR_DECORATE_RED("get termios attributes error"),
                 "errno: {}",
                 errno);
         }
