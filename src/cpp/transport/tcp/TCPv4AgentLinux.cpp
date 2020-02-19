@@ -129,24 +129,24 @@ bool TCPv4Agent::init()
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("listen error"),
-                    "port: {}",
-                    agent_port_);
+                    "port: {}, errno: {}",
+                    agent_port_, errno);
             }
         }
         else
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                agent_port_);
+                "port: {}, errno: {}",
+                agent_port_, errno);
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno{}",
+            agent_port_, errno);
     }
     return rv;
 }
@@ -189,8 +189,8 @@ bool TCPv4Agent::fini()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
     return rv;
 }
@@ -346,6 +346,12 @@ bool TCPv4Agent::send_message(
     }
 
     return rv;
+}
+
+bool TCPv4Agent::handle_error(
+        TransportRc /*transport_rc*/)
+{
+    return fini() && init();
 }
 
 bool TCPv4Agent::open_connection(

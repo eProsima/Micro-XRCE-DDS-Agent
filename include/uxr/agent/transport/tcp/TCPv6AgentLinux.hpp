@@ -55,7 +55,8 @@ private:
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(uint16_t discovery_port) final;
+    bool init_discovery(
+            uint16_t discovery_port) final;
 
     bool fini_discovery() final;
 #endif
@@ -75,7 +76,8 @@ private:
             OutputPacket<IPv6EndPoint> output_packet,
             TransportRc& transport_rc) final;
 
-    bool handle_error(TransportRc transport_rc) final { return false; }
+    bool handle_error(
+            TransportRc transport_rc) final;
 
     bool read_message(
             int timeout);

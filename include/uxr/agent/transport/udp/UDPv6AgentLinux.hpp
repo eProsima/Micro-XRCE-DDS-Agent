@@ -69,7 +69,8 @@ private:
             OutputPacket<IPv6EndPoint> output_packet,
             TransportRc& transport_rc) final;
 
-    bool handle_error(TransportRc transport_rc) final { return false; }
+    bool handle_error(
+            TransportRc transport_rc) final;
 
 private:
     struct pollfd poll_fd_;

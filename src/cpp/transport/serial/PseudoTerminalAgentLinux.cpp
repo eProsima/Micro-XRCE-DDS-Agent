@@ -72,7 +72,7 @@ bool PseudoTerminalAgent::init()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("open pseudoterminal error"),
-            "open errno: {}",
+            "errno: {}",
             errno);
     }
 
@@ -99,10 +99,16 @@ bool PseudoTerminalAgent::fini()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("close server error"),
-            "fd: {}, close errno: {}",
+            "fd: {}, errno: {}",
             poll_fd_.fd, errno);
     }
     return rv;
+}
+
+bool PseudoTerminalAgent::handle_error(
+        TransportRc /*transport_rc*/)
+{
+    return fini() && init();
 }
 
 } // namespace uxr

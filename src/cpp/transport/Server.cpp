@@ -246,7 +246,7 @@ void Server<EndPoint>::error_handler_loop()
     {
         std::unique_lock<std::mutex> lock(error_mtx_);
         error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ != TransportRc::ok)); });
-        if (transport_rc_ != TransportRc::ok)
+        if (running_cond_ && transport_rc_ != TransportRc::ok)
         {
             bool error_handled = handle_error(transport_rc_);
             while (running_cond_ && !error_handled)
