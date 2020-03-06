@@ -180,7 +180,7 @@ set(SRCS
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/serial/serial_protocol.c
+    src/cpp/transport/serial/SerialProtocol.cpp
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>
