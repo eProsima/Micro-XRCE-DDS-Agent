@@ -225,7 +225,7 @@ bool TCPv6Agent::recv_message(
 }
 
 bool TCPv6Agent::send_message(
-        OutputPacket<IPv4EndPoint> output_packet,
+        OutputPacket<IPv6EndPoint> output_packet,
         TransportRc& transport_rc)
 {
     bool rv = false;
