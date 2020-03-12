@@ -239,7 +239,7 @@ bool UDPv6Agent::send_message(
     return rv;
 }
 
-bool UDPv4Agent::handle_error(
+bool UDPv6Agent::handle_error(
         TransportRc /*transport_rc*/)
 {
     return fini() && init();

@@ -16,7 +16,7 @@
 #define UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
 #endif

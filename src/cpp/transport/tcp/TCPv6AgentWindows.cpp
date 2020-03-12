@@ -317,7 +317,7 @@ bool TCPv6Agent::send_message(
     return rv;
 }
 
-bool TCPv4Agent::handle_error(
+bool TCPv6Agent::handle_error(
         TransportRc /*transport_rc*/)
 {
     return fini() && init();
