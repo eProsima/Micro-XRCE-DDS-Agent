@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,28 +50,31 @@ public:
 private:
     bool init() final;
 
-    bool close() final;
+    bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t discovery_port) final;
 
-    bool close_discovery() final;
+    bool fini_discovery() final;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t /*p2p_port*/) final { return false; } // TODO
 
-    bool close_p2p() final { return false; } // TODO
+    bool fini_p2p() final { return false; } // TODO
 #endif
 
     bool recv_message(
             InputPacket<IPv6EndPoint>& input_packet,
-            int timeout) final;
+            int timeout,
+            TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<IPv6EndPoint> output_packet) final;
+            OutputPacket<IPv6EndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    int get_error() final;
+    bool handle_error(
+            TransportRc transport_rc) final;
 
     bool read_message(int timeout);
 
@@ -93,13 +96,13 @@ private:
             TCPv6ConnectionWindows& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t &errcode) override;
+            TransportRc& transport_rc) final;
 
     size_t send_data(
             TCPv6ConnectionWindows& connection,
             uint8_t* buffer,
             size_t len,
-            uint8_t &errcode) override;
+            TransportRc& transport_rc) final;
 
 private:
     std::array<TCPv6ConnectionWindows, TCP_MAX_CONNECTIONS> connections_;
