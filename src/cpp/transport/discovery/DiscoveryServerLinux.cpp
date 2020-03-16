@@ -241,7 +241,7 @@ bool DiscoveryServerLinux<EndPoint>::recv_message(
 {
     bool rv = false;
     struct sockaddr client_addr;
-    socklen_t client_addr_len;
+    socklen_t client_addr_len = sizeof(client_addr);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
