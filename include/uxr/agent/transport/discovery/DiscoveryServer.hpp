@@ -38,8 +38,10 @@ public:
 
     virtual ~DiscoveryServer() = default;
 
+    template<typename T>
     bool run(
-            uint16_t discovery_port);
+            uint16_t discovery_port,
+            T&& transport_addresses);
 
     bool stop();
 
@@ -72,6 +74,28 @@ protected:
     uint16_t discovery_port_;
     uint16_t filter_port_;
 };
+
+template<typename EndPoint>
+template<typename T>
+inline
+bool DiscoveryServer<EndPoint>::run(
+        uint16_t discovery_port,
+        T&& transport_addresses)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    transport_addresses_ = std::forward<T>(transport_addresses);
+    if (running_cond_ || !init(discovery_port))
+    {
+        return false;
+    }
+
+    /* Init thread. */
+    running_cond_ = true;
+    thread_ = std::thread(&DiscoveryServer::discovery_loop, this);
+
+    return true;
+}
 
 } // namespace uxr
 } // namespace eprosima
