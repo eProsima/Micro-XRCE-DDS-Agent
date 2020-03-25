@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
+#include <uxr/agent/transport/util/InterfaceWindows.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -133,7 +134,9 @@ bool UDPv6Agent::close()
 #ifdef UAGENT_DISCOVERY_PROFILE
 bool UDPv6Agent::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port);
+    std::vector<dds::xrce::TransportAddress> transport_addresses;
+    util::get_transport_interfaces<IPv4EndPoint>(this->agent_port_, transport_addresses);
+    return discovery_server_.run(discovery_port, transport_addresses);
 }
 
 bool UDPv6Agent::close_discovery()

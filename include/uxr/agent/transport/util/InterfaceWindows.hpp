@@ -33,6 +33,7 @@ void get_transport_interfaces(
     std::vector<dds::xrce::TransportAddress>& transport_addresses);
 
 template<>
+inline
 void get_transport_interfaces<IPv4EndPoint>(
     uint16_t agent_port,
     std::vector<dds::xrce::TransportAddress>& transport_addresses)
@@ -93,6 +94,7 @@ void get_transport_interfaces<IPv4EndPoint>(
 }
 
 template<>
+inline
 void get_transport_interfaces<IPv6EndPoint>(
     uint16_t agent_port,
     std::vector<dds::xrce::TransportAddress>& transport_addresses)
