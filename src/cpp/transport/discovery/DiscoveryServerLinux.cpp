@@ -88,8 +88,6 @@ bool DiscoveryServerLinux<EndPoint>::init(
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
-
-
             DiscoveryServer<EndPoint>::discovery_port_ = discovery_port;
             rv = true;
             UXR_AGENT_LOG_INFO(
