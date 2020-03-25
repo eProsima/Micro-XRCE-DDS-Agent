@@ -61,9 +61,10 @@ static void on_topic(
         uint16_t request_id,
         uxrStreamId stream_id,
         struct ucdrBuffer* ub,
+        uint16_t length,
         void* args)
 {
-    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub;
+    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub; (void) length;
 
     InternalClient* internal_client = reinterpret_cast<InternalClient*>(args);
     Agent::OpResult result;
