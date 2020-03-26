@@ -1,0 +1,11 @@
+{
+    "name": "microxrcedds_agent",
+    "type": "cmake",
+    "dependencies":[
+        "fastcdr",
+        "fastrtps"
+    ],
+    "cmake-args":[
+        "-DUAGENT_ISOLATED_INSTALL=OFF"
+    ]
+}
