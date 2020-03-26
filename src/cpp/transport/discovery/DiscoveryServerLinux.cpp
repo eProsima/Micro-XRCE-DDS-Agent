@@ -180,7 +180,7 @@ bool DiscoveryServerLinux<EndPoint>::recv_message(
 
                 UXR_AGENT_LOG_MESSAGE(
                     UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                    uint32_t(0),
+                    input_packet.source.get_addr(),
                     input_packet.message->get_buf(),
                     input_packet.message->get_len());
             }
@@ -220,7 +220,7 @@ bool DiscoveryServerLinux<EndPoint>::send_message(
 
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-            uint32_t(0),
+            output_packet.destination.get_addr(),
             output_packet.message->get_buf(),
             output_packet.message->get_len());
     }
