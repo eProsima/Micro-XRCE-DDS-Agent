@@ -15,9 +15,10 @@
 #ifndef UXR_AGENT_TRANSPORT_UTIL_INTERFACEWINDOWS_HPP_
 #define UXR_AGENT_TRANSPORT_UTIL_INTERFACEWINDOWS_HPP_
 
-#include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/transport/util/Interface.hpp>
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <ws2ipdef.h>
 #include <MSWSock.h>
@@ -84,6 +85,12 @@ void get_transport_interfaces<IPv4EndPoint>(
                          uint8_t(unicast_addr->Address.lpSockaddr->sa_data[5])});
                     transport_addresses.emplace_back();
                     transport_addresses.back().medium_locator(medium_locator);
+
+                    UXR_AGENT_LOG_TRACE(
+                        UXR_DECORATE_WHITE("interface found"),
+                        "address: {}",
+                        transport_addresses.back()
+                    );
                 }
                 unicast_addr = unicast_addr->Next;
             }
@@ -158,6 +165,12 @@ void get_transport_interfaces<IPv6EndPoint>(
                          addr->sin6_addr.s6_addr[15]});
                     transport_addresses.emplace_back();
                     transport_addresses.back().large_locator(large_locator);
+
+                    UXR_AGENT_LOG_TRACE(
+                        UXR_DECORATE_WHITE("interface found"),
+                        "address: {}",
+                        transport_addresses.back()
+                    );
                 }
                 unicast_addr = unicast_addr->Next;
             }

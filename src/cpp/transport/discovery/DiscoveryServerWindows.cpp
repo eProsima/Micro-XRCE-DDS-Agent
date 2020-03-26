@@ -75,11 +75,12 @@ bool DiscoveryServerWindows<EndPoint>::init(
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (SOCKET_ERROR != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
         {
+            DiscoveryServer<EndPoint>::discovery_port_ = discovery_port;
+            rv = true;
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "Port: {}",
                 discovery_port);
-            rv = true;
         }
         else
         {
@@ -169,6 +170,12 @@ bool DiscoveryServerWindows<EndPoint>::recv_message(
                 uint16_t port = (reinterpret_cast<struct sockaddr_in*>(&client_addr))->sin_port;
                 input_packet.source = IPv4EndPoint(addr, port);
                 rv = true;
+
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                    uint32_t(0),
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_len());
             }
         }
     }
@@ -203,6 +210,12 @@ bool DiscoveryServerWindows<EndPoint>::send_message(
     if (SOCKET_ERROR != bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
+
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+            uint32_t(0),
+            output_packet.message->get_buf(),
+            output_packet.message->get_len());
     }
 
     return rv;
