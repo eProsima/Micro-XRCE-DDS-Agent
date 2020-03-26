@@ -135,7 +135,7 @@ bool UDPv6Agent::fini()
 bool UDPv6Agent::init_discovery(uint16_t discovery_port)
 {
     std::vector<dds::xrce::TransportAddress> transport_addresses;
-    util::get_transport_interfaces<IPv4EndPoint>(this->agent_port_, transport_addresses);
+    util::get_transport_interfaces<IPv6EndPoint>(this->agent_port_, transport_addresses);
     return discovery_server_.run(discovery_port, transport_addresses);
 }
 
