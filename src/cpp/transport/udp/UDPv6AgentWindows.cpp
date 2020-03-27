@@ -164,7 +164,7 @@ bool UDPv6Agent::recv_message(
                          0,
                          reinterpret_cast<struct sockaddr*>(&client_addr),
                          &client_addr_len);
-        if (SOCKET_ERROR != bytes_received)
+        if (SOCKET_ERROR == bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             std::array<uint8_t, 16> addr{};
@@ -172,15 +172,13 @@ bool UDPv6Agent::recv_message(
             input_packet.source = IPv6EndPoint(addr, client_addr.sin6_port);
             rv = true;
 
-            uint32_t raw_client_key;
-            if (Server<IPv6EndPoint>::get_client_key(input_packet.source, raw_client_key))
-            {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                    raw_client_key,
-                    input_packet.message->get_buf(),
-                    input_packet.message->get_len());
-            }
+            uint32_t raw_client_key = 0u;
+            Server<IPv6EndPoint>::get_client_key(input_packet.source, raw_client_key);
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
         }
         else
         {
