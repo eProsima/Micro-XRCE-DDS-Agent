@@ -182,7 +182,7 @@ class SubmessageHeader
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    size_t getCdrSerializedSize(size_t current_alignment = 0);
+    size_t getCdrSerializedSize(size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.

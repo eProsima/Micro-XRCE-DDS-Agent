@@ -75,7 +75,7 @@ void Processor<EndPoint>::process_input_packet(
 //                ? header.client_key()
 //                : server_.get_client_key(input_packet.source.get());
         std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
-        if (nullptr != client)
+        if (client)
         {
             client->update_state();
 
@@ -123,6 +123,34 @@ void Processor<EndPoint>::process_input_packet(
 
                 /* Send message. */
                 server_.push_output_packet(output_packet);
+            }
+        }
+        else
+        {
+            if (input_packet.message->prepare_next_submessage()
+                && input_packet.message->get_subheader().submessage_id() == dds::xrce::DELETE_ID)
+            {
+                dds::xrce::DELETE_Payload delete_payload;
+                if (input_packet.message->get_payload(delete_payload)
+                    && ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT))
+                {
+                    dds::xrce::STATUS_Payload status_payload;
+                    status_payload.related_request().request_id(delete_payload.request_id());
+                    status_payload.related_request().object_id(delete_payload.object_id());
+                    status_payload.result().status() = dds::xrce::STATUS_OK;
+
+                    const size_t message_size =
+                        input_packet.message->get_header().getCdrSerializedSize()
+                        + input_packet.message->get_subheader().getCdrSerializedSize()
+                        + status_payload.getCdrSerializedSize();
+
+                    OutputPacket<EndPoint> output_packet;
+                    output_packet.destination = input_packet.source;
+                    output_packet.message.reset(new OutputMessage(input_packet.message->get_header(), message_size));
+                    output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
+
+                    server_.push_output_packet(output_packet);
+                }
             }
         }
     }
@@ -354,9 +382,8 @@ bool Processor<EndPoint>::process_delete_submessage(
                 status_payload,
                 std::chrono::milliseconds(0));
 
-            if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
+            while (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
             {
-                /* Send message. */
                 server_.push_output_packet(output_packet);
             }
         }
@@ -374,7 +401,6 @@ bool Processor<EndPoint>::process_delete_submessage(
 
             while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
-                /* Send message. */
                 server_.push_output_packet(output_packet);
             }
         }

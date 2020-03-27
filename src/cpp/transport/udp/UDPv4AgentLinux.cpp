@@ -248,15 +248,13 @@ bool UDPv4Agent::send_message(
         {
             rv = true;
 
-            uint32_t raw_client_key;
-            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
-            {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                    raw_client_key,
-                    output_packet.message->get_buf(),
-                    output_packet.message->get_len());
-            }
+            uint32_t raw_client_key = 0u;
+            Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key);
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+                raw_client_key,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
         }
     }
     else
