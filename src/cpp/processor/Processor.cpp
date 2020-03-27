@@ -926,17 +926,8 @@ void Processor<EndPoint>::check_heartbeats()
 
                     /* Send message. */
                     server_.push_output_packet(output_packet);
-                    std::cout << ">>>>>>>>>>>>>>>>>  Sending heartbeats <<<<<<<<<<<<<<<<" << std::endl;
-                }
-                else
-                {
-                    std::cout << ">>>>>>>>>>>>>>>>>  No fill hearbeats <<<<<<<<<<<<<<<<" << std::endl;
                 }
             }
-        }
-        else
-        {
-            std::cout << ">>>>>>>>>>>>>>>>>  No alive <<<<<<<<<<<<<<<<" << std::endl;
         }
     }
 }

@@ -164,7 +164,7 @@ bool UDPv6Agent::recv_message(
                          0,
                          reinterpret_cast<struct sockaddr*>(&client_addr),
                          &client_addr_len);
-        if (SOCKET_ERROR == bytes_received)
+        if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
             std::array<uint8_t, 16> addr{};
