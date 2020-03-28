@@ -185,12 +185,13 @@ bool UDPv6Agent::recv_message(
     if (0 < poll_rv)
     {
         ssize_t bytes_received =
-                recvfrom(poll_fd_.fd,
-                         buffer_,
-                         sizeof(buffer_),
-                         0,
-                         reinterpret_cast<sockaddr*>(&client_addr),
-                         &client_addr_len);
+            recvfrom(
+                poll_fd_.fd,
+                buffer_,
+                sizeof(buffer_),
+                0,
+                reinterpret_cast<sockaddr*>(&client_addr),
+                &client_addr_len);
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
@@ -199,15 +200,13 @@ bool UDPv6Agent::recv_message(
             input_packet.source = IPv6EndPoint(addr, client_addr.sin6_port);
             rv = true;
 
-            uint32_t raw_client_key;
-            if (Server<IPv6EndPoint>::get_client_key(input_packet.source, raw_client_key))
-            {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                    raw_client_key,
-                    input_packet.message->get_buf(),
-                    input_packet.message->get_len());
-            }
+            uint32_t raw_client_key = 0u;
+            Server<IPv6EndPoint>::get_client_key(input_packet.source, raw_client_key);
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                raw_client_key,
+                input_packet.message->get_buf(),
+                input_packet.message->get_len());
         }
         else
         {
@@ -236,27 +235,25 @@ bool UDPv6Agent::send_message(
     std::copy(destination.begin(), destination.end(), std::begin(client_addr.sin6_addr.s6_addr));
 
     ssize_t bytes_sent =
-            sendto(poll_fd_.fd,
-                   output_packet.message->get_buf(),
-                   output_packet.message->get_len(),
-                   0,
-                   reinterpret_cast<struct sockaddr*>(&client_addr),
-                   sizeof(client_addr));
+        sendto(
+            poll_fd_.fd,
+            output_packet.message->get_buf(),
+            output_packet.message->get_len(),
+            0,
+            reinterpret_cast<struct sockaddr*>(&client_addr),
+            sizeof(client_addr));
     if (-1 != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())
         {
             rv = true;
-
-            uint32_t raw_client_key;
-            if (Server<IPv6EndPoint>::get_client_key(output_packet.destination, raw_client_key))
-            {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                    raw_client_key,
-                    output_packet.message->get_buf(),
-                    output_packet.message->get_len());
-            }
+            uint32_t raw_client_key = 0u;
+            Server<IPv6EndPoint>::get_client_key(output_packet.destination, raw_client_key);
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+                raw_client_key,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
         }
     }
     else

@@ -906,12 +906,9 @@ void Processor<EndPoint>::check_heartbeats()
 
     OutputPacket<EndPoint> output_packet;
 
-    std::cout << "Before get_next_client" << std::endl;
     std::shared_ptr<ProxyClient> client;
     while (root_.get_next_client(client))
     {
-        std::cout << "Before get_endpoint and get_state" << std::endl;
-        std::cout << "Is alive? " << bool(ProxyClient::State::alive == client->get_state()) << std::endl;
         if (server_.get_endpoint(conversion::clientkey_to_raw(client->get_client_key()), output_packet.destination) &&
              ProxyClient::State::alive == client->get_state())
         {
@@ -919,18 +916,15 @@ void Processor<EndPoint>::check_heartbeats()
             header.client_key(client->get_client_key());
 
             /* Get reliable streams. */
-            std::cout << "Before get_output_streams" << std::endl;
             for (auto stream : client->session().get_output_streams())
             {
                 /* Get and send pending messages. */
-                std::cout << "Before fill_heartbeat" << std::endl;
                 if (client->session().fill_heartbeat(stream, heartbeat))
                 {
                     output_packet.message = OutputMessagePtr(new OutputMessage(header, message_size));
                     output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat);
 
                     /* Send message. */
-                    std::cout << "Before push_output_packet" << std::endl;
                     server_.push_output_packet(output_packet);
                 }
             }
