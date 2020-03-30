@@ -369,7 +369,10 @@ bool Processor<EndPoint>::process_delete_submessage(
     }
     else
     {
-        std::cerr << "Error processing DELETE submessage." << std::endl;
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("deserialization error processing DELETE submessage"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client.get_client_key()));
         rv = false;
     }
     return rv;
@@ -380,7 +383,6 @@ bool Processor<EndPoint>::process_write_data_submessage(
         ProxyClient& client,
         InputPacket<EndPoint>& input_packet)
 {
-    bool rv = true;
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
     uint16_t submessage_length = input_packet.message->get_subheader().submessage_length();
@@ -426,9 +428,20 @@ bool Processor<EndPoint>::process_write_data_submessage(
                         break;
                     }
                     default:
+                        UXR_AGENT_LOG_ERROR(
+                            UXR_DECORATE_RED("invalid ObjectId"),
+                            UXR_CREATE_OBJECT_PATTERN,
+                            conversion::objectid_to_raw(object_id));
                         break;
                 }
                 deserialized = true;
+            }
+            else
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error processing WRITE_DATA submessage"),
+                    UXR_CLIENT_KEY_PATTERN,
+                    conversion::clientkey_to_raw(client.get_client_key()));
             }
             break;
         }
@@ -436,19 +449,7 @@ bool Processor<EndPoint>::process_write_data_submessage(
             break;
     }
 
-    if (!deserialized)
-    {
-        std::cerr << "Error processing WRITE_DATA submessage." << std::endl;
-        rv = false;
-    }
-
-    if(!written)
-    {
-        std::cerr << "Error written data on DDS entity." << std::endl;
-        rv = false;
-    }
-
-    return rv;
+    return deserialized && written;
 }
 
 template<typename EndPoint>
@@ -539,7 +540,10 @@ bool Processor<EndPoint>::process_read_data_submessage(
     }
     else
     {
-        std::cerr << "Error processing READ_DATA submessage." << std::endl;
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("deserialization error processing WRITE_DATA submessage"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client.get_client_key()));
         rv = false;
     }
     return rv;
@@ -582,7 +586,10 @@ bool Processor<EndPoint>::process_acknack_submessage(
     }
     else
     {
-        std::cerr << "Error processing ACKNACK submessage." << std::endl;
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("deserialization error processing ACKNACK submessage"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client.get_client_key()));
         rv = false;
     }
     return rv;
@@ -621,7 +628,10 @@ bool Processor<EndPoint>::process_heartbeat_submessage(
     }
     else
     {
-        std::cerr << "Error procession HEARTBEAT submessage." << std::endl;
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("deserialization error processing HEARTBEAT submessage"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client.get_client_key()));
         rv = false;
     }
     return rv;
@@ -683,7 +693,10 @@ bool Processor<EndPoint>::process_timestamp_submessage(
     }
     else
     {
-        std::cerr << "Error processin TIMESTAMP submessage." << std::endl;
+        UXR_AGENT_LOG_ERROR(
+            UXR_DECORATE_RED("deserialization error processing TIMESTAMP submessage"),
+            UXR_CLIENT_KEY_PATTERN,
+            conversion::clientkey_to_raw(client.get_client_key()));
         rv = false;
     }
     return rv;
