@@ -27,6 +27,7 @@
 #include <array>
 #include <list>
 #include <set>
+#include <queue>
 
 namespace eprosima {
 namespace uxr {
