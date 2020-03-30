@@ -22,79 +22,22 @@ namespace eprosima {
 namespace uxr {
 
 SerialAgent::SerialAgent(
-        int fd,
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : Server<SerialEndPoint>{middleware_kind}
     , addr_{addr}
-    , poll_fd_()
+    , poll_fd_{}
     , buffer_{0}
     , serial_io_(
           addr,
-          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2),
-          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-    , errno_(0)
-{
-    poll_fd_.fd = fd;
-}
-
-SerialAgent::~SerialAgent()
-{
-    try
-    {
-        stop();
-    }
-    catch (std::exception& e)
-    {
-        UXR_AGENT_LOG_CRITICAL(
-            UXR_DECORATE_RED("error stopping server"),
-            "exception: {}",
-            e.what());
-    }
-}
-
-bool SerialAgent::init()
-{
-    /* Poll setup. */
-    poll_fd_.events = POLLIN;
-
-    UXR_AGENT_LOG_INFO(
-        UXR_DECORATE_GREEN("running..."),
-        "fd: {}",
-        poll_fd_.fd);
-
-    return true;
-}
-
-bool SerialAgent::close()
-{
-    if (-1 == poll_fd_.fd)
-    {
-        return true;
-    }
-
-    bool rv = false;
-    if (0 == ::close(poll_fd_.fd))
-    {
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("server stopped"),
-            "fd: {}",
-            poll_fd_.fd);
-        rv = true;
-    }
-    else
-    {
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("close server error"),
-            "fd: {}",
-            poll_fd_.fd);
-    }
-    return rv;
-}
+          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+{}
 
 size_t SerialAgent::write_data(
         uint8_t* buf,
-        size_t len)
+        size_t len,
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     ssize_t bytes_written = ::write(poll_fd_.fd, buf, len);
@@ -102,13 +45,18 @@ size_t SerialAgent::write_data(
     {
         rv = size_t(bytes_written);
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
     return rv;
 }
 
 size_t SerialAgent::read_data(
         uint8_t* buf,
         size_t len,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     size_t rv = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
@@ -119,17 +67,26 @@ size_t SerialAgent::read_data(
         {
             rv = size_t(bytes_read);
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
+    }
+    else
+    {
+        transport_rc = (poll_rv == 0) ? TransportRc::timeout : TransportRc::error;
     }
     return rv;
 }
 
 bool SerialAgent::recv_message(
         InputPacket<SerialEndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     uint8_t remote_addr;
-    size_t bytes_read = serial_io_.read_msg(buffer_,sizeof (buffer_), remote_addr, timeout);
+    size_t bytes_read = serial_io_.read_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
@@ -146,22 +103,20 @@ bool SerialAgent::recv_message(
                 input_packet.message->get_len());
         }
     }
-    else
-    {
-        errno_ = -1;
-    }
     return rv;
 }
 
 bool SerialAgent::send_message(
-        OutputPacket<SerialEndPoint> output_packet)
+        OutputPacket<SerialEndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     size_t bytes_written =
             serial_io_.write_msg(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
-                output_packet.destination.get_addr());
+                output_packet.destination.get_addr(),
+                transport_rc);
     if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
     {
         rv = true;
@@ -176,13 +131,7 @@ bool SerialAgent::send_message(
                 output_packet.message->get_len());
         }
     }
-    errno_ = rv ? 0 : -1;
     return rv;
-}
-
-int SerialAgent::get_error()
-{
-    return errno_;
 }
 
 } // namespace uxr

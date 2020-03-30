@@ -94,22 +94,22 @@ bool UDPv4Agent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                agent_port_);
+                "port: {}, errno: {}",
+                agent_port_, errno);
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
 
     return rv;
 }
 
-bool UDPv4Agent::close()
+bool UDPv4Agent::fini()
 {
     if (-1 == poll_fd_.fd)
     {
@@ -130,8 +130,8 @@ bool UDPv4Agent::close()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
     return rv;
 }
@@ -142,7 +142,7 @@ bool UDPv4Agent::init_discovery(uint16_t discovery_port)
     return discovery_server_.run(discovery_port);
 }
 
-bool UDPv4Agent::close_discovery()
+bool UDPv4Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -158,7 +158,7 @@ bool UDPv4Agent::init_p2p(uint16_t p2p_port)
     return true; // TODO.
 }
 
-bool UDPv4Agent::close_p2p()
+bool UDPv4Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
@@ -169,7 +169,8 @@ bool UDPv4Agent::close_p2p()
 
 bool UDPv4Agent::recv_message(
         InputPacket<IPv4EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in client_addr{};
@@ -203,12 +204,16 @@ bool UDPv4Agent::recv_message(
                     input_packet.message->get_len());
             }
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
     }
     else
     {
         if (0 == poll_rv)
         {
-            errno = ETIME;
+            transport_rc = TransportRc::timeout;
         }
     }
 
@@ -216,7 +221,8 @@ bool UDPv4Agent::recv_message(
 }
 
 bool UDPv4Agent::send_message(
-        OutputPacket<IPv4EndPoint> output_packet)
+        OutputPacket<IPv4EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in client_addr{};
@@ -250,13 +256,18 @@ bool UDPv4Agent::send_message(
             }
         }
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
 
     return rv;
 }
 
-int UDPv4Agent::get_error()
+bool UDPv4Agent::handle_error(
+        TransportRc /*transport_rc*/)
 {
-    return errno;
+    return fini() && init();
 }
 
 } // namespace uxr

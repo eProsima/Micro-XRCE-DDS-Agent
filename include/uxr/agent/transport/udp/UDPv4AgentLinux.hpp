@@ -46,28 +46,31 @@ public:
 private:
     bool init() final;
 
-    bool close() final;
+    bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t discovery_port) final;
 
-    bool close_discovery() final;
+    bool fini_discovery() final;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t p2p_port) final;
 
-    bool close_p2p() final;
+    bool fini_p2p() final;
 #endif
 
     bool recv_message(
             InputPacket<IPv4EndPoint>& input_packet,
-            int timeout) final;
+            int timeout,
+            TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<IPv4EndPoint> output_packet) final;
+            OutputPacket<IPv4EndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    int get_error() final;
+    bool handle_error(
+            TransportRc transport_rc) final;
 
 private:
     struct pollfd poll_fd_;

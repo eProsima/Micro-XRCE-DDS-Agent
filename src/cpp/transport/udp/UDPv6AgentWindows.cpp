@@ -88,22 +88,22 @@ bool UDPv6Agent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                agent_port_);
+                "port: {}, errno: {}",
+                agent_port_, errno);
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
 
     return rv;
 }
 
-bool UDPv6Agent::close()
+bool UDPv6Agent::fini()
 {
     if (INVALID_SOCKET == poll_fd_.fd)
     {
@@ -124,8 +124,8 @@ bool UDPv6Agent::close()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
     return rv;
 }
@@ -136,7 +136,7 @@ bool UDPv6Agent::init_discovery(uint16_t discovery_port)
     return discovery_server_.run(discovery_port);
 }
 
-bool UDPv6Agent::close_discovery()
+bool UDPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -144,7 +144,8 @@ bool UDPv6Agent::close_discovery()
 
 bool UDPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr;
@@ -178,12 +179,16 @@ bool UDPv6Agent::recv_message(
                     input_packet.message->get_len());
             }
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
     }
     else
     {
         if (0 == poll_rv)
         {
-            WSASetLastError(WAIT_TIMEOUT);
+            transport_rc = TransportRc::timeout;
         }
     }
 
@@ -191,7 +196,8 @@ bool UDPv6Agent::recv_message(
 }
 
 bool UDPv6Agent::send_message(
-        OutputPacket<IPv6EndPoint> output_packet)
+        OutputPacket<IPv6EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
@@ -225,13 +231,18 @@ bool UDPv6Agent::send_message(
             }
         }
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
 
     return rv;
 }
 
-int UDPv6Agent::get_error()
+bool UDPv6Agent::handle_error(
+        TransportRc /*transport_rc*/)
 {
-    return WSAGetLastError();
+    return fini() && init();
 }
 
 } // namespace uxr

@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -95,22 +95,22 @@ bool UDPv6Agent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}",
-                agent_port_);
+                "port: {}, errno: {}",
+                agent_port_, errno);
         }
     }
     else
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
 
     return rv;
 }
 
-bool UDPv6Agent::close()
+bool UDPv6Agent::fini()
 {
     if (-1 == poll_fd_.fd)
     {
@@ -131,8 +131,8 @@ bool UDPv6Agent::close()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}",
-            agent_port_);
+            "port: {}, errno: {}",
+            agent_port_, errno);
     }
     return rv;
 }
@@ -144,7 +144,7 @@ bool UDPv6Agent::init_discovery(
     return discovery_server_.run(discovery_port);
 }
 
-bool UDPv6Agent::close_discovery()
+bool UDPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
@@ -160,7 +160,7 @@ bool UDPv6Agent::init_p2p(uint16_t p2p_port)
     return true; // TODO.
 }
 
-bool UDPv6Agent::close_p2p()
+bool UDPv6Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
@@ -171,7 +171,8 @@ bool UDPv6Agent::close_p2p()
 
 bool UDPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
@@ -205,20 +206,22 @@ bool UDPv6Agent::recv_message(
                     input_packet.message->get_len());
             }
         }
+        else
+        {
+            transport_rc = TransportRc::error;
+        }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            errno = ETIME;
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
     }
 
     return rv;
 }
 
 bool UDPv6Agent::send_message(
-        OutputPacket<IPv6EndPoint> output_packet)
+        OutputPacket<IPv6EndPoint> output_packet,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     struct sockaddr_in6 client_addr{};
@@ -253,13 +256,19 @@ bool UDPv6Agent::send_message(
             }
         }
     }
+    else
+    {
+        transport_rc = TransportRc::error;
+    }
+    
 
     return rv;
 }
 
-int UDPv6Agent::get_error()
+bool UDPv6Agent::handle_error(
+        TransportRc /*transport_rc*/)
 {
-    return errno;
+    return fini() && init();
 }
 
 } // namespace uxr
