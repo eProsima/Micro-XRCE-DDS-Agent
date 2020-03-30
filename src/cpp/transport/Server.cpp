@@ -210,7 +210,7 @@ void Server<EndPoint>::sender_loop()
                 {
                     error_cv_.notify_one();
                 }
-                // TODO: push_from output_packet.
+                output_scheduler_.push_front(std::move(output_packet));
             }
         }
     }
