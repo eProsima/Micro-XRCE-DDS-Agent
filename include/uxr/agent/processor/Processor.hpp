@@ -117,10 +117,6 @@ private:
             ProxyClient& client,
             InputPacket<EndPoint>& input_packet);
 
-//    bool process_performance_submessage(
-//            ProxyClient& client,
-//            InputPacket& input_packet);
-
     bool read_data_callback(
             const WriteFnArgs& write_args,
             const std::vector<uint8_t>& buffer,
