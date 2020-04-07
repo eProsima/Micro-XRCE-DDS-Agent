@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/tcp/TCPv6AgentWindows.hpp>
+#include <uxr/agent/transport/util/InterfaceWindows.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
@@ -186,7 +187,9 @@ bool TCPv6Agent::fini()
 #ifdef UAGENT_DISCOVERY_PROFILE
 bool TCPv6Agent::init_discovery(uint16_t discovery_port)
 {
-    return discovery_server_.run(discovery_port);
+    std::vector<dds::xrce::TransportAddress> transport_addresses;
+    util::get_transport_interfaces<IPv6EndPoint>(this->agent_port_, transport_addresses);
+    return discovery_server_.run(discovery_port, transport_addresses);
 }
 
 bool TCPv6Agent::fini_discovery()

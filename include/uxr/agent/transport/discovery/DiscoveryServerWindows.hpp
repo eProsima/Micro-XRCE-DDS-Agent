@@ -48,8 +48,6 @@ private:
     bool send_message(
             OutputPacket<IPv4EndPoint>&& output_packet) final;
 
-    bool update_interfaces();
-
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[128];

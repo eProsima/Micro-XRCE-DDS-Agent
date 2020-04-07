@@ -39,24 +39,6 @@ DiscoveryServer<EndPoint>::DiscoveryServer(
 {}
 
 template<typename EndPoint>
-bool DiscoveryServer<EndPoint>::run(
-        uint16_t discovery_port)
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-
-    if (running_cond_ || !init(discovery_port))
-    {
-        return false;
-    }
-
-    /* Init thread. */
-    running_cond_ = true;
-    thread_ = std::thread(&DiscoveryServer::discovery_loop, this);
-
-    return true;
-}
-
-template<typename EndPoint>
 bool DiscoveryServer<EndPoint>::stop()
 {
     std::lock_guard<std::mutex> lock(mtx_);
