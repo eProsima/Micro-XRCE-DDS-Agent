@@ -87,7 +87,7 @@ size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(size_t current_alignment)
+size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
             

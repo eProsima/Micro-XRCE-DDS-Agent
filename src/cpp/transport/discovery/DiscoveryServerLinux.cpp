@@ -177,6 +177,12 @@ bool DiscoveryServerLinux<EndPoint>::recv_message(
                 uint16_t port = reinterpret_cast<sockaddr_in*>(&client_addr)->sin_port;
                 input_packet.source = IPv4EndPoint(addr, port);
                 rv = true;
+
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                    input_packet.source.get_addr(),
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_len());
             }
         }
     }
@@ -211,6 +217,12 @@ bool DiscoveryServerLinux<EndPoint>::send_message(
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
+
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+            output_packet.destination.get_addr(),
+            output_packet.message->get_buf(),
+            output_packet.message->get_len());
     }
 
     return rv;
