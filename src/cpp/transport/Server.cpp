@@ -196,7 +196,7 @@ void Server<EndPoint>::receiver_loop()
 template<typename EndPoint>
 void Server<EndPoint>::sender_loop()
 {
-    OutputPacket<EndPoint> output_packet;
+    OutputPacket<EndPoint> output_packet{};
     while (running_cond_)
     {
         if (output_scheduler_.pop(output_packet))
