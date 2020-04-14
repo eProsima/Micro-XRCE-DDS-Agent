@@ -183,15 +183,12 @@ bool UDPv6Agent::recv_message(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::server_error;
         }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            transport_rc = TransportRc::timeout;
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
 
     return rv;
@@ -233,7 +230,7 @@ bool UDPv6Agent::send_message(
     }
     else
     {
-        transport_rc = TransportRc::error;
+        transport_rc = TransportRc::server_error;
     }
 
     return rv;

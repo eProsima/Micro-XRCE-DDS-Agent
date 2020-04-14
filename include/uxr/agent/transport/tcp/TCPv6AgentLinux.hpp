@@ -81,7 +81,8 @@ private:
             TransportRc transport_rc) final;
 
     bool read_message(
-            int timeout);
+            int timeout,
+            TransportRc& transport_rc);
 
     bool open_connection(
             int fd,

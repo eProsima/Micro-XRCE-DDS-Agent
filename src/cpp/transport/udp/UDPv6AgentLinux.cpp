@@ -84,8 +84,7 @@ bool UDPv6Agent::init()
             UXR_AGENT_LOG_DEBUG(
                 UXR_DECORATE_GREEN("port opened"),
                 "port: {}",
-                agent_port_
-                );
+                agent_port_);
 
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
@@ -210,12 +209,12 @@ bool UDPv6Agent::recv_message(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::server_error;
         }
     }
     else
     {
-        transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
 
     return rv;
@@ -258,7 +257,7 @@ bool UDPv6Agent::send_message(
     }
     else
     {
-        transport_rc = TransportRc::error;
+        transport_rc = TransportRc::server_error;
     }
     
 

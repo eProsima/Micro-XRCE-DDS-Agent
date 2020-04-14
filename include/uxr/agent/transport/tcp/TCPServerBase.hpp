@@ -43,18 +43,17 @@ private:
 protected:
     uint16_t read_data(
             Connection& connection,
-            bool& error);
+            TransportRc& transport_rc);
 };
 
 template<typename Connection>
 inline uint16_t TCPServerBase<Connection>::read_data(
         Connection& connection,
-        bool& read_error)
+        TransportRc& transport_rc)
 {
     uint16_t rv = 0;
-    read_error = false;
     bool exit_flag = false;
-    TransportRc transport_rc = TransportRc::ok;
+    transport_rc = TransportRc::ok;
 
     do
     {
@@ -155,8 +154,6 @@ inline uint16_t TCPServerBase<Connection>::read_data(
             }
         }
     } while(!exit_flag && (TransportRc::ok == transport_rc));
-
-    read_error = (TransportRc::ok != transport_rc);
 
     return rv;
 }
