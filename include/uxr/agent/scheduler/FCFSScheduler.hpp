@@ -86,7 +86,7 @@ inline void FCFSScheduler<T>::push(
     {
         deque_.pop_front();
     }
-    deque_.push_front(std::move(element));
+    deque_.push_back(std::move(element));
     cond_var_.notify_one();
 }
 
