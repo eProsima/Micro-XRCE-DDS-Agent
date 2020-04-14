@@ -183,10 +183,10 @@ void Server<EndPoint>::receiver_loop()
         }
         else
         {
-            std::unique_lock<std::mutex> lock(error_mtx_);
-            transport_rc_ = transport_rc;
-            if (TransportRc::error == transport_rc)
+            if (TransportRc::server_error == transport_rc)
             {
+                std::unique_lock<std::mutex> lock(error_mtx_);
+                transport_rc_ = transport_rc;
                 error_cv_.notify_one();
             }
         }
@@ -204,10 +204,10 @@ void Server<EndPoint>::sender_loop()
             TransportRc transport_rc;
             if (!send_message(output_packet, transport_rc))
             {
-                std::unique_lock<std::mutex> lock(error_mtx_);
-                transport_rc_ = transport_rc;
-                if (TransportRc::error == transport_rc)
+                if (TransportRc::server_error == transport_rc)
                 {
+                    std::unique_lock<std::mutex> lock(error_mtx_);
+                    transport_rc_ = transport_rc;
                     error_cv_.notify_one();
                 }
                 output_scheduler_.push_front(std::move(output_packet));
@@ -246,7 +246,7 @@ void Server<EndPoint>::error_handler_loop()
     {
         std::unique_lock<std::mutex> lock(error_mtx_);
         error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ == TransportRc::ok)); });
-        if (running_cond_ && transport_rc_ != TransportRc::ok)
+        if (running_cond_ && (transport_rc_ != TransportRc::ok))
         {
             bool error_handled = handle_error(transport_rc_);
             while (running_cond_ && !error_handled)

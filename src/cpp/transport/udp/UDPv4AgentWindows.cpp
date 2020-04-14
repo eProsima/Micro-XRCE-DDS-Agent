@@ -88,7 +88,7 @@ bool UDPv4Agent::init()
         {
             UXR_AGENT_LOG_ERROR(
                 UXR_DECORATE_RED("bind error"),
-                "port: {}, bind errno: {}",
+                "port: {}, errno: {}",
                 agent_port_, errno);
         }
     }
@@ -96,7 +96,7 @@ bool UDPv4Agent::init()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
-            "port: {}, socket errno: {}",
+            "port: {}, errno: {}",
             agent_port_, errno);
     }
 
@@ -182,15 +182,12 @@ bool UDPv4Agent::recv_message(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::server_error;
         }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            transport_rc = TransportRc::timeout;
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
 
     return rv;
@@ -230,7 +227,7 @@ bool UDPv4Agent::send_message(
     }
     else
     {
-        transport_rc = TransportRc::error;
+        transport_rc = TransportRc::server_error;
     }
 
     return rv;

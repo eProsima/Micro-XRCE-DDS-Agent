@@ -182,6 +182,7 @@ bool TCPv6Agent::fini()
     bool rv = false;
     if ((-1 == listener_poll_.fd) && (active_connections_.empty()))
     {
+        rv = true;
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
@@ -218,7 +219,6 @@ bool TCPv6Agent::init_p2p(uint16_t p2p_port)
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
-//    return agent_discoverer_.run(p2p_port, transport_address_);
     return true;
 }
 
@@ -237,9 +237,10 @@ bool TCPv6Agent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = true;
-    if (messages_queue_.empty() && !read_message(timeout))
+
+    if (messages_queue_.empty() && !read_message(timeout, transport_rc))
     {
-        transport_rc = TransportRc::timeout;
+        rv = false;
     }
     else
     {
@@ -265,6 +266,7 @@ bool TCPv6Agent::send_message(
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
+    transport_rc = TransportRc::connection_error;
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it = endpoint_to_connection_map_.find(output_packet.destination);
@@ -308,10 +310,11 @@ bool TCPv6Agent::send_message(
             do
             {
                 size_t send_rv =
-                        send_data(connection,
-                                  output_packet.message->get_buf() + bytes_sent,
-                                  output_packet.message->get_len() - bytes_sent,
-                                  transport_rc);
+                    send_data(
+                        connection,
+                        output_packet.message->get_buf() + bytes_sent,
+                        output_packet.message->get_len() - bytes_sent,
+                        transport_rc);
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -343,7 +346,8 @@ bool TCPv6Agent::send_message(
                     output_packet.message->get_len());
             }
         }
-        else
+
+        if (TransportRc::connection_error == transport_rc)
         {
             close_connection(connection);
         }
@@ -419,7 +423,8 @@ void TCPv6Agent::init_input_buffer(
 }
 
 bool TCPv6Agent::read_message(
-        int timeout)
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
@@ -429,9 +434,8 @@ bool TCPv6Agent::read_message(
         {
             if (POLLIN == (POLLIN & conn.poll_fd->revents))
             {
-                bool read_error;
-                uint16_t bytes_read = read_data(conn, read_error);
-                if (!read_error)
+                uint16_t bytes_read = read_data(conn, transport_rc);
+                if (TransportRc::ok == transport_rc)
                 {
                     if (0 < bytes_read)
                     {
@@ -444,17 +448,21 @@ bool TCPv6Agent::read_message(
                 }
                 else
                 {
-                    close_connection(conn);
+                    if (TransportRc::connection_error == transport_rc)
+                    {
+                        close_connection(conn);
+                    }
                 }
+            }
+            else
+            {
+                transport_rc = TransportRc::connection_error;
             }
         }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            errno = ETIME;
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
 }
@@ -515,13 +523,19 @@ size_t TCPv6Agent::recv_data(
             }
             else
             {
-                transport_rc = TransportRc::error;
+                transport_rc = TransportRc::connection_error;
             }
         }
         else
         {
-            transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
+            transport_rc = (0 == poll_rv)
+                ? TransportRc::timeout_error
+                : TransportRc::connection_error;
         }
+    }
+    else
+    {
+        transport_rc = TransportRc::connection_error;
     }
     return rv;
 }
@@ -544,8 +558,12 @@ size_t TCPv6Agent::send_data(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::connection_error;
         }
+    }
+    else
+    {
+        transport_rc = TransportRc::connection_error;
     }
     return rv;
 }

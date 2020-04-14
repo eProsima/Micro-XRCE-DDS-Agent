@@ -47,7 +47,7 @@ size_t SerialAgent::write_data(
     }
     else
     {
-        transport_rc = TransportRc::error;
+        transport_rc = TransportRc::server_error;
     }
     return rv;
 }
@@ -69,12 +69,12 @@ size_t SerialAgent::read_data(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::server_error;
         }
     }
     else
     {
-        transport_rc = (poll_rv == 0) ? TransportRc::timeout : TransportRc::error;
+        transport_rc = (poll_rv == 0) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
 }

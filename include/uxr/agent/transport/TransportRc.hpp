@@ -23,8 +23,9 @@ namespace uxr {
 enum class TransportRc : uint8_t
 {
     ok,
-    error,
-    timeout,
+    server_error,
+    timeout_error,
+    connection_error,
 };
 
 } // namespace uxr

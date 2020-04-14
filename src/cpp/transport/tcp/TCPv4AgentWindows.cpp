@@ -109,7 +109,6 @@ bool TCPv4Agent::init()
                 listener_thread_ = std::thread(&TCPv4Agent::listener_loop, this);
                 rv = true;
 
-                rv = true;
                 UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("running..."),
                     "port: {}",
@@ -167,9 +166,10 @@ bool TCPv4Agent::fini()
 
     std::lock_guard<std::mutex> lock(connections_mtx_);
 
-    bool rv = true;
+    bool rv = false;
     if ((INVALID_SOCKET == listener_poll_.fd) && (active_connections_.empty()))
     {
+        rv = true;
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
@@ -205,9 +205,8 @@ bool TCPv4Agent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = true;
-    if (messages_queue_.empty() && !read_message(timeout))
+    if (messages_queue_.empty() && !read_message(timeout, transport_rc))
     {
-        transport_rc = TransportRc::timeout;
         rv = false;
     }
     else
@@ -234,6 +233,7 @@ bool TCPv4Agent::send_message(
 {
     bool rv = false;
     uint8_t msg_size_buf[2];
+    transport_rc = TransportRc::connection_error;
 
     std::unique_lock<std::mutex> lock(connections_mtx_);
     auto it = endpoint_to_connection_map_.find(output_packet.destination);
@@ -277,10 +277,11 @@ bool TCPv4Agent::send_message(
             do
             {
                 size_t send_rv =
-                        send_data(connection,
-                                  (output_packet.message->get_buf() + bytes_sent),
-                                  size_t(output_packet.message->get_len() - bytes_sent),
-                                  transport_rc);
+                    send_data(
+                        connection,
+                        (output_packet.message->get_buf() + bytes_sent),
+                        size_t(output_packet.message->get_len() - bytes_sent),
+                        transport_rc);
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -312,7 +313,8 @@ bool TCPv4Agent::send_message(
                     output_packet.message->get_len());
             }
         }
-        else
+
+        if (TransportRc::connection_error == transport_rc)
         {
             close_connection(connection);
         }
@@ -386,7 +388,9 @@ void TCPv4Agent::init_input_buffer(TCPInputBuffer& buffer)
     buffer.msg_size = 0;
 }
 
-bool TCPv4Agent::read_message(int timeout)
+bool TCPv4Agent::read_message(
+        int timeout,
+        TransportRc& transport_rc)
 {
     bool rv = false;
     int poll_rv = WSAPoll(poll_fds_.data(), ULONG(poll_fds_.size()), timeout);
@@ -396,9 +400,8 @@ bool TCPv4Agent::read_message(int timeout)
         {
             if (0 < (POLLIN & conn.poll_fd->revents))
             {
-                bool read_error;
-                uint16_t bytes_read = read_data(conn, read_error);
-                if (!read_error)
+                uint16_t bytes_read = read_data(conn, transport_rc);
+                if (TransportRc::ok == transport_rc)
                 {
                     if (0 < bytes_read)
                     {
@@ -411,17 +414,21 @@ bool TCPv4Agent::read_message(int timeout)
                 }
                 else
                 {
-                    close_connection(conn);
+                    if (TransportRc::connection_error == transport_rc)
+                    {
+                        close_connection(conn);
+                    }
                 }
+            }
+            else
+            {
+                transport_rc = TransportRc::connection_error;
             }
         }
     }
     else
     {
-        if (0 == poll_rv)
-        {
-            WSASetLastError(WAIT_TIMEOUT);
-        }
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
 }
@@ -481,13 +488,19 @@ size_t TCPv4Agent::recv_data(
             }
             else
             {
-                transport_rc = TransportRc::error;
+                transport_rc = TransportRc::connection_error;
             }
         }
         else
         {
-            transport_rc = (0 == poll_rv) ? TransportRc::timeout : TransportRc::error;
+            transport_rc = (0 == poll_rv)
+                ? TransportRc::timeout_error
+                : TransportRc::connection_error;
         }
+    }
+    else
+    {
+        transport_rc = TransportRc::connection_error;
     }
     return rv;
 }
@@ -510,8 +523,12 @@ size_t TCPv4Agent::send_data(
         }
         else
         {
-            transport_rc = TransportRc::error;
+            transport_rc = TransportRc::connection_error;
         }
+    }
+    else
+    {
+        transport_rc = TransportRc::connection_error;
     }
     return rv;
 }

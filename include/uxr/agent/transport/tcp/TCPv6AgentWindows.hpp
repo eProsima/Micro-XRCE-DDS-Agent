@@ -77,7 +77,9 @@ private:
     bool handle_error(
             TransportRc transport_rc) final;
 
-    bool read_message(int timeout);
+    bool read_message(
+            int timeout,
+            TransportRc& transport_rc);
 
     bool open_connection(
             SOCKET fd,
