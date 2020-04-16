@@ -429,7 +429,8 @@ bool TCPv6Agent::read_message(
     }
     else
     {
-        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
+        std::cout << WSAGetLastError() " : " << WSAEINVAL << std::endl;
+        transport_rc = ((0 == poll_rv) || (WSAEINVAL == WSAGetLastError())) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
 }
