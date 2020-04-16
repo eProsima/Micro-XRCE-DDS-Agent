@@ -424,6 +424,14 @@ bool TCPv6Agent::read_message(
         int timeout,
         TransportRc& transport_rc)
 {
+    std::unique_lock<std::mutex> lock(connections_mtx_);
+    if (active_connections_.empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+        return false;
+    }
+    lock.unlock();
+
     bool rv = false;
     int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
     if (0 < poll_rv)

@@ -390,6 +390,14 @@ bool TCPv4Agent::read_message(
         int timeout,
         TransportRc& transport_rc)
 {
+    std::unique_lock<std::mutex> lock(connections_mtx_);
+    if (active_connections_.empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+        return false;
+    }
+    lock.unlock();
+
     bool rv = false;
     int poll_rv = WSAPoll(poll_fds_.data(), ULONG(poll_fds_.size()), timeout);
     if (0 < poll_rv)
@@ -426,8 +434,7 @@ bool TCPv4Agent::read_message(
     }
     else
     {
-        std::cout << WSAGetLastError() << " : " << WSAEINVAL << std::endl;
-        transport_rc = ((0 == poll_rv) || (WSAEINVAL == WSAGetLastError())) ? TransportRc::timeout_error : TransportRc::server_error;
+        transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
 }

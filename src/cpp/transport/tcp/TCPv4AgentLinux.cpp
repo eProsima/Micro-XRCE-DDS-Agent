@@ -420,7 +420,6 @@ bool TCPv4Agent::read_message(
         int timeout,
         TransportRc& transport_rc)
 {
-
     std::unique_lock<std::mutex> lock(connections_mtx_);
     if (active_connections_.empty())
     {
