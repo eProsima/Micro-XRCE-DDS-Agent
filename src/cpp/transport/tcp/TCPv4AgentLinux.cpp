@@ -458,6 +458,7 @@ bool TCPv4Agent::read_message(
     }
     else
     {
+        std::cout << "<<<POLL_RV>>>: " << poll_rv << std::endl;
         transport_rc = (0 == poll_rv) ? TransportRc::timeout_error : TransportRc::server_error;
     }
     return rv;
