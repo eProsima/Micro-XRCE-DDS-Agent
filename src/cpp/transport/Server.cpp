@@ -201,16 +201,16 @@ void Server<EndPoint>::sender_loop()
     {
         if (output_scheduler_.pop(output_packet))
         {
-            TransportRc transport_rc;
+            TransportRc transport_rc = TransportRc::ok;
             if (!send_message(output_packet, transport_rc))
             {
                 if (TransportRc::server_error == transport_rc)
                 {
                     std::unique_lock<std::mutex> lock(error_mtx_);
                     transport_rc_ = transport_rc;
+                    output_scheduler_.push_front(std::move(output_packet));
                     error_cv_.notify_one();
                 }
-                output_scheduler_.push_front(std::move(output_packet));
             }
         }
     }
