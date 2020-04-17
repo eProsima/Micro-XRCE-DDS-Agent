@@ -334,15 +334,13 @@ bool TCPv4Agent::send_message(
         {
             rv = true;
 
-            uint32_t raw_client_key;
-            if (Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key))
-            {
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
-                    raw_client_key,
-                    output_packet.message->get_buf(),
-                    output_packet.message->get_len());
-            }
+            uint32_t raw_client_key = 0u;
+            Server<IPv4EndPoint>::get_client_key(output_packet.destination, raw_client_key);
+            UXR_AGENT_LOG_MESSAGE(
+                UXR_DECORATE_YELLOW("[** <<TCP>> **]"),
+                raw_client_key,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len());
         }
 
         if (TransportRc::connection_error == transport_rc)
@@ -422,6 +420,14 @@ bool TCPv4Agent::read_message(
         int timeout,
         TransportRc& transport_rc)
 {
+    std::unique_lock<std::mutex> lock(connections_mtx_);
+    if (active_connections_.empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+        return false;
+    }
+    lock.unlock();
+
     bool rv = false;
     int poll_rv = poll(poll_fds_.data(), poll_fds_.size(), timeout);
     if (0 < poll_rv)
@@ -474,16 +480,15 @@ void TCPv4Agent::listener_loop()
             {
                 if (connection_available())
                 {
-                    /* New client connection. */
-                    struct sockaddr_in client_addr;
-                    socklen_t client_addr_len;
+                    struct sockaddr_in client_addr{};
+                    socklen_t client_addr_len = sizeof(client_addr);
                     int incoming_fd =
-                            accept(listener_poll_.fd,
-                                   reinterpret_cast<struct sockaddr*>(&client_addr),
-                                   &client_addr_len);
+                        accept(
+                            listener_poll_.fd,
+                            reinterpret_cast<struct sockaddr*>(&client_addr),
+                            &client_addr_len);
                     if (-1 != incoming_fd)
                     {
-                        /* Open connection. */
                         open_connection(incoming_fd, client_addr);
                     }
                 }

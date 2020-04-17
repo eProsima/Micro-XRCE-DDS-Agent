@@ -173,10 +173,10 @@ void Server<EndPoint>::push_output_packet(
 template<typename EndPoint>
 void Server<EndPoint>::receiver_loop()
 {
-    InputPacket<EndPoint> input_packet;
+    InputPacket<EndPoint> input_packet{};
     while (running_cond_)
     {
-        TransportRc transport_rc;
+        TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
             input_scheduler_.push(std::move(input_packet), 0);
@@ -201,16 +201,16 @@ void Server<EndPoint>::sender_loop()
     {
         if (output_scheduler_.pop(output_packet))
         {
-            TransportRc transport_rc;
+            TransportRc transport_rc = TransportRc::ok;
             if (!send_message(output_packet, transport_rc))
             {
                 if (TransportRc::server_error == transport_rc)
                 {
                     std::unique_lock<std::mutex> lock(error_mtx_);
                     transport_rc_ = transport_rc;
+                    output_scheduler_.push_front(std::move(output_packet));
                     error_cv_.notify_one();
                 }
-                output_scheduler_.push_front(std::move(output_packet));
             }
         }
     }
@@ -245,8 +245,8 @@ void Server<EndPoint>::error_handler_loop()
     while (running_cond_)
     {
         std::unique_lock<std::mutex> lock(error_mtx_);
-        error_cv_.wait(lock, [&](){ return !(running_cond_ && (transport_rc_ == TransportRc::ok)); });
-        if (running_cond_ && (transport_rc_ != TransportRc::ok))
+        error_cv_.wait(lock, [&](){ return !running_cond_ || (transport_rc_ == TransportRc::server_error); });
+        if (running_cond_)
         {
             bool error_handled = handle_error(transport_rc_);
             while (running_cond_ && !error_handled)
