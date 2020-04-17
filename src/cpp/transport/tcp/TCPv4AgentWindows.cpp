@@ -450,15 +450,15 @@ void TCPv4Agent::listener_loop()
             {
                 if (connection_available())
                 {
-                    /* New client connection. */
-                    struct sockaddr_in client_addr;
+                    struct sockaddr_in client_addr{};
                     int client_addr_len = sizeof(client_addr);
-                    SOCKET incoming_fd = accept(listener_poll_.fd,
-                                                reinterpret_cast<struct sockaddr*>(&client_addr),
-                                                &client_addr_len);
+                    SOCKET incoming_fd =
+                        accept(
+                            listener_poll_.fd,
+                            reinterpret_cast<struct sockaddr*>(&client_addr),
+                            &client_addr_len);
                     if (INVALID_SOCKET != incoming_fd)
                     {
-                        /* Open connection. */
                         open_connection(incoming_fd, client_addr);
                     }
                 }

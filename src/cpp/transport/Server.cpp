@@ -173,10 +173,10 @@ void Server<EndPoint>::push_output_packet(
 template<typename EndPoint>
 void Server<EndPoint>::receiver_loop()
 {
-    InputPacket<EndPoint> input_packet;
+    InputPacket<EndPoint> input_packet{};
     while (running_cond_)
     {
-        TransportRc transport_rc;
+        TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
             input_scheduler_.push(std::move(input_packet), 0);
