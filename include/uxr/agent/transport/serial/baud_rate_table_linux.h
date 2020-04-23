@@ -20,6 +20,7 @@
 #include <string.h>
 #include <termios.h>
 
+inline
 speed_t getBaudRate(const char* baudrate_str)
 {
     speed_t rv;
