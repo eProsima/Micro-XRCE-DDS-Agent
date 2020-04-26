@@ -421,6 +421,7 @@ bool TCPv4Agent::read_message(
     std::unique_lock<std::mutex> lock(connections_mtx_);
     if (active_connections_.empty())
     {
+        lock.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
         return false;
     }
