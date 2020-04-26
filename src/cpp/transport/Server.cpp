@@ -113,12 +113,12 @@ bool Server<EndPoint>::stop()
     /* Close servers. */
     bool rv = true;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv &= fini_discovery();
+    rv = fini_discovery() && rv;
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv &= fini_p2p();
+    rv = fini_p2p() && rv;
 #endif
-    rv &= fini();
+    rv = fini() && rv;
     return rv;
 }
 
