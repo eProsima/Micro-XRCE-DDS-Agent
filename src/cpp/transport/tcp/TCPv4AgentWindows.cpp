@@ -214,15 +214,13 @@ bool TCPv4Agent::recv_message(
         input_packet = std::move(messages_queue_.front());
         messages_queue_.pop();
 
-        uint32_t raw_client_key;
-        if (Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key))
-        {
-            UXR_AGENT_LOG_MESSAGE(
-                UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
-                raw_client_key,
-                input_packet.message->get_buf(),
-                input_packet.message->get_len());
-        }
+        uint32_t raw_client_key = 0u;
+        Server<IPv4EndPoint>::get_client_key(input_packet.source, raw_client_key);
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> TCP <<==]"),
+            raw_client_key,
+            input_packet.message->get_buf(),
+            input_packet.message->get_len());
     }
     return rv;
 }
