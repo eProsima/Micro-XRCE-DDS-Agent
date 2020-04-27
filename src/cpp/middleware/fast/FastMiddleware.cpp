@@ -46,7 +46,7 @@ bool FastMiddleware::create_participant_by_xml(uint16_t participant_id, int16_t 
     fastrtps::ParticipantAttributes attributes;
     if (xmlobjects::parse_participant(xml.data(), xml.size(), attributes))
     {
-        attributes.rtps.builtin.domainId = uint32_t(domain_id);
+        attributes.domainId = uint32_t(domain_id);
         std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
         if (participant->create_by_attributes(attributes))
         {

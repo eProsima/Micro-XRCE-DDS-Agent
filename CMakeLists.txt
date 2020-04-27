@@ -60,8 +60,8 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dea
 ###############################################################################
 set(_deps "")
 
-set(_fastcdr_version 1.0.10)
-set(_fastcdr_tag v1.0.11)
+set(_fastcdr_version 1.0.13)
+set(_fastcdr_tag v1.0.13)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
 set(_cli11_version 1.7.1)
@@ -75,8 +75,8 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 1.8.3)
-    set(_fastrtps_tag b257a33)
+    set(_fastrtps_version 2.0.0)
+    set(_fastrtps_tag 01b14a7)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
