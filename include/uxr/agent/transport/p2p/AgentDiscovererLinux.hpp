@@ -34,7 +34,7 @@ private:
     bool init(
             uint16_t p2p_port) final;
 
-    bool close() final;
+    bool fini() final;
 
     bool recv_message(
             InputMessagePtr& input_message,

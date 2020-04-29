@@ -33,7 +33,6 @@ public:
     static InternalClientManager& instance();
 
     void set_local_address(
-            const std::array<uint8_t, 4>& ip,
             uint16_t port);
 
     void create_client(

@@ -15,6 +15,7 @@
 #include <uxr/agent/p2p/InternalClient.hpp>
 #include <uxr/agent/middleware/ced/CedEntities.hpp>
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 #include <ucdr/microcdr.h>
 
 #include <string>
@@ -46,14 +47,7 @@ InternalClient::InternalClient(
     , in_stream_id_{}
     , running_cond_{false}
     , thread_{}
-{
-    std::cout << "--> OK: created InternalClient at address ";
-    std::cout << int(ip[0]) << ".";
-    std::cout << int(ip[1]) << ".";
-    std::cout << int(ip[2]) << ".";
-    std::cout << int(ip[3]) << ":";
-    std::cout << port << std::endl;
-}
+{}
 
 static void on_topic(
         uxrSession* session,
@@ -117,19 +111,29 @@ bool InternalClient::run()
                 /* Create streams. */
                 create_streams();
 
-                std::cout << "--> OK: running InternalClient" << std::endl;
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_GREEN("connected to Agent"),
+                    "address: {}:{}",
+                    ip, port);
+
                 running_cond_ = true;
                 thread_ = std::thread(&InternalClient::loop, this);
                 rv = true;
             }
             else
             {
-                std::cerr << "--> ERROR: failed to create session in InternalClient" << std::endl;
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_RED("failed to create session with Agent"),
+                    "address: {}:{}",
+                    ip, port);
             }
         }
         else
         {
-            std::cerr << "--> ERROR: failed to create transport in InternalClient" << std::endl;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_RED("failed to init transport with Agent"),
+                "address: {}:{}",
+                ip, port);
         }
     }
 

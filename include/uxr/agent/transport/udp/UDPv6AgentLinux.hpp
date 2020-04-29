@@ -20,9 +20,6 @@
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
-#ifdef UAGENT_P2P_PROFILE
-#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
-#endif
 
 #include <cstdint>
 #include <cstddef>
@@ -78,9 +75,6 @@ private:
     uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
-#endif
-#ifdef UAGENT_P2P_PROFILE
-    AgentDiscovererLinux agent_discoverer_;
 #endif
 };
 

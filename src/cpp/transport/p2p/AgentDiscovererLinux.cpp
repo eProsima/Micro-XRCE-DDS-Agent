@@ -72,7 +72,7 @@ bool AgentDiscovererLinux::init(
     return rv;
 }
 
-bool AgentDiscovererLinux::close()
+bool AgentDiscovererLinux::fini()
 {
     return (-1 == poll_fd_.fd) || (0 == ::close(poll_fd_.fd));
 }
