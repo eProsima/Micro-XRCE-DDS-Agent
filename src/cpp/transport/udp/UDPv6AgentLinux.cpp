@@ -41,9 +41,6 @@ UDPv6Agent::UDPv6Agent(
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
 #endif
-#ifdef UAGENT_P2P_PROFILE
-    , agent_discoverer_{*this}
-#endif
 {}
 
 UDPv6Agent::~UDPv6Agent()
@@ -153,21 +150,16 @@ bool UDPv6Agent::fini_discovery()
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool UDPv6Agent::init_p2p(uint16_t p2p_port)
+bool UDPv6Agent::init_p2p(uint16_t /*p2p_port*/)
 {
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(p2p_port);
-#endif
-//    return agent_discoverer_.run(p2p_port, transport_address_);
-    return true; // TODO.
+    // TODO (julibert): implement UDP/IPv6 InternalClient.
+    return true;
 }
 
 bool UDPv6Agent::fini_p2p()
 {
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(0);
-#endif
-    return agent_discoverer_.stop();
+    // TODO (julibert): implement UDP/IPv6 InternalClient.
+    return true;
 }
 #endif
 
