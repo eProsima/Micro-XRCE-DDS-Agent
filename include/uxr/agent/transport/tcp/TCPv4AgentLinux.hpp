@@ -20,9 +20,6 @@
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
 #endif
-#ifdef UAGENT_P2P_PROFILE
-#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
-#endif
 
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -126,9 +123,6 @@ private:
     std::queue<InputPacket<IPv4EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux<IPv4EndPoint> discovery_server_;
-#endif
-#ifdef UAGENT_P2P_PROFILE
-    AgentDiscovererLinux agent_discoverer_;
 #endif
 };
 

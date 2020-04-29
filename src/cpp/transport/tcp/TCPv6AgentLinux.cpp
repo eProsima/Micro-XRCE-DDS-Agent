@@ -52,9 +52,6 @@ TCPv6Agent::TCPv6Agent(
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
 #endif
-#ifdef UAGENT_P2P_PROFILE
-    , agent_discoverer_{*this}
-#endif
 {}
 
 TCPv6Agent::~TCPv6Agent()
@@ -214,20 +211,16 @@ bool TCPv6Agent::fini_discovery()
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool TCPv6Agent::init_p2p(uint16_t p2p_port)
+bool TCPv6Agent::init_p2p(uint16_t /*p2p_port*/)
 {
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(p2p_port);
-#endif
+    // TODO (julibert): implement TCP InternalClient.
     return true;
 }
 
 bool TCPv6Agent::fini_p2p()
 {
-#ifdef UAGENT_DISCOVERY_PROFILE
-    discovery_server_.set_filter_port(0);
-#endif
-    return agent_discoverer_.stop();
+    // TODO (julibert): implement TCP InternalClient.
+    return true;
 }
 #endif
 
