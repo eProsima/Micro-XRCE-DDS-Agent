@@ -27,10 +27,9 @@ InternalClientManager& InternalClientManager::instance()
 }
 
 void InternalClientManager::set_local_address(
-        const std::array<uint8_t, 4>& ip,
         uint16_t port)
 {
-    local_client_key_ = port + (uint32_t(ip[3]) << 16) + (uint32_t(0xEA) << 24);
+    local_client_key_ = port + (uint32_t(0xEA) << 24);
 }
 
 void InternalClientManager::create_client(

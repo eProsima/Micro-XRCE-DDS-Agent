@@ -39,21 +39,17 @@ public:
     AgentDiscoverer& operator=(AgentDiscoverer&&) = delete;
     AgentDiscoverer& operator=(const AgentDiscoverer&) = delete;
 
-    bool run(
+    bool start(
             uint16_t p2p_port,
-            const dds::xrce::TransportAddress& local_address);
+            uint16_t agent_port);
 
     bool stop();
-
-    void set_local_address(
-            const std::array<uint8_t, 4>& ip,
-            uint16_t port);
 
 private:
     virtual bool init(
             uint16_t p2p_port) = 0;
 
-    virtual bool close() = 0;
+    virtual bool fini() = 0;
 
     virtual bool recv_message(
             InputMessagePtr& input_message,

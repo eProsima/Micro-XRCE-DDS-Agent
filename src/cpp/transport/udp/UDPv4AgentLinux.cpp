@@ -157,8 +157,7 @@ bool UDPv4Agent::init_p2p(uint16_t p2p_port)
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
 #endif
-//    return agent_discoverer_.run(p2p_port, transport_address_);
-    return true; // TODO.
+    return agent_discoverer_.start(p2p_port, agent_port_);
 }
 
 bool UDPv4Agent::fini_p2p()
