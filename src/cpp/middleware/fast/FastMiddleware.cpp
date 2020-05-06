@@ -20,14 +20,13 @@
 namespace eprosima {
 namespace uxr {
 
-FastMiddleware::FastMiddleware()
-{
-}
-
 /**********************************************************************************************************************
  * Create functions.
  **********************************************************************************************************************/
-bool FastMiddleware::create_participant_by_ref(uint16_t participant_id, int16_t domain_id, const std::string& ref)
+bool FastMiddleware::create_participant_by_ref(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const std::string& ref)
 {
     bool rv = false;
     std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
@@ -39,7 +38,10 @@ bool FastMiddleware::create_participant_by_ref(uint16_t participant_id, int16_t 
     return rv;
 }
 
-bool FastMiddleware::create_participant_by_xml(uint16_t participant_id, int16_t domain_id, const std::string& xml)
+bool FastMiddleware::create_participant_by_xml(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const std::string& xml)
 {
     (void) domain_id;
     bool rv = false;
@@ -57,7 +59,10 @@ bool FastMiddleware::create_participant_by_xml(uint16_t participant_id, int16_t 
     return rv;
 }
 
-bool FastMiddleware::create_topic_by_ref(uint16_t topic_id, uint16_t participant_id, const std::string& ref)
+bool FastMiddleware::create_topic_by_ref(
+        uint16_t topic_id,
+        uint16_t participant_id,
+        const std::string& ref)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -78,7 +83,10 @@ bool FastMiddleware::create_topic_by_ref(uint16_t topic_id, uint16_t participant
     return rv;
 }
 
-bool FastMiddleware::create_topic_by_xml(uint16_t topic_id, uint16_t participant_id, const std::string& xml)
+bool FastMiddleware::create_topic_by_xml(
+        uint16_t topic_id,
+        uint16_t participant_id,
+        const std::string& xml)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -98,24 +106,31 @@ bool FastMiddleware::create_topic_by_xml(uint16_t topic_id, uint16_t participant
     return rv;
 }
 
-bool FastMiddleware::create_publisher_by_xml(uint16_t publisher_id, uint16_t participant_id, const std::string&)
+bool FastMiddleware::create_publisher_by_xml(
+        uint16_t publisher_id,
+        uint16_t participant_id,
+        const std::string&)
 {
     std::shared_ptr<FastPublisher> publisher(new FastPublisher(participant_id));
     publishers_.emplace(publisher_id, std::move(publisher));
     return true;
 }
 
-bool FastMiddleware::create_subscriber_by_xml(uint16_t subscriber_id, uint16_t participant_id, const std::string&)
+bool FastMiddleware::create_subscriber_by_xml(
+        uint16_t subscriber_id,
+        uint16_t participant_id,
+        const std::string&)
 {
     std::shared_ptr<FastSubscriber> subscriber(new FastSubscriber(participant_id));
     subscribers_.emplace(subscriber_id, std::move(subscriber));
     return true;
 }
 
-bool FastMiddleware::create_datawriter_by_ref(uint16_t datawriter_id,
-                                                uint16_t publisher_id,
-                                                const std::string& ref,
-                                                uint16_t& associated_topic_id)
+bool FastMiddleware::create_datawriter_by_ref(
+        uint16_t datawriter_id,
+        uint16_t publisher_id,
+        const std::string& ref,
+        uint16_t& associated_topic_id)
 {
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
@@ -135,10 +150,11 @@ bool FastMiddleware::create_datawriter_by_ref(uint16_t datawriter_id,
     return rv;
 }
 
-bool FastMiddleware::create_datawriter_by_xml(uint16_t datawriter_id,
-                                                uint16_t publisher_id,
-                                                const std::string& xml,
-                                                uint16_t& associated_topic_id)
+bool FastMiddleware::create_datawriter_by_xml(
+        uint16_t datawriter_id,
+        uint16_t publisher_id,
+        const std::string& xml,
+        uint16_t& associated_topic_id)
 {
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
@@ -161,6 +177,60 @@ bool FastMiddleware::create_datawriter_by_xml(uint16_t datawriter_id,
     }
     return rv;
 }
+
+bool FastMiddleware::create_datareader_by_ref(
+        uint16_t datareader_id,
+        uint16_t subscriber_id,
+        const std::string& ref,
+        uint16_t& associated_topic_id)
+{
+    bool rv = false;
+    auto it_subscriber = subscribers_.find(subscriber_id);
+    if (subscribers_.end() != it_subscriber)
+    {
+        auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
+        if (participants_.end() != it_participant)
+        {
+            std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
+            std::string topic_name;
+            if (datareader->create_by_ref(ref, associated_topic_id))
+            {
+                datareaders_.emplace(datareader_id, std::move(datareader));
+                rv = true;
+            }
+        }
+    }
+    return rv;
+}
+
+bool FastMiddleware::create_datareader_by_xml(
+        uint16_t datareader_id,
+        uint16_t subscriber_id,
+        const std::string& xml,
+        uint16_t& associated_topic_id)
+{
+    bool rv = false;
+    auto it_subscriber = subscribers_.find(subscriber_id);
+    if (subscribers_.end() != it_subscriber)
+    {
+        auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
+        if (participants_.end() != it_participant)
+        {
+            fastrtps::SubscriberAttributes attributes;
+            if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attributes))
+            {
+                std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
+                if (datareader->create_by_attributes(attributes, associated_topic_id))
+                {
+                    datareaders_.emplace(datareader_id, std::move(datareader));
+                    rv = true;
+                }
+            }
+        }
+    }
+    return rv;
+}
+
 
 bool FastMiddleware::create_requester_by_ref(
         uint16_t requester_id,
@@ -246,96 +316,53 @@ bool FastMiddleware::create_replier_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_datareader_by_ref(uint16_t datareader_id,
-                                                uint16_t subscriber_id,
-                                                const std::string& ref,
-                                                uint16_t& associated_topic_id)
-{
-    bool rv = false;
-    auto it_subscriber = subscribers_.find(subscriber_id);
-    if (subscribers_.end() != it_subscriber)
-    {
-        auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
-        if (participants_.end() != it_participant)
-        {
-            std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
-            std::string topic_name;
-            if (datareader->create_by_ref(ref, associated_topic_id))
-            {
-                datareaders_.emplace(datareader_id, std::move(datareader));
-                rv = true;
-            }
-        }
-    }
-    return rv;
-}
-
-bool FastMiddleware::create_datareader_by_xml(uint16_t datareader_id,
-                                                uint16_t subscriber_id,
-                                                const std::string& xml,
-                                                uint16_t& associated_topic_id)
-{
-    bool rv = false;
-    auto it_subscriber = subscribers_.find(subscriber_id);
-    if (subscribers_.end() != it_subscriber)
-    {
-        auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
-        if (participants_.end() != it_participant)
-        {
-            fastrtps::SubscriberAttributes attributes;
-            if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attributes))
-            {
-                std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
-                if (datareader->create_by_attributes(attributes, associated_topic_id))
-                {
-                    datareaders_.emplace(datareader_id, std::move(datareader));
-                    rv = true;
-                }
-            }
-        }
-    }
-    return rv;
-}
-
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
-bool FastMiddleware::delete_participant(uint16_t participant_id)
+bool FastMiddleware::delete_participant(
+        uint16_t participant_id)
 {
     return (0 != participants_.erase(participant_id));
 }
 
-bool FastMiddleware::delete_topic(uint16_t topic_id)
+bool FastMiddleware::delete_topic(
+        uint16_t topic_id)
 {
     return (0 != topics_.erase(topic_id));
 }
 
-bool FastMiddleware::delete_publisher(uint16_t publisher_id)
+bool FastMiddleware::delete_publisher(
+        uint16_t publisher_id)
 {
     return (0 != publishers_.erase(publisher_id));
 }
 
-bool FastMiddleware::delete_subscriber(uint16_t subscriber_id)
+bool FastMiddleware::delete_subscriber(
+        uint16_t subscriber_id)
 {
     return (0 != subscribers_.erase(subscriber_id));
 }
 
-bool FastMiddleware::delete_datawriter(uint16_t datawriter_id)
+bool FastMiddleware::delete_datawriter(
+        uint16_t datawriter_id)
 {
     return (0 != datawriters_.erase(datawriter_id));
 }
 
-bool FastMiddleware::delete_datareader(uint16_t datareader_id)
+bool FastMiddleware::delete_datareader(
+        uint16_t datareader_id)
 {
     return (0 != datareaders_.erase(datareader_id));
 }
 
-bool FastMiddleware::delete_requester(uint16_t requester_id)
+bool FastMiddleware::delete_requester(
+        uint16_t requester_id)
 {
     return (0 != requesters_.erase(requester_id));
 }
 
-bool FastMiddleware::delete_replier(uint16_t replier_id)
+bool FastMiddleware::delete_replier(
+        uint16_t replier_id)
 {
     return (0 != repliers_.erase(replier_id));
 }
@@ -457,7 +484,9 @@ bool FastMiddleware::matched_participant_from_xml(
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const
+bool FastMiddleware::matched_topic_from_ref(
+        uint16_t topic_id,
+        const std::string& ref) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -468,7 +497,9 @@ bool FastMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const
+bool FastMiddleware::matched_topic_from_xml(
+        uint16_t topic_id,
+        const std::string& xml) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
@@ -479,7 +510,9 @@ bool FastMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const
+bool FastMiddleware::matched_datawriter_from_ref(
+        uint16_t datawriter_id,
+        const std::string& ref) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -490,7 +523,9 @@ bool FastMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const
+bool FastMiddleware::matched_datawriter_from_xml(
+        uint16_t datawriter_id,
+        const std::string& xml) const
 {
     bool rv = false;
     auto it = datawriters_.find(datawriter_id);
@@ -501,7 +536,9 @@ bool FastMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const
+bool FastMiddleware::matched_datareader_from_ref(
+        uint16_t datareader_id,
+        const std::string& ref) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);
@@ -512,7 +549,9 @@ bool FastMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const s
     return rv;
 }
 
-bool FastMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const
+bool FastMiddleware::matched_datareader_from_xml(
+        uint16_t datareader_id,
+        const std::string& xml) const
 {
     bool rv = false;
     auto it = datareaders_.find(datareader_id);

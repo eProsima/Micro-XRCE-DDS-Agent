@@ -46,7 +46,8 @@ class FastType;
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
-class FastParticipant : public fastrtps::ParticipantListener,  public std::enable_shared_from_this<FastParticipant>
+class FastParticipant : public fastrtps::ParticipantListener,
+                        public std::enable_shared_from_this<FastParticipant>
 {
 public:
     FastParticipant(int16_t domain_id)

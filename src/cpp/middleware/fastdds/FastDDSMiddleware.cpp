@@ -161,56 +161,64 @@ bool FastDDSMiddleware::create_replier_by_xml(
     return rv;
 }
 
-bool FastDDSMiddleware::delete_participant(uint16_t participant_id)
+bool FastDDSMiddleware::delete_participant(
+        uint16_t participant_id)
 {
     // TODO.
     return false;
 //    return (0 != participants_.erase(participant_id));
 }
 
-bool FastDDSMiddleware::delete_topic(uint16_t topic_id)
+bool FastDDSMiddleware::delete_topic(
+        uint16_t topic_id)
 {
     // TODO.
     return false;
 //    return (0 != topics_.erase(topic_id));
 }
 
-bool FastDDSMiddleware::delete_publisher(uint16_t publisher_id)
+bool FastDDSMiddleware::delete_publisher(
+        uint16_t publisher_id)
 {
     // TODO.
     return false;
 //    return (0 != publishers_.erase(publisher_id));
 }
 
-bool FastDDSMiddleware::delete_subscriber(uint16_t subscriber_id)
+bool FastDDSMiddleware::delete_subscriber(
+        uint16_t subscriber_id)
 {
     // TODO.
     return false;
 //    return (0 != subscribers_.erase(subscriber_id));
 }
 
-bool FastDDSMiddleware::delete_datawriter(uint16_t datawriter_id)
+bool FastDDSMiddleware::delete_datawriter(
+        uint16_t datawriter_id)
 {
     // TODO.
     return false;
 //    return (0 != datawriters_.erase(datawriter_id));
 }
 
-bool FastDDSMiddleware::delete_datareader(uint16_t datareader_id)
+bool FastDDSMiddleware::delete_datareader(
+        uint16_t datareader_id)
 {
     // TODO.
     return false;
 //    return (0 != datareaders_.erase(datareader_id));
 }
 
-bool FastDDSMiddleware::delete_requester(uint16_t requester_id)
+bool FastDDSMiddleware::delete_requester(
+        uint16_t requester_id)
 {
     // TODO.
     return false;
 //    return (0 != requesters_.erase(requester_id));
 }
 
-bool FastDDSMiddleware::delete_replier(uint16_t replier_id)
+bool FastDDSMiddleware::delete_replier(
+        uint16_t replier_id)
 {
     // TODO.
     return false;
@@ -344,7 +352,9 @@ bool FastDDSMiddleware::matched_participant_from_xml(
 //    return rv;
 }
 
-bool FastDDSMiddleware::matched_topic_from_ref(uint16_t topic_id, const std::string& ref) const
+bool FastDDSMiddleware::matched_topic_from_ref(
+        uint16_t topic_id,
+        const std::string& ref) const
 {
     // TODO.
     return false;
@@ -370,7 +380,9 @@ bool FastDDSMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::str
 //    return rv;
 }
 
-bool FastDDSMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, const std::string& ref) const
+bool FastDDSMiddleware::matched_datawriter_from_ref(
+        uint16_t datawriter_id,
+        const std::string& ref) const
 {
     // TODO.
     return false;
@@ -383,7 +395,9 @@ bool FastDDSMiddleware::matched_datawriter_from_ref(uint16_t datawriter_id, cons
 //    return rv;
 }
 
-bool FastDDSMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, const std::string& xml) const
+bool FastDDSMiddleware::matched_datawriter_from_xml(
+        uint16_t datawriter_id,
+        const std::string& xml) const
 {
     // TODO.
     return false;
@@ -396,7 +410,9 @@ bool FastDDSMiddleware::matched_datawriter_from_xml(uint16_t datawriter_id, cons
 //    return rv;
 }
 
-bool FastDDSMiddleware::matched_datareader_from_ref(uint16_t datareader_id, const std::string& ref) const
+bool FastDDSMiddleware::matched_datareader_from_ref(
+        uint16_t datareader_id,
+        const std::string& ref) const
 {
     // TODO.
     return false;
@@ -409,7 +425,9 @@ bool FastDDSMiddleware::matched_datareader_from_ref(uint16_t datareader_id, cons
 //    return rv;
 }
 
-bool FastDDSMiddleware::matched_datareader_from_xml(uint16_t datareader_id, const std::string& xml) const
+bool FastDDSMiddleware::matched_datareader_from_xml(
+        uint16_t datareader_id,
+        const std::string& xml) const
 {
     // TODO.
     return false;
