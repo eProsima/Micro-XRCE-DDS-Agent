@@ -58,6 +58,7 @@ public:
 #endif
 #ifdef UAGENT_FAST_PROFILE
         set_.insert("dds");
+        set_.insert("rtps");
         kind_ = "dds";
 #endif
         cli_opt_ = subcommand.add_set("-m,--middleware", kind_, set_, "Select the kind of Middleware", true);
@@ -68,7 +69,11 @@ public:
 #ifdef UAGENT_FAST_PROFILE
         if ("dds" == kind_)
         {
-            return eprosima::uxr::Middleware::Kind::FAST;
+            return eprosima::uxr::Middleware::Kind::FASTDDS;
+        }
+        if ("rtps" == kind_)
+        {
+            return eprosima::uxr::Middleware::Kind::FASTRTPS;
         }
 #endif
 #ifdef UAGENT_CED_PROFILE

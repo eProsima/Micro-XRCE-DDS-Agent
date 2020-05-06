@@ -24,6 +24,7 @@
 
 #ifdef UAGENT_FAST_PROFILE
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
 #endif
 
 #ifdef UAGENT_CED_PROFILE
@@ -52,9 +53,14 @@ ProxyClient::ProxyClient(
                 conversion::clientkey_to_raw(representation.client_key()));
         }
 #ifdef UAGENT_FAST_PROFILE
-        case Middleware::Kind::FAST:
+        case Middleware::Kind::FASTRTPS:
         {
             middleware_.reset(new FastMiddleware());
+            break;
+        }
+        case Middleware::Kind::FASTDDS:
+        {
+            middleware_.reset(new FastDDSMiddleware());
             break;
         }
 #endif
