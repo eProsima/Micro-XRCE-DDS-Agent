@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 namespace eprosima {
 namespace uxr {
@@ -212,7 +213,7 @@ public:
             const std::string& xml) const override;
 
 private:
-//    std::unordered_map<uint16_t, std::shared_ptr<FastDDSParticipant>> participants_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSParticipant>> participants_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSTopic>> topics_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSPublisher>> publishers_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSSubscriber>> subscribers_;

@@ -67,8 +67,6 @@ public:
 
     bool match_from_xml(const std::string& xml) const;
 
-    bool remove();
-
     void onParticipantDiscovery(
             fastrtps::Participant*,
             fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;

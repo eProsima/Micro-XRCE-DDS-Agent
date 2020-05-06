@@ -28,7 +28,25 @@ namespace uxr {
 
 class FastDDSParticipant
 {
-    // TODO.
+public:
+    FastDDSParticipant(int16_t domain_id)
+        : domain_id_{domain_id}
+        , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
+        , ptr_{nullptr}
+    {}
+
+    ~FastDDSParticipant();
+
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+    int16_t get_domain_id() const { return domain_id_; }
+
+private:
+    int16_t domain_id_;
+    fastdds::dds::DomainParticipantFactory* factory_;
+    fastdds::dds::DomainParticipant* ptr_;
 };
 
 class FastDDSTopic

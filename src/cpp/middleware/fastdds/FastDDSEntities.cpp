@@ -16,9 +16,14 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/attributes/all_attributes.h>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include "../../xmlobjects/xmlobjects.h"
+
 
 namespace eprosima {
 namespace uxr {
+
+using namespace fastrtps::xmlparser;
 
 static void set_qos_from_attributes(
         fastdds::dds::DomainParticipantQos& qos,
@@ -129,6 +134,75 @@ static void set_qos_from_attributes(
     qos.time_based_filter() = attr.qos.m_timeBasedFilter;
     qos.history() = attr.topic.historyQos;
     qos.resource_limits() = attr.topic.resourceLimitsQos;
+}
+
+FastDDSParticipant::~FastDDSParticipant()
+{
+    factory_->delete_participant(ptr_);
+}
+
+bool FastDDSParticipant::create_by_ref(
+        const std::string& ref)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        ptr_ = factory_->create_participant_with_profile(domain_id_, ref);
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
+bool FastDDSParticipant::create_by_xml(
+        const std::string& xml)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastrtps::ParticipantAttributes attrs;
+        if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::DomainParticipantQos qos;
+            set_qos_from_attributes(qos, attrs.rtps);
+            ptr_ = factory_->create_participant(domain_id_, qos);
+        }
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
+bool FastDDSParticipant::match_from_ref(
+        const std::string& ref) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::ParticipantAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+        {
+            fastdds::dds::DomainParticipantQos qos;
+            set_qos_from_attributes(qos, attrs.rtps);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSParticipant::match_from_xml(
+        const std::string& xml) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::ParticipantAttributes attrs;
+        if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::DomainParticipantQos qos;
+            set_qos_from_attributes(qos, attrs.rtps);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
 }
 
 } // namespace uxr

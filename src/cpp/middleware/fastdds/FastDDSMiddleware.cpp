@@ -23,7 +23,12 @@ bool FastDDSMiddleware::create_participant_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    // TODO.
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
+    if (participant->create_by_ref(ref))
+    {
+        participants_.emplace(participant_id, std::move(participant));
+        rv = true;
+    }
     return rv;
 }
 
@@ -33,7 +38,12 @@ bool FastDDSMiddleware::create_participant_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    // TODO.
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
+    if (participant->create_by_xml(xml))
+    {
+        participants_.emplace(participant_id, std::move(participant));
+        rv = true;
+    }
     return rv;
 }
 
@@ -164,9 +174,7 @@ bool FastDDSMiddleware::create_replier_by_xml(
 bool FastDDSMiddleware::delete_participant(
         uint16_t participant_id)
 {
-    // TODO.
-    return false;
-//    return (0 != participants_.erase(participant_id));
+    return (0 != participants_.erase(participant_id));
 }
 
 bool FastDDSMiddleware::delete_topic(
@@ -325,15 +333,13 @@ bool FastDDSMiddleware::matched_participant_from_ref(
         int16_t domain_id,
         const std::string& ref) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = participants_.find(participant_id);
-//    if (participants_.end() != it)
-//    {
-//        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
-//    }
-//    return rv;
+    bool rv = false;
+    auto it = participants_.find(participant_id);
+    if (participants_.end() != it)
+    {
+        rv = (domain_id == it->second->get_domain_id()) && (it->second->match_from_ref(ref));
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_participant_from_xml(
@@ -341,15 +347,13 @@ bool FastDDSMiddleware::matched_participant_from_xml(
         int16_t domain_id,
         const std::string& xml) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = participants_.find(participant_id);
-//    if (participants_.end() != it)
-//    {
-//        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_xml(xml));
-//    }
-//    return rv;
+    bool rv = false;
+    auto it = participants_.find(participant_id);
+    if (participants_.end() != it)
+    {
+        rv = (domain_id == it->second->get_domain_id()) && (it->second->match_from_xml(xml));
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_topic_from_ref(
