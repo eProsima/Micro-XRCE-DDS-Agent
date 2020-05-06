@@ -78,6 +78,30 @@ if(NOT fastcdr_FOUND)
 endif()
 
 if(UAGENT_FAST_PROFILE)
+    # Foonathan memory.
+    unset(foonathan_memory_DIR CACHE)
+    find_package(foonathan_memory QUIET)
+    if (NOT foonathan_memory_FOUND)
+        ExternalProject_Add(foonathan_memory
+            GIT_REPOSITORY
+                https://github.com/foonathan/memory.git
+            GIT_TAG
+                ${_foonathan_memory_tag}
+            PREFIX
+                ${PROJECT_BINARY_DIR}/foonathan_memory
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install/foonathan_memory
+            CMAKE_CACHE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DFOONATHAN_MEMORY_BUILD_EXAMPLES:BOOL=OFF
+                -DFOONATHAN_MEMORY_BUILD_EXAMPLES
+                -DFOONATHAN_MEMORY_BUILD_TESTS:BOOL=OFF
+                -DFOONATHAN_MEMORY_BUILD_TOOLS:BOOL=ON
+                -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+            )
+    endif()
+
     # Fast RTPS.
     unset(fastrtps_DIR CACHE)
     find_package(fastrtps ${_fastrtps_version} EXACT QUIET)
@@ -104,6 +128,7 @@ if(UAGENT_FAST_PROFILE)
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
                 fastcdr
+                foonathan_memory
             UPDATE_COMMAND
                 COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
                 COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake

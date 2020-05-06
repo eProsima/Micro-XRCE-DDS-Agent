@@ -76,8 +76,9 @@ endif()
 
 if(UAGENT_FAST_PROFILE)
     set(_fastrtps_version 2.0.0)
-    set(_fastrtps_tag feature/dds-xml-entities)
+    set(_fastrtps_tag 2.0.x)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+    set(_foonathan_memory_tag master)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
