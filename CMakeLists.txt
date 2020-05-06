@@ -76,7 +76,7 @@ endif()
 
 if(UAGENT_FAST_PROFILE)
     set(_fastrtps_version 2.0.0)
-    set(_fastrtps_tag 01b14a7)
+    set(_fastrtps_tag feature/dds-xml-entities)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
@@ -189,6 +189,8 @@ set(SRCS
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/xmlobjects/xmlobjects.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastEntities.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSEntities.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSMiddleware.cpp>
     $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedEntities.cpp>
     $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
     $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>
