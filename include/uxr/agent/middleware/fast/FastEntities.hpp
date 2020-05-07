@@ -132,10 +132,6 @@ public:
 
     bool match(const fastrtps::TopicAttributes& attrs) const;
 
-    bool match_from_ref(const std::string& ref) const;
-
-    bool match_from_xml(const std::string& xml) const;
-
 private:
     std::string name_;
     std::shared_ptr<FastType> type_;

@@ -556,7 +556,11 @@ bool FastMiddleware::matched_topic_from_ref(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = it->second->match_from_ref(ref);
+        fastrtps::TopicAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
@@ -569,7 +573,11 @@ bool FastMiddleware::matched_topic_from_xml(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = it->second->match_from_xml(xml);
+        fastrtps::TopicAttributes attrs;
+        if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
