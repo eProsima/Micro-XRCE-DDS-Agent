@@ -171,6 +171,13 @@ FastTopic::~FastTopic()
     participant_->unregister_topic(name_);
 }
 
+bool FastTopic::match(const fastrtps::TopicAttributes& attrs) const
+{
+    return (attrs.getTopicName() == name_)
+        && (0 == std::strcmp(type_->getName(), attrs.getTopicDataType().c_str()))
+        && (type_->m_isGetKeyDefined == (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+}
+
 bool FastTopic::match_from_ref(const std::string& ref) const
 {
     bool rv = false;
@@ -400,10 +407,12 @@ void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
  * FastRequester
  **********************************************************************************************************************/
 FastRequester::FastRequester(
-        const std::shared_ptr<FastParticipant>& participant)
+        const std::shared_ptr<FastParticipant>& participant,
+        const std::shared_ptr<FastTopic>& request_topic,
+        const std::shared_ptr<FastTopic>& reply_topic)
     : participant_{participant}
-    , request_topic_{nullptr}
-    , reply_topic_{nullptr}
+    , request_topic_{request_topic}
+    , reply_topic_{reply_topic}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
     , publisher_id_{}
@@ -435,19 +444,6 @@ bool FastRequester::create_by_ref(
 bool FastRequester::create_by_attributes(
         const fastrtps::RequesterAttributes& attrs)
 {
-    const fastrtps::TopicAttributes& request_topic_attrs = attrs.publisher.topic;
-// TODO.
-//    if (!participant_->register_topic(request_topic_attrs, request_topic_))
-//    {
-//        return false;
-//    }
-//
-//    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.subscriber.topic;
-//    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
-//    {
-//        return false;
-//    }
-
     bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
     publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
@@ -629,28 +625,22 @@ void FastRequester::onNewDataMessage(
 
 bool FastRequester::match(const fastrtps::RequesterAttributes& attrs) const
 {
-    bool rv = false;
-    if ((0 == std::strcmp(request_topic_->getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
-         (  request_topic_->m_isGetKeyDefined ==
-            (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
-        (0 == std::strcmp(reply_topic_->getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
-         (  reply_topic_->m_isGetKeyDefined ==
-            (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
-    {
-        rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
-               attrs.subscriber == subscriber_ptr_->getAttributes());
-    }
-    return rv;
+    return request_topic_->match(attrs.publisher.topic)
+        && reply_topic_->match(attrs.subscriber.topic)
+        && attrs.publisher == publisher_ptr_->getAttributes()
+        && attrs.subscriber == subscriber_ptr_->getAttributes();
 }
 
 /**********************************************************************************************************************
  * FastReplier
  **********************************************************************************************************************/
 FastReplier::FastReplier(
-        const std::shared_ptr<FastParticipant>& participant)
+        const std::shared_ptr<FastParticipant>& participant,
+        const std::shared_ptr<FastTopic>& request_topic,
+        const std::shared_ptr<FastTopic>& reply_topic)
     : participant_{participant}
-    , request_topic_{nullptr}
-    , reply_topic_{nullptr}
+    , request_topic_{request_topic}
+    , reply_topic_{reply_topic}
     , publisher_ptr_{nullptr}
     , subscriber_ptr_{nullptr}
     , unread_count_{0}
@@ -680,19 +670,6 @@ bool FastReplier::create_by_ref(
 bool FastReplier::create_by_attributes(
         const fastrtps::ReplierAttributes& attrs)
 {
-
-    const fastrtps::TopicAttributes& request_topic_attrs = attrs.subscriber.topic;
-//    if (!participant_->register_topic(request_topic_attrs, request_topic_))
-//    {
-//        return false;
-//    }
-//
-//    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.publisher.topic;
-//    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
-//    {
-//        return false;
-//    }
-
     bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
     publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
@@ -883,18 +860,10 @@ void FastReplier::onNewDataMessage(
 
 bool FastReplier::match(const fastrtps::ReplierAttributes& attrs) const
 {
-    bool rv = false;
-    if ((0 == std::strcmp(reply_topic_->getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
-         (  reply_topic_->m_isGetKeyDefined ==
-            (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
-        (0 == std::strcmp(request_topic_->getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
-         (  request_topic_->m_isGetKeyDefined ==
-            (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
-    {
-        rv &= (attrs.publisher == publisher_ptr_->getAttributes() &&
-               attrs.subscriber == subscriber_ptr_->getAttributes());
-    }
-    return rv;
+    return reply_topic_->match(attrs.publisher.topic)
+        && request_topic_->match(attrs.subscriber.topic)
+        && attrs.publisher == publisher_ptr_->getAttributes()
+        && attrs.subscriber == subscriber_ptr_->getAttributes();
 }
 
 } // namespace uxr

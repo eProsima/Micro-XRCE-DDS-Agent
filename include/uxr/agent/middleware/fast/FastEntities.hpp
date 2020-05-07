@@ -130,6 +130,8 @@ public:
 
     const std::shared_ptr<FastType>& get_type() const { return type_; }
 
+    bool match(const fastrtps::TopicAttributes& attrs) const;
+
     bool match_from_ref(const std::string& ref) const;
 
     bool match_from_xml(const std::string& xml) const;
@@ -253,7 +255,9 @@ class FastRequester : public fastrtps::SubscriberListener, public fastrtps::Publ
 {
 public:
     FastRequester(
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastParticipant>& participant,
+            const std::shared_ptr<FastTopic>& request_topic,
+            const std::shared_ptr<FastTopic>& reply_topic);
 
     ~FastRequester() override;
 
@@ -294,8 +298,8 @@ private:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastType> request_topic_;
-    std::shared_ptr<FastType> reply_topic_;
+    std::shared_ptr<FastTopic> request_topic_;
+    std::shared_ptr<FastTopic> reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
     dds::GUID_t publisher_id_;
@@ -312,7 +316,9 @@ class FastReplier : public fastrtps::SubscriberListener, public fastrtps::Publis
 {
 public:
     FastReplier(
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastParticipant>& participant,
+            const std::shared_ptr<FastTopic>& request_topic,
+            const std::shared_ptr<FastTopic>& reply_topic);
 
     ~FastReplier() override;
 
@@ -351,8 +357,8 @@ private:
 
 private:
     std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastType> request_topic_;
-    std::shared_ptr<FastType> reply_topic_;
+    std::shared_ptr<FastTopic> request_topic_;
+    std::shared_ptr<FastTopic> reply_topic_;
     fastrtps::Publisher* publisher_ptr_;
     fastrtps::Subscriber* subscriber_ptr_;
     std::mutex mtx_;

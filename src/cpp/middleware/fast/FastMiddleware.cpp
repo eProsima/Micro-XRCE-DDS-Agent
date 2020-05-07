@@ -61,51 +61,44 @@ bool FastMiddleware::create_participant_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_topic_by_attributes(
-        uint16_t topic_id,
-        uint16_t participant_id,
+static
+std::shared_ptr<FastTopic> create_topic(
+        std::shared_ptr<FastParticipant>& participant,
         const fastrtps::TopicAttributes& attrs)
 {
-    bool rv = false;
-    auto it_participant = participants_.find(participant_id);
-    if (participants_.end() != it_participant)
+    std::shared_ptr<FastTopic> topic = participant->find_topic(attrs.getTopicName().c_str());
+    if (topic)
     {
-        std::shared_ptr<FastParticipant>& participant = it_participant->second;
-        std::shared_ptr<FastTopic> topic = participant->find_topic(attrs.getTopicName().c_str());
-        if (topic)
+        if (0 != std::strcmp(attrs.getTopicDataType().c_str(), topic->get_type()->getName()))
         {
-            if (attrs.getTopicDataType().c_str() != topic->get_type()->getName())
+            topic.reset();
+        }
+    }
+    else
+    {
+        const char * type_name = attrs.getTopicDataType().c_str();
+        std::shared_ptr<FastType> type = participant->find_type(type_name);
+        if (!type)
+        {
+            type = std::make_shared<FastType>(participant);
+            type->setName(type_name);
+            type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            if (!participant->register_type(type))
+            {
+                type.reset();
+            }
+        }
+
+        if (type)
+        {
+            topic = std::make_shared<FastTopic>(attrs.getTopicName().c_str(), type, participant);
+            if (!participant->register_topic(topic))
             {
                 topic.reset();
             }
         }
-        else
-        {
-            const char * type_name = attrs.getTopicDataType().c_str();
-            std::shared_ptr<FastType> type = participant->find_type(type_name);
-            if (!type)
-            {
-                type = std::make_shared<FastType>(participant);
-                type->setName(type_name);
-                type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-                if (!participant->register_type(type))
-                {
-                    type.reset();
-                }
-            }
-
-            if (type)
-            {
-                topic = std::make_shared<FastTopic>(attrs.getTopicName().c_str(), type, participant);
-            }
-        }
-
-        if (topic && participant->register_topic(topic))
-        {
-            rv = topics_.emplace(topic_id, std::move(topic)).second;
-        }
     }
-    return rv;
+    return topic;
 }
 
 bool FastMiddleware::create_topic_by_ref(
@@ -117,7 +110,12 @@ bool FastMiddleware::create_topic_by_ref(
     fastrtps::TopicAttributes attrs;
     if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
     {
-        rv = create_topic_by_attributes(topic_id, participant_id, attrs);
+        auto it_participant = participants_.find(participant_id);
+        if (participants_.end() != it_participant)
+        {
+            std::shared_ptr<FastTopic> topic = create_topic(it_participant->second, attrs);
+            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+        }
     }
     return rv;
 }
@@ -131,7 +129,12 @@ bool FastMiddleware::create_topic_by_xml(
     fastrtps::TopicAttributes attrs;
     if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
     {
-        rv = create_topic_by_attributes(topic_id, participant_id, attrs);
+        auto it_participant = participants_.find(participant_id);
+        if (participants_.end() != it_participant)
+        {
+            std::shared_ptr<FastTopic> topic = create_topic(it_participant->second, attrs);
+            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+        }
     }
     return rv;
 }
@@ -257,6 +260,26 @@ bool FastMiddleware::create_datareader_by_xml(
     return rv;
 }
 
+static
+std::shared_ptr<FastRequester> create_requester(
+        std::shared_ptr<FastParticipant>& participant,
+        const fastrtps::RequesterAttributes& attrs)
+{
+    std::shared_ptr<FastRequester> requester{};
+    std::shared_ptr<FastTopic> request_topic = create_topic(participant, attrs.publisher.topic);
+    std::shared_ptr<FastTopic> reply_topic = create_topic(participant, attrs.subscriber.topic);
+    if (request_topic && reply_topic)
+    {
+        requester =
+            std::make_shared<FastRequester>(participant, request_topic, reply_topic);
+        if (!requester->create_by_attributes(attrs))
+        {
+            requester.reset();
+        }
+    }
+    return requester;
+}
+
 bool FastMiddleware::create_requester_by_ref(
         uint16_t requester_id,
         uint16_t participant_id,
@@ -266,11 +289,12 @@ bool FastMiddleware::create_requester_by_ref(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
-        if (requester->create_by_ref(ref))
+        std::shared_ptr<FastParticipant>& participant = it_participant->second;
+        fastrtps::RequesterAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillRequesterAttributes(ref, attrs))
         {
-            requesters_.emplace(requester_id, std::move(requester));
-            rv = true;
+            std::shared_ptr<FastRequester> requester = create_requester(participant, attrs);
+            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
         }
     }
     return rv;
@@ -285,18 +309,35 @@ bool FastMiddleware::create_requester_by_xml(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
+        std::shared_ptr<FastParticipant>& participant = it_participant->second;
         fastrtps::RequesterAttributes attrs;
         if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
         {
-            std::shared_ptr<FastRequester> requester(new FastRequester(it_participant->second));
-            if (requester->create_by_attributes(attrs))
-            {
-                requesters_.emplace(requester_id, std::move(requester));
-                rv = true;
-            }
+            std::shared_ptr<FastRequester> requester = create_requester(participant, attrs);
+            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
         }
     }
     return rv;
+}
+
+static
+std::shared_ptr<FastReplier> create_replier(
+        std::shared_ptr<FastParticipant>& participant,
+        const fastrtps::ReplierAttributes& attrs)
+{
+    std::shared_ptr<FastReplier> replier{};
+    std::shared_ptr<FastTopic> request_topic = create_topic(participant, attrs.subscriber.topic);
+    std::shared_ptr<FastTopic> reply_topic = create_topic(participant, attrs.publisher.topic);
+    if (request_topic && reply_topic)
+    {
+        replier =
+            std::make_shared<FastReplier>(participant, request_topic, reply_topic);
+        if (!replier->create_by_attributes(attrs))
+        {
+            replier.reset();
+        }
+    }
+    return replier;
 }
 
 bool FastMiddleware::create_replier_by_ref(
@@ -308,11 +349,12 @@ bool FastMiddleware::create_replier_by_ref(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
-        if (replier->create_by_ref(ref))
+        std::shared_ptr<FastParticipant>& participant = it_participant->second;
+        fastrtps::ReplierAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
         {
-            repliers_.emplace(replier_id, std::move(replier));
-            rv = true;
+            std::shared_ptr<FastReplier> replier = create_replier(participant, attrs);
+            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
         }
     }
     return rv;
@@ -327,15 +369,12 @@ bool FastMiddleware::create_replier_by_xml(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
+        std::shared_ptr<FastParticipant>& participant = it_participant->second;
         fastrtps::ReplierAttributes attrs;
         if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
         {
-            std::shared_ptr<FastReplier> replier(new FastReplier(it_participant->second));
-            if (replier->create_by_attributes(attrs))
-            {
-                repliers_.emplace(replier_id, std::move(replier));
-                rv = true;
-            }
+            std::shared_ptr<FastReplier> replier = create_replier(participant, attrs);
+            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
         }
     }
     return rv;
