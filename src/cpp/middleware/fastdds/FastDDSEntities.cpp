@@ -208,7 +208,7 @@ bool FastDDSParticipant::match_from_xml(
 
 FastDDSTopic::~FastDDSTopic()
 {   
-    participant_->ptr->delete_topic(ptr_)
+    participant_->ptr_->delete_topic(ptr_);
 }
 
 bool FastDDSTopic::create_by_ref(
@@ -306,7 +306,7 @@ bool FastDDSTopic::match_from_xml(
 
 FastDDSPublisher::~FastDDSPublisher()
 {   
-    participant_->ptr_->delete_publisher(ptr_)
+    participant_->ptr_->delete_publisher(ptr_);
 }
 
 bool FastDDSPublisher::create_by_xml(
@@ -330,7 +330,7 @@ bool FastDDSPublisher::create_by_xml(
 
 FastDDSSubscriber::~FastDDSSubscriber()
 {   
-    participant_->ptr_->delete_subscriber(ptr_)
+    participant_->ptr_->delete_subscriber(ptr_);
 }
 
 
@@ -352,5 +352,86 @@ bool FastDDSSubscriber::create_by_xml(
     }
     return rv;
 }
+
+FastDDSDataWriter::~FastDDSDataWriter()
+{
+    publisher_->ptr_->delete_datawriter(ptr_);
+}
+
+bool FastDDSDataWriter::create_by_ref(
+        const std::string& ref)
+{   
+    bool rv = false;
+    if (nullptr == ptr_){
+        fastrtps::PublisherAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
+        {
+            fastdds::dds::DataWriterQos qos;
+            set_qos_from_attributes(qos, attrs);
+
+            ptr_ = publisher_->ptr_->create_datawriter(topic_.get()->ptr_, qos);
+            rv = (nullptr != ptr_);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataWriter::create_by_xml(
+        const std::string& xml)
+{   
+    bool rv = false;
+    if (nullptr == ptr_){
+        fastrtps::PublisherAttributes attrs;
+        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::DataWriterQos qos;
+            set_qos_from_attributes(qos, attrs);
+
+            ptr_ = publisher_->ptr_->create_datawriter(topic_.get()->ptr_, qos);
+            rv = (nullptr != ptr_);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataWriter::match_from_ref(
+        const std::string& ref) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::PublisherAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
+        {
+            fastdds::dds::DataWriterQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataWriter::match_from_xml(
+        const std::string& xml) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::PublisherAttributes attrs;
+        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::DataWriterQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
+{
+    return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
+}
+
 } // namespace uxr
 } // namespace eprosima

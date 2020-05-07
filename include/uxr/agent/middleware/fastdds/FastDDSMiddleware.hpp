@@ -213,7 +213,7 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSPublisher>> publishers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSSubscriber>> subscribers_;
-//    std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataWriter>> datawriters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataWriter>> datawriters_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataReader>> datareaders_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSRequester>> requesters_;
 //    std::unordered_map<uint16_t, std::shared_ptr<FastDDSReplier>> repliers_;

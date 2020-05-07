@@ -129,7 +129,20 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    // TODO.
+    auto it_publisher = publishers_.find(publisher_id);
+    if (publishers_.end() != it_publisher)
+    {   
+        auto it_topic = topics_.find(associated_topic_id);
+        if (topics_.end() != it_topic)
+        {
+            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second, it_topic->second));
+            if (datawriter->create_by_ref(ref))
+            {
+                datawriters_.emplace(datawriter_id, std::move(datawriter));
+                rv = true;
+            }
+        }
+    }
     return rv;
 }
 
@@ -139,7 +152,20 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    // TODO.
+    auto it_publisher = publishers_.find(publisher_id);
+    if (publishers_.end() != it_publisher)
+    {   
+        auto it_topic = topics_.find(associated_topic_id);
+        if (topics_.end() != it_topic)
+        {
+            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second, it_topic->second));
+            if (datawriter->create_by_xml(xml))
+            {
+                datawriters_.emplace(datawriter_id, std::move(datawriter));
+                rv = true;
+            }
+        }
+    }
     return rv;
 }
 
@@ -416,30 +442,26 @@ bool FastDDSMiddleware::matched_datawriter_from_ref(
         uint16_t datawriter_id,
         const std::string& ref) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datawriters_.find(datawriter_id);
-//    if (datawriters_.end() != it)
-//    {
-//        rv = it->second->match_from_ref(ref);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datawriters_.find(datawriter_id);
+   if (datawriters_.end() != it)
+   {
+       rv = it->second->match_from_ref(ref);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_datawriter_from_xml(
         uint16_t datawriter_id,
         const std::string& xml) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datawriters_.find(datawriter_id);
-//    if (datawriters_.end() != it)
-//    {
-//        rv = it->second->match_from_xml(xml);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datawriters_.find(datawriter_id);
+   if (datawriters_.end() != it)
+   {
+       rv = it->second->match_from_xml(xml);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_datareader_from_ref(

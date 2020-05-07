@@ -68,6 +68,7 @@ public:
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
+    friend class FastDDSDataWriter;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Topic* ptr_;
@@ -81,9 +82,11 @@ public:
         , ptr_{nullptr}
         {}
     
-    ~FastDDSPublisher() = default;
+    ~FastDDSPublisher();
 
     bool create_by_xml(const std::string& xml);
+
+    friend class FastDDSDataWriter;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Publisher* ptr_;
@@ -97,7 +100,7 @@ public:
         , ptr_{nullptr}
         {}
 
-    ~FastDDSSubscriber() = default;
+    ~FastDDSSubscriber();
 
     bool create_by_xml(const std::string& xml);
 private:
@@ -108,7 +111,25 @@ private:
 
 class FastDDSDataWriter
 {
-    // TODO.
+public:
+    FastDDSDataWriter(const std::shared_ptr<FastDDSPublisher>& publisher,
+                   const std::shared_ptr<FastDDSTopic>& topic)
+        : publisher_{publisher}
+        , topic_{topic}
+        , ptr_{nullptr}
+    {}
+
+    ~FastDDSDataWriter();
+
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+    bool write(const std::vector<uint8_t>& data);
+private:
+    std::shared_ptr<FastDDSPublisher> publisher_;
+    std::shared_ptr<FastDDSTopic> topic_;
+    fastdds::dds::DataWriter* ptr_;
 };
 
 class FastDDSDataReader
