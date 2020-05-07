@@ -38,7 +38,7 @@ std::unique_ptr<Publisher> Publisher::create(
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
         {
-            // TODO (julian ???)
+            // TODO (julibert): implement binary representation.
             break;
         }
     }
@@ -56,16 +56,6 @@ Publisher::Publisher(
 Publisher::~Publisher()
 {
     participant_->get_proxy_client()->get_middleware().delete_publisher(get_raw_id());
-}
-
-void Publisher::release(ObjectContainer& root_objects)
-{
-    while (!tied_objects_.empty())
-    {
-        auto obj = tied_objects_.begin();
-        root_objects.at(*obj)->release(root_objects);
-        root_objects.erase(*obj);
-    }
 }
 
 } // namespace uxr

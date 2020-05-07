@@ -39,10 +39,10 @@ public:
     Publisher& operator=(Publisher&&) = delete;
     Publisher& operator=(const Publisher&) = delete;
 
-    void release(ObjectContainer& root_objects) override;
-    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
+    void release(ObjectContainer&) override {}
+
+    bool matched(
+        const dds::xrce::ObjectVariant& ) const final { return true; }
 
     const std::shared_ptr<Participant>& get_participant() { return participant_; }
 
