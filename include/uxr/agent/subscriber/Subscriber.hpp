@@ -38,8 +38,6 @@ public:
     Subscriber& operator=(Subscriber&&) = delete;
     Subscriber& operator=(const Subscriber&) = delete;
 
-    void release(ObjectContainer&) override {}
-
     bool matched(
         const dds::xrce::ObjectVariant& ) const final { return true; }
 

@@ -41,8 +41,7 @@ public:
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    void release(ObjectContainer&) override {}
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     bool write(const std::vector<uint8_t>& data);

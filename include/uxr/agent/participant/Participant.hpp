@@ -40,9 +40,6 @@ public:
     Participant& operator=(Participant&&) = delete;
     Participant& operator=(const Participant&) = delete;
 
-    void release(
-        ObjectContainer& /*root_objects*/) override {}
-
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const final;
 

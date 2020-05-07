@@ -44,11 +44,8 @@ public:
     DataReader& operator=(DataReader&&) = delete;
     DataReader& operator=(const DataReader&) = delete;
 
-    void release(
-            ObjectContainer&) override {}
-
     bool matched(
-            const dds::xrce::ObjectVariant& new_object_rep) const override;
+            const dds::xrce::ObjectVariant& new_object_rep) const final;
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,

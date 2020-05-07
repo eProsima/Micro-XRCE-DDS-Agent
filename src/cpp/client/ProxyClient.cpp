@@ -721,7 +721,6 @@ bool ProxyClient::delete_object_unlock(
     auto it = objects_.find(object_id);
     if (it != objects_.end())
     {
-        it->second->release(objects_);
         objects_.erase(object_id);
         UXR_AGENT_LOG_DEBUG(
             UXR_DECORATE_GREEN("object deleted"),

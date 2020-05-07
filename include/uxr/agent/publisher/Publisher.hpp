@@ -39,8 +39,6 @@ public:
     Publisher& operator=(Publisher&&) = delete;
     Publisher& operator=(const Publisher&) = delete;
 
-    void release(ObjectContainer&) override {}
-
     bool matched(
         const dds::xrce::ObjectVariant& ) const final { return true; }
 

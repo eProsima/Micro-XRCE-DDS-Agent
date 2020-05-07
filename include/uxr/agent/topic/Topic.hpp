@@ -40,7 +40,6 @@ public:
     Topic& operator=(Topic&&) = delete;
     Topic& operator=(const Topic&) = delete;
 
-    void release(ObjectContainer&) override {}
     bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
 
 private:

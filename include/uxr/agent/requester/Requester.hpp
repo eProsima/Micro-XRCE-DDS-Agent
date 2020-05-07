@@ -51,9 +51,6 @@ public:
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const override;
 
-    void release(
-        ObjectContainer&) override {};
-
 private:
     Requester(
         const dds::xrce::ObjectId& object_id,
