@@ -492,7 +492,7 @@ bool ProxyClient::create_datawriter(
     if (it != objects_.end())
     {
         std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation, objects_))
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation))
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
@@ -551,7 +551,7 @@ bool ProxyClient::create_datareader(
     if (it != objects_.end())
     {
         std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation, objects_))
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation))
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {

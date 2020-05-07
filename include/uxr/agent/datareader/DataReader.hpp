@@ -34,8 +34,7 @@ public:
     static std::unique_ptr<DataReader> create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
-        const dds::xrce::DATAREADER_Representation& representation,
-        const ObjectContainer& root_objects);
+        const dds::xrce::DATAREADER_Representation& representation);
 
     virtual ~DataReader() noexcept override;
 
@@ -55,8 +54,7 @@ public:
 private:
     DataReader(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Subscriber>& subscriber,
-        const std::shared_ptr<Topic>& topic);
+        const std::shared_ptr<Subscriber>& subscriber);
 
     bool read_fn(
         bool,

@@ -26,12 +26,10 @@ namespace uxr {
 std::unique_ptr<DataReader> DataReader::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
-        const dds::xrce::DATAREADER_Representation& representation,
-        const ObjectContainer& root_objects)
+        const dds::xrce::DATAREADER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
-    std::shared_ptr<Topic> topic;
 
     Middleware& middleware = subscriber->get_participant()->get_proxy_client()->get_middleware();
     switch (representation.representation()._d())
@@ -40,37 +38,28 @@ std::unique_ptr<DataReader> DataReader::create(
         {
             const std::string& ref = representation.representation().object_reference();
             uint16_t raw_topic_id;
-            if (middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, raw_topic_id))
-            {
-                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);;
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                created_entity = true;
-            }
+            created_entity =
+                middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, raw_topic_id);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
             uint16_t raw_topic_id;
-            if (middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, raw_topic_id))
-            {
-                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                created_entity = true;
-            }
+            created_entity =
+                middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, raw_topic_id);
             break;
         }
         default:
             break;
     }
 
-    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber, topic)) : nullptr);
+    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber)) : nullptr);
 }
 
 DataReader::DataReader(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Subscriber>& subscriber,
-        const std::shared_ptr<Topic>& topic)
+        const std::shared_ptr<Subscriber>& subscriber)
     : XRCEObject{object_id}
     , subscriber_{subscriber}
     , reader_{}
