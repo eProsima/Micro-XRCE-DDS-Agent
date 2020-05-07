@@ -57,16 +57,13 @@ std::unique_ptr<Requester> Requester::create(
 Requester::Requester(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id)
-    , participant_(participant)
+    : XRCEObject{object_id}
+    , participant_{participant}
     , reader_{}
-{
-    participant_->tie_object(object_id);
-}
+{}
 
 Requester::~Requester()
 {
-    participant_->untie_object(get_id());
     participant_->get_proxy_client()->get_middleware().delete_requester(get_raw_id());
 }
 

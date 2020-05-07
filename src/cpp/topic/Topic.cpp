@@ -52,15 +52,12 @@ std::unique_ptr<Topic> Topic::create(
 Topic::Topic(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id)
-    , participant_(participant)
-{
-    participant_->tie_object(object_id);
-}
+    : XRCEObject{object_id}
+    , participant_{participant}
+{}
 
 Topic::~Topic()
 {
-    participant_->untie_object(get_id());
     participant_->get_proxy_client()->get_middleware().delete_topic(get_raw_id());
 }
 

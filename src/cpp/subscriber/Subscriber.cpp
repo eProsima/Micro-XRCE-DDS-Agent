@@ -49,15 +49,12 @@ std::unique_ptr<Subscriber> Subscriber::create(
 Subscriber::Subscriber(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id)
-    , participant_(participant)
-{
-    participant_->tie_object(object_id);
-}
+    : XRCEObject{object_id}
+    , participant_{participant}
+{}
 
 Subscriber::~Subscriber()
 {
-    participant_->untie_object(get_id());
     participant_->get_proxy_client()->get_middleware().delete_subscriber(get_raw_id());
 }
 

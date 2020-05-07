@@ -59,16 +59,6 @@ Participant::~Participant()
     proxy_client_->get_middleware().delete_participant(get_raw_id());
 }
 
-void Participant::release(ObjectContainer& root_objects)
-{
-    while (!tied_objects_.empty())
-    {
-        auto obj = tied_objects_.begin();
-        root_objects.at(*obj)->release(root_objects);
-        root_objects.erase(*obj);
-    }
-}
-
 bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
     /* Check ObjectKind. */
