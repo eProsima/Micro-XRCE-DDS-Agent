@@ -65,7 +65,6 @@ private:
 
 private:
     std::shared_ptr<Subscriber> subscriber_;
-    std::shared_ptr<Topic> topic_;
     Reader<bool> reader_;
 };
 

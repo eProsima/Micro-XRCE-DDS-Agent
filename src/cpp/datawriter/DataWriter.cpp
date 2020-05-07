@@ -71,7 +71,6 @@ DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Topic>& topic)
     : XRCEObject{object_id}
     , publisher_{publisher}
-    , topic_{topic}
 {}
 
 DataWriter::~DataWriter()

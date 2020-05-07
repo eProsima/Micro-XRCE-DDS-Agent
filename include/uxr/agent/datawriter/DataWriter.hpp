@@ -53,7 +53,6 @@ private:
 
 private:
     std::shared_ptr<Publisher> publisher_;
-    std::shared_ptr<Topic> topic_;
 };
 
 } // namespace uxr

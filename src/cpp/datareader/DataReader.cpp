@@ -73,7 +73,6 @@ DataReader::DataReader(
         const std::shared_ptr<Topic>& topic)
     : XRCEObject{object_id}
     , subscriber_{subscriber}
-    , topic_{topic}
     , reader_{}
 {}
 
