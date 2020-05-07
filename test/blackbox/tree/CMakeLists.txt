@@ -33,6 +33,8 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastEntities.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastMiddleware.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fastdds/FastDDSEntities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fastdds/FastDDSMiddleware.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedEntities.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedMiddleware.cpp
         )

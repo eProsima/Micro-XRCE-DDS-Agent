@@ -42,14 +42,14 @@ protected:
 TEST_F(AgentUnitTests, CreateClient)
 {
     Agent::OpResult result;
-    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result));
-    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result));
+    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result));
+    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result));
 }
 
 TEST_F(AgentUnitTests, DeleteClient)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     EXPECT_TRUE(agent_.delete_client(client_key_, result));
     EXPECT_FALSE(agent_.delete_client(client_key_, result));
@@ -59,7 +59,7 @@ TEST_F(AgentUnitTests, DeleteClient)
 TEST_F(AgentUnitTests, CreateParticipantByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* ref_one = "default_xrce_participant";
     const char* ref_two = "default_xrce_participant_two";
@@ -124,7 +124,7 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
 TEST_F(AgentUnitTests, CreateParticipantByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* xml_one = "<dds>"
                               "<participant>"
@@ -201,7 +201,7 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
 TEST_F(AgentUnitTests, CreateTopicByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_topic";
@@ -275,7 +275,7 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
 TEST_F(AgentUnitTests, CreateTopicByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "<dds>"
@@ -360,7 +360,7 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
 TEST_F(AgentUnitTests, CreatePublisherByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "publisher_one";
@@ -424,7 +424,7 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
 TEST_F(AgentUnitTests, CreateSubscriberByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "subscriber_one";
@@ -488,7 +488,7 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
 TEST_F(AgentUnitTests, CreateDataWriterByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "shapetype_topic";
@@ -569,7 +569,7 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
 TEST_F(AgentUnitTests, CreateDataWriterByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
@@ -684,7 +684,7 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
 TEST_F(AgentUnitTests, CreateDataReaderByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "shapetype_topic";
@@ -766,7 +766,7 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
 TEST_F(AgentUnitTests, CreateDataReaderByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
@@ -881,7 +881,7 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
 TEST_F(AgentUnitTests, CreateRequesterByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_requester";
@@ -904,7 +904,7 @@ TEST_F(AgentUnitTests, CreateRequesterByRef)
 TEST_F(AgentUnitTests, CreateRequesterByXML)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = R"(
@@ -935,7 +935,7 @@ TEST_F(AgentUnitTests, CreateRequesterByXML)
 TEST_F(AgentUnitTests, CreateReplierByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_replier";
@@ -958,7 +958,7 @@ TEST_F(AgentUnitTests, CreateReplierByRef)
 TEST_F(AgentUnitTests, CreateReplierByXML)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FASTRTPS, result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = R"(
