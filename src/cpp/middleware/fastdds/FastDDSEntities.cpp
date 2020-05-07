@@ -16,6 +16,7 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/attributes/all_attributes.h>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../../xmlobjects/xmlobjects.h"
 
@@ -204,6 +205,105 @@ bool FastDDSParticipant::match_from_xml(
     }
     return rv;
 }
+
+FastDDSTopic::~FastDDSTopic()
+{
+    // factory_->delete_participant(ptr_);
+}
+
+bool FastDDSTopic::create_by_ref(
+        const std::string& ref)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {   
+        fastrtps::TopicAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
+        {   
+            std::shared_ptr<TopicPubSubType> type = std::make_shared<TopicPubSubType>(false);
+            type->setName(attrs.getTopicDataType().c_str());
+            type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            fastdds::dds::TypeSupport m_type(type.get());
+            // Is this neccesary?
+            // m_type.get()->auto_fill_type_information(false);
+            // m_type.get()->auto_fill_type_object(true);
+
+            participant_->ptr_->register_type(m_type, attrs.getTopicDataType().c_str());
+            
+            fastdds::dds::TopicQos qos;
+            set_qos_from_attributes(qos, attrs);
+
+            ptr_ = participant_->ptr_->create_topic(attrs.getTopicName().to_string(), attrs.getTopicDataType().to_string(), qos);
+            rv = (nullptr != ptr_);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSTopic::create_by_xml(
+        const std::string& xml)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastrtps::TopicAttributes attrs;
+        if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
+        {
+            std::shared_ptr<TopicPubSubType> type = std::make_shared<TopicPubSubType>(false);
+            type->setName(attrs.getTopicDataType().c_str());
+            type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            fastdds::dds::TypeSupport m_type(type.get());
+            // Is this neccesary?
+            // m_type.get()->auto_fill_type_information(false);
+            // m_type.get()->auto_fill_type_object(true);
+
+            participant_->ptr_->register_type(m_type, attrs.getTopicDataType().c_str());
+
+            fastdds::dds::TopicQos qos;
+            set_qos_from_attributes(qos, attrs);
+
+            ptr_ = participant_->ptr_->create_topic(attrs.getTopicName().to_string(), attrs.getTopicDataType().to_string(), qos);
+            rv = (nullptr != ptr_);
+        }
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
+bool FastDDSTopic::match_from_ref(
+        const std::string& ref) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::TopicAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
+        {
+            fastdds::dds::TopicQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSTopic::match_from_xml(
+        const std::string& xml) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::TopicAttributes attrs;
+        if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::TopicQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
 
 } // namespace uxr
 } // namespace eprosima

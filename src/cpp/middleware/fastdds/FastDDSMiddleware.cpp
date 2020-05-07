@@ -53,7 +53,16 @@ bool FastDDSMiddleware::create_topic_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    // TODO.
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
+        if (topic->create_by_ref(ref))
+        {
+            topics_.emplace(topic_id, std::move(topic));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -63,7 +72,16 @@ bool FastDDSMiddleware::create_topic_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    // TODO.
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
+        if (topic->create_by_xml(xml))
+        {
+            topics_.emplace(topic_id, std::move(topic));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -356,28 +374,24 @@ bool FastDDSMiddleware::matched_topic_from_ref(
         uint16_t topic_id,
         const std::string& ref) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = topics_.find(topic_id);
-//    if (topics_.end() != it)
-//    {
-//        rv = it->second->match_from_ref(ref);
-//    }
-//    return rv;
+    bool rv = false;
+    auto it = topics_.find(topic_id);
+    if (topics_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = topics_.find(topic_id);
-//    if (topics_.end() != it)
-//    {
-//        rv = it->second->match_from_xml(xml);
-//    }
-//    return rv;
+    bool rv = false;
+    auto it = topics_.find(topic_id);
+    if (topics_.end() != it)
+    {
+        rv = it->second->match_from_xml(xml);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_datawriter_from_ref(

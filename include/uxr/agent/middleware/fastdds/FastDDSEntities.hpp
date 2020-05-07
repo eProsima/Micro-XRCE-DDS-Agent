@@ -22,6 +22,7 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
+#include <uxr/agent/types/TopicPubSubType.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -43,6 +44,7 @@ public:
     bool match_from_xml(const std::string& xml) const;
     int16_t get_domain_id() const { return domain_id_; }
 
+    friend class FastDDSTopic;
 private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -51,7 +53,21 @@ private:
 
 class FastDDSTopic
 {
-    // TODO.
+public:
+    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
+        : participant_{participant}
+    {}
+
+    ~FastDDSTopic();
+
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+
+private:
+    std::shared_ptr<FastDDSParticipant> participant_;
+    fastdds::dds::Topic* ptr_;
 };
 
 class FastDDSPublisher
