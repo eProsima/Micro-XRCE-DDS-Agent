@@ -75,14 +75,11 @@ DataReader::DataReader(
     , subscriber_{subscriber}
     , topic_{topic}
     , reader_{}
-{
-    subscriber_->tie_object(object_id);
-}
+{}
 
 DataReader::~DataReader() noexcept
 {
     reader_.stop_reading();
-    subscriber_->untie_object(get_id());
     subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());
 }
 
