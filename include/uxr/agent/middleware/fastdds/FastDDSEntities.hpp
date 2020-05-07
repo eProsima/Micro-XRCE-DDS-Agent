@@ -107,6 +107,7 @@ public:
     bool match_from_xml(const std::string& xml) const;
 
     friend class FastDDSDataWriter;
+    friend class FastDDSDataReader;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     std::shared_ptr<FastDDSType> type_;
@@ -144,6 +145,8 @@ public:
     ~FastDDSSubscriber();
 
     bool create_by_xml(const std::string& xml);
+    
+    friend class FastDDSDataReader;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
@@ -176,7 +179,28 @@ private:
 
 class FastDDSDataReader
 {
-    // TODO.
+public:
+    FastDDSDataReader(const std::shared_ptr<FastDDSSubscriber>& subscriber)
+        : subscriber_{subscriber}
+        , ptr_{nullptr}
+    {}
+
+    ~FastDDSDataReader();
+
+    bool create_by_ref(
+            const std::string& ref,
+            uint16_t& topic_id);
+    bool create_by_xml(
+            const std::string& xml,
+            uint16_t& topic_id);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+    bool read(
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout);   
+private:
+    std::shared_ptr<FastDDSSubscriber> subscriber_;
+    fastdds::dds::DataReader* ptr_;
 };
 
 class FastDDSRequester

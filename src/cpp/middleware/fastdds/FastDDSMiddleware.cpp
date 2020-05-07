@@ -133,11 +133,11 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
     if (publishers_.end() != it_publisher)
     {   
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
-            if (datawriter->create_by_ref(ref, associated_topic_id))
-            {
-                datawriters_.emplace(datawriter_id, std::move(datawriter));
-                rv = true;
-            }
+        if (datawriter->create_by_ref(ref, associated_topic_id))
+        {
+            datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = true;
+        }
     }
     return rv;
 }
@@ -151,15 +151,11 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
     auto it_publisher = publishers_.find(publisher_id);
     if (publishers_.end() != it_publisher)
     {   
-        auto it_topic = topics_.find(associated_topic_id);
-        if (topics_.end() != it_topic)
+        std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
+        if (datawriter->create_by_xml(xml, associated_topic_id))
         {
-            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
-            if (datawriter->create_by_xml(xml, associated_topic_id))
-            {
-                datawriters_.emplace(datawriter_id, std::move(datawriter));
-                rv = true;
-            }
+            datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = true;
         }
     }
     return rv;
@@ -171,7 +167,16 @@ bool FastDDSMiddleware::create_datareader_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    // TODO.
+    auto it_subscriber = subscribers_.find(subscriber_id);
+    if (subscribers_.end() != it_subscriber)
+    {   
+        std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
+        if (datareader->create_by_ref(ref, associated_topic_id))
+        {
+            datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -181,7 +186,16 @@ bool FastDDSMiddleware::create_datareader_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    // TODO.
+    auto it_subscriber = subscribers_.find(subscriber_id);
+    if (subscribers_.end() != it_subscriber)
+    {   
+        std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
+        if (datareader->create_by_xml(xml, associated_topic_id))
+        {
+            datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -291,15 +305,13 @@ bool FastDDSMiddleware::write_data(
         uint16_t datawriter_id,
         const std::vector<uint8_t>& data)
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datawriters_.find(datawriter_id);
-//    if (datawriters_.end() != it)
-//    {
-//        rv = it->second->write(data);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datawriters_.find(datawriter_id);
+   if (datawriters_.end() != it)
+   {
+       rv = it->second->write(data);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::write_request(
@@ -338,15 +350,13 @@ bool FastDDSMiddleware::read_data(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datareaders_.find(datareader_id);
-//    if (datareaders_.end() != it)
-//    {
-//        rv = it->second->read(data, timeout);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datareaders_.find(datareader_id);
+   if (datareaders_.end() != it)
+   {
+       rv = it->second->read(data, timeout);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::read_request(
@@ -464,30 +474,26 @@ bool FastDDSMiddleware::matched_datareader_from_ref(
         uint16_t datareader_id,
         const std::string& ref) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datareaders_.find(datareader_id);
-//    if (datareaders_.end() != it)
-//    {
-//        rv = it->second->match_from_ref(ref);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datareaders_.find(datareader_id);
+   if (datareaders_.end() != it)
+   {
+       rv = it->second->match_from_ref(ref);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_datareader_from_xml(
         uint16_t datareader_id,
         const std::string& xml) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = datareaders_.find(datareader_id);
-//    if (datareaders_.end() != it)
-//    {
-//        rv = it->second->match_from_xml(xml);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = datareaders_.find(datareader_id);
+   if (datareaders_.end() != it)
+   {
+       rv = it->second->match_from_xml(xml);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_requester_from_ref(

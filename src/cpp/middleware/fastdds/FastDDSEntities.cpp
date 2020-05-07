@@ -16,6 +16,7 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/attributes/all_attributes.h>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../../xmlobjects/xmlobjects.h"
@@ -250,7 +251,7 @@ bool FastDDSParticipant::unregister_topic(
     bool rv = false;
     if ((0 != type_register_.erase(topic_name)) && (0 != topics_.erase(topic_name)))
     {   
-        rv = ReturnCode_t::RETCODE_OK == ptr_->unregister_type(topic_name);;
+        rv = ReturnCode_t::RETCODE_OK == ptr_->unregister_type(topic_name);
     }
     return rv;
 }
@@ -491,6 +492,108 @@ bool FastDDSDataWriter::match_from_xml(
 bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
 {
     return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
+}
+
+FastDDSDataReader::~FastDDSDataReader()
+{
+    // TODO
+}
+
+bool FastDDSDataReader::create_by_ref(
+        const std::string& ref,
+        uint16_t& topic_id)
+{   
+    bool rv = false;
+    if (nullptr == ptr_){
+        fastrtps::SubscriberAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
+        {   
+            std::shared_ptr<FastDDSTopic> topic;
+            if(subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
+                topic_id = topic->topic_id;
+                fastdds::dds::DataReaderQos qos;
+                set_qos_from_attributes(qos, attrs);
+
+                ptr_ = subscriber_->ptr_->create_datareader(topic.get()->ptr_, qos);
+                rv = (nullptr != ptr_);
+            }
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::create_by_xml(
+        const std::string& xml,
+        uint16_t& topic_id)
+{   
+    bool rv = false;
+    if (nullptr == ptr_){
+        fastrtps::SubscriberAttributes attrs;
+        if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
+        {   
+            std::shared_ptr<FastDDSTopic> topic;
+            if(subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
+                topic_id = topic->topic_id;
+                fastdds::dds::DataReaderQos qos;
+                set_qos_from_attributes(qos, attrs);
+
+                ptr_ = subscriber_->ptr_->create_datareader(topic.get()->ptr_, qos);
+                rv = (nullptr != ptr_);
+            }
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::match_from_ref(
+        const std::string& ref) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::SubscriberAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
+        {
+            fastdds::dds::DataReaderQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::match_from_xml(
+        const std::string& xml) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastrtps::SubscriberAttributes attrs;
+        if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
+        {
+            fastdds::dds::DataReaderQos qos;
+            set_qos_from_attributes(qos, attrs);
+            rv = (ptr_->get_qos() == qos);
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::read(
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{   
+
+    bool rv = false;
+
+    fastrtps::Duration_t d((long double) timeout.count()/1000.0);
+    
+    if(ptr_->wait_for_unread_message(d)){
+        fastdds::dds::SampleInfo info;
+        rv = ReturnCode_t::RETCODE_OK == ptr_->take_next_sample(&data, &info);
+    }
+
+    return rv;
 }
 
 } // namespace uxr
