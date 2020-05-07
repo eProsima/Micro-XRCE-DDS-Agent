@@ -90,9 +90,9 @@ bool FastDDSMiddleware::create_publisher_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    bool rv = false;
-    // TODO.
-    return rv;
+    std::shared_ptr<FastDDSPublisher> publisher(new FastDDSPublisher(participant_id));
+    publishers_.emplace(publisher_id, std::move(publisher));
+    return true;
 }
 
 bool FastDDSMiddleware::create_subscriber_by_xml(
@@ -100,9 +100,9 @@ bool FastDDSMiddleware::create_subscriber_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    bool rv = false;
-    // TODO.
-    return rv;
+    std::shared_ptr<FastDDSSubscriber> subscriber(new FastDDSSubscriber(participant_id));
+    subscribers_.emplace(subscriber_id, std::move(subscriber));
+    return true;
 }
 
 bool FastDDSMiddleware::create_datawriter_by_ref(

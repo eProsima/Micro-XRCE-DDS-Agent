@@ -72,12 +72,26 @@ private:
 
 class FastDDSPublisher
 {
-    // TODO.
+public:
+    FastDDSPublisher(uint16_t participant_id) : participant_id_(participant_id) {}
+    ~FastDDSPublisher() = default;
+
+    uint16_t get_participant_id() { return participant_id_; }
+
+private:
+    uint16_t participant_id_;
 };
 
 class FastDDSSubscriber
 {
-    // TODO.
+public:
+    FastDDSSubscriber(uint16_t participant_id) : participant_id_(participant_id) {}
+    ~FastDDSSubscriber() = default;
+
+    uint16_t get_participant_id() { return participant_id_; }
+
+private:
+    uint16_t participant_id_;
 };
 
 class FastDDSDataWriter
