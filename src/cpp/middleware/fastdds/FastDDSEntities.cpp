@@ -315,7 +315,7 @@ bool FastDDSTopic::create_by_attributes(
     bool rv = false;
     if (nullptr == ptr_)
     {
-        topic_id = topic_id;
+        topic_id_ = topic_id;
         if (participant_->register_topic(attrs, type_, shared_from_this()))
         {   
             fastdds::dds::TopicQos qos;
@@ -429,7 +429,7 @@ bool FastDDSDataWriter::create_by_ref(
         {   
             std::shared_ptr<FastDDSTopic> topic;
             if(publisher_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
-                topic_id = topic->topic_id;
+                topic_id = topic->topic_id_;
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
@@ -452,7 +452,7 @@ bool FastDDSDataWriter::create_by_xml(
         {
             std::shared_ptr<FastDDSTopic> topic;
             if(publisher_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
-                topic_id = topic->topic_id;
+                topic_id = topic->topic_id_;
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
@@ -519,7 +519,7 @@ bool FastDDSDataReader::create_by_ref(
         {   
             std::shared_ptr<FastDDSTopic> topic;
             if(subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
-                topic_id = topic->topic_id;
+                topic_id = topic->topic_id_;
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 
@@ -542,7 +542,7 @@ bool FastDDSDataReader::create_by_xml(
         {   
             std::shared_ptr<FastDDSTopic> topic;
             if(subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str(), topic)){
-                topic_id = topic->topic_id;
+                topic_id = topic->topic_id_;
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 

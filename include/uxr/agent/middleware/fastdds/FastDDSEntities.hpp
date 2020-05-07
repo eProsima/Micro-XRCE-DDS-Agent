@@ -124,7 +124,7 @@ private:
     std::shared_ptr<FastDDSType> type_;
     fastdds::dds::Topic* ptr_;
 public:
-    uint16_t topic_id;
+    uint16_t topic_id_;
 };
 
 class FastDDSPublisher
