@@ -129,8 +129,7 @@ bool FastMiddleware::create_subscriber_by_xml(
 bool FastMiddleware::create_datawriter_by_ref(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
@@ -140,7 +139,7 @@ bool FastMiddleware::create_datawriter_by_ref(
         if (participants_.end() != it_participant)
         {
             std::shared_ptr<FastDataWriter> datawriter(new FastDataWriter(it_participant->second));
-            if (datawriter->create_by_ref(ref, associated_topic_id))
+            if (datawriter->create_by_ref(ref))
             {
                 datawriters_.emplace(datawriter_id, std::move(datawriter));
                 rv = true;
@@ -153,8 +152,7 @@ bool FastMiddleware::create_datawriter_by_ref(
 bool FastMiddleware::create_datawriter_by_xml(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
@@ -167,7 +165,7 @@ bool FastMiddleware::create_datawriter_by_xml(
             if (xmlobjects::parse_publisher(xml.data(), xml.size(), attributes))
             {
                 std::shared_ptr<FastDataWriter> datawriter(new FastDataWriter(it_participant->second));
-                if (datawriter->create_by_attributes(attributes, associated_topic_id))
+                if (datawriter->create_by_attributes(attributes))
                 {
                     datawriters_.emplace(datawriter_id, std::move(datawriter));
                     rv = true;
@@ -181,8 +179,7 @@ bool FastMiddleware::create_datawriter_by_xml(
 bool FastMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -193,7 +190,7 @@ bool FastMiddleware::create_datareader_by_ref(
         {
             std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
             std::string topic_name;
-            if (datareader->create_by_ref(ref, associated_topic_id))
+            if (datareader->create_by_ref(ref))
             {
                 datareaders_.emplace(datareader_id, std::move(datareader));
                 rv = true;
@@ -206,8 +203,7 @@ bool FastMiddleware::create_datareader_by_ref(
 bool FastMiddleware::create_datareader_by_xml(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -220,7 +216,7 @@ bool FastMiddleware::create_datareader_by_xml(
             if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attributes))
             {
                 std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
-                if (datareader->create_by_attributes(attributes, associated_topic_id))
+                if (datareader->create_by_attributes(attributes))
                 {
                     datareaders_.emplace(datareader_id, std::move(datareader));
                     rv = true;

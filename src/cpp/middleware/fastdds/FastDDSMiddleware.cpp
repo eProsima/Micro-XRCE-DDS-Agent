@@ -90,8 +90,7 @@ bool FastDDSMiddleware::create_subscriber_by_xml(
 bool FastDDSMiddleware::create_datawriter_by_ref(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     // TODO.
@@ -101,8 +100,7 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
 bool FastDDSMiddleware::create_datawriter_by_xml(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
     bool rv = false;
     // TODO.
@@ -112,8 +110,7 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
 bool FastDDSMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     // TODO.
@@ -123,8 +120,7 @@ bool FastDDSMiddleware::create_datareader_by_ref(
 bool FastDDSMiddleware::create_datareader_by_xml(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
     bool rv = false;
     // TODO.

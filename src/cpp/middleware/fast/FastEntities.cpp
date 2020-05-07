@@ -219,27 +219,27 @@ FastDataWriter::~FastDataWriter()
 }
 
 bool FastDataWriter::create_by_ref(
-        const std::string& ref,
-        uint16_t& topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+// TODO.
+//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
 
 bool FastDataWriter::create_by_attributes(
-        const PublisherAttributes& attrs,
-        uint16_t& topic_id)
+        const PublisherAttributes& attrs)
 {
     bool rv = false;
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+// TODO.
+//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
@@ -309,27 +309,27 @@ FastDataReader::~FastDataReader()
 }
 
 bool FastDataReader::create_by_ref(
-        const std::string& ref,
-        uint16_t& topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+// TODO.
+//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }
 
 bool FastDataReader::create_by_attributes(
-        const SubscriberAttributes& attrs,
-        uint16_t& topic_id)
+        const SubscriberAttributes& attrs)
 {
     bool rv = false;
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+// TODO.
+//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
     }
     return rv;
 }

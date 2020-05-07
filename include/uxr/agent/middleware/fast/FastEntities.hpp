@@ -171,12 +171,10 @@ public:
     ~FastDataWriter() override;
 
     bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
+            const std::string& ref);
 
     bool create_by_attributes(
-            const fastrtps::PublisherAttributes& attrs,
-            uint16_t& topic_id);
+            const fastrtps::PublisherAttributes& attrs);
 
     bool match_from_ref(const std::string& ref) const;
 
@@ -206,12 +204,10 @@ public:
     ~FastDataReader() override;
 
     bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
+            const std::string& ref);
 
     bool create_by_attributes(
-            const fastrtps::SubscriberAttributes& attrs,
-            uint16_t& topic_id);
+            const fastrtps::SubscriberAttributes& attrs);
 
     bool match_from_ref(const std::string& ref) const;
 

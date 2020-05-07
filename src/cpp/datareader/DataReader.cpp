@@ -37,17 +37,15 @@ std::unique_ptr<DataReader> DataReader::create(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            uint16_t raw_topic_id;
             created_entity =
-                middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref, raw_topic_id);
+                middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t raw_topic_id;
             created_entity =
-                middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml, raw_topic_id);
+                middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml);
             break;
         }
         default:

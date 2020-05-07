@@ -164,8 +164,7 @@ bool CedMiddleware::create_subscriber_by_xml(
 bool CedMiddleware::create_datawriter_by_ref(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
@@ -188,7 +187,8 @@ bool CedMiddleware::create_datawriter_by_ref(
                             write_access_,
                             topics_src_));
 
-                    associated_topic_id = topic_id;
+// TODO.
+//                    associated_topic_id = topic_id;
                     rv = true;
                 }
             }
@@ -200,17 +200,15 @@ bool CedMiddleware::create_datawriter_by_ref(
 bool CedMiddleware::create_datawriter_by_xml(
         uint16_t datawriter_id,
         uint16_t publisher_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
-    return create_datawriter_by_ref(datawriter_id, publisher_id, xml, associated_topic_id);
+    return create_datawriter_by_ref(datawriter_id, publisher_id, xml);
 }
 
 bool CedMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& ref,
-        uint16_t& associated_topic_id)
+        const std::string& ref)
 {
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
@@ -232,7 +230,8 @@ bool CedMiddleware::create_datareader_by_ref(
                             it_topic->second,
                             read_access_));
 
-                    associated_topic_id = topic_id;
+// TODO.
+//                    associated_topic_id = topic_id;
                     rv = true;
                 }
             }
@@ -244,10 +243,9 @@ bool CedMiddleware::create_datareader_by_ref(
 bool CedMiddleware::create_datareader_by_xml(
         uint16_t datareader_id,
         uint16_t subscriber_id,
-        const std::string& xml,
-        uint16_t& associated_topic_id)
+        const std::string& xml)
 {
-    return create_datareader_by_ref(datareader_id, subscriber_id, xml, associated_topic_id);
+    return create_datareader_by_ref(datareader_id, subscriber_id, xml);
 }
 
 /**********************************************************************************************************************

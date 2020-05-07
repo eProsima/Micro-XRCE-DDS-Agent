@@ -67,26 +67,22 @@ public:
     bool create_datawriter_by_ref(
             uint16_t datawriter_id,
             uint16_t publisher_id,
-            const std::string& ref,
-            uint16_t& associated_topic_id) override;
+            const std::string& ref) override;
 
     bool create_datawriter_by_xml(
             uint16_t datawriter_id,
             uint16_t publisher_id,
-            const std::string& xml,
-            uint16_t& associated_topic_id) override;
+            const std::string& xml) override;
 
     bool create_datareader_by_ref(
             uint16_t datareader_id,
             uint16_t subscriber_id,
-            const std::string& ref,
-            uint16_t& associated_topic_id) override;
+            const std::string& ref) override;
 
     bool create_datareader_by_xml(
             uint16_t datareader_id,
             uint16_t subscriber_id,
-            const std::string& xml,
-            uint16_t& associated_topic_id) override;
+            const std::string& xml) override;
 
     bool create_requester_by_ref(
             uint16_t requester_id,
