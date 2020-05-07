@@ -19,6 +19,8 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastcdr/FastBuffer.h>
+#include <fastcdr/Cdr.h>
 #include "../../xmlobjects/xmlobjects.h"
 
 
@@ -682,7 +684,7 @@ bool FastDDSRequester::create_by_attributes(
     datareader_ptr_ = subscriber_ptr_->create_datareader(reply_topic_.get()->ptr_, qos_datareader);
 
     rv = (nullptr != publisher_ptr_) && (nullptr != datawriter_ptr_) &&
-            (nullptr != subscriber_ptr_) && (nullptr != datareader_ptr_);
+         (nullptr != subscriber_ptr_) && (nullptr != datareader_ptr_);
 
     if (rv)
     {
@@ -811,7 +813,230 @@ bool FastDDSRequester::read(
             rv = false;
         }
     }
+
+    return rv;
+}
+
+FastDDSReplier::~FastDDSReplier()
+{
+    // TODO
+}
+
+bool FastDDSReplier::create_by_xml(
+        const std::string& xml)
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes attrs;
+    if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
+    {   
+        rv = create_by_attributes(attrs);
+    }
+    return rv;
+}
+
+bool FastDDSReplier::create_by_ref(
+        const std::string& ref)
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes attrs;
+    if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
+    {   
+        rv = create_by_attributes(attrs);
+    }
+    return rv;
+}
+
+
+bool FastDDSReplier::create_by_attributes(
+        const fastrtps::ReplierAttributes& attrs)
+{
+    bool rv = false;
+
+    request_topic_ = std::make_shared<FastDDSTopic>(participant_);
+    const fastrtps::TopicAttributes& request_topic_attrs = attrs.subscriber.topic;
+    if (!participant_->register_topic(request_topic_attrs, request_type_, request_topic_))
+    {
+        return false;
+    }
+
+    fastdds::dds::TopicQos qos_request_topic;
+    set_qos_from_attributes(qos_request_topic, request_topic_attrs);
+    if (!request_topic_->create_by_attributes(request_topic_attrs, 0))
+    {
+        return false;
+    }
+
+    reply_topic_ = std::make_shared<FastDDSTopic>(participant_);
+    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.publisher.topic;
+    if (!participant_->register_topic(reply_topic_attrs, reply_type_, reply_topic_))
+    {
+        return false;
+    }
+
+    fastdds::dds::TopicQos qos_reply_topic;
+    set_qos_from_attributes(qos_reply_topic, reply_topic_attrs);
+    if (!reply_topic_->create_by_attributes(reply_topic_attrs, 0))
+    {
+        return false;
+    }
     
+    fastdds::dds::PublisherQos qos_publisher;
+    set_qos_from_attributes(qos_publisher, attrs.publisher);
+    publisher_ptr_ = participant_->ptr_->create_publisher(qos_publisher);
+
+    fastdds::dds::DataWriterQos qos_datawriter;
+    set_qos_from_attributes(qos_datawriter, attrs.publisher);
+    datawriter_ptr_ = publisher_ptr_->create_datawriter(reply_topic_.get()->ptr_, qos_datawriter);
+
+    fastdds::dds::SubscriberQos qos_subscriber;
+    set_qos_from_attributes(qos_subscriber, attrs.subscriber);
+    subscriber_ptr_ = participant_->ptr_->create_subscriber(qos_subscriber);
+
+    fastdds::dds::DataReaderQos qos_datareader;
+    set_qos_from_attributes(qos_datareader, attrs.subscriber);
+    datareader_ptr_ = subscriber_ptr_->create_datareader(request_topic_.get()->ptr_, qos_datareader);
+
+    rv = (nullptr != publisher_ptr_) && (nullptr != datawriter_ptr_) &&
+         (nullptr != subscriber_ptr_) && (nullptr != datareader_ptr_);
+
+    return rv;
+}
+
+
+bool FastDDSReplier::match_from_ref(const std::string& ref) const
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes new_attributes;
+    if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, new_attributes))
+    {
+        rv = match(new_attributes);
+    }
+    return rv;
+}
+
+bool FastDDSReplier::match_from_xml(const std::string& xml) const
+{
+    bool rv = false;
+    fastrtps::ReplierAttributes new_attributes;
+    if (xmlobjects::parse_replier(xml.data(), xml.size(), new_attributes))
+    {
+        rv = match(new_attributes);
+    }
+    return rv;
+}
+
+bool FastDDSReplier::match(const fastrtps::ReplierAttributes& attrs) const
+{
+    bool rv = false;
+    if ((0 == std::strcmp(reply_type_->getName(), attrs.publisher.topic.getTopicDataType().c_str())) &&
+         (  reply_type_->m_isGetKeyDefined ==
+            (attrs.publisher.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)) &&
+        (0 == std::strcmp(request_type_->getName(), attrs.subscriber.topic.getTopicDataType().c_str())) &&
+         (  request_type_->m_isGetKeyDefined ==
+            (attrs.subscriber.topic.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY)))
+    {   
+        fastdds::dds::PublisherQos qos_publisher;
+        set_qos_from_attributes(qos_publisher, attrs.publisher);
+        fastdds::dds::SubscriberQos qos_subscriber;
+        set_qos_from_attributes(qos_subscriber, attrs.subscriber);
+
+        rv = (publisher_ptr_->get_qos() == qos_publisher && 
+              subscriber_ptr_->get_qos() == qos_subscriber);
+    }
+    return rv;
+}
+
+void FastDDSReplier::transport_sample_identity(
+        const dds::SampleIdentity& dds_identity,
+        fastrtps::rtps::SampleIdentity& fast_identity)
+{
+    std::copy(
+        dds_identity.writer_guid().guidPrefix().begin(),
+        dds_identity.writer_guid().guidPrefix().end(),
+        std::begin(fast_identity.writer_guid().guidPrefix.value));
+    std::copy(
+        dds_identity.writer_guid().entityId().entityKey().begin(),
+        dds_identity.writer_guid().entityId().entityKey().end(),
+        std::begin(fast_identity.writer_guid().entityId.value));
+    fast_identity.writer_guid().entityId.value[3] = dds_identity.writer_guid().entityId().entityKind();
+
+    fast_identity.sequence_number().high = dds_identity.sequence_number().high();
+    fast_identity.sequence_number().low = dds_identity.sequence_number().low();
+}
+
+bool FastDDSReplier::write(
+        const std::vector<uint8_t>& data)
+{
+    fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(data.data())), data.size()};
+    fastcdr::Cdr deserializer(fastbuffer);
+
+    dds::SampleIdentity sample_identity;
+    sample_identity.deserialize(deserializer);
+
+    fastrtps::rtps::WriteParams wparams;
+    transport_sample_identity(sample_identity, wparams.related_sample_identity());
+
+    std::vector<uint8_t> output_data(data.size() - deserializer.getSerializedDataLength());
+    deserializer.deserializeArray(output_data.data(), output_data.size());
+
+    return datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data), wparams);
+}
+
+void FastDDSReplier::transform_sample_identity(
+        const fastrtps::rtps::SampleIdentity& fast_identity,
+        dds::SampleIdentity& dds_identity)
+{
+    std::copy(
+        std::begin(fast_identity.writer_guid().guidPrefix.value),
+        std::end(fast_identity.writer_guid().guidPrefix.value),
+        dds_identity.writer_guid().guidPrefix().begin());
+    std::copy(
+        std::begin(fast_identity.writer_guid().entityId.value),
+        std::begin(fast_identity.writer_guid().entityId.value) + 3,
+        dds_identity.writer_guid().entityId().entityKey().begin());
+    dds_identity.writer_guid().entityId().entityKind() = fast_identity.writer_guid().entityId.value[3];
+
+    dds_identity.sequence_number().high() = fast_identity.sequence_number().high;
+    dds_identity.sequence_number().low() = fast_identity.sequence_number().low;
+}
+
+bool FastDDSReplier::read(
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
+{
+    std::vector<uint8_t> temp_data;
+
+    bool rv = false;
+
+    fastrtps::Duration_t d((long double) timeout.count()/1000.0);
+    fastdds::dds::SampleInfo info;
+    
+    if(datareader_ptr_->wait_for_unread_message(d)){
+        rv = ReturnCode_t::RETCODE_OK == datareader_ptr_->take_next_sample(&temp_data, &info);
+    }
+
+    if (rv)
+    {
+        dds::SampleIdentity sample_identity;
+        transform_sample_identity(info.sample_identity, sample_identity);
+
+        data.clear();
+        data.resize(sample_identity.getCdrSerializedSize() + temp_data.size());
+
+        fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(data.data()), data.size()};
+        fastcdr::Cdr serializer(fastbuffer);
+
+        try
+        {
+            sample_identity.serialize(serializer);
+            serializer.serializeArray(temp_data.data(), temp_data.size());
+        }
+        catch(const std::exception&)
+        {
+            rv = false;
+        }
+    }
+
     return rv;
 }
 

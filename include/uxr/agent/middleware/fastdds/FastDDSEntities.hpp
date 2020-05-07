@@ -67,6 +67,7 @@ public:
     friend class FastDDSPublisher;
     friend class FastDDSSubscriber;
     friend class FastDDSRequester;
+    friend class FastDDSReplier;
 private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -112,6 +113,7 @@ public:
     friend class FastDDSDataWriter;
     friend class FastDDSDataReader;
     friend class FastDDSRequester;
+    friend class FastDDSReplier;
 private:
     bool create_by_attributes(
         const fastrtps::TopicAttributes& attrs,
@@ -233,7 +235,6 @@ public:
     bool create_by_xml(const std::string& xml);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
-    bool match(const fastrtps::RequesterAttributes& attrs) const;
 
     bool write(
         uint32_t sequence_number,
@@ -245,6 +246,7 @@ public:
         std::chrono::milliseconds timeout);
 
 private:
+    bool match(const fastrtps::RequesterAttributes& attrs) const;
     bool create_by_attributes(
         const fastrtps::RequesterAttributes& attrs);
     
@@ -265,15 +267,57 @@ private:
 
     dds::GUID_t publisher_id_;
     std::map<int64_t, uint32_t> sequence_to_sequence_;
-
-    // std::mutex mtx_;
-    // std::condition_variable cv_;
-    // std::atomic<uint64_t> unread_count_;
 };
 
 class FastDDSReplier
 {
-    // TODO.
+public:
+    FastDDSReplier(const std::shared_ptr<FastDDSParticipant>& participant) 
+        : participant_{participant}
+        , request_topic_{nullptr}
+        , reply_topic_{nullptr}
+        , publisher_ptr_{nullptr}
+        , datawriter_ptr_{nullptr}
+        , subscriber_ptr_{nullptr}
+        , datareader_ptr_{nullptr}
+    {}
+
+    ~FastDDSReplier();
+
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+
+    bool write(const std::vector<uint8_t>& data);
+    bool read(std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout);
+
+private:
+    bool match(const fastrtps::ReplierAttributes& attrs) const;
+    bool create_by_attributes(
+        const fastrtps::ReplierAttributes& attrs);
+    void transform_sample_identity(
+        const fastrtps::rtps::SampleIdentity& fast_identity,
+        dds::SampleIdentity& dds_identity);
+    void transport_sample_identity(
+        const dds::SampleIdentity& dds_identity,
+        fastrtps::rtps::SampleIdentity& fast_identity);
+    
+private:
+    std::shared_ptr<FastDDSParticipant> participant_;
+
+    std::shared_ptr<FastDDSType> request_type_;
+    std::shared_ptr<FastDDSType> reply_type_;
+
+    std::shared_ptr<FastDDSTopic> request_topic_;
+    std::shared_ptr<FastDDSTopic> reply_topic_;
+
+    fastdds::dds::Publisher* publisher_ptr_;
+    fastdds::dds::DataWriter* datawriter_ptr_;
+
+    fastdds::dds::Subscriber* subscriber_ptr_;
+    fastdds::dds::DataReader* datareader_ptr_;
 };
 
 } // namespace uxr
