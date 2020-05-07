@@ -57,7 +57,7 @@ bool FastDDSMiddleware::create_topic_by_ref(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_ref(ref))
+        if (topic->create_by_ref(ref, topic_id))
         {
             topics_.emplace(topic_id, std::move(topic));
             rv = true;
@@ -76,7 +76,7 @@ bool FastDDSMiddleware::create_topic_by_xml(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_xml(xml))
+        if (topic->create_by_xml(xml, topic_id))
         {
             topics_.emplace(topic_id, std::move(topic));
             rv = true;
@@ -132,16 +132,12 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
     auto it_publisher = publishers_.find(publisher_id);
     if (publishers_.end() != it_publisher)
     {   
-        auto it_topic = topics_.find(associated_topic_id);
-        if (topics_.end() != it_topic)
-        {
-            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second, it_topic->second));
-            if (datawriter->create_by_ref(ref))
+        std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
+            if (datawriter->create_by_ref(ref, associated_topic_id))
             {
                 datawriters_.emplace(datawriter_id, std::move(datawriter));
                 rv = true;
             }
-        }
     }
     return rv;
 }
@@ -158,8 +154,8 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
         auto it_topic = topics_.find(associated_topic_id);
         if (topics_.end() != it_topic)
         {
-            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second, it_topic->second));
-            if (datawriter->create_by_xml(xml))
+            std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
+            if (datawriter->create_by_xml(xml, associated_topic_id))
             {
                 datawriters_.emplace(datawriter_id, std::move(datawriter));
                 rv = true;

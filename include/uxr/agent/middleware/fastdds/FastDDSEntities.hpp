@@ -24,10 +24,15 @@
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
 
+#include <unordered_map>
+
 namespace eprosima {
 namespace uxr {
 
-class FastDDSParticipant
+class FastDDSType;
+class FastDDSTopic;
+
+class FastDDSParticipant : public std::enable_shared_from_this<FastDDSParticipant>
 {
 public:
     FastDDSParticipant(int16_t domain_id)
@@ -44,6 +49,18 @@ public:
     bool match_from_xml(const std::string& xml) const;
     int16_t get_domain_id() const { return domain_id_; }
 
+    bool register_topic(
+            const fastrtps::TopicAttributes& attrs,
+            std::shared_ptr<FastDDSType>& type,
+            std::shared_ptr<FastDDSTopic> topic);
+
+    bool unregister_topic(
+            const std::string& topic_name);
+
+    bool find_topic(
+            const std::string& topic_name,
+            std::shared_ptr<FastDDSTopic>& topic);
+
     friend class FastDDSTopic;
     friend class FastDDSPublisher;
     friend class FastDDSSubscriber;
@@ -51,27 +68,51 @@ private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
     fastdds::dds::DomainParticipant* ptr_;
+    std::unordered_map<std::string, std::weak_ptr<FastDDSTopic>> topics_;
+    std::unordered_map<std::string, std::weak_ptr<FastDDSType>> type_register_;
 };
 
-class FastDDSTopic
+class FastDDSType : public TopicPubSubType
+{
+public:
+    FastDDSType(const std::shared_ptr<FastDDSParticipant>& participant)
+        : TopicPubSubType{false}
+        , participant_{participant}
+    {}
+
+    ~FastDDSType();
+
+private:
+    std::shared_ptr<FastDDSParticipant> participant_;
+};
+
+class FastDDSTopic : public std::enable_shared_from_this<FastDDSTopic>
 {
 public:
     FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
+        , type_{nullptr}
         , ptr_{nullptr}
     {}
 
     ~FastDDSTopic();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_ref(
+        const std::string& ref,
+        uint16_t topic_id);
+    bool create_by_xml(
+        const std::string& xml,
+        uint16_t topic_id);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
     friend class FastDDSDataWriter;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
+    std::shared_ptr<FastDDSType> type_;
     fastdds::dds::Topic* ptr_;
+public:
+    uint16_t topic_id;
 };
 
 class FastDDSPublisher
@@ -112,23 +153,24 @@ private:
 class FastDDSDataWriter
 {
 public:
-    FastDDSDataWriter(const std::shared_ptr<FastDDSPublisher>& publisher,
-                   const std::shared_ptr<FastDDSTopic>& topic)
+    FastDDSDataWriter(const std::shared_ptr<FastDDSPublisher>& publisher)
         : publisher_{publisher}
-        , topic_{topic}
         , ptr_{nullptr}
     {}
 
     ~FastDDSDataWriter();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_ref(
+            const std::string& ref,
+            uint16_t& topic_id);
+    bool create_by_xml(
+            const std::string& xml,
+            uint16_t& topic_id);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool write(const std::vector<uint8_t>& data);
 private:
     std::shared_ptr<FastDDSPublisher> publisher_;
-    std::shared_ptr<FastDDSTopic> topic_;
     fastdds::dds::DataWriter* ptr_;
 };
 
