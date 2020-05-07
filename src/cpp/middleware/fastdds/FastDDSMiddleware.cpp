@@ -284,57 +284,43 @@ bool FastDDSMiddleware::delete_participant(
 bool FastDDSMiddleware::delete_topic(
         uint16_t topic_id)
 {
-    // TODO.
-    return false;
-//    return (0 != topics_.erase(topic_id));
+   return (0 != topics_.erase(topic_id));
 }
 
 bool FastDDSMiddleware::delete_publisher(
         uint16_t publisher_id)
 {
-    // TODO.
-    return false;
-//    return (0 != publishers_.erase(publisher_id));
+   return (0 != publishers_.erase(publisher_id));
 }
 
 bool FastDDSMiddleware::delete_subscriber(
         uint16_t subscriber_id)
 {
-    // TODO.
-    return false;
-//    return (0 != subscribers_.erase(subscriber_id));
+   return (0 != subscribers_.erase(subscriber_id));
 }
 
 bool FastDDSMiddleware::delete_datawriter(
         uint16_t datawriter_id)
 {
-    // TODO.
-    return false;
-//    return (0 != datawriters_.erase(datawriter_id));
+   return (0 != datawriters_.erase(datawriter_id));
 }
 
 bool FastDDSMiddleware::delete_datareader(
         uint16_t datareader_id)
 {
-    // TODO.
-    return false;
-//    return (0 != datareaders_.erase(datareader_id));
+   return (0 != datareaders_.erase(datareader_id));
 }
 
 bool FastDDSMiddleware::delete_requester(
         uint16_t requester_id)
 {
-    // TODO.
-    return false;
-//    return (0 != requesters_.erase(requester_id));
+   return (0 != requesters_.erase(requester_id));
 }
 
 bool FastDDSMiddleware::delete_replier(
         uint16_t replier_id)
 {
-    // TODO.
-    return false;
-//    return (0 != repliers_.erase(replier_id));
+   return (0 != repliers_.erase(replier_id));
 }
 
 bool FastDDSMiddleware::write_data(
