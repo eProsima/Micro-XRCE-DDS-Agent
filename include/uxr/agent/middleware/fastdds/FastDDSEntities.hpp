@@ -174,12 +174,8 @@ public:
 
     ~FastDDSDataWriter();
 
-    bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
-    bool create_by_xml(
-            const std::string& xml,
-            uint16_t& topic_id);
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool write(const std::vector<uint8_t>& data);
@@ -198,12 +194,8 @@ public:
 
     ~FastDDSDataReader();
 
-    bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
-    bool create_by_xml(
-            const std::string& xml,
-            uint16_t& topic_id);
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool read(

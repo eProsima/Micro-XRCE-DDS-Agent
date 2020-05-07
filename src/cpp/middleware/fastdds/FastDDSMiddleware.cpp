@@ -133,7 +133,7 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
     if (publishers_.end() != it_publisher)
     {   
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
-        if (datawriter->create_by_ref(ref, associated_topic_id))
+        if (datawriter->create_by_ref(ref))
         {
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
@@ -152,7 +152,7 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
     if (publishers_.end() != it_publisher)
     {   
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
-        if (datawriter->create_by_xml(xml, associated_topic_id))
+        if (datawriter->create_by_xml(xml))
         {
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
@@ -171,7 +171,7 @@ bool FastDDSMiddleware::create_datareader_by_ref(
     if (subscribers_.end() != it_subscriber)
     {   
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
-        if (datareader->create_by_ref(ref, associated_topic_id))
+        if (datareader->create_by_ref(ref))
         {
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
@@ -190,7 +190,7 @@ bool FastDDSMiddleware::create_datareader_by_xml(
     if (subscribers_.end() != it_subscriber)
     {   
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
-        if (datareader->create_by_xml(xml, associated_topic_id))
+        if (datareader->create_by_xml(xml))
         {
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
