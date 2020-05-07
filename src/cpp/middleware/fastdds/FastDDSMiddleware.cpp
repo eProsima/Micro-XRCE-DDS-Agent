@@ -205,7 +205,16 @@ bool FastDDSMiddleware::create_requester_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    // TODO.
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSRequester> requester(new FastDDSRequester(it_participant->second));
+        if (requester->create_by_ref(ref))
+        {
+            requesters_.emplace(requester_id, std::move(requester));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -215,7 +224,16 @@ bool FastDDSMiddleware::create_requester_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    // TODO.
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSRequester> requester(new FastDDSRequester(it_participant->second));
+        if (requester->create_by_xml(xml))
+        {
+            requesters_.emplace(requester_id, std::move(requester));
+            rv = true;
+        }
+    }
     return rv;
 }
 
@@ -319,15 +337,13 @@ bool FastDDSMiddleware::write_request(
         uint32_t sequence_number,
         const std::vector<uint8_t>& data)
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = requesters_.find(requester_id);
-//    if (requesters_.end() != it)
-//    {
-//        rv = it->second->write(sequence_number, data);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = requesters_.find(requester_id);
+   if (requesters_.end() != it)
+   {
+       rv = it->second->write(sequence_number, data);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::write_reply(
@@ -381,15 +397,13 @@ bool FastDDSMiddleware::read_reply(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = requesters_.find(requester_id);
-//    if (requesters_.end() != it)
-//    {
-//        rv = it->second->read(sequence_number, data, timeout);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = requesters_.find(requester_id);
+   if (requesters_.end() != it)
+   {
+       rv = it->second->read(sequence_number, data, timeout);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_participant_from_ref(
@@ -500,30 +514,26 @@ bool FastDDSMiddleware::matched_requester_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = requesters_.find(requester_id);
-//    if (requesters_.end() != it)
-//    {
-//        rv = it->second->match_from_ref(ref);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = requesters_.find(requester_id);
+   if (requesters_.end() != it)
+   {
+       rv = it->second->match_from_ref(ref);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_requester_from_xml(
         uint16_t requester_id,
         const std::string& xml) const
 {
-    // TODO.
-    return false;
-//    bool rv = false;
-//    auto it = requesters_.find(requester_id);
-//    if (requesters_.end() != it)
-//    {
-//        rv = it->second->match_from_ref(xml);
-//    }
-//    return rv;
+   bool rv = false;
+   auto it = requesters_.find(requester_id);
+   if (requesters_.end() != it)
+   {
+       rv = it->second->match_from_ref(xml);
+   }
+   return rv;
 }
 
 bool FastDDSMiddleware::matched_replier_from_ref(

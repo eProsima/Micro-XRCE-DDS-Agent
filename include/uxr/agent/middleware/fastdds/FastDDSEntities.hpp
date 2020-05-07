@@ -22,7 +22,9 @@
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastrtps/attributes/all_attributes.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
 
 #include <unordered_map>
 
@@ -64,6 +66,7 @@ public:
     friend class FastDDSTopic;
     friend class FastDDSPublisher;
     friend class FastDDSSubscriber;
+    friend class FastDDSRequester;
 private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -108,6 +111,12 @@ public:
 
     friend class FastDDSDataWriter;
     friend class FastDDSDataReader;
+    friend class FastDDSRequester;
+private:
+    bool create_by_attributes(
+        const fastrtps::TopicAttributes& attrs,
+        uint16_t topic_id);
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     std::shared_ptr<FastDDSType> type_;
@@ -122,7 +131,7 @@ public:
     FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant) 
         : participant_{participant}
         , ptr_{nullptr}
-        {}
+    {}
     
     ~FastDDSPublisher();
 
@@ -140,7 +149,7 @@ public:
     FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant) 
         : participant_{participant}
         , ptr_{nullptr}
-        {}
+    {}
 
     ~FastDDSSubscriber();
 
@@ -205,7 +214,61 @@ private:
 
 class FastDDSRequester
 {
-    // TODO.
+public:
+    FastDDSRequester(const std::shared_ptr<FastDDSParticipant>& participant) 
+        : participant_{participant}
+        , request_topic_{nullptr}
+        , reply_topic_{nullptr}
+        , publisher_ptr_{nullptr}
+        , datawriter_ptr_{nullptr}
+        , subscriber_ptr_{nullptr}
+        , datareader_ptr_{nullptr}
+        , publisher_id_{}
+        , sequence_to_sequence_{}
+    {}
+
+    ~FastDDSRequester();
+
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
+    bool match(const fastrtps::RequesterAttributes& attrs) const;
+
+    bool write(
+        uint32_t sequence_number,
+        const std::vector<uint8_t>& data);
+
+    bool read(
+        uint32_t& sequence_number,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout);
+
+private:
+    bool create_by_attributes(
+        const fastrtps::RequesterAttributes& attrs);
+    
+private:
+    std::shared_ptr<FastDDSParticipant> participant_;
+
+    std::shared_ptr<FastDDSType> request_type_;
+    std::shared_ptr<FastDDSType> reply_type_;
+
+    std::shared_ptr<FastDDSTopic> request_topic_;
+    std::shared_ptr<FastDDSTopic> reply_topic_;
+
+    fastdds::dds::Publisher* publisher_ptr_;
+    fastdds::dds::DataWriter* datawriter_ptr_;
+
+    fastdds::dds::Subscriber* subscriber_ptr_;
+    fastdds::dds::DataReader* datareader_ptr_;
+
+    dds::GUID_t publisher_id_;
+    std::map<int64_t, uint32_t> sequence_to_sequence_;
+
+    // std::mutex mtx_;
+    // std::condition_variable cv_;
+    // std::atomic<uint64_t> unread_count_;
 };
 
 class FastDDSReplier
