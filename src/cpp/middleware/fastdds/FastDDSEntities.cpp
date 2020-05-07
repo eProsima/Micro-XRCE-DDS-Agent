@@ -207,8 +207,8 @@ bool FastDDSParticipant::match_from_xml(
 }
 
 FastDDSTopic::~FastDDSTopic()
-{
-    // factory_->delete_participant(ptr_);
+{   
+    participant_->ptr->delete_topic(ptr_)
 }
 
 bool FastDDSTopic::create_by_ref(
@@ -304,6 +304,53 @@ bool FastDDSTopic::match_from_xml(
     return rv;
 }
 
+FastDDSPublisher::~FastDDSPublisher()
+{   
+    participant_->ptr_->delete_publisher(ptr_)
+}
 
+bool FastDDSPublisher::create_by_xml(
+        const std::string& xml)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastrtps::PublisherAttributes attrs;
+        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        {   
+            fastdds::dds::PublisherQos qos;
+            set_qos_from_attributes(qos, attrs);
+            ptr_ = participant_->ptr_->create_publisher(qos);
+            rv = (nullptr != ptr_);
+        }
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
+FastDDSSubscriber::~FastDDSSubscriber()
+{   
+    participant_->ptr_->delete_subscriber(ptr_)
+}
+
+
+bool FastDDSSubscriber::create_by_xml(
+        const std::string& xml)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastrtps::SubscriberAttributes attrs;
+        if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
+        {   
+            fastdds::dds::SubscriberQos qos;
+            set_qos_from_attributes(qos, attrs);
+            ptr_ = participant_->ptr_->create_subscriber(qos);
+            rv = (nullptr != ptr_);
+        }
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
 } // namespace uxr
 } // namespace eprosima

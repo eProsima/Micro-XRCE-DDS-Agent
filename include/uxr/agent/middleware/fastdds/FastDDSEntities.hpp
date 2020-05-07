@@ -45,6 +45,8 @@ public:
     int16_t get_domain_id() const { return domain_id_; }
 
     friend class FastDDSTopic;
+    friend class FastDDSPublisher;
+    friend class FastDDSSubscriber;
 private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -56,6 +58,7 @@ class FastDDSTopic
 public:
     FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
+        , ptr_{nullptr}
     {}
 
     ~FastDDSTopic();
@@ -73,25 +76,34 @@ private:
 class FastDDSPublisher
 {
 public:
-    FastDDSPublisher(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant) 
+        : participant_{participant}
+        , ptr_{nullptr}
+        {}
+    
     ~FastDDSPublisher() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
-
+    bool create_by_xml(const std::string& xml);
 private:
-    uint16_t participant_id_;
+    std::shared_ptr<FastDDSParticipant> participant_;
+    fastdds::dds::Publisher* ptr_;
 };
 
 class FastDDSSubscriber
 {
 public:
-    FastDDSSubscriber(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant) 
+        : participant_{participant}
+        , ptr_{nullptr}
+        {}
+
     ~FastDDSSubscriber() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
-
+    bool create_by_xml(const std::string& xml);
 private:
-    uint16_t participant_id_;
+    std::shared_ptr<FastDDSParticipant> participant_;
+    fastdds::dds::Subscriber* ptr_;
+
 };
 
 class FastDDSDataWriter

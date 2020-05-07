@@ -89,10 +89,19 @@ bool FastDDSMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
         const std::string& xml)
-{
-    std::shared_ptr<FastDDSPublisher> publisher(new FastDDSPublisher(participant_id));
-    publishers_.emplace(publisher_id, std::move(publisher));
-    return true;
+{   
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSPublisher> publisher(new FastDDSPublisher(it_participant->second));
+        if (publisher->create_by_xml(xml))
+        {
+            publishers_.emplace(publisher_id, std::move(publisher));
+            rv = true;
+        }
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::create_subscriber_by_xml(
@@ -100,9 +109,18 @@ bool FastDDSMiddleware::create_subscriber_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    std::shared_ptr<FastDDSSubscriber> subscriber(new FastDDSSubscriber(participant_id));
-    subscribers_.emplace(subscriber_id, std::move(subscriber));
-    return true;
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSSubscriber> subscriber(new FastDDSSubscriber(it_participant->second));
+        if (subscriber->create_by_xml(xml))
+        {
+            subscribers_.emplace(subscriber_id, std::move(subscriber));
+            rv = true;
+        }
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::create_datawriter_by_ref(
