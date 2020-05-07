@@ -61,16 +61,6 @@ Topic::~Topic()
     participant_->get_proxy_client()->get_middleware().delete_topic(get_raw_id());
 }
 
-void Topic::release(ObjectContainer& root_objects)
-{
-    while (!tied_objects_.empty())
-    {
-        auto obj = tied_objects_.begin();
-        root_objects.at(*obj)->release(root_objects);
-        root_objects.erase(*obj);
-    }
-}
-
 bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 {
     /* Check ObjectKind. */

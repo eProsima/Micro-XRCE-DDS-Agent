@@ -69,18 +69,16 @@ std::unique_ptr<DataWriter> DataWriter::create(
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Publisher>& publisher,
         const std::shared_ptr<Topic>& topic)
-    : XRCEObject(object_id)
-    , publisher_(publisher)
-    , topic_(topic)
+    : XRCEObject{object_id}
+    , publisher_{publisher}
+    , topic_{topic}
 {
     publisher_->tie_object(object_id);
-    topic_->tie_object(object_id);
 }
 
 DataWriter::~DataWriter()
 {
     publisher_->untie_object(get_id());
-    topic_->untie_object(get_id());
     publisher_->get_participant()->get_proxy_client()->get_middleware().delete_datawriter(get_raw_id());
 }
 

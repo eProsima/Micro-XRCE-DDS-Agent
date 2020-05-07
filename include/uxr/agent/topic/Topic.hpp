@@ -40,10 +40,8 @@ public:
     Topic& operator=(Topic&&) = delete;
     Topic& operator=(const Topic&) = delete;
 
-    void release(ObjectContainer&) override;
-    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    void release(ObjectContainer&) override {}
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
 
 private:
     Topic(
@@ -52,7 +50,6 @@ private:
 
 private:
     std::shared_ptr<Participant> participant_;
-    std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace uxr

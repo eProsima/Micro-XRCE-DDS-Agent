@@ -44,7 +44,6 @@ std::unique_ptr<DataReader> DataReader::create(
             {
                 dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);;
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                topic->tie_object(object_id);
                 created_entity = true;
             }
             break;
@@ -57,7 +56,6 @@ std::unique_ptr<DataReader> DataReader::create(
             {
                 dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
                 topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                topic->tie_object(object_id);
                 created_entity = true;
             }
             break;
@@ -73,20 +71,18 @@ DataReader::DataReader(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Subscriber>& subscriber,
         const std::shared_ptr<Topic>& topic)
-    : XRCEObject(object_id)
-    , subscriber_(subscriber)
-    , topic_(topic)
+    : XRCEObject{object_id}
+    , subscriber_{subscriber}
+    , topic_{topic}
     , reader_{}
 {
     subscriber_->tie_object(object_id);
-    topic_->tie_object(object_id);
 }
 
 DataReader::~DataReader() noexcept
 {
     reader_.stop_reading();
     subscriber_->untie_object(get_id());
-    topic_->untie_object(get_id());
     subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());
 }
 
