@@ -93,59 +93,54 @@ void FastParticipant::onParticipantDiscovery(
     }
 }
 
-bool FastParticipant::register_topic(
-        const fastrtps::TopicAttributes& attrs,
-        std::shared_ptr<FastType>& type,
-        uint16_t topic_id)
+bool FastParticipant::register_type(
+        const std::shared_ptr<FastType>& type)
 {
-    // TODO (#5057): allow more than one topic.
-    bool rv = false;
-    auto it = type_register_.find(attrs.getTopicDataType().c_str());
-    if (type_register_.end() == it)
-    {
-        type = std::make_shared<FastType>(shared_from_this());
-        type->setName(attrs.getTopicDataType().c_str());
-        type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
-        rv = fastrtps::Domain::registerType(ptr_, type.get());
-        if (rv)
-        {
-            topics_.emplace(type->getName(), topic_id);
-            type_register_.emplace(type->getName(), type);
-        }
-    }
-    else
+    return fastrtps::Domain::registerType(ptr_, type.get())
+        && type_register_.emplace(type->getName(), type).second;
+}
+
+bool FastParticipant::unregister_type(
+        const std::string& type_name)
+{
+    return (1 == type_register_.erase(type_name))
+        && fastrtps::Domain::unregisterType(ptr_, type_name.c_str());
+}
+
+std::shared_ptr<FastType> FastParticipant::find_type(
+        const std::string& type_name) const
+{
+    std::shared_ptr<FastType> type;
+    auto it = type_register_.find(type_name);
+    if (it != type_register_.end())
     {
         type = it->second.lock();
-        rv = true;
     }
+    return type;
+}
 
-    return rv;
+bool FastParticipant::register_topic(
+            const std::shared_ptr<FastTopic>& topic)
+{
+    return topic_register_.emplace(topic->get_name(), topic).second;
 }
 
 bool FastParticipant::unregister_topic(
         const std::string& topic_name)
 {
-    bool rv = false;
-    if ((0 != type_register_.erase(topic_name)) && (0 != topics_.erase(topic_name)))
-    {
-        fastrtps::Domain::unregisterType(ptr_, topic_name.c_str());
-        rv = true;
-    }
-    return rv;
+    return (1 == topic_register_.erase(topic_name));
 }
 
-bool FastParticipant::find_topic(
-        const std::string& topic_name,
-        uint16_t& topic_id)
+std::shared_ptr<FastTopic> FastParticipant::find_topic(
+        const std::string& topic_name) const
 {
-    bool rv = false;
-    auto it = topics_.find(topic_name);
-    if (topics_.end() != it)
+    std::shared_ptr<FastTopic> topic;
+    auto it = topic_register_.find(topic_name);
+    if (it != topic_register_.end())
     {
-        topic_id = it->second;
-        rv = true;
+        topic = it->second.lock();
     }
-    return rv;
+    return topic;
 }
 
 /**********************************************************************************************************************
@@ -159,25 +154,21 @@ FastType::FastType(
 
 FastType::~FastType()
 {
-    participant_->unregister_topic(getName());
+    participant_->unregister_type(getName());
 }
 
 FastTopic::FastTopic(
+        const std::string& name,
+        const std::shared_ptr<FastType>& type,
         const std::shared_ptr<FastParticipant>& participant)
-    : participant_(participant)
-    , type_{nullptr}
+    : name_{name}
+    , type_{type}
+    , participant_(participant)
 {}
 
-bool FastTopic::create_by_attributes(
-        const fastrtps::TopicAttributes& attrs,
-        uint16_t topic_id)
+FastTopic::~FastTopic()
 {
-    bool rv = false;
-    if (participant_->register_topic(attrs, type_, topic_id))
-    {
-        rv = true;
-    }
-    return rv;
+    participant_->unregister_topic(name_);
 }
 
 bool FastTopic::match_from_ref(const std::string& ref) const
@@ -209,8 +200,9 @@ bool FastTopic::match_from_xml(const std::string& xml) const
  * FastDataWriter
  **********************************************************************************************************************/
 FastDataWriter::FastDataWriter(const std::shared_ptr<FastParticipant>& participant)
-    : participant_(participant)
-    , ptr_(nullptr)
+    : participant_{participant}
+    , topic_{}
+    , ptr_{nullptr}
 {}
 
 FastDataWriter::~FastDataWriter()
@@ -221,27 +213,23 @@ FastDataWriter::~FastDataWriter()
 bool FastDataWriter::create_by_ref(
         const std::string& ref)
 {
-    bool rv = false;
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-// TODO.
-//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
     }
-    return rv;
+    return bool(topic_);
 }
 
 bool FastDataWriter::create_by_attributes(
         const PublisherAttributes& attrs)
 {
-    bool rv = false;
     ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-// TODO.
-//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
     }
-    return rv;
+    return bool(topic_);
 }
 
 bool FastDataWriter::match_from_ref(const std::string& ref) const
@@ -311,27 +299,23 @@ FastDataReader::~FastDataReader()
 bool FastDataReader::create_by_ref(
         const std::string& ref)
 {
-    bool rv = false;
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
     if (nullptr != ptr_)
     {
-// TODO.
-//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
     }
-    return rv;
+    return bool(topic_);
 }
 
 bool FastDataReader::create_by_attributes(
         const SubscriberAttributes& attrs)
 {
-    bool rv = false;
     ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
     if (nullptr != ptr_)
     {
-// TODO.
-//        rv = participant_->find_topic(ptr_->getAttributes().topic.getTopicDataType().c_str(), topic_id);
+        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
     }
-    return rv;
+    return bool(topic_);
 }
 
 bool FastDataReader::match_from_ref(const std::string& ref) const
@@ -452,16 +436,17 @@ bool FastRequester::create_by_attributes(
         const fastrtps::RequesterAttributes& attrs)
 {
     const fastrtps::TopicAttributes& request_topic_attrs = attrs.publisher.topic;
-    if (!participant_->register_topic(request_topic_attrs, request_topic_))
-    {
-        return false;
-    }
-
-    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.subscriber.topic;
-    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
-    {
-        return false;
-    }
+// TODO.
+//    if (!participant_->register_topic(request_topic_attrs, request_topic_))
+//    {
+//        return false;
+//    }
+//
+//    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.subscriber.topic;
+//    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
+//    {
+//        return false;
+//    }
 
     bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
@@ -697,16 +682,16 @@ bool FastReplier::create_by_attributes(
 {
 
     const fastrtps::TopicAttributes& request_topic_attrs = attrs.subscriber.topic;
-    if (!participant_->register_topic(request_topic_attrs, request_topic_))
-    {
-        return false;
-    }
-
-    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.publisher.topic;
-    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
-    {
-        return false;
-    }
+//    if (!participant_->register_topic(request_topic_attrs, request_topic_))
+//    {
+//        return false;
+//    }
+//
+//    const fastrtps::TopicAttributes& reply_topic_attrs = attrs.publisher.topic;
+//    if (!participant_->register_topic(reply_topic_attrs, reply_topic_))
+//    {
+//        return false;
+//    }
 
     bool rv = false;
     fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();

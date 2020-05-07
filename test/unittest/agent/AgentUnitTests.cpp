@@ -28,6 +28,7 @@ protected:
     AgentUnitTests()
     {
         agent_.load_config_file("./agent.refs");
+        agent_.set_verbose_level(6);
     }
 
     ~AgentUnitTests()

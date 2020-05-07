@@ -47,6 +47,11 @@ public:
             int16_t domain_id,
             const std::string& xml) override;
 
+    bool create_topic_by_attributes(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const fastrtps::TopicAttributes& attr);
+
     bool create_topic_by_ref(
             uint16_t topic_id,
             uint16_t participant_id,
