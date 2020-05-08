@@ -18,6 +18,10 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+
 #include <functional>
 
 #define RECEIVE_TIMEOUT 1
@@ -25,19 +29,29 @@
 namespace eprosima {
 namespace uxr {
 
-Server::Server(Middleware::Kind middleware_kind)
-    : processor_(new Processor(*this, *root_, middleware_kind))
+extern template class Processor<IPv4EndPoint>;
+extern template class Processor<IPv6EndPoint>;
+extern template class Processor<SerialEndPoint>;
+
+template<typename EndPoint>
+Server<EndPoint>::Server(Middleware::Kind middleware_kind)
+    : processor_(new Processor<EndPoint>(*this, *root_, middleware_kind))
     , running_cond_(false)
     , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
     , output_scheduler_(SERVER_QUEUE_MAX_SIZE)
+    , transport_rc_{TransportRc::ok}
+    , error_mtx_{}
+    , error_cv_{}
 {}
 
-Server::~Server()
+template<typename EndPoint>
+Server<EndPoint>::~Server()
 {
     delete processor_;
 }
 
-bool Server::run()
+template<typename EndPoint>
+bool Server<EndPoint>::start()
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -53,6 +67,7 @@ bool Server::run()
 
     /* Thread initialization. */
     running_cond_ = true;
+    error_handler_thread_ = std::thread(&Server::error_handler_loop, this);
     receiver_thread_ = std::thread(&Server::receiver_loop, this);
     sender_thread_ = std::thread(&Server::sender_loop, this);
     processing_thread_ = std::thread(&Server::processing_loop, this);
@@ -61,7 +76,8 @@ bool Server::run()
     return true;
 }
 
-bool Server::stop()
+template<typename EndPoint>
+bool Server<EndPoint>::stop()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -69,6 +85,8 @@ bool Server::stop()
     /* Stop input and output queues. */
     input_scheduler_.deinit();
     output_scheduler_.deinit();
+
+    error_cv_.notify_one();
 
     /* Join threads. */
     if (receiver_thread_.joinable())
@@ -87,21 +105,26 @@ bool Server::stop()
     {
         heartbeat_thread_.join();
     }
+    if (error_handler_thread_.joinable())
+    {
+        error_handler_thread_.join();
+    }
 
     /* Close servers. */
     bool rv = true;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv &= close_discovery();
+    rv = fini_discovery() && rv;
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv &= close_p2p();
+    rv = fini_p2p() && rv;
 #endif
-    rv &= close();
+    rv = fini() && rv;
     return rv;
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool Server::enable_discovery(uint16_t discovery_port)
+template<typename EndPoint>
+bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -111,14 +134,16 @@ bool Server::enable_discovery(uint16_t discovery_port)
     return rv;
 }
 
-bool Server::disable_discovery()
+template<typename EndPoint>
+bool Server<EndPoint>::disable_discovery()
 {
-    return close_discovery();
+    return fini_discovery();
 }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-bool Server::enable_p2p(uint16_t p2p_port)
+template<typename EndPoint>
+bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -128,47 +153,73 @@ bool Server::enable_p2p(uint16_t p2p_port)
     return rv;
 }
 
-bool Server::disable_p2p()
+template<typename EndPoint>
+bool Server<EndPoint>::disable_p2p()
 {
-    return close_p2p();
+    return fini_p2p();
 }
 #endif
 
-void Server::push_output_packet(OutputPacket output_packet)
+template<typename EndPoint>
+void Server<EndPoint>::push_output_packet(
+        OutputPacket<EndPoint> output_packet)
 {
-    if (output_packet.destination && output_packet.message)
+    if (output_packet.message)
     {
         output_scheduler_.push(std::move(output_packet), 0);
     }
 }
 
-void Server::receiver_loop()
+template<typename EndPoint>
+void Server<EndPoint>::receiver_loop()
 {
-    InputPacket input_packet;
+    InputPacket<EndPoint> input_packet{};
     while (running_cond_)
     {
-        if (recv_message(input_packet, RECEIVE_TIMEOUT))
+        TransportRc transport_rc = TransportRc::ok;
+        if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
             input_scheduler_.push(std::move(input_packet), 0);
+        }
+        else
+        {
+            if (TransportRc::server_error == transport_rc)
+            {
+                std::unique_lock<std::mutex> lock(error_mtx_);
+                transport_rc_ = transport_rc;
+                error_cv_.notify_one();
+            }
         }
     }
 }
 
-void Server::sender_loop()
+template<typename EndPoint>
+void Server<EndPoint>::sender_loop()
 {
-    OutputPacket output_packet;
+    OutputPacket<EndPoint> output_packet{};
     while (running_cond_)
     {
         if (output_scheduler_.pop(output_packet))
         {
-            send_message(output_packet);
+            TransportRc transport_rc = TransportRc::ok;
+            if (!send_message(output_packet, transport_rc))
+            {
+                if (TransportRc::server_error == transport_rc)
+                {
+                    std::unique_lock<std::mutex> lock(error_mtx_);
+                    transport_rc_ = transport_rc;
+                    output_scheduler_.push_front(std::move(output_packet));
+                    error_cv_.notify_one();
+                }
+            }
         }
     }
 }
 
-void Server::processing_loop()
+template<typename EndPoint>
+void Server<EndPoint>::processing_loop()
 {
-    InputPacket input_packet;
+    InputPacket<EndPoint> input_packet;
     while (running_cond_)
     {
         if (input_scheduler_.pop(input_packet))
@@ -178,7 +229,8 @@ void Server::processing_loop()
     }
 }
 
-void Server::heartbeat_loop()
+template<typename EndPoint>
+void Server<EndPoint>::heartbeat_loop()
 {
     while (running_cond_)
     {
@@ -186,6 +238,30 @@ void Server::heartbeat_loop()
         std::this_thread::sleep_for(std::chrono::milliseconds(HEARTBEAT_PERIOD));
     }
 }
+
+template<typename EndPoint>
+void Server<EndPoint>::error_handler_loop()
+{
+    while (running_cond_)
+    {
+        std::unique_lock<std::mutex> lock(error_mtx_);
+        error_cv_.wait(lock, [&](){ return !running_cond_ || (transport_rc_ == TransportRc::server_error); });
+        if (running_cond_)
+        {
+            bool error_handled = handle_error(transport_rc_);
+            while (running_cond_ && !error_handled)
+            {
+                error_handled = handle_error(transport_rc_);
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+            transport_rc_ = TransportRc::ok;
+        }
+    }
+}
+
+template class Server<IPv4EndPoint>;
+template class Server<IPv6EndPoint>;
+template class Server<SerialEndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
-#define UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#ifndef UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_
+#define UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_
 
 #include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
 #include <uxr/agent/message/Packet.hpp>
@@ -21,29 +21,32 @@
 #include <winsock2.h>
 #include <thread>
 #include <atomic>
+#include <type_traits>
 
 namespace eprosima {
 namespace uxr {
 
-class Processor;
-
-class DiscoveryServerWindows : public DiscoveryServer
+template<typename EndPoint>
+class DiscoveryServerWindows : public DiscoveryServer<EndPoint>
 {
 public:
-    DiscoveryServerWindows(const Processor& processor);
+    DiscoveryServerWindows(
+            const Processor<EndPoint>& processor);
 
     ~DiscoveryServerWindows() override = default;
 
 private:
-    bool init(uint16_t discovery_port) final;
+    bool init(
+            uint16_t discovery_port) final;
 
     bool close() final;
 
     bool recv_message(
-            InputPacket& input_packet,
+            InputPacket<IPv4EndPoint>& input_packet,
             int timeout) final;
 
-    bool send_message(OutputPacket&& output_packet) final;
+    bool send_message(
+            OutputPacket<IPv4EndPoint>&& output_packet) final;
 
 private:
     struct pollfd poll_fd_;
@@ -53,4 +56,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_DISCOVERY_SERVER_WINDOWS_HPP_
+#endif // UXR_AGENT_TRANSPORT_DISCOVERY_DISCOVERYSERVERWINDOWS_HPP_

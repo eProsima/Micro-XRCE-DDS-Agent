@@ -94,7 +94,11 @@ public:
         /** Identifies a DataWriter. */
         DATAWRITER_OBJK     = 0x05,
         /** Identifies a DataReader. */
-        DATAREADER_OBJK     = 0x06
+        DATAREADER_OBJK     = 0x06,
+        /** Identifies a Requester. */
+        REQUESTER_OBJK      = 0x07,
+        /** Identifies a Replier. */
+        REPLIER_OBJK        = 0x08
     };
 
     UXR_AGENT_EXPORT Agent();
@@ -389,6 +393,112 @@ public:
     UXR_AGENT_EXPORT bool delete_datareader(
             uint32_t client_key,
             uint16_t datareader_id,
+            OpResult& op_result);
+
+    /**
+     * @brief Creates a Requester from a reference in the ProxyClient identified by the client_key.
+     *        The Requester is associated with a Participant identified by participant_id.
+     *
+     * @param client_key        The identifier of the ProxyClient.
+     * @param requester_id      The identifier of the Requester to be created.
+     * @param participant_id    The identifier of the Participant associated with the Requester.
+     * @param ref               The reference of the Requester.
+     * @param flag              The flag tha determines the creation mode.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful creation and false in other case.
+     */
+    UXR_AGENT_EXPORT bool create_requester_by_ref(
+            uint32_t client_key,
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const char* ref,
+            uint8_t flag,
+            OpResult& op_result);
+
+    /**
+     * @brief Creates a Requester from an XML in the ProxyClient identified by the client_key.
+     *        The Requester is associated with a Participant identified by participant_id.
+     *
+     * @param client_key        The identifier of the ProxyClient.
+     * @param requester_id      The identifier of the Requester to be created.
+     * @param participant_id    The identifier of the Participant associated with the Requester.
+     * @param xml               The XML that describes the Requester.
+     * @param flag              The flag tha determines the creation mode.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful creation and false in other case.
+     */
+    UXR_AGENT_EXPORT bool create_requester_by_xml(
+            uint32_t client_key,
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const char* xml,
+            uint8_t flag,
+            OpResult& op_result);
+
+    /**
+     * @brief Deletes a Requester from a ProxyClient.
+     *
+     * @param client_key        The identifier of the ProxyClient to delete from.
+     * @param requester_id      The identifier of the Requester to delete.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful deletion and false in other case.
+     */
+    UXR_AGENT_EXPORT bool delete_requester(
+            uint32_t client_key,
+            uint16_t requester_id,
+            OpResult& op_result);
+
+    /**
+     * @brief Creates a Replier from a reference in the ProxyClient identified by the client_key.
+     *        The Replier is associated with a Participant identified by participant_id.
+     *
+     * @param client_key        The identifier of the ProxyClient.
+     * @param replier_id        The identifier of the Replier to be created.
+     * @param participant_id    The identifier of the Participant associated with the Replier.
+     * @param ref               The reference of the Replier.
+     * @param flag              The flag tha determines the creation mode.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful creation and false in other case.
+     */
+    UXR_AGENT_EXPORT bool create_replier_by_ref(
+            uint32_t client_key,
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const char* ref,
+            uint8_t flag,
+            OpResult& op_result);
+
+    /**
+     * @brief Creates a Replier from an XML in the ProxyClient identified by the client_key.
+     *        The Replier is associated with a Participant identified by participant_id.
+     *
+     * @param client_key        The identifier of the ProxyClient.
+     * @param replier_id        The identifier of the Replier to be created.
+     * @param participant_id    The identifier of the Participant associated with the Replier.
+     * @param xml               The XML that describes the Requester.
+     * @param flag              The flag tha determines the creation mode.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful creation and false in other case.
+     */
+    UXR_AGENT_EXPORT bool create_replier_by_xml(
+            uint32_t client_key,
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const char* xml,
+            uint8_t flag,
+            OpResult& op_result);
+
+    /**
+     * @brief Deletes a Replier from a ProxyClient.
+     *
+     * @param client_key        The identifier of the ProxyClient to delete from.
+     * @param requester_id      The identifier of the Replier to delete.
+     * @param op_result         The result status of the operation.
+     * @return true in case of successful creation and false in other case.
+     */
+    UXR_AGENT_EXPORT bool delete_replier(
+            uint32_t client_key,
+            uint16_t replier_id,
             OpResult& op_result);
 
     /**

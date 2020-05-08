@@ -16,12 +16,7 @@
 #define UXR_AGENT_DATAREADER_DATAREADER_HPP_
 
 #include <uxr/agent/object/XRCEObject.hpp>
-
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#include <functional>
-#include <atomic>
+#include <uxr/agent/reader/Reader.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -29,20 +24,6 @@ namespace uxr {
 class ProxyClient;
 class Subscriber;
 class Topic;
-
-/**
- * Callback data structure.
- */
-struct ReadCallbackArgs
-{
-    std::shared_ptr<ProxyClient> client;
-    dds::xrce::ClientKey client_key;
-    dds::xrce::StreamId stream_id;
-    dds::xrce::ObjectId object_id;
-    dds::xrce::RequestId request_id;
-};
-
-typedef const std::function<bool (const ReadCallbackArgs&, std::vector<uint8_t>, std::chrono::milliseconds)> read_callback;
 
 /**
  * @brief The DataReader class
@@ -71,8 +52,8 @@ public:
 
     bool read(
         const dds::xrce::READ_DATA_Payload& read_data,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args);
+        Reader<bool>::WriteFn write_fn,
+        WriteFnArgs& cb_args);
 
 private:
     DataReader(
@@ -80,26 +61,16 @@ private:
         const std::shared_ptr<Subscriber>& subscriber,
         const std::shared_ptr<Topic>& topic);
 
-    bool start_read(
-        const dds::xrce::DataDeliveryControl& delivery_control,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args);
-
-    bool stop_read();
-
-    void read_task(
-        dds::xrce::DataDeliveryControl delivery_control,
-        read_callback read_cb,
-        ReadCallbackArgs cb_args);
+    bool read_fn(
+        bool,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout);
 
 private:
     std::shared_ptr<Subscriber> subscriber_;
     std::shared_ptr<Topic> topic_;
-    std::atomic<bool> running_cond_;
-    std::thread read_thread_;
-    std::mutex mtx_;
+    Reader<bool> reader_;
 };
-
 
 } // namespace uxr
 } // namespace eprosima

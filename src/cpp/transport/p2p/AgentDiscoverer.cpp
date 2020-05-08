@@ -20,15 +20,15 @@ namespace uxr {
 
 AgentDiscoverer::AgentDiscoverer(
         Agent& agent)
-    : agent_{agent}
+    : agent_(agent)
     , mtx_{}
     , thread_{}
     , running_cond_{false}
 {}
 
-bool AgentDiscoverer::run(
+bool AgentDiscoverer::start(
         uint16_t p2p_port,
-        const dds::xrce::TransportAddress& local_address)
+        uint16_t agent_port)
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -37,21 +37,11 @@ bool AgentDiscoverer::run(
         return false;
     }
 
-    bool rv = false;
-
-    /* Set local address in InternalClientManager. */
     InternalClientManager& manager = InternalClientManager::instance();
-    if (dds::xrce::ADDRESS_FORMAT_MEDIUM == local_address._d())
-    {
-        manager.set_local_address(local_address.medium_locator().address(), local_address.medium_locator().port());
-
-        /* Init thread. */
-        running_cond_ = true;
-        thread_ = std::thread(&AgentDiscoverer::loop, this);
-        rv = true;
-    }
-
-    return rv;
+    manager.set_local_address(agent_port);
+    thread_ = std::thread(&AgentDiscoverer::loop, this);
+    running_cond_ = true;
+    return true;
 }
 
 bool AgentDiscoverer::stop()
@@ -68,15 +58,7 @@ bool AgentDiscoverer::stop()
     InternalClientManager& manager = InternalClientManager::instance();
     manager.delete_clients();
 
-    return close();
-}
-
-void AgentDiscoverer::set_local_address(
-        const std::array<uint8_t, 4>& ip,
-        uint16_t port)
-{
-    InternalClientManager& manager = InternalClientManager::instance();
-    manager.set_local_address(ip, port);
+    return fini();
 }
 
 void AgentDiscoverer::loop()

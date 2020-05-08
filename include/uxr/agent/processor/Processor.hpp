@@ -33,91 +33,97 @@ namespace eprosima {
 namespace uxr {
 
 class Root;
-class Server;
-class ProxyClient;
-struct InputPacket;
-struct OutputPacket;
-struct ReadCallbackArgs;
+class IPv4EndPoint;
 
+template<typename EndPoint>
+class Server;
+
+class ProxyClient;
+
+template<typename EndPoint>
+struct InputPacket;
+
+template<typename EndPoint>
+struct OutputPacket;
+
+struct WriteFnArgs;
+
+template<typename EndPoint>
 class Processor
 {
 public:
     Processor(
-            Server& server,
+            Server<EndPoint>& server,
             Root& root,
             Middleware::Kind middleware_kind);
 
-    ~Processor();
+    ~Processor() = default;
 
     void process_input_packet(
-            InputPacket&& input_packet);
+            InputPacket<EndPoint>&& input_packet);
 
     bool process_get_info_packet(
-            InputPacket&& input_packet,
-            dds::xrce::TransportAddress& address,
-            OutputPacket& output_packet) const;
+            InputPacket<IPv4EndPoint>&& input_packet,
+            std::vector<dds::xrce::TransportAddress>& address,
+            OutputPacket<IPv4EndPoint>& output_packet) const;
 
     void check_heartbeats();
 
 private:
     void process_input_message(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_create_client_submessage(
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_create_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_delete_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_write_data_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_read_data_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_acknack_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_heartbeat_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_reset_submessage(
             ProxyClient& client,
-            InputPacket&);
+            InputPacket<EndPoint>&);
 
     bool process_fragment_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool process_timestamp_submessage(
             ProxyClient& client,
-            InputPacket& input_packet);
-
-//    bool process_performance_submessage(
-//            ProxyClient& client,
-//            InputPacket& input_packet);
+            InputPacket<EndPoint>& input_packet);
 
     bool read_data_callback(
-            const ReadCallbackArgs& cb_args,
+            const WriteFnArgs& write_args,
             const std::vector<uint8_t>& buffer,
             std::chrono::milliseconds timeout);
 
 private:
-    Server& server_;
+    Server<EndPoint>& server_;
     Middleware::Kind middleware_kind_;
     Root& root_;
 };

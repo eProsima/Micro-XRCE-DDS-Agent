@@ -15,6 +15,7 @@
 #include <uxr/agent/p2p/InternalClient.hpp>
 #include <uxr/agent/middleware/ced/CedEntities.hpp>
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 #include <ucdr/microcdr.h>
 
 #include <string>
@@ -29,8 +30,8 @@ InternalClient::InternalClient(
         uint16_t port,
         uint32_t remote_client_key,
         uint32_t local_client_key)
-    : agent_{agent}
-    , ip_{ip}
+    : agent_(agent)
+    , ip_(ip)
     , port_{port}
     , domains_{}
     , topics_{}
@@ -46,14 +47,7 @@ InternalClient::InternalClient(
     , in_stream_id_{}
     , running_cond_{false}
     , thread_{}
-{
-    std::cout << "--> OK: created InternalClient at address ";
-    std::cout << int(ip[0]) << ".";
-    std::cout << int(ip[1]) << ".";
-    std::cout << int(ip[2]) << ".";
-    std::cout << int(ip[3]) << ":";
-    std::cout << port << std::endl;
-}
+{}
 
 static void on_topic(
         uxrSession* session,
@@ -61,9 +55,10 @@ static void on_topic(
         uint16_t request_id,
         uxrStreamId stream_id,
         struct ucdrBuffer* ub,
+        uint16_t length,
         void* args)
 {
-    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub;
+    (void) session; (void) object_id; (void) request_id; (void) stream_id; (void) ub; (void) length;
 
     InternalClient* internal_client = reinterpret_cast<InternalClient*>(args);
     Agent::OpResult result;
@@ -93,18 +88,18 @@ bool InternalClient::run()
                 remote_client_key_,
                 std::bind(&InternalClient::on_new_topic, this, std::placeholders::_1, std::placeholders::_2));
 
-    /* Compute IP. */
     std::string ip = std::to_string(ip_[0]) + ".";
     ip += std::to_string(ip_[1]) + ".";
     ip += std::to_string(ip_[2]) + ".";
     ip += std::to_string(ip_[3]);
 
-    /* Create ProxyClient. */
+    std::string port = std::to_string(port_);
+
     Agent::OpResult result;
     if (agent_.create_client(INTERNAL_CLIENT_KEY, 0x00, UXR_CONFIG_UDP_TRANSPORT_MTU, Middleware::Kind::CED, result))
     {
         /* Transport. */
-        if (uxr_init_udp_transport(&transport_, &platform_, ip.c_str(), port_))
+        if (uxr_init_udp_transport(&transport_, &platform_, UXR_IPv4, ip.c_str(), port.c_str()))
         {
             /* Session. */
             uxr_init_session(&session_, &transport_.comm, local_client_key_);
@@ -116,19 +111,29 @@ bool InternalClient::run()
                 /* Create streams. */
                 create_streams();
 
-                std::cout << "--> OK: running InternalClient" << std::endl;
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_GREEN("connected to Agent"),
+                    "address: {}:{}",
+                    ip, port);
+
                 running_cond_ = true;
                 thread_ = std::thread(&InternalClient::loop, this);
                 rv = true;
             }
             else
             {
-                std::cerr << "--> ERROR: failed to create session in InternalClient" << std::endl;
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_RED("failed to create session with Agent"),
+                    "address: {}:{}",
+                    ip, port);
             }
         }
         else
         {
-            std::cerr << "--> ERROR: failed to create transport in InternalClient" << std::endl;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_RED("failed to init transport with Agent"),
+                "address: {}:{}",
+                ip, port);
         }
     }
 

@@ -1,4 +1,4 @@
-// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
-#define UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#ifndef UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
+#define UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_
 
-#include <uxr/agent/transport/udp/UDPServerBase.hpp>
+#include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#endif
-#ifdef UAGENT_P2P_PROFILE
-#include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
 #endif
 
 #include <cstdint>
@@ -31,53 +29,56 @@
 namespace eprosima {
 namespace uxr {
 
-class UDPv4Agent : public UDPServerBase
+extern template class Server<IPv6EndPoint>; // Explicit instantiation declaration.
+
+class UDPv6Agent : public Server<IPv6EndPoint>
 {
 public:
-    UDPv4Agent(
+    UDPv6Agent(
             uint16_t port,
             Middleware::Kind middleware_kind);
 
-    ~UDPv4Agent() final;
+    ~UDPv6Agent() final;
 
 private:
     bool init() final;
 
-    bool close() final;
+    bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool init_discovery(uint16_t discovery_port) final;
 
-    bool close_discovery() final;
+    bool fini_discovery() final;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(uint16_t p2p_port) final;
 
-    bool close_p2p() final;
+    bool fini_p2p() final;
 #endif
 
     bool recv_message(
-            InputPacket& input_packet,
-            int timeout) final;
+            InputPacket<IPv6EndPoint>& input_packet,
+            int timeout,
+            TransportRc& transport_rc) final;
 
-    bool send_message(OutputPacket output_packet) final;
+    bool send_message(
+            OutputPacket<IPv6EndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    int get_error() final;
+    bool handle_error(
+            TransportRc transport_rc) final;
 
 private:
     struct pollfd poll_fd_;
     uint8_t buffer_[UINT16_MAX];
-    uint16_t port_;
+    uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
-    DiscoveryServerLinux discovery_server_;
-#endif
-#ifdef UAGENT_P2P_PROFILE
-    AgentDiscovererLinux agent_discoverer_;
+    DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
 #endif
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_UDP_SERVER_HPP_
+#endif // UXR_AGENT_TRANSPORT_UDPv6_AGENT_HPP_

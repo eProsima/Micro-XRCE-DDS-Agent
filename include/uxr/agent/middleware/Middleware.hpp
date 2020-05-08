@@ -102,6 +102,26 @@ public:
             const std::string& xml,
             uint16_t& associated_topic_id) = 0;
 
+    virtual bool create_requester_by_ref(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& ref) = 0;
+
+    virtual bool create_requester_by_xml(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& xml) = 0;
+
+    virtual bool create_replier_by_ref(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& ref) = 0;
+
+    virtual bool create_replier_by_xml(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& xml) = 0;
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
@@ -117,6 +137,10 @@ public:
 
     virtual bool delete_datareader(uint16_t datareader_id) = 0;
 
+    virtual bool delete_requester(uint16_t requester_id) = 0;
+
+    virtual bool delete_replier(uint16_t replier_id) = 0;
+
 /**********************************************************************************************************************
  * Write/Read functions.
  **********************************************************************************************************************/
@@ -124,8 +148,28 @@ public:
             uint16_t datawriter_id,
             const std::vector<uint8_t>& data) = 0;
 
+    virtual bool write_request(
+            uint16_t requester_id,
+            uint32_t sequence_number,
+            const std::vector<uint8_t>& data) = 0;
+
+    virtual bool write_reply(
+            uint16_t replier_id,
+            const std::vector<uint8_t>& data) = 0;
+
     virtual bool read_data(
             uint16_t datareader_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) = 0;
+
+    virtual bool read_request(
+            uint16_t replier_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) = 0;
+
+    virtual bool read_reply(
+            uint16_t requester_id,
+            uint32_t& sequence_number,
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) = 0;
 
@@ -164,6 +208,22 @@ public:
 
     virtual bool matched_datareader_from_xml(
             uint16_t datareader_id,
+            const std::string& xml) const = 0;
+
+    virtual bool matched_requester_from_ref(
+            uint16_t requester_id,
+            const std::string& ref) const = 0;
+
+    virtual bool matched_requester_from_xml(
+            uint16_t requester_id,
+            const std::string& xml) const = 0;
+
+    virtual bool matched_replier_from_ref(
+            uint16_t replier_id,
+            const std::string& ref) const = 0;
+
+    virtual bool matched_replier_from_xml(
+            uint16_t replier_id,
             const std::string& xml) const = 0;
 };
 

@@ -24,24 +24,26 @@ if(UAGENT_P2P_PROFILE)
     unset(microxrcedds_client_DIR CACHE)
     find_package(microxrcedds_client ${_microxrcedds_client_version} EXACT QUIET)
     if(NOT microxrcedds_client_FOUND)
-        ExternalProject_Add(uclient
+        ExternalProject_Add(microxrcedds_client
             GIT_REPOSITORY
                 https://github.com/eProsima/Micro-XRCE-DDS-Client.git
             GIT_TAG
                 ${_microxrcedds_client_tag}
             PREFIX
-                ${PROJECT_BINARY_DIR}/uclient
+                ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
                 ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+                -DCMAKE_FIND_ROOT_PATH:PATH=${PROJECT_BINARY_DIR}/temp_install
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-                -DBUILD_SHARED_LIBS:BOOL=ON
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
             )
-        list(APPEND _deps uclient)
+        list(APPEND _deps microxrcedds_client)
     endif()
 endif()
 
@@ -57,14 +59,20 @@ if(NOT fastcdr_FOUND)
         PREFIX
             ${PROJECT_BINARY_DIR}/fastcdr
         INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
+            ${PROJECT_BINARY_DIR}/temp_install/fastcdr-${_fastcdr_version}
         CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
             -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
             -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-            -DBUILD_SHARED_LIBS:BOOL=ON
+            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+        UPDATE_COMMAND
+            COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
+            COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+        TEST_COMMAND
+            COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
         )
     list(APPEND _deps fastcdr)
 endif()
@@ -82,11 +90,13 @@ if(UAGENT_FAST_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastrtps
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/fastrtps-${_fastrtps_version}
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-                -DBUILD_SHARED_LIBS:BOOL=ON
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                -DCMAKE_FIND_ROOT_PATH:PATH=${PROJECT_BINARY_DIR}/temp_install
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -94,6 +104,11 @@ if(UAGENT_FAST_PROFILE)
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
                 fastcdr
+            UPDATE_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
+                COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+            TEST_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
             )
         list(APPEND _deps fastrtps)
     endif()
@@ -111,11 +126,12 @@ if(NOT CLI11_FOUND)
         PREFIX
             ${PROJECT_BINARY_DIR}/CLI11
         INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install
+            ${PROJECT_BINARY_DIR}/temp_install/cli11-${_cli11_version}
         CMAKE_CACHE_ARGS
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DBUILD_SHARED_LIBS:BOOL=ON
-            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
+            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -138,11 +154,12 @@ if(UAGENT_LOGGER_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/spdlog
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/spdlog-${_spdlog_version}
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-                -DBUILD_SHARED_LIBS:BOOL=ON
-                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -173,9 +190,10 @@ if(UAGENT_BUILD_TESTS)
             PREFIX
                 ${PROJECT_BINARY_DIR}/googletest
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/googletest
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 $<$<PLATFORM_ID:Windows>:-Dgtest_force_shared_crt:BOOL=ON>
             BUILD_COMMAND
                 COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config Release --target install
@@ -183,8 +201,8 @@ if(UAGENT_BUILD_TESTS)
             INSTALL_COMMAND
                 ""
             )
-        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
-        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install CACHE INTERNAL "")
+        set(GTEST_ROOT ${PROJECT_BINARY_DIR}/temp_install/googletest CACHE INTERNAL "")
+        set(GMOCK_ROOT ${PROJECT_BINARY_DIR}/temp_install/googletest CACHE INTERNAL "")
         set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
     endif()
@@ -203,6 +221,8 @@ if(NOT Sanitizers_FOUND)
             ""
         INSTALL_COMMAND
             ""
+        CMAKE_CACHE_ARGS
+            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
         )
     ExternalProject_Get_Property(sanitizers SOURCE_DIR)
     set(SANITIZERS_ROOT ${SOURCE_DIR} CACHE INTERNAL "")

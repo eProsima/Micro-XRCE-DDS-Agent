@@ -29,6 +29,8 @@ add_gtest(${TEST_NAME}
         microxrcedds_agent
         fastrtps
         fastcdr
+        microxrcedds_client
+        microcdr
     )
 
 target_include_directories(${TEST_NAME}

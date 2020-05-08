@@ -45,7 +45,7 @@ class Session
 {
 public:
     Session(const SessionInfo& info)
-        : session_info_{info}
+        : session_info_(info)
         , none_ostream_{}
     {}
 

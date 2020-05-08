@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/transport/discovery/DiscoveryServer.hpp>
-#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
 #include <functional>
@@ -23,38 +22,24 @@
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServer::DiscoveryServer(const Processor& processor)
+extern template class Processor<IPv4EndPoint>;
+extern template class Processor<IPv6EndPoint>;
+
+template<typename EndPoint>
+DiscoveryServer<EndPoint>::DiscoveryServer(
+        const Processor<EndPoint>& processor)
     : mtx_{}
     , thread_{}
     , running_cond_{false}
     , processor_{processor}
-    , transport_address_{}
+    , transport_addresses_{}
+    , agent_port_{}
+    , discovery_port_{}
     , filter_port_{}
-{
-}
+{}
 
-bool DiscoveryServer::run(
-        uint16_t discovery_port,
-        const dds::xrce::TransportAddress& local_address)
-{
-    std::lock_guard<std::mutex> lock(mtx_);
-
-    if (running_cond_ || !init(discovery_port))
-    {
-        return false;
-    }
-
-    /* Set transport address. */
-    transport_address_ = local_address;
-
-    /* Init thread. */
-    running_cond_ = true;
-    thread_ = std::thread(&DiscoveryServer::discovery_loop, this);
-
-    return true;
-}
-
-bool DiscoveryServer::stop()
+template<typename EndPoint>
+bool DiscoveryServer<EndPoint>::stop()
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -67,21 +52,25 @@ bool DiscoveryServer::stop()
     return close();
 }
 
-void DiscoveryServer::discovery_loop()
+template<typename EndPoint>
+void DiscoveryServer<EndPoint>::discovery_loop()
 {
-    InputPacket input_packet;
-    OutputPacket output_packet;
+    InputPacket<IPv4EndPoint> input_packet;
+    OutputPacket<IPv4EndPoint> output_packet;
     while (running_cond_)
     {
         if (recv_message(input_packet, RECEIVE_TIMEOUT))
         {
-            if (processor_.process_get_info_packet(std::move(input_packet), transport_address_, output_packet))
+            if (processor_.process_get_info_packet(std::move(input_packet), transport_addresses_, output_packet))
             {
                 send_message(std::move(output_packet));
             }
         }
     }
 }
+
+template class DiscoveryServer<IPv4EndPoint>;
+template class DiscoveryServer<IPv6EndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

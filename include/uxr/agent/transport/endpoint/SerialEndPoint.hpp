@@ -25,9 +25,19 @@ namespace uxr {
 class SerialEndPoint : public EndPoint
 {
 public:
-    SerialEndPoint(uint8_t addr) { addr_ = addr; }
+    SerialEndPoint() = default;
+
+    SerialEndPoint(
+            uint8_t addr)
+        : addr_{addr}
+    {}
 
     ~SerialEndPoint() {}
+
+    bool operator<(const SerialEndPoint& other) const
+    {
+        return (addr_ < other.addr_);
+    }
 
     std::ostream& print(std::ostream& os) const final
     {
@@ -36,7 +46,7 @@ public:
 
     uint8_t get_addr() const { return addr_; }
 
-public:
+private:
     uint8_t addr_;
 };
 

@@ -20,39 +20,8 @@
 #include <uxr/agent/utils/TokenBucket.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
-#include <iostream>
-#include <atomic>
-
 namespace eprosima {
 namespace uxr {
-
-constexpr int READ_TIMEOUT = 100;
-constexpr uint8_t PUSH_SUBMESSAGE_TIMEOUT = 100;
-constexpr std::chrono::milliseconds MAX_SLEEP_TIME{100};
-constexpr uint16_t MAX_SAMPLES_ZERO = 0;
-constexpr uint16_t MAX_SAMPLES_UNLIMITED = 0xFFFF;
-constexpr uint16_t MAX_ELAPSED_TIME_UNLIMITED = 0;
-constexpr uint16_t MAX_BYTES_PER_SECOND_UNLIMITED = 0;
-
-namespace  {
-
-std::chrono::milliseconds get_read_timeout(
-        const std::chrono::steady_clock::time_point& final_time,
-        uint16_t max_elapsed_time)
-{
-    std::chrono::milliseconds rv = std::chrono::milliseconds(READ_TIMEOUT);
-    if (MAX_ELAPSED_TIME_UNLIMITED != max_elapsed_time)
-    {
-        rv = std::min(
-             std::chrono::milliseconds(READ_TIMEOUT),
-             std::chrono::duration_cast<std::chrono::milliseconds>(final_time - std::chrono::steady_clock::now()));
-    }
-    return rv;
-}
-
-} // unnamed namespace
-
-using utils::TokenBucket;
 
 std::unique_ptr<DataReader> DataReader::create(
         const dds::xrce::ObjectId& object_id,
@@ -107,7 +76,7 @@ DataReader::DataReader(
     : XRCEObject(object_id)
     , subscriber_(subscriber)
     , topic_(topic)
-    , running_cond_(false)
+    , reader_{}
 {
     subscriber_->tie_object(object_id);
     topic_->tie_object(object_id);
@@ -115,7 +84,7 @@ DataReader::DataReader(
 
 DataReader::~DataReader() noexcept
 {
-    stop_read();
+    reader_.stop_reading();
     subscriber_->untie_object(get_id());
     topic_->untie_object(get_id());
     subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());
@@ -153,8 +122,8 @@ bool DataReader::matched(
 
 bool DataReader::read(
         const dds::xrce::READ_DATA_Payload& read_data,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args)
+        Reader<bool>::WriteFn write_fn,
+        WriteFnArgs& write_args)
 {
     dds::xrce::DataDeliveryControl delivery_control;
     if (read_data.read_specification().has_delivery_control())
@@ -168,6 +137,7 @@ bool DataReader::read(
         delivery_control.max_samples(1);
     }
 
+    /* TODO (julianbermudez): implement different data formats.
     switch (read_data.read_specification().data_format())
     {
         case dds::xrce::FORMAT_DATA:
@@ -181,94 +151,33 @@ bool DataReader::read(
         case dds::xrce::FORMAT_PACKED_SAMPLES:
             break;
         default:
-            std::cout << "Error: read format unexpected" << std::endl;
             break;
     }
+    */
 
-    return (stop_read() && start_read(delivery_control, read_cb, cb_args));
+    write_args.client = subscriber_->get_participant()->get_proxy_client();
+
+    using namespace std::placeholders;
+    return (reader_.stop_reading() &&
+            reader_.start_reading(delivery_control, std::bind(&DataReader::read_fn, this, _1, _2, _3), false, write_fn, write_args));
 }
 
-bool DataReader::start_read(
-        const dds::xrce::DataDeliveryControl& delivery_control,
-        read_callback read_cb,
-        const ReadCallbackArgs& cb_args)
+bool DataReader::read_fn(
+        bool,
+        std::vector<uint8_t>& data,
+        std::chrono::milliseconds timeout)
 {
-    std::lock_guard<std::mutex> lock(mtx_);
-    running_cond_ = true;
-    read_thread_ = std::thread(&DataReader::read_task, this, delivery_control, read_cb, cb_args);
-    return true;
-}
-
-bool DataReader::stop_read()
-{
-    bool rv = true;
-    std::lock_guard<std::mutex> lock(mtx_);
-
-    if (running_cond_)
+    bool rv = false;
+    if (subscriber_->get_participant()->get_proxy_client()->get_middleware().read_data(get_raw_id(), data, timeout))
     {
-        running_cond_ = false;
-
-        if (read_thread_.joinable())
-        {
-            read_thread_.join();
-        }
-        else
-        {
-            rv = false;
-        }
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
+            get_raw_id(),
+            data.data(),
+            data.size());
+        rv = true;
     }
     return rv;
-}
-
-void DataReader::read_task(
-        dds::xrce::DataDeliveryControl delivery_control,
-        read_callback read_cb,
-        ReadCallbackArgs cb_args)
-{
-    cb_args.client = subscriber_->get_participant()->get_proxy_client();
-    size_t rate = (MAX_BYTES_PER_SECOND_UNLIMITED == delivery_control.max_bytes_per_second())
-            ? SIZE_MAX
-            : delivery_control.max_bytes_per_second();
-    TokenBucket token_bucket{rate};
-    bool stop_cond = false;
-    uint16_t message_count = 0;
-    std::chrono::time_point<std::chrono::steady_clock> init_time
-            = std::chrono::steady_clock::now();
-    const std::chrono::time_point<std::chrono::steady_clock> final_time
-            = init_time + std::chrono::seconds(delivery_control.max_elapsed_time());
-    std::vector<uint8_t> data;
-    while (running_cond_ && !stop_cond)
-    {
-        std::chrono::milliseconds read_timeout = get_read_timeout(final_time, delivery_control.max_elapsed_time());
-        if (subscriber_->get_participant()->get_proxy_client()->get_middleware().read_data(get_raw_id(), data, read_timeout))
-        {
-            bool submessage_pushed = false;
-            do
-            {
-                if (token_bucket.consume_tokens(data.size(), MAX_SLEEP_TIME))
-                {
-                    do {
-                        submessage_pushed = read_cb(cb_args, data, std::chrono::milliseconds(PUSH_SUBMESSAGE_TIMEOUT));
-                    } while (running_cond_ && !submessage_pushed);
-
-                    if (submessage_pushed)
-                    {
-                        UXR_AGENT_LOG_MESSAGE(
-                            UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
-                            get_raw_id(),
-                            data.data(),
-                            data.size());
-                        ++message_count;
-                    }
-                }
-            } while (running_cond_ && !submessage_pushed);
-        }
-
-        stop_cond = ((MAX_SAMPLES_UNLIMITED != delivery_control.max_samples()) &&
-                     (message_count == delivery_control.max_samples())) ||
-                    ((MAX_ELAPSED_TIME_UNLIMITED != delivery_control.max_elapsed_time()) &&
-                     (std::chrono::steady_clock::now() > final_time));
-    }
 }
 
 } // namespace uxr

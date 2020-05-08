@@ -51,6 +51,21 @@ CedMiddleware::CedMiddleware(uint32_t client_key)
     }
 }
 
+std::string remove_suffix_form_topic_ref(std::string const & ref)
+{
+    return ref.substr(0, ref.find("__t"));
+}
+
+std::string remove_suffix_form_datawriter_ref(std::string const & ref)
+{
+    return ref.substr(0, ref.find("__dw"));
+}
+
+std::string remove_suffix_form_datareader_ref(std::string const & ref)
+{
+    return ref.substr(0, ref.find("__dr"));
+}
+
 /**********************************************************************************************************************
  * Create functions.
  **********************************************************************************************************************/
@@ -72,16 +87,9 @@ bool CedMiddleware::create_participant_by_ref(
 bool CedMiddleware::create_participant_by_xml(
         uint16_t participant_id,
         int16_t domain_id,
-        const std::string& /*xml*/)
+        const std::string& xml)
 {
-    bool rv = false;
-    auto it = participants_.find(participant_id);
-    if (participants_.end() == it)
-    {
-        participants_.emplace(participant_id, std::make_shared<CedParticipant>(domain_id));
-        rv = true;
-    }
-    return rv;
+    return create_participant_by_ref(participant_id, domain_id, xml);
 }
 
 bool CedMiddleware::create_topic_by_ref(
@@ -97,7 +105,7 @@ bool CedMiddleware::create_topic_by_ref(
         if (topics_.end() == it_topic)
         {
             std::shared_ptr<CedGlobalTopic> global_topic;
-            if (it_participant->second->register_topic(ref, topic_id, global_topic)) // TODO: get reference.
+            if (it_participant->second->register_topic(remove_suffix_form_topic_ref(ref), topic_id, global_topic))
             {
                 topics_.emplace(topic_id, std::make_shared<CedTopic>(it_participant->second, global_topic));
                 rv = true;
@@ -112,22 +120,7 @@ bool CedMiddleware::create_topic_by_xml(
         uint16_t participant_id,
         const std::string& xml)
 {
-    bool rv = false;
-    auto it_participant = participants_.find(participant_id);
-    if (participants_.end() != it_participant)
-    {
-        auto it_topic = topics_.find(topic_id);
-        if (topics_.end() == it_topic)
-        {
-            std::shared_ptr<CedGlobalTopic> global_topic;
-            if (it_participant->second->register_topic(xml, topic_id, global_topic)) // TODO: parse XML.
-            {
-                topics_.emplace(topic_id, std::make_shared<CedTopic>(it_participant->second, global_topic));
-                rv = true;
-            }
-        }
-    }
-    return rv;
+    return create_topic_by_ref(topic_id, participant_id, xml);
 }
 
 bool CedMiddleware::create_publisher_by_xml(
@@ -182,7 +175,7 @@ bool CedMiddleware::create_datawriter_by_ref(
         if (datawriters_.end() == it_datawriter)
         {
             uint16_t topic_id;
-            if (it_publisher->second->participant()->find_topic(ref, topic_id)) // TODO: get reference.
+            if (it_publisher->second->get_participant()->find_topic(remove_suffix_form_datawriter_ref(ref), topic_id))
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -210,34 +203,7 @@ bool CedMiddleware::create_datawriter_by_xml(
         const std::string& xml,
         uint16_t& associated_topic_id)
 {
-    bool rv = false;
-    auto it_publisher = publishers_.find(publisher_id);
-    if (publishers_.end() != it_publisher)
-    {
-        auto it_datawriter = datawriters_.find(datawriter_id);
-        if (datawriters_.end() == it_datawriter)
-        {
-            uint16_t topic_id;
-            if (it_publisher->second->participant()->find_topic(xml, topic_id)) // TODO: parse XML.
-            {
-                auto it_topic = topics_.find(topic_id);
-                if (topics_.end() != it_topic)
-                {
-                    datawriters_.emplace(
-                        datawriter_id,
-                        std::make_shared<CedDataWriter>(
-                            it_publisher->second,
-                            it_topic->second,
-                            write_access_,
-                            topics_src_));
-
-                    associated_topic_id = topic_id;
-                    rv = true;
-                }
-            }
-        }
-    }
-    return rv;
+    return create_datawriter_by_ref(datawriter_id, publisher_id, xml, associated_topic_id);
 }
 
 bool CedMiddleware::create_datareader_by_ref(
@@ -254,7 +220,7 @@ bool CedMiddleware::create_datareader_by_ref(
         if (datareaders_.end() == it_datareader)
         {
             uint16_t topic_id;
-            if (it_subscriber->second->participant()->find_topic(ref, topic_id)) // TODO: get reference.
+            if (it_subscriber->second->get_participant()->find_topic(remove_suffix_form_datareader_ref(ref), topic_id))
             {
                 auto it_topic = topics_.find(topic_id);
                 if (topics_.end() != it_topic)
@@ -281,33 +247,7 @@ bool CedMiddleware::create_datareader_by_xml(
         const std::string& xml,
         uint16_t& associated_topic_id)
 {
-    bool rv = false;
-    auto it_subscriber = subscribers_.find(subscriber_id);
-    if (subscribers_.end() != it_subscriber)
-    {
-        auto it_datareader = datareaders_.find(datareader_id);
-        if (datareaders_.end() == it_datareader)
-        {
-            uint16_t topic_id;
-            if (it_subscriber->second->participant()->find_topic(xml, topic_id)) // TODO: parse XML.
-            {
-                auto it_topic = topics_.find(topic_id);
-                if (topics_.end() != it_topic)
-                {
-                    datareaders_.emplace(
-                        datareader_id,
-                        std::make_shared<CedDataReader>(
-                            it_subscriber->second,
-                            it_topic->second,
-                            read_access_));
-
-                    associated_topic_id = topic_id;
-                    rv = true;
-                }
-            }
-        }
-    }
-    return rv;
+    return create_datareader_by_ref(datareader_id, subscriber_id, xml, associated_topic_id);
 }
 
 /**********************************************************************************************************************
@@ -387,7 +327,7 @@ bool CedMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id());
+        rv = (domain_id == it->second->get_domain_id());
     }
     return rv;
 }
@@ -395,15 +335,9 @@ bool CedMiddleware::matched_participant_from_ref(
 bool CedMiddleware::matched_participant_from_xml(
         uint16_t participant_id,
         int16_t domain_id,
-        const std::string& /*xml*/) const
+        const std::string& xml) const
 {
-    bool rv = false;
-    auto it = participants_.find(participant_id);
-    if (participants_.end() != it)
-    {
-        rv = (domain_id == it->second->domain_id());
-    }
-    return rv;
+    return matched_participant_from_ref(participant_id, domain_id, xml);
 }
 
 bool CedMiddleware::matched_topic_from_ref(
@@ -414,7 +348,7 @@ bool CedMiddleware::matched_topic_from_ref(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = (ref == it->second->name()); // TODO: get reference.
+        rv = (remove_suffix_form_topic_ref(ref) == it->second->name());
     }
     return rv;
 }
@@ -423,13 +357,7 @@ bool CedMiddleware::matched_topic_from_xml(
         uint16_t topic_id,
         const std::string& xml) const
 {
-    bool rv = false;
-    auto it = topics_.find(topic_id);
-    if (topics_.end() != it)
-    {
-        rv = (xml == it->second->name()); // TODO: parse XML.
-    }
-    return rv;
+    return matched_topic_from_ref(topic_id, xml);
 }
 
 bool CedMiddleware::matched_datawriter_from_ref(
@@ -440,7 +368,7 @@ bool CedMiddleware::matched_datawriter_from_ref(
     auto it = datawriters_.find(datawriter_id);
     if (datawriters_.end() != it)
     {
-        rv = (ref == it->second->topic_name()); // TODO: get reference.
+        rv = (remove_suffix_form_datawriter_ref(ref) == it->second->topic_name());
     }
     return rv;
 }
@@ -449,13 +377,7 @@ bool CedMiddleware::matched_datawriter_from_xml(
         uint16_t datawriter_id,
         const std::string& xml) const
 {
-    bool rv = false;
-    auto it = datawriters_.find(datawriter_id);
-    if (datawriters_.end() != it)
-    {
-        rv = (xml == it->second->topic_name()); // TODO: parse XML.
-    }
-    return rv;
+    return matched_datawriter_from_ref(datawriter_id, xml);
 }
 
 bool CedMiddleware::matched_datareader_from_ref(
@@ -466,7 +388,7 @@ bool CedMiddleware::matched_datareader_from_ref(
     auto it = datareaders_.find(datareader_id);
     if (datareaders_.end() != it)
     {
-        rv = (ref == it->second->topic_name()); // TODO: parse XML.
+        rv = (remove_suffix_form_datareader_ref(ref) == it->second->topic_name());
     }
     return rv;
 }
@@ -475,13 +397,7 @@ bool CedMiddleware::matched_datareader_from_xml(
         uint16_t datareader_id,
         const std::string& xml) const
 {
-    bool rv = false;
-    auto it = datareaders_.find(datareader_id);
-    if (datareaders_.end() != it)
-    {
-        rv = (xml == it->second->topic_name()); // TODO: parse XML.
-    }
-    return rv;
+    return matched_datareader_from_ref(datareader_id, xml);
 }
 
 } // namespace uxr

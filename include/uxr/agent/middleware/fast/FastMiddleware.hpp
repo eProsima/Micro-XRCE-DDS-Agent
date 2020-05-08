@@ -91,6 +91,26 @@ public:
             const std::string& xml,
             uint16_t& associated_topic_id) override;
 
+    bool create_requester_by_ref(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    bool create_requester_by_xml(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
+    bool create_replier_by_ref(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& ref) override;
+
+    bool create_replier_by_xml(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const std::string& xml) override;
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/
@@ -106,6 +126,10 @@ public:
 
     bool delete_datareader(uint16_t datareader_id) override;
 
+    bool delete_requester(uint16_t requester_id) override;
+
+    bool delete_replier(uint16_t replier_id) override;
+
 /**********************************************************************************************************************
  * Write/Read functions.
  **********************************************************************************************************************/
@@ -113,8 +137,28 @@ public:
             uint16_t datawriter_id,
             const std::vector<uint8_t>& data) override;
 
+    bool write_request(
+            uint16_t requester_id,
+            uint32_t sequence_number,
+            const std::vector<uint8_t>& data) override;
+
+    bool write_reply(
+            uint16_t replier_id,
+            const std::vector<uint8_t>& data) override;
+
     bool read_data(
             uint16_t datareader_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) override;
+
+    bool read_request(
+            uint16_t replier_id,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout) override;
+
+    bool read_reply(
+            uint16_t reply_id,
+            uint32_t& sequence_number,
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) override;
 
@@ -155,6 +199,22 @@ public:
             uint16_t datareader_id,
             const std::string& xml) const override;
 
+    bool matched_requester_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    bool matched_requester_from_xml(
+            uint16_t participant_id,
+            const std::string& xml) const override;
+
+    bool matched_replier_from_ref(
+            uint16_t participant_id,
+            const std::string& ref) const override;
+
+    bool matched_replier_from_xml(
+            uint16_t participant_id,
+            const std::string& xml) const override;
+
 private:
     std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
@@ -162,6 +222,8 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastRequester>> requesters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastReplier>> repliers_;
 };
 
 } // namespace uxr

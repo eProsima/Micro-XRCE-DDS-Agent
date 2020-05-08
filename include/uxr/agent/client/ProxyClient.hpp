@@ -110,6 +110,16 @@ private:
             const dds::xrce::DATAREADER_Representation& representation,
             dds::xrce::ResultStatus& result_status);
 
+    bool create_requester(
+            const dds::xrce::ObjectId& object_id,
+            const dds::xrce::REQUESTER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
+
+    bool create_replier(
+            const dds::xrce::ObjectId& object_id,
+            const dds::xrce::REPLIER_Representation& representation,
+            dds::xrce::ResultStatus& result_status);
+
     bool delete_object_unlock(
             const dds::xrce::ObjectId& object_id);
 

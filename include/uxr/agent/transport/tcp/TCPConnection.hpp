@@ -15,6 +15,9 @@
 #ifndef UXR_AGENT_TRANSPORT_TCP_CONNECTION_HPP_
 #define UXR_AGENT_TRANSPORT_TCP_CONNECTION_HPP_
 
+#include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
+#include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
+
 #include <stdint.h>
 #include <vector>
 #include <mutex>
@@ -40,19 +43,22 @@ struct TCPInputBuffer
     uint16_t msg_size;
 };
 
-class TCPConnection
+struct TCPConnection
 {
-public:
-    TCPConnection() = default;
-    virtual ~TCPConnection() = default;
-
-public:
     TCPInputBuffer input_buffer;
-    uint32_t addr;
-    uint16_t port;
     uint32_t id;
     bool active;
     std::mutex mtx;
+};
+
+struct TCPv4Connection : public TCPConnection
+{
+    IPv4EndPoint endpoint;
+};
+
+struct TCPv6Connection : public TCPConnection
+{
+    IPv6EndPoint endpoint;
 };
 
 } // namespace uxr

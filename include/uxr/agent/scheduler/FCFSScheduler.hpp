@@ -17,7 +17,7 @@
 
 #include <uxr/agent/scheduler/Scheduler.hpp>
 
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
@@ -31,7 +31,7 @@ class FCFSScheduler : public Scheduler<T>
 public:
     FCFSScheduler(
             size_t max_size)
-        : queue_()
+        : deque_()
         , mtx_()
         , cond_var_()
         , running_cond_(false)
@@ -46,11 +46,14 @@ public:
             T&& element,
             uint8_t priority) final;
 
+    void push_front(
+            T&& element);
+
     bool pop(
             T& element) final;
 
 private:
-    std::queue<T> queue_;
+    std::deque<T> deque_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
     bool running_cond_;
@@ -79,12 +82,20 @@ inline void FCFSScheduler<T>::push(
 {
     (void) priority;
     std::lock_guard<std::mutex> lock(mtx_);
-    if (max_size_ <= queue_.size())
+    if (max_size_ <= deque_.size())
     {
-        queue_.pop();
+        deque_.pop_front();
     }
-    queue_.push(std::move(element));
+    deque_.push_back(std::move(element));
     cond_var_.notify_one();
+}
+
+template<class T>
+inline void FCFSScheduler<T>::push_front(
+        T&& element)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    deque_.push_front(std::forward<T>(element));
 }
 
 template<class T>
@@ -93,11 +104,11 @@ inline bool FCFSScheduler<T>::pop(
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
-    cond_var_.wait(lock, [this] { return !(queue_.empty() && running_cond_); });
+    cond_var_.wait(lock, [this] { return !(deque_.empty() && running_cond_); });
     if (running_cond_)
     {
-        element = std::move(queue_.front());
-        queue_.pop();
+        element = std::move(deque_.front());
+        deque_.pop_front();
         rv = true;
         cond_var_.notify_one();
     }

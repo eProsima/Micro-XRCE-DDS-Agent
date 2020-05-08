@@ -16,12 +16,17 @@
 #define UXR_AGENT_UTILS_CLI_HPP_
 
 #ifdef _WIN32
-#include <uxr/agent/transport/udp/UDPServerWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPServerWindows.hpp>
+#include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
+#include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
+#include <uxr/agent/transport/tcp/TCPv6AgentWindows.hpp>
 #else
-#include <uxr/agent/transport/udp/UDPServerLinux.hpp>
-#include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
-#include <uxr/agent/transport/serial/SerialServerLinux.hpp>
+#include <uxr/agent/transport/udp/UDPv4AgentLinux.hpp>
+#include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
+#include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
+#include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
+#include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
 #include <termios.h>
@@ -137,8 +142,7 @@ public:
     BaudrateOpt(CLI::App& subcommand)
         : baudrate_("115200")
         , cli_opt_{subcommand.add_option("-b,--baudrate", baudrate_, "Select the baudrate", true)}
-    {
-    }
+    {}
 
     bool is_enable() const { return bool(*cli_opt_); }
     const std::string& get_baudrate() const { return baudrate_; }
@@ -149,7 +153,7 @@ protected:
 };
 
 /*************************************************************************************************
- * Baudrate CLI Option
+ * Refernce CLI Option
  *************************************************************************************************/
 class ReferenceOpt
 {
@@ -264,8 +268,43 @@ public:
 private:
     void server_callback()
     {
+#ifdef _WIN32
         std::cout << "Enter 'q' for exit" << std::endl;
-        if (launch_server())
+#else
+        std::cout << "Press CTRL+C to exit" << std::endl;
+#endif
+        launch_server();
+    }
+
+    virtual void launch_server() = 0;
+
+protected:
+    CLI::App* cli_subcommand_;
+    const CommonOpts& opts_ref_;
+};
+
+
+/*************************************************************************************************
+ * UDPv6 Subcommand
+ *************************************************************************************************/
+class UDPv4Subcommand : public ServerSubcommand
+{
+public:
+    UDPv4Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "udp4", "Launch a UDP/IPv4 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~UDPv4Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
         {
 #ifdef UAGENT_DISCOVERY_PROFILE
             if (opts_ref_.discovery_opt_.is_enable())
@@ -293,68 +332,173 @@ private:
         }
     }
 
-    virtual bool launch_server() = 0;
-
-protected:
-    std::unique_ptr<eprosima::uxr::Server> server_;
-    CLI::App* cli_subcommand_;
-    const CommonOpts& opts_ref_;
-};
-
-
-/*************************************************************************************************
- * UDP Subcommand
- *************************************************************************************************/
-class UDPSubcommand : public ServerSubcommand
-{
-public:
-    UDPSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "udp", "Launch a UDP server", common_opts_}
-        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
-        , common_opts_{*cli_subcommand_}
-    {
-        cli_opt_->required(true);
-    }
-
-    ~UDPSubcommand() final = default;
-
 private:
-    bool launch_server()
-    {
-        server_.reset(new eprosima::uxr::UDPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        return server_->run();
-    }
-
-private:
+    std::unique_ptr<eprosima::uxr::UDPv4Agent> server_;
     uint16_t port_;
     CLI::Option* cli_opt_;
     CommonOpts common_opts_;
 };
 
 /*************************************************************************************************
- * TCP Subcommand
+ * UDPv6 Subcommand
  *************************************************************************************************/
-class TCPSubcommand : public ServerSubcommand
+class UDPv6Subcommand : public ServerSubcommand
 {
 public:
-    TCPSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "tcp", "Launch a TCP server", common_opts_}
+    UDPv6Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "udp6", "Launch a UDP/IPv6 server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
         , common_opts_{*cli_subcommand_}
     {
         cli_opt_->required(true);
     }
 
-    ~TCPSubcommand() final = default;
+    ~UDPv6Subcommand() final = default;
 
 private:
-    bool launch_server()
+    void launch_server()
     {
-        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
-        return server_->run();
+        server_.reset(new eprosima::uxr::UDPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::UDPv6Agent> server_;
+    uint16_t port_;
+    CLI::Option* cli_opt_;
+    CommonOpts common_opts_;
+};
+
+/*************************************************************************************************
+ * TCPv4 Subcommand
+ *************************************************************************************************/
+class TCPv4Subcommand : public ServerSubcommand
+{
+public:
+    TCPv4Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "tcp4", "Launch a TCP/IPv4 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~TCPv4Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::TCPv4Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::TCPv4Agent> server_;
+    uint16_t port_;
+    CLI::Option* cli_opt_;
+    CommonOpts common_opts_;
+};
+
+/*************************************************************************************************
+ * TCPv6 Subcommand
+ *************************************************************************************************/
+class TCPv6Subcommand : public ServerSubcommand
+{
+public:
+    TCPv6Subcommand(CLI::App& app)
+        : ServerSubcommand{app, "tcp6", "Launch a TCP/IPv6 server", common_opts_}
+        , cli_opt_{cli_subcommand_->add_option("-p,--port", port_, "Select the port")}
+        , common_opts_{*cli_subcommand_}
+    {
+        cli_opt_->required(true);
+    }
+
+    ~TCPv6Subcommand() final = default;
+
+private:
+    void launch_server()
+    {
+        server_.reset(new eprosima::uxr::TCPv6Agent(port_, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
+        {
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
+            {
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
+
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
+            }
+        }
+    }
+
+private:
+    std::unique_ptr<eprosima::uxr::TCPv6Agent> server_;
     uint16_t port_;
     CLI::Option* cli_opt_;
     CommonOpts common_opts_;
@@ -364,11 +508,11 @@ private:
  * Serial Subcommand
  *************************************************************************************************/
 #ifndef _WIN32
-class SerialSubcommand : public ServerSubcommand
+class TermiosSubcommand : public ServerSubcommand
 {
 public:
-    SerialSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "serial", "Launch a Serial server", common_opts_}
+    TermiosSubcommand(CLI::App& app)
+        : ServerSubcommand{app, "serial", "Launch a Termios server", common_opts_}
         , cli_opt_{cli_subcommand_->add_option("--dev", dev_, "Select the serial device")}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
@@ -378,66 +522,80 @@ public:
     }
 
 private:
-    bool launch_server() final
+    void launch_server() final
     {
-        bool rv = false;
-        int fd = open(dev_.c_str(), O_RDWR | O_NOCTTY);
-        if (0 < fd)
+        struct termios attr;
+
+        /* Setting CONTROL OPTIONS. */
+        attr.c_cflag |= unsigned(CREAD);    // Enable read.
+        attr.c_cflag |= unsigned(CLOCAL);   // Set local mode.
+        attr.c_cflag &= unsigned(~PARENB);  // Disable parity.
+        attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
+        attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
+        attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
+        attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+
+        /* Setting LOCAL OPTIONS. */
+        attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
+        attr.c_lflag &= unsigned(~ECHO);    // Disable echoing of input characters.
+        attr.c_lflag &= unsigned(~ECHOE);   // Disable echoing the erase character.
+        attr.c_lflag &= unsigned(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+
+        /* Setting INPUT OPTIONS. */
+        attr.c_iflag &= unsigned(~IXON);    // Disable output software flow control.
+        attr.c_iflag &= unsigned(~IXOFF);   // Disable input software flow control.
+        attr.c_iflag &= unsigned(~INPCK);   // Disable parity check.
+        attr.c_iflag &= unsigned(~ISTRIP);  // Disable strip parity bits.
+        attr.c_iflag &= unsigned(~IGNBRK);  // No ignore break condition.
+        attr.c_iflag &= unsigned(~IGNCR);   // No ignore carrier return.
+        attr.c_iflag &= unsigned(~INLCR);   // No map NL to CR.
+        attr.c_iflag &= unsigned(~ICRNL);   // No map CR to NL.
+
+        /* Setting OUTPUT OPTIONS. */
+        attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
+
+        /* Setting OUTPUT CHARACTERS. */
+        attr.c_cc[VMIN] = 10;
+        attr.c_cc[VTIME] = 1;
+
+        /* Setting baudrate. */
+        speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+        attr.c_ispeed = baudrate;
+        attr.c_ospeed = baudrate;
+
+        server_.reset(
+            new eprosima::uxr::TermiosAgent(
+                dev_.c_str(), O_RDWR | O_NOCTTY, attr, 0, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
         {
-            struct termios attr;
-            memset(&attr, 0, sizeof(attr));
-            if (0 == tcgetattr(fd, &attr))
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
             {
-                /* Setting CONTROL OPTIONS. */
-                attr.c_cflag |= unsigned(CREAD);    // Enable read.
-                attr.c_cflag |= unsigned(CLOCAL);   // Set local mode.
-                attr.c_cflag &= unsigned(~PARENB);  // Disable parity.
-                attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
-                attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
-                attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
-                attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
 
-                /* Setting LOCAL OPTIONS. */
-                attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
-                attr.c_lflag &= unsigned(~ECHO);    // Disable echoing of input characters.
-                attr.c_lflag &= unsigned(~ECHOE);   // Disable echoing the erase character.
-                attr.c_lflag &= unsigned(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
 
-                /* Setting INPUT OPTIONS. */
-                attr.c_iflag &= unsigned(~IXON);    // Disable output software flow control.
-                attr.c_iflag &= unsigned(~IXOFF);   // Disable input software flow control.
-                attr.c_iflag &= unsigned(~INPCK);   // Disable parity check.
-                attr.c_iflag &= unsigned(~ISTRIP);  // Disable strip parity bits.
-                attr.c_iflag &= unsigned(~IGNBRK);  // No ignore break condition.
-                attr.c_iflag &= unsigned(~IGNCR);   // No ignore carrier return.
-                attr.c_iflag &= unsigned(~INLCR);   // No map NL to CR.
-                attr.c_iflag &= unsigned(~ICRNL);   // No map CR to NL.
-
-                /* Setting OUTPUT OPTIONS. */
-                attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
-
-                /* Setting OUTPUT CHARACTERS. */
-                attr.c_cc[VMIN] = 10;
-                attr.c_cc[VTIME] = 1;
-
-                /* Get baudrate. */
-                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
-
-                /* Setting BAUD RATE. */
-                cfsetispeed(&attr, baudrate);
-                cfsetospeed(&attr, baudrate);
-
-                if (0 == tcsetattr(fd, TCSANOW, &attr))
-                {
-                    server_.reset(new eprosima::uxr::SerialAgent(fd, 0, common_opts_.middleware_opt_.get_kind()));
-                    rv = server_->run();
-                }
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
             }
         }
-        return rv;
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
     std::string dev_;
     CLI::Option* cli_opt_;
     BaudrateOpt baudrate_opt_;
@@ -445,55 +603,53 @@ private:
 };
 
 /*************************************************************************************************
- * Pseudo-Serial Subcommand
+ * PseudoTerminal Subcommand
  *************************************************************************************************/
-class PseudoSerialSubcommand : public ServerSubcommand
+class PseudoTerminalSubcommand : public ServerSubcommand
 {
 public:
-    PseudoSerialSubcommand(CLI::App& app)
-        : ServerSubcommand{app, "pseudo-serial", "Launch a Pseudo-Serial server", common_opts_}
+    PseudoTerminalSubcommand(CLI::App& app)
+        : ServerSubcommand{app, "pseudoterminal", "Launch a pseudoterminal server", common_opts_}
         , baudrate_opt_{*cli_subcommand_}
         , common_opts_{*cli_subcommand_}
     {}
 
 private:
-    bool launch_server() final
+    void launch_server() final
     {
-        bool rv = false;
-
-        /* Open pseudo-terminal. */
-        char* dev = nullptr;
-        int fd = posix_openpt(O_RDWR | O_NOCTTY);
-        if (-1 != fd)
+        server_.reset(
+            new eprosima::uxr::PseudoTerminalAgent(
+                O_RDWR | O_NOCTTY, baudrate_opt_.get_baudrate().c_str(), 0, common_opts_.middleware_opt_.get_kind()));
+        if (server_->start())
         {
-            if (grantpt(fd) == 0 && unlockpt(fd) == 0 && (dev = ptsname(fd)))
+#ifdef UAGENT_DISCOVERY_PROFILE
+            if (opts_ref_.discovery_opt_.is_enable())
             {
-                struct termios attr;
-                tcgetattr(fd, &attr);
-                cfmakeraw(&attr);
-                tcflush(fd, TCIOFLUSH);
-                tcsetattr(fd, TCSANOW, &attr);
+                server_->enable_discovery(opts_ref_.discovery_opt_.get_port());
+            }
+#endif
 
-                /* Get baudrate. */
-                speed_t baudrate = getBaudRate(baudrate_opt_.get_baudrate().c_str());
+#ifdef UAGENT_P2P_PROFILE
+            if ((eprosima::uxr::Middleware::Kind::CED == opts_ref_.middleware_opt_.get_kind())
+                && opts_ref_.p2p_opt_.is_enable())
+            {
+                server_->enable_p2p(opts_ref_.p2p_opt_.get_port());
+            }
+#endif
+            if (opts_ref_.reference_opt_.is_enable())
+            {
+                server_->load_config_file(opts_ref_.reference_opt_.get_file());
+            }
 
-                /* Setting BAUD RATE. */
-                cfsetispeed(&attr, baudrate);
-                cfsetospeed(&attr, baudrate);
-
-                /* Log. */
-                std::cout << "Pseudo-Serial device opend at " << dev << std::endl;
-
-                /* Run server. */
-                server_.reset(new eprosima::uxr::SerialAgent(fd, 0x00, common_opts_.middleware_opt_.get_kind()));
-                rv = server_->run();
+            if (opts_ref_.verbose_opt_.is_enable())
+            {
+                server_->set_verbose_level(opts_ref_.verbose_opt_.get_level());
             }
         }
-
-        return rv;
     }
 
 private:
+    std::unique_ptr<eprosima::uxr::SerialAgent> server_;
     BaudrateOpt baudrate_opt_;
     CommonOpts common_opts_;
 };

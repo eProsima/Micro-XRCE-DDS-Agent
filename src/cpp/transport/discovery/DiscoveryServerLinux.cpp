@@ -21,20 +21,23 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <ifaddrs.h>
 
 #define RECEIVE_TIMEOUT 100
-
 namespace eprosima {
 namespace uxr {
 
-DiscoveryServerLinux::DiscoveryServerLinux(const Processor& processor)
-    : DiscoveryServer(processor)
+template<typename EndPoint>
+DiscoveryServerLinux<EndPoint>::DiscoveryServerLinux(
+        const Processor<EndPoint>& processor)
+    : DiscoveryServer<EndPoint>(processor)
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
-{
-}
+{}
 
-bool DiscoveryServerLinux::init(uint16_t discovery_port)
+template<typename EndPoint>
+bool DiscoveryServerLinux<EndPoint>::init(
+        uint16_t discovery_port)
 {
     bool rv = false;
 
@@ -62,11 +65,13 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
 
     /* Local IP and Port setup. */
     struct sockaddr_in address;
+
     address.sin_family = AF_INET;
     address.sin_port = htons(discovery_port);
     address.sin_addr.s_addr = INADDR_ANY;
     memset(address.sin_zero, '\0', sizeof(address.sin_zero));
-    if (-1 != bind(poll_fd_.fd, (struct sockaddr*)&address, sizeof(address)))
+
+    if (-1 != bind(poll_fd_.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
     {
         /* Log. */
         UXR_AGENT_LOG_DEBUG(
@@ -83,11 +88,12 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
         mreq.imr_interface.s_addr = INADDR_ANY;
         if (-1 != setsockopt(poll_fd_.fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
         {
+            DiscoveryServer<EndPoint>::discovery_port_ = discovery_port;
+            rv = true;
             UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("running..."),
                 "Port: {}",
                 discovery_port);
-            rv = true;
         }
         else
         {
@@ -101,7 +107,8 @@ bool DiscoveryServerLinux::init(uint16_t discovery_port)
     return rv;
 }
 
-bool DiscoveryServerLinux::close()
+template<typename EndPoint>
+bool DiscoveryServerLinux<EndPoint>::close()
 {
     if (-1 == poll_fd_.fd)
     {
@@ -114,7 +121,7 @@ bool DiscoveryServerLinux::close()
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("server stopped"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            DiscoveryServer<EndPoint>::discovery_port_);
         poll_fd_.fd = -1;
         rv = true;
     }
@@ -123,13 +130,14 @@ bool DiscoveryServerLinux::close()
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("socket error"),
             "port: {}",
-            transport_address_.medium_locator().port());
+            DiscoveryServer<EndPoint>::discovery_port_);
     }
     return rv;
 }
 
-bool DiscoveryServerLinux::recv_message(
-        InputPacket& input_packet,
+template<typename EndPoint>
+bool DiscoveryServerLinux<EndPoint>::recv_message(
+        InputPacket<IPv4EndPoint>& input_packet,
         int timeout)
 {
     bool rv = false;
@@ -146,18 +154,35 @@ bool DiscoveryServerLinux::recv_message(
                 uint8_t(client_addr.sa_data[2]),
                 uint8_t(client_addr.sa_data[3]),
                 uint8_t(client_addr.sa_data[4]),
-                uint8_t(client_addr.sa_data[5])
-            };
-            uint16_t remote_port = ((struct sockaddr_in*)&client_addr)->sin_port;
+                uint8_t(client_addr.sa_data[5])};
+            uint16_t remote_port = reinterpret_cast<sockaddr_in*>(&client_addr)->sin_port;
 
-            if (remote_addr != transport_address_.medium_locator().address() ||
-                remote_port != htons(filter_port_))
+            bool addr_filtered = false;
+            for (const auto& a : DiscoveryServer<EndPoint>::transport_addresses_)
+            {
+                if (dds::xrce::ADDRESS_FORMAT_MEDIUM == a._d())
+                {
+                    if (a.medium_locator().address() == remote_addr)
+                    {
+                        addr_filtered = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!(addr_filtered && remote_port == htons(DiscoveryServer<EndPoint>::filter_port_)))
             {
                 input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
-                uint32_t addr = ((struct sockaddr_in*)&client_addr)->sin_addr.s_addr;
-                uint16_t port = ((struct sockaddr_in*)&client_addr)->sin_port;
-                input_packet.source.reset(new IPv4EndPoint(addr, port));
+                uint32_t addr = reinterpret_cast<sockaddr_in*>(&client_addr)->sin_addr.s_addr;
+                uint16_t port = reinterpret_cast<sockaddr_in*>(&client_addr)->sin_port;
+                input_packet.source = IPv4EndPoint(addr, port);
                 rv = true;
+
+                UXR_AGENT_LOG_MESSAGE(
+                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
+                    input_packet.source.get_addr(),
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_len());
             }
         }
     }
@@ -172,28 +197,39 @@ bool DiscoveryServerLinux::recv_message(
     return rv;
 }
 
-bool DiscoveryServerLinux::send_message(OutputPacket&& output_packet)
+template<typename EndPoint>
+bool DiscoveryServerLinux<EndPoint>::send_message(
+        OutputPacket<IPv4EndPoint>&& output_packet)
 {
     bool rv = false;
-    const IPv4EndPoint* destination = static_cast<const IPv4EndPoint*>(output_packet.destination.get());
     struct sockaddr_in client_addr;
 
     client_addr.sin_family = AF_INET;
-    client_addr.sin_port = destination->get_port();
-    client_addr.sin_addr.s_addr = destination->get_addr();
-    ssize_t bytes_sent = sendto(poll_fd_.fd,
-                                output_packet.message->get_buf(),
-                                output_packet.message->get_len(),
-                                0,
-                                (struct sockaddr*)&client_addr,
-                                sizeof(client_addr));
+    client_addr.sin_port = output_packet.destination.get_port();
+    client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
+    ssize_t bytes_sent =
+            sendto(poll_fd_.fd,
+                   output_packet.message->get_buf(),
+                   output_packet.message->get_len(),
+                   0,
+                   reinterpret_cast<struct sockaddr*>(&client_addr),
+                   sizeof(client_addr));
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());
+
+        UXR_AGENT_LOG_MESSAGE(
+            UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
+            output_packet.destination.get_addr(),
+            output_packet.message->get_buf(),
+            output_packet.message->get_len());
     }
 
     return rv;
 }
+
+template class DiscoveryServerLinux<IPv4EndPoint>;
+template class DiscoveryServerLinux<IPv6EndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

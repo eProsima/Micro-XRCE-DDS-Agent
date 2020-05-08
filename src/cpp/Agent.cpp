@@ -159,6 +159,54 @@ void fill_object_variant<Agent::DATAREADER_OBJK>(
     object_variant.data_reader(datareader);
 }
 
+template<>
+void fill_object_variant<Agent::REQUESTER_OBJK>(
+        uint16_t participant_id,
+        RefRep rep,
+        dds::xrce::ObjectVariant& object_variant)
+{
+    dds::xrce::REQUESTER_Representation requester;
+    requester.participant_id(conversion::raw_to_objectid(participant_id, Agent::PARTICIPANT_OBJK));
+    requester.representation().object_reference(rep.ref);
+    object_variant.requester(requester);
+}
+
+template<>
+void fill_object_variant<Agent::REQUESTER_OBJK>(
+        uint16_t participant_id,
+        XmlRep rep,
+        dds::xrce::ObjectVariant& object_variant)
+{
+    dds::xrce::REQUESTER_Representation requester;
+    requester.participant_id(conversion::raw_to_objectid(participant_id, Agent::PARTICIPANT_OBJK));
+    requester.representation().xml_string_representation(rep.xml);
+    object_variant.requester(requester);
+}
+
+template<>
+void fill_object_variant<Agent::REPLIER_OBJK>(
+        uint16_t participant_id,
+        RefRep rep,
+        dds::xrce::ObjectVariant& object_variant)
+{
+    dds::xrce::REPLIER_Representation replier;
+    replier.participant_id(conversion::raw_to_objectid(participant_id, Agent::PARTICIPANT_OBJK));
+    replier.representation().object_reference(rep.ref);
+    object_variant.replier(replier);
+}
+
+template<>
+void fill_object_variant<Agent::REPLIER_OBJK>(
+        uint16_t participant_id,
+        XmlRep rep,
+        dds::xrce::ObjectVariant& object_variant)
+{
+    dds::xrce::REPLIER_Representation replier;
+    replier.participant_id(conversion::raw_to_objectid(participant_id, Agent::PARTICIPANT_OBJK));
+    replier.representation().xml_string_representation(rep.xml);
+    object_variant.replier(replier);
+}
+
 } // unnamed namespace
 
 /**********************************************************************************************************************
@@ -399,6 +447,78 @@ bool Agent::delete_datareader(
 {
     return delete_object<Agent::DATAREADER_OBJK>
             (client_key, datareader_id, op_result);
+}
+
+/**********************************************************************************************************************
+ * Requester.
+ **********************************************************************************************************************/
+bool Agent::create_requester_by_ref(
+        uint32_t client_key,
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const char* ref,
+        uint8_t flag,
+        OpResult& op_result)
+{
+    return create_object<Agent::REQUESTER_OBJK>
+            (client_key, requester_id, participant_id, RefRep{ref}, flag, op_result);
+}
+
+bool Agent::create_requester_by_xml(
+        uint32_t client_key,
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const char* xml,
+        uint8_t flag,
+        OpResult& op_result)
+{
+    return create_object<Agent::REQUESTER_OBJK>
+            (client_key, requester_id, participant_id, XmlRep{xml}, flag, op_result);
+}
+
+bool Agent::delete_requester(
+        uint32_t client_key,
+        uint16_t requester_id,
+        OpResult& op_result)
+{
+    return delete_object<Agent::REQUESTER_OBJK>
+            (client_key, requester_id, op_result);
+}
+
+/**********************************************************************************************************************
+ * Replier.
+ **********************************************************************************************************************/
+bool Agent::create_replier_by_ref(
+        uint32_t client_key,
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const char* ref,
+        uint8_t flag,
+        OpResult& op_result)
+{
+    return create_object<Agent::REPLIER_OBJK>
+            (client_key, replier_id, participant_id, RefRep{ref}, flag, op_result);
+}
+
+bool Agent::create_replier_by_xml(
+        uint32_t client_key,
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const char* xml,
+        uint8_t flag,
+        OpResult& op_result)
+{
+    return create_object<Agent::REPLIER_OBJK>
+            (client_key, replier_id, participant_id, XmlRep{xml}, flag, op_result);
+}
+
+bool Agent::delete_replier(
+        uint32_t client_key,
+        uint16_t replier_id,
+        OpResult& op_result)
+{
+    return delete_object<Agent::REPLIER_OBJK>
+            (client_key, replier_id, op_result);
 }
 
 /**********************************************************************************************************************

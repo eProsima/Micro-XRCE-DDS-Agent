@@ -23,6 +23,8 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
+option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into saparated folders with version control." ON)
+option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
@@ -31,7 +33,6 @@ option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
-option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -46,24 +47,13 @@ if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Lin
     set(UAGENT_P2P_PROFILE OFF)
 endif()
 
-include(GNUInstallDirs)
-set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
-set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
-if(WIN32)
-    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
-else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
-endif()
-
 set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16       CACHE STRING "Reliable streams depth.")
 set(UAGENT_CONFIG_BEST_EFFORT_STREAM_DEPTH     16       CACHE STRING "Best-effort streams depth.")
 set(UAGENT_CONFIG_HEARTBEAT_PERIOD             200      CACHE STRING "Heartbeat period in milliseconds.")
 set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TCP connection allowed.")
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
 set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
-set(UAGENT_CONFIG_CLIENT_DEAD_TIME             5000     CACHE STRING "Client dead time in milliseconds.")
+set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dead time in milliseconds.")
 
 ###############################################################################
 # Dependencies
@@ -79,14 +69,14 @@ set(_cli11_tag v1.7.1)
 list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.1.5)
-    set(_microxrcedds_client_tag v1.1.5)
+    set(_microxrcedds_client_version 1.2.1)
+    set(_microxrcedds_client_tag v1.2.1)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 1.8.2)
-    set(_fastrtps_tag v1.8.2)
+    set(_fastrtps_version 1.8.3)
+    set(_fastrtps_tag b257a33)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
 endif()
 
@@ -101,7 +91,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.1.6" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.3.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -151,16 +141,22 @@ endif()
 # Check platform.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TRANSPORT_SRCS
-        src/cpp/transport/udp/UDPServerLinux.cpp
-        src/cpp/transport/tcp/TCPServerLinux.cpp
-        src/cpp/transport/serial/SerialServerLinux.cpp
+        src/cpp/transport/udp/UDPv4AgentLinux.cpp
+        src/cpp/transport/udp/UDPv6AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv4AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv6AgentLinux.cpp
+        src/cpp/transport/serial/SerialAgentLinux.cpp
+        src/cpp/transport/serial/TermiosAgentLinux.cpp
+        src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(TRANSPORT_SRCS
-        src/cpp/transport/udp/UDPServerWindows.cpp
-        src/cpp/transport/tcp/TCPServerWindows.cpp
+        src/cpp/transport/udp/UDPv4AgentWindows.cpp
+        src/cpp/transport/udp/UDPv6AgentWindows.cpp
+        src/cpp/transport/tcp/TCPv4AgentWindows.cpp
+        src/cpp/transport/tcp/TCPv6AgentWindows.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
@@ -177,6 +173,8 @@ set(SRCS
     src/cpp/subscriber/Subscriber.cpp
     src/cpp/datawriter/DataWriter.cpp
     src/cpp/datareader/DataReader.cpp
+    src/cpp/requester/Requester.cpp
+    src/cpp/replier/Replier.cpp
     src/cpp/object/XRCEObject.cpp
     src/cpp/types/XRCETypes.cpp
     src/cpp/types/MessageHeader.cpp
@@ -184,10 +182,7 @@ set(SRCS
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/udp/UDPServerBase.cpp
-    src/cpp/transport/tcp/TCPServerBase.cpp
-    src/cpp/transport/serial/SerialServerBase.cpp
-    src/cpp/transport/serial/serial_protocol.c
+    src/cpp/transport/serial/SerialProtocol.cpp
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>
@@ -200,6 +195,24 @@ set(SRCS
     $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/p2p/InternalClientManager.cpp>
     $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/p2p/InternalClient.cpp>
     )
+
+###############################################################################
+# Set install directories
+###############################################################################
+if(UAGENT_ISOLATED_INSTALL)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}-${PROJECT_VERSION}")
+endif()
+
+include(GNUInstallDirs)
+set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
+set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
+set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
+if(WIN32)
+    set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
+else()
+    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+endif()
 
 ###############################################################################
 # Targets
@@ -259,21 +272,28 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         fastcdr
         $<$<PLATFORM_ID:Windows>:ws2_32>
+        $<$<PLATFORM_ID:Windows>:iphlpapi>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
+        CLI11::CLI11
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
-        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
     )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME} BEFORE
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+        $<TARGET_PROPERTY:fastcdr,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastrtps,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:$<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microxrcedds_client,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microcdr,INTERFACE_INCLUDE_DIRECTORIES>>
     )
 
 # Executable
@@ -281,8 +301,8 @@ add_executable(MicroXRCEAgent microxrce_agent.cpp)
 target_link_libraries(MicroXRCEAgent
     PRIVATE
         ${PROJECT_NAME}
-        $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
-        CLI11::CLI11
+        $<$<BOOL:$<PLATFORM_ID:Linux>>:rt>
+        $<$<BOOL:$<PLATFORM_ID:Linux>>:dl>
     )
 
 set_target_properties(MicroXRCEAgent PROPERTIES
@@ -456,13 +476,18 @@ endif()
 
 # Install dependencies.
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
-    install(
-        DIRECTORY
-            ${CMAKE_BINARY_DIR}/temp_install/
-        DESTINATION
-            ${CMAKE_INSTALL_PREFIX}
-        USE_SOURCE_PERMISSIONS
+    file(GLOB _deps RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
+    foreach(_d ${_deps})
+        install(
+            DIRECTORY
+                ${CMAKE_BINARY_DIR}/temp_install/${_d}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,,/>
+            DESTINATION
+                ${CMAKE_INSTALL_PREFIX}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,/../,>
+            COMPONENT
+                ${_d}
+            USE_SOURCE_PERMISSIONS
         )
+    endforeach()
 endif()
 
 # Generate Windows Installer.
@@ -509,10 +534,11 @@ if(WIN32 AND UAGENT_INSTALLER)
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
-	set(CPACK_NSIS_INSTALL_ROOT "$ENV{PROGRAMFILES}\\eProsima")
+        file(TO_NATIVE_PATH $ENV{PROGRAMFILES}/eProsima _install_root)
+        set(CPACK_NSIS_INSTALL_ROOT ${_install_root})
     else()
         set(PF86_STR "PROGRAMFILES(x86)")
-	set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
+        set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
     endif()
 
     # Setup configure files for NSIS installer.
@@ -520,17 +546,18 @@ if(WIN32 AND UAGENT_INSTALLER)
         ${PROJECT_BINARY_DIR}/cmake/packaging/windows/NSISPackaging.cmake @ONLY
         )
     # Setup redistributables installation nsh.
-    if(${MSVC_ARCH} STREQUAL "x64Win64VS2017")
-        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,amd64,14.0,bundle")
-	set(REDIST_VERSION "14.15.26706.0")
-	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/20ef12bb-5283-41d7-90f7-eb3bb7355de7/8b58fd89f948b2430811db3da92299a6/vc_redist.x64.exe")
-	set(REDIST_EXEC "vc_redist_x64.exe")
-    elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2017")
-        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\,,x86,14.0,bundle")
-	set(REDIST_VERSION "14.15.26706.0")
-	set(REDIST_LINK "https://download.visualstudio.microsoft.com/download/pr/749aa419-f9e4-4578-a417-a43786af205e/d59197078cc425377be301faba7dd87a/vc_redist.x86.exe")
-	set(REDIST_EXEC "vc_redist_i86.exe")
+    if(${MSVC_ARCH} STREQUAL "x64Win64VS2015" OR ${MSVC_ARCH} STREQUAL "x64Win64VS2017" OR ${MSVC_ARCH} STREQUAL "x64Win64VS2019")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\VC,redist.x64,amd64,14.21,bundle")
+        set(REDIST_VERSION "14.21.27702.2")
+        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x64.exe")
+        set(REDIST_EXEC "VC_redist.x64.exe")
+    elseif(${MSVC_ARCH} STREQUAL "i86Win32VS2015" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2017" OR ${MSVC_ARCH} STREQUAL "i86Win32VS2019")
+        set(REDIST_REGISTER "SOFTWARE\\Classes\\Installer\\Dependencies\\VC,redist.x86,x86,14.21,bundle")
+        set(REDIST_VERSION "14.21.27702.2")
+        set(REDIST_LINK "https://aka.ms/vs/16/release/VC_redist.x86.exe")
+        set(REDIST_EXEC "VC_redist.x86.exe")
     endif()
+
     configure_file(${PROJECT_SOURCE_DIR}/cmake/packaging/windows/InstallRedistributables.nsh.in
         ${PROJECT_BINARY_DIR}/cmake/packaging/windows/InstallRedistributables.nsh @ONLY
         )

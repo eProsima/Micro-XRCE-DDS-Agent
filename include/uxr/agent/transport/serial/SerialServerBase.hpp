@@ -17,7 +17,7 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
-#include <uxr/agent/transport/serial/serial_protocol.h>
+#include <uxr/agent/transport/serial/SerialProtocol.hpp>
 
 #include <unordered_map>
 
