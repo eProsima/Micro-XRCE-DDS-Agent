@@ -236,6 +236,7 @@ bool FastDDSParticipant::register_topic(
             w_topic = topic;
             topics_.emplace(type->getName(), w_topic);
             type_register_.emplace(type->getName(), type);
+            rv = true;
         }
     }
     else
