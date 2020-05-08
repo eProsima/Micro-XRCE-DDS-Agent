@@ -276,7 +276,7 @@ FastDDSTopic::~FastDDSTopic()
     if (ptr_)
     {
         participant_->unregister_topic(ptr_->get_name());
-        // participant_->ptr_->delete_topic(ptr_);
+        participant_->ptr_->delete_topic(ptr_);
     }
 }
 
