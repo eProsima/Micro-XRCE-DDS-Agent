@@ -268,12 +268,16 @@ std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
  **********************************************************************************************************************/
 FastDDSType::~FastDDSType()
 {
-    participant_->unregister_topic(getName());
+    participant_->unregister_type(getName());
 }
 
 FastDDSTopic::~FastDDSTopic()
 {   
-    participant_->ptr_->delete_topic(ptr_);
+    if (ptr_)
+    {
+        participant_->unregister_topic(ptr_->get_name());
+        // participant_->ptr_->delete_topic(ptr_);
+    }
 }
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
@@ -381,7 +385,10 @@ bool FastDDSTopic::match(const fastrtps::TopicAttributes& attrs) const
  **********************************************************************************************************************/
 FastDDSPublisher::~FastDDSPublisher()
 {   
-    participant_->ptr_->delete_publisher(ptr_);
+    if (ptr_)
+    {
+        participant_->ptr_->delete_publisher(ptr_);
+    }
 }
 
 bool FastDDSPublisher::create_by_xml(
@@ -407,7 +414,10 @@ bool FastDDSPublisher::create_by_xml(
  **********************************************************************************************************************/
 FastDDSSubscriber::~FastDDSSubscriber()
 {   
-    participant_->ptr_->delete_subscriber(ptr_);
+    if (ptr_)
+    {
+        participant_->ptr_->delete_subscriber(ptr_);
+    }
 }
 
 
@@ -434,7 +444,10 @@ bool FastDDSSubscriber::create_by_xml(
  **********************************************************************************************************************/
 FastDDSDataWriter::~FastDDSDataWriter()
 {
-    publisher_->ptr_->delete_datawriter(ptr_);
+    if (ptr_)
+    {
+        publisher_->ptr_->delete_datawriter(ptr_);
+    }  
 }
 
 bool FastDDSDataWriter::create_by_ref(const std::string& ref)
@@ -495,7 +508,10 @@ bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
  **********************************************************************************************************************/
 FastDDSDataReader::~FastDDSDataReader()
 {
-    // TODO
+    if (ptr_)
+    {
+        subscriber_->ptr_->delete_datareader(ptr_);
+    }  
 }
 
 bool FastDDSDataReader::create_by_ref(const std::string& ref)
@@ -594,8 +610,14 @@ bool FastDDSDataReader::read(
  **********************************************************************************************************************/
 FastDDSRequester::~FastDDSRequester()
 {
-    participant_->ptr_->delete_publisher(publisher_ptr_);
-    participant_->ptr_->delete_subscriber(subscriber_ptr_);
+    if (publisher_ptr_)
+    {
+        participant_->ptr_->delete_publisher(publisher_ptr_);
+    }
+    if (subscriber_ptr_)
+    {
+        participant_->ptr_->delete_subscriber(subscriber_ptr_);
+    }
 }
 
 bool FastDDSRequester::create_by_attributes(
@@ -750,8 +772,14 @@ bool FastDDSRequester::read(
  **********************************************************************************************************************/
 FastDDSReplier::~FastDDSReplier()
 {
-    participant_->ptr_->delete_publisher(publisher_ptr_);
-    participant_->ptr_->delete_subscriber(subscriber_ptr_);
+    if (publisher_ptr_)
+    {
+        participant_->ptr_->delete_publisher(publisher_ptr_);
+    }
+    if (subscriber_ptr_)
+    {
+        participant_->ptr_->delete_subscriber(subscriber_ptr_);
+    }
 }
 
 bool FastDDSReplier::create_by_attributes(

@@ -103,14 +103,14 @@ bool FastDDSMiddleware::create_topic_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    auto it_participant = participants_.find(participant_id);
-    if (participants_.end() != it_participant)
+    fastrtps::TopicAttributes attrs;
+    if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
     {
-        std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_ref(ref))
+        auto it_participant = participants_.find(participant_id);
+        if (participants_.end() != it_participant)
         {
-            topics_.emplace(topic_id, std::move(topic));
-            rv = true;
+            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
     return rv;
@@ -122,14 +122,14 @@ bool FastDDSMiddleware::create_topic_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    auto it_participant = participants_.find(participant_id);
-    if (participants_.end() != it_participant)
+    fastrtps::TopicAttributes attrs;
+    if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
     {
-        std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_xml(xml))
+        auto it_participant = participants_.find(participant_id);
+        if (participants_.end() != it_participant)
         {
-            topics_.emplace(topic_id, std::move(topic));
-            rv = true;
+            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
     return rv;

@@ -124,7 +124,7 @@ public:
     bool match(const fastrtps::TopicAttributes& attrs) const;
 
 
-    const std::string& get_name() const { return ptr_->get_name(); }
+    const std::string& get_name() const { return ptr_->get_type_name(); }
     const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
 
     friend class FastDDSDataWriter;
