@@ -375,17 +375,15 @@ bool FastDDSPublisher::create_by_xml(
 {
     bool rv = false;
     if (nullptr == ptr_)
-    {
+    {   
+        fastdds::dds::PublisherQos qos;
         fastrtps::PublisherAttributes attrs;
-        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        if (0 != xml.size() && xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
         {   
-            fastdds::dds::PublisherQos qos;
             set_qos_from_attributes(qos, attrs);
-            ptr_ = participant_->ptr_->create_publisher(qos);
-            rv = (nullptr != ptr_);
         }
-        rv = (nullptr != ptr_);
-    }
+        ptr_ = participant_->ptr_->create_publisher(qos);
+        rv = (nullptr != ptr_);    }
     return rv;
 }
 
@@ -402,14 +400,13 @@ bool FastDDSSubscriber::create_by_xml(
     if (nullptr == ptr_)
     {
         fastrtps::SubscriberAttributes attrs;
-        if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
+        fastdds::dds::SubscriberQos qos;
+        if (0 != xml.size() && xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
         {   
-            fastdds::dds::SubscriberQos qos;
             set_qos_from_attributes(qos, attrs);
-            ptr_ = participant_->ptr_->create_subscriber(qos);
-            rv = (nullptr != ptr_);
         }
-        rv = (nullptr != ptr_);
+        ptr_ = participant_->ptr_->create_subscriber(qos);
+        rv = (nullptr != ptr_);    
     }
     return rv;
 }
