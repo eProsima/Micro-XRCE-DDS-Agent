@@ -247,8 +247,15 @@ bool FastDDSParticipant::register_topic(
 
 bool FastDDSParticipant::unregister_topic(
         const std::string& topic_name)
-{
-    return (1 == topic_register_.erase(topic_name));
+{   
+    bool rv = false;
+    std::shared_ptr<FastDDSTopic> topic = find_topic(topic_name);
+    if (topic)
+    {
+        rv = (1 == topic_register_.erase(topic_name))
+        && ReturnCode_t::RETCODE_OK == ptr_->delete_topic(topic->ptr_);
+    }
+    return rv;
 }
 
 std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
@@ -273,11 +280,7 @@ FastDDSType::~FastDDSType()
 
 FastDDSTopic::~FastDDSTopic()
 {   
-    if (ptr_)
-    {
-        participant_->unregister_topic(ptr_->get_name());
-        participant_->ptr_->delete_topic(ptr_);
-    }
+    participant_->unregister_topic(ptr_->get_name());
 }
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
@@ -457,7 +460,7 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
         fastrtps::PublisherAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
         {   
-            topic_ = publisher_->participant_->find_topic(attrs.topic.getTopicDataType().c_str());
+            topic_ = publisher_->participant_->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -477,7 +480,7 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
         fastrtps::PublisherAttributes attrs;
         if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
         {   
-            topic_ = publisher_->participant_->find_topic(attrs.topic.getTopicDataType().c_str());
+            topic_ = publisher_->participant_->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -521,7 +524,7 @@ bool FastDDSDataReader::create_by_ref(const std::string& ref)
         fastrtps::SubscriberAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
         {   
-            topic_ = subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str());
+            topic_ = subscriber_->participant_->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -541,7 +544,7 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
         fastrtps::SubscriberAttributes attrs;
         if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
         {   
-            topic_ = subscriber_->participant_->find_topic(attrs.topic.getTopicDataType().c_str());
+            topic_ = subscriber_->participant_->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
