@@ -159,6 +159,8 @@ private:
 /**********************************************************************************************************************
  * CedParticipant
  **********************************************************************************************************************/
+class CedTopic;
+
 class CedParticipant
 {
 public:
@@ -168,21 +170,19 @@ public:
     ~CedParticipant() = default;
 
     bool register_topic(
-            const std::string& topic_name,
-            uint16_t topic_id,
-            std::shared_ptr<CedGlobalTopic>& global_topic);
+            const std::shared_ptr<CedTopic>& topic);
 
-    bool unregister_topic(const std::string& topic_name);
+    bool unregister_topic(
+            const std::string& topic_name);
 
-    bool find_topic(
-            const std::string& topic_name,
-            uint16_t& topic_id) const;
+    std::shared_ptr<CedTopic> find_topic(
+            const std::string& topic_name) const;
 
     int16_t get_domain_id() const { return domain_id_; }
 
 private:
     int16_t domain_id_;
-    std::unordered_map<std::string, uint16_t> topics_;
+    std::unordered_map<std::string, std::weak_ptr<CedTopic>> topic_register_;
 };
 
 /**********************************************************************************************************************
@@ -201,7 +201,7 @@ public:
 
     CedGlobalTopic* get_global_topic() const;
 
-    const std::string& name() { return global_topic_->name(); }
+    const std::string& get_name() { return global_topic_->name(); }
 
 private:
     std::shared_ptr<CedParticipant> participant_;

@@ -92,6 +92,28 @@ bool CedMiddleware::create_participant_by_xml(
     return create_participant_by_ref(participant_id, domain_id, xml);
 }
 
+static
+std::shared_ptr<CedTopic> create_topic(
+        std::shared_ptr<CedParticipant>& participant,
+        const std::string& topic_name)
+{
+    std::shared_ptr<CedTopic> topic;
+    topic = participant->find_topic(topic_name);
+    if (!topic)
+    {
+        std::shared_ptr<CedGlobalTopic> global_topic;
+        if (CedTopicManager::register_topic(topic_name, participant->get_domain_id(), global_topic))
+        {
+            topic = std::make_shared<CedTopic>(participant, global_topic);
+            if (!participant->register_topic(topic))
+            {
+                topic.reset();
+            }
+        }
+    }
+    return topic;
+}
+
 bool CedMiddleware::create_topic_by_ref(
         uint16_t topic_id,
         uint16_t participant_id,
@@ -104,12 +126,9 @@ bool CedMiddleware::create_topic_by_ref(
         auto it_topic = topics_.find(topic_id);
         if (topics_.end() == it_topic)
         {
-            std::shared_ptr<CedGlobalTopic> global_topic;
-            if (it_participant->second->register_topic(remove_suffix_form_topic_ref(ref), topic_id, global_topic))
-            {
-                topics_.emplace(topic_id, std::make_shared<CedTopic>(it_participant->second, global_topic));
-                rv = true;
-            }
+            std::shared_ptr<CedTopic> topic =
+                create_topic(it_participant->second, remove_suffix_form_topic_ref(ref));
+            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
     return rv;
@@ -173,25 +192,16 @@ bool CedMiddleware::create_datawriter_by_ref(
         auto it_datawriter = datawriters_.find(datawriter_id);
         if (datawriters_.end() == it_datawriter)
         {
-            uint16_t topic_id;
-            if (it_publisher->second->get_participant()->find_topic(remove_suffix_form_datawriter_ref(ref), topic_id))
-            {
-                auto it_topic = topics_.find(topic_id);
-                if (topics_.end() != it_topic)
-                {
-                    datawriters_.emplace(
-                        datawriter_id,
-                        std::make_shared<CedDataWriter>(
-                            it_publisher->second,
-                            it_topic->second,
-                            write_access_,
-                            topics_src_));
-
-// TODO.
-//                    associated_topic_id = topic_id;
-                    rv = true;
-                }
-            }
+            std::shared_ptr<CedTopic> topic =
+                it_publisher->second->get_participant()->find_topic(remove_suffix_form_datawriter_ref(ref));
+            rv = topic
+                && datawriters_.emplace(
+                    datawriter_id,
+                    std::make_shared<CedDataWriter>(
+                        it_publisher->second,
+                        topic,
+                        write_access_,
+                        topics_src_)).second;
         }
     }
     return rv;
@@ -217,24 +227,15 @@ bool CedMiddleware::create_datareader_by_ref(
         auto it_datareader = datareaders_.find(datareader_id);
         if (datareaders_.end() == it_datareader)
         {
-            uint16_t topic_id;
-            if (it_subscriber->second->get_participant()->find_topic(remove_suffix_form_datareader_ref(ref), topic_id))
-            {
-                auto it_topic = topics_.find(topic_id);
-                if (topics_.end() != it_topic)
-                {
-                    datareaders_.emplace(
-                        datareader_id,
-                        std::make_shared<CedDataReader>(
-                            it_subscriber->second,
-                            it_topic->second,
-                            read_access_));
-
-// TODO.
-//                    associated_topic_id = topic_id;
-                    rv = true;
-                }
-            }
+            std::shared_ptr<CedTopic> topic =
+                it_subscriber->second->get_participant()->find_topic(remove_suffix_form_datareader_ref(ref));
+            rv = topic
+                && datareaders_.emplace(
+                    datareader_id,
+                    std::make_shared<CedDataReader>(
+                        it_subscriber->second,
+                        topic,
+                        read_access_)).second;
         }
     }
     return rv;
@@ -346,7 +347,7 @@ bool CedMiddleware::matched_topic_from_ref(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = (remove_suffix_form_topic_ref(ref) == it->second->name());
+        rv = (remove_suffix_form_topic_ref(ref) == it->second->get_name());
     }
     return rv;
 }

@@ -163,9 +163,9 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByRef)
      *      Id:             different
      *      Participant:    same
      *      Reference:      same
-     *      Expected:       FALSE
+     *      Expected:       TRUE
      */
-    EXPECT_FALSE(middleware_.create_topic_by_ref(1, 0, topic_ref_one));
+    EXPECT_TRUE(middleware_.create_topic_by_ref(1, 0, topic_ref_one));
 
     /* Create:
      *      Id:             same
@@ -216,9 +216,9 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByXML)
      *      Id:             different
      *      Participant:    same
      *      XML:            same
-     *      Expected:       FALSE
+     *      Expected:       TRUE
      */
-    EXPECT_FALSE(middleware_.create_topic_by_xml(1, 0, topic_xml_one));
+    EXPECT_TRUE(middleware_.create_topic_by_xml(1, 0, topic_xml_one));
 
     /* Create:
      *      Id:             same
