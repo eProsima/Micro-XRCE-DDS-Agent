@@ -214,27 +214,9 @@ bool FastDataWriter::create_by_attributes(
     return bool(topic_);
 }
 
-bool FastDataWriter::match_from_ref(const std::string& ref) const
+bool FastDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
 {
-    bool rv = false;
-    fastrtps::PublisherAttributes new_attributes;
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-        fastrtps::xmlparser::XMLProfileManager::fillPublisherAttributes(ref, new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
-}
-
-bool FastDataWriter::match_from_xml(const std::string& xml) const
-{
-    bool rv = false;
-    fastrtps::PublisherAttributes new_attributes;
-    if (xmlobjects::parse_publisher(xml.data(), xml.size(), new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
+    return (attrs == ptr_->getAttributes());
 }
 
 bool FastDataWriter::write(const std::vector<uint8_t>& data)

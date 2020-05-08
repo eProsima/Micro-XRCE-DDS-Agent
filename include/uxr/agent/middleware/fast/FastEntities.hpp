@@ -184,9 +184,7 @@ public:
     bool create_by_attributes(
             const fastrtps::PublisherAttributes& attrs);
 
-    bool match_from_ref(const std::string& ref) const;
-
-    bool match_from_xml(const std::string& xml) const;
+    bool match(const fastrtps::PublisherAttributes& attrs) const;
 
     bool write(const std::vector<uint8_t>& data);
 

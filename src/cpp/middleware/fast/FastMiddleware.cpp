@@ -590,7 +590,11 @@ bool FastMiddleware::matched_datawriter_from_ref(
     auto it = datawriters_.find(datawriter_id);
     if (datawriters_.end() != it)
     {
-        rv = it->second->match_from_ref(ref);
+        fastrtps::PublisherAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
@@ -603,7 +607,11 @@ bool FastMiddleware::matched_datawriter_from_xml(
     auto it = datawriters_.find(datawriter_id);
     if (datawriters_.end() != it)
     {
-        rv = it->second->match_from_xml(xml);
+        fastrtps::PublisherAttributes attrs;
+        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
