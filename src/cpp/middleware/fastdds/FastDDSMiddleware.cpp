@@ -14,8 +14,17 @@
 
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
 
+#include <fastrtps/xmlparser/XMLProfileManager.h>
+#include "../../xmlobjects/xmlobjects.h"
+
 namespace eprosima {
 namespace uxr {
+
+using namespace fastrtps::xmlparser;
+
+/**********************************************************************************************************************
+ * Create functions.
+ **********************************************************************************************************************/
 
 bool FastDDSMiddleware::create_participant_by_ref(
         uint16_t participant_id,
@@ -47,6 +56,47 @@ bool FastDDSMiddleware::create_participant_by_xml(
     return rv;
 }
 
+static
+std::shared_ptr<FastDDSTopic> create_topic(
+        std::shared_ptr<FastDDSParticipant>& participant,
+        const fastrtps::TopicAttributes& attrs)
+{
+    std::shared_ptr<FastDDSTopic> topic = participant->find_topic(attrs.getTopicName().c_str());
+    if (topic)
+    {
+        if (0 != std::strcmp(attrs.getTopicDataType().c_str(), topic->get_type()->getName()))
+        {
+            topic.reset();
+        }
+    }
+    else
+    {
+        const char * type_name = attrs.getTopicDataType().c_str();
+        std::shared_ptr<FastDDSType> type = participant->find_type(type_name);
+        if (!type)
+        {
+            type = std::make_shared<FastDDSType>(participant);
+            type->setName(type_name);
+            type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            if (!participant->register_type(type))
+            {
+                type.reset();
+            }
+        }
+
+        if (type)
+        {
+            topic = std::make_shared<FastDDSTopic>(participant);
+            topic->create_by_name_type(attrs.getTopicName().c_str(), type);
+            if (!participant->register_topic(topic))
+            {
+                topic.reset();
+            }
+        }
+    }
+    return topic;
+}
+
 bool FastDDSMiddleware::create_topic_by_ref(
         uint16_t topic_id,
         uint16_t participant_id,
@@ -57,7 +107,7 @@ bool FastDDSMiddleware::create_topic_by_ref(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_ref(ref, topic_id))
+        if (topic->create_by_ref(ref))
         {
             topics_.emplace(topic_id, std::move(topic));
             rv = true;
@@ -76,7 +126,7 @@ bool FastDDSMiddleware::create_topic_by_xml(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSTopic> topic(new FastDDSTopic(it_participant->second));
-        if (topic->create_by_xml(xml, topic_id))
+        if (topic->create_by_xml(xml))
         {
             topics_.emplace(topic_id, std::move(topic));
             rv = true;
@@ -199,6 +249,26 @@ bool FastDDSMiddleware::create_datareader_by_xml(
     return rv;
 }
 
+static
+std::shared_ptr<FastDDSRequester> create_requester(
+        std::shared_ptr<FastDDSParticipant>& participant,
+        const fastrtps::RequesterAttributes& attrs)
+{
+    std::shared_ptr<FastDDSRequester> requester{};
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.publisher.topic);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.subscriber.topic);
+    if (request_topic && reply_topic)
+    {
+        requester =
+            std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
+        if (!requester->create_by_attributes(attrs))
+        {
+            requester.reset();
+        }
+    }
+    return requester;
+}
+
 bool FastDDSMiddleware::create_requester_by_ref(
         uint16_t requester_id,
         uint16_t participant_id,
@@ -208,11 +278,12 @@ bool FastDDSMiddleware::create_requester_by_ref(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastDDSRequester> requester(new FastDDSRequester(it_participant->second));
-        if (requester->create_by_ref(ref))
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::RequesterAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillRequesterAttributes(ref, attrs))
         {
-            requesters_.emplace(requester_id, std::move(requester));
-            rv = true;
+            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
+            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
         }
     }
     return rv;
@@ -227,14 +298,35 @@ bool FastDDSMiddleware::create_requester_by_xml(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastDDSRequester> requester(new FastDDSRequester(it_participant->second));
-        if (requester->create_by_xml(xml))
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::RequesterAttributes attrs;
+        if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
         {
-            requesters_.emplace(requester_id, std::move(requester));
-            rv = true;
+            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
+            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
         }
     }
     return rv;
+}
+
+static
+std::shared_ptr<FastDDSReplier> create_replier(
+        std::shared_ptr<FastDDSParticipant>& participant,
+        const fastrtps::ReplierAttributes& attrs)
+{
+    std::shared_ptr<FastDDSReplier> replier{};
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.subscriber.topic);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.publisher.topic);
+    if (request_topic && reply_topic)
+    {
+        replier =
+            std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
+        if (!replier->create_by_attributes(attrs))
+        {
+            replier.reset();
+        }
+    }
+    return replier;
 }
 
 bool FastDDSMiddleware::create_replier_by_ref(
@@ -246,11 +338,12 @@ bool FastDDSMiddleware::create_replier_by_ref(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastDDSReplier> replier(new FastDDSReplier(it_participant->second));
-        if (replier->create_by_ref(ref))
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::ReplierAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
         {
-            repliers_.emplace(replier_id, std::move(replier));
-            rv = true;
+            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
+            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
         }
     }
     return rv;
@@ -265,15 +358,20 @@ bool FastDDSMiddleware::create_replier_by_xml(
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
-        std::shared_ptr<FastDDSReplier> replier(new FastDDSReplier(it_participant->second));
-        if (replier->create_by_xml(xml))
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::ReplierAttributes attrs;
+        if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
         {
-            repliers_.emplace(replier_id, std::move(replier));
-            rv = true;
+            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
+            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
         }
     }
     return rv;
 }
+
+/**********************************************************************************************************************
+ * Delete functions.
+ **********************************************************************************************************************/
 
 bool FastDDSMiddleware::delete_participant(
         uint16_t participant_id)
@@ -322,6 +420,10 @@ bool FastDDSMiddleware::delete_replier(
 {
    return (0 != repliers_.erase(replier_id));
 }
+
+/**********************************************************************************************************************
+ * Write/Read functions.
+ **********************************************************************************************************************/
 
 bool FastDDSMiddleware::write_data(
         uint16_t datawriter_id,
@@ -406,6 +508,10 @@ bool FastDDSMiddleware::read_reply(
    return rv;
 }
 
+/**********************************************************************************************************************
+ * Matched functions.
+ **********************************************************************************************************************/
+
 bool FastDDSMiddleware::matched_participant_from_ref(
         uint16_t participant_id,
         int16_t domain_id,
@@ -415,7 +521,7 @@ bool FastDDSMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->get_domain_id()) && (it->second->match_from_ref(ref));
+        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
     return rv;
 }
@@ -429,7 +535,7 @@ bool FastDDSMiddleware::matched_participant_from_xml(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->get_domain_id()) && (it->second->match_from_xml(xml));
+        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_xml(xml));
     }
     return rv;
 }
@@ -442,18 +548,28 @@ bool FastDDSMiddleware::matched_topic_from_ref(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = it->second->match_from_ref(ref);
+        fastrtps::TopicAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
 
-bool FastDDSMiddleware::matched_topic_from_xml(uint16_t topic_id, const std::string& xml) const
+bool FastDDSMiddleware::matched_topic_from_xml(
+        uint16_t topic_id,
+        const std::string& xml) const
 {
     bool rv = false;
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        rv = it->second->match_from_xml(xml);
+        fastrtps::TopicAttributes attrs;
+        if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
@@ -462,104 +578,112 @@ bool FastDDSMiddleware::matched_datawriter_from_ref(
         uint16_t datawriter_id,
         const std::string& ref) const
 {
-   bool rv = false;
-   auto it = datawriters_.find(datawriter_id);
-   if (datawriters_.end() != it)
-   {
-       rv = it->second->match_from_ref(ref);
-   }
-   return rv;
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        fastrtps::PublisherAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
+        {
+            rv = it->second->match(attrs);
+        }
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_datawriter_from_xml(
         uint16_t datawriter_id,
         const std::string& xml) const
 {
-   bool rv = false;
-   auto it = datawriters_.find(datawriter_id);
-   if (datawriters_.end() != it)
-   {
-       rv = it->second->match_from_xml(xml);
-   }
-   return rv;
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        fastrtps::PublisherAttributes attrs;
+        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+        {
+            rv = it->second->match(attrs);
+        }
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_datareader_from_ref(
         uint16_t datareader_id,
         const std::string& ref) const
 {
-   bool rv = false;
-   auto it = datareaders_.find(datareader_id);
-   if (datareaders_.end() != it)
-   {
-       rv = it->second->match_from_ref(ref);
-   }
-   return rv;
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_datareader_from_xml(
         uint16_t datareader_id,
         const std::string& xml) const
 {
-   bool rv = false;
-   auto it = datareaders_.find(datareader_id);
-   if (datareaders_.end() != it)
-   {
-       rv = it->second->match_from_xml(xml);
-   }
-   return rv;
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->match_from_xml(xml);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_requester_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
 {
-   bool rv = false;
-   auto it = requesters_.find(requester_id);
-   if (requesters_.end() != it)
-   {
-       rv = it->second->match_from_ref(ref);
-   }
-   return rv;
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_requester_from_xml(
         uint16_t requester_id,
         const std::string& xml) const
 {
-   bool rv = false;
-   auto it = requesters_.find(requester_id);
-   if (requesters_.end() != it)
-   {
-       rv = it->second->match_from_ref(xml);
-   }
-   return rv;
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_replier_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
 {
-   bool rv = false;
-   auto it = repliers_.find(requester_id);
-   if (repliers_.end() != it)
-   {
-       rv = it->second->match_from_ref(ref);
-   }
-   return rv;
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(ref);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::matched_replier_from_xml(
         uint16_t requester_id,
         const std::string& xml) const
 {
-   bool rv = false;
-   auto it = repliers_.find(requester_id);
-   if (repliers_.end() != it)
-   {
-       rv = it->second->match_from_ref(xml);
-   }
-   return rv;
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_ref(xml);
+    }
+    return rv;
 }
 
 } // namespace uxr

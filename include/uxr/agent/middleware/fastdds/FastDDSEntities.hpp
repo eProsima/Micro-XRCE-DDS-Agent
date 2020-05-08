@@ -34,6 +34,10 @@ namespace uxr {
 class FastDDSType;
 class FastDDSTopic;
 
+
+/**********************************************************************************************************************
+ * FastDDSParticipant
+ **********************************************************************************************************************/
 class FastDDSParticipant : public std::enable_shared_from_this<FastDDSParticipant>
 {
 public:
@@ -49,19 +53,26 @@ public:
     bool create_by_xml(const std::string& xml);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
-    int16_t get_domain_id() const { return domain_id_; }
+
+    int16_t domain_id() const { return domain_id_; }
+
+    bool register_type(
+            const std::shared_ptr<FastDDSType>& type);
+
+    bool unregister_type(
+            const std::string& type_name);
+
+    std::shared_ptr<FastDDSType> find_type(
+            const std::string& type_name) const;
 
     bool register_topic(
-            const fastrtps::TopicAttributes& attrs,
-            std::shared_ptr<FastDDSType>& type,
-            std::shared_ptr<FastDDSTopic> topic);
+            const std::shared_ptr<FastDDSTopic>& topic);
 
     bool unregister_topic(
             const std::string& topic_name);
 
-    bool find_topic(
-            const std::string& topic_name,
-            std::shared_ptr<FastDDSTopic>& topic);
+    std::shared_ptr<FastDDSTopic> find_topic(
+            const std::string& topic_name) const;
 
     friend class FastDDSTopic;
     friend class FastDDSPublisher;
@@ -72,10 +83,13 @@ private:
     int16_t domain_id_;
     fastdds::dds::DomainParticipantFactory* factory_;
     fastdds::dds::DomainParticipant* ptr_;
-    std::unordered_map<std::string, std::weak_ptr<FastDDSTopic>> topics_;
     std::unordered_map<std::string, std::weak_ptr<FastDDSType>> type_register_;
+    std::unordered_map<std::string, std::weak_ptr<FastDDSTopic>> topic_register_;
 };
 
+/**********************************************************************************************************************
+ * FastDDSTopic
+ **********************************************************************************************************************/
 class FastDDSType : public TopicPubSubType
 {
 public:
@@ -93,40 +107,43 @@ private:
 class FastDDSTopic : public std::enable_shared_from_this<FastDDSTopic>
 {
 public:
-    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
-        : participant_{participant}
+    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant) 
+        : participant_(participant)
         , type_{nullptr}
         , ptr_{nullptr}
     {}
 
     ~FastDDSTopic();
 
-    bool create_by_ref(
-        const std::string& ref,
-        uint16_t topic_id);
-    bool create_by_xml(
-        const std::string& xml,
-        uint16_t topic_id);
+    bool create_by_ref(const std::string& ref);
+    bool create_by_xml(const std::string& xml);
+    bool create_by_name_type(const std::string& name, 
+        const std::shared_ptr<FastDDSType>& type);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match(const fastrtps::TopicAttributes& attrs) const;
+
+
+    const std::string& get_name() const { return ptr_->get_name(); }
+    const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
 
     friend class FastDDSDataWriter;
     friend class FastDDSDataReader;
     friend class FastDDSRequester;
     friend class FastDDSReplier;
 private:
-    bool create_by_attributes(
-        const fastrtps::TopicAttributes& attrs,
-        uint16_t topic_id);
+    bool create_by_attributes(const fastrtps::TopicAttributes& attrs);
 
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     std::shared_ptr<FastDDSType> type_;
     fastdds::dds::Topic* ptr_;
-public:
-    uint16_t topic_id_;
 };
 
+
+/**********************************************************************************************************************
+ * FastDDSPublisher
+ **********************************************************************************************************************/
 class FastDDSPublisher
 {
 public:
@@ -145,6 +162,10 @@ private:
     fastdds::dds::Publisher* ptr_;
 };
 
+
+/**********************************************************************************************************************
+ * FastDDSSubscriber
+ **********************************************************************************************************************/
 class FastDDSSubscriber
 {
 public:
@@ -164,11 +185,15 @@ private:
 
 };
 
+/**********************************************************************************************************************
+ * FastDDSDataWriter
+ **********************************************************************************************************************/
 class FastDDSDataWriter
 {
 public:
     FastDDSDataWriter(const std::shared_ptr<FastDDSPublisher>& publisher)
         : publisher_{publisher}
+        , topic_{nullptr}
         , ptr_{nullptr}
     {}
 
@@ -176,14 +201,17 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
+    bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool write(const std::vector<uint8_t>& data);
 private:
     std::shared_ptr<FastDDSPublisher> publisher_;
+    std::shared_ptr<FastDDSTopic> topic_;
     fastdds::dds::DataWriter* ptr_;
 };
 
+/**********************************************************************************************************************
+ * FastDataReader
+ **********************************************************************************************************************/
 class FastDDSDataReader
 {
 public:
@@ -203,28 +231,33 @@ public:
             std::chrono::milliseconds timeout);   
 private:
     std::shared_ptr<FastDDSSubscriber> subscriber_;
+    std::shared_ptr<FastDDSTopic> topic_;
     fastdds::dds::DataReader* ptr_;
 };
 
+/**********************************************************************************************************************
+ * FastRequester
+ **********************************************************************************************************************/
 class FastDDSRequester
 {
 public:
-    FastDDSRequester(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSRequester(
+            const std::shared_ptr<FastDDSParticipant>& participant,
+            const std::shared_ptr<FastDDSTopic>& request_topic,
+            const std::shared_ptr<FastDDSTopic>& reply_topic)
         : participant_{participant}
-        , request_topic_{nullptr}
-        , reply_topic_{nullptr}
+        , request_topic_{request_topic}
+        , reply_topic_{reply_topic}
         , publisher_ptr_{nullptr}
-        , datawriter_ptr_{nullptr}
         , subscriber_ptr_{nullptr}
-        , datareader_ptr_{nullptr}
         , publisher_id_{}
         , sequence_to_sequence_{}
     {}
 
     ~FastDDSRequester();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_attributes(
+        const fastrtps::RequesterAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
@@ -239,8 +272,6 @@ public:
 
 private:
     bool match(const fastrtps::RequesterAttributes& attrs) const;
-    bool create_by_attributes(
-        const fastrtps::RequesterAttributes& attrs);
     
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
@@ -261,23 +292,27 @@ private:
     std::map<int64_t, uint32_t> sequence_to_sequence_;
 };
 
+/**********************************************************************************************************************
+ * FastReplier
+ **********************************************************************************************************************/
 class FastDDSReplier
 {
 public:
-    FastDDSReplier(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSReplier(
+            const std::shared_ptr<FastDDSParticipant>& participant,
+            const std::shared_ptr<FastDDSTopic>& request_topic,
+            const std::shared_ptr<FastDDSTopic>& reply_topic)
         : participant_{participant}
-        , request_topic_{nullptr}
-        , reply_topic_{nullptr}
+        , request_topic_{request_topic}
+        , reply_topic_{reply_topic}
         , publisher_ptr_{nullptr}
-        , datawriter_ptr_{nullptr}
         , subscriber_ptr_{nullptr}
-        , datareader_ptr_{nullptr}
     {}
 
     ~FastDDSReplier();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_attributes(
+        const fastrtps::ReplierAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
@@ -287,8 +322,6 @@ public:
 
 private:
     bool match(const fastrtps::ReplierAttributes& attrs) const;
-    bool create_by_attributes(
-        const fastrtps::ReplierAttributes& attrs);
     void transform_sample_identity(
         const fastrtps::rtps::SampleIdentity& fast_identity,
         dds::SampleIdentity& dds_identity);
