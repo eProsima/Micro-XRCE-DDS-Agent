@@ -215,16 +215,15 @@ bool FastDDSParticipant::match_from_xml(
 bool FastDDSParticipant::register_type(
         const std::shared_ptr<FastDDSType>& type)
 {
-    fastdds::dds::TypeSupport m_type(type.get());
-    return ReturnCode_t::RETCODE_OK == ptr_->register_type(m_type, type->getName())
-        && type_register_.emplace(type->getName(), type).second;
+    fastdds::dds::TypeSupport& type_support = type->get_type_support();
+    return ReturnCode_t::RETCODE_OK == ptr_->register_type(type_support, type_support->getName())
+        && type_register_.emplace(type_support->getName(), type).second;
 }
 
 bool FastDDSParticipant::unregister_type(
         const std::string& type_name)
 {
-    return (1 == type_register_.erase(type_name))
-        && ReturnCode_t::RETCODE_OK == ptr_->unregister_type(type_name);
+    return (1 == type_register_.erase(type_name));
 }
 
 std::shared_ptr<FastDDSType> FastDDSParticipant::find_type(
@@ -248,14 +247,7 @@ bool FastDDSParticipant::register_topic(
 bool FastDDSParticipant::unregister_topic(
         const std::string& topic_name)
 {   
-    bool rv = false;
-    std::shared_ptr<FastDDSTopic> topic = find_topic(topic_name);
-    if (topic)
-    {
-        rv = (1 == topic_register_.erase(topic_name))
-        && ReturnCode_t::RETCODE_OK == ptr_->delete_topic(topic->ptr_);
-    }
-    return rv;
+    return (1 == topic_register_.erase(topic_name));
 }
 
 std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
@@ -275,11 +267,13 @@ std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
  **********************************************************************************************************************/
 FastDDSType::~FastDDSType()
 {
-    participant_->unregister_type(getName());
+    participant_->ptr_->unregister_type(type_support_->getName());
+    participant_->unregister_type(type_support_->getName());
 }
 
 FastDDSTopic::~FastDDSTopic()
 {   
+    participant_->ptr_->delete_topic(ptr_);
     participant_->unregister_topic(ptr_->get_name());
 }
 
@@ -321,7 +315,8 @@ bool FastDDSTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs)
     return rv;
 }
 
-bool FastDDSTopic::create_by_name_type(const std::string& name, 
+bool FastDDSTopic::create_by_name_type(
+    const std::string& name,
     const std::shared_ptr<FastDDSType>& type)
 {
     bool rv = false;
@@ -329,7 +324,7 @@ bool FastDDSTopic::create_by_name_type(const std::string& name,
     {
         fastdds::dds::TopicQos qos;
 
-        ptr_ = participant_->ptr_->create_topic(name, type->getName(), qos);
+        ptr_ = participant_->ptr_->create_topic(name, type->get_type_support()->getName(), qos);
 
         rv = (nullptr != ptr_);
 
@@ -379,8 +374,8 @@ bool FastDDSTopic::match_from_xml(
 bool FastDDSTopic::match(const fastrtps::TopicAttributes& attrs) const
 {
     return (attrs.getTopicName() == ptr_->get_name())
-        && (0 == std::strcmp(type_->getName(), attrs.getTopicDataType().c_str()))
-        && (type_->m_isGetKeyDefined == (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
+        && (0 == std::strcmp(type_->get_type_support()->getName(), attrs.getTopicDataType().c_str()))
+        && (type_->get_type_support()->m_isGetKeyDefined == (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY));
 }
 
 /**********************************************************************************************************************

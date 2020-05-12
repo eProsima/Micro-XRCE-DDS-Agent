@@ -50,7 +50,6 @@ private:
 
 private:
     std::shared_ptr<Participant> participant_;
-    std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace uxr
