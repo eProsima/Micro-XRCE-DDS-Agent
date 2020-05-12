@@ -989,8 +989,8 @@ TEST_P(AgentUnitTests, CreateReplierByXML)
 }
 
 INSTANTIATE_TEST_CASE_P(AgentUnitTestsParams,
-                         AgentUnitTests,
-                         ::testing::Values(Middleware::Kind::FASTFTPS,Middleware::Kind::FASTDDS));
+                        AgentUnitTests,
+                        ::testing::Values(Middleware::Kind::FASTRTPS,Middleware::Kind::FASTDDS));
 
 } // namespace testing
 } // namespace uxr
