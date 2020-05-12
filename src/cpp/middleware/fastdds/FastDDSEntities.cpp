@@ -223,8 +223,7 @@ bool FastDDSParticipant::register_type(
 bool FastDDSParticipant::unregister_type(
         const std::string& type_name)
 {
-    return (1 == type_register_.erase(type_name))
-        && ReturnCode_t::RETCODE_OK == ptr_->unregister_type(type_name);
+    return (1 == type_register_.erase(type_name));
 }
 
 std::shared_ptr<FastDDSType> FastDDSParticipant::find_type(
@@ -248,14 +247,7 @@ bool FastDDSParticipant::register_topic(
 bool FastDDSParticipant::unregister_topic(
         const std::string& topic_name)
 {   
-    bool rv = false;
-    std::shared_ptr<FastDDSTopic> topic = find_topic(topic_name);
-    if (topic)
-    {
-        rv = (1 == topic_register_.erase(topic_name))
-        && ReturnCode_t::RETCODE_OK == ptr_->delete_topic(topic->ptr_);
-    }
-    return rv;
+    return (1 == topic_register_.erase(topic_name));
 }
 
 std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
@@ -275,11 +267,13 @@ std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
  **********************************************************************************************************************/
 FastDDSType::~FastDDSType()
 {
+    participant_->ptr_->unregister_type(type_support_->getName());
     participant_->unregister_type(type_support_->getName());
 }
 
 FastDDSTopic::~FastDDSTopic()
 {   
+    participant_->ptr_->delete_topic(ptr_);
     participant_->unregister_topic(ptr_->get_name());
 }
 

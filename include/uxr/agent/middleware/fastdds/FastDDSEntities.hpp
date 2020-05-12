@@ -74,6 +74,7 @@ public:
     std::shared_ptr<FastDDSTopic> find_topic(
             const std::string& topic_name) const;
 
+    friend class FastDDSType;
     friend class FastDDSTopic;
     friend class FastDDSPublisher;
     friend class FastDDSSubscriber;
@@ -110,7 +111,7 @@ private:
     std::shared_ptr<FastDDSParticipant> participant_;
 };
 
-class FastDDSTopic : public std::enable_shared_from_this<FastDDSTopic>
+class FastDDSTopic
 {
 public:
     FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant) 
