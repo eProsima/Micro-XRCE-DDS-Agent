@@ -38,7 +38,7 @@ class FastDDSTopic;
 /**********************************************************************************************************************
  * FastDDSParticipant
  **********************************************************************************************************************/
-class FastDDSParticipant : public std::enable_shared_from_this<FastDDSParticipant>
+class FastDDSParticipant
 {
 public:
     FastDDSParticipant(int16_t domain_id)
@@ -81,8 +81,8 @@ public:
     friend class FastDDSReplier;
 private:
     int16_t domain_id_;
-    fastdds::dds::DomainParticipantFactory* factory_;
     fastdds::dds::DomainParticipant* ptr_;
+    fastdds::dds::DomainParticipantFactory* factory_;
     std::unordered_map<std::string, std::weak_ptr<FastDDSType>> type_register_;
     std::unordered_map<std::string, std::weak_ptr<FastDDSTopic>> topic_register_;
 };
