@@ -42,9 +42,9 @@ class FastDDSParticipant
 {
 public:
     FastDDSParticipant(int16_t domain_id)
-        : domain_id_{domain_id}
+        : ptr_{nullptr}
         , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
-        , ptr_{nullptr}
+        , domain_id_{domain_id}
     {}
 
     ~FastDDSParticipant();
@@ -80,9 +80,9 @@ public:
     friend class FastDDSRequester;
     friend class FastDDSReplier;
 private:
-    int16_t domain_id_;
     fastdds::dds::DomainParticipant* ptr_;
     fastdds::dds::DomainParticipantFactory* factory_;
+    int16_t domain_id_;
     std::unordered_map<std::string, std::weak_ptr<FastDDSType>> type_register_;
     std::unordered_map<std::string, std::weak_ptr<FastDDSTopic>> topic_register_;
 };
@@ -90,17 +90,23 @@ private:
 /**********************************************************************************************************************
  * FastDDSTopic
  **********************************************************************************************************************/
-class FastDDSType : public TopicPubSubType
+class FastDDSType
 {
 public:
-    FastDDSType(const std::shared_ptr<FastDDSParticipant>& participant)
-        : TopicPubSubType{false}
+    FastDDSType(
+            const fastdds::dds::TypeSupport& type_support,
+            const std::shared_ptr<FastDDSParticipant>& participant)
+        : type_support_{type_support}
         , participant_{participant}
     {}
 
     ~FastDDSType();
 
+    fastdds::dds::TypeSupport& get_type_support() { return type_support_; }
+    const fastdds::dds::TypeSupport& get_type_support() const { return type_support_; }
+
 private:
+    fastdds::dds::TypeSupport type_support_;
     std::shared_ptr<FastDDSParticipant> participant_;
 };
 

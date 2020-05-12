@@ -63,7 +63,7 @@ std::shared_ptr<FastDDSTopic> create_topic(
     std::shared_ptr<FastDDSTopic> topic = participant->find_topic(attrs.getTopicName().c_str());
     if (topic)
     {
-        if (0 != std::strcmp(attrs.getTopicDataType().c_str(), topic->get_type()->getName()))
+        if (0 != std::strcmp(attrs.getTopicDataType().c_str(), topic->get_type()->get_type_support()->getName()))
         {
             topic.reset();
         }
@@ -74,9 +74,10 @@ std::shared_ptr<FastDDSTopic> create_topic(
         std::shared_ptr<FastDDSType> type = participant->find_type(type_name);
         if (!type)
         {
-            type = std::make_shared<FastDDSType>(participant);
-            type->setName(type_name);
-            type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            fastdds::dds::TypeSupport type_support(new TopicPubSubType{false});
+            type_support->setName(type_name);
+            type_support->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            type = std::make_shared<FastDDSType>(type_support, participant);
             if (!participant->register_type(type))
             {
                 type.reset();
