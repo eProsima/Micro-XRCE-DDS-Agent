@@ -322,14 +322,14 @@ std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_local_topic(
  **********************************************************************************************************************/
 FastDDSType::~FastDDSType()
 {
-    participant_->unregister_type(type_support_->getName());
     participant_->unregister_local_type(type_support_->getName());
+    participant_->unregister_type(type_support_->getName());
 }
 
 FastDDSTopic::~FastDDSTopic()
 {   
-    participant_->delete_topic(ptr_);
     participant_->unregister_local_topic(ptr_->get_name());
+    participant_->delete_topic(ptr_);
 }
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
