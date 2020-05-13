@@ -294,6 +294,7 @@ bool FastDDSParticipant::register_topic(
 bool FastDDSParticipant::unregister_topic(
         const std::string& topic_name)
 {   
+    ptr_->unregister_type(topic_name);
     return (1 == topic_register_.erase(topic_name));
 }
 
