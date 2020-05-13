@@ -211,69 +211,28 @@ bool FastTopic::match(const fastrtps::TopicAttributes& attrs) const
 /**********************************************************************************************************************
  * FastDataWriter
  **********************************************************************************************************************/
-FastDataWriter::FastDataWriter(const std::shared_ptr<FastParticipant>& participant)
-    : participant_{participant}
-    , topic_{}
-    , ptr_{nullptr}
+FastDataWriter::FastDataWriter(
+        fastrtps::Publisher* impl,
+        const std::shared_ptr<FastTopic>& topic,
+        const std::shared_ptr<FastParticipant>& participant)
+    : impl_{impl}
+    , topic_{topic}
+    , participant_{participant}
 {}
 
 FastDataWriter::~FastDataWriter()
 {
-    fastrtps::Domain::removePublisher(ptr_);
-}
-
-bool FastDataWriter::create_by_ref(
-        const std::string& ref)
-{
-    ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), ref, this);
-    if (nullptr != ptr_)
-    {
-        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
-    }
-    return bool(topic_);
-}
-
-bool FastDataWriter::create_by_attributes(
-        const PublisherAttributes& attrs)
-{
-    ptr_ = fastrtps::Domain::createPublisher(participant_->get_ptr(), attrs, this);
-    if (nullptr != ptr_)
-    {
-        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
-    }
-    return bool(topic_);
+    fastrtps::Domain::removePublisher(impl_);
 }
 
 bool FastDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
 {
-    return (attrs == ptr_->getAttributes());
+    return (attrs == impl_->getAttributes());
 }
 
 bool FastDataWriter::write(const std::vector<uint8_t>& data)
 {
-    return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
-}
-
-void FastDataWriter::onPublicationMatched(
-        fastrtps::Publisher*,
-        fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("matched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-    else
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("unmatched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
+    return impl_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
 /**********************************************************************************************************************

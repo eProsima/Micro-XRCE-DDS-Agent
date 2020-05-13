@@ -135,7 +135,8 @@ public:
 
     const std::shared_ptr<FastType>& get_type() const { return type_; }
 
-    bool match(const fastrtps::TopicAttributes& attrs) const;
+    bool match(
+            const fastrtps::TopicAttributes& attrs) const;
 
 private:
     std::string name_;
@@ -176,33 +177,28 @@ private:
 /**********************************************************************************************************************
  * FastDataWriter
  **********************************************************************************************************************/
-class FastDataWriter : public fastrtps::PublisherListener
+class FastDataWriter
 {
 public:
-    FastDataWriter(const std::shared_ptr<FastParticipant>& participant);
+    FastDataWriter(
+            fastrtps::Publisher* impl_,
+            const std::shared_ptr<FastTopic>& topic,
+            const std::shared_ptr<FastParticipant>& participant);
 
-    ~FastDataWriter() override;
+    ~FastDataWriter();
 
-    bool create_by_ref(
-            const std::string& ref);
+    bool match(
+            const fastrtps::PublisherAttributes& attrs) const;
 
-    bool create_by_attributes(
-            const fastrtps::PublisherAttributes& attrs);
+    bool write(
+            const std::vector<uint8_t>& data);
 
-    bool match(const fastrtps::PublisherAttributes& attrs) const;
-
-    bool write(const std::vector<uint8_t>& data);
-
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    const fastrtps::Publisher* get_ptr() const { return ptr_; }
+    const fastrtps::Publisher* get_ptr() const { return impl_; }
 
 private:
-    std::shared_ptr<FastParticipant> participant_;
+    fastrtps::Publisher* impl_;
     std::shared_ptr<FastTopic> topic_;
-    fastrtps::Publisher* ptr_;
+    std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
