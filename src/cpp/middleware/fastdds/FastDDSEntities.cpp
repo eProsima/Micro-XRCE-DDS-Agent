@@ -230,6 +230,14 @@ ReturnCode_t FastDDSParticipant::delete_topic(
     return ptr_->delete_topic(topic);
 }
 
+fastdds::dds::Publisher* FastDDSParticipant::create_publisher(
+        const fastdds::dds::PublisherQos& qos,
+        fastdds::dds::PublisherListener* listener,
+        const fastdds::dds::StatusMask& mask)
+{
+    return ptr_->create_publisher(qos, listener, mask);
+}
+
 ReturnCode_t FastDDSParticipant::delete_publisher(
         fastdds::dds::Publisher* publisher)
 {
@@ -241,7 +249,6 @@ ReturnCode_t FastDDSParticipant::delete_subscriber(
 {
     return ptr_->delete_subscriber(subscriber);
 }
-
 
 
 bool FastDDSParticipant::register_type(
@@ -433,7 +440,7 @@ bool FastDDSPublisher::create_by_xml(
         {   
             set_qos_from_attributes(qos, attrs);
         }
-        ptr_ = participant_->ptr_->create_publisher(qos);
+        ptr_ = participant_->create_publisher(qos);
         rv = (nullptr != ptr_);    }
     return rv;
 }

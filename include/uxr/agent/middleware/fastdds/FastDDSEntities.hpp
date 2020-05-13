@@ -68,6 +68,11 @@ public:
     ReturnCode_t delete_topic(
         fastdds::dds::Topic* topic);
 
+    fastdds::dds::Publisher* create_publisher(
+            const fastdds::dds::PublisherQos& qos,
+            fastdds::dds::PublisherListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
     ReturnCode_t delete_publisher(
         fastdds::dds::Publisher* publisher);
 
