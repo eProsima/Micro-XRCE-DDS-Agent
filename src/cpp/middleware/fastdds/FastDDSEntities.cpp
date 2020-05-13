@@ -244,6 +244,14 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
     return ptr_->delete_publisher(publisher);
 }
 
+fastdds::dds::Subscriber* FastDDSParticipant::create_subscriber(
+        const fastdds::dds::SubscriberQos& qos,
+        fastdds::dds::SubscriberListener* listener = nullptr,
+        const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all())
+{
+    return ptr_->create_subscriber(qos, listener, mask);
+}
+
 ReturnCode_t FastDDSParticipant::delete_subscriber(
         fastdds::dds::Subscriber* subscriber)
 {
@@ -470,7 +478,7 @@ bool FastDDSSubscriber::create_by_xml(
         {   
             set_qos_from_attributes(qos, attrs);
         }
-        ptr_ = participant_->ptr_->create_subscriber(qos);
+        ptr_ = participant_->create_subscriber(qos);
         rv = (nullptr != ptr_);    
     }
     return rv;
@@ -672,7 +680,7 @@ bool FastDDSRequester::create_by_attributes(
 
     fastdds::dds::SubscriberQos qos_subscriber;
     set_qos_from_attributes(qos_subscriber, attrs.subscriber);
-    subscriber_ptr_ = participant_->ptr_->create_subscriber(qos_subscriber);
+    subscriber_ptr_ = participant_->create_subscriber(qos_subscriber);
 
     fastdds::dds::DataReaderQos qos_datareader;
     set_qos_from_attributes(qos_datareader, attrs.subscriber);
@@ -834,7 +842,7 @@ bool FastDDSReplier::create_by_attributes(
 
     fastdds::dds::SubscriberQos qos_subscriber;
     set_qos_from_attributes(qos_subscriber, attrs.subscriber);
-    subscriber_ptr_ = participant_->ptr_->create_subscriber(qos_subscriber);
+    subscriber_ptr_ = participant_->create_subscriber(qos_subscriber);
 
     fastdds::dds::DataReaderQos qos_datareader;
     set_qos_from_attributes(qos_datareader, attrs.subscriber);

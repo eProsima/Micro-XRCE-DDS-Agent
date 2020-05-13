@@ -76,6 +76,11 @@ public:
     ReturnCode_t delete_publisher(
         fastdds::dds::Publisher* publisher);
 
+    fastdds::dds::Subscriber* create_subscriber(
+            const fastdds::dds::SubscriberQos& qos,
+            fastdds::dds::SubscriberListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
     ReturnCode_t delete_subscriber(
         fastdds::dds::Subscriber* subscriber);
 
