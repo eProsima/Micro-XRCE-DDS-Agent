@@ -551,7 +551,7 @@ bool ProxyClient::create_datareader(
     if (it != objects_.end())
     {
         std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, representation))
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
