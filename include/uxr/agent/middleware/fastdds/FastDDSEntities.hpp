@@ -157,12 +157,8 @@ public:
 
     const std::string& get_name() const { return ptr_->get_name(); }
     const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
+    fastdds::dds::Topic* get_ptr() const { return ptr_; }
 
-    friend class FastDDSParticipant;
-    friend class FastDDSDataWriter;
-    friend class FastDDSDataReader;
-    friend class FastDDSRequester;
-    friend class FastDDSReplier;
 private:
     bool create_by_attributes(const fastrtps::TopicAttributes& attrs);
 

@@ -508,7 +508,7 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = publisher_->ptr_->create_datawriter(topic_.get()->ptr_, qos);
+                ptr_ = publisher_->ptr_->create_datawriter(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_) && bool(topic_);
             }
         }
@@ -528,7 +528,7 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = publisher_->ptr_->create_datawriter(topic_.get()->ptr_, qos);
+                ptr_ = publisher_->ptr_->create_datawriter(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_) && bool(topic_);
             }
         }
@@ -572,7 +572,7 @@ bool FastDDSDataReader::create_by_ref(const std::string& ref)
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = subscriber_->ptr_->create_datareader(topic_.get()->ptr_, qos);
+                ptr_ = subscriber_->ptr_->create_datareader(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_);
             }
         }
@@ -592,7 +592,7 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = subscriber_->ptr_->create_datareader(topic_.get()->ptr_, qos);
+                ptr_ = subscriber_->ptr_->create_datareader(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_);
             }
         }
@@ -677,7 +677,7 @@ bool FastDDSRequester::create_by_attributes(
 
     fastdds::dds::DataWriterQos qos_datawriter;
     set_qos_from_attributes(qos_datawriter, attrs.publisher);
-    datawriter_ptr_ = publisher_ptr_->create_datawriter(request_topic_.get()->ptr_, qos_datawriter);
+    datawriter_ptr_ = publisher_ptr_->create_datawriter(request_topic_->get_ptr(), qos_datawriter);
 
     fastdds::dds::SubscriberQos qos_subscriber;
     set_qos_from_attributes(qos_subscriber, attrs.subscriber);
@@ -685,7 +685,7 @@ bool FastDDSRequester::create_by_attributes(
 
     fastdds::dds::DataReaderQos qos_datareader;
     set_qos_from_attributes(qos_datareader, attrs.subscriber);
-    datareader_ptr_ = subscriber_ptr_->create_datareader(reply_topic_.get()->ptr_, qos_datareader);
+    datareader_ptr_ = subscriber_ptr_->create_datareader(reply_topic_->get_ptr(), qos_datareader);
 
     rv = (nullptr != publisher_ptr_) && (nullptr != datawriter_ptr_) &&
          (nullptr != subscriber_ptr_) && (nullptr != datareader_ptr_);
@@ -839,7 +839,7 @@ bool FastDDSReplier::create_by_attributes(
 
     fastdds::dds::DataWriterQos qos_datawriter;
     set_qos_from_attributes(qos_datawriter, attrs.publisher);
-    datawriter_ptr_ = publisher_ptr_->create_datawriter(reply_topic_.get()->ptr_, qos_datawriter);
+    datawriter_ptr_ = publisher_ptr_->create_datawriter(reply_topic_->get_ptr(), qos_datawriter);
 
     fastdds::dds::SubscriberQos qos_subscriber;
     set_qos_from_attributes(qos_subscriber, attrs.subscriber);
@@ -847,7 +847,7 @@ bool FastDDSReplier::create_by_attributes(
 
     fastdds::dds::DataReaderQos qos_datareader;
     set_qos_from_attributes(qos_datareader, attrs.subscriber);
-    datareader_ptr_ = subscriber_ptr_->create_datareader(request_topic_.get()->ptr_, qos_datareader);
+    datareader_ptr_ = subscriber_ptr_->create_datareader(request_topic_->get_ptr(), qos_datareader);
 
     rv = (nullptr != publisher_ptr_) && (nullptr != datawriter_ptr_) &&
          (nullptr != subscriber_ptr_) && (nullptr != datareader_ptr_);
