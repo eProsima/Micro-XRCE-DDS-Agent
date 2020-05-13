@@ -492,7 +492,7 @@ bool ProxyClient::create_datawriter(
     if (it != objects_.end())
     {
         std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, representation))
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
