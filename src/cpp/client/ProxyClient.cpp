@@ -315,7 +315,7 @@ bool ProxyClient::create_topic(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, representation))
+        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(topic)).second)
             {
