@@ -68,8 +68,7 @@ public:
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
-class FastParticipant : public fastrtps::ParticipantListener,
-                        public std::enable_shared_from_this<FastParticipant>
+class FastParticipant : public fastrtps::ParticipantListener
 {
 public:
     FastParticipant(int16_t domain_id)
