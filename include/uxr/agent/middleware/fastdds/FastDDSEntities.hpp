@@ -71,6 +71,9 @@ public:
     ReturnCode_t delete_publisher(
         fastdds::dds::Publisher* publisher);
 
+    ReturnCode_t delete_subscriber(
+        fastdds::dds::Subscriber* subscriber);
+
     // Types and topics registration
 
     bool register_type(

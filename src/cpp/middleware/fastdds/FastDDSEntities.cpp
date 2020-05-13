@@ -236,6 +236,12 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
     return ptr_->delete_publisher(publisher);
 }
 
+ReturnCode_t FastDDSParticipant::delete_subscriber(
+        fastdds::dds::Subscriber* subscriber)
+{
+    return ptr_->delete_subscriber(subscriber);
+}
+
 
 
 bool FastDDSParticipant::register_type(
@@ -440,7 +446,7 @@ FastDDSSubscriber::~FastDDSSubscriber()
 {   
     if (ptr_)
     {
-        participant_->ptr_->delete_subscriber(ptr_);
+        participant_->delete_subscriber(ptr_);
     }
 }
 
