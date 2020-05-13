@@ -32,7 +32,7 @@ std::unique_ptr<DataReader> DataReader::create(
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = subscriber->get_participant()->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:

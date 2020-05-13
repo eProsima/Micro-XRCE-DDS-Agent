@@ -22,6 +22,7 @@ namespace uxr {
 std::unique_ptr<Subscriber> Subscriber::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
 {
     bool created_entity = false;
@@ -43,19 +44,19 @@ std::unique_ptr<Subscriber> Subscriber::create(
         }
     }
 
-    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, participant)) : nullptr);
+    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, proxy_client)) : nullptr);
 }
 
 Subscriber::Subscriber(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant)
+        const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
-    , participant_{participant}
+    , proxy_client_{proxy_client}
 {}
 
 Subscriber::~Subscriber()
 {
-    participant_->get_proxy_client()->get_middleware().delete_subscriber(get_raw_id());
+    proxy_client_->get_middleware().delete_subscriber(get_raw_id());
 }
 
 } // namespace uxr
