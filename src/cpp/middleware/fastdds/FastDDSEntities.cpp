@@ -454,6 +454,21 @@ bool FastDDSPublisher::create_by_xml(
     return rv;
 }
 
+fastdds::dds::DataWriter* FastDDSPublisher::create_datawriter(
+        fastdds::dds::Topic* topic,
+        const fastdds::dds::DataWriterQos& qos,
+        fastdds::dds::DataWriterListener* listener,
+        const fastdds::dds::StatusMask& mask)
+{
+    return ptr_->create_datawriter(topic, qos, listener, mask);
+}
+
+ReturnCode_t FastDDSPublisher::delete_datawriter(
+    fastdds::dds::DataWriter* writer)
+{
+    return ptr_->delete_datawriter(writer);
+}
+
 
 /**********************************************************************************************************************
  * FastDDSSubscriber
@@ -492,7 +507,7 @@ FastDDSDataWriter::~FastDDSDataWriter()
 {
     if (ptr_)
     {
-        publisher_->ptr_->delete_datawriter(ptr_);
+        publisher_->delete_datawriter(ptr_);
     }  
 }
 
@@ -508,7 +523,7 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = publisher_->ptr_->create_datawriter(topic_->get_ptr(), qos);
+                ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_) && bool(topic_);
             }
         }
@@ -528,7 +543,7 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = publisher_->ptr_->create_datawriter(topic_->get_ptr(), qos);
+                ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_) && bool(topic_);
             }
         }

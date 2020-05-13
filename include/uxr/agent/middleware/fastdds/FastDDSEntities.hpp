@@ -184,7 +184,15 @@ public:
 
     bool create_by_xml(const std::string& xml);
 
-    friend class FastDDSDataWriter;
+    fastdds::dds::DataWriter* create_datawriter(
+            fastdds::dds::Topic* topic,
+            const fastdds::dds::DataWriterQos& qos = fastdds::dds::DATAWRITER_QOS_DEFAULT,
+            fastdds::dds::DataWriterListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_datawriter(
+        fastdds::dds::DataWriter* writer);
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Publisher* ptr_;
