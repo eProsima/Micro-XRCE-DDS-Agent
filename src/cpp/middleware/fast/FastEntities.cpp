@@ -103,7 +103,8 @@ bool FastParticipant::register_type(
 bool FastParticipant::unregister_type(
         const std::string& type_name)
 {
-    return (1 == type_register_.erase(type_name));
+    return (1 == type_register_.erase(type_name))
+        && fastrtps::Domain::unregisterType(ptr_, type_name.c_str());
 }
 
 std::shared_ptr<FastType> FastParticipant::find_type(
@@ -146,17 +147,14 @@ std::shared_ptr<FastTopic> FastParticipant::find_topic(
  * FastTopic
  **********************************************************************************************************************/
 FastType::FastType(
-        const std::string& name,
         const std::shared_ptr<FastParticipant>& participant)
     : TopicPubSubType{false}
-    , name_{name}
     , participant_{participant}
 {}
 
 FastType::~FastType()
 {
-    fastrtps::Domain::unregisterType(participant_->get_ptr(), name_.c_str());
-    participant_->unregister_type(name_);
+    participant_->unregister_type(getName());
 }
 
 FastTopic::FastTopic(
