@@ -216,6 +216,16 @@ public:
 
     bool create_by_xml(const std::string& xml);
 
+    fastdds::dds::DataReader* create_datareader(
+            fastdds::dds::TopicDescription* topic,
+            const fastdds::dds::DataReaderQos& reader_qos,
+            fastdds::dds::DataReaderListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_datareader(
+        fastdds::dds::DataReader* reader);
+
+
     std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
     
 private:

@@ -500,6 +500,21 @@ bool FastDDSSubscriber::create_by_xml(
     return rv;
 }
 
+fastdds::dds::DataReader* FastDDSSubscriber::create_datareader(
+        fastdds::dds::TopicDescription* topic,
+        const fastdds::dds::DataReaderQos& reader_qos,
+        fastdds::dds::DataReaderListener* listener,
+        const fastdds::dds::StatusMask& mask)
+{
+    return ptr_->create_datareader(topic, reader_qos, listener, mask);
+}
+
+ReturnCode_t FastDDSSubscriber::delete_datareader(
+        fastdds::dds::DataReader* reader)
+{
+    return ptr_->delete_datareader(reader);
+}
+
 /**********************************************************************************************************************
  * FastDDSDataWriter
  **********************************************************************************************************************/
@@ -571,7 +586,7 @@ FastDDSDataReader::~FastDDSDataReader()
 {
     if (ptr_)
     {
-        subscriber_->ptr_->delete_datareader(ptr_);
+        subscriber_->delete_datareader(ptr_);
     }  
 }
 
@@ -587,7 +602,7 @@ bool FastDDSDataReader::create_by_ref(const std::string& ref)
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = subscriber_->ptr_->create_datareader(topic_->get_ptr(), qos);
+                ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_);
             }
         }
@@ -607,7 +622,7 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
 
-                ptr_ = subscriber_->ptr_->create_datareader(topic_->get_ptr(), qos);
+                ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_);
             }
         }
