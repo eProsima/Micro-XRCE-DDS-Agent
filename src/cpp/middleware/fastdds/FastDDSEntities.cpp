@@ -230,6 +230,13 @@ ReturnCode_t FastDDSParticipant::delete_topic(
     return ptr_->delete_topic(topic);
 }
 
+ReturnCode_t FastDDSParticipant::delete_publisher(
+        fastdds::dds::Publisher* publisher)
+{
+    return ptr_->delete_publisher(publisher);
+}
+
+
 
 bool FastDDSParticipant::register_type(
         const std::shared_ptr<FastDDSType>& type)
@@ -404,7 +411,7 @@ FastDDSPublisher::~FastDDSPublisher()
 {   
     if (ptr_)
     {
-        participant_->ptr_->delete_publisher(ptr_);
+        participant_->delete_publisher(ptr_);
     }
 }
 
