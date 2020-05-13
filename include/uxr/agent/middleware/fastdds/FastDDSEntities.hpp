@@ -215,8 +215,9 @@ public:
     ~FastDDSSubscriber();
 
     bool create_by_xml(const std::string& xml);
+
+    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
     
-    friend class FastDDSDataReader;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
