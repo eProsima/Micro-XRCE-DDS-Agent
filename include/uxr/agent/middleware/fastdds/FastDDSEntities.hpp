@@ -104,12 +104,6 @@ public:
     std::shared_ptr<FastDDSTopic> find_topic(
             const std::string& topic_name) const;
 
-    friend class FastDDSType;
-    friend class FastDDSTopic;
-    friend class FastDDSPublisher;
-    friend class FastDDSSubscriber;
-    friend class FastDDSRequester;
-    friend class FastDDSReplier;
 private:
     fastdds::dds::DomainParticipant* ptr_;
     fastdds::dds::DomainParticipantFactory* factory_;
