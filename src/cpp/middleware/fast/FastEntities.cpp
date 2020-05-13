@@ -29,6 +29,76 @@ namespace eprosima {
 namespace uxr {
 
 /**********************************************************************************************************************
+ * FastListener
+ **********************************************************************************************************************/
+void FastListener::onParticipantDiscovery(
+        fastrtps::Participant*,
+        fastrtps::rtps::ParticipantDiscoveryInfo&& info)
+{
+    if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.info.m_guid.entityId,
+            info.info.m_guid.guidPrefix);
+    }
+    else
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.info.m_guid.entityId,
+            info.info.m_guid.guidPrefix);
+    }
+}
+
+void FastListener::onPublicationMatched(
+        fastrtps::Publisher*,
+        fastrtps::rtps::MatchingInfo& info)
+{
+    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+    else
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+}
+
+void FastListener::onSubscriptionMatched(
+        fastrtps::Subscriber*,
+        fastrtps::rtps::MatchingInfo& info)
+{
+    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("matched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+    else
+    {
+        UXR_AGENT_LOG_TRACE(
+            UXR_DECORATE_WHITE("unmatched"),
+            "entity_id: {}, guid_prefix: {}",
+            info.remoteEndpointGuid.entityId,
+            info.remoteEndpointGuid.guidPrefix);
+    }
+}
+
+
+/**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
 FastParticipant::~FastParticipant()

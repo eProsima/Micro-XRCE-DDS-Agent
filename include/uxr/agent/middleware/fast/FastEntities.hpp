@@ -45,6 +45,27 @@ class FastType;
 class FastTopic;
 
 /**********************************************************************************************************************
+ * Listeners
+ **********************************************************************************************************************/
+class FastListener : public fastrtps::ParticipantListener
+                   , public fastrtps::PublisherListener
+                   , public fastrtps::SubscriberListener
+{
+public:
+    void onParticipantDiscovery(
+        fastrtps::Participant*,
+        fastrtps::rtps::ParticipantDiscoveryInfo&& info) final;
+
+    void onPublicationMatched(
+        fastrtps::Publisher*,
+        fastrtps::rtps::MatchingInfo& info) final;
+
+    void onSubscriptionMatched(
+        fastrtps::Subscriber*,
+        fastrtps::rtps::MatchingInfo& info) final;
+};
+
+/**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
 class FastParticipant : public fastrtps::ParticipantListener,
