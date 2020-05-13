@@ -669,7 +669,7 @@ bool ProxyClient::create_replier(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant, representation))
+        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant, shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
