@@ -22,12 +22,13 @@ namespace uxr {
 std::unique_ptr<Publisher> Publisher::create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
@@ -43,19 +44,19 @@ std::unique_ptr<Publisher> Publisher::create(
         }
     }
 
-    return (created_entity ? std::unique_ptr<Publisher>(new Publisher(object_id, participant)) : nullptr);
+    return (created_entity ? std::unique_ptr<Publisher>(new Publisher(object_id, proxy_client)) : nullptr);
 }
 
 Publisher::Publisher(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant)
+        const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
-    , participant_{participant}
+    , proxy_client_{proxy_client}
 {}
 
 Publisher::~Publisher()
 {
-    participant_->get_proxy_client()->get_middleware().delete_publisher(get_raw_id());
+    proxy_client_->get_middleware().delete_publisher(get_raw_id());
 }
 
 } // namespace uxr

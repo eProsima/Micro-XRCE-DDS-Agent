@@ -22,6 +22,7 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class ProxyClient;
 class Middleware;
 
 class Publisher : public XRCEObject
@@ -30,6 +31,7 @@ public:
     static std::unique_ptr<Publisher> create(
         const dds::xrce::ObjectId& object_id,
         const std::shared_ptr<Participant>& participant,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation);
 
     virtual ~Publisher() override;
@@ -42,14 +44,12 @@ public:
     bool matched(
         const dds::xrce::ObjectVariant& ) const final { return true; }
 
-    const std::shared_ptr<Participant>& get_participant() { return participant_; }
-
 private:
     Publisher(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Participant> participant_;
+    std::shared_ptr<ProxyClient> proxy_client_;
 };
 
 } // namespace uxr
