@@ -214,6 +214,12 @@ bool FastDDSParticipant::match_from_xml(
 
 // Proxy methods
 
+ReturnCode_t FastDDSParticipant::unregister_type(
+            const std::string& typeName)
+{
+    return ptr_->unregister_type(typeName);
+}
+
 fastdds::dds::Topic* FastDDSParticipant::create_topic(
         const std::string& topic_name,
         const std::string& type_name,
@@ -258,8 +264,9 @@ ReturnCode_t FastDDSParticipant::delete_subscriber(
     return ptr_->delete_subscriber(subscriber);
 }
 
+// Types and topics registration
 
-bool FastDDSParticipant::register_type(
+bool FastDDSParticipant::register_local_type(
         const std::shared_ptr<FastDDSType>& type)
 {
     fastdds::dds::TypeSupport& type_support = type->get_type_support();
@@ -267,13 +274,13 @@ bool FastDDSParticipant::register_type(
         && type_register_.emplace(type_support->getName(), type).second;
 }
 
-bool FastDDSParticipant::unregister_type(
+bool FastDDSParticipant::unregister_local_type(
         const std::string& type_name)
 {
     return (1 == type_register_.erase(type_name));
 }
 
-std::shared_ptr<FastDDSType> FastDDSParticipant::find_type(
+std::shared_ptr<FastDDSType> FastDDSParticipant::find_local_type(
         const std::string& type_name) const
 {
     std::shared_ptr<FastDDSType> type;
@@ -285,20 +292,20 @@ std::shared_ptr<FastDDSType> FastDDSParticipant::find_type(
     return type;
 }
 
-bool FastDDSParticipant::register_topic(
+bool FastDDSParticipant::register_local_topic(
             const std::shared_ptr<FastDDSTopic>& topic)
 {
     return topic_register_.emplace(topic->get_name(), topic).second;
 }
 
-bool FastDDSParticipant::unregister_topic(
+bool FastDDSParticipant::unregister_local_topic(
         const std::string& topic_name)
 {   
     ptr_->unregister_type(topic_name);
     return (1 == topic_register_.erase(topic_name));
 }
 
-std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
+std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_local_topic(
         const std::string& topic_name) const
 {
     std::shared_ptr<FastDDSTopic> topic;
@@ -316,13 +323,13 @@ std::shared_ptr<FastDDSTopic> FastDDSParticipant::find_topic(
 FastDDSType::~FastDDSType()
 {
     participant_->unregister_type(type_support_->getName());
-    participant_->ptr_->unregister_type(type_support_->getName());
+    participant_->unregister_local_type(type_support_->getName());
 }
 
 FastDDSTopic::~FastDDSTopic()
 {   
-    participant_->unregister_topic(ptr_->get_name());
-    participant_->ptr_->delete_topic(ptr_);
+    participant_->delete_topic(ptr_);
+    participant_->unregister_local_topic(ptr_->get_name());
 }
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
@@ -533,7 +540,7 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
         fastrtps::PublisherAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
         {   
-            topic_ = publisher_->get_participant()->find_topic(attrs.topic.topicName.c_str());
+            topic_ = publisher_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -553,7 +560,7 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
         fastrtps::PublisherAttributes attrs;
         if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
         {   
-            topic_ = publisher_->get_participant()->find_topic(attrs.topic.topicName.c_str());
+            topic_ = publisher_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -597,7 +604,7 @@ bool FastDDSDataReader::create_by_ref(const std::string& ref)
         fastrtps::SubscriberAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
         {   
-            topic_ = subscriber_->get_participant()->find_topic(attrs.topic.topicName.c_str());
+            topic_ = subscriber_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -617,7 +624,7 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
         fastrtps::SubscriberAttributes attrs;
         if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
         {   
-            topic_ = subscriber_->get_participant()->find_topic(attrs.topic.topicName.c_str());
+            topic_ = subscriber_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataReaderQos qos;
                 set_qos_from_attributes(qos, attrs);

@@ -58,6 +58,9 @@ public:
 
     int16_t domain_id() const { return domain_id_; }
 
+    ReturnCode_t unregister_type(
+            const std::string& typeName);
+
     fastdds::dds::Topic* create_topic(
         const std::string& topic_name,
         const std::string& type_name,
@@ -86,22 +89,22 @@ public:
 
     // Types and topics registration
 
-    bool register_type(
+    bool register_local_type(
             const std::shared_ptr<FastDDSType>& type);
 
-    bool unregister_type(
+    bool unregister_local_type(
             const std::string& type_name);
 
-    std::shared_ptr<FastDDSType> find_type(
+    std::shared_ptr<FastDDSType> find_local_type(
             const std::string& type_name) const;
 
-    bool register_topic(
+    bool register_local_topic(
             const std::shared_ptr<FastDDSTopic>& topic);
 
-    bool unregister_topic(
+    bool unregister_local_topic(
             const std::string& topic_name);
 
-    std::shared_ptr<FastDDSTopic> find_topic(
+    std::shared_ptr<FastDDSTopic> find_local_topic(
             const std::string& topic_name) const;
 
 private:
