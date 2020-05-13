@@ -246,8 +246,8 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
 
 fastdds::dds::Subscriber* FastDDSParticipant::create_subscriber(
         const fastdds::dds::SubscriberQos& qos,
-        fastdds::dds::SubscriberListener* listener = nullptr,
-        const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all())
+        fastdds::dds::SubscriberListener* listener,
+        const fastdds::dds::StatusMask& mask)
 {
     return ptr_->create_subscriber(qos, listener, mask);
 }
@@ -657,11 +657,11 @@ FastDDSRequester::~FastDDSRequester()
 {
     if (publisher_ptr_)
     {
-        participant_->ptr_->delete_publisher(publisher_ptr_);
+        participant_->delete_publisher(publisher_ptr_);
     }
     if (subscriber_ptr_)
     {
-        participant_->ptr_->delete_subscriber(subscriber_ptr_);
+        participant_->delete_subscriber(subscriber_ptr_);
     }
 }
 
@@ -672,7 +672,7 @@ bool FastDDSRequester::create_by_attributes(
     
     fastdds::dds::PublisherQos qos_publisher;
     set_qos_from_attributes(qos_publisher, attrs.publisher);
-    publisher_ptr_ = participant_->ptr_->create_publisher(qos_publisher);
+    publisher_ptr_ = participant_->create_publisher(qos_publisher);
 
     fastdds::dds::DataWriterQos qos_datawriter;
     set_qos_from_attributes(qos_datawriter, attrs.publisher);
@@ -819,11 +819,11 @@ FastDDSReplier::~FastDDSReplier()
 {
     if (publisher_ptr_)
     {
-        participant_->ptr_->delete_publisher(publisher_ptr_);
+        participant_->delete_publisher(publisher_ptr_);
     }
     if (subscriber_ptr_)
     {
-        participant_->ptr_->delete_subscriber(subscriber_ptr_);
+        participant_->delete_subscriber(subscriber_ptr_);
     }
 }
 
@@ -834,7 +834,7 @@ bool FastDDSReplier::create_by_attributes(
 
     fastdds::dds::PublisherQos qos_publisher;
     set_qos_from_attributes(qos_publisher, attrs.publisher);
-    publisher_ptr_ = participant_->ptr_->create_publisher(qos_publisher);
+    publisher_ptr_ = participant_->create_publisher(qos_publisher);
 
     fastdds::dds::DataWriterQos qos_datawriter;
     set_qos_from_attributes(qos_datawriter, attrs.publisher);
