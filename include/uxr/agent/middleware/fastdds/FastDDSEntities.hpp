@@ -193,6 +193,8 @@ public:
     ReturnCode_t delete_datawriter(
         fastdds::dds::DataWriter* writer);
 
+    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Publisher* ptr_;

@@ -518,7 +518,7 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
         fastrtps::PublisherAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
         {   
-            topic_ = publisher_->participant_->find_topic(attrs.topic.topicName.c_str());
+            topic_ = publisher_->get_participant()->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
@@ -538,7 +538,7 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
         fastrtps::PublisherAttributes attrs;
         if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
         {   
-            topic_ = publisher_->participant_->find_topic(attrs.topic.topicName.c_str());
+            topic_ = publisher_->get_participant()->find_topic(attrs.topic.topicName.c_str());
             if(topic_){
                 fastdds::dds::DataWriterQos qos;
                 set_qos_from_attributes(qos, attrs);
