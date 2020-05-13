@@ -80,7 +80,7 @@ std::shared_ptr<FastTopic> create_topic(
         std::shared_ptr<FastType> type = participant->find_type(type_name);
         if (!type)
         {
-            type = std::make_shared<FastType>(participant);
+            type = std::make_shared<FastType>(type_name, participant);
             type->setName(type_name);
             type->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
             if (!participant->register_type(type))

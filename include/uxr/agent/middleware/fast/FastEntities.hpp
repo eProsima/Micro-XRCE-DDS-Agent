@@ -108,11 +108,13 @@ class FastType : public TopicPubSubType
 {
 public:
     FastType(
+            const std::string& name,
             const std::shared_ptr<FastParticipant>& participant);
 
     ~FastType();
 
 private:
+    std::string name_;
     std::shared_ptr<FastParticipant> participant_;
 };
 
