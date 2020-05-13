@@ -68,31 +68,17 @@ public:
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
-class FastParticipant : public fastrtps::ParticipantListener
+class FastParticipant
 {
 public:
-    FastParticipant(int16_t domain_id)
-        : domain_id_(domain_id)
-        , ptr_(nullptr)
-        , type_register_{}
-        , topic_register_{}
-    {}
+    FastParticipant(fastrtps::Participant* impl);
 
-    ~FastParticipant() override;
+    ~FastParticipant();
 
-    bool create_by_ref(const std::string& ref);
+    bool match(
+            const fastrtps::ParticipantAttributes& attrs) const;
 
-    bool create_by_attributes(const fastrtps::ParticipantAttributes& attrs);
-
-    bool match_from_ref(const std::string& ref) const;
-
-    bool match_from_xml(const std::string& xml) const;
-
-    void onParticipantDiscovery(
-            fastrtps::Participant*,
-            fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
-
-    fastrtps::Participant* get_ptr() const { return ptr_; }
+    fastrtps::Participant* get_ptr() const { return impl_; }
 
     bool register_type(
             const std::shared_ptr<FastType>& type);
@@ -112,11 +98,10 @@ public:
     std::shared_ptr<FastTopic> find_topic(
             const std::string& topic_name) const;
 
-    int16_t domain_id() const { return domain_id_; }
+    int16_t domain_id() const;
 
 private:
-    int16_t domain_id_;
-    fastrtps::Participant* ptr_;
+    fastrtps::Participant* impl_;
     std::unordered_map<std::string, std::weak_ptr<FastType>> type_register_;
     std::unordered_map<std::string, std::weak_ptr<FastTopic>> topic_register_;
 };

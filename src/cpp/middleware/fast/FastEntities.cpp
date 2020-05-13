@@ -97,76 +97,31 @@ void FastListener::onSubscriptionMatched(
     }
 }
 
-
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
+FastParticipant::FastParticipant(
+        fastrtps::Participant* impl)
+    : impl_{impl}
+    , type_register_{}
+    , topic_register_{}
+{}
+
 FastParticipant::~FastParticipant()
 {
-    fastrtps::Domain::removeParticipant(ptr_);
+    fastrtps::Domain::removeParticipant(impl_);
 }
 
-bool FastParticipant::create_by_ref(const std::string& ref)
+bool FastParticipant::match(
+        const fastrtps::ParticipantAttributes& attrs) const
 {
-    ptr_ = fastrtps::Domain::createParticipant(ref, this);
-    return (nullptr != ptr_);
-}
-
-bool FastParticipant::create_by_attributes(const ParticipantAttributes& attrs)
-{
-    ptr_ = fastrtps::Domain::createParticipant(attrs, this);
-    return (nullptr != ptr_);
-}
-
-bool FastParticipant::match_from_ref(const std::string& ref) const
-{
-    bool rv = false;
-    fastrtps::ParticipantAttributes new_attributes;
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-        fastrtps::xmlparser::XMLProfileManager::fillParticipantAttributes(ref, new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
-}
-
-bool FastParticipant::match_from_xml(const std::string& xml) const
-{
-    bool rv = false;
-    fastrtps::ParticipantAttributes new_attributes;
-    if (xmlobjects::parse_participant(xml.data(), xml.size(), new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
-}
-
-void FastParticipant::onParticipantDiscovery(
-        fastrtps::Participant*,
-        fastrtps::rtps::ParticipantDiscoveryInfo&& info)
-{
-    if (info.status == eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("matched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.info.m_guid.entityId,
-            info.info.m_guid.guidPrefix);
-    }
-    else
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("unmatched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.info.m_guid.entityId,
-            info.info.m_guid.guidPrefix);
-    }
+    return attrs == impl_->getAttributes();
 }
 
 bool FastParticipant::register_type(
         const std::shared_ptr<FastType>& type)
 {
-    return fastrtps::Domain::registerType(ptr_, type.get())
+    return fastrtps::Domain::registerType(impl_, type.get())
         && type_register_.emplace(type->getName(), type).second;
 }
 
@@ -174,7 +129,7 @@ bool FastParticipant::unregister_type(
         const std::string& type_name)
 {
     return (1 == type_register_.erase(type_name))
-        && fastrtps::Domain::unregisterType(ptr_, type_name.c_str());
+        && fastrtps::Domain::unregisterType(impl_, type_name.c_str());
 }
 
 std::shared_ptr<FastType> FastParticipant::find_type(
@@ -190,7 +145,7 @@ std::shared_ptr<FastType> FastParticipant::find_type(
 }
 
 bool FastParticipant::register_topic(
-            const std::shared_ptr<FastTopic>& topic)
+        const std::shared_ptr<FastTopic>& topic)
 {
     return topic_register_.emplace(topic->get_name(), topic).second;
 }
@@ -211,6 +166,11 @@ std::shared_ptr<FastTopic> FastParticipant::find_topic(
         topic = it->second.lock();
     }
     return topic;
+}
+
+int16_t FastParticipant::domain_id() const
+{
+    return impl_->getAttributes().domainId;
 }
 
 /**********************************************************************************************************************

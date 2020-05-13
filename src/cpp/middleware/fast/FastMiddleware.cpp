@@ -14,6 +14,7 @@
 
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
 
+#include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../../xmlobjects/xmlobjects.h"
 
@@ -31,11 +32,16 @@ bool FastMiddleware::create_participant_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
-    if (participant->create_by_ref(ref))
+    fastrtps::ParticipantAttributes attrs;
+    if (XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
     {
-        participants_.emplace(participant_id, std::move(participant));
-        rv = true;
+        attrs.domainId = uint32_t(domain_id);
+        fastrtps::Participant* impl = fastrtps::Domain::createParticipant(attrs, &listener_);
+        if (nullptr != impl)
+        {
+            std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
+            rv = participants_.emplace(participant_id, std::move(participant)).second;
+        }
     }
     return rv;
 }
@@ -47,15 +53,15 @@ bool FastMiddleware::create_participant_by_xml(
 {
     (void) domain_id;
     bool rv = false;
-    fastrtps::ParticipantAttributes attributes;
-    if (xmlobjects::parse_participant(xml.data(), xml.size(), attributes))
+    fastrtps::ParticipantAttributes attrs;
+    if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
     {
-        attributes.domainId = uint32_t(domain_id);
-        std::shared_ptr<FastParticipant> participant(new FastParticipant(domain_id));
-        if (participant->create_by_attributes(attributes))
+        attrs.domainId = uint32_t(domain_id);
+        fastrtps::Participant* impl = fastrtps::Domain::createParticipant(attrs, &listener_);
+        if (nullptr != impl)
         {
-            participants_.emplace(participant_id, std::move(participant));
-            rv = true;
+            std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
+            rv = participants_.emplace(participant_id, std::move(participant)).second;
         }
     }
     return rv;
@@ -529,7 +535,12 @@ bool FastMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
+        fastrtps::ParticipantAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+        {
+            attrs.domainId = uint32_t(domain_id);
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
@@ -543,7 +554,12 @@ bool FastMiddleware::matched_participant_from_xml(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_xml(xml));
+        fastrtps::ParticipantAttributes attrs;
+        if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
+        {
+            attrs.domainId = uint32_t(domain_id);
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
