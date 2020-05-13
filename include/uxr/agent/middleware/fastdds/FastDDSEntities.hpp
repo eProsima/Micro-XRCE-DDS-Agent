@@ -54,7 +54,18 @@ public:
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
+    // Proxy methods
+
     int16_t domain_id() const { return domain_id_; }
+
+    fastdds::dds::Topic* create_topic(
+        const std::string& topic_name,
+        const std::string& type_name,
+        const fastdds::dds::TopicQos& qos,
+        fastdds::dds::TopicListener* listener = nullptr,
+        const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    // Types and topics registration
 
     bool register_type(
             const std::shared_ptr<FastDDSType>& type);

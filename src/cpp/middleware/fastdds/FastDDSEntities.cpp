@@ -212,6 +212,19 @@ bool FastDDSParticipant::match_from_xml(
     return rv;
 }
 
+// Proxy methods
+
+fastdds::dds::Topic* FastDDSParticipant::create_topic(
+        const std::string& topic_name,
+        const std::string& type_name,
+        const fastdds::dds::TopicQos& qos,
+        fastdds::dds::TopicListener* listener,
+        const fastdds::dds::StatusMask& mask)
+{
+    return ptr_->create_topic(topic_name, type_name, qos, listener, mask);
+}
+
+
 bool FastDDSParticipant::register_type(
         const std::shared_ptr<FastDDSType>& type)
 {
@@ -307,7 +320,7 @@ bool FastDDSTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs)
         fastdds::dds::TopicQos qos;
         set_qos_from_attributes(qos, attrs);
         
-        ptr_ = participant_->ptr_->create_topic(attrs.getTopicName().to_string(), 
+        ptr_ = participant_->create_topic(attrs.getTopicName().to_string(), 
                 attrs.getTopicDataType().to_string(), qos);
 
         rv = (nullptr != ptr_);
@@ -324,7 +337,7 @@ bool FastDDSTopic::create_by_name_type(
     {
         fastdds::dds::TopicQos qos;
 
-        ptr_ = participant_->ptr_->create_topic(name, type->get_type_support()->getName(), qos);
+        ptr_ = participant_->create_topic(name, type->get_type_support()->getName(), qos);
 
         rv = (nullptr != ptr_);
 
