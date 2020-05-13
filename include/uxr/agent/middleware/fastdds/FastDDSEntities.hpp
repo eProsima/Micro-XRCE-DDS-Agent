@@ -65,6 +65,9 @@ public:
         fastdds::dds::TopicListener* listener = nullptr,
         const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
 
+    ReturnCode_t delete_topic(
+        fastdds::dds::Topic* topic);
+
     // Types and topics registration
 
     bool register_type(

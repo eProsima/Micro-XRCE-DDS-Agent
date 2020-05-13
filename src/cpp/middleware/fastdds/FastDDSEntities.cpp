@@ -224,6 +224,12 @@ fastdds::dds::Topic* FastDDSParticipant::create_topic(
     return ptr_->create_topic(topic_name, type_name, qos, listener, mask);
 }
 
+ReturnCode_t FastDDSParticipant::delete_topic(
+    fastdds::dds::Topic* topic)
+{
+    return ptr_->delete_topic(topic);
+}
+
 
 bool FastDDSParticipant::register_type(
         const std::shared_ptr<FastDDSType>& type)
