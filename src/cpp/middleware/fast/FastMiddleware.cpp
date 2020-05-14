@@ -247,12 +247,23 @@ bool FastMiddleware::create_datareader_by_ref(
         auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
         if (participants_.end() != it_participant)
         {
-            std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
-            std::string topic_name;
-            if (datareader->create_by_ref(ref))
+            const std::shared_ptr<FastParticipant>& participant = it_participant->second;
+            fastrtps::SubscriberAttributes attrs;
+            if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
             {
-                datareaders_.emplace(datareader_id, std::move(datareader));
-                rv = true;
+                std::shared_ptr<FastTopic> topic =
+                    participant->find_topic(attrs.topic.getTopicName().to_string());
+                if (topic)
+                {
+                    fastrtps::Subscriber* impl =
+                        fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, &listener_);
+                    if (nullptr != impl)
+                    {
+                        std::shared_ptr<FastDataReader> datareader =
+                            std::make_shared<FastDataReader>(impl, topic, participant);
+                        rv = datareaders_.emplace(datareader_id, std::move(datareader)).second;
+                    }
+                }
             }
         }
     }
@@ -271,14 +282,22 @@ bool FastMiddleware::create_datareader_by_xml(
         auto it_participant = participants_.find(it_subscriber->second->get_participant_id());
         if (participants_.end() != it_participant)
         {
-            fastrtps::SubscriberAttributes attributes;
-            if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attributes))
+            const std::shared_ptr<FastParticipant>& participant = it_participant->second;
+            fastrtps::SubscriberAttributes attrs;
+            if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
             {
-                std::shared_ptr<FastDataReader> datareader(new FastDataReader(it_participant->second));
-                if (datareader->create_by_attributes(attributes))
+                std::shared_ptr<FastTopic> topic =
+                    participant->find_topic(attrs.topic.getTopicName().to_string());
+                if (topic)
                 {
-                    datareaders_.emplace(datareader_id, std::move(datareader));
-                    rv = true;
+                    fastrtps::Subscriber* impl =
+                        fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, &listener_);
+                    if (nullptr != impl)
+                    {
+                        std::shared_ptr<FastDataReader> datareader =
+                            std::make_shared<FastDataReader>(impl, topic, participant);
+                        rv = datareaders_.emplace(datareader_id, std::move(datareader)).second;
+                    }
                 }
             }
         }
@@ -660,7 +679,11 @@ bool FastMiddleware::matched_datareader_from_ref(
     auto it = datareaders_.find(datareader_id);
     if (datareaders_.end() != it)
     {
-        rv = it->second->match_from_ref(ref);
+        fastrtps::SubscriberAttributes attrs;
+        if (XMLP_ret::XML_OK == XMLProfileManager::fillSubscriberAttributes(ref, attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }
@@ -673,7 +696,11 @@ bool FastMiddleware::matched_datareader_from_xml(
     auto it = datareaders_.find(datareader_id);
     if (datareaders_.end() != it)
     {
-        rv = it->second->match_from_xml(xml);
+        fastrtps::SubscriberAttributes attrs;
+        if (xmlobjects::parse_subscriber(xml.data(), xml.size(), attrs))
+        {
+            rv = it->second->match(attrs);
+        }
     }
     return rv;
 }

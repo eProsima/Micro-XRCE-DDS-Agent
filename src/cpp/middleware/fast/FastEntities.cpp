@@ -225,12 +225,14 @@ FastDataWriter::~FastDataWriter()
     fastrtps::Domain::removePublisher(impl_);
 }
 
-bool FastDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
+bool FastDataWriter::match(
+        const fastrtps::PublisherAttributes& attrs) const
 {
     return (attrs == impl_->getAttributes());
 }
 
-bool FastDataWriter::write(const std::vector<uint8_t>& data)
+bool FastDataWriter::write(
+        const std::vector<uint8_t>& data)
 {
     return impl_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
@@ -238,115 +240,39 @@ bool FastDataWriter::write(const std::vector<uint8_t>& data)
 /**********************************************************************************************************************
  * FastDataReader
  **********************************************************************************************************************/
-FastDataReader::FastDataReader(const std::shared_ptr<FastParticipant>& participant)
-    : participant_{participant}
-    , ptr_{nullptr}
-    , unread_count_{0}
+FastDataReader::FastDataReader(
+        fastrtps::Subscriber* impl,
+        const std::shared_ptr<FastTopic>& topic,
+        const std::shared_ptr<FastParticipant>& participant)
+    : impl_{impl}
+    , topic_{topic}
+    , participant_{participant}
 {}
 
 FastDataReader::~FastDataReader()
 {
-    fastrtps::Domain::removeSubscriber(ptr_);
+    fastrtps::Domain::removeSubscriber(impl_);
 }
 
-bool FastDataReader::create_by_ref(
-        const std::string& ref)
+bool FastDataReader::match(
+        const fastrtps::SubscriberAttributes& attrs) const
 {
-    ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), ref, this);
-    if (nullptr != ptr_)
-    {
-        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
-    }
-    return bool(topic_);
-}
-
-bool FastDataReader::create_by_attributes(
-        const SubscriberAttributes& attrs)
-{
-    ptr_ = fastrtps::Domain::createSubscriber(participant_->get_ptr(), attrs, this);
-    if (nullptr != ptr_)
-    {
-        topic_ = participant_->find_topic(ptr_->getAttributes().topic.getTopicName().c_str());
-    }
-    return bool(topic_);
-}
-
-bool FastDataReader::match_from_ref(const std::string& ref) const
-{
-    bool rv = false;
-    fastrtps::SubscriberAttributes new_attributes;
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-        fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(ref, new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
-}
-
-bool FastDataReader::match_from_xml(const std::string& xml) const
-{
-    bool rv = false;
-    fastrtps::SubscriberAttributes new_attributes;
-    if (xmlobjects::parse_subscriber(xml.data(), xml.size(), new_attributes))
-    {
-        rv = (new_attributes == ptr_->getAttributes());
-    }
-    return rv;
+    return (attrs == impl_->getAttributes());
 }
 
 bool FastDataReader::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-    auto now = std::chrono::steady_clock::now();
     bool rv = false;
-    if (unread_count_ != 0)
+    eprosima::fastrtps::Duration_t tm =
+        {int32_t(timeout.count() / 1000), uint32_t(timeout.count() * 1000000)};
+    if (impl_->wait_for_unread_samples(tm))
     {
         fastrtps::SampleInfo_t info;
-        rv = ptr_->takeNextData(&data, &info);
-        unread_count_ = ptr_->getUnreadCount();
-    }
-    else
-    {
-        std::unique_lock<std::mutex> lock(mtx_);
-        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
-        {
-            lock.unlock();
-            fastrtps::SampleInfo_t info;
-            rv = ptr_->takeNextData(&data, &info);
-            unread_count_ = ptr_->getUnreadCount();
-        }
+        rv = impl_->takeNextData(&data, &info);
     }
     return rv;
-}
-
-void FastDataReader::onSubscriptionMatched(
-        fastrtps::Subscriber*,
-        fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("matched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-    else
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("unmatched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-}
-
-void FastDataReader::onNewDataMessage(fastrtps::Subscriber *)
-{
-    unread_count_ = ptr_->getUnreadCount();
-    std::unique_lock<std::mutex> lock(mtx_);
-    cv_.notify_one();
 }
 
 /**********************************************************************************************************************
