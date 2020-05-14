@@ -32,7 +32,7 @@ class DataWriter : public XRCEObject
 public:
     static std::unique_ptr<DataWriter> create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
+        uint16_t publisher_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::DATAWRITER_Representation& representation);
 

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/publisher/Publisher.hpp>
-#include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
 
 namespace eprosima {
@@ -21,7 +20,7 @@ namespace uxr {
 
 std::unique_ptr<Publisher> Publisher::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation)
 {
@@ -34,7 +33,7 @@ std::unique_ptr<Publisher> Publisher::create(
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            created_entity = middleware.create_publisher_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_publisher_by_xml(raw_object_id, participant_id, xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:

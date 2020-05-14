@@ -26,26 +26,26 @@ namespace uxr {
 
 std::unique_ptr<Requester> Requester::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::REQUESTER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            created_entity = middleware.create_requester_by_ref(raw_object_id, participant->get_raw_id(), ref);
+            created_entity = middleware.create_requester_by_ref(raw_object_id, participant_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            created_entity = middleware.create_requester_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_requester_by_xml(raw_object_id, participant_id, xml);
             break;
         }
         default:

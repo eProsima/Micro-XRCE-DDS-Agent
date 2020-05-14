@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/datawriter/DataWriter.hpp>
-#include <uxr/agent/publisher/Publisher.hpp>
-#include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/logger/Logger.hpp>
@@ -24,7 +22,7 @@ namespace uxr {
 
 std::unique_ptr<DataWriter> DataWriter::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
+        uint16_t publisher_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::DATAWRITER_Representation& representation)
 {
@@ -38,14 +36,14 @@ std::unique_ptr<DataWriter> DataWriter::create(
         {
             const std::string& ref = representation.representation().object_reference();
             created_entity =
-                middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref);
+                middleware.create_datawriter_by_ref(raw_object_id, publisher_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
             created_entity =
-                middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml);
+                middleware.create_datawriter_by_xml(raw_object_id, publisher_id, xml);
             break;
         }
         default:

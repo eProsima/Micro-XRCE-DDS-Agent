@@ -30,7 +30,7 @@ class Replier : public XRCEObject
 public:
     static std::unique_ptr<Replier> create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::REPLIER_Representation& representation);
 

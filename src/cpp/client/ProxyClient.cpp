@@ -315,7 +315,7 @@ bool ProxyClient::create_topic(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant, shared_from_this(), representation))
+        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(topic)).second)
             {
@@ -374,7 +374,7 @@ bool ProxyClient::create_publisher(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant, shared_from_this(), representation))
+        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(publisher)).second)
             {
@@ -433,7 +433,7 @@ bool ProxyClient::create_subscriber(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant, shared_from_this(), representation))
+        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
@@ -492,7 +492,7 @@ bool ProxyClient::create_datawriter(
     if (it != objects_.end())
     {
         std::shared_ptr<Publisher> publisher = std::dynamic_pointer_cast<Publisher>(it->second);
-        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher, shared_from_this(), representation))
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
@@ -551,7 +551,7 @@ bool ProxyClient::create_datareader(
     if (it != objects_.end())
     {
         std::shared_ptr<Subscriber> subscriber = std::dynamic_pointer_cast<Subscriber>(it->second);
-        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber, shared_from_this(), representation))
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
@@ -610,7 +610,7 @@ bool ProxyClient::create_requester(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Requester> requester = Requester::create(object_id, participant, shared_from_this(), representation))
+        if (std::unique_ptr<Requester> requester = Requester::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
@@ -669,7 +669,7 @@ bool ProxyClient::create_replier(
     if (it != objects_.end())
     {
         std::shared_ptr<Participant> participant = std::dynamic_pointer_cast<Participant>(it->second);
-        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant, shared_from_this(), representation))
+        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {

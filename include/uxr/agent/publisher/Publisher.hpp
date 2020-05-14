@@ -30,7 +30,7 @@ class Publisher : public XRCEObject
 public:
     static std::unique_ptr<Publisher> create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_PUBLISHER_Representation& representation);
 

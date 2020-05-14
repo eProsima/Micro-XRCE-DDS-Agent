@@ -29,7 +29,7 @@ class Subscriber : public XRCEObject
 {
 public:
     static std::unique_ptr<Subscriber> create(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>&participant,
+        uint16_t participant_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
 

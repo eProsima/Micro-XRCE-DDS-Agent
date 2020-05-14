@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/datareader/DataReader.hpp>
-#include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
@@ -25,7 +24,7 @@ namespace uxr {
 
 std::unique_ptr<DataReader> DataReader::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Subscriber>& subscriber,
+        uint16_t subscriber_id,
         const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::DATAREADER_Representation& representation)
 {
@@ -39,14 +38,14 @@ std::unique_ptr<DataReader> DataReader::create(
         {
             const std::string& ref = representation.representation().object_reference();
             created_entity =
-                middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref);
+                middleware.create_datareader_by_ref(raw_object_id, subscriber_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
             created_entity =
-                middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml);
+                middleware.create_datareader_by_xml(raw_object_id, subscriber_id, xml);
             break;
         }
         default:
