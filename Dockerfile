@@ -4,6 +4,7 @@
 
 # Build stage
 FROM ubuntu AS build
+ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 
 # Essentials
