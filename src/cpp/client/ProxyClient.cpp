@@ -314,8 +314,7 @@ bool ProxyClient::create_topic(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> participant = it->second;
-        if (std::unique_ptr<Topic> topic = Topic::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<Topic> topic = Topic::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(topic)).second)
             {
@@ -373,8 +372,7 @@ bool ProxyClient::create_publisher(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> participant = it->second;
-        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(publisher)).second)
             {
@@ -432,8 +430,7 @@ bool ProxyClient::create_subscriber(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> participant = it->second;
-        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
@@ -491,8 +488,7 @@ bool ProxyClient::create_datawriter(
     auto it = objects_.find(publisher_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> publisher = it->second;
-        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, publisher->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, conversion::objectid_to_raw(publisher_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
@@ -550,8 +546,7 @@ bool ProxyClient::create_datareader(
     auto it = objects_.find(subscriber_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> subscriber = it->second;
-        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, subscriber->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, conversion::objectid_to_raw(subscriber_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
@@ -609,8 +604,7 @@ bool ProxyClient::create_requester(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> participant = it->second;
-        if (std::unique_ptr<Requester> requester = Requester::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<Requester> requester = Requester::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
@@ -668,8 +662,7 @@ bool ProxyClient::create_replier(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        std::shared_ptr<XRCEObject> participant = it->second;
-        if (std::unique_ptr<Replier> requester = Replier::create(object_id, participant->get_raw_id(), shared_from_this(), representation))
+        if (std::unique_ptr<Replier> requester = Replier::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
