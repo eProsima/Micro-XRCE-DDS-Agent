@@ -54,32 +54,59 @@ public:
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
 
+    // Proxy methods
+
     int16_t domain_id() const { return domain_id_; }
 
-    bool register_type(
+    ReturnCode_t unregister_type(
+            const std::string& typeName);
+
+    fastdds::dds::Topic* create_topic(
+        const std::string& topic_name,
+        const std::string& type_name,
+        const fastdds::dds::TopicQos& qos,
+        fastdds::dds::TopicListener* listener = nullptr,
+        const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_topic(
+        fastdds::dds::Topic* topic);
+
+    fastdds::dds::Publisher* create_publisher(
+            const fastdds::dds::PublisherQos& qos,
+            fastdds::dds::PublisherListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_publisher(
+        fastdds::dds::Publisher* publisher);
+
+    fastdds::dds::Subscriber* create_subscriber(
+            const fastdds::dds::SubscriberQos& qos,
+            fastdds::dds::SubscriberListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_subscriber(
+        fastdds::dds::Subscriber* subscriber);
+
+    // Types and topics registration
+
+    bool register_local_type(
             const std::shared_ptr<FastDDSType>& type);
 
-    bool unregister_type(
+    bool unregister_local_type(
             const std::string& type_name);
 
-    std::shared_ptr<FastDDSType> find_type(
+    std::shared_ptr<FastDDSType> find_local_type(
             const std::string& type_name) const;
 
-    bool register_topic(
+    bool register_local_topic(
             const std::shared_ptr<FastDDSTopic>& topic);
 
-    bool unregister_topic(
+    bool unregister_local_topic(
             const std::string& topic_name);
 
-    std::shared_ptr<FastDDSTopic> find_topic(
+    std::shared_ptr<FastDDSTopic> find_local_topic(
             const std::string& topic_name) const;
 
-    friend class FastDDSType;
-    friend class FastDDSTopic;
-    friend class FastDDSPublisher;
-    friend class FastDDSSubscriber;
-    friend class FastDDSRequester;
-    friend class FastDDSReplier;
 private:
     fastdds::dds::DomainParticipant* ptr_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -133,12 +160,8 @@ public:
 
     const std::string& get_name() const { return ptr_->get_name(); }
     const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
+    fastdds::dds::Topic* get_ptr() const { return ptr_; }
 
-    friend class FastDDSParticipant;
-    friend class FastDDSDataWriter;
-    friend class FastDDSDataReader;
-    friend class FastDDSRequester;
-    friend class FastDDSReplier;
 private:
     bool create_by_attributes(const fastrtps::TopicAttributes& attrs);
 
@@ -164,7 +187,17 @@ public:
 
     bool create_by_xml(const std::string& xml);
 
-    friend class FastDDSDataWriter;
+    fastdds::dds::DataWriter* create_datawriter(
+            fastdds::dds::Topic* topic,
+            const fastdds::dds::DataWriterQos& qos = fastdds::dds::DATAWRITER_QOS_DEFAULT,
+            fastdds::dds::DataWriterListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_datawriter(
+        fastdds::dds::DataWriter* writer);
+
+    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Publisher* ptr_;
@@ -185,8 +218,19 @@ public:
     ~FastDDSSubscriber();
 
     bool create_by_xml(const std::string& xml);
+
+    fastdds::dds::DataReader* create_datareader(
+            fastdds::dds::TopicDescription* topic,
+            const fastdds::dds::DataReaderQos& reader_qos,
+            fastdds::dds::DataReaderListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    ReturnCode_t delete_datareader(
+        fastdds::dds::DataReader* reader);
+
+
+    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
     
-    friend class FastDDSDataReader;
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
