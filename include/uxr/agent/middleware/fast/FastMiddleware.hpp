@@ -212,6 +212,7 @@ public:
             const std::string& xml) const override;
 
 private:
+    FastListener listener_;
     std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
