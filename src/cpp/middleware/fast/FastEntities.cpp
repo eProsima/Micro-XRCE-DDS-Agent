@@ -214,10 +214,10 @@ bool FastTopic::match(const fastrtps::TopicAttributes& attrs) const
 FastDataWriter::FastDataWriter(
         fastrtps::Publisher* impl,
         const std::shared_ptr<FastTopic>& topic,
-        const std::shared_ptr<FastParticipant>& participant)
+        const std::shared_ptr<FastPublisher>& publisher)
     : impl_{impl}
     , topic_{topic}
-    , participant_{participant}
+    , publisher_{publisher}
 {}
 
 FastDataWriter::~FastDataWriter()
@@ -243,10 +243,10 @@ bool FastDataWriter::write(
 FastDataReader::FastDataReader(
         fastrtps::Subscriber* impl,
         const std::shared_ptr<FastTopic>& topic,
-        const std::shared_ptr<FastParticipant>& participant)
+        const std::shared_ptr<FastSubscriber>& subscriber)
     : impl_{impl}
     , topic_{topic}
-    , participant_{participant}
+    , subscriber_{subscriber}
 {}
 
 FastDataReader::~FastDataReader()

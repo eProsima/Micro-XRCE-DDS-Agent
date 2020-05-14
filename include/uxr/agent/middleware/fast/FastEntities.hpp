@@ -191,7 +191,7 @@ public:
     FastDataWriter(
             fastrtps::Publisher* impl_,
             const std::shared_ptr<FastTopic>& topic,
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastPublisher>& publisher);
 
     ~FastDataWriter();
 
@@ -204,7 +204,7 @@ public:
 private:
     fastrtps::Publisher* impl_;
     std::shared_ptr<FastTopic> topic_;
-    std::shared_ptr<FastParticipant> participant_;
+    std::shared_ptr<FastPublisher> publisher_;
 };
 
 /**********************************************************************************************************************
@@ -216,7 +216,7 @@ public:
     FastDataReader(
             fastrtps::Subscriber* impl_,
             const std::shared_ptr<FastTopic>& topic,
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastSubscriber>& Subscriber);
 
     ~FastDataReader();
 
@@ -230,7 +230,7 @@ public:
 private:
     fastrtps::Subscriber* impl_;
     std::shared_ptr<FastTopic> topic_;
-    std::shared_ptr<FastParticipant> participant_;
+    std::shared_ptr<FastSubscriber> subscriber_;
 };
 
 
