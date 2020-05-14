@@ -280,27 +280,17 @@ private:
 /**********************************************************************************************************************
  * FastReplier
  **********************************************************************************************************************/
-class FastReplier : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+class FastReplier
 {
 public:
     FastReplier(
-            const std::shared_ptr<FastParticipant>& participant,
-            const std::shared_ptr<FastTopic>& request_topic,
-            const std::shared_ptr<FastTopic>& reply_topic);
+            const std::shared_ptr<FastDataWriter>& datawriter,
+            const std::shared_ptr<FastDataReader>& datareader);
 
-    ~FastReplier() override;
+    ~FastReplier() = default;
 
-    bool create_by_ref(
-            const std::string& ref);
-
-    bool create_by_attributes(
-            const fastrtps::ReplierAttributes& attrs);
-
-    bool match_from_ref(
-            const std::string& ref) const;
-
-    bool match_from_xml(
-            const std::string& xml) const;
+    bool match(
+            const fastrtps::ReplierAttributes& attrs) const;
 
     bool write(
             const std::vector<uint8_t>& data);
@@ -308,30 +298,9 @@ public:
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
-
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onSubscriptionMatched(
-            fastrtps::Subscriber* sub,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onNewDataMessage(
-            fastrtps::Subscriber*) override;
-
 private:
-    bool match(const fastrtps::ReplierAttributes& attrs) const;
-
-private:
-    std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastTopic> request_topic_;
-    std::shared_ptr<FastTopic> reply_topic_;
-    fastrtps::Publisher* publisher_ptr_;
-    fastrtps::Subscriber* subscriber_ptr_;
-    std::mutex mtx_;
-    std::condition_variable cv_;
-    std::atomic<uint64_t> unread_count_;
+    std::shared_ptr<FastDataWriter> datawriter_;
+    std::shared_ptr<FastDataReader> datareader_;
 };
 
 } // namespace uxr
