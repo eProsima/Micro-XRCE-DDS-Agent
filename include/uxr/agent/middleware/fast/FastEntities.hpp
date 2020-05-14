@@ -150,13 +150,17 @@ private:
 class FastPublisher
 {
 public:
-    FastPublisher(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastPublisher(
+            const std::shared_ptr<FastParticipant>& participant)
+        : participant_(participant)
+    {}
+
     ~FastPublisher() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
+    const std::shared_ptr<FastParticipant>& get_participant() const { return participant_; }
 
 private:
-    uint16_t participant_id_;
+        std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
@@ -165,13 +169,17 @@ private:
 class FastSubscriber
 {
 public:
-    FastSubscriber(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastSubscriber(
+            const std::shared_ptr<FastParticipant>& participant)
+        : participant_(participant)
+    {}
+
     ~FastSubscriber() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
+    const std::shared_ptr<FastParticipant>& get_participant() const { return participant_; }
 
 private:
-    uint16_t participant_id_;
+        std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
