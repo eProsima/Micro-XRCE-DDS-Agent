@@ -34,6 +34,7 @@ class PublisherAttributes;
 class SubscriberAttributes;
 class RequesterAttributes;
 class ReplierAttributes;
+class SampleInfo_t;
 
 } // namespace fastrtps
 } // namespace eprosima
@@ -201,6 +202,12 @@ public:
     bool write(
             const std::vector<uint8_t>& data);
 
+    bool write(
+            const std::vector<uint8_t>& data,
+            fastrtps::rtps::WriteParams& wparams);
+
+    const fastrtps::rtps::GUID_t& get_guid() const;
+
 private:
     fastrtps::Publisher* impl_;
     std::shared_ptr<FastTopic> topic_;
@@ -227,6 +234,11 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
+    bool read(
+            std::vector<uint8_t>& data,
+            fastrtps::SampleInfo_t& info,
+            std::chrono::milliseconds timeout);
+
 private:
     fastrtps::Subscriber* impl_;
     std::shared_ptr<FastTopic> topic_;
@@ -237,27 +249,17 @@ private:
 /**********************************************************************************************************************
  * FastRequester
  **********************************************************************************************************************/
-class FastRequester : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+class FastRequester
 {
 public:
     FastRequester(
-            const std::shared_ptr<FastParticipant>& participant,
-            const std::shared_ptr<FastTopic>& request_topic,
-            const std::shared_ptr<FastTopic>& reply_topic);
+            const std::shared_ptr<FastDataWriter>& datawriter,
+            const std::shared_ptr<FastDataReader>& datareader);
 
-    ~FastRequester() override;
+    ~FastRequester() = default;
 
-    bool create_by_ref(
-            const std::string& ref);
-
-    bool create_by_attributes(
-            const fastrtps::RequesterAttributes& attrs);
-
-    bool match_from_ref(
-            const std::string& ref) const;
-
-    bool match_from_xml(
-            const std::string& xml) const;
+    bool match(
+            const fastrtps::RequesterAttributes& attrs) const;
 
     bool write(
             uint32_t sequence_number,
@@ -268,30 +270,10 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onSubscriptionMatched(
-            fastrtps::Subscriber* sub,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onNewDataMessage(
-            fastrtps::Subscriber*) override;
-
 private:
-    bool match(const fastrtps::RequesterAttributes& attrs) const;
-
-private:
-    std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastTopic> request_topic_;
-    std::shared_ptr<FastTopic> reply_topic_;
-    fastrtps::Publisher* publisher_ptr_;
-    fastrtps::Subscriber* subscriber_ptr_;
+    std::shared_ptr<FastDataWriter> datawriter_;
+    std::shared_ptr<FastDataReader> datareader_;
     dds::GUID_t publisher_id_;
-    std::mutex mtx_;
-    std::condition_variable cv_;
-    std::atomic<uint64_t> unread_count_;
     std::map<int64_t, uint32_t> sequence_to_sequence_;
 };
 

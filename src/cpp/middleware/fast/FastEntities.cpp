@@ -237,6 +237,18 @@ bool FastDataWriter::write(
     return impl_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
+bool FastDataWriter::write(
+        const std::vector<uint8_t>& data,
+        fastrtps::rtps::WriteParams& wparams)
+{
+    return impl_->write(&const_cast<std::vector<uint8_t>&>(data), wparams);
+}
+
+const fastrtps::rtps::GUID_t& FastDataWriter::get_guid() const
+{
+    return impl_->getGuid();
+}
+
 /**********************************************************************************************************************
  * FastDataReader
  **********************************************************************************************************************/
@@ -275,90 +287,48 @@ bool FastDataReader::read(
     return rv;
 }
 
+bool FastDataReader::read(
+        std::vector<uint8_t>& data,
+        fastrtps::SampleInfo_t& info,
+        std::chrono::milliseconds timeout)
+{
+    bool rv = false;
+    eprosima::fastrtps::Duration_t tm =
+        {int32_t(timeout.count() / 1000), uint32_t(timeout.count() * 1000000)};
+    if (impl_->wait_for_unread_samples(tm))
+    {
+        rv = impl_->takeNextData(&data, &info);
+    }
+    return rv;
+}
+
 /**********************************************************************************************************************
  * FastRequester
  **********************************************************************************************************************/
 FastRequester::FastRequester(
-        const std::shared_ptr<FastParticipant>& participant,
-        const std::shared_ptr<FastTopic>& request_topic,
-        const std::shared_ptr<FastTopic>& reply_topic)
-    : participant_{participant}
-    , request_topic_{request_topic}
-    , reply_topic_{reply_topic}
-    , publisher_ptr_{nullptr}
-    , subscriber_ptr_{nullptr}
+        const std::shared_ptr<FastDataWriter>& datawriter,
+        const std::shared_ptr<FastDataReader>& datareader)
+    : datawriter_{datawriter}
+    , datareader_{datareader}
     , publisher_id_{}
     , sequence_to_sequence_{}
 {
-}
-
-FastRequester::~FastRequester()
-{
-    fastrtps::Domain::removePublisher(publisher_ptr_);
-    fastrtps::Domain::removeSubscriber(subscriber_ptr_);
-}
-
-bool FastRequester::create_by_ref(
-        const std::string& ref)
-{
-    bool rv = false;
-    fastrtps::RequesterAttributes requester_attrs;
-
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-        fastrtps::xmlparser::XMLProfileManager::fillRequesterAttributes(ref, requester_attrs))
-    {
-        rv = create_by_attributes(requester_attrs);
-    }
-
-    return rv;
-}
-
-bool FastRequester::create_by_attributes(
-        const fastrtps::RequesterAttributes& attrs)
-{
-    bool rv = false;
-    fastrtps::Participant* participant_ptr = participant_.get()->get_ptr();
-    publisher_ptr_ = fastrtps::Domain::createPublisher(participant_ptr, attrs.publisher, this);
-    subscriber_ptr_ = fastrtps::Domain::createSubscriber(participant_ptr, attrs.subscriber, this);
-    rv = (nullptr != publisher_ptr_) && (nullptr != subscriber_ptr_);
-
-    if (rv)
-    {
         std::copy(
-            std::begin(publisher_ptr_->getGuid().guidPrefix.value),
-            std::end(publisher_ptr_->getGuid().guidPrefix.value),
+            std::begin(datawriter_->get_guid().guidPrefix.value),
+            std::end(datawriter_->get_guid().guidPrefix.value),
             publisher_id_.guidPrefix().begin());
         std::copy(
-            std::begin(publisher_ptr_->getGuid().entityId.value),
-            std::begin(publisher_ptr_->getGuid().entityId.value) + 3,
+            std::begin(datawriter_->get_guid().entityId.value),
+            std::begin(datawriter_->get_guid().entityId.value) + 3,
             publisher_id_.entityId().entityKey().begin());
-        publisher_id_.entityId().entityKind() = publisher_ptr_->getGuid().entityId.value[3];
-    }
-
-    return rv;
+        publisher_id_.entityId().entityKind() = datawriter_->get_guid().entityId.value[3];
 }
 
-bool FastRequester::match_from_ref(const std::string& ref) const
+bool FastRequester::match(
+    const fastrtps::RequesterAttributes& attrs) const
 {
-    bool rv = false;
-    fastrtps::RequesterAttributes new_attributes;
-    if (fastrtps::xmlparser::XMLP_ret::XML_OK ==
-        fastrtps::xmlparser::XMLProfileManager::fillRequesterAttributes(ref, new_attributes))
-    {
-        rv = match(new_attributes);
-    }
-    return rv;
-}
-
-bool FastRequester::match_from_xml(const std::string& xml) const
-{
-    bool rv = false;
-    fastrtps::RequesterAttributes new_attributes;
-    if (xmlobjects::parse_requester(xml.data(), xml.size(), new_attributes))
-    {
-        rv = match(new_attributes);
-    }
-    return rv;
+    return datawriter_->match(attrs.publisher)
+        && datareader_->match(attrs.subscriber);
 }
 
 bool FastRequester::write(
@@ -366,11 +336,10 @@ bool FastRequester::write(
         const std::vector<uint8_t>& data)
 {
     bool rv = true;
-
     try
     {
         fastrtps::rtps::WriteParams wparams;
-        rv = publisher_ptr_->write(&const_cast<std::vector<uint8_t>&>(data), wparams);
+        rv = datawriter_->write(data, wparams);
         if (rv)
         {
             int64_t sequence = (int64_t)wparams.sample_identity().sequence_number().high << 32;
@@ -382,7 +351,6 @@ bool FastRequester::write(
     {
         rv = false;
     }
-
     return rv;
 }
 
@@ -391,30 +359,15 @@ bool FastRequester::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-    auto now = std::chrono::steady_clock::now();
     bool rv = false;
     fastrtps::SampleInfo_t info;
-    if (unread_count_ != 0)
-    {
-        rv = subscriber_ptr_->takeNextData(&data, &info);
-        unread_count_ = subscriber_ptr_->getUnreadCount();
-    }
-    else
-    {
-        std::unique_lock<std::mutex> lock(mtx_);
-        if (cv_.wait_until(lock, now + timeout, [&](){ return unread_count_ != 0; }))
-        {
-            lock.unlock();
-            rv = subscriber_ptr_->takeNextData(&data, &info);
-            unread_count_ = subscriber_ptr_->getUnreadCount();
-        }
-    }
+    datareader_->read(data, info, timeout);
 
     if (rv)
     {
         try
         {
-            if (info.related_sample_identity.writer_guid() == publisher_ptr_->getGuid())
+            if (info.related_sample_identity.writer_guid() == datawriter_->get_guid())
             {
                 int64_t sequence = (int64_t)info.related_sample_identity.sequence_number().high << 32;
                 sequence += info.related_sample_identity.sequence_number().low;
@@ -441,66 +394,6 @@ bool FastRequester::read(
     }
 
     return rv;
-}
-
-void FastRequester::onPublicationMatched(
-        fastrtps::Publisher*,
-        fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("matched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-    else
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("unmatched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-}
-
-void FastRequester::onSubscriptionMatched(
-        fastrtps::Subscriber*,
-        fastrtps::rtps::MatchingInfo& info)
-{
-    if (info.status == fastrtps::rtps::MATCHED_MATCHING)
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("matched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-    else
-    {
-        UXR_AGENT_LOG_TRACE(
-            UXR_DECORATE_WHITE("unmatched"),
-            "entity_id: {}, guid_prefix: {}",
-            info.remoteEndpointGuid.entityId,
-            info.remoteEndpointGuid.guidPrefix);
-    }
-}
-
-void FastRequester::onNewDataMessage(
-        fastrtps::Subscriber*)
-{
-    unread_count_ = subscriber_ptr_->getUnreadCount();
-    std::unique_lock<std::mutex> lock(mtx_);
-    cv_.notify_one();
-}
-
-bool FastRequester::match(const fastrtps::RequesterAttributes& attrs) const
-{
-    return request_topic_->match(attrs.publisher.topic)
-        && reply_topic_->match(attrs.subscriber.topic)
-        && attrs.publisher == publisher_ptr_->getAttributes()
-        && attrs.subscriber == subscriber_ptr_->getAttributes();
 }
 
 /**********************************************************************************************************************
