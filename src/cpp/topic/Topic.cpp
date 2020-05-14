@@ -21,44 +21,45 @@ namespace uxr {
 
 std::unique_ptr<Topic> Topic::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_TOPIC_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            created_entity = middleware.create_topic_by_ref(raw_object_id, participant->get_raw_id(), ref);
+            created_entity = middleware.create_topic_by_ref(raw_object_id, participant_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            created_entity = middleware.create_topic_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_topic_by_xml(raw_object_id, participant_id, xml);
             break;
         }
         default:
             break;
     }
 
-    return (created_entity ? std::unique_ptr<Topic>(new Topic(object_id, participant)) : nullptr);
+    return (created_entity ? std::unique_ptr<Topic>(new Topic(object_id, proxy_client)) : nullptr);
 }
 
 Topic::Topic(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant)
+        const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
-    , participant_{participant}
+    , proxy_client_{proxy_client}
 {}
 
 Topic::~Topic()
 {
-    participant_->get_proxy_client()->get_middleware().delete_topic(get_raw_id());
+    proxy_client_->get_middleware().delete_topic(get_raw_id());
 }
 
 bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -75,13 +76,13 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.topic().representation().object_reference();
-            rv = participant_->get_proxy_client()->get_middleware().matched_topic_from_ref(get_raw_id(), ref);
+            rv = proxy_client_->get_middleware().matched_topic_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.topic().representation().xml_string_representation();
-            rv = participant_->get_proxy_client()->get_middleware().matched_topic_from_xml(get_raw_id(), xml);
+            rv = proxy_client_->get_middleware().matched_topic_from_xml(get_raw_id(), xml);
             break;
         }
         default:

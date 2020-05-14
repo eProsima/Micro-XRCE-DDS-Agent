@@ -24,13 +24,15 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class ProxyClient;
 class Middleware;
 
 class Topic : public XRCEObject
 {
 public:
     static std::unique_ptr<Topic> create(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_TOPIC_Representation& representation);
 
     ~Topic() override;
@@ -45,10 +47,10 @@ public:
 private:
     Topic(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Participant> participant_;
+    std::shared_ptr<ProxyClient> proxy_client_;
 };
 
 } // namespace uxr
