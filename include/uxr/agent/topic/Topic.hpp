@@ -24,13 +24,15 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class ProxyClient;
 class Middleware;
 
 class Topic : public XRCEObject
 {
 public:
     static std::unique_ptr<Topic> create(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_TOPIC_Representation& representation);
 
     ~Topic() override;
@@ -40,19 +42,15 @@ public:
     Topic& operator=(Topic&&) = delete;
     Topic& operator=(const Topic&) = delete;
 
-    void release(ObjectContainer&) override;
-    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
 
 private:
     Topic(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Participant> participant_;
-    std::set<dds::xrce::ObjectId> tied_objects_;
+    std::shared_ptr<ProxyClient> proxy_client_;
 };
 
 } // namespace uxr

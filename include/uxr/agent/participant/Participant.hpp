@@ -40,10 +40,8 @@ public:
     Participant& operator=(Participant&&) = delete;
     Participant& operator=(const Participant&) = delete;
 
-    void release(ObjectContainer& root_objects) override;
-    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(
+        const dds::xrce::ObjectVariant& new_object_rep) const final;
 
     const std::shared_ptr<ProxyClient>& get_proxy_client() { return proxy_client_; };
 
@@ -54,7 +52,6 @@ private:
 
 private:
     std::shared_ptr<ProxyClient> proxy_client_;
-    std::set<dds::xrce::ObjectId> tied_objects_;
 };
 
 } // namespace uxr

@@ -163,9 +163,9 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByRef)
      *      Id:             different
      *      Participant:    same
      *      Reference:      same
-     *      Expected:       FALSE
+     *      Expected:       TRUE
      */
-    EXPECT_FALSE(middleware_.create_topic_by_ref(1, 0, topic_ref_one));
+    EXPECT_TRUE(middleware_.create_topic_by_ref(1, 0, topic_ref_one));
 
     /* Create:
      *      Id:             same
@@ -216,9 +216,9 @@ TEST_F(CedMiddlewareUnitTests, CreateTopicByXML)
      *      Id:             different
      *      Participant:    same
      *      XML:            same
-     *      Expected:       FALSE
+     *      Expected:       TRUE
      */
-    EXPECT_FALSE(middleware_.create_topic_by_xml(1, 0, topic_xml_one));
+    EXPECT_TRUE(middleware_.create_topic_by_xml(1, 0, topic_xml_one));
 
     /* Create:
      *      Id:             same
@@ -450,11 +450,9 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
 
     std::string datawriter_ref_one{topic_ref_one};
     std::string datawriter_ref_two{topic_ref_two};
-    uint16_t associated_topic;
 
     /* Create DataWriter by REF. */
-    EXPECT_TRUE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_one, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_one);
+    EXPECT_TRUE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_one));
 
     /* Create
      *      Id:         same
@@ -462,7 +460,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_one));
 
     /* Create
      *      Id:         different
@@ -470,7 +468,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datawriter_by_ref(1, 0, datawriter_ref_one, associated_topic));
+    EXPECT_TRUE(middleware_.create_datawriter_by_ref(1, 0, datawriter_ref_one));
 
     /* Create
      *      Id:         same
@@ -478,7 +476,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 1, datawriter_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 1, datawriter_ref_one));
 
     /* Create
      *      Id:         same
@@ -486,7 +484,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 2, datawriter_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 2, datawriter_ref_one));
 
     /* Create
      *      Id:         same
@@ -494,7 +492,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      different
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_two, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, datawriter_ref_two));
 
     /* Create
      *      Id:         same
@@ -502,7 +500,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(0, 0, "OtherTopic"));
 
     /* Create
      *      Id:         different
@@ -510,8 +508,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      different
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datawriter_by_ref(2, 0, datawriter_ref_two, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_two);
+    EXPECT_TRUE(middleware_.create_datawriter_by_ref(2, 0, datawriter_ref_two));
 
     /* Create
      *      Id:         different
@@ -519,7 +516,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByRef)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(3, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(3, 0, "OtherTopic"));
 }
 
 TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
@@ -540,11 +537,9 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
 
     std::string datawriter_xml_one{topic_ref_one};
     std::string datawriter_xml_two{topic_ref_two};
-    uint16_t associated_topic;
 
     /* Create DataWriter by XML. */
-    EXPECT_TRUE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_one, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_one);
+    EXPECT_TRUE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_one));
 
     /* Create
      *      Id:         same
@@ -552,7 +547,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_one));
 
     /* Create
      *      Id:         different
@@ -560,7 +555,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datawriter_by_xml(1, 0, datawriter_xml_one, associated_topic));
+    EXPECT_TRUE(middleware_.create_datawriter_by_xml(1, 0, datawriter_xml_one));
 
     /* Create
      *      Id:         same
@@ -568,7 +563,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 1, datawriter_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 1, datawriter_xml_one));
 
     /* Create
      *      Id:         same
@@ -576,7 +571,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 2, datawriter_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 2, datawriter_xml_one));
 
     /* Create
      *      Id:         same
@@ -584,7 +579,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      different
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_two, associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml_two));
 
     /* Create
      *      Id:         same
@@ -592,7 +587,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_xml(0, 0, "OtherTopic"));
 
     /* Create
      *      Id:         different
@@ -600,8 +595,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      different
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datawriter_by_xml(2, 0, datawriter_xml_two, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_two);
+    EXPECT_TRUE(middleware_.create_datawriter_by_xml(2, 0, datawriter_xml_two));
 
     /* Create
      *      Id:         different
@@ -609,7 +603,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataWriterByXML)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datawriter_by_ref(3, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datawriter_by_ref(3, 0, "OtherTopic"));
 }
 
 TEST_F(CedMiddlewareUnitTests, DeleteDataWriter)
@@ -625,8 +619,7 @@ TEST_F(CedMiddlewareUnitTests, DeleteDataWriter)
     middleware_.create_publisher_by_xml(0, 0, publisher_xml);
 
     std::string datawriter_xml{topic_ref};
-    uint16_t associated_topic;
-    middleware_.create_datawriter_by_xml(0, 0, datawriter_xml, associated_topic);
+    middleware_.create_datawriter_by_xml(0, 0, datawriter_xml);
 
     /* Delete
      *      DataWriter: existent
@@ -644,8 +637,7 @@ TEST_F(CedMiddlewareUnitTests, DeleteDataWriter)
      *      DataWriter: same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id);
+    EXPECT_TRUE(middleware_.create_datawriter_by_xml(0, 0, datawriter_xml));
 }
 
 TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
@@ -666,11 +658,9 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
 
     std::string datareader_ref_one{topic_ref_one};
     std::string datareader_ref_two{topic_ref_two};
-    uint16_t associated_topic;
 
     /* Create DataReader by REF. */
-    EXPECT_TRUE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_one, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_one);
+    EXPECT_TRUE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_one));
 
     /* Create
      *      Id:         same
@@ -678,7 +668,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_one));
 
     /* Create
      *      Id:         different
@@ -686,7 +676,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datareader_by_ref(1, 0, datareader_ref_one, associated_topic));
+    EXPECT_TRUE(middleware_.create_datareader_by_ref(1, 0, datareader_ref_one));
 
     /* Create
      *      Id:         same
@@ -694,7 +684,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 1, datareader_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 1, datareader_ref_one));
 
     /* Create
      *      Id:         same
@@ -702,7 +692,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 2, datareader_ref_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 2, datareader_ref_one));
 
     /* Create
      *      Id:         same
@@ -710,7 +700,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      different
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_two, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, datareader_ref_two));
 
     /* Create
      *      Id:         same
@@ -718,7 +708,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(0, 0, "OtherTopic"));
 
     /* Create
      *      Id:         different
@@ -726,8 +716,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      different
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datareader_by_ref(2, 0, datareader_ref_two, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_two);
+    EXPECT_TRUE(middleware_.create_datareader_by_ref(2, 0, datareader_ref_two));
 
     /* Create
      *      Id:         different
@@ -735,7 +724,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByRef)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(3, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(3, 0, "OtherTopic"));
 }
 
 TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
@@ -756,11 +745,9 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
 
     std::string datareader_xml_one{topic_ref_one};
     std::string datareader_xml_two{topic_ref_two};
-    uint16_t associated_topic;
 
     /* Create DataWriter by XML. */
-    EXPECT_TRUE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_one, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_one);
+    EXPECT_TRUE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_one));
 
     /* Create
      *      Id:         same
@@ -768,7 +755,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_one));
 
     /* Create
      *      Id:         different
@@ -776,7 +763,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datareader_by_xml(1, 0, datareader_xml_one, associated_topic));
+    EXPECT_TRUE(middleware_.create_datareader_by_xml(1, 0, datareader_xml_one));
 
     /* Create
      *      Id:         same
@@ -784,7 +771,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 1, datareader_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 1, datareader_xml_one));
 
     /* Create
      *      Id:         same
@@ -792,7 +779,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      same
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 2, datareader_xml_one, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 2, datareader_xml_one));
 
     /* Create
      *      Id:         same
@@ -800,7 +787,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      different
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_two, associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, datareader_xml_two));
 
     /* Create
      *      Id:         same
@@ -808,7 +795,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_xml(0, 0, "OtherTopic"));
 
     /* Create
      *      Id:         different
@@ -816,8 +803,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      different
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datareader_by_xml(2, 0, datareader_xml_two, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id_two);
+    EXPECT_TRUE(middleware_.create_datareader_by_xml(2, 0, datareader_xml_two));
 
     /* Create
      *      Id:         different
@@ -825,7 +811,7 @@ TEST_F(CedMiddlewareUnitTests, CreateDataReaderByXML)
      *      Topic:      non-existent
      *      Expected:   FALSE
      */
-    EXPECT_FALSE(middleware_.create_datareader_by_ref(3, 0, "OtherTopic", associated_topic));
+    EXPECT_FALSE(middleware_.create_datareader_by_ref(3, 0, "OtherTopic"));
 }
 
 TEST_F(CedMiddlewareUnitTests, DeleteDataReader)
@@ -841,8 +827,7 @@ TEST_F(CedMiddlewareUnitTests, DeleteDataReader)
     middleware_.create_subscriber_by_xml(0, 0, subscriber_xml);
 
     std::string datareader_xml{topic_ref};
-    uint16_t associated_topic;
-    middleware_.create_datareader_by_xml(0, 0, datareader_xml, associated_topic);
+    middleware_.create_datareader_by_xml(0, 0, datareader_xml);
 
     /* Delete
      *      DataReader: existent
@@ -860,8 +845,7 @@ TEST_F(CedMiddlewareUnitTests, DeleteDataReader)
      *      DataReader: same
      *      Expected:   TRUE
      */
-    EXPECT_TRUE(middleware_.create_datareader_by_xml(0, 0, datareader_xml, associated_topic));
-    EXPECT_EQ(associated_topic, topic_id);
+    EXPECT_TRUE(middleware_.create_datareader_by_xml(0, 0, datareader_xml));
 }
 
 TEST_F(CedMiddlewareUnitTests, WriteReadData)
@@ -878,15 +862,13 @@ TEST_F(CedMiddlewareUnitTests, WriteReadData)
     std::string publisher_xml{"Publisher"};
     middleware_.create_publisher_by_xml(0, 0, publisher_xml);
 
-    uint16_t associated_topic;
-
     std::string datareader_ref{"Topic"};
-    middleware_.create_datareader_by_ref(0, 0, datareader_ref, associated_topic);
-    middleware_.create_datareader_by_ref(1, 0, datareader_ref, associated_topic);
+    middleware_.create_datareader_by_ref(0, 0, datareader_ref);
+    middleware_.create_datareader_by_ref(1, 0, datareader_ref);
 
     std::string datawriter_ref{"Topic"};
-    middleware_.create_datawriter_by_ref(0, 0, datawriter_ref, associated_topic);
-    middleware_.create_datawriter_by_ref(1, 0, datawriter_ref, associated_topic);
+    middleware_.create_datawriter_by_ref(0, 0, datawriter_ref);
+    middleware_.create_datawriter_by_ref(1, 0, datawriter_ref);
 
     std::vector<uint8_t> output_data_one{0, 1, 2};
     std::vector<uint8_t> output_data_two{3, 4, 5};

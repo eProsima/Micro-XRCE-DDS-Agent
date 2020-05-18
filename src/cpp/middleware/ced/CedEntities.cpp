@@ -257,47 +257,27 @@ bool CedGlobalTopic::get_data(
  * CedParticipant
  **********************************************************************************************************************/
 bool CedParticipant::register_topic(
-        const std::string& topic_name,
-        uint16_t topic_id,
-        std::shared_ptr<CedGlobalTopic>& global_topic)
+        const std::shared_ptr<CedTopic>& topic)
 {
-    bool rv = false;
-    auto it = topics_.find(topic_name);
-    if (topics_.end() == it)
-    {
-        if (CedTopicManager::register_topic(topic_name, domain_id_, global_topic))
-        {
-            topics_.emplace(topic_name, topic_id);
-            rv = true;
-        }
-    }
-    return rv;
+    return topic_register_.emplace(topic->get_name(), topic).second;
 }
 
-bool CedParticipant::unregister_topic(const std::string &topic_name)
+bool CedParticipant::unregister_topic(
+        const std::string &topic_name)
 {
-    bool rv = false;
-    auto it = topics_.find(topic_name);
-    if (topics_.end() != it)
-    {
-        topics_.erase(it);
-        rv = true;
-    }
-    return rv;
+    return (1 == topic_register_.erase(topic_name));
 }
 
-bool CedParticipant::find_topic(
-        const std::string& topic_name,
-        uint16_t& topic_id) const
+std::shared_ptr<CedTopic> CedParticipant::find_topic(
+        const std::string& topic_name) const
 {
-    bool rv = false;
-    auto it = topics_.find(topic_name);
-    if (topics_.end() != it)
+    std::shared_ptr<CedTopic> topic;
+    auto it = topic_register_.find(topic_name);
+    if (it != topic_register_.end())
     {
-        topic_id = it->second;
-        rv = true;
+        topic = it->second.lock();
     }
-    return rv;
+    return topic;
 }
 
 /**********************************************************************************************************************

@@ -1,4 +1,4 @@
-// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2017-present Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,27 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-#ifndef UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
-#define UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+#ifndef UXR__AGENT__MIDDLEWARE__FASTDDS__FAST_DDS_MIDDLEWARE_HPP_
+#define UXR__AGENT__MIDDLEWARE__FASTDDS__FAST_DDS_MIDDLEWARE_HPP_
 
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/middleware/fast/FastEntities.hpp>
-#include <uxr/agent/types/TopicPubSubType.hpp>
+#include <uxr/agent/middleware/fastdds/FastDDSEntities.hpp>
 
 #include <cstdint>
-#include <cstddef>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 namespace eprosima {
 namespace uxr {
 
-class FastMiddleware : public Middleware
+class FastDDSMiddleware : public Middleware
 {
 public:
-    FastMiddleware() = default;
-    ~FastMiddleware() final = default;
+    FastDDSMiddleware() = default;
+    ~FastDDSMiddleware() final = default;
 
 /**********************************************************************************************************************
  * Create functions.
@@ -212,18 +209,17 @@ public:
             const std::string& xml) const override;
 
 private:
-    FastListener listener_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastParticipant>> participants_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastTopic>> topics_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastPublisher>> publishers_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastSubscriber>> subscribers_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastDataWriter>> datawriters_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastRequester>> requesters_;
-    std::unordered_map<uint16_t, std::shared_ptr<FastReplier>> repliers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSParticipant>> participants_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSTopic>> topics_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSPublisher>> publishers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSSubscriber>> subscribers_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataWriter>> datawriters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataReader>> datareaders_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSRequester>> requesters_;
+    std::unordered_map<uint16_t, std::shared_ptr<FastDDSReplier>> repliers_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_MIDDLEWARE_FAST_FAST_MIDDLEWARE_HPP_
+#endif // UXR__AGENT__MIDDLEWARE__FASTDDS__FAST_DDS_MIDDLEWARE_HPP_
