@@ -170,7 +170,7 @@ std::shared_ptr<FastTopic> FastParticipant::find_topic(
 
 int16_t FastParticipant::domain_id() const
 {
-    return impl_->getAttributes().domainId;
+    return (int16_t) impl_->getAttributes().domainId;
 }
 
 /**********************************************************************************************************************
