@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/datareader/DataReader.hpp>
-#include <uxr/agent/subscriber/Subscriber.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
@@ -25,48 +24,49 @@ namespace uxr {
 
 std::unique_ptr<DataReader> DataReader::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Subscriber>& subscriber,
+        uint16_t subscriber_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::DATAREADER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = subscriber->get_participant()->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
             created_entity =
-                middleware.create_datareader_by_ref(raw_object_id, subscriber->get_raw_id(), ref);
+                middleware.create_datareader_by_ref(raw_object_id, subscriber_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
             created_entity =
-                middleware.create_datareader_by_xml(raw_object_id, subscriber->get_raw_id(), xml);
+                middleware.create_datareader_by_xml(raw_object_id, subscriber_id, xml);
             break;
         }
         default:
             break;
     }
 
-    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, subscriber)) : nullptr);
+    return (created_entity ? std::unique_ptr<DataReader>(new DataReader(object_id, proxy_client)) : nullptr);
 }
 
 DataReader::DataReader(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Subscriber>& subscriber)
+        const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
-    , subscriber_{subscriber}
+    , proxy_client_{proxy_client}
     , reader_{}
 {}
 
 DataReader::~DataReader() noexcept
 {
     reader_.stop_reading();
-    subscriber_->get_participant()->get_proxy_client()->get_middleware().delete_datareader(get_raw_id());
+    proxy_client_->get_middleware().delete_datareader(get_raw_id());
 }
 
 bool DataReader::matched(
@@ -84,13 +84,13 @@ bool DataReader::matched(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_reader().representation().object_reference();
-            rv = subscriber_->get_participant()->get_proxy_client()->get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
+            rv = proxy_client_->get_middleware().matched_datareader_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_reader().representation().xml_string_representation();
-            rv = subscriber_->get_participant()->get_proxy_client()->get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
+            rv = proxy_client_->get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -134,7 +134,7 @@ bool DataReader::read(
     }
     */
 
-    write_args.client = subscriber_->get_participant()->get_proxy_client();
+    write_args.client = proxy_client_;
 
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
@@ -147,7 +147,7 @@ bool DataReader::read_fn(
         std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    if (subscriber_->get_participant()->get_proxy_client()->get_middleware().read_data(get_raw_id(), data, timeout))
+    if (proxy_client_->get_middleware().read_data(get_raw_id(), data, timeout))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[==>> DDS <<==]"),

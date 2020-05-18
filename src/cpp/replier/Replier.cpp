@@ -24,45 +24,46 @@ namespace uxr {
 
 std::unique_ptr<Replier> Replier::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::REPLIER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            created_entity = middleware.create_replier_by_ref(raw_object_id, participant->get_raw_id(), ref);
+            created_entity = middleware.create_replier_by_ref(raw_object_id, participant_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            created_entity = middleware.create_replier_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_replier_by_xml(raw_object_id, participant_id, xml);
             break;
         }
         default:
             break;
     }
 
-    return (created_entity ? std::unique_ptr<Replier>(new Replier(object_id, participant)) : nullptr);
+    return (created_entity ? std::unique_ptr<Replier>(new Replier(object_id, proxy_client)) : nullptr);
 }
 
 Replier::Replier(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant)
+        const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
-    , participant_{participant}
+    , proxy_client_{proxy_client}
     , reader_{}
 {}
 
 Replier::~Replier()
 {
-    participant_->get_proxy_client()->get_middleware().delete_replier(get_raw_id());
+    proxy_client_->get_middleware().delete_replier(get_raw_id());
 }
 
 bool Replier::matched(
@@ -80,13 +81,13 @@ bool Replier::matched(
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.replier().representation().object_reference();
-            rv = participant_->get_proxy_client()->get_middleware().matched_replier_from_ref(get_raw_id(), ref);
+            rv = proxy_client_->get_middleware().matched_replier_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.replier().representation().object_reference();
-            rv = participant_->get_proxy_client()->get_middleware().matched_replier_from_xml(get_raw_id(), xml);
+            rv = proxy_client_->get_middleware().matched_replier_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -99,7 +100,7 @@ bool Replier::write(
         dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     bool rv = false;
-    if (participant_->get_proxy_client()->get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
+    if (proxy_client_->get_middleware().write_reply(get_raw_id(), write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -146,7 +147,7 @@ bool Replier::read(
     }
     */
 
-    write_args.client = participant_->get_proxy_client();
+    write_args.client = proxy_client_;
 
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
@@ -159,7 +160,7 @@ bool Replier::read_fn(
         std::chrono::milliseconds timeout)
 {
     bool rv = false;
-    if (participant_->get_proxy_client()->get_middleware().read_request(get_raw_id(), data, timeout))
+    if (proxy_client_->get_middleware().read_request(get_raw_id(), data, timeout))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[==>> DDS <<==]"),

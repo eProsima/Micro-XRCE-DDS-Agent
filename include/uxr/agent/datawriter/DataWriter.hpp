@@ -23,6 +23,7 @@ namespace eprosima {
 namespace uxr {
 
 class Publisher;
+class ProxyClient;
 class Topic;
 class Middleware;
 
@@ -31,7 +32,8 @@ class DataWriter : public XRCEObject
 public:
     static std::unique_ptr<DataWriter> create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
+        uint16_t publisher_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::DATAWRITER_Representation& representation);
 
     ~DataWriter() override;
@@ -48,10 +50,10 @@ public:
 
 private:
     DataWriter(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Publisher> publisher_;
+    std::shared_ptr<ProxyClient> proxy_client_;
 };
 
 } // namespace uxr
