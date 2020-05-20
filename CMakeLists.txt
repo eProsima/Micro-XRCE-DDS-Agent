@@ -70,7 +70,7 @@ list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
     set(_microxrcedds_client_version 1.2.3)
-    set(_microxrcedds_client_tag fix/visibility)
+    set(_microxrcedds_client_tag v1.2.3)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
