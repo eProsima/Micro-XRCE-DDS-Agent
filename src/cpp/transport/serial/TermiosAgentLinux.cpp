@@ -63,8 +63,9 @@ bool TermiosAgent::init()
             new_attrs.c_oflag = termios_attrs_.c_oflag;
             new_attrs.c_cc[VMIN] = termios_attrs_.c_cc[VMIN];
             new_attrs.c_cc[VTIME] = termios_attrs_.c_cc[VTIME];
-            new_attrs.c_ispeed = termios_attrs_.c_ispeed;
-            new_attrs.c_ospeed = termios_attrs_.c_ospeed;
+
+            cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
+            cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
 
             if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
             {

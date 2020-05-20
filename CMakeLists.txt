@@ -69,8 +69,8 @@ set(_cli11_tag v1.7.1)
 list(APPEND _deps "CLI11\;${_cli11_version}")
 
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.2.1)
-    set(_microxrcedds_client_tag develop)
+    set(_microxrcedds_client_version 1.2.3)
+    set(_microxrcedds_client_tag v1.2.3)
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 

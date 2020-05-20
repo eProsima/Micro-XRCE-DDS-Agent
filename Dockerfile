@@ -4,6 +4,7 @@
 
 # Build stage
 FROM ubuntu AS build
+ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 
 # Essentials
@@ -29,7 +30,9 @@ ADD . /agent/
 
 # Build Micro XRCE-DDS Agent and install
 RUN cd /agent/build && \
-    cmake -DCMAKE_INSTALL_PREFIX=../install .. &&\
+    cmake -DCMAKE_INSTALL_PREFIX=../install \
+    -DUAGENT_ISOLATED_INSTALL=OFF \
+    .. &&\
     make && make install
 
 # Prepare Micro XRCE-DDS Agent artifacts
