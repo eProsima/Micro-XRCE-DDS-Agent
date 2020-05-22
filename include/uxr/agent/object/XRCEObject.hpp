@@ -55,7 +55,6 @@ public:
     dds::xrce::ObjectId get_id() const;
     uint16_t get_raw_id() const { return conversion::objectid_to_raw(id_); }
     virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
-    virtual void release(ObjectContainer& root_objects) = 0;
 
 private:
     dds::xrce::ObjectId id_;

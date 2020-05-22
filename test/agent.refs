@@ -1,18 +1,26 @@
 <profiles>
     <participant profile_name="default_xrce_participant">
+        <domainId>0</domainId>
         <rtps>
             <builtin>
-                <leaseDuration>INFINITE</leaseDuration>
-                <domainId>0</domainId>
+                <discovery_config>
+                    <leaseDuration>
+                        <sec>DURATION_INFINITY</sec>
+                    </leaseDuration>
+                </discovery_config>
             </builtin>
             <name>default_xrce_participant</name>
         </rtps>
     </participant>
     <participant profile_name="default_xrce_participant_two">
+        <domainId>0</domainId>
         <rtps>
             <builtin>
-                <leaseDuration>INFINITE</leaseDuration>
-                <domainId>0</domainId>
+                <discovery_config>
+                    <leaseDuration>
+                        <sec>DURATION_INFINITY</sec>
+                    </leaseDuration>
+                </discovery_config>
             </builtin>
             <name>default_xrce_participant_two</name>
         </rtps>

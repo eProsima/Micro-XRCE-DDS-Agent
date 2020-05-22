@@ -29,7 +29,8 @@ class Requester : public XRCEObject
 public:
     static std::unique_ptr<Requester> create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::REQUESTER_Representation& representation);
 
     ~Requester() override;
@@ -51,13 +52,10 @@ public:
     bool matched(
         const dds::xrce::ObjectVariant& new_object_rep) const override;
 
-    void release(
-        ObjectContainer&) override {};
-
 private:
     Requester(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
     bool read_fn(
         bool,
@@ -65,7 +63,7 @@ private:
         std::chrono::milliseconds timeout);
 
 private:
-    std::shared_ptr<Participant> participant_;
+    std::shared_ptr<ProxyClient> proxy_client_;
     Reader<bool> reader_;
 };
 

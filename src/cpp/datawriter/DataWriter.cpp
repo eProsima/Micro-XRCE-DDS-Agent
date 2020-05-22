@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/datawriter/DataWriter.hpp>
-#include <uxr/agent/publisher/Publisher.hpp>
-#include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/topic/Topic.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
 #include <uxr/agent/logger/Logger.hpp>
@@ -24,64 +22,46 @@ namespace uxr {
 
 std::unique_ptr<DataWriter> DataWriter::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
-        const dds::xrce::DATAWRITER_Representation& representation,
-        const ObjectContainer& root_objects)
+        uint16_t publisher_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
+        const dds::xrce::DATAWRITER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
-    std::shared_ptr<Topic> topic;
 
-    Middleware& middleware = publisher->get_participant()->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = representation.representation().object_reference();
-            uint16_t raw_topic_id;
-            if (middleware.create_datawriter_by_ref(raw_object_id, publisher->get_raw_id(), ref, raw_topic_id))
-            {
-                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                created_entity = true;
-            }
+            created_entity =
+                middleware.create_datawriter_by_ref(raw_object_id, publisher_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
-            uint16_t raw_topic_id;
-            if (middleware.create_datawriter_by_xml(raw_object_id, publisher->get_raw_id(), xml, raw_topic_id))
-            {
-                dds::xrce::ObjectId topic_id = conversion::raw_to_objectid(raw_topic_id, dds::xrce::OBJK_TOPIC);
-                topic = std::dynamic_pointer_cast<Topic>(root_objects.at(topic_id));
-                created_entity = true;
-            }
+            created_entity =
+                middleware.create_datawriter_by_xml(raw_object_id, publisher_id, xml);
             break;
         }
         default:
             break;
     }
 
-    return (created_entity ? std::unique_ptr<DataWriter>(new DataWriter(object_id, publisher, topic)) : nullptr);
+    return (created_entity ? std::unique_ptr<DataWriter>(new DataWriter(object_id, proxy_client)) : nullptr);
 }
 
 DataWriter::DataWriter(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
-        const std::shared_ptr<Topic>& topic)
-    : XRCEObject(object_id)
-    , publisher_(publisher)
-    , topic_(topic)
-{
-    publisher_->tie_object(object_id);
-    topic_->tie_object(object_id);
-}
+        const std::shared_ptr<ProxyClient>& proxy_client)
+    : XRCEObject{object_id}
+    , proxy_client_{proxy_client}
+{}
 
 DataWriter::~DataWriter()
 {
-    publisher_->untie_object(get_id());
-    topic_->untie_object(get_id());
-    publisher_->get_participant()->get_proxy_client()->get_middleware().delete_datawriter(get_raw_id());
+    proxy_client_->get_middleware().delete_datawriter(get_raw_id());
 }
 
 bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
@@ -98,13 +78,13 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
             const std::string& ref = new_object_rep.data_writer().representation().object_reference();
-            rv = publisher_->get_participant()->get_proxy_client()->get_middleware().matched_datawriter_from_ref(get_raw_id(), ref);
+            rv = proxy_client_->get_middleware().matched_datawriter_from_ref(get_raw_id(), ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = new_object_rep.data_writer().representation().xml_string_representation();
-            rv = publisher_->get_participant()->get_proxy_client()->get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
+            rv = proxy_client_->get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
             break;
         }
         default:
@@ -116,7 +96,7 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 {
     bool rv = false;
-    if (publisher_->get_participant()->get_proxy_client()->get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
+    if (proxy_client_->get_middleware().write_data(get_raw_id(), write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -131,7 +111,7 @@ bool DataWriter::write(dds::xrce::WRITE_DATA_Payload_Data& write_data)
 bool DataWriter::write(const std::vector<uint8_t>& data)
 {
     bool rv = false;
-    if (publisher_->get_participant()->get_proxy_client()->get_middleware().write_data(get_raw_id(), data))
+    if (proxy_client_->get_middleware().write_data(get_raw_id(), data))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),

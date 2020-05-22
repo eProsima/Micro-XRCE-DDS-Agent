@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/Agent.hpp>
+#include <uxr/agent/middleware/Middleware.hpp>
 
 #include <gtest/gtest.h>
 
@@ -22,12 +23,13 @@ namespace testing {
 
 using namespace eprosima::uxr;
 
-class AgentUnitTests : public ::testing::Test
+class AgentUnitTests : public ::testing::TestWithParam<Middleware::Kind> 
 {
 protected:
     AgentUnitTests()
     {
         agent_.load_config_file("./agent.refs");
+        agent_.set_verbose_level(6);
     }
 
     ~AgentUnitTests()
@@ -39,27 +41,27 @@ protected:
     const uint32_t client_key_ = 0xAABBCCDD;
 };
 
-TEST_F(AgentUnitTests, CreateClient)
+TEST_P(AgentUnitTests, CreateClient)
 {
     Agent::OpResult result;
-    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result));
-    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result));
+    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, GetParam(), result));
+    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, GetParam(), result));
 }
 
-TEST_F(AgentUnitTests, DeleteClient)
+TEST_P(AgentUnitTests, DeleteClient)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     EXPECT_TRUE(agent_.delete_client(client_key_, result));
     EXPECT_FALSE(agent_.delete_client(client_key_, result));
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreateParticipantByRef)
+TEST_P(AgentUnitTests, CreateParticipantByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* ref_one = "default_xrce_participant";
     const char* ref_two = "default_xrce_participant_two";
@@ -121,10 +123,10 @@ TEST_F(AgentUnitTests, CreateParticipantByRef)
     //EXPECT_EQ(errcode, agent_.ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
-TEST_F(AgentUnitTests, CreateParticipantByXml)
+TEST_P(AgentUnitTests, CreateParticipantByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* xml_one = "<dds>"
                               "<participant>"
@@ -198,10 +200,10 @@ TEST_F(AgentUnitTests, CreateParticipantByXml)
     //EXPECT_EQ(errcode, agent_.ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
-TEST_F(AgentUnitTests, CreateTopicByRef)
+TEST_P(AgentUnitTests, CreateTopicByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_topic";
@@ -272,10 +274,10 @@ TEST_F(AgentUnitTests, CreateTopicByRef)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreateTopicByXml)
+TEST_P(AgentUnitTests, CreateTopicByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "<dds>"
@@ -357,10 +359,10 @@ TEST_F(AgentUnitTests, CreateTopicByXml)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreatePublisherByXml)
+TEST_P(AgentUnitTests, CreatePublisherByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "publisher_one";
@@ -421,10 +423,10 @@ TEST_F(AgentUnitTests, CreatePublisherByXml)
     //EXPECT_EQ(errcode, agent_.ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
-TEST_F(AgentUnitTests, CreateSubscriberByXml)
+TEST_P(AgentUnitTests, CreateSubscriberByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = "subscriber_one";
@@ -485,10 +487,10 @@ TEST_F(AgentUnitTests, CreateSubscriberByXml)
     //EXPECT_EQ(errcode, agent_.ErrorCode::UNKNOWN_REFERENCE_ERRCODE);
 }
 
-TEST_F(AgentUnitTests, CreateDataWriterByRef)
+TEST_P(AgentUnitTests, CreateDataWriterByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "shapetype_topic";
@@ -566,10 +568,10 @@ TEST_F(AgentUnitTests, CreateDataWriterByRef)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreateDataWriterByXml)
+TEST_P(AgentUnitTests, CreateDataWriterByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
@@ -681,10 +683,10 @@ TEST_F(AgentUnitTests, CreateDataWriterByXml)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreateDataReaderByRef)
+TEST_P(AgentUnitTests, CreateDataReaderByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "shapetype_topic";
@@ -763,10 +765,10 @@ TEST_F(AgentUnitTests, CreateDataReaderByRef)
 }
 
 
-TEST_F(AgentUnitTests, CreateDataReaderByXml)
+TEST_P(AgentUnitTests, CreateDataReaderByXml)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
@@ -878,10 +880,10 @@ TEST_F(AgentUnitTests, CreateDataReaderByXml)
     EXPECT_EQ(result, agent_.OpResult::UNKNOWN_REFERENCE_ERROR);
 }
 
-TEST_F(AgentUnitTests, CreateRequesterByRef)
+TEST_P(AgentUnitTests, CreateRequesterByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_requester";
@@ -901,10 +903,10 @@ TEST_F(AgentUnitTests, CreateRequesterByRef)
     // TODO (julianbermudez): complete tests.
 }
 
-TEST_F(AgentUnitTests, CreateRequesterByXML)
+TEST_P(AgentUnitTests, CreateRequesterByXML)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = R"(
@@ -932,10 +934,10 @@ TEST_F(AgentUnitTests, CreateRequesterByXML)
     // TODO (julianbermudez): complete tests.
 }
 
-TEST_F(AgentUnitTests, CreateReplierByRef)
+TEST_P(AgentUnitTests, CreateReplierByRef)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* ref_one = "shapetype_replier";
@@ -955,10 +957,10 @@ TEST_F(AgentUnitTests, CreateReplierByRef)
     // TODO (julianbermudez): complete tests.
 }
 
-TEST_F(AgentUnitTests, CreateReplierByXML)
+TEST_P(AgentUnitTests, CreateReplierByXML)
 {
     Agent::OpResult result;
-    agent_.create_client(client_key_, 0x01, 512, Middleware::Kind::FAST, result);
+    agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
     const char* xml_one = R"(
@@ -985,6 +987,10 @@ TEST_F(AgentUnitTests, CreateReplierByXML)
 
     // TODO (julianbermudez): complete tests.
 }
+
+INSTANTIATE_TEST_CASE_P(AgentUnitTestsParams,
+                        AgentUnitTests,
+                        ::testing::Values(Middleware::Kind::FASTRTPS,Middleware::Kind::FASTDDS));
 
 } // namespace testing
 } // namespace uxr

@@ -51,7 +51,7 @@ TEST_F(TreeTests, XMLTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -260,7 +260,7 @@ TEST_F(TreeTests, REFTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -383,10 +383,14 @@ TEST_F(TreeTests, CreationModeXMLTree)
     /* Participant XMLs. */
     std::string participant_xml = "<dds>"
                                       "<participant>"
+                                          "<domainId>0</domainId>"
                                           "<rtps>"
                                               "<builtin>"
-                                                  "<leaseDuration>INFINITE</leaseDuration>"
-                                                  "<domainId>0</domainId>"
+                                                  "<discovery_config>"
+                                                      "<leaseDuration>"
+                                                          "<sec>DURATION_INFINITY</sec>"
+                                                      "</leaseDuration>"
+                                                  "</discovery_config>"
                                               "</builtin>"
                                               "<name>default_xrce_participant</name>"
                                           "</rtps>"
@@ -395,10 +399,14 @@ TEST_F(TreeTests, CreationModeXMLTree)
 
     std::string participant_xml_two = "<dds>"
                                           "<participant>"
+                                              "<domainId>0</domainId>"
                                               "<rtps>"
                                                   "<builtin>"
-                                                      "<leaseDuration>INFINITE</leaseDuration>"
-                                                      "<domainId>0</domainId>"
+                                                      "<discovery_config>"
+                                                          "<leaseDuration>"
+                                                              "<sec>DURATION_INFINITY</sec>"
+                                                          "</leaseDuration>"
+                                                      "</discovery_config>"
                                                   "</builtin>"
                                                   "<name>default_xrce_participant_two</name>"
                                               "</rtps>"
@@ -507,7 +515,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                eprosima::uxr::Middleware::Kind::FAST);
+                eprosima::uxr::Middleware::Kind::FASTRTPS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -793,7 +801,7 @@ TEST_F(TreeTests, CreationModeREFTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */

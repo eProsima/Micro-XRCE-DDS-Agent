@@ -60,8 +60,8 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dea
 ###############################################################################
 set(_deps "")
 
-set(_fastcdr_version 1.0.10)
-set(_fastcdr_tag v1.0.11)
+set(_fastcdr_version 1.0.13)
+set(_fastcdr_tag v1.0.13)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
 set(_cli11_version 1.7.1)
@@ -75,9 +75,10 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 1.8.3)
-    set(_fastrtps_tag b257a33)
+    set(_fastrtps_version 2.0.0)
+    set(_fastrtps_tag e58dcb1)
     list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+    set(_foonathan_memory_tag master)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -91,7 +92,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.3.2" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.4.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -189,6 +190,8 @@ set(SRCS
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/xmlobjects/xmlobjects.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastEntities.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSEntities.cpp>
+    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSMiddleware.cpp>
     $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedEntities.cpp>
     $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedMiddleware.cpp>
     $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscoverer.cpp>

@@ -22,13 +22,15 @@ namespace eprosima {
 namespace uxr {
 
 class Participant;
+class ProxyClient;
 class Middleware;
 
 class Subscriber : public XRCEObject
 {
 public:
     static std::unique_ptr<Subscriber> create(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>&participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
 
     virtual ~Subscriber() override;
@@ -38,19 +40,15 @@ public:
     Subscriber& operator=(Subscriber&&) = delete;
     Subscriber& operator=(const Subscriber&) = delete;
 
-    void release(ObjectContainer& root_objects) override;
-    void tie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.insert(object_id); }
-    void untie_object(const dds::xrce::ObjectId& object_id) { tied_objects_.erase(object_id); }
-    bool matched(const dds::xrce::ObjectVariant& ) const override { return true; }
-
-    const std::shared_ptr<Participant>& get_participant() { return participant_; }
+    bool matched(
+        const dds::xrce::ObjectVariant& ) const final { return true; }
 
 private:
     Subscriber(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Participant> participant_;
+    std::shared_ptr<ProxyClient> proxy_client_;
     std::set<dds::xrce::ObjectId> tied_objects_;
 };
 

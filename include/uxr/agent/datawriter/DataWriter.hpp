@@ -23,16 +23,18 @@ namespace eprosima {
 namespace uxr {
 
 class Publisher;
+class ProxyClient;
 class Topic;
 class Middleware;
 
 class DataWriter : public XRCEObject
 {
 public:
-    static std::unique_ptr<DataWriter> create(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
-        const dds::xrce::DATAWRITER_Representation& representation,
-        const ObjectContainer& root_objects);
+    static std::unique_ptr<DataWriter> create(
+        const dds::xrce::ObjectId& object_id,
+        uint16_t publisher_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
+        const dds::xrce::DATAWRITER_Representation& representation);
 
     ~DataWriter() override;
 
@@ -41,20 +43,17 @@ public:
     DataWriter& operator=(DataWriter&&) = delete;
     DataWriter& operator=(const DataWriter&) = delete;
 
-    void release(ObjectContainer&) override {}
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const override;
+    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
 
     bool write(dds::xrce::WRITE_DATA_Payload_Data& write_data);
     bool write(const std::vector<uint8_t>& data);
 
 private:
     DataWriter(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Publisher>& publisher,
-        const std::shared_ptr<Topic>& topic);
+        const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
-    std::shared_ptr<Publisher> publisher_;
-    std::shared_ptr<Topic> topic_;
+    std::shared_ptr<ProxyClient> proxy_client_;
 };
 
 } // namespace uxr

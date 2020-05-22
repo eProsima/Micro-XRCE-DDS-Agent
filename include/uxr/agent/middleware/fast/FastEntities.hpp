@@ -34,6 +34,7 @@ class PublisherAttributes;
 class SubscriberAttributes;
 class RequesterAttributes;
 class ReplierAttributes;
+class SampleInfo_t;
 
 } // namespace fastrtps
 } // namespace eprosima
@@ -42,57 +43,68 @@ namespace eprosima {
 namespace uxr {
 
 class FastType;
+class FastTopic;
+
+/**********************************************************************************************************************
+ * Listeners
+ **********************************************************************************************************************/
+class FastListener : public fastrtps::ParticipantListener
+                   , public fastrtps::PublisherListener
+                   , public fastrtps::SubscriberListener
+{
+public:
+    void onParticipantDiscovery(
+        fastrtps::Participant*,
+        fastrtps::rtps::ParticipantDiscoveryInfo&& info) final;
+
+    void onPublicationMatched(
+        fastrtps::Publisher*,
+        fastrtps::rtps::MatchingInfo& info) final;
+
+    void onSubscriptionMatched(
+        fastrtps::Subscriber*,
+        fastrtps::rtps::MatchingInfo& info) final;
+};
 
 /**********************************************************************************************************************
  * FastParticipant
  **********************************************************************************************************************/
-class FastParticipant : public fastrtps::ParticipantListener,  public std::enable_shared_from_this<FastParticipant>
+class FastParticipant
 {
 public:
-    FastParticipant(int16_t domain_id)
-        : domain_id_(domain_id)
-        , ptr_(nullptr)
-        , topics_{}
-        , type_register_{}
-    {}
+    FastParticipant(fastrtps::Participant* impl);
 
-    ~FastParticipant() override;
+    ~FastParticipant();
 
-    bool create_by_ref(const std::string& ref);
+    bool match(
+            const fastrtps::ParticipantAttributes& attrs) const;
 
-    bool create_by_attributes(const fastrtps::ParticipantAttributes& attrs);
+    fastrtps::Participant* get_ptr() const { return impl_; }
 
-    bool match_from_ref(const std::string& ref) const;
+    bool register_type(
+            const std::shared_ptr<FastType>& type);
 
-    bool match_from_xml(const std::string& xml) const;
+    bool unregister_type(
+            const std::string& type_name);
 
-    bool remove();
-
-    void onParticipantDiscovery(
-            fastrtps::Participant*,
-            fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
-
-    fastrtps::Participant* get_ptr() const { return ptr_; }
+    std::shared_ptr<FastType> find_type(
+            const std::string& type_name) const;
 
     bool register_topic(
-            const fastrtps::TopicAttributes& attrs,
-            std::shared_ptr<FastType>& type,
-            uint16_t topic_id = 0);
+            const std::shared_ptr<FastTopic>& topic);
 
     bool unregister_topic(
             const std::string& topic_name);
 
-    bool find_topic(
-            const std::string& topic_name,
-            uint16_t& topic_id);
+    std::shared_ptr<FastTopic> find_topic(
+            const std::string& topic_name) const;
 
-    int16_t domain_id() { return domain_id_; }
+    int16_t domain_id() const;
 
 private:
-    int16_t domain_id_;
-    fastrtps::Participant* ptr_;
-    std::unordered_map<std::string, uint16_t> topics_;
+    fastrtps::Participant* impl_;
     std::unordered_map<std::string, std::weak_ptr<FastType>> type_register_;
+    std::unordered_map<std::string, std::weak_ptr<FastTopic>> topic_register_;
 };
 
 /**********************************************************************************************************************
@@ -114,21 +126,23 @@ class FastTopic
 {
 public:
     FastTopic(
+            const std::string& name,
+            const std::shared_ptr<FastType>& type,
             const std::shared_ptr<FastParticipant>& participant);
 
-    ~FastTopic() = default;
+    ~FastTopic();
 
-    bool create_by_attributes(
-            const fastrtps::TopicAttributes& attrs,
-            uint16_t topic_id);
+    const std::string& get_name() const { return name_; }
 
-    bool match_from_ref(const std::string& ref) const;
+    const std::shared_ptr<FastType>& get_type() const { return type_; }
 
-    bool match_from_xml(const std::string& xml) const;
+    bool match(
+            const fastrtps::TopicAttributes& attrs) const;
 
 private:
-    std::shared_ptr<FastParticipant> participant_;
+    std::string name_;
     std::shared_ptr<FastType> type_;
+    std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
@@ -137,13 +151,17 @@ private:
 class FastPublisher
 {
 public:
-    FastPublisher(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastPublisher(
+            const std::shared_ptr<FastParticipant>& participant)
+        : participant_(participant)
+    {}
+
     ~FastPublisher() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
+    const std::shared_ptr<FastParticipant>& get_participant() const { return participant_; }
 
 private:
-    uint16_t participant_id_;
+        std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
@@ -152,115 +170,96 @@ private:
 class FastSubscriber
 {
 public:
-    FastSubscriber(uint16_t participant_id) : participant_id_(participant_id) {}
+    FastSubscriber(
+            const std::shared_ptr<FastParticipant>& participant)
+        : participant_(participant)
+    {}
+
     ~FastSubscriber() = default;
 
-    uint16_t get_participant_id() { return participant_id_; }
+    const std::shared_ptr<FastParticipant>& get_participant() const { return participant_; }
 
 private:
-    uint16_t participant_id_;
+        std::shared_ptr<FastParticipant> participant_;
 };
 
 /**********************************************************************************************************************
  * FastDataWriter
  **********************************************************************************************************************/
-class FastDataWriter : public fastrtps::PublisherListener
+class FastDataWriter
 {
 public:
-    FastDataWriter(const std::shared_ptr<FastParticipant>& participant);
+    FastDataWriter(
+            fastrtps::Publisher* impl_,
+            const std::shared_ptr<FastTopic>& topic,
+            const std::shared_ptr<FastPublisher>& publisher);
 
-    ~FastDataWriter() override;
+    ~FastDataWriter();
 
-    bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
+    bool match(
+            const fastrtps::PublisherAttributes& attrs) const;
 
-    bool create_by_attributes(
-            const fastrtps::PublisherAttributes& attrs,
-            uint16_t& topic_id);
+    bool write(
+            const std::vector<uint8_t>& data);
 
-    bool match_from_ref(const std::string& ref) const;
+    bool write(
+            const std::vector<uint8_t>& data,
+            fastrtps::rtps::WriteParams& wparams);
 
-    bool match_from_xml(const std::string& xml) const;
-
-    bool write(const std::vector<uint8_t>& data);
-
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    const fastrtps::Publisher* get_ptr() const { return ptr_; }
+    const fastrtps::rtps::GUID_t& get_guid() const;
 
 private:
-    std::shared_ptr<FastParticipant> participant_;
-    fastrtps::Publisher* ptr_;
+    fastrtps::Publisher* impl_;
+    std::shared_ptr<FastTopic> topic_;
+    std::shared_ptr<FastPublisher> publisher_;
 };
 
 /**********************************************************************************************************************
  * FastDataReader
  **********************************************************************************************************************/
-class FastDataReader : public fastrtps::SubscriberListener
+class FastDataReader
 {
 public:
-    FastDataReader(const std::shared_ptr<FastParticipant>& participant);
+    FastDataReader(
+            fastrtps::Subscriber* impl_,
+            const std::shared_ptr<FastTopic>& topic,
+            const std::shared_ptr<FastSubscriber>& Subscriber);
 
-    ~FastDataReader() override;
+    ~FastDataReader();
 
-    bool create_by_ref(
-            const std::string& ref,
-            uint16_t& topic_id);
-
-    bool create_by_attributes(
-            const fastrtps::SubscriberAttributes& attrs,
-            uint16_t& topic_id);
-
-    bool match_from_ref(const std::string& ref) const;
-
-    bool match_from_xml(const std::string& xml) const;
+    bool match(
+            const fastrtps::SubscriberAttributes& attrs) const;
 
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
-    void onSubscriptionMatched(
-            fastrtps::Subscriber* sub,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onNewDataMessage(fastrtps::Subscriber*) override;
-
-    const fastrtps::Subscriber* get_ptr() const { return ptr_; }
+    bool read(
+            std::vector<uint8_t>& data,
+            fastrtps::SampleInfo_t& info,
+            std::chrono::milliseconds timeout);
 
 private:
-    std::shared_ptr<FastParticipant> participant_;
-    fastrtps::Subscriber* ptr_;
-    std::mutex mtx_;
-    std::condition_variable cv_;
-    std::atomic<uint64_t> unread_count_;
+    fastrtps::Subscriber* impl_;
+    std::shared_ptr<FastTopic> topic_;
+    std::shared_ptr<FastSubscriber> subscriber_;
 };
 
 
 /**********************************************************************************************************************
  * FastRequester
  **********************************************************************************************************************/
-class FastRequester : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+class FastRequester
 {
 public:
     FastRequester(
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastDataWriter>& datawriter,
+            const std::shared_ptr<FastDataReader>& datareader);
 
-    ~FastRequester() override;
+    ~FastRequester() = default;
 
-    bool create_by_ref(
-            const std::string& ref);
-
-    bool create_by_attributes(
-            const fastrtps::RequesterAttributes& attrs);
-
-    bool match_from_ref(
-            const std::string& ref) const;
-
-    bool match_from_xml(
-            const std::string& xml) const;
+    bool match(
+            const fastrtps::RequesterAttributes& attrs) const;
 
     bool write(
             uint32_t sequence_number,
@@ -271,55 +270,27 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onSubscriptionMatched(
-            fastrtps::Subscriber* sub,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onNewDataMessage(
-            fastrtps::Subscriber*) override;
-
 private:
-    bool match(const fastrtps::RequesterAttributes& attrs) const;
-
-private:
-    std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastType> request_topic_;
-    std::shared_ptr<FastType> reply_topic_;
-    fastrtps::Publisher* publisher_ptr_;
-    fastrtps::Subscriber* subscriber_ptr_;
+    std::shared_ptr<FastDataWriter> datawriter_;
+    std::shared_ptr<FastDataReader> datareader_;
     dds::GUID_t publisher_id_;
-    std::mutex mtx_;
-    std::condition_variable cv_;
-    std::atomic<uint64_t> unread_count_;
     std::map<int64_t, uint32_t> sequence_to_sequence_;
 };
 
 /**********************************************************************************************************************
  * FastReplier
  **********************************************************************************************************************/
-class FastReplier : public fastrtps::SubscriberListener, public fastrtps::PublisherListener
+class FastReplier
 {
 public:
     FastReplier(
-            const std::shared_ptr<FastParticipant>& participant);
+            const std::shared_ptr<FastDataWriter>& datawriter,
+            const std::shared_ptr<FastDataReader>& datareader);
 
-    ~FastReplier() override;
+    ~FastReplier() = default;
 
-    bool create_by_ref(
-            const std::string& ref);
-
-    bool create_by_attributes(
-            const fastrtps::ReplierAttributes& attrs);
-
-    bool match_from_ref(
-            const std::string& ref) const;
-
-    bool match_from_xml(
-            const std::string& xml) const;
+    bool match(
+            const fastrtps::ReplierAttributes& attrs) const;
 
     bool write(
             const std::vector<uint8_t>& data);
@@ -327,30 +298,9 @@ public:
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
-
-    void onPublicationMatched(
-            fastrtps::Publisher*,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onSubscriptionMatched(
-            fastrtps::Subscriber* sub,
-            fastrtps::rtps::MatchingInfo& info) override;
-
-    void onNewDataMessage(
-            fastrtps::Subscriber*) override;
-
 private:
-    bool match(const fastrtps::ReplierAttributes& attrs) const;
-
-private:
-    std::shared_ptr<FastParticipant> participant_;
-    std::shared_ptr<FastType> request_topic_;
-    std::shared_ptr<FastType> reply_topic_;
-    fastrtps::Publisher* publisher_ptr_;
-    fastrtps::Subscriber* subscriber_ptr_;
-    std::mutex mtx_;
-    std::condition_variable cv_;
-    std::atomic<uint64_t> unread_count_;
+    std::shared_ptr<FastDataWriter> datawriter_;
+    std::shared_ptr<FastDataReader> datareader_;
 };
 
 } // namespace uxr

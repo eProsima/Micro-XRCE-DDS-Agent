@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/subscriber/Subscriber.hpp>
-#include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/client/ProxyClient.hpp>
 
 namespace eprosima {
@@ -21,54 +20,42 @@ namespace uxr {
 
 std::unique_ptr<Subscriber> Subscriber::create(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant,
+        uint16_t participant_id,
+        const std::shared_ptr<ProxyClient>& proxy_client,
         const dds::xrce::OBJK_SUBSCRIBER_Representation& representation)
 {
     bool created_entity = false;
     uint16_t raw_object_id = conversion::objectid_to_raw(object_id);
 
-    Middleware& middleware = participant->get_proxy_client()->get_middleware();
+    Middleware& middleware = proxy_client->get_middleware();
     switch (representation.representation()._d())
     {
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().string_representation();
-            created_entity = middleware.create_subscriber_by_xml(raw_object_id, participant->get_raw_id(), xml);
+            created_entity = middleware.create_subscriber_by_xml(raw_object_id, participant_id, xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
         {
-            // TODO (julian ???)
+            // TODO (julibert): implement binary representation.
             break;
         }
     }
 
-    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, participant)) : nullptr);
+    return (created_entity ? std::unique_ptr<Subscriber>(new Subscriber(object_id, proxy_client)) : nullptr);
 }
 
 Subscriber::Subscriber(
         const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<Participant>& participant)
-    : XRCEObject(object_id)
-    , participant_(participant)
-{
-    participant_->tie_object(object_id);
-}
+        const std::shared_ptr<ProxyClient>& proxy_client)
+    : XRCEObject{object_id}
+    , proxy_client_{proxy_client}
+{}
 
 Subscriber::~Subscriber()
 {
-    participant_->untie_object(get_id());
-    participant_->get_proxy_client()->get_middleware().delete_subscriber(get_raw_id());
-}
-
-void Subscriber::release(ObjectContainer& root_objects)
-{
-    while (!tied_objects_.empty())
-    {
-        auto obj = tied_objects_.begin();
-        root_objects.at(*obj)->release(root_objects);
-        root_objects.erase(*obj);
-    }
+    proxy_client_->get_middleware().delete_subscriber(get_raw_id());
 }
 
 } // namespace uxr

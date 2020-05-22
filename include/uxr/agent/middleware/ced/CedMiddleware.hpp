@@ -138,28 +138,24 @@ public:
      * @param datawriter_id         The CedDataWriter identifier.
      * @param publisher_id          The CedPublisher identifier.
      * @param ref                   The CedDataWriter reference. Currently, it is used as the topic name.
-     * @param associated_topic_id   The associated CedTopic identifier.
      * @return  true in case of creation and false in other case.
      */
     bool create_datawriter_by_ref(
             uint16_t datawriter_id,
             uint16_t publisher_id,
-            const std::string& ref,
-            uint16_t& associated_topic_id) override;
+            const std::string& ref) override;
 
     /**
      * @brief Creates a CedDataWriter associated to a CedPublisher from an XML.
      * @param datawriter_id         The CedDataWriter identifier.
      * @param publisher_id          The CedPublisher identifier.
      * @param xml                   The XML that describes the CedDataWriter. Currently, it is used as the topic name.
-     * @param associated_topic_id   The associated CedTopic identifier.
      * @return  true in case of creation and false in other case.
      */
     bool create_datawriter_by_xml(
             uint16_t datawriter_id,
             uint16_t publisher_id,
-            const std::string& xml,
-            uint16_t& associated_topic_id) override;
+            const std::string& xml) override;
 
     /**
      * @startuml
@@ -170,28 +166,24 @@ public:
      * @param datareader_id         The CedDataReader identifier.
      * @param subscriber_id         The CedSubscriber identifier.
      * @param ref                   The CedDataReader reference. Currently, it is used as the topic name.
-     * @param associated_topic_id   The associated CedTopic identifier.
      * @return  true in case of creation and false in other case.
      */
     bool create_datareader_by_ref(
             uint16_t datareader_id,
             uint16_t subscriber_id,
-            const std::string& ref,
-            uint16_t& associated_topic_id) override;
+            const std::string& ref) override;
 
     /**
      * @brief Creates a CedDataReader associated to a CedSubscriber from an XML.
      * @param datareader_id         The CedDataReader identifier.
      * @param subscriber_id         The CedSubscriber identifier.
      * @param xml                   The XML that describes the CedDataReader. Currently, it is used as the topic name.
-     * @param associated_topic_id   The associated CedTopic identifier.
      * @return  true in case of creation and false in other case.
      */
     bool create_datareader_by_xml(
             uint16_t datareader_id,
             uint16_t subscriber_id,
-            const std::string& xml,
-            uint16_t& associated_topic_id) override;
+            const std::string& xml) override;
 
     /**
      * @brief Not implemented.
