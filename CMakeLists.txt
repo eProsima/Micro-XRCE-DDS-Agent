@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
-option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into saparated folders with version control." ON)
+option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into saparated folders with version control." OFF)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
