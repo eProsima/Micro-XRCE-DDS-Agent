@@ -75,9 +75,9 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastrtps_version 2.0.0)
-    set(_fastrtps_tag e58dcb1)
-    list(APPEND _deps "fastrtps\;${_fastrtps_version}")
+    set(_fastdds_version 2.0.0)
+    set(_fastdds_tag 2.0.x)
+    list(APPEND _deps "fastrtps\;${_fastdds_version}")
     set(_foonathan_memory_tag master)
 endif()
 
