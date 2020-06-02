@@ -75,7 +75,7 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastdds_version 2.0.0)
+    set(_fastdds_version 2.0)
     set(_fastdds_tag 2.0.x)
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
     set(_foonathan_memory_tag master)
@@ -124,7 +124,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install)
 foreach(d ${_deps})
     list(GET d 0 _name)
     list(GET d 1 _version)
-    find_package(${_name} ${_version} EXACT REQUIRED)
+    find_package(${_name} ${_version} REQUIRED)
 endforeach()
 
 ###############################################################################
