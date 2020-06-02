@@ -103,7 +103,7 @@ if(UAGENT_FAST_PROFILE)
 
     # Fast DDS.
     unset(fastdds_DIR CACHE)
-    find_package(fastdds ${_fastdds_version} EXACT QUIET)
+    find_package(fastrtps ${_fastdds_version} EXACT QUIET)
     if(NOT fastdds_FOUND)
         ExternalProject_Add(fastdds
             GIT_REPOSITORY
