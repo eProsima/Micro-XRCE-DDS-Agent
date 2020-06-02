@@ -26,7 +26,7 @@ set_and_check(@PROJECT_NAME@_DATA_DIR "@PACKAGE_DATA_INSTALL_DIR@")
 foreach(d @_deps@)
     list(GET d 0 _name)
     list(GET d 1 _version)
-    find_package(${_name} ${_version} EXACT REQUIRED)
+    find_package(${_name} ${_version} REQUIRED)
 endforeach()
 
 include(${@PROJECT_NAME@_DATA_DIR}/@PROJECT_NAME@/cmake/@PROJECT_NAME@Targets.cmake)
