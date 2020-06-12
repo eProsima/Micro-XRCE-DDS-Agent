@@ -117,7 +117,7 @@ private:
     std::mutex connections_mtx_;
     struct pollfd listener_poll_;
     std::array<struct pollfd, TCP_MAX_CONNECTIONS> poll_fds_;
-    uint8_t buffer_[UINT16_MAX];
+    uint8_t buffer_[SERVER_BUFFER_SIZE];
     uint16_t agent_port_;
     std::thread listener_thread_;
     std::atomic<bool> running_cond_;
