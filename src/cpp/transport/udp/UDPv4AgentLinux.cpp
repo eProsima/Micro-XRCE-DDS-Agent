@@ -28,8 +28,10 @@
 namespace eprosima {
 namespace uxr {
 
+#ifdef UAGENT_DISCOVERY_PROFILE
 extern template class DiscoveryServer<IPv4EndPoint>; // Explicit instantiation declaration.
 extern template class DiscoveryServerLinux<IPv4EndPoint>; // Explicit instantiation declaration.
+#endif // UAGENT_DISCOVERY_PROFILE
 
 UDPv4Agent::UDPv4Agent(
         uint16_t agent_port,
