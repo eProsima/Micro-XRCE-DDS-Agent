@@ -71,6 +71,8 @@ if(NOT fastcdr_FOUND)
         UPDATE_COMMAND
             COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
             COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+        PATCH_COMMAND
+            git am ${CMAKE_CURRENT_SOURCE_DIR}/fastcdr/0001-use-stdlib-for-VxWorks.patch
         TEST_COMMAND
             COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
         )
@@ -100,13 +102,21 @@ if(UAGENT_FAST_PROFILE)
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-                -DTHIRDPARTY:BOOL=ON
+                -DTHIRDPARTY:BOOL=OFF
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
                 fastcdr
             UPDATE_COMMAND
                 COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
                 COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+            PATCH_COMMAND
+	        COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0001-comment-CMAKE_SHARED_LINKER_FLAGS.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0002-undef-NONE.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0003-remove-CMAKE_DL_LIBS.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0004-set-munmap-to-0.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0005-skip-find-package-THREADS.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0006-skip-find-package_OpenSSL.patch
+		COMMAND patch -p 1 < ${CMAKE_CURRENT_SOURCE_DIR}/fastrtps/0007-undef-NONE.patch
             TEST_COMMAND
                 COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
             )
@@ -168,6 +178,9 @@ if(UAGENT_LOGGER_PROFILE)
                 -DSPDLOG_BUILD_BENCH:BOOL=OFF
                 -DSPDLOG_BUILD_TESTS:BOOL=OFF
                 -DSPDLOG_INSTALL:BOOL=ON
+            UPDATE_COMMAND ""
+            PATCH_COMMAND
+                git am ${CMAKE_CURRENT_SOURCE_DIR}/spdlog/0001-spdlog.patch
             )
         list(APPEND _deps spdlog)
     endif()
