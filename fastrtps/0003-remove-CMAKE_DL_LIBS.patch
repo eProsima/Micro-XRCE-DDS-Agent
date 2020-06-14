@@ -1,0 +1,25 @@
+From 529f4e09ab9f50fc09b00df91707c4a264251b51 Mon Sep 17 00:00:00 2001
+From: Andrei Kholodnyi <andrei.kholodnyi@gmail.com>
+Date: Wed, 8 Apr 2020 21:05:13 +0200
+Subject: [PATCH 3/7] remove CMAKE_DL_LIBS
+
+---
+ src/cpp/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cpp/CMakeLists.txt b/src/cpp/CMakeLists.txt
+index 0bde5572d..90c177a1b 100644
+--- a/src/cpp/CMakeLists.txt
++++ b/src/cpp/CMakeLists.txt
+@@ -302,7 +302,7 @@ elseif(NOT EPROSIMA_INSTALLER)
+ 
+     # Link library to external libraries.
+     target_link_libraries(${PROJECT_NAME} ${PRIVACY} fastcdr
+-        ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS}
++        ${CMAKE_THREAD_LIBS_INIT}
+         ${TINYXML2_LIBRARY}
+         $<$<BOOL:${LINK_SSL}>:OpenSSL::SSL$<SEMICOLON>OpenSSL::Crypto>
+         $<$<BOOL:${WIN32}>:iphlpapi$<SEMICOLON>Shlwapi>
+-- 
+2.17.1
+

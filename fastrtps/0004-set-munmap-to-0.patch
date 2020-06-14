@@ -1,0 +1,25 @@
+From 92b1c7a4f5fb35a832fd9ceb3796149c1a251508 Mon Sep 17 00:00:00 2001
+From: Andrei Kholodnyi <andrei.kholodnyi@gmail.com>
+Date: Wed, 8 Apr 2020 21:05:41 +0200
+Subject: [PATCH 4/7] set munmap to 0
+
+---
+ src/cpp/rtps/persistence/sqlite3.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cpp/rtps/persistence/sqlite3.c b/src/cpp/rtps/persistence/sqlite3.c
+index 2fff4f6e0..ceaf63bce 100644
+--- a/src/cpp/rtps/persistence/sqlite3.c
++++ b/src/cpp/rtps/persistence/sqlite3.c
+@@ -31227,7 +31227,7 @@ static struct unix_syscall {
+ #define osMmap ((void*(*)(void*,size_t,int,int,int,off_t))aSyscall[22].pCurrent)
+ 
+ #if !defined(SQLITE_OMIT_WAL) || SQLITE_MAX_MMAP_SIZE>0
+-  { "munmap",       (sqlite3_syscall_ptr)munmap,          0 },
++  { "munmap",       (sqlite3_syscall_ptr)0,          0 },
+ #else
+   { "munmap",       (sqlite3_syscall_ptr)0,               0 },
+ #endif
+-- 
+2.17.1
+

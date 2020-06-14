@@ -1,0 +1,25 @@
+From df31375d192900a432ddc41a92c0981dd8fb1ab4 Mon Sep 17 00:00:00 2001
+From: Andrei Kholodnyi <andrei.kholodnyi@gmail.com>
+Date: Wed, 8 Apr 2020 21:03:56 +0200
+Subject: [PATCH 1/7] comment CMAKE_SHARED_LINKER_FLAGS
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9e973165b..a3f68e221 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -136,7 +136,7 @@ else()
+     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,error")
++	    #        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+     endif()
+ 
+     if(EPROSIMA_BUILD)
+-- 
+2.17.1
+
