@@ -1,0 +1,25 @@
+From 3ff0769fbcc53a7a00b0d7e670c4ccd268439aa2 Mon Sep 17 00:00:00 2001
+From: Andrei Kholodnyi <Andrei.Kholodnyi@windriver.com>
+Date: Sat, 13 Jun 2020 13:07:17 +0300
+Subject: [PATCH] if defined __VXWORKS__
+
+---
+ include/spdlog/details/os-inl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/spdlog/details/os-inl.h b/include/spdlog/details/os-inl.h
+index f436b0d1..7df5fe70 100644
+--- a/include/spdlog/details/os-inl.h
++++ b/include/spdlog/details/os-inl.h
+@@ -275,7 +275,7 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm)
+     return offset;
+ #else
+ 
+-#if defined(sun) || defined(__sun) || defined(_AIX)
++#if defined(sun) || defined(__sun) || defined(_AIX) || defined(__VXWORKS__)
+     // 'tm_gmtoff' field is BSD extension and it's missing on SunOS/Solaris
+     struct helper
+     {
+-- 
+2.25.1
+
