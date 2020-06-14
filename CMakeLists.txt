@@ -30,8 +30,8 @@ option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
-option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
-option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
+option(UAGENT_P2P_PROFILE "Build P2P discovery profile." OFF)
+option(UAGENT_LOGGER_PROFILE "Build logger profile." OFF)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
@@ -139,7 +139,8 @@ endif()
 # Sources
 ###############################################################################
 # Check platform.
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "VxWorks")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
@@ -147,7 +148,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
-        src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
+        $<$<PLATFORM_ID:Linux>:src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp>
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
@@ -351,7 +352,7 @@ if(UAGENT_BUILD_TESTS)
     add_subdirectory(test/unittest/utils)
     add_subdirectory(test/unittest/types)
     add_subdirectory(test/unittest/client/session/stream)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "VxWorks")
         add_subdirectory(test/unittest/transport/serial)
     endif()
 endif()
