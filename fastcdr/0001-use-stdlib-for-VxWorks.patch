@@ -1,0 +1,53 @@
+From 2570f965025dd6331587b50e187dfa8fc5badde2 Mon Sep 17 00:00:00 2001
+From: Andrei Kholodnyi <andrei.kholodnyi@gmail.com>
+Date: Wed, 8 Apr 2020 20:35:14 +0200
+Subject: [PATCH] use stdlib for VxWorks
+
+---
+ include/fastcdr/Cdr.h     | 2 +-
+ include/fastcdr/FastCdr.h | 2 +-
+ src/cpp/FastBuffer.cpp    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/fastcdr/Cdr.h b/include/fastcdr/Cdr.h
+index 493a7cd..37594ea 100644
+--- a/include/fastcdr/Cdr.h
++++ b/include/fastcdr/Cdr.h
+@@ -24,7 +24,7 @@
+ #include <map>
+ #include <iostream>
+ 
+-#if !__APPLE__
++#if !__APPLE__ && !__VXWORKS__
+ #include <malloc.h>
+ #else
+ #include <stdlib.h>
+diff --git a/include/fastcdr/FastCdr.h b/include/fastcdr/FastCdr.h
+index ea64fdc..3bc5bc0 100644
+--- a/include/fastcdr/FastCdr.h
++++ b/include/fastcdr/FastCdr.h
+@@ -22,7 +22,7 @@
+ #include <string>
+ #include <vector>
+ 
+-#if !__APPLE__
++#if !__APPLE__ && !__VXWORKS__
+ #include <malloc.h>
+ #else
+ #include <stdlib.h>
+diff --git a/src/cpp/FastBuffer.cpp b/src/cpp/FastBuffer.cpp
+index b02a419..aae24d4 100644
+--- a/src/cpp/FastBuffer.cpp
++++ b/src/cpp/FastBuffer.cpp
+@@ -14,7 +14,7 @@
+ 
+ #include <fastcdr/FastBuffer.h>
+ 
+-#if !__APPLE__
++#if !__APPLE__ && !__VXWORKS__
+ #include <malloc.h>
+ #else
+ #include <stdlib.h>
+-- 
+2.17.1
+
