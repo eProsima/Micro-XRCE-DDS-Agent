@@ -54,6 +54,7 @@ set(UAGENT_CONFIG_TCP_MAX_CONNECTIONS          100      CACHE STRING "Maximum TC
 set(UAGENT_CONFIG_TCP_MAX_BACKLOG_CONNECTIONS  100      CACHE STRING "Maximum TCP backlog connection allowed.")
 set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum server's queues size.")
 set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dead time in milliseconds.")
+set(UAGENT_SERVER_BUFFER_SIZE                  65535    CACHE STRING "Server buffer size.")
 
 ###############################################################################
 # Dependencies
@@ -92,7 +93,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.4.1" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "1.4.2" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)

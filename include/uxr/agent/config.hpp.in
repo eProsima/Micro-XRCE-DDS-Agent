@@ -45,6 +45,8 @@ const uint16_t SERVER_QUEUE_MAX_SIZE = @UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE@;
 
 constexpr std::chrono::milliseconds CLIENT_DEAD_TIME{@UAGENT_CONFIG_CLIENT_DEAD_TIME@};
 
+const uint16_t SERVER_BUFFER_SIZE = @UAGENT_SERVER_BUFFER_SIZE@;
+
 } // namespace uxr
 } // namespace eprosima
 

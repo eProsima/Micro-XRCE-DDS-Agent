@@ -75,7 +75,7 @@ private:
 protected:
     const uint8_t addr_;
     struct pollfd poll_fd_;
-    uint8_t buffer_[UINT16_MAX];
+    uint8_t buffer_[SERVER_BUFFER_SIZE];
     SerialIO serial_io_;
 };
 
