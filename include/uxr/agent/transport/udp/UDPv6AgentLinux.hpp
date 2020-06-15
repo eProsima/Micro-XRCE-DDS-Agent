@@ -71,7 +71,7 @@ private:
 
 private:
     struct pollfd poll_fd_;
-    uint8_t buffer_[UINT16_MAX];
+    uint8_t buffer_[SERVER_BUFFER_SIZE];
     uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
