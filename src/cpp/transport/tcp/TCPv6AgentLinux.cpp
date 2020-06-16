@@ -31,8 +31,10 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
+#ifdef UAGENT_DISCOVERY_PROFILE
 extern template class DiscoveryServer<IPv6EndPoint>;
 extern template class DiscoveryServerLinux<IPv6EndPoint>;
+#endif // UAGENT_DISCOVERY_PROFILE
 
 TCPv6Agent::TCPv6Agent(
         uint16_t agent_port,

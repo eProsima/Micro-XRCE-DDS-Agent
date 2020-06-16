@@ -31,8 +31,10 @@ namespace uxr {
 
 const uint8_t max_attemps = 16;
 
+#ifdef UAGENT_DISCOVERY_PROFILE
 extern template class DiscoveryServer<IPv4EndPoint>;
 extern template class DiscoveryServerLinux<IPv4EndPoint>;
+#endif // UAGENT_DISCOVERY_PROFILE
 
 TCPv4Agent::TCPv4Agent(
         uint16_t agent_port,
