@@ -57,6 +57,7 @@ public:
     // Proxy methods
 
     int16_t domain_id() const { return domain_id_; }
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
 
     ReturnCode_t unregister_type(
             const std::string& typeName);

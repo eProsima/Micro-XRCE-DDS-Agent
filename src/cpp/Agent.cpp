@@ -15,6 +15,7 @@
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/utils/Callbacks.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
 
 
@@ -213,7 +214,7 @@ void fill_object_variant<Agent::REPLIER_OBJK>(
  * Des/Constructor.
  **********************************************************************************************************************/
 Agent::Agent()
-    : root_(new Root())
+    : root_(new Root(onCreateCallbacks, onDeleteCallbacks))
 {}
 
 Agent::~Agent() = default;
@@ -638,6 +639,20 @@ bool Agent::delete_object(
     return rv;
 }
 
+/**********************************************************************************************************************
+ * Callback API.
+ **********************************************************************************************************************/
+void Agent::add_oncreate_callback(
+        onCreateCallback cb)
+{
+    onCreateCallbacks.push_back(cb);
+}
+
+void Agent::add_ondelete_callback(
+        onDeleteCallback cb)
+{
+    onDeleteCallbacks.push_back(cb);
+}
 
 } // namespace uxr
 } // namespace eprosima

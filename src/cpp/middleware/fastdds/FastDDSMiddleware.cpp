@@ -23,6 +23,29 @@ namespace uxr {
 using namespace fastrtps::xmlparser;
 
 /**********************************************************************************************************************
+ * Aux functions.
+ **********************************************************************************************************************/
+static dds::GUID_t rtpsguid_to_guid(
+        fastrtps::rtps::GUID_t rtps_guid)
+{   
+    dds::GUID_t guid;
+
+    std::copy(
+        std::begin(rtps_guid.guidPrefix.value),
+        std::end(rtps_guid.guidPrefix.value),
+        guid.guidPrefix().begin());
+
+    std::copy(
+        std::begin(rtps_guid.entityId.value),
+        std::begin(rtps_guid.entityId.value) + 3,
+        guid.entityId().entityKey().begin());
+    
+    guid.entityId().entityKind() = rtps_guid.entityId.value[3];
+    
+    return guid;
+}
+
+/**********************************************************************************************************************
  * Create functions.
  **********************************************************************************************************************/
 bool FastDDSMiddleware::create_participant_by_ref(
@@ -33,7 +56,12 @@ bool FastDDSMiddleware::create_participant_by_ref(
     bool rv = false;
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_ref(ref))
-    {
+    {   
+        dds::GUID_t guid =  rtpsguid_to_guid(participant->guid());
+        for (const auto &cb : onCreateCallbacks_) {
+            cb(dds::xrce::OBJK_PARTICIPANT, guid);
+        }
+
         participants_.emplace(participant_id, std::move(participant));
         rv = true;
     }
@@ -48,7 +76,12 @@ bool FastDDSMiddleware::create_participant_by_xml(
     bool rv = false;
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_xml(xml))
-    {
+    {   
+        dds::GUID_t guid =  rtpsguid_to_guid(participant->guid());
+        for (const auto &cb : onCreateCallbacks_) {
+            cb(dds::xrce::OBJK_PARTICIPANT, guid);
+        }
+
         participants_.emplace(participant_id, std::move(participant));
         rv = true;
     }

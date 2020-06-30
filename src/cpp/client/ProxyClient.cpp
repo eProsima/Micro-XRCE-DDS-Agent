@@ -36,6 +36,8 @@ namespace uxr {
 
 ProxyClient::ProxyClient(
         const dds::xrce::CLIENT_Representation& representation,
+        const onCreateCallbackVector& onCreateCallbacks,
+        const onDeleteCallbackVector& onDeleteCallbacks,
         Middleware::Kind middleware_kind)
     : representation_(representation)
     , objects_()
@@ -55,12 +57,12 @@ ProxyClient::ProxyClient(
 #ifdef UAGENT_FAST_PROFILE
         case Middleware::Kind::FASTRTPS:
         {
-            middleware_.reset(new FastMiddleware());
+            middleware_.reset(new FastMiddleware(onCreateCallbacks, onDeleteCallbacks));
             break;
         }
         case Middleware::Kind::FASTDDS:
         {
-            middleware_.reset(new FastDDSMiddleware());
+            middleware_.reset(new FastDDSMiddleware(onCreateCallbacks, onDeleteCallbacks));
             break;
         }
 #endif
