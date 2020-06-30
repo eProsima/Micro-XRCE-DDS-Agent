@@ -16,6 +16,7 @@
 #define UXR_AGENT_ROOT_HPP_
 
 #include <uxr/agent/client/ProxyClient.hpp>
+#include <uxr/agent/Agent.hpp>
 
 #include <thread>
 #include <memory>
@@ -28,7 +29,9 @@ namespace uxr{
 class Root
 {
 public:
-    Root();
+    Root(
+        const onCreateCallbackVector& onCreateCallbacks,
+        const onDeleteCallbackVector& onDeleteCallbacks);
     ~Root();
 
     Root(Root&&) = delete;
@@ -59,6 +62,9 @@ private:
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;
+
+    const onCreateCallbackVector& onCreateCallbacks_;
+    const onDeleteCallbackVector& onDeleteCallbacks_;
 };
 
 } // uxr

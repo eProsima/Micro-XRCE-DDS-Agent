@@ -546,6 +546,26 @@ public:
      */
     UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
 
+    /**
+     * Callback API
+     */
+
+    /**
+     * @brief Appends a callback function which is called every time an entity is created
+     *
+     * @param cb        Callback function.
+     */
+    UXR_AGENT_EXPORT void add_oncreate_callback(
+        onCreateCallback cb);
+    
+    /**
+     * @brief Appends a callback function which is called every time an entity is deleted
+     *
+     * @param cb        Callback function.
+     */
+    UXR_AGENT_EXPORT void add_ondelete_callback(
+        onDeleteCallback cb);
+
 private:
     template<Agent::ObjectKind object_kind, typename U, typename T>
     bool create_object(
@@ -562,6 +582,9 @@ private:
             uint16_t raw_id,
             Agent::OpResult& op_result);
 
+    //TODO (pablogs): should this be a shared pointer?
+    onCreateCallbackVector onCreateCallbacks;
+    onDeleteCallbackVector onDeleteCallbacks;
 
 protected:
     std::unique_ptr<Root> root_;

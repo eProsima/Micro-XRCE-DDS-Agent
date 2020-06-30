@@ -28,7 +28,12 @@ namespace uxr {
 class FastDDSMiddleware : public Middleware
 {
 public:
-    FastDDSMiddleware() = default;
+    FastDDSMiddleware(
+        const onCreateCallbackVector& onCreateCallbacks,
+        const onDeleteCallbackVector& onDeleteCallbacks) 
+        : 
+        onCreateCallbacks_(onCreateCallbacks),
+        onDeleteCallbacks_(onDeleteCallbacks){};    
     ~FastDDSMiddleware() final = default;
 
 /**********************************************************************************************************************
@@ -217,6 +222,9 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataReader>> datareaders_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSRequester>> requesters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSReplier>> repliers_;
+
+    const onCreateCallbackVector& onCreateCallbacks_;
+    const onDeleteCallbackVector& onDeleteCallbacks_;
 };
 
 } // namespace uxr
