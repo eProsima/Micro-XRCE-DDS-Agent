@@ -139,30 +139,33 @@ if(UAGENT_FAST_PROFILE)
 endif()
 
 # CLI11.
-unset(CLI11_DIR CACHE)
-find_package(CLI11 ${_cli11_version} EXACT QUIET)
-if(NOT CLI11_FOUND)
-    ExternalProject_Add(cli11
-        GIT_REPOSITORY
-            https://github.com/CLIUtils/CLI11.git
-        GIT_TAG
-            ${_cli11_tag}
-        PREFIX
-            ${PROJECT_BINARY_DIR}/CLI11
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install/cli11-${_cli11_version}
-        CMAKE_CACHE_ARGS
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-            -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-            -DCLI11_TESTING:BOOL=OFF
-            -DCLI11_EXAMPLES:BOOL=OFF
-        )
-    list(APPEND _deps cli11)
+if(UAGENT_CLI_PROFILE)
+    message(WARNING "           SUPERBUILD UAGENT_CLI_PROFILE ON")
+    unset(CLI11_DIR CACHE)
+    find_package(CLI11 ${_cli11_version} EXACT QUIET)
+    if(NOT CLI11_FOUND)
+        ExternalProject_Add(cli11
+            GIT_REPOSITORY
+                https://github.com/CLIUtils/CLI11.git
+            GIT_TAG
+                ${_cli11_tag}
+            PREFIX
+                ${PROJECT_BINARY_DIR}/CLI11
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install/cli11-${_cli11_version}
+            CMAKE_CACHE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+                -DCLI11_TESTING:BOOL=OFF
+                -DCLI11_EXAMPLES:BOOL=OFF
+            )
+        list(APPEND _deps cli11)
+    endif()
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
