@@ -64,8 +64,12 @@ template <typename AgentKind>
 std::thread create_agent_thread(
         int argc,
         char** argv,
+#ifndef _WIN32
         TransportKind transport_kind,
         const sigset_t* signals);
+#else
+        TransportKind transport_kind);
+#endif // _WIN32
 
 namespace parser {
 namespace utils {
@@ -838,8 +842,12 @@ template <typename AgentKind>
 std::thread create_agent_thread(
         int argc,
         char** argv,
+#ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
+#else
+        eprosima::uxr::agent::TransportKind transport_kind)
+#endif // _WIN32
 {
     std::thread agent_thread = std::thread([&]()
     {
@@ -888,8 +896,12 @@ template <>
 std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         int argc,
         char** argv,
+#ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
+#else
+        eprosima::uxr::agent::TransportKind transport_kind)
+#endif // _WIN32
 {
     std::thread agent_thread = std::thread([&]()
     {
@@ -927,8 +939,12 @@ template <>
 std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
         int argc,
         char** argv,
+#ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
+#else
+        eprosima::uxr::agent::TransportKind transport_kind)
+#endif // _WIN32
 {
     std::thread agent_thread = std::thread([&]()
     {
