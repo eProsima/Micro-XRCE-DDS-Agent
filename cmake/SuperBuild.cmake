@@ -140,7 +140,6 @@ endif()
 
 # CLI11.
 if(UAGENT_CLI_PROFILE)
-    message(WARNING "           SUPERBUILD UAGENT_CLI_PROFILE ON")
     unset(CLI11_DIR CACHE)
     find_package(CLI11 ${_cli11_version} EXACT QUIET)
     if(NOT CLI11_FOUND)
