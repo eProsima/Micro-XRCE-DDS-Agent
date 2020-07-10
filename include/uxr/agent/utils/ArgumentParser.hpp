@@ -849,7 +849,7 @@ std::thread create_agent_thread(
         eprosima::uxr::agent::TransportKind transport_kind)
 #endif // _WIN32
 {
-    std::thread agent_thread = std::thread([&]()
+    std::thread agent_thread = std::thread([&]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<AgentKind> parser(argc, argv, transport_kind);
 
@@ -857,7 +857,7 @@ std::thread create_agent_thread(
         {
             case parser::ParseResult::INVALID:
             {
-                return parser::utils::usage();
+                parser::utils::usage();
                 break;
             }
             case parser::ParseResult::VALID:
@@ -903,7 +903,7 @@ std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         eprosima::uxr::agent::TransportKind transport_kind)
 #endif // _WIN32
 {
-    std::thread agent_thread = std::thread([&]()
+    std::thread agent_thread = std::thread([&]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::TermiosAgent>
             parser(argc, argv, transport_kind);
@@ -912,7 +912,7 @@ std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         {
             case parser::ParseResult::INVALID:
             {
-                return parser::utils::usage();
+                parser::utils::usage();
                 break;
             }
             case parser::ParseResult::VALID:
@@ -946,7 +946,7 @@ std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
         eprosima::uxr::agent::TransportKind transport_kind)
 #endif // _WIN32
 {
-    std::thread agent_thread = std::thread([&]()
+    std::thread agent_thread = std::thread([&]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::PseudoTerminalAgent>
             parser(argc, argv, transport_kind);
@@ -955,7 +955,7 @@ std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
         {
             case parser::ParseResult::INVALID:
             {
-                return parser::utils::usage();
+                parser::utils::usage();
                 break;
             }
             case parser::ParseResult::VALID:

@@ -84,7 +84,9 @@ if(UAGENT_FAST_PROFILE)
     if (NOT foonathan_memory_FOUND)
         ExternalProject_Add(foonathan_memory
             GIT_REPOSITORY
-                https://github.com/eProsima/foonathan_memory_vendor.git
+                https://github.com/foonathan/memory.git
+            GIT_TAG
+                ${_foonathan_memory_tag}
             PREFIX
                 ${PROJECT_BINARY_DIR}/foonathan_memory
             INSTALL_DIR
