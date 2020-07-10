@@ -82,7 +82,6 @@ if(UAGENT_FAST_PROFILE)
     set(_fastdds_version 2.0)
     set(_fastdds_tag 2.0.x)
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
-    set(_foonathan_memory_tag master)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
