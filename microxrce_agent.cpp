@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/utils/CLI.hpp>
+#include <uxr/agent/utils/ArgumentParser.hpp>
 #include <csignal>
 
 
@@ -27,9 +28,9 @@ int main(int argc, char** argv)
         std::exit(EXIT_FAILURE);
     }
     sigprocmask( SIG_BLOCK, &signals, nullptr );
-#endif
+#endif // _WIN32
 
-
+#ifdef UAGENT_CLI_PROFILE
     /* CLI application. */
     CLI::App app("eProsima Micro XRCE-DDS Agent");
     app.require_subcommand(1, 1);
@@ -43,7 +44,7 @@ int main(int argc, char** argv)
 #ifndef _WIN32
     eprosima::uxr::cli::TermiosSubcommand termios_subcommand(app);
     eprosima::uxr::cli::PseudoTerminalSubcommand pseudo_serial_subcommand(app);
-#endif
+#endif // _WIN32
     eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
 
     /* CLI parse. */
@@ -83,6 +84,71 @@ int main(int argc, char** argv)
     /* Wait for SIGTERM/SIGINT instead, as reading from stdin may be redirected to /dev/null. */
     int n_signal = 0;
     sigwait(&signals, &n_signal);
-#endif
+#endif // _WIN32
     return 0;
+
+#else
+    /* Use built-in argument parser */
+    if (2 > argc)
+    {
+        eprosima::uxr::agent::parser::utils::usage();
+        return 1;
+    }
+    std::string chosen_transport(argv[1]);
+    auto valid_transport = eprosima::uxr::agent::parser::utils::check_transport(chosen_transport);
+    std::thread agent_thread;
+    if (eprosima::uxr::agent::TransportKind::INVALID != valid_transport)
+    {
+        switch (valid_transport)
+        {
+            case eprosima::uxr::agent::TransportKind::UDP4:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::UDPv4Agent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+            case eprosima::uxr::agent::TransportKind::UDP6:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::UDPv6Agent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+            case eprosima::uxr::agent::TransportKind::TCP4:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::TCPv4Agent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+            case eprosima::uxr::agent::TransportKind::TCP6:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::TCPv6Agent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+#ifndef _WIN32
+            case eprosima::uxr::agent::TransportKind::SERIAL:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::TermiosAgent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+            case eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL:
+            {
+                agent_thread = std::move(eprosima::uxr::agent::create_agent_thread<
+                    eprosima::uxr::PseudoTerminalAgent>(argc, argv, valid_transport, &signals));
+                break;
+            }
+        }
+        agent_thread.join();
+        return 0;
+    }
+    else
+    {
+        std::cerr << "Error: chosen transport '" << chosen_transport << "' is invalid!" << std::endl;
+        eprosima::uxr::agent::parser::utils::usage();
+        return 1;
+    }
+
+#endif // _WIN32
+#endif // UAGENT_CLI_PROFILE
 }

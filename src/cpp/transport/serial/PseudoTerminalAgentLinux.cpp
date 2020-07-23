@@ -67,6 +67,7 @@ bool PseudoTerminalAgent::init()
         cfsetispeed(&attrs, baudrate_);
         cfsetospeed(&attrs, baudrate_);
         tcsetattr(poll_fd_.fd, TCSANOW, &attrs);
+        rv = true;
     }
     else
     {
