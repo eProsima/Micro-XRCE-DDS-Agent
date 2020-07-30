@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <uxr/agent/config.hpp>
+
+#ifdef UAGENT_CLI_PROFILE
 #include <uxr/agent/utils/CLI.hpp>
+#else
 #include <uxr/agent/utils/ArgumentParser.hpp>
+#endif
+
 #include <csignal>
 
 
