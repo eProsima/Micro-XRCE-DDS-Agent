@@ -15,6 +15,7 @@
 #ifndef UXR_AGENT_UTILS_ARGUMENTPARSER_HPP_
 #define UXR_AGENT_UTILS_ARGUMENTPARSER_HPP_
 
+#include <sstream>
 #include <csignal>
 #include <type_traits>
 #include <unordered_map>
@@ -36,6 +37,7 @@
 
 #include <termios.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #endif // _WIN32
 
 #define DEFAULT_MIDDLEWARE      "dds"
@@ -839,7 +841,7 @@ Middleware::Kind get_mw_kind(
  * Helper functions to create and launch a microXRCE-DDS agent in a separate thread
  *************************************************************************************************/
 template <typename AgentKind>
-std::thread create_agent_thread(
+inline std::thread create_agent_thread(
         int argc,
         char** argv,
 #ifndef _WIN32
@@ -893,15 +895,11 @@ std::thread create_agent_thread(
 
 #ifndef _WIN32
 template <>
-std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
+inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         int argc,
         char** argv,
-#ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
-#else
-        eprosima::uxr::agent::TransportKind transport_kind)
-#endif // _WIN32
 {
     std::thread agent_thread = std::thread([&]() -> void
     {
@@ -936,15 +934,11 @@ std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
 }
 
 template <>
-std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
+inline std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
         int argc,
         char** argv,
-#ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
-#else
-        eprosima::uxr::agent::TransportKind transport_kind)
-#endif // _WIN32
 {
     std::thread agent_thread = std::thread([&]() -> void
     {
