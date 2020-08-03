@@ -19,6 +19,7 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/middleware/fast/FastEntities.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
+#include <uxr/agent/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <cstddef>

@@ -17,6 +17,7 @@
 
 #include <uxr/agent/visibility.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <string>
