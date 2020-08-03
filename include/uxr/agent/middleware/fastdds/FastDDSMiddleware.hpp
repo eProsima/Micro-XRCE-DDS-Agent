@@ -17,6 +17,7 @@
 
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/middleware/fastdds/FastDDSEntities.hpp>
+#include <uxr/agent/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <memory>
