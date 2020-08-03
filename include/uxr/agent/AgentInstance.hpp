@@ -37,30 +37,30 @@ public:
     /**
      * @brief   Default constructor.
      */
-    AgentInstance();
+    UXR_AGENT_EXPORT AgentInstance();
     /**
      * @brief   AgentInstance class shall not be copy constructible.
      */
-    AgentInstance(
+    UXR_AGENT_EXPORT AgentInstance(
             const AgentInstance &) = delete;
 
-    AgentInstance(
+    UXR_AGENT_EXPORT AgentInstance(
             AgentInstance &&) = delete;
 
     /**
      * @brief   AgentInstance class shall not be copy assignable.
      */
-    AgentInstance& operator =(
+    UXR_AGENT_EXPORT AgentInstance& operator =(
             const AgentInstance &) = delete;
 
-    AgentInstance& operator =(
+    UXR_AGENT_EXPORT AgentInstance& operator =(
             AgentInstance &&) = delete;
 
     /**
      * @brief   Get instance associated to this class.
      * @return  Static reference to the singleton AgentInstance object.
      */
-    static AgentInstance& getInstance();
+    UXR_AGENT_EXPORT static AgentInstance& getInstance();
 
     /**
      * @brief       Create an Agent instance, based on provided input parameters from user.
@@ -68,14 +68,14 @@ public:
      * @param[in]   argv List of parameters to be parsed to instantiate an Agent.
      * @return      Boolean value indicating if a Micro XRCE-DDS Agent was instantiated successfully.
      */
-    bool create(
+    UXR_AGENT_EXPORT bool create(
             int argc,
             char** argv);
 
     /**
      * @brief   Run the created agent until finished via user interrupt or process error.
      */
-    void run();
+    UXR_AGENT_EXPORT void run();
 
 private:
 #ifdef UAGENT_CLI_PROFILE
