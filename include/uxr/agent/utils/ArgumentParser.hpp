@@ -151,7 +151,7 @@ public:
             int argc,
             char** argv)
     {
-        for (size_t position = 0; position < argc; ++position)
+        for (int position = 0; position < argc; ++position)
         {
             if (0 == strcmp(argv[position], short_alias_.c_str()) ||
                 0 == strcmp(argv[position], long_alias_.c_str()))
@@ -226,9 +226,9 @@ public:
 
 private:
     ArgumentKind argument_kind_;
-    T value_;
     std::string short_alias_;
     std::string long_alias_;
+    T value_;
     bool parse_found_;
     std::set<T> allowed_values_;
 };
@@ -282,7 +282,7 @@ ParseResult parse_argument(
             int argc,
             char** argv)
     {
-        for (size_t position = 0; position < argc; ++position)
+        for (int position = 0; position < argc; ++position)
         {
             if (0 == strcmp(argv[position], short_alias_.c_str()) ||
                 0 == strcmp(argv[position], long_alias_.c_str()))
@@ -346,9 +346,9 @@ ParseResult parse_argument(
 
 private:
     ArgumentKind argument_kind_;
-    std::string value_;
     std::string short_alias_;
     std::string long_alias_;
+    std::string value_;
     bool parse_found_;
     std::set<std::string> allowed_values_;
 };
@@ -564,7 +564,10 @@ public:
             int argc,
             char** argv)
     {
-        bool result = PseudoTerminalArgs<AgentType>::parse(argc, argv);
+        if (!PseudoTerminalArgs<AgentType>::parse(argc, argv))
+        {
+            return false;
+        }
         ParseResult parse_dev = dev_.parse_argument(argc, argv);
         if (ParseResult::VALID != parse_dev)
         {
@@ -650,6 +653,12 @@ public:
                 break;
             }
 #endif // _WIN32
+            case TransportKind::INVALID:
+            default:
+            {
+                result = false;
+                break;
+            }
         }
         return (result ? ParseResult::VALID : ParseResult::INVALID);
     }
@@ -672,7 +681,7 @@ public:
 #ifndef _WIN32
     bool launch_termios_agent()
     {
-        struct termios attr;
+        struct termios attr = {};
 
         /* Setting CONTROL OPTIONS. */
         attr.c_cflag |= unsigned(CREAD);    // Enable read.
@@ -858,6 +867,7 @@ inline std::thread create_agent_thread(
         switch (parser.parse_arguments())
         {
             case parser::ParseResult::INVALID:
+            case parser::ParseResult::NOT_FOUND:
             {
                 parser::utils::usage();
                 break;
@@ -909,6 +919,7 @@ inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         switch (parser.parse_arguments())
         {
             case parser::ParseResult::INVALID:
+            case parser::ParseResult::NOT_FOUND:
             {
                 parser::utils::usage();
                 break;
@@ -948,6 +959,7 @@ inline std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
         switch (parser.parse_arguments())
         {
             case parser::ParseResult::INVALID:
+            case parser::ParseResult::NOT_FOUND:
             {
                 parser::utils::usage();
                 break;
