@@ -16,16 +16,19 @@
 #define _UXR_AGENT_UTILS_CALLBACKS_HPP_
 
 #include <uxr/agent/types/XRCETypes.hpp>
+
+#include <fastdds/rtps/common/Guid.h>
+
 #include <vector>
 #include <functional>
 
 namespace eprosima {
 namespace uxr {
 
-using onCreateCallback = std::function<void(const dds::xrce::ObjectKind&, const dds::GUID_t&)>;
+using onCreateCallback = std::function<void(const dds::xrce::ObjectKind&, const eprosima::fastrtps::rtps::GUID_t&, void*)>;
 using onCreateCallbackVector = std::vector<onCreateCallback>;
 
-using onDeleteCallback = std::function<void(const dds::xrce::ObjectKind, const dds::GUID_t)>;
+using onDeleteCallback = std::function<void(const dds::xrce::ObjectKind, const eprosima::fastrtps::rtps::GUID_t&, void*)>;
 using onDeleteCallbackVector = std::vector<onDeleteCallback>;
 
 }

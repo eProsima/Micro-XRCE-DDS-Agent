@@ -23,29 +23,6 @@ namespace uxr {
 using namespace fastrtps::xmlparser;
 
 /**********************************************************************************************************************
- * Aux functions.
- **********************************************************************************************************************/
-static dds::GUID_t rtpsguid_to_guid(
-        fastrtps::rtps::GUID_t rtps_guid)
-{   
-    dds::GUID_t guid;
-
-    std::copy(
-        std::begin(rtps_guid.guidPrefix.value),
-        std::end(rtps_guid.guidPrefix.value),
-        guid.guidPrefix().begin());
-
-    std::copy(
-        std::begin(rtps_guid.entityId.value),
-        std::begin(rtps_guid.entityId.value) + 3,
-        guid.entityId().entityKey().begin());
-    
-    guid.entityId().entityKind() = rtps_guid.entityId.value[3];
-    
-    return guid;
-}
-
-/**********************************************************************************************************************
  * Create functions.
  **********************************************************************************************************************/
 bool FastDDSMiddleware::create_participant_by_ref(
@@ -57,9 +34,8 @@ bool FastDDSMiddleware::create_participant_by_ref(
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_ref(ref))
     {   
-        dds::GUID_t guid =  rtpsguid_to_guid(participant->guid());
         for (const auto &cb : onCreateCallbacks_) {
-            cb(dds::xrce::OBJK_PARTICIPANT, guid);
+            cb(dds::xrce::OBJK_PARTICIPANT, participant->guid(), (void*)participant->get_ptr());
         }
 
         participants_.emplace(participant_id, std::move(participant));
@@ -77,9 +53,8 @@ bool FastDDSMiddleware::create_participant_by_xml(
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_xml(xml))
     {   
-        dds::GUID_t guid =  rtpsguid_to_guid(participant->guid());
         for (const auto &cb : onCreateCallbacks_) {
-            cb(dds::xrce::OBJK_PARTICIPANT, guid);
+            cb(dds::xrce::OBJK_PARTICIPANT, participant->guid(), (void*)participant->get_ptr());
         }
 
         participants_.emplace(participant_id, std::move(participant));
@@ -218,6 +193,10 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_ref(ref))
         {
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAWRITER, datawriter->guid(), (void*)it_publisher->second->get_participant()->get_ptr());
+            }
+
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
         }
@@ -237,6 +216,10 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_xml(xml))
         {
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAWRITER, datawriter->guid(), (void*)it_publisher->second->get_participant()->get_ptr());
+            }
+
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
         }
@@ -256,6 +239,10 @@ bool FastDDSMiddleware::create_datareader_by_ref(
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_ref(ref))
         {
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAREADER, datareader->guid(), (void*)it_subscriber->second->get_participant()->get_ptr());
+            }
+
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
         }
@@ -275,6 +262,10 @@ bool FastDDSMiddleware::create_datareader_by_xml(
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_xml(xml))
         {
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAREADER, datareader->guid(), (void*)it_subscriber->second->get_participant()->get_ptr());
+            }
+
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
         }
@@ -282,8 +273,7 @@ bool FastDDSMiddleware::create_datareader_by_xml(
     return rv;
 }
 
-static
-std::shared_ptr<FastDDSRequester> create_requester(
+std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
         std::shared_ptr<FastDDSParticipant>& participant,
         const fastrtps::RequesterAttributes& attrs)
 {
@@ -294,7 +284,16 @@ std::shared_ptr<FastDDSRequester> create_requester(
     {
         requester =
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
-        if (!requester->create_by_attributes(attrs))
+        if (requester->create_by_attributes(attrs))
+        {
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAREADER, requester->guid_datareader(), (void*)participant->get_ptr());
+            }
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAWRITER, requester->guid_datawriter(), (void*)participant->get_ptr());
+            }
+        } 
+        else
         {
             requester.reset();
         }
@@ -342,8 +341,7 @@ bool FastDDSMiddleware::create_requester_by_xml(
     return rv;
 }
 
-static
-std::shared_ptr<FastDDSReplier> create_replier(
+std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
         std::shared_ptr<FastDDSParticipant>& participant,
         const fastrtps::ReplierAttributes& attrs)
 {
@@ -354,7 +352,15 @@ std::shared_ptr<FastDDSReplier> create_replier(
     {
         replier =
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
-        if (!replier->create_by_attributes(attrs))
+        if (replier->create_by_attributes(attrs)){
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAREADER, replier->guid_datareader(), (void*)participant->get_ptr());
+            }
+            for (const auto &cb : onCreateCallbacks_) {
+                cb(dds::xrce::OBJK_DATAWRITER, replier->guid_datawriter(), (void*)participant->get_ptr());
+            }
+        }
+        else
         {
             replier.reset();
         }

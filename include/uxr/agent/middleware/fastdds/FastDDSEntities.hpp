@@ -58,6 +58,7 @@ public:
 
     int16_t domain_id() const { return domain_id_; }
     fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
+    fastdds::dds::DomainParticipant* get_ptr() const { return ptr_; }
 
     ReturnCode_t unregister_type(
             const std::string& typeName);
@@ -252,6 +253,8 @@ public:
 
     ~FastDDSDataWriter();
 
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
+
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
@@ -274,6 +277,8 @@ public:
     {}
 
     ~FastDDSDataReader();
+
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
@@ -308,6 +313,9 @@ public:
     {}
 
     ~FastDDSRequester();
+
+    fastrtps::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
+    fastrtps::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
 
     bool create_by_attributes(
         const fastrtps::RequesterAttributes& attrs);
@@ -363,6 +371,9 @@ public:
     {}
 
     ~FastDDSReplier();
+
+    fastrtps::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
+    fastrtps::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
 
     bool create_by_attributes(
         const fastrtps::ReplierAttributes& attrs);
