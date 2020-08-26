@@ -153,51 +153,65 @@ public:
     {
         for (int position = 0; position < argc; ++position)
         {
-            if (0 == strcmp(argv[position], short_alias_.c_str()) ||
-                0 == strcmp(argv[position], long_alias_.c_str()))
+            /*
+             * We are distinguishing two cases: short opt and long opt cases. This is done because,
+             * for short opt option, value can be specified directy attached, with no whitespace between
+             * the option tag and its associated value.
+             */
+            const std::string opt(argv[position]);
+            std::string value_str("");
+            bool exists_value(false);
+
+            if (short_alias_ == opt || long_alias_ == opt)
             {
-                if (ArgumentKind::VALUE == argument_kind_)
-                {
-                    if (argc > (++position))
-                    {
-                        std::string value_str(argv[position]);
-                        if (true == std::is_integral<T>::value)
-                        {
-                            if (std::all_of(value_str.begin(), value_str.end(), ::isdigit))
-                            {
-                                value_ = static_cast<T>(stol(value_str));
-                                if (!allowed_values_.empty() &&
-                                    allowed_values_.find(value_) == allowed_values_.end())
-                                {
-                                    std::stringstream ss;
-                                    ss << "Warning: introduced value for argument '" << long_alias_;
-                                    ss << "' is not allowed. Please choose between { ";
-                                    for (const auto& allowed_value_ : allowed_values_)
-                                    {
-                                        ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " }.");
-                                    }
-                                    ss << std::endl;
-                                    std::cerr << ss.str();
-                                    return ParseResult::INVALID;
-                                }
-                                parse_found_ = true;
-                                return ParseResult::VALID;
-                            }
-                            else
-                            {
-                                return ParseResult::INVALID;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return ParseResult::INVALID;
-                    }
-                }
-                else
+                if (ArgumentKind::VALUE != argument_kind_)
                 {
                     parse_found_ = true;
                     return ParseResult::VALID;
+                }
+
+                if (argc > (++position))
+                {
+                    exists_value = true;
+                    value_str = argv[position];
+                }
+            }
+            else if (0 == opt.find(short_alias_))
+            {
+                exists_value = true;
+                if (ArgumentKind::VALUE != argument_kind_)
+                {
+                    parse_found_ = false;
+                    return ParseResult::INVALID;
+                }
+
+                value_str = opt.substr(short_alias_.length());
+            }
+
+            if (exists_value && std::is_integral<T>::value)
+            {
+                if (std::all_of(value_str.begin(), value_str.end(), ::isdigit))
+                {
+                    value_ = static_cast<T>(stol(value_str));
+                    if (!allowed_values_.empty() && allowed_values_.find(value_) == allowed_values_.end())
+                    {
+                        std::stringstream ss;
+                        ss << "Warning: introduced value for argument '" << long_alias_;
+                        ss << "' is not allowed. Please choose between { ";
+                        for (const auto& allowed_value_ : allowed_values_)
+                        {
+                            ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " }.");
+                        }
+                        ss << std::endl;
+                        std::cerr << ss.str();
+                        return ParseResult::INVALID;
+                    }
+                    parse_found_ = true;
+                    return ParseResult::VALID;
+                }
+                else
+                {
+                    return ParseResult::INVALID;
                 }
             }
         }
@@ -391,6 +405,11 @@ public:
         {
             result.first = true;
             result.second = true;
+            return result;
+        }
+        else if (ParseResult::INVALID == parse_help)
+        {
+            result.first = false;
             return result;
         }
         result.first &= static_cast<bool>(middleware_.parse_argument(argc, argv));
