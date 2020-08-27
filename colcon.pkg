@@ -6,6 +6,7 @@
         "fastrtps"
     ],
     "cmake-args":[
-        "-DUAGENT_ISOLATED_INSTALL=OFF"
+        "-DUAGENT_ISOLATED_INSTALL=OFF",
+        "-DUAGENT_CLI_PROFILE=OFF"
     ]
 }
