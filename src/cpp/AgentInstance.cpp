@@ -86,8 +86,8 @@ bool AgentInstance::create(
         agent::parser::utils::usage();
         return false;
     }
-    std::string chosen_transport(argv[1]);
-    auto valid_transport = agent::parser::utils::check_transport(chosen_transport);
+    const char* chosen_transport(argv[1]);
+    agent::TransportKind valid_transport = agent::parser::utils::check_transport(chosen_transport);
 
     switch (valid_transport)
     {

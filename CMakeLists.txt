@@ -188,6 +188,7 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
+    $<$<NOT:$<BOOL:${UAGENT_CLI_PROFILE}>>:src/cpp/utils/ArgumentParser.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/serial/SerialProtocol.cpp
     ${TRANSPORT_SRCS}
