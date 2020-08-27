@@ -801,7 +801,7 @@ private:
 namespace utils
 {
 
-bool usage(
+inline bool usage(
         bool no_help)
 {
     std::stringstream ss;
@@ -819,7 +819,7 @@ bool usage(
     return false;
 }
 
-TransportKind check_transport(
+inline TransportKind check_transport(
         const std::string& transport)
 {
     const std::unordered_map<std::string, TransportKind> valid_transports = {
@@ -840,7 +840,7 @@ TransportKind check_transport(
     return TransportKind::INVALID;
 }
 
-Middleware::Kind get_mw_kind(
+inline Middleware::Kind get_mw_kind(
         const std::string& kind)
 {
 #ifdef UAGENT_FAST_PROFILE
