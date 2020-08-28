@@ -814,7 +814,7 @@ inline std::thread create_agent_thread(
         eprosima::uxr::agent::TransportKind transport_kind)
 #endif // _WIN32
 {
-    std::thread agent_thread = std::thread([&]() -> void
+    std::thread agent_thread = std::thread([=]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<AgentKind> parser(argc, argv, transport_kind);
 
