@@ -1,14 +1,16 @@
 #!/bin/sh -e
 
-# Confirm that the system is valid
-system="$(snapctl get system)"
-case "$system" in
+# Confirm that the transport is valid
+transport="$(snapctl get transport)"
+case "$transport" in
 	udp4) ;;
 	udp6) ;;
 	tcp4) ;;
 	tcp6) ;;
+	serial) ;;
+	pseudoterminal) ;;
 	*)
-		echo "'$system' is not a supported system" >&2
+		echo "'$transport' is not a supported transport" >&2
 		return 1
 		;;
 esac
@@ -25,8 +27,8 @@ case "$middleware" in
                 ;;
 esac
 
-if [ "$system" = "serial" ] || [ "$system" = "pseudo-serial" ]; then
-	# A serial system if being used, which requires a valid baud rate
+if [ "$transport" = "serial" ] || [ "$transport" = "pseudoterminal" ]; then
+	# A serial transport if being used, which requires a valid baud rate
 	# as well as a valid device
 	baudrate="$(snapctl get baudrate)"
 	if ! expr "$baudrate" : '^[0-9]\+$' > /dev/null; then

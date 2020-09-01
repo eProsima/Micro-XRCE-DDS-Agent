@@ -3,8 +3,8 @@
 set -- --middleware "$(snapctl get middleware)" "$@"
 set -- --verbose "$(snapctl get verbosity)" "$@"
 
-system="$(snapctl get system)"
-if [ "$system" = "serial" ] || [ "$system" = "pseudo-serial" ]; then
+transport="$(snapctl get transport)"
+if [ "$transport" = "serial" ] || [ "$transport" = "pseudoterminal" ]; then
 	set -- --dev "$(snapctl get device)" "$@"
 else
 	set -- --port "$(snapctl get port)" "$@"
@@ -24,4 +24,4 @@ if [ -n "$p2p_port" ]; then
 	set -- --p2p "$p2p_port" "$@"
 fi
 
-exec "$SNAP/usr/bin/MicroXRCEAgent" "$system" "$@"
+exec "$SNAP/usr/bin/MicroXRCEAgent" "$transport" "$@"

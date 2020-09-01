@@ -9,19 +9,20 @@ description: |
   DDS Global Data Space on behalf of the Client.
 
   The communication between a Micro XRCE-DDS Client and a Micro
-  XRCE-DDS Agent supports two kind transports: UDP or SerialPort.
+  XRCE-DDS Agent supports three kind transport: UDP, TCP, or SerialPort.
   While running Micro XRCE-DDS Agent will attend any received
   request from your Micro XRCE-DDS Clients. Micro XRCE-DDS Agent
   answers back with the result of a request each time a request is
   attended.
 
   Upon install, the Agent will be running as a daemon using `udp4`
-  on port 4000. The following parameters can be changed:
+  on port 8888. The following parameters can be changed:
 
-  * `system`. Supported systems are `udp4`, `udp6`, `tcp4`, `tcp6`,
-    `serial`, and `pseudo-serial`. Default is `udp4`. Change with:
+  * `transport`. Supported transports are `udp4`, `udp6`, `tcp4`,
+    `tcp6`, `serial`, and `pseudoterminal`. Default is `udp4`. Change
+    with:
 
-        $ snap set micro-xrce-dds-agent system="new system"
+        $ snap set micro-xrce-dds-agent transport="new transport"
 
   * `middleware`. Supported kinds of middleware are `ced`, `rtps`, and
     `dds`. Default is `dds`. Change with:
@@ -48,18 +49,18 @@ description: |
         $ snap set micro-xrce-dds-agent p2p-port="selected port"
 
   * `port`. Port on which the agent listens. Only applicable to one of
-    the UDP or TCP systems (see above). Defaults to 4000. Change with:
+    the UDP or TCP transports (see above). Defaults to 8888. Change with:
 
         $ snap set micro-xrce-dds-agent port="selected port"
 
   * `baudrate`. Baud rate to use when accessing serial ports. Only
-    applicable when using the `serial` or `pseudo-serial` system.
+    applicable when using the `serial` or `pseudoterminal` transport.
     Defaults to 115200. Change with:
 
         $ snap set micro-xrce-dds-agent baudrate="baud rate"
 
   * `device`. The serial device to use. Only applicable when using the
-    `serial` or `pseudo-serial` system. Change with:
+    `serial` or `pseudoterminal` transport. Change with:
 
         $ snap set micro-xrce-dds-agent device="device path"
 
@@ -90,4 +91,4 @@ apps:
   daemon:
     command: usr/bin/snap-runner
     daemon: simple
-    plugs: [network, network-bind]
+    plugs: [network, network-bind, serial-port]
