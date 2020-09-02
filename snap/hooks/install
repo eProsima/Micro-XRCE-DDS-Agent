@@ -14,3 +14,6 @@ snapctl set port=8888
 # Serial-specific things
 snapctl set baudrate=115200
 snapctl set device!  # unset
+
+# By default the daemon is disabled
+snapctl set daemon=false

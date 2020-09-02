@@ -18,13 +18,13 @@ esac
 # Confirm that the middleware is valid
 middleware="$(snapctl get middleware)"
 case "$middleware" in
-        dds) ;;
-        rtps) ;;
-        ced) ;;
-        *)
-                echo "'$middleware' is not a supported middleware" >&2
-                return 1
-                ;;
+	dds) ;;
+	rtps) ;;
+	ced) ;;
+	*)
+		echo "'$middleware' is not a supported middleware" >&2
+		return 1
+		;;
 esac
 
 if [ "$transport" = "serial" ] || [ "$transport" = "pseudoterminal" ]; then
@@ -51,19 +51,21 @@ fi
 
 # Confirm that discovery is a boolean
 discovery="$(snapctl get discovery)"
-if [ "$discovery" != "true" ] && [ "$discovery" != "false" ]; then
-	echo "'$discovery' is not a valid boolean" >&2
-	return 1
-fi
-
-# Confirm that discovery port is valid, assuming discovery is enabled
-if [ "$discovery" = true ]; then
-	port="$(snapctl get discovery-port)"
-	if ! expr "$port" : '^[0-9]\+$' > /dev/null; then
-		echo "'$port' is not a valid discovery port" >&2
+case "$discovery" in
+	true)
+		# Confirm that discovery port is valid
+		port="$(snapctl get discovery-port)"
+		if ! expr "$port" : '^[0-9]\+$' > /dev/null; then
+			echo "'$port' is not a valid discovery port" >&2
+			return 1
+		fi
+		;;
+	false) ;;
+	*)
+		echo "'$discovery' is not a valid boolean for discovery" >&2
 		return 1
-	fi
-fi
+		;;
+esac
 
 # Confirm that the verbosity is valid
 verbosity="$(snapctl get verbosity)"
@@ -82,5 +84,21 @@ if [ -n "$p2p_port" ]; then
 	fi
 fi
 
-# Restart service how that it's configured a bit differently
-snapctl restart "$SNAP_INSTANCE_NAME.daemon"
+# Confirm that daemon is a boolean, and enable the service if true
+daemon="$(snapctl get daemon)"
+case "$daemon" in
+	true)
+		snapctl start --enable "$SNAP_INSTANCE_NAME.daemon"
+
+		# In case it was alraedy started and the configuration changed,
+		# restart the service
+		snapctl restart "$SNAP_INSTANCE_NAME.daemon"
+		;;
+	false)
+		snapctl stop --disable "$SNAP_INSTANCE_NAME.daemon"
+		;;
+	*)
+		echo "'$daemon' is not a valid boolean for daemon" >&2
+		return 1
+		;;
+esac

@@ -15,8 +15,19 @@ description: |
   answers back with the result of a request each time a request is
   attended.
 
-  Upon install, the Agent will be running as a daemon using `udp4`
-  on port 8888. The following parameters can be changed:
+  The Agent supports being run by the user like this:
+
+      $ micro-xrce-dds-agent --help
+
+  In addition, the Agent supports running as a service that can be
+  enabled with:
+
+      $ snap set micro-xrce-dds-agent daemon=true
+
+  If the service is enabled, by default it uses the `udp4` transport on
+  port 8888. The following parameters can be changed (these are
+  specific to the service, the `micro-xrce-dds-agent` command simply
+  takes command-line arguments, but the capabilities are the same):
 
   * `transport`. Supported transports are `udp4`, `udp6`, `tcp4`,
     `tcp6`, `serial`, and `pseudoterminal`. Default is `udp4`. Change
@@ -88,7 +99,11 @@ parts:
       '*': usr/bin/
 
 apps:
+  micro-xrce-dds-agent:
+    command: usr/bin/MicroXRCEAgent
+    plugs: [network, network-bind, serial-port]
+
   daemon:
-    command: usr/bin/snap-runner
+    command: usr/bin/MicroXRCEAgent-daemon
     daemon: simple
     plugs: [network, network-bind, serial-port]
