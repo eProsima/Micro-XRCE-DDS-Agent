@@ -1,0 +1,109 @@
+name: micro-xrce-dds-agent
+base: core20
+version: git
+summary: Bridge between Micro XRCE-DDS clients and DDS
+description: |
+  Micro XRCE-DDS Agents receive messages containing Operations from
+  Clients. Agents keep track of the Clients and the Micro XRCE-DDS
+  Entities they create. The Agent uses the Entities to interact with
+  DDS Global Data Space on behalf of the Client.
+
+  The communication between a Micro XRCE-DDS Client and a Micro
+  XRCE-DDS Agent supports three kind transport: UDP, TCP, or SerialPort.
+  While running Micro XRCE-DDS Agent will attend any received
+  request from your Micro XRCE-DDS Clients. Micro XRCE-DDS Agent
+  answers back with the result of a request each time a request is
+  attended.
+
+  The Agent supports being run by the user like this:
+
+      $ micro-xrce-dds-agent --help
+
+  In addition, the Agent supports running as a service that can be
+  enabled with:
+
+      $ snap set micro-xrce-dds-agent daemon=true
+
+  If the service is enabled, by default it uses the `udp4` transport on
+  port 8888. The following parameters can be changed (these are
+  specific to the service, the `micro-xrce-dds-agent` command simply
+  takes command-line arguments, but the capabilities are the same):
+
+  * `transport`. Supported transports are `udp4`, `udp6`, `tcp4`,
+    `tcp6`, `serial`, and `pseudoterminal`. Default is `udp4`. Change
+    with:
+
+        $ snap set micro-xrce-dds-agent transport="new transport"
+
+  * `middleware`. Supported kinds of middleware are `ced`, `rtps`, and
+    `dds`. Default is `dds`. Change with:
+
+        $ snap set micro-xrce-dds-agent middleware="new middleware"
+
+  * `verbosity`. Supported verbosity levels are 0-6, defaulting to 4.
+    Change with:
+
+        $ snap set micro-xrce-dds-agent verbosity="selected verbosity"
+
+  * `discovery`. Enable or disable the discovery server. Defaults to
+    "false". Change with:
+
+        $ snap set micro-xrce-dds-agent discovery="true or false"
+
+  * `discovery-port`. Port on which the discovery server (see above)
+    listens. Defaults to 7400. Change with:
+
+        $ snap set micro-xrce-dds-agent discovery-port="selected port"
+
+  * `p2p-port`. Port to use for the P2P profile. Change with:
+
+        $ snap set micro-xrce-dds-agent p2p-port="selected port"
+
+  * `port`. Port on which the agent listens. Only applicable to one of
+    the UDP or TCP transports (see above). Defaults to 8888. Change with:
+
+        $ snap set micro-xrce-dds-agent port="selected port"
+
+  * `baudrate`. Baud rate to use when accessing serial ports. Only
+    applicable when using the `serial` or `pseudoterminal` transport.
+    Defaults to 115200. Change with:
+
+        $ snap set micro-xrce-dds-agent baudrate="baud rate"
+
+  * `device`. The serial device to use. Only applicable when using the
+    `serial` or `pseudoterminal` transport. Change with:
+
+        $ snap set micro-xrce-dds-agent device="device path"
+
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+  - build-on: armhf
+  - build-on: ppc64el
+
+parts:
+  agent:
+    plugin: cmake
+    source: .
+    cmake-parameters: [-DCMAKE_INSTALL_PREFIX=/usr]
+    build-packages: [make, gcc, g++]
+
+  runner:
+    plugin: dump
+    source: snap/local/
+    organize:
+      '*': usr/bin/
+
+apps:
+  micro-xrce-dds-agent:
+    command: usr/bin/MicroXRCEAgent
+    plugs: [network, network-bind, serial-port]
+
+  daemon:
+    command: usr/bin/MicroXRCEAgent-daemon
+    daemon: simple
+    plugs: [network, network-bind, serial-port]

@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+# Set default configuration values
+snapctl set transport=udp4
+snapctl set middleware=dds
+snapctl set verbosity=4
+snapctl set discovery=false
+snapctl set discovery-port=7400
+snapctl set p2p-port!  # unset
+
+# Network-specific things
+snapctl set port=8888
+
+# Serial-specific things
+snapctl set baudrate=115200
+snapctl set device!  # unset
+
+# By default the daemon is disabled
+snapctl set daemon=false
