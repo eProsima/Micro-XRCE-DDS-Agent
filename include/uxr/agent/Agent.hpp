@@ -17,7 +17,7 @@
 
 #include <uxr/agent/visibility.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/utils/Callbacks.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <string>
@@ -548,24 +548,23 @@ public:
     UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
 
     /**
-     * Callback API
+     * @brief Sets a callback function for an specific create/delete middleware entity operation.
+     *        Note that not some middlewares might not implement every defined operation, or even
+     *        no operation at all.
+     * @param middleware_kind   Enumeration class defining all the supported pluggable middlewares for the agent.
+     * @param callback_kind     Enumeration class defining all the different operations available to which
+     *                          set a callback to.
+     * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
+     *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
      */
-
-    /**
-     * @brief Appends a callback function which is called every time an entity is created
-     *
-     * @param cb        Callback function.
-     */
-    UXR_AGENT_EXPORT void add_oncreate_callback(
-        onCreateCallback cb);
-    
-    /**
-     * @brief Appends a callback function which is called every time an entity is deleted
-     *
-     * @param cb        Callback function.
-     */
-    UXR_AGENT_EXPORT void add_ondelete_callback(
-        onDeleteCallback cb);
+    template <typename ... Args>
+    UXR_AGENT_EXPORT void add_middleware_callback(
+            const Middleware::Kind& middleware_kind,
+            const middleware::CallbackKind& callback_kind,
+            std::function<void (Args ...)>&& callback_function)
+    {
+        callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
+    }
 
 private:
     template<Agent::ObjectKind object_kind, typename U, typename T>
@@ -583,12 +582,9 @@ private:
             uint16_t raw_id,
             Agent::OpResult& op_result);
 
-    //TODO (pablogs): should this be a shared pointer?
-    onCreateCallbackVector onCreateCallbacks;
-    onDeleteCallbackVector onDeleteCallbacks;
-
 protected:
     std::unique_ptr<Root> root_;
+    std::shared_ptr<middleware::CallbackFactory> callback_factory_;
 };
 
 } // uxr

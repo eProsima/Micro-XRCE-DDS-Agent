@@ -109,6 +109,10 @@ public:
     std::shared_ptr<FastDDSTopic> find_local_topic(
             const std::string& topic_name) const;
 
+    fastdds::dds::DomainParticipant* operator * ();
+
+    const fastdds::dds::DomainParticipant* operator * () const;
+
 private:
     fastdds::dds::DomainParticipant* ptr_;
     fastdds::dds::DomainParticipantFactory* factory_;
@@ -212,7 +216,7 @@ private:
 class FastDDSSubscriber
 {
 public:
-    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
     {}
@@ -232,7 +236,7 @@ public:
 
 
     std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
@@ -286,7 +290,7 @@ public:
     bool match_from_xml(const std::string& xml) const;
     bool read(
             std::vector<uint8_t>& data,
-            std::chrono::milliseconds timeout);   
+            std::chrono::milliseconds timeout);
 private:
     std::shared_ptr<FastDDSSubscriber> subscriber_;
     std::shared_ptr<FastDDSTopic> topic_;
@@ -333,7 +337,7 @@ public:
 
 private:
     bool match(const fastrtps::RequesterAttributes& attrs) const;
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
 
@@ -392,7 +396,7 @@ private:
     void transport_sample_identity(
         const dds::SampleIdentity& dds_identity,
         fastrtps::rtps::SampleIdentity& fast_identity);
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
 

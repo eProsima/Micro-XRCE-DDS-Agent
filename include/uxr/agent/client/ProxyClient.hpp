@@ -15,7 +15,6 @@
 #ifndef UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 #define UXR_AGENT_CLIENT_PROXYCLIENT_HPP_
 
-#include <uxr/agent/utils/Callbacks.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/participant/Participant.hpp>
 #include <uxr/agent/client/session/Session.hpp>
@@ -36,8 +35,6 @@ public:
 
     explicit ProxyClient(
             const dds::xrce::CLIENT_Representation& representation,
-            const onCreateCallbackVector& onCreateCallbacks,
-            const onDeleteCallbackVector& onDeleteCallbacks,
             Middleware::Kind middleware_kind = Middleware::Kind(0));
 
     ~ProxyClient() = default;

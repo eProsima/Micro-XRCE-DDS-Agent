@@ -23,9 +23,15 @@
 #include <vector>
 #include <functional>
 #include <chrono>
+#include <memory>
 
 namespace eprosima {
 namespace uxr {
+namespace middleware {
+
+class CallbackFactory;
+
+} // namespace middleware
 
 class Middleware
 {
@@ -222,6 +228,9 @@ public:
     virtual bool matched_replier_from_xml(
             uint16_t replier_id,
             const std::string& xml) const = 0;
+
+protected:
+    std::shared_ptr<middleware::CallbackFactory> callback_factory_;
 };
 
 } // namespace uxr

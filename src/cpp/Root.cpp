@@ -30,14 +30,10 @@ constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 namespace eprosima {
 namespace uxr {
 
-Root::Root(
-    const onCreateCallbackVector& onCreateCallbacks,
-    const onDeleteCallbackVector& onDeleteCallbacks)
+Root::Root()
     : mtx_(),
       clients_(),
-      current_client_() ,
-      onCreateCallbacks_(onCreateCallbacks),
-      onDeleteCallbacks_(onDeleteCallbacks)
+      current_client_()
 {
     current_client_ = clients_.begin();
 #ifdef UAGENT_LOGGER_PROFILE
@@ -88,9 +84,7 @@ dds::xrce::ResultStatus Root::create_client(
             if (it == clients_.end())
             {
                 std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(
-                    client_representation, 
-                    onCreateCallbacks_, 
-                    onDeleteCallbacks_,
+                    client_representation,
                     middleware_kind);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
@@ -116,9 +110,7 @@ dds::xrce::ResultStatus Root::create_client(
                 if (session_id != client->get_session_id())
                 {
                     it->second = std::make_shared<ProxyClient>(
-                        client_representation, 
-                        onCreateCallbacks_, 
-                        onDeleteCallbacks_,
+                        client_representation,
                         middleware_kind);
                 }
                 else

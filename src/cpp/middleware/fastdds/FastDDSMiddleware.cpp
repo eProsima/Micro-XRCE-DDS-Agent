@@ -13,14 +13,30 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../../xmlobjects/xmlobjects.h"
+
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
 
 using namespace fastrtps::xmlparser;
+
+FastDDSMiddleware::FastDDSMiddleware()
+    : participants_()
+    , topics_()
+    , publishers_()
+    , subscribers_()
+    , datawriters_()
+    , datareaders_()
+    , requesters_()
+    , repliers_()
+{
+    callback_factory_.reset(&callback_factory_->getInstance());
+}
 
 /**********************************************************************************************************************
  * Create functions.
@@ -33,10 +49,9 @@ bool FastDDSMiddleware::create_participant_by_ref(
     bool rv = false;
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_ref(ref))
-    {   
-        for (const auto &cb : onCreateCallbacks_) {
-            cb(dds::xrce::OBJK_PARTICIPANT, participant->guid(), (void*)participant->get_ptr());
-        }
+    {
+        callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::CREATE_PARTICIPANT, participant->guid(), **participant);
 
         participants_.emplace(participant_id, std::move(participant));
         rv = true;
@@ -52,10 +67,9 @@ bool FastDDSMiddleware::create_participant_by_xml(
     bool rv = false;
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_xml(xml))
-    {   
-        for (const auto &cb : onCreateCallbacks_) {
-            cb(dds::xrce::OBJK_PARTICIPANT, participant->guid(), (void*)participant->get_ptr());
-        }
+    {
+        callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::CREATE_PARTICIPANT, participant->guid(), **participant);
 
         participants_.emplace(participant_id, std::move(participant));
         rv = true;
@@ -147,7 +161,7 @@ bool FastDDSMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
         const std::string& xml)
-{   
+{
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
@@ -189,13 +203,13 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
     if (publishers_.end() != it_publisher)
-    {   
+    {
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_ref(ref))
         {
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAWRITER, datawriter->guid(), (void*)it_publisher->second->get_participant()->get_ptr());
-            }
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->guid(),
+                **it_publisher->second->get_participant());
 
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
@@ -212,13 +226,13 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
     bool rv = false;
     auto it_publisher = publishers_.find(publisher_id);
     if (publishers_.end() != it_publisher)
-    {   
+    {
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_xml(xml))
         {
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAWRITER, datawriter->guid(), (void*)it_publisher->second->get_participant()->get_ptr());
-            }
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->guid(),
+                **it_publisher->second->get_participant());
 
             datawriters_.emplace(datawriter_id, std::move(datawriter));
             rv = true;
@@ -235,13 +249,13 @@ bool FastDDSMiddleware::create_datareader_by_ref(
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
     if (subscribers_.end() != it_subscriber)
-    {   
+    {
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_ref(ref))
         {
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAREADER, datareader->guid(), (void*)it_subscriber->second->get_participant()->get_ptr());
-            }
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_DATAREADER, datareader->guid(),
+                **it_subscriber->second->get_participant());
 
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
@@ -258,13 +272,13 @@ bool FastDDSMiddleware::create_datareader_by_xml(
     bool rv = false;
     auto it_subscriber = subscribers_.find(subscriber_id);
     if (subscribers_.end() != it_subscriber)
-    {   
+    {
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_xml(xml))
         {
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAREADER, datareader->guid(), (void*)it_subscriber->second->get_participant()->get_ptr());
-            }
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_DATAREADER, datareader->guid(),
+                **it_subscriber->second->get_participant());
 
             datareaders_.emplace(datareader_id, std::move(datareader));
             rv = true;
@@ -286,13 +300,9 @@ std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
         if (requester->create_by_attributes(attrs))
         {
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAREADER, requester->guid_datareader(), (void*)participant->get_ptr());
-            }
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAWRITER, requester->guid_datawriter(), (void*)participant->get_ptr());
-            }
-        } 
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_REQUESTER, *requester, **participant);
+        }
         else
         {
             requester.reset();
@@ -352,13 +362,10 @@ std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
     {
         replier =
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
-        if (replier->create_by_attributes(attrs)){
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAREADER, replier->guid_datareader(), (void*)participant->get_ptr());
-            }
-            for (const auto &cb : onCreateCallbacks_) {
-                cb(dds::xrce::OBJK_DATAWRITER, replier->guid_datawriter(), (void*)participant->get_ptr());
-            }
+        if (replier->create_by_attributes(attrs))
+        {
+            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_REPLIER, *replier, **participant);
         }
         else
         {
