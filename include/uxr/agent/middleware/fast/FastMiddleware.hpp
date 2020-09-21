@@ -19,7 +19,6 @@
 #include <uxr/agent/middleware/Middleware.hpp>
 #include <uxr/agent/middleware/fast/FastEntities.hpp>
 #include <uxr/agent/types/TopicPubSubType.hpp>
-#include <uxr/agent/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -32,12 +31,7 @@ namespace uxr {
 class FastMiddleware : public Middleware
 {
 public:
-    FastMiddleware(
-        const onCreateCallbackVector& onCreateCallbacks,
-        const onDeleteCallbackVector& onDeleteCallbacks) 
-        : 
-        onCreateCallbacks_(onCreateCallbacks),
-        onDeleteCallbacks_(onDeleteCallbacks){};
+    FastMiddleware();
     ~FastMiddleware() final = default;
 
 /**********************************************************************************************************************
@@ -227,9 +221,6 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
     std::unordered_map<uint16_t, std::shared_ptr<FastRequester>> requesters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastReplier>> repliers_;
-
-    const onCreateCallbackVector& onCreateCallbacks_;
-    const onDeleteCallbackVector& onDeleteCallbacks_;
 };
 
 } // namespace uxr

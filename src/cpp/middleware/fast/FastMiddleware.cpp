@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -22,6 +23,19 @@ namespace eprosima {
 namespace uxr {
 
 using namespace fastrtps::xmlparser;
+
+FastMiddleware::FastMiddleware()
+    : participants_()
+    , topics_()
+    , publishers_()
+    , subscribers_()
+    , datawriters_()
+    , datareaders_()
+    , requesters_()
+    , repliers_()
+{
+    callback_factory_.reset(&callback_factory_->getInstance());
+}
 
 /**********************************************************************************************************************
  * Create functions.

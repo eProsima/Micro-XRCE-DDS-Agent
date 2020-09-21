@@ -317,6 +317,7 @@ if(UAGENT_BUILD_EXECUTABLE)
     target_link_libraries(MicroXRCEAgent
         PRIVATE
             ${PROJECT_NAME}
+            $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
             $<$<BOOL:$<PLATFORM_ID:Linux>>:rt>
             $<$<BOOL:$<PLATFORM_ID:Linux>>:dl>
         )

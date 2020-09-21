@@ -23,6 +23,8 @@
 #include <uxr/agent/utils/ArgumentParser.hpp>
 #endif  // UAGENT_CLI_PROFILE
 
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
+
 #include <csignal>
 
 namespace eprosima {
@@ -33,7 +35,7 @@ namespace uxr {
  */
 class AgentInstance
 {
-public:
+private:
     /**
      * @brief   Default constructor.
      */
@@ -56,6 +58,7 @@ public:
     UXR_AGENT_EXPORT AgentInstance& operator =(
             AgentInstance &&) = delete;
 
+public:
     /**
      * @brief   Get instance associated to this class.
      * @return  Static reference to the singleton AgentInstance object.
@@ -77,6 +80,25 @@ public:
      */
     UXR_AGENT_EXPORT void run();
 
+    /**
+     * @brief Sets a callback function for a specific create/delete middleware entity operation.
+     *        Note that not some middlewares might not implement every defined operation, or even
+     *        no operation at all.
+     * @param middleware_kind   Enumeration class defining all the supported pluggable middlewares for the agent.
+     * @param callback_kind     Enumeration class defining all the different operations available to which
+     *                          set a callback to.
+     * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
+     *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
+     */
+    template <typename ... Args>
+    UXR_AGENT_EXPORT void add_middleware_callback(
+            const Middleware::Kind& middleware_kind,
+            const middleware::CallbackKind& callback_kind,
+            std::function<void (Args ...)>&& callback_function)
+    {
+        callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
+    }
+
 private:
 #ifdef UAGENT_CLI_PROFILE
     CLI::App app_;
@@ -95,6 +117,7 @@ private:
 #ifndef _WIN32
     sigset_t signals_;
 #endif  // _WIN32
+    std::shared_ptr<middleware::CallbackFactory> callback_factory_;
 };
 } // uxr
 } // eprosima

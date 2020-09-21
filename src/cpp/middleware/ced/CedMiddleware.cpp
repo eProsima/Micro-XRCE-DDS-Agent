@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -49,6 +50,8 @@ CedMiddleware::CedMiddleware(uint32_t client_key)
             read_access_ = ReadAccess::COMPLETE;
         }
     }
+
+    callback_factory_.reset(&callback_factory_->getInstance());
 }
 
 std::string remove_suffix_form_topic_ref(std::string const & ref)
