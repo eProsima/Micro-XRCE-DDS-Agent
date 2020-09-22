@@ -124,6 +124,7 @@ if(UAGENT_FAST_PROFILE)
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
                 -DTHIRDPARTY:BOOL=ON
+                -DCOMPILE_TOOLS:BOOL=OFF
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
             DEPENDS
                 fastcdr
