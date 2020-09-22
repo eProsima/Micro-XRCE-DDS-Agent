@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+set -- --middleware "$(snapctl get middleware)" "$@"
+set -- --verbose "$(snapctl get verbosity)" "$@"
+
+transport="$(snapctl get transport)"
+if [ "$transport" = "serial" ] || [ "$transport" = "pseudoterminal" ]; then
+	set -- --dev "$(snapctl get device)" "$@"
+else
+	set -- --port "$(snapctl get port)" "$@"
+fi
+
+if [ "$(snapctl get discovery)" = "true" ]; then
+	set -- --discovery "$@"
+
+	discovery_port="$(snapctl get discovery-port)"
+	if [ -n "$discovery_port" ]; then
+		set -- --disport "$discovery_port" "$@"
+	fi
+fi
+
+p2p_port="$(snapctl get p2p-port)"
+if [ -n "$p2p_port" ]; then
+	set -- --p2p "$p2p_port" "$@"
+fi
+
+exec "$SNAP/usr/bin/MicroXRCEAgent" "$transport" "$@"

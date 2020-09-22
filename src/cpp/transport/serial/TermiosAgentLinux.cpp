@@ -97,8 +97,9 @@ bool TermiosAgent::init()
     {
         UXR_AGENT_LOG_ERROR(
             UXR_DECORATE_RED("open device error"),
-            "device: {}, errno: {}",
-            dev_, errno);
+            "device: {}, errno: {}{}",
+            dev_, errno,
+            (EACCES == errno) ? ". Please re-run with superuser privileges." : "");
     }
     return rv;
 }

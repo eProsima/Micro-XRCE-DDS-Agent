@@ -529,7 +529,7 @@ public:
 private:
     void launch_server() final
     {
-        struct termios attr;
+        struct termios attr = {};
 
         /* Setting CONTROL OPTIONS. */
         attr.c_cflag |= unsigned(CREAD);    // Enable read.

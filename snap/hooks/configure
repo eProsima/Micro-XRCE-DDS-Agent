@@ -1,0 +1,104 @@
+#!/bin/sh -e
+
+# Confirm that the transport is valid
+transport="$(snapctl get transport)"
+case "$transport" in
+	udp4) ;;
+	udp6) ;;
+	tcp4) ;;
+	tcp6) ;;
+	serial) ;;
+	pseudoterminal) ;;
+	*)
+		echo "'$transport' is not a supported transport" >&2
+		return 1
+		;;
+esac
+
+# Confirm that the middleware is valid
+middleware="$(snapctl get middleware)"
+case "$middleware" in
+	dds) ;;
+	rtps) ;;
+	ced) ;;
+	*)
+		echo "'$middleware' is not a supported middleware" >&2
+		return 1
+		;;
+esac
+
+if [ "$transport" = "serial" ] || [ "$transport" = "pseudoterminal" ]; then
+	# A serial transport if being used, which requires a valid baud rate
+	# as well as a valid device
+	baudrate="$(snapctl get baudrate)"
+	if ! expr "$baudrate" : '^[0-9]\+$' > /dev/null; then
+		echo "'$baudrate' is not a valid baud rate" >&2
+		return 1
+	fi
+
+	device="$(snapctl get device)"
+	if [ -z "$device" ]; then
+		echo "Device must be specified" >&2
+		return 1
+	fi
+else
+	port="$(snapctl get port)"
+	if ! expr "$port" : '^[0-9]\+$' > /dev/null; then
+		echo "'$port' is not a valid port" >&2
+		return 1
+	fi
+fi
+
+# Confirm that discovery is a boolean
+discovery="$(snapctl get discovery)"
+case "$discovery" in
+	true)
+		# Confirm that discovery port is valid
+		port="$(snapctl get discovery-port)"
+		if ! expr "$port" : '^[0-9]\+$' > /dev/null; then
+			echo "'$port' is not a valid discovery port" >&2
+			return 1
+		fi
+		;;
+	false) ;;
+	*)
+		echo "'$discovery' is not a valid boolean for discovery" >&2
+		return 1
+		;;
+esac
+
+# Confirm that the verbosity is valid
+verbosity="$(snapctl get verbosity)"
+if ! expr "$verbosity" : '^[0-6]$' > /dev/null; then
+	echo "'$verbosity' is not a valid verbosity" >&2
+	return 1
+fi
+
+# Confirm that p2p port is valid (assuming it's set)
+p2p_port="$(snapctl get p2p-port)"
+if [ -n "$p2p_port" ]; then
+	port="$(snapctl get p2p-port)"
+	if ! expr "$port" : '^[0-9]\+$' > /dev/null; then
+		echo "'$port' is not a valid p2p port" >&2
+		return 1
+	fi
+fi
+
+# Confirm that daemon is a boolean, and enable the service if true
+daemon="$(snapctl get daemon)"
+case "$daemon" in
+	true)
+		snapctl start --enable "$SNAP_INSTANCE_NAME.daemon"
+
+		# In case it was alraedy started and the configuration changed,
+		# restart the service
+		snapctl restart "$SNAP_INSTANCE_NAME.daemon"
+		;;
+	false)
+		snapctl stop --disable "$SNAP_INSTANCE_NAME.daemon"
+		;;
+	*)
+		echo "'$daemon' is not a valid boolean for daemon" >&2
+		return 1
+		;;
+esac

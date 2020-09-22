@@ -12,77 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <uxr/agent/utils/CLI.hpp>
-#include <csignal>
-
+#include <uxr/agent/AgentInstance.hpp>
 
 int main(int argc, char** argv)
 {
-#ifndef _WIN32
-    sigset_t signals;
-    sigemptyset(&signals);
-    if(sigaddset(&signals, SIGINT) && sigaddset(&signals, SIGTERM))
+    eprosima::uxr::AgentInstance& agent_instance = agent_instance.getInstance();
+
+    if (!agent_instance.create(argc, argv))
     {
-        std::cerr << "Wrong signalset" << std::endl;
-        std::exit(EXIT_FAILURE);
+        return 1;
     }
-    sigprocmask( SIG_BLOCK, &signals, nullptr );
-#endif
+    agent_instance.run();
 
-
-    /* CLI application. */
-    CLI::App app("eProsima Micro XRCE-DDS Agent");
-    app.require_subcommand(1, 1);
-    app.get_formatter()->column_width(42);
-
-    /* CLI subcommands. */
-    eprosima::uxr::cli::UDPv4Subcommand udpv4_subcommand(app);
-    eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
-    eprosima::uxr::cli::TCPv4Subcommand tcpv4_subcommand(app);
-    eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
-#ifndef _WIN32
-    eprosima::uxr::cli::TermiosSubcommand termios_subcommand(app);
-    eprosima::uxr::cli::PseudoTerminalSubcommand pseudo_serial_subcommand(app);
-#endif
-    eprosima::uxr::cli::ExitSubcommand exit_subcommand(app);
-
-    /* CLI parse. */
-    std::string cli_input{};
-    for (int i = 1; i < argc; ++i)
-    {
-        cli_input.append(argv[i]);
-        cli_input.append(" ");
-    }
-
-    while (true)
-    {
-        try
-        {
-            app.parse(cli_input);
-            break;
-        }
-        catch (const CLI::ParseError& e)
-        {
-            app.exit(e);
-            std::cin.clear();
-            std::cout << std::endl;
-            std::cout << "Enter command: ";
-            std::getline(std::cin, cli_input);
-        }
-    }
-
-#ifdef  _WIN32
-    /* Waiting until exit. */
-    std::cin.clear();
-    char exit_flag = 0;
-    while ('q' != exit_flag)
-    {
-        std::cin >> exit_flag;
-    }
-#else
-    /* Wait for SIGTERM/SIGINT instead, as reading from stdin may be redirected to /dev/null. */
-    int n_signal = 0;
-    sigwait(&signals, &n_signal);
-#endif
     return 0;
 }

@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 option(UAGENT_SUPERBUILD "Enable superbuild compilation." ON)
 option(UAGENT_BUILD_TESTS "Build tests." OFF)
 option(UAGENT_INSTALLER "Build Windows installer." OFF)
-option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into saparated folders with version control." OFF)
+option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into separated folders with version control." OFF)
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
@@ -33,6 +33,8 @@ option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
+option(UAGENT_CLI_PROFILE "Build CLI profile." ON)
+option(UAGENT_BUILD_EXECUTABLE "Build MicroXRCE-DDS Agent provided executable." ON)
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -65,9 +67,11 @@ set(_fastcdr_version 1.0.13)
 set(_fastcdr_tag v1.0.13)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
-set(_cli11_version 1.7.1)
-set(_cli11_tag v1.7.1)
-list(APPEND _deps "CLI11\;${_cli11_version}")
+if(UAGENT_CLI_PROFILE)
+    set(_cli11_version 1.7.1)
+    set(_cli11_tag v1.7.1)
+    list(APPEND _deps "CLI11\;${_cli11_version}")
+endif()
 
 if(UAGENT_P2P_PROFILE)
     set(_microxrcedds_client_version 1.2.3)
@@ -79,7 +83,7 @@ if(UAGENT_FAST_PROFILE)
     set(_fastdds_version 2.0)
     set(_fastdds_tag 2.0.x)
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
-    set(_foonathan_memory_tag master)
+    set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -166,6 +170,7 @@ endif()
 # Set source files
 set(SRCS
     src/cpp/Agent.cpp
+    src/cpp/AgentInstance.cpp
     src/cpp/Root.cpp
     src/cpp/processor/Processor.cpp
     src/cpp/client/ProxyClient.cpp
@@ -183,6 +188,7 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
+    $<$<NOT:$<BOOL:${UAGENT_CLI_PROFILE}>>:src/cpp/utils/ArgumentParser.cpp>
     src/cpp/transport/Server.cpp
     src/cpp/transport/serial/SerialProtocol.cpp
     ${TRANSPORT_SRCS}
@@ -278,7 +284,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Windows>:ws2_32>
         $<$<PLATFORM_ID:Windows>:iphlpapi>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
-        CLI11::CLI11
+        $<$<BOOL:${UAGENT_CLI_PROFILE}>:CLI11::CLI11>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
@@ -301,20 +307,22 @@ target_include_directories(${PROJECT_NAME} BEFORE
     )
 
 # Executable
-add_executable(MicroXRCEAgent microxrce_agent.cpp)
-target_link_libraries(MicroXRCEAgent
-    PRIVATE
-        ${PROJECT_NAME}
-        $<$<BOOL:$<PLATFORM_ID:Linux>>:rt>
-        $<$<BOOL:$<PLATFORM_ID:Linux>>:dl>
-    )
+if(UAGENT_BUILD_EXECUTABLE)
+    add_executable(MicroXRCEAgent microxrce_agent.cpp)
+    target_link_libraries(MicroXRCEAgent
+        PRIVATE
+            ${PROJECT_NAME}
+            $<$<BOOL:$<PLATFORM_ID:Linux>>:rt>
+            $<$<BOOL:$<PLATFORM_ID:Linux>>:dl>
+        )
 
-set_target_properties(MicroXRCEAgent PROPERTIES
-    CXX_STANDARD
-        11
-    CXX_STANDARD_REQUIRED
-        YES
-    )
+    set_target_properties(MicroXRCEAgent PROPERTIES
+        CXX_STANDARD
+            11
+        CXX_STANDARD_REQUIRED
+            YES
+        )
+endif()
 
 # XML default profile used to launch exec in the building folder
 file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
@@ -399,20 +407,22 @@ install(
     )
 
 # Install agent exec
-install(
-    TARGETS
-        MicroXRCEAgent
-    EXPORT
-        MicroXRCEAgentTargets
-    RUNTIME
-        DESTINATION ${BIN_INSTALL_DIR}
-    LIBRARY
-        DESTINATION ${LIB_INSTALL_DIR}
-    ARCHIVE
-        DESTINATION ${LIB_INSTALL_DIR}
-    COMPONENT
-        executables
-    )
+if(UAGENT_BUILD_EXECUTABLE)
+    install(
+        TARGETS
+            MicroXRCEAgent
+        EXPORT
+            MicroXRCEAgentTargets
+        RUNTIME
+            DESTINATION ${BIN_INSTALL_DIR}
+        LIBRARY
+            DESTINATION ${LIB_INSTALL_DIR}
+        ARCHIVE
+            DESTINATION ${LIB_INSTALL_DIR}
+        COMPONENT
+            executables
+        )
+endif()
 
 # Create config.hpp
 configure_file(${PROJECT_SOURCE_DIR}/include/uxr/agent/config.hpp.in
@@ -495,7 +505,7 @@ if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
 endif()
 
 # Generate Windows Installer.
-if(WIN32 AND UAGENT_INSTALLER)
+if(WIN32 AND UAGENT_INSTALLER AND UAGENT_BUILD_EXECUTABLE)
     # Set product name.
     set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
     set(PRODUCT_NAME_LONG "Micro XRCE-DDS Agent")

@@ -28,6 +28,7 @@ namespace uxr {
 #cmakedefine UAGENT_P2P_PROFILE
 #endif
 #cmakedefine UAGENT_LOGGER_PROFILE
+#cmakedefine UAGENT_CLI_PROFILE
 
 const uint16_t DISCOVERY_PORT = 7400;
 const char* const DISCOVERY_IP = "239.255.0.2";
