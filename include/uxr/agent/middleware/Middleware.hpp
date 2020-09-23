@@ -34,7 +34,7 @@ public:
     {
         NONE,
     #ifdef UAGENT_FAST_PROFILE
-        FAST,
+        FASTRTPS,
     #endif
 
     #ifdef UAGENT_CED_PROFILE

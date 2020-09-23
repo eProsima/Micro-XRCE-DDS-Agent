@@ -52,7 +52,7 @@ ProxyClient::ProxyClient(
                 conversion::clientkey_to_raw(representation.client_key()));
         }
 #ifdef UAGENT_FAST_PROFILE
-        case Middleware::Kind::FAST:
+        case Middleware::Kind::FASTRTPS:
         {
             middleware_.reset(new FastMiddleware());
             break;

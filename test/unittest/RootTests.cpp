@@ -45,7 +45,7 @@ TEST_F(RootTests, CreateClientOk)
     dds::xrce::ResultStatus response = root_.create_client(
                 generate_create_client_payload().client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -57,7 +57,7 @@ TEST_F(RootTests, CreateClientBadCookie)
     dds::xrce::ResultStatus response = root_.create_client(
                 create_data.client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
@@ -69,7 +69,7 @@ TEST_F(RootTests, CreateClientCompatibleVersion)
     dds::xrce::ResultStatus response = root_.create_client(
                 create_data.client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -81,7 +81,7 @@ TEST_F(RootTests, CreateClientIncompatibleVersion)
     dds::xrce::ResultStatus response = root_.create_client(
                 create_data.client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
@@ -92,7 +92,7 @@ TEST_F(RootTests, DeleteExistingClient)
     dds::xrce::ResultStatus response = root_.create_client(
                 create_data.client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(client_key);
@@ -114,7 +114,7 @@ TEST_F(RootTests, DeleteNoExistingClient)
     dds::xrce::ResultStatus response = root_.create_client(
                 create_data.client_representation(),
                 agent_representation,
-                Middleware::Kind::FAST);
+                Middleware::Kind::FASTRTPS);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(fake_client_key);

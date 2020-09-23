@@ -34,7 +34,7 @@ void create_agents(eprosima::uxr::Middleware::Kind middleware)
 int main(int /*argc*/, char** /*argv*/)
 {
 #ifdef UAGENT_FAST_PROFILE
-    create_agents(eprosima::uxr::Middleware::Kind::FAST);
+    create_agents(eprosima::uxr::Middleware::Kind::FASTRTPS);
 #endif // UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
     create_agents(eprosima::uxr::Middleware::Kind::CED);

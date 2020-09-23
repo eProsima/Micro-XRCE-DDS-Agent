@@ -68,7 +68,7 @@ public:
 #ifdef UAGENT_FAST_PROFILE
         if ("dds" == kind_)
         {
-            return eprosima::uxr::Middleware::Kind::FAST;
+            return eprosima::uxr::Middleware::Kind::FASTRTPS;
         }
 #endif
 #ifdef UAGENT_CED_PROFILE

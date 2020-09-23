@@ -34,7 +34,7 @@ public:
     enum class Kind : uint8_t
     {
     #ifdef UAGENT_FAST_PROFILE
-        FAST,
+        FASTRTPS,
     #endif
 
     #ifdef UAGENT_CED_PROFILE
