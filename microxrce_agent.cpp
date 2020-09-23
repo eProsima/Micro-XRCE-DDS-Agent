@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     eprosima::uxr::cli::UDPv6Subcommand udpv6_subcommand(app);
     eprosima::uxr::cli::TCPv4Subcommand tcpv4_subcommand(app);
     eprosima::uxr::cli::TCPv6Subcommand tcpv6_subcommand(app);
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__VXWORKS__)
     eprosima::uxr::cli::TermiosSubcommand termios_subcommand(app);
     eprosima::uxr::cli::PseudoTerminalSubcommand pseudo_serial_subcommand(app);
 #endif
