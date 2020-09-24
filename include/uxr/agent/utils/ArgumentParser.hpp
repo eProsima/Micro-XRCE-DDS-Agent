@@ -105,6 +105,7 @@ enum class ParseResult
 /*************************************************************************************************
  * Generic command line argument representation
  *************************************************************************************************/
+// TODO(jamoralp): add proper documentation for this whole file.
 template <typename T>
 class Argument
 {
