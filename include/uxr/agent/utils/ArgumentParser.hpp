@@ -105,6 +105,7 @@ enum class ParseResult
 /*************************************************************************************************
  * Generic command line argument representation
  *************************************************************************************************/
+// TODO(jamoralp): add proper documentation for this whole file.
 template <typename T>
 class Argument
 {
@@ -118,6 +119,7 @@ public:
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_()
+        , has_default_value_(false)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
@@ -132,10 +134,13 @@ public:
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_(default_value)
+        , has_default_value_(true)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
     }
+
+    ~Argument() = default;
 
     const T& value() const
     {
@@ -165,6 +170,11 @@ public:
             if (short_alias_ == opt || long_alias_ == opt)
             {
                 if (ArgumentKind::VALUE != argument_kind_)
+                {
+                    parse_found_ = true;
+                    return ParseResult::VALID;
+                }
+                else if (has_default_value_)
                 {
                     parse_found_ = true;
                     return ParseResult::VALID;
@@ -243,6 +253,7 @@ private:
     std::string short_alias_;
     std::string long_alias_;
     T value_;
+    bool has_default_value_;
     bool parse_found_;
     std::set<T> allowed_values_;
 };
@@ -263,6 +274,7 @@ public:
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_()
+        , has_default_value_(false)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
@@ -277,10 +289,13 @@ public:
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_(default_value)
+        , has_default_value_(true)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
     }
+
+    ~Argument() = default;
 
     const std::string& value() const
     {
@@ -303,6 +318,11 @@ ParseResult parse_argument(
             {
                 if (ArgumentKind::VALUE == argument_kind_)
                 {
+                    if (has_default_value_)
+                    {
+                        parse_found_ = true;
+                        return ParseResult::VALID;
+                    }
                     if (argc > (++position))
                     {
                         value_ = std::string(argv[position]);
@@ -363,6 +383,7 @@ private:
     std::string short_alias_;
     std::string long_alias_;
     std::string value_;
+    bool has_default_value_;
     bool parse_found_;
     std::set<std::string> allowed_values_;
 };
