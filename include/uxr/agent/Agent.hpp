@@ -17,14 +17,20 @@
 
 #include <uxr/agent/visibility.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
-#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <cstdint>
 #include <string>
 #include <memory>
 
-namespace eprosima{
-namespace uxr{
+namespace eprosima {
+namespace uxr {
+namespace middleware {
+/**
+ * @brief Forward declarations.
+ */
+enum class CallbackKind : uint8_t;
+class CallbackFactory;
+} //  namespace middleware
 
 class Root;
 
@@ -561,10 +567,7 @@ public:
     UXR_AGENT_EXPORT void add_middleware_callback(
             const Middleware::Kind& middleware_kind,
             const middleware::CallbackKind& callback_kind,
-            std::function<void (Args ...)>&& callback_function)
-    {
-        callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
-    }
+            std::function<void (Args ...)>&& callback_function);
 
 private:
     template<Agent::ObjectKind object_kind, typename U, typename T>

@@ -16,7 +16,7 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
-
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -636,6 +636,15 @@ bool Agent::delete_object(
     }
 
     return rv;
+}
+
+template <typename ... Args>
+void Agent::add_middleware_callback(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void (Args ...)>&& callback_function)
+{
+    callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
 }
 
 } // namespace uxr
