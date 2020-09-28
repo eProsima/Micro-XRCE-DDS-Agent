@@ -214,6 +214,7 @@ void fill_object_variant<Agent::REPLIER_OBJK>(
  **********************************************************************************************************************/
 Agent::Agent()
     : root_(new Root())
+    , callback_factory_(callback_factory_.getInstance())
 {}
 
 Agent::~Agent() = default;
@@ -644,7 +645,7 @@ void Agent::add_middleware_callback(
         const middleware::CallbackKind& callback_kind,
         std::function<void (Args ...)>&& callback_function)
 {
-    callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
+    callback_factory_.add_callback(middleware_kind, callback_kind, std::move(callback_function));
 }
 
 } // namespace uxr

@@ -96,7 +96,7 @@ public:
             const middleware::CallbackKind& callback_kind,
             std::function<void (Args ...)>&& callback_function)
     {
-        callback_factory_->add_callback(middleware_kind, callback_kind, std::move(callback_function));
+        callback_factory_.add_callback(middleware_kind, callback_kind, std::move(callback_function));
     }
 
 private:
@@ -117,7 +117,7 @@ private:
 #ifndef _WIN32
     sigset_t signals_;
 #endif  // _WIN32
-    std::shared_ptr<middleware::CallbackFactory> callback_factory_;
+    middleware::CallbackFactory& callback_factory_;
 };
 } // uxr
 } // eprosima

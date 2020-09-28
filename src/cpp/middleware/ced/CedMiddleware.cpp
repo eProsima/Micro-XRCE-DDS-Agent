@@ -49,8 +49,6 @@ CedMiddleware::CedMiddleware(uint32_t client_key)
             read_access_ = ReadAccess::COMPLETE;
         }
     }
-
-    callback_factory_.reset();
 }
 
 std::string remove_suffix_form_topic_ref(std::string const & ref)

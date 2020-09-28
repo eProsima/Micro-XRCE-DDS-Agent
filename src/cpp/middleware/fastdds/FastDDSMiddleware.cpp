@@ -34,8 +34,8 @@ FastDDSMiddleware::FastDDSMiddleware()
     , datareaders_()
     , requesters_()
     , repliers_()
+    , callback_factory_(callback_factory_.getInstance())
 {
-    callback_factory_.reset(&callback_factory_->getInstance());
 }
 
 /**********************************************************************************************************************
@@ -50,7 +50,7 @@ bool FastDDSMiddleware::create_participant_by_ref(
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_ref(ref))
     {
-        callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
             middleware::CallbackKind::CREATE_PARTICIPANT, participant->guid(), **participant);
 
         participants_.emplace(participant_id, std::move(participant));
@@ -68,7 +68,7 @@ bool FastDDSMiddleware::create_participant_by_xml(
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_xml(xml))
     {
-        callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
             middleware::CallbackKind::CREATE_PARTICIPANT, participant->guid(), **participant);
 
         participants_.emplace(participant_id, std::move(participant));
@@ -207,7 +207,7 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_ref(ref))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_DATAWRITER, datawriter->guid(),
                 **it_publisher->second->get_participant());
 
@@ -230,7 +230,7 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
         if (datawriter->create_by_xml(xml))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_DATAWRITER, datawriter->guid(),
                 **it_publisher->second->get_participant());
 
@@ -253,7 +253,7 @@ bool FastDDSMiddleware::create_datareader_by_ref(
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_ref(ref))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_DATAREADER, datareader->guid(),
                 **it_subscriber->second->get_participant());
 
@@ -276,7 +276,7 @@ bool FastDDSMiddleware::create_datareader_by_xml(
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
         if (datareader->create_by_xml(xml))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_DATAREADER, datareader->guid(),
                 **it_subscriber->second->get_participant());
 
@@ -300,7 +300,7 @@ std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
         if (requester->create_by_attributes(attrs))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_REQUESTER, *requester, **participant);
         }
         else
@@ -364,7 +364,7 @@ std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
         if (replier->create_by_attributes(attrs))
         {
-            callback_factory_->execute_callbacks(Middleware::Kind::FASTDDS,
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_REPLIER, *replier, **participant);
         }
         else
