@@ -33,8 +33,8 @@ FastMiddleware::FastMiddleware()
     , datareaders_()
     , requesters_()
     , repliers_()
+    , callback_factory_(callback_factory_.getInstance())
 {
-    callback_factory_.reset(&callback_factory_->getInstance());
 }
 
 /**********************************************************************************************************************

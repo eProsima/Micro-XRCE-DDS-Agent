@@ -587,7 +587,7 @@ private:
 
 protected:
     std::unique_ptr<Root> root_;
-    std::shared_ptr<middleware::CallbackFactory> callback_factory_;
+    middleware::CallbackFactory& callback_factory_;
 };
 
 } // uxr
