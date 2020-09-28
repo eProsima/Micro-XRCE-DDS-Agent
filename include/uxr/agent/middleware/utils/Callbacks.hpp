@@ -34,12 +34,6 @@
 
 namespace eprosima {
 namespace uxr {
-
-/**
- * @brief Forward declaration.
- */
-// class Middleware;
-
 namespace middleware {
 
 /**********************************************************************************************************************

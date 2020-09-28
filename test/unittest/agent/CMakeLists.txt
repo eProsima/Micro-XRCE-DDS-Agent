@@ -43,6 +43,7 @@ target_include_directories(${TEST_NAME}
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
+        fastrtps
         microxrcedds_agent
         ${GTEST_LIBRARIES}
         ${GMOCK_LIBRARIES}
