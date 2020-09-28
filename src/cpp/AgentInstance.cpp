@@ -29,8 +29,10 @@ AgentInstance::AgentInstance()
     , pseudo_serial_subcmd_(app_)
 #endif  // _WIN32
     , exit_subcmd_(app_)
-#endif  // UAGENT_CLI_PROFILE
     , callback_factory_(&callback_factory_->getInstance())
+#else
+    : callback_factory_(&callback_factory_->getInstance())
+#endif  // UAGENT_CLI_PROFILE
 {
 #ifdef UAGENT_CLI_PROFILE
     app_.require_subcommand(1, 1);
