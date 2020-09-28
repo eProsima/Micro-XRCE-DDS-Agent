@@ -16,7 +16,6 @@
 #define UXR_AGENT_ROOT_HPP_
 
 #include <uxr/agent/client/ProxyClient.hpp>
-#include <uxr/agent/Agent.hpp>
 
 #include <thread>
 #include <memory>
