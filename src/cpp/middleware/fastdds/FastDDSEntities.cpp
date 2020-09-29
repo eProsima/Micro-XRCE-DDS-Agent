@@ -595,6 +595,11 @@ bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
     return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
+const fastdds::dds::DataWriter* FastDDSDataWriter::ptr() const
+{
+    return ptr_;
+}
+
 /**********************************************************************************************************************
  * FastDDSDataReader
  **********************************************************************************************************************/
@@ -695,6 +700,11 @@ bool FastDDSDataReader::read(
     }
 
     return rv;
+}
+
+const fastdds::dds::DataReader* FastDDSDataReader::ptr() const
+{
+    return ptr_;
 }
 
 /**********************************************************************************************************************

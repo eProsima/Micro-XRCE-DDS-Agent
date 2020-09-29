@@ -263,6 +263,8 @@ public:
     bool create_by_xml(const std::string& xml);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool write(const std::vector<uint8_t>& data);
+    const fastdds::dds::DataWriter* ptr() const;
+
 private:
     std::shared_ptr<FastDDSPublisher> publisher_;
     std::shared_ptr<FastDDSTopic> topic_;
@@ -291,6 +293,8 @@ public:
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
+    const fastdds::dds::DataReader* ptr() const;
+
 private:
     std::shared_ptr<FastDDSSubscriber> subscriber_;
     std::shared_ptr<FastDDSTopic> topic_;

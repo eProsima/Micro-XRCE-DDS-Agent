@@ -249,6 +249,16 @@ const fastrtps::rtps::GUID_t& FastDataWriter::get_guid() const
     return impl_->getGuid();
 }
 
+const fastrtps::Participant* FastDataWriter::get_participant() const
+{
+    return publisher_->get_participant()->get_ptr();
+}
+
+const fastrtps::Publisher* FastDataWriter::get_ptr() const
+{
+    return impl_;
+}
+
 /**********************************************************************************************************************
  * FastDataReader
  **********************************************************************************************************************/
@@ -300,6 +310,21 @@ bool FastDataReader::read(
         rv = impl_->takeNextData(&data, &info);
     }
     return rv;
+}
+
+const fastrtps::rtps::GUID_t& FastDataReader::get_guid() const
+{
+    return impl_->getGuid();
+}
+
+const fastrtps::Participant* FastDataReader::get_participant() const
+{
+    return subscriber_->get_participant()->get_ptr();
+}
+
+const fastrtps::Subscriber* FastDataReader::get_ptr() const
+{
+    return impl_;
 }
 
 /**********************************************************************************************************************

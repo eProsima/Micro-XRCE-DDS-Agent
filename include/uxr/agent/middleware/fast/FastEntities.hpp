@@ -208,6 +208,10 @@ public:
 
     const fastrtps::rtps::GUID_t& get_guid() const;
 
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Publisher* get_ptr() const;
+
 private:
     fastrtps::Publisher* impl_;
     std::shared_ptr<FastTopic> topic_;
@@ -238,6 +242,12 @@ public:
             std::vector<uint8_t>& data,
             fastrtps::SampleInfo_t& info,
             std::chrono::milliseconds timeout);
+
+    const fastrtps::rtps::GUID_t& get_guid() const;
+
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Subscriber* get_ptr() const;
 
 private:
     fastrtps::Subscriber* impl_;
