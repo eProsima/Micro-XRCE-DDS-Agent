@@ -17,6 +17,7 @@
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastrtps/participant/Participant.h>
 #include "../../xmlobjects/xmlobjects.h"
 
 namespace eprosima {
@@ -53,6 +54,8 @@ bool FastMiddleware::create_participant_by_ref(
         fastrtps::Participant* impl = fastrtps::Domain::createParticipant(attrs, &listener_);
         if (nullptr != impl)
         {
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_PARTICIPANT, impl->getGuid(), impl);
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
             rv = participants_.emplace(participant_id, std::move(participant)).second;
         }
@@ -74,6 +77,8 @@ bool FastMiddleware::create_participant_by_xml(
         fastrtps::Participant* impl = fastrtps::Domain::createParticipant(attrs, &listener_);
         if (nullptr != impl)
         {
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_PARTICIPANT, impl->getGuid(), impl);
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
             rv = participants_.emplace(participant_id, std::move(participant)).second;
         }
@@ -205,6 +210,8 @@ std::shared_ptr<FastDataWriter> create_datawriter(
             fastrtps::Domain::createPublisher(participant->get_ptr(), attrs, listener);
         if (nullptr != impl)
         {
+            // callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            //     middleware::CallbackKind::CREATE_DATAWRITER, participant->get_ptr(), impl);
             datawriter = std::make_shared<FastDataWriter>(impl, topic, publisher);
         }
     }
@@ -225,6 +232,9 @@ bool FastMiddleware::create_datawriter_by_ref(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->get_guid(),
+                datawriter->get_participant(), datawriter->get_ptr());
             rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
         }
     }
@@ -245,6 +255,9 @@ bool FastMiddleware::create_datawriter_by_xml(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->get_guid(),
+                datawriter->get_participant(), datawriter->get_ptr());
             rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
         }
     }
@@ -267,6 +280,8 @@ std::shared_ptr<FastDataReader> create_datareader(
             fastrtps::Domain::createSubscriber(participant->get_ptr(), attrs, listener);
         if (nullptr != impl)
         {
+            // callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            //     middleware::CallbackKind::CREATE_DATAREADER, participant->get_ptr(), impl);
             datareader = std::make_shared<FastDataReader>(impl, topic, subscriber);
         }
     }
@@ -287,6 +302,9 @@ bool FastMiddleware::create_datareader_by_ref(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_DATAREADER, datareader->get_guid(),
+                datareader->get_participant(), datareader->get_ptr());
             rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
         }
     }
@@ -307,6 +325,9 @@ bool FastMiddleware::create_datareader_by_xml(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_DATAREADER, datareader->get_guid(),
+                datareader->get_participant(), datareader->get_ptr());
             rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
         }
     }
@@ -329,6 +350,8 @@ std::shared_ptr<FastRequester> create_requester(
     if (datawriter && datareader)
     {
         requester = std::make_shared<FastRequester>(datawriter, datareader);
+        // callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+        //     middleware::CallbackKind::CREATE_REQUESTER, *requester, participant->get_ptr());
     }
     return requester;
 }
@@ -388,6 +411,8 @@ std::shared_ptr<FastReplier> create_replier(
     std::shared_ptr<FastDataReader> datareader = create_datareader(attrs.subscriber, listener, subscriber);
     if (datawriter && datareader)
     {
+        // callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+        //     middleware::CallbackKind::CREATE_REPLIER, *replier, participant->get_ptr());
         replier = std::make_shared<FastReplier>(datawriter, datareader);
     }
     return replier;
