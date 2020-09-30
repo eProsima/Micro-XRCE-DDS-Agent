@@ -181,7 +181,7 @@ public:
     template <typename ... Args>
     void execute_callbacks(
             const Middleware::Kind& middleware_kind,
-            const CallbackKind& callback_kind,
+            const CallbackKind callback_kind,
             Args ... args)
     {
         switch (middleware_kind)
@@ -316,7 +316,7 @@ private:
          * @param callback_kind Kind of callback functions to be executed.
          */
         void execute_callbacks(
-                const CallbackKind& callback_kind ...) const
+                const CallbackKind callback_kind ...) const
         {
             va_list args;
             va_start(args, callback_kind);
@@ -507,7 +507,7 @@ private:
          * @param callback_kind Kind of callback functions to be executed.
          */
         void execute_callbacks(
-                const CallbackKind& callback_kind ...) const
+                const CallbackKind callback_kind ...) const
         {
             va_list args;
             va_start(args, callback_kind);
