@@ -139,7 +139,7 @@ public:
      *                          included in the callback database.
      */
     template <typename ... Args>
-    inline void add_callback(
+    void add_callback(
             const Middleware::Kind& middleware_kind,
             const CallbackKind& callback_kind,
             std::function<void (Args ...)>&& callback_function)
@@ -179,7 +179,7 @@ public:
      *                          and CallbackKind must receive the same type of input parameters.
      */
     template <typename ... Args>
-    inline void execute_callbacks(
+    void execute_callbacks(
             const Middleware::Kind& middleware_kind,
             const CallbackKind& callback_kind,
             Args ... args)
@@ -830,6 +830,138 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<const FastDDSR
         {
             on_create_replier_callbacks_.emplace_back(Callback<const FastDDSReplier&,
                 const fastdds::dds::DomainParticipant*>(std::move(callback_function)));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastrtps::Participant*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastrtps::Participant*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTRTPS:
+        {
+            fast_callback_factory_.add_callback(callback_kind, std::move(callback_function));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastrtps::Participant*, const fastrtps::Publisher*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastrtps::Participant*, const fastrtps::Publisher*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTRTPS:
+        {
+            fast_callback_factory_.add_callback(callback_kind, std::move(callback_function));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastrtps::Participant*, const fastrtps::Subscriber*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastrtps::Participant*, const fastrtps::Subscriber*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTRTPS:
+        {
+            fast_callback_factory_.add_callback(callback_kind, std::move(callback_function));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastdds::dds::DomainParticipant*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastdds::dds::DomainParticipant*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTDDS:
+        {
+            fast_dds_callback_factory_.add_callback(callback_kind, std::move(callback_function));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastdds::dds::DomainParticipant*, const fastdds::dds::DataWriter*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastdds::dds::DomainParticipant*, const fastdds::dds::DataWriter*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTDDS:
+        {
+            fast_dds_callback_factory_.add_callback(callback_kind, std::move(callback_function));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+template <>
+inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
+    const fastdds::dds::DomainParticipant*, const fastdds::dds::DataReader*>(
+        const Middleware::Kind& middleware_kind,
+        const CallbackKind& callback_kind,
+        std::function<void (const fastrtps::rtps::GUID_t&,
+            const fastdds::dds::DomainParticipant*, const fastdds::dds::DataReader*)>&& callback_function)
+{
+    switch (middleware_kind)
+    {
+        case Middleware::Kind::FASTDDS:
+        {
+            fast_dds_callback_factory_.add_callback(callback_kind, std::move(callback_function));
             break;
         }
         default:
