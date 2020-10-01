@@ -60,6 +60,7 @@ enum class TransportKind
     SERIAL,
     PSEUDOTERMINAL,
 #endif // _WIN32
+    HELP
 };
 
 template <typename AgentKind>
