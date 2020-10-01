@@ -49,6 +49,8 @@ eprosima::uxr::agent::TransportKind eprosima::uxr::agent::parser::utils::check_t
     {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
     {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},
 #endif // _WIN32
+    {"-h", eprosima::uxr::agent::TransportKind::HELP},
+    {"--help", eprosima::uxr::agent::TransportKind::HELP}
     };
 
     if (valid_transports.find(transport) != valid_transports.end())

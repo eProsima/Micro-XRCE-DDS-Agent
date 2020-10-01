@@ -141,6 +141,13 @@ bool AgentInstance::create(
             break;
         }
 #endif  // _WIN32
+        case agent::TransportKind::HELP:
+        {
+            // TODO(jamoralp): avoid creating this object just to show help
+            agent::parser::ArgumentParser<UDPv4Agent>(argc, argv, valid_transport).show_help();
+            return false;
+            break;
+        }
         case agent::TransportKind::INVALID:
         {
             std::cerr << "Error: chosen transport '" << chosen_transport << "' is invalid!" << std::endl;
