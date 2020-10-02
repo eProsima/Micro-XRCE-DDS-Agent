@@ -288,7 +288,9 @@ private:
                     break;
                 }
                 case CallbackKind::CREATE_DATAWRITER:
+                case CallbackKind::DELETE_DATAWRITER:
                 case CallbackKind::CREATE_DATAREADER:
+                case CallbackKind::DELETE_DATAREADER:
                 case CallbackKind::CREATE_REQUESTER:
                 case CallbackKind::CREATE_REPLIER:
                 {
@@ -300,8 +302,6 @@ private:
                     on_delete_participant_callbacks_.emplace_back(Callback<Args ...>(std::move(callback_function)));
                     break;
                 }
-                case CallbackKind::DELETE_DATAWRITER:
-                case CallbackKind::DELETE_DATAREADER:
                 case CallbackKind::DELETE_REQUESTER:
                 case CallbackKind::DELETE_REPLIER:
                 {
@@ -407,7 +407,15 @@ private:
                         const fastrtps::Participant*,
                         const fastrtps::Publisher*>;
 
+        using DeleteDataWriterCallback = Callback<const fastrtps::rtps::GUID_t&,
+                        const fastrtps::Participant*,
+                        const fastrtps::Publisher*>;
+
         using CreateDataReaderCallback = Callback<const fastrtps::rtps::GUID_t&,
+                        const fastrtps::Participant*,
+                        const fastrtps::Subscriber*>;
+
+        using DeleteDataReaderCallback = Callback<const fastrtps::rtps::GUID_t&,
                         const fastrtps::Participant*,
                         const fastrtps::Subscriber*>;
 
@@ -419,7 +427,9 @@ private:
         std::vector<CreateParticipantCallback> on_create_participant_callbacks_;
         std::vector<DeleteParticipantCallback> on_delete_participant_callbacks_;
         std::vector<CreateDataWriterCallback> on_create_datawriter_callbacks_;
+        std::vector<DeleteDataWriterCallback> on_delete_datawriter_callbacks_;
         std::vector<CreateDataReaderCallback> on_create_datareader_callbacks_;
+        std::vector<DeleteDataReaderCallback> on_delete_datareader_callbacks_;
         std::vector<CreateRequesterCallback> on_create_requester_callbacks_;
         std::vector<CreateReplierCallback> on_create_replier_callbacks_;
     };
@@ -479,7 +489,9 @@ private:
                     break;
                 }
                 case CallbackKind::CREATE_DATAWRITER:
+                case CallbackKind::DELETE_DATAWRITER:
                 case CallbackKind::CREATE_DATAREADER:
+                case CallbackKind::DELETE_DATAREADER:
                 case CallbackKind::CREATE_REQUESTER:
                 case CallbackKind::CREATE_REPLIER:
                 {
@@ -491,8 +503,6 @@ private:
                     on_delete_participant_callbacks_.emplace_back(Callback<Args ...>(std::move(callback_function)));
                     break;
                 }
-                case CallbackKind::DELETE_DATAWRITER:
-                case CallbackKind::DELETE_DATAREADER:
                 case CallbackKind::DELETE_REQUESTER:
                 case CallbackKind::DELETE_REPLIER:
                 {
@@ -577,7 +587,27 @@ private:
                     break;
                 }
                 case CallbackKind::DELETE_DATAWRITER:
+                {
+                    fastrtps::rtps::GUID_t guid = va_arg(args, fastrtps::rtps::GUID_t);
+                    fastdds::dds::DomainParticipant* participant = va_arg(args, fastdds::dds::DomainParticipant*);
+                    fastdds::dds::DataWriter* datawriter = va_arg(args, fastdds::dds::DataWriter*);
+                    for (const auto& on_delete_datawriter_callback : on_delete_datawriter_callbacks_)
+                    {
+                        on_delete_datawriter_callback(guid, participant, datawriter);
+                    }
+                    break;
+                }
                 case CallbackKind::DELETE_DATAREADER:
+                {
+                    fastrtps::rtps::GUID_t guid = va_arg(args, fastrtps::rtps::GUID_t);
+                    fastdds::dds::DomainParticipant* participant = va_arg(args, fastdds::dds::DomainParticipant*);
+                    fastdds::dds::DataReader* datareader = va_arg(args, fastdds::dds::DataReader*);
+                    for (const auto& on_delete_datareader_callback : on_delete_datareader_callbacks_)
+                    {
+                        on_delete_datareader_callback(guid, participant, datareader);
+                    }
+                    break;
+                }
                 case CallbackKind::DELETE_REQUESTER:
                 case CallbackKind::DELETE_REPLIER:
                 {
@@ -598,7 +628,15 @@ private:
                         const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*>;
 
+        using DeleteDataWriterCallback = Callback<const fastrtps::rtps::GUID_t&,
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*>;
+
         using CreateDataReaderCallback = Callback<const fastrtps::rtps::GUID_t&,
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataReader*>;
+
+        using DeleteDataReaderCallback = Callback<const fastrtps::rtps::GUID_t&,
                         const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataReader*>;
 
@@ -610,7 +648,9 @@ private:
         std::vector<CreateParticipantCallback> on_create_participant_callbacks_;
         std::vector<DeleteParticipantCallback> on_delete_participant_callbacks_;
         std::vector<CreateDataWriterCallback> on_create_datawriter_callbacks_;
+        std::vector<DeleteDataWriterCallback> on_delete_datawriter_callbacks_;
         std::vector<CreateDataReaderCallback> on_create_datareader_callbacks_;
+        std::vector<DeleteDataReaderCallback> on_delete_datareader_callbacks_;
         std::vector<CreateRequesterCallback> on_create_requester_callbacks_;
         std::vector<CreateReplierCallback> on_create_replier_callbacks_;
     };
@@ -676,6 +716,12 @@ inline void CallbackFactory::FastCallbackFactory::add_callback<
                 const fastrtps::Participant*, const fastrtps::Publisher*>(std::move(callback_function)));
             break;
         }
+        case CallbackKind::DELETE_DATAWRITER:
+        {
+            on_delete_datawriter_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
+                const fastrtps::Participant*, const fastrtps::Publisher*>(std::move(callback_function)));
+            break;
+        }
         default:
         {
             break;
@@ -697,6 +743,12 @@ inline void CallbackFactory::FastCallbackFactory::add_callback<
         case CallbackKind::CREATE_DATAREADER:
         {
             on_create_datareader_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
+                const fastrtps::Participant*, const fastrtps::Subscriber*>(std::move(callback_function)));
+            break;
+        }
+        case CallbackKind::DELETE_DATAREADER:
+        {
+            on_delete_datareader_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
                 const fastrtps::Participant*, const fastrtps::Subscriber*>(std::move(callback_function)));
             break;
         }
@@ -766,6 +818,12 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
                 const fastdds::dds::DomainParticipant*, const fastdds::dds::DataWriter*>(std::move(callback_function)));
             break;
         }
+        case CallbackKind::DELETE_DATAWRITER:
+        {
+            on_delete_datawriter_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
+                const fastdds::dds::DomainParticipant*, const fastdds::dds::DataWriter*>(std::move(callback_function)));
+            break;
+        }
         default:
         {
             break;
@@ -787,6 +845,12 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
         case CallbackKind::CREATE_DATAREADER:
         {
             on_create_datareader_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
+                const fastdds::dds::DomainParticipant*, const fastdds::dds::DataReader*>(std::move(callback_function)));
+            break;
+        }
+        case CallbackKind::DELETE_DATAREADER:
+        {
+            on_delete_datareader_callbacks_.emplace_back(Callback<const fastrtps::rtps::GUID_t&,
                 const fastdds::dds::DomainParticipant*, const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
@@ -970,7 +1034,6 @@ inline void CallbackFactory::add_callback<const fastrtps::rtps::GUID_t&,
         }
     }
 }
-
 
 } // namespace middleware
 } // namespace uxr
