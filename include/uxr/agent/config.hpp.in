@@ -30,7 +30,7 @@ namespace uxr {
 #cmakedefine UAGENT_LOGGER_PROFILE
 #cmakedefine UAGENT_CLI_PROFILE
 
-const uint16_t DISCOVERY_PORT = 7400;
+const uint16_t DISCOVERY_PORT = 7401;
 const char* const DISCOVERY_IP = "239.255.0.2";
 
 const uint16_t RELIABLE_STREAM_DEPTH = @UAGENT_CONFIG_RELIABLE_STREAM_DEPTH@;

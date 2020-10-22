@@ -51,7 +51,7 @@ description: |
         $ snap set micro-xrce-dds-agent discovery="true or false"
 
   * `discovery-port`. Port on which the discovery server (see above)
-    listens. Defaults to 7400. Change with:
+    listens. Defaults to 7401. Change with:
 
         $ snap set micro-xrce-dds-agent discovery-port="selected port"
 

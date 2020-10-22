@@ -42,7 +42,7 @@
 
 #define DEFAULT_MIDDLEWARE      "dds"
 #define DEFAULT_VERBOSE_LEVEL   4
-#define DEFAULT_DISCOVERY_PORT  7400
+#define DEFAULT_DISCOVERY_PORT  7401
 #define DEFAULT_BAUDRATE_LEVEL  "115200"
 
 namespace eprosima {

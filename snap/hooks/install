@@ -5,7 +5,7 @@ snapctl set transport=udp4
 snapctl set middleware=dds
 snapctl set verbosity=4
 snapctl set discovery=false
-snapctl set discovery-port=7400
+snapctl set discovery-port=7401
 snapctl set p2p-port!  # unset
 
 # Network-specific things
