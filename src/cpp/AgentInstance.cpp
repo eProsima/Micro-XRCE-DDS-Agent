@@ -87,7 +87,7 @@ bool AgentInstance::create(
     // Use built-in argument parser
     if (2 > argc)
     {
-        agent::parser::utils::usage();
+        agent::parser::utils::usage(argv[0]);
         return false;
     }
     const char* chosen_transport(argv[1]);
@@ -155,7 +155,7 @@ bool AgentInstance::create(
         case agent::TransportKind::INVALID:
         {
             std::cerr << "Error: chosen transport '" << chosen_transport << "' is invalid!" << std::endl;
-            agent::parser::utils::usage();
+            agent::parser::utils::usage(argv[0]);
             return false;
         }
     }

@@ -20,10 +20,11 @@
 // TODO(jamoralp): move definitions of ArgumentParser.hpp into this file, to maintain code coherence.
 
 bool eprosima::uxr::agent::parser::utils::usage(
+        const char* executable_name,
         bool no_help)
 {
     std::stringstream ss;
-    ss << "Usage: 'MicroXRCEAgent <udp4|udp6|tcp4|tpc6";
+    ss << "Usage: '" << executable_name << " <udp4|udp6|tcp4|tpc6";
 #ifndef _WIN32
     ss << "|serial|pseudoterminal";
 #endif // _WIN32

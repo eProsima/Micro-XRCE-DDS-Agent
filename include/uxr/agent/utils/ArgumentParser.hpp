@@ -78,6 +78,7 @@ namespace parser {
 namespace utils {
 
 bool usage(
+        const char* executable_name,
         bool no_help = true);
 
 TransportKind check_transport(
@@ -794,7 +795,7 @@ public:
 
     void show_help()
     {
-        utils::usage(false);
+        utils::usage(argv_[0], false);
         std::stringstream ss;
         ss << std::endl << "Available arguments (per transport):" << std::endl;
         ss << "  * COMMON" << std::endl;
@@ -845,7 +846,7 @@ inline std::thread create_agent_thread(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:
@@ -897,7 +898,7 @@ inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:
@@ -937,7 +938,7 @@ inline std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:
