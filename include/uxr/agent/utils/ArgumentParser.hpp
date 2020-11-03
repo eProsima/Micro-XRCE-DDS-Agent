@@ -78,7 +78,7 @@ namespace parser {
 namespace utils {
 
 bool usage(
-        const char* executable_name,
+        char* executable_name,
         bool no_help = true);
 
 TransportKind check_transport(
