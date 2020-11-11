@@ -36,11 +36,6 @@ option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_CLI_PROFILE "Build CLI profile." ON)
 option(UAGENT_BUILD_EXECUTABLE "Build MicroXRCE-DDS Agent provided executable." ON)
 
-### Do not uncomment these lines while micro-ROS Agent depends on CLI library
-#if(NOT UAGENT_BUILD_EXECUTABLE)
-#    set(UAGENT_CLI_PROFILE OFF)
-#endif()
-
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
     set(UAGENT_BUILD_TESTS ON)
