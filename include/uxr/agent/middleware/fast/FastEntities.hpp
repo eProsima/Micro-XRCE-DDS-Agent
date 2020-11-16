@@ -101,6 +101,8 @@ public:
 
     int16_t domain_id() const;
 
+    const fastrtps::rtps::GUID_t& get_guid() const;
+
 private:
     fastrtps::Participant* impl_;
     std::unordered_map<std::string, std::weak_ptr<FastType>> type_register_;

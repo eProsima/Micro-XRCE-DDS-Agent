@@ -173,6 +173,11 @@ int16_t FastParticipant::domain_id() const
     return (int16_t) impl_->getAttributes().domainId;
 }
 
+const fastrtps::rtps::GUID_t& FastParticipant::get_guid() const
+{
+  return impl_->getGuid();
+}
+
 /**********************************************************************************************************************
  * FastTopic
  **********************************************************************************************************************/

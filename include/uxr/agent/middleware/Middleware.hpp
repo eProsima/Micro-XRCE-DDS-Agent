@@ -23,7 +23,6 @@
 #include <vector>
 #include <functional>
 #include <chrono>
-#include <memory>
 
 namespace eprosima {
 namespace uxr {

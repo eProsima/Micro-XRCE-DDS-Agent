@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
-#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include "../../xmlobjects/xmlobjects.h"

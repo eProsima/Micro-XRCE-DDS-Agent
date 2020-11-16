@@ -21,8 +21,6 @@
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
 
-#include <fastdds/rtps/common/Guid.h>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
 #endif // UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>

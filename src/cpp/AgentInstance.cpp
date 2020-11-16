@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/AgentInstance.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -181,6 +182,44 @@ void AgentInstance::run()
     agent_thread_.join();
 #endif  // UAGENT_CLI_PROFILE
 }
+
+template <typename ... Args>
+void AgentInstance::add_middleware_callback(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void (Args ...)>&& callback_function)
+{
+    callback_factory_.add_callback(middleware_kind, callback_kind, std::move(callback_function));
+}
+
+// Specific template specializations for used callback signatures.
+template void AgentInstance::add_middleware_callback<
+    const eprosima::fastrtps::rtps::GUID_t &,
+    const eprosima::fastdds::dds::DomainParticipant *>(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+            const eprosima::fastdds::dds::DomainParticipant *)> &&);
+
+template void AgentInstance::add_middleware_callback<
+    const eprosima::fastrtps::rtps::GUID_t &,
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *>(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+            const eprosima::fastdds::dds::DomainParticipant *,
+            const eprosima::fastdds::dds::DataWriter *)> &&);
+
+template void AgentInstance::add_middleware_callback<
+    const eprosima::fastrtps::rtps::GUID_t &,
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataReader *>(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+            const eprosima::fastdds::dds::DomainParticipant *,
+            const eprosima::fastdds::dds::DataReader *)> &&);
 
 } // namespace uxr
 } // namespace eprosima
