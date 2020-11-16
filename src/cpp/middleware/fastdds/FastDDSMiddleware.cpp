@@ -299,8 +299,9 @@ std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
         if (requester->create_by_attributes(attrs))
         {
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_REQUESTER, *requester, **participant);
+            // TODO(jamoralp): implement
+            // callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            //     middleware::CallbackKind::CREATE_REQUESTER, *requester, **participant);
         }
         else
         {
@@ -363,8 +364,9 @@ std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
         if (replier->create_by_attributes(attrs))
         {
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_REPLIER, *replier, **participant);
+            // TODO(jamoralp): implement
+            // callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            //     middleware::CallbackKind::CREATE_REPLIER, *replier, **participant);
         }
         else
         {
