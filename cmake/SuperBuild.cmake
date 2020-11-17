@@ -104,7 +104,7 @@ if(UAGENT_FAST_PROFILE)
     # Fast DDS.
     unset(fastdds_DIR CACHE)
     find_package(fastrtps ${_fastdds_version} EXACT QUIET)
-    if(NOT fastdds_FOUND)
+    if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastdds
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-DDS.git
@@ -126,6 +126,7 @@ if(UAGENT_FAST_PROFILE)
                 -DTHIRDPARTY:BOOL=ON
                 -DCOMPILE_TOOLS:BOOL=OFF
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
+                -DSHM_TRANSPORT_DEFAULT:BOOL=OFF
             DEPENDS
                 fastcdr
                 foonathan_memory
