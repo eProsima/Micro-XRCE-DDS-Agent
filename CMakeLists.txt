@@ -80,7 +80,7 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastdds_version 2.0)
+    set(_fastdds_version 2.0.1)
     set(_fastdds_tag 2.0.x)
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
     set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
