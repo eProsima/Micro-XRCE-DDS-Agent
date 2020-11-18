@@ -54,9 +54,13 @@ bool FastMiddleware::create_participant_by_ref(
         if (nullptr != impl)
         {
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_PARTICIPANT, participant->get_guid(), impl);
-            rv = participants_.emplace(participant_id, std::move(participant)).second;
+            auto emplace_res = participants_.emplace(participant_id, std::move(participant));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_PARTICIPANT, emplace_res.first->second->get_guid(), impl);
+            }
         }
     }
     return rv;
@@ -77,9 +81,13 @@ bool FastMiddleware::create_participant_by_xml(
         if (nullptr != impl)
         {
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_PARTICIPANT, participant->get_guid(), impl);
-            rv = participants_.emplace(participant_id, std::move(participant)).second;
+            auto emplace_res = participants_.emplace(participant_id, std::move(participant));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_PARTICIPANT, emplace_res.first->second->get_guid(), impl);
+            }
         }
     }
     return rv;
@@ -229,10 +237,18 @@ bool FastMiddleware::create_datawriter_by_ref(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->get_guid(),
-                datawriter->get_participant(), datawriter->get_ptr());
-            rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
+            if (nullptr == datawriter)
+            {
+                return false;
+            }
+            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAWRITER, emplace_res.first->second->get_guid(),
+                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -252,10 +268,18 @@ bool FastMiddleware::create_datawriter_by_xml(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_DATAWRITER, datawriter->get_guid(),
-                datawriter->get_participant(), datawriter->get_ptr());
-            rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
+            if (nullptr == datawriter)
+            {
+                return false;
+            }
+            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAWRITER, emplace_res.first->second->get_guid(),
+                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -297,10 +321,18 @@ bool FastMiddleware::create_datareader_by_ref(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_DATAREADER, datareader->get_guid(),
-                datareader->get_participant(), datareader->get_ptr());
-            rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
+            if (nullptr == datareader)
+            {
+                return false;
+            }
+            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->get_guid(),
+                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -320,10 +352,18 @@ bool FastMiddleware::create_datareader_by_xml(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_DATAREADER, datareader->get_guid(),
-                datareader->get_participant(), datareader->get_ptr());
-            rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
+            if (nullptr == datareader)
+            {
+                return false;
+            }
+            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->get_guid(),
+                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
