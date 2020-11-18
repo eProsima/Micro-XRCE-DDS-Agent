@@ -194,30 +194,27 @@ void AgentInstance::add_middleware_callback(
 
 // Specific template specializations for used callback signatures.
 template void AgentInstance::add_middleware_callback<
-    const eprosima::fastrtps::rtps::GUID_t &,
     const eprosima::fastdds::dds::DomainParticipant *>(
         const Middleware::Kind& middleware_kind,
         const middleware::CallbackKind& callback_kind,
-        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+        std::function<void(
             const eprosima::fastdds::dds::DomainParticipant *)> &&);
 
 template void AgentInstance::add_middleware_callback<
-    const eprosima::fastrtps::rtps::GUID_t &,
     const eprosima::fastdds::dds::DomainParticipant *,
     const eprosima::fastdds::dds::DataWriter *>(
         const Middleware::Kind& middleware_kind,
         const middleware::CallbackKind& callback_kind,
-        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+        std::function<void(
             const eprosima::fastdds::dds::DomainParticipant *,
             const eprosima::fastdds::dds::DataWriter *)> &&);
 
 template void AgentInstance::add_middleware_callback<
-    const eprosima::fastrtps::rtps::GUID_t &,
     const eprosima::fastdds::dds::DomainParticipant *,
     const eprosima::fastdds::dds::DataReader *>(
         const Middleware::Kind& middleware_kind,
         const middleware::CallbackKind& callback_kind,
-        std::function<void(const eprosima::fastrtps::rtps::GUID_t &,
+        std::function<void(
             const eprosima::fastdds::dds::DomainParticipant *,
             const eprosima::fastdds::dds::DataReader *)> &&);
 
