@@ -59,7 +59,7 @@ bool FastMiddleware::create_participant_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_PARTICIPANT, emplace_res.first->second->get_guid(), impl);
+                    middleware::CallbackKind::CREATE_PARTICIPANT, impl);
             }
         }
     }
@@ -86,7 +86,7 @@ bool FastMiddleware::create_participant_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_PARTICIPANT, emplace_res.first->second->get_guid(), impl);
+                    middleware::CallbackKind::CREATE_PARTICIPANT, impl);
             }
         }
     }
@@ -246,8 +246,9 @@ bool FastMiddleware::create_datawriter_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_DATAWRITER, emplace_res.first->second->get_guid(),
-                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+                    middleware::CallbackKind::CREATE_DATAWRITER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
             }
         }
     }
@@ -277,8 +278,9 @@ bool FastMiddleware::create_datawriter_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_DATAWRITER, emplace_res.first->second->get_guid(),
-                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+                    middleware::CallbackKind::CREATE_DATAWRITER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
             }
         }
     }
@@ -330,8 +332,9 @@ bool FastMiddleware::create_datareader_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->get_guid(),
-                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
             }
         }
     }
@@ -361,8 +364,9 @@ bool FastMiddleware::create_datareader_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
-                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->get_guid(),
-                    emplace_res.first->second->get_participant(), emplace_res.first->second->get_ptr());
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
             }
         }
     }

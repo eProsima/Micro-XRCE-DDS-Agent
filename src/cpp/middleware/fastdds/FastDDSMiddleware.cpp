@@ -55,7 +55,7 @@ bool FastDDSMiddleware::create_participant_by_ref(
         {
             callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_PARTICIPANT,
-                emplace_res.first->second->guid(), **(emplace_res.first->second));
+                **(emplace_res.first->second));
         }
     }
     return rv;
@@ -76,7 +76,7 @@ bool FastDDSMiddleware::create_participant_by_xml(
         {
             callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_PARTICIPANT,
-                emplace_res.first->second->guid(), **(emplace_res.first->second));
+                **(emplace_res.first->second));
         }
     }
     return rv;
@@ -218,8 +218,8 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_DATAWRITER,
-                    emplace_res.first->second->guid(),
-                    **it_publisher->second->get_participant(), emplace_res.first->second->ptr());
+                    **it_publisher->second->get_participant(),
+                    emplace_res.first->second->ptr());
             }
         }
     }
@@ -244,8 +244,8 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_DATAWRITER,
-                    emplace_res.first->second->guid(),
-                    **it_publisher->second->get_participant(), emplace_res.first->second->ptr());
+                    **it_publisher->second->get_participant(),
+                    emplace_res.first->second->ptr());
             }
         }
     }
@@ -269,8 +269,9 @@ bool FastDDSMiddleware::create_datareader_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->guid(),
-                    **it_subscriber->second->get_participant(), emplace_res.first->second->ptr());
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    **it_subscriber->second->get_participant(),
+                    emplace_res.first->second->ptr());
             }
         }
     }
@@ -294,8 +295,9 @@ bool FastDDSMiddleware::create_datareader_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAREADER, emplace_res.first->second->guid(),
-                    **it_subscriber->second->get_participant(), emplace_res.first->second->ptr());
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    **it_subscriber->second->get_participant(),
+                    emplace_res.first->second->ptr());
             }
         }
     }
