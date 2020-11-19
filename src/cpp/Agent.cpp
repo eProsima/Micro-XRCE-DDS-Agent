@@ -650,7 +650,8 @@ void Agent::add_middleware_callback(
 
 // Specific template specializations for used callback signatures.
 #define AGENT_ADD_MW_CB(...) \
-template void Agent::add_middleware_callback<__VA_ARGS__>( \
+template <> \
+UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
     const Middleware::Kind &, \
     const middleware::CallbackKind &, \
     std::function<void (__VA_ARGS__)> &&);
