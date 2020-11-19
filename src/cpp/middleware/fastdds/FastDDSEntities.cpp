@@ -600,6 +600,11 @@ const fastdds::dds::DataWriter* FastDDSDataWriter::ptr() const
     return ptr_;
 }
 
+const fastdds::dds::DomainParticipant* FastDDSDataWriter::participant() const
+{
+    return publisher_->get_participant()->get_ptr();
+}
+
 /**********************************************************************************************************************
  * FastDDSDataReader
  **********************************************************************************************************************/
@@ -705,6 +710,11 @@ bool FastDDSDataReader::read(
 const fastdds::dds::DataReader* FastDDSDataReader::ptr() const
 {
     return ptr_;
+}
+
+const fastdds::dds::DomainParticipant* FastDDSDataReader::participant() const
+{
+    return subscriber_->get_participant()->get_ptr();
 }
 
 /**********************************************************************************************************************
@@ -867,6 +877,21 @@ bool FastDDSRequester::read(
     }
 
     return rv;
+}
+
+const fastdds::dds::DomainParticipant* FastDDSRequester::get_participant() const
+{
+    return participant_->get_ptr();
+}
+
+const fastdds::dds::DataWriter* FastDDSRequester::get_request_datawriter() const
+{
+    return datawriter_ptr_;
+}
+
+const fastdds::dds::DataReader* FastDDSRequester::get_reply_datareader() const
+{
+    return datareader_ptr_;
 }
 
 /**********************************************************************************************************************
@@ -1039,6 +1064,21 @@ bool FastDDSReplier::read(
     }
 
     return rv;
+}
+
+const fastdds::dds::DomainParticipant* FastDDSReplier::get_participant() const
+{
+    return participant_->get_ptr();
+}
+
+const fastdds::dds::DataReader* FastDDSReplier::get_request_datareader() const
+{
+    return datareader_ptr_;
+}
+
+const fastdds::dds::DataWriter* FastDDSReplier::get_reply_datawriter() const
+{
+    return datawriter_ptr_;
 }
 
 } // namespace uxr

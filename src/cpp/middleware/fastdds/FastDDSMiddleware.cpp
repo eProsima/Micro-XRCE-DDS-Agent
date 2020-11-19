@@ -315,13 +315,7 @@ std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
     {
         requester =
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
-        if (requester->create_by_attributes(attrs))
-        {
-            // TODO(jamoralp): implement
-            // callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            //     middleware::CallbackKind::CREATE_REQUESTER, *requester, **participant);
-        }
-        else
+        if (!requester->create_by_attributes(attrs))
         {
             requester.reset();
         }
@@ -343,7 +337,20 @@ bool FastDDSMiddleware::create_requester_by_ref(
         if (XMLP_ret::XML_OK == XMLProfileManager::fillRequesterAttributes(ref, attrs))
         {
             std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
-            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
+            if (nullptr == requester)
+            {
+                return false;
+            }
+            auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REQUESTER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_request_datawriter(),
+                    emplace_res.first->second->get_reply_datareader());
+            }
         }
     }
     return rv;
@@ -363,7 +370,20 @@ bool FastDDSMiddleware::create_requester_by_xml(
         if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
         {
             std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
-            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
+            if (nullptr == requester)
+            {
+                return false;
+            }
+            auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REQUESTER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_request_datawriter(),
+                    emplace_res.first->second->get_reply_datareader());
+            }
         }
     }
     return rv;
@@ -380,13 +400,7 @@ std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
     {
         replier =
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
-        if (replier->create_by_attributes(attrs))
-        {
-            // TODO(jamoralp): implement
-            // callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            //     middleware::CallbackKind::CREATE_REPLIER, *replier, **participant);
-        }
-        else
+        if (!replier->create_by_attributes(attrs))
         {
             replier.reset();
         }
@@ -408,7 +422,20 @@ bool FastDDSMiddleware::create_replier_by_ref(
         if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
         {
             std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
-            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
+            if (nullptr == replier)
+            {
+                return false;
+            }
+            auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REPLIER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_reply_datawriter(),
+                    emplace_res.first->second->get_request_datareader());
+            }
         }
     }
     return rv;
@@ -428,7 +455,20 @@ bool FastDDSMiddleware::create_replier_by_xml(
         if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
         {
             std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
-            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
+            if (nullptr == replier)
+            {
+                return false;
+            }
+            auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REPLIER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_reply_datawriter(),
+                    emplace_res.first->second->get_request_datareader());
+            }
         }
     }
     return rv;
@@ -440,49 +480,125 @@ bool FastDDSMiddleware::create_replier_by_xml(
 bool FastDDSMiddleware::delete_participant(
         uint16_t participant_id)
 {
-    return (0 != participants_.erase(participant_id));
+    auto it = participants_.find(participant_id);
+    if (it == participants_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto participant = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::DELETE_PARTICIPANT,
+            participant->get_ptr());
+
+        participants_.erase(participant_id);
+        return true;
+    }
 }
 
 bool FastDDSMiddleware::delete_topic(
         uint16_t topic_id)
 {
-   return (0 != topics_.erase(topic_id));
+    return (0 != topics_.erase(topic_id));
 }
 
 bool FastDDSMiddleware::delete_publisher(
         uint16_t publisher_id)
 {
-   return (0 != publishers_.erase(publisher_id));
+    return (0 != publishers_.erase(publisher_id));
 }
 
 bool FastDDSMiddleware::delete_subscriber(
         uint16_t subscriber_id)
 {
-   return (0 != subscribers_.erase(subscriber_id));
+    return (0 != subscribers_.erase(subscriber_id));
 }
 
 bool FastDDSMiddleware::delete_datawriter(
         uint16_t datawriter_id)
 {
-   return (0 != datawriters_.erase(datawriter_id));
+    auto it = datawriters_.find(datawriter_id);
+    if (it == datawriters_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto datawriter = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::DELETE_DATAWRITER,
+            datawriter->participant(),
+            datawriter->ptr());
+
+        datawriters_.erase(datawriter_id);
+        return true;
+    }
 }
 
 bool FastDDSMiddleware::delete_datareader(
         uint16_t datareader_id)
 {
-   return (0 != datareaders_.erase(datareader_id));
+    auto it = datareaders_.find(datareader_id);
+    if (it == datareaders_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto datareader = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::DELETE_DATAREADER,
+            datareader->participant(),
+            datareader->ptr());
+
+        datareaders_.erase(datareader_id);
+        return true;
+    }
 }
 
 bool FastDDSMiddleware::delete_requester(
         uint16_t requester_id)
 {
-   return (0 != requesters_.erase(requester_id));
+    auto it = requesters_.find(requester_id);
+    if (it == requesters_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto requester = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::DELETE_REQUESTER,
+            requester->get_participant(),
+            requester->get_request_datawriter(),
+            requester->get_reply_datareader());
+
+        requesters_.erase(requester_id);
+        return true;
+    }
 }
 
 bool FastDDSMiddleware::delete_replier(
         uint16_t replier_id)
 {
-   return (0 != repliers_.erase(replier_id));
+    auto it = repliers_.find(replier_id);
+    if (it == repliers_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto replier = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+            middleware::CallbackKind::DELETE_REPLIER,
+            replier->get_participant(),
+            replier->get_reply_datawriter(),
+            replier->get_request_datareader());
+
+        repliers_.erase(replier_id);
+        return true;
+    }
 }
 
 /**********************************************************************************************************************

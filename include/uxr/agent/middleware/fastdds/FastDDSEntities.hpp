@@ -264,6 +264,7 @@ public:
     bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool write(const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;
+    const fastdds::dds::DomainParticipant* participant() const;
 
 private:
     std::shared_ptr<FastDDSPublisher> publisher_;
@@ -294,6 +295,7 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
     const fastdds::dds::DataReader* ptr() const;
+    const fastdds::dds::DomainParticipant* participant() const;
 
 private:
     std::shared_ptr<FastDDSSubscriber> subscriber_;
@@ -338,6 +340,12 @@ public:
         uint32_t& sequence_number,
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout);
+
+    const fastdds::dds::DomainParticipant* get_participant() const;
+
+    const fastdds::dds::DataWriter* get_request_datawriter() const;
+
+    const fastdds::dds::DataReader* get_reply_datareader() const;
 
 private:
     bool match(const fastrtps::RequesterAttributes& attrs) const;
@@ -391,6 +399,12 @@ public:
     bool write(const std::vector<uint8_t>& data);
     bool read(std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout);
+
+    const fastdds::dds::DomainParticipant* get_participant() const;
+
+    const fastdds::dds::DataReader* get_request_datareader() const;
+
+    const fastdds::dds::DataWriter* get_reply_datawriter() const;
 
 private:
     bool match(const fastrtps::ReplierAttributes& attrs) const;

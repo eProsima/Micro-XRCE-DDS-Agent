@@ -426,6 +426,27 @@ bool FastRequester::read(
     return rv;
 }
 
+const fastrtps::Participant* FastRequester::get_participant() const
+{
+    const fastrtps::Participant* participant = datawriter_->get_participant();
+    if (participant != datareader_->get_participant())
+    {
+        participant = nullptr;
+    }
+
+    return participant;
+}
+
+const fastrtps::Publisher* FastRequester::get_request_datawriter() const
+{
+    return datawriter_->get_ptr();
+}
+
+const fastrtps::Subscriber* FastRequester::get_reply_datareader() const
+{
+    return datareader_->get_ptr();
+}
+
 /**********************************************************************************************************************
  * FastReplier
  **********************************************************************************************************************/
@@ -531,6 +552,27 @@ bool FastReplier::read(
     }
 
     return rv;
+}
+
+const fastrtps::Participant* FastReplier::get_participant() const
+{
+    const fastrtps::Participant* participant = datawriter_->get_participant();
+    if (participant != datareader_->get_participant())
+    {
+        participant = nullptr;
+    }
+
+    return participant;
+}
+
+const fastrtps::Subscriber* FastReplier::get_request_datareader() const
+{
+    return datareader_->get_ptr();
+}
+
+const fastrtps::Publisher* FastReplier::get_reply_datawriter() const
+{
+    return datawriter_->get_ptr();
 }
 
 } // namespace uxr

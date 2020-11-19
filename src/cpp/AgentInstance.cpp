@@ -193,30 +193,43 @@ void AgentInstance::add_middleware_callback(
 }
 
 // Specific template specializations for used callback signatures.
-template void AgentInstance::add_middleware_callback<
-    const eprosima::fastdds::dds::DomainParticipant *>(
-        const Middleware::Kind& middleware_kind,
-        const middleware::CallbackKind& callback_kind,
-        std::function<void(
-            const eprosima::fastdds::dds::DomainParticipant *)> &&);
+#define AGENTINSTANCE_ADD_MW_CB(...) \
+template void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
+    const Middleware::Kind& middleware_kind, \
+    const middleware::CallbackKind& callback_kind, \
+    std::function<void(__VA_ARGS__)> &&);
 
-template void AgentInstance::add_middleware_callback<
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *>(
-        const Middleware::Kind& middleware_kind,
-        const middleware::CallbackKind& callback_kind,
-        std::function<void(
-            const eprosima::fastdds::dds::DomainParticipant *,
-            const eprosima::fastdds::dds::DataWriter *)> &&);
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *)
 
-template void AgentInstance::add_middleware_callback<
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *)
+
+AGENTINSTANCE_ADD_MW_CB(
     const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataReader *>(
-        const Middleware::Kind& middleware_kind,
-        const middleware::CallbackKind& callback_kind,
-        std::function<void(
-            const eprosima::fastdds::dds::DomainParticipant *,
-            const eprosima::fastdds::dds::DataReader *)> &&);
+    const eprosima::fastdds::dds::DataWriter *)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataReader *)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *,
+    const eprosima::fastdds::dds::DataReader *)
 
 } // namespace uxr
 } // namespace eprosima

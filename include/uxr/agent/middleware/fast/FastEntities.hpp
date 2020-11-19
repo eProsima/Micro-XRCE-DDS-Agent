@@ -282,6 +282,12 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Publisher* get_request_datawriter() const;
+
+    const fastrtps::Subscriber* get_reply_datareader() const;
+
 private:
     std::shared_ptr<FastDataWriter> datawriter_;
     std::shared_ptr<FastDataReader> datareader_;
@@ -310,6 +316,13 @@ public:
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
+
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Subscriber* get_request_datareader() const;
+
+    const fastrtps::Publisher* get_reply_datawriter() const;
+
 private:
     std::shared_ptr<FastDataWriter> datawriter_;
     std::shared_ptr<FastDataReader> datareader_;
