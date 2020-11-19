@@ -101,6 +101,8 @@ public:
 
     int16_t domain_id() const;
 
+    const fastrtps::rtps::GUID_t& get_guid() const;
+
 private:
     fastrtps::Participant* impl_;
     std::unordered_map<std::string, std::weak_ptr<FastType>> type_register_;
@@ -208,6 +210,10 @@ public:
 
     const fastrtps::rtps::GUID_t& get_guid() const;
 
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Publisher* get_ptr() const;
+
 private:
     fastrtps::Publisher* impl_;
     std::shared_ptr<FastTopic> topic_;
@@ -238,6 +244,12 @@ public:
             std::vector<uint8_t>& data,
             fastrtps::SampleInfo_t& info,
             std::chrono::milliseconds timeout);
+
+    const fastrtps::rtps::GUID_t& get_guid() const;
+
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Subscriber* get_ptr() const;
 
 private:
     fastrtps::Subscriber* impl_;
@@ -270,6 +282,12 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
 
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Publisher* get_request_datawriter() const;
+
+    const fastrtps::Subscriber* get_reply_datareader() const;
+
 private:
     std::shared_ptr<FastDataWriter> datawriter_;
     std::shared_ptr<FastDataReader> datareader_;
@@ -298,6 +316,13 @@ public:
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout);
+
+    const fastrtps::Participant* get_participant() const;
+
+    const fastrtps::Subscriber* get_request_datareader() const;
+
+    const fastrtps::Publisher* get_reply_datawriter() const;
+
 private:
     std::shared_ptr<FastDataWriter> datawriter_;
     std::shared_ptr<FastDataReader> datareader_;

@@ -348,7 +348,7 @@ public:
             std::chrono::milliseconds) override { return false; };
 
     /**
-     * @brief 
+     * @brief Not implemented.
      */
     bool read_reply(
             uint16_t,

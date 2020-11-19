@@ -22,8 +22,15 @@
 #include <string>
 #include <memory>
 
-namespace eprosima{
-namespace uxr{
+namespace eprosima {
+namespace uxr {
+namespace middleware {
+/**
+ * @brief Forward declarations.
+ */
+enum class CallbackKind : uint8_t;
+class CallbackFactory;
+} //  namespace middleware
 
 class Root;
 
@@ -546,6 +553,22 @@ public:
      */
     UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
 
+    /**
+     * @brief Sets a callback function for an specific create/delete middleware entity operation.
+     *        Note that not some middlewares might not implement every defined operation, or even
+     *        no operation at all.
+     * @param middleware_kind   Enumeration class defining all the supported pluggable middlewares for the agent.
+     * @param callback_kind     Enumeration class defining all the different operations available to which
+     *                          set a callback to.
+     * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
+     *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
+     */
+    template <typename ... Args>
+    UXR_AGENT_EXPORT void add_middleware_callback(
+            const Middleware::Kind& middleware_kind,
+            const middleware::CallbackKind& callback_kind,
+            std::function<void (Args ...)>&& callback_function);
+
 private:
     template<Agent::ObjectKind object_kind, typename U, typename T>
     bool create_object(
@@ -562,9 +585,9 @@ private:
             uint16_t raw_id,
             Agent::OpResult& op_result);
 
-
 protected:
     std::unique_ptr<Root> root_;
+    middleware::CallbackFactory& callback_factory_;
 };
 
 } // uxr

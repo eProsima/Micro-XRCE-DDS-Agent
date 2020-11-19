@@ -173,6 +173,11 @@ int16_t FastParticipant::domain_id() const
     return (int16_t) impl_->getAttributes().domainId;
 }
 
+const fastrtps::rtps::GUID_t& FastParticipant::get_guid() const
+{
+  return impl_->getGuid();
+}
+
 /**********************************************************************************************************************
  * FastTopic
  **********************************************************************************************************************/
@@ -249,6 +254,16 @@ const fastrtps::rtps::GUID_t& FastDataWriter::get_guid() const
     return impl_->getGuid();
 }
 
+const fastrtps::Participant* FastDataWriter::get_participant() const
+{
+    return publisher_->get_participant()->get_ptr();
+}
+
+const fastrtps::Publisher* FastDataWriter::get_ptr() const
+{
+    return impl_;
+}
+
 /**********************************************************************************************************************
  * FastDataReader
  **********************************************************************************************************************/
@@ -300,6 +315,21 @@ bool FastDataReader::read(
         rv = impl_->takeNextData(&data, &info);
     }
     return rv;
+}
+
+const fastrtps::rtps::GUID_t& FastDataReader::get_guid() const
+{
+    return impl_->getGuid();
+}
+
+const fastrtps::Participant* FastDataReader::get_participant() const
+{
+    return subscriber_->get_participant()->get_ptr();
+}
+
+const fastrtps::Subscriber* FastDataReader::get_ptr() const
+{
+    return impl_;
 }
 
 /**********************************************************************************************************************
@@ -394,6 +424,27 @@ bool FastRequester::read(
     }
 
     return rv;
+}
+
+const fastrtps::Participant* FastRequester::get_participant() const
+{
+    const fastrtps::Participant* participant = datawriter_->get_participant();
+    if (participant != datareader_->get_participant())
+    {
+        participant = nullptr;
+    }
+
+    return participant;
+}
+
+const fastrtps::Publisher* FastRequester::get_request_datawriter() const
+{
+    return datawriter_->get_ptr();
+}
+
+const fastrtps::Subscriber* FastRequester::get_reply_datareader() const
+{
+    return datareader_->get_ptr();
 }
 
 /**********************************************************************************************************************
@@ -501,6 +552,27 @@ bool FastReplier::read(
     }
 
     return rv;
+}
+
+const fastrtps::Participant* FastReplier::get_participant() const
+{
+    const fastrtps::Participant* participant = datawriter_->get_participant();
+    if (participant != datareader_->get_participant())
+    {
+        participant = nullptr;
+    }
+
+    return participant;
+}
+
+const fastrtps::Subscriber* FastReplier::get_request_datareader() const
+{
+    return datareader_->get_ptr();
+}
+
+const fastrtps::Publisher* FastReplier::get_reply_datawriter() const
+{
+    return datawriter_->get_ptr();
 }
 
 } // namespace uxr

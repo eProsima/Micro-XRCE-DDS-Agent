@@ -27,11 +27,14 @@
 
 namespace eprosima {
 namespace uxr {
+namespace middleware {
+class CallbackFactory;
+} // namespace middleware
 
 class FastMiddleware : public Middleware
 {
 public:
-    FastMiddleware() = default;
+    FastMiddleware();
     ~FastMiddleware() final = default;
 
 /**********************************************************************************************************************
@@ -221,6 +224,8 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDataReader>> datareaders_;
     std::unordered_map<uint16_t, std::shared_ptr<FastRequester>> requesters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastReplier>> repliers_;
+
+    middleware::CallbackFactory& callback_factory_;
 };
 
 } // namespace uxr

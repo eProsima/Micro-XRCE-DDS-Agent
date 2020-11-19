@@ -8799,6 +8799,18 @@ void dds::EntityId_t::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_entityKind;
 }
 
+dds::GUID_t::GUID_t(const GUID_t &x)
+{
+    m_guidPrefix = x.m_guidPrefix;
+    m_entityId = x.m_entityId;
+}
+
+dds::GUID_t::GUID_t(GUID_t &&x)
+{
+    m_guidPrefix = std::move(x.m_guidPrefix);
+    m_entityId = std::move(x.m_entityId);
+}
+
 size_t dds::GUID_t::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
