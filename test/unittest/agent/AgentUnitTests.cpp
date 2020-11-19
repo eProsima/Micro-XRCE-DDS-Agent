@@ -14,6 +14,7 @@
 
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/middleware/Middleware.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <gtest/gtest.h>
 
@@ -23,7 +24,7 @@ namespace testing {
 
 using namespace eprosima::uxr;
 
-class AgentUnitTests : public ::testing::TestWithParam<Middleware::Kind> 
+class AgentUnitTests : public ::testing::TestWithParam<Middleware::Kind>
 {
 protected:
     AgentUnitTests()
@@ -949,7 +950,7 @@ TEST_P(AgentUnitTests, CreateReplierByRef)
     uint8_t flag = 0x00;
 
     /*
-     * Create Requester.
+     * Create replier.
      */
     agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
     EXPECT_TRUE(agent_.create_replier_by_ref(client_key_, replier_id, participant_id, ref_one, flag, result));
@@ -980,12 +981,98 @@ TEST_P(AgentUnitTests, CreateReplierByXML)
     uint8_t flag = 0x00;
 
     /*
-     *  Create requester.
+     *  Create replier.
      */
     agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result);
     EXPECT_TRUE(agent_.create_replier_by_xml(client_key_, replier_id, participant_id, xml_one, flag, result));
 
     // TODO (julianbermudez): complete tests.
+}
+
+TEST_P(AgentUnitTests, RegisterCallbackFunctions)
+{
+    Agent::OpResult result;
+    EXPECT_TRUE(agent_.create_client(client_key_, 0x01, 512, GetParam(), result));
+
+    bool participant_callback_flag(false);
+
+    switch (GetParam())
+    {
+        case Middleware::Kind::FASTRTPS:
+        {
+            std::function<void (
+                const fastrtps::Participant *)> on_create_participant
+                ([&](
+                    const fastrtps::Participant* /*participant*/) -> void
+                {
+                    participant_callback_flag = true;
+                });
+            agent_.add_middleware_callback(
+                Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::CREATE_PARTICIPANT,
+                std::move(on_create_participant));
+
+            std::function<void (
+                const fastrtps::Participant *)> on_delete_participant
+                ([&](
+                    const fastrtps::Participant* /*participant*/) -> void
+                {
+                    participant_callback_flag = false;
+                });
+            agent_.add_middleware_callback(
+                Middleware::Kind::FASTRTPS,
+                middleware::CallbackKind::DELETE_PARTICIPANT,
+                std::move(on_delete_participant));
+            break;
+        }
+        case Middleware::Kind::FASTDDS:
+        {
+            std::function<void (
+                const fastdds::dds::DomainParticipant *)> on_create_participant
+                ([&](
+                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                {
+                    participant_callback_flag = true;
+                });
+            agent_.add_middleware_callback(
+                Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_PARTICIPANT,
+                std::move(on_create_participant));
+
+            std::function<void (
+                const fastdds::dds::DomainParticipant *)> on_delete_participant
+                ([&](
+                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                {
+                    participant_callback_flag = false;
+                });
+            agent_.add_middleware_callback(
+                Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::DELETE_PARTICIPANT,
+                std::move(on_delete_participant));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    const char* participant_ref = "default_xrce_participant";
+    const uint16_t domain_id = 0x00;
+    const uint16_t participant_id = 0x00;
+    uint8_t flag = 0x00;
+
+    EXPECT_FALSE(participant_callback_flag);
+
+    EXPECT_TRUE(agent_.create_participant_by_ref(
+        client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(participant_callback_flag);
+
+    EXPECT_TRUE(agent_.delete_participant(client_key_, participant_id, result));
+    EXPECT_FALSE(participant_callback_flag);
+
+    // TODO (jamoralp): shall we test for all defined callback types?
 }
 
 INSTANTIATE_TEST_CASE_P(AgentUnitTestsParams,

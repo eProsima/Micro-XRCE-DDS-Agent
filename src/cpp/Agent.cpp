@@ -648,5 +648,44 @@ void Agent::add_middleware_callback(
     callback_factory_.add_callback(middleware_kind, callback_kind, std::move(callback_function));
 }
 
+// Specific template specializations for used callback signatures.
+#define AGENT_ADD_MW_CB(...) \
+template void Agent::add_middleware_callback<__VA_ARGS__>( \
+    const Middleware::Kind &, \
+    const middleware::CallbackKind &, \
+    std::function<void (__VA_ARGS__)> &&);
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataReader *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *,
+    const eprosima::fastdds::dds::DataReader *)
+
 } // namespace uxr
 } // namespace eprosima

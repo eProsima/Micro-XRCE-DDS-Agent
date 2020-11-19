@@ -195,8 +195,8 @@ void AgentInstance::add_middleware_callback(
 // Specific template specializations for used callback signatures.
 #define AGENTINSTANCE_ADD_MW_CB(...) \
 template void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
-    const Middleware::Kind& middleware_kind, \
-    const middleware::CallbackKind& callback_kind, \
+    const Middleware::Kind &, \
+    const middleware::CallbackKind &, \
     std::function<void(__VA_ARGS__)> &&);
 
 AGENTINSTANCE_ADD_MW_CB(
