@@ -194,7 +194,7 @@ void AgentInstance::add_middleware_callback(
 
 // Specific template specializations for used callback signatures.
 #define AGENTINSTANCE_ADD_MW_CB(...) \
-template <> \
+template \
 UXR_AGENT_EXPORT void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
     const Middleware::Kind &, \
     const middleware::CallbackKind &, \
