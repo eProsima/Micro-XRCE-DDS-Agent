@@ -656,6 +656,7 @@ UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
     const middleware::CallbackKind &, \
     std::function<void (__VA_ARGS__)> &&);
 
+#ifdef UAGENT_FAST_PROFILE
 AGENT_ADD_MW_CB(
     const eprosima::fastrtps::Participant *)
 
@@ -687,6 +688,7 @@ AGENT_ADD_MW_CB(
     const eprosima::fastdds::dds::DomainParticipant *,
     const eprosima::fastdds::dds::DataWriter *,
     const eprosima::fastdds::dds::DataReader *)
+#endif  // UAGENT_FAST_PROFILE
 
 } // namespace uxr
 } // namespace eprosima
