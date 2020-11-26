@@ -767,6 +767,7 @@ private:
 /**********************************************************************************************************************
  * Template specializations for callback methods
  **********************************************************************************************************************/
+#ifdef UAGENT_FAST_PROFILE
 template <>
 inline void CallbackFactory::FastCallbackFactory::add_callback<
     const fastrtps::Participant*,
@@ -992,6 +993,7 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
         }
     }
 }
+#endif  // UAGENT_FAST_PROFILE
 
 #define CALLBACK_FACTORY_ADD_CALLBACK(MIDDLEWARE, CB_FACTORY, ...) \
 template <> \
@@ -1014,6 +1016,7 @@ inline void CallbackFactory::add_callback<__VA_ARGS__>( \
     } \
 }
 
+#ifdef UAGENT_FAST_PROFILE
 #define CALLBACK_FACTORY_ADD_FASTRTPS_CALLBACK(...) \
     CALLBACK_FACTORY_ADD_CALLBACK(Middleware::Kind::FASTRTPS, fast_callback_factory_, __VA_ARGS__)
 
@@ -1051,6 +1054,7 @@ CALLBACK_FACTORY_ADD_FASTDDS_CALLBACK(
     const fastdds::dds::DomainParticipant*,
     const fastdds::dds::DataWriter*,
     const fastdds::dds::DataReader*)
+#endif  // UAGENT_FAST_PROFILE
 
 } // namespace middleware
 } // namespace uxr
