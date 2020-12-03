@@ -23,8 +23,14 @@ bool eprosima::uxr::agent::parser::utils::usage(
         const char* executable_name,
         bool no_help)
 {
+    std::string executable_name_str(executable_name);
+    size_t pos = executable_name_str.rfind('/');
+    if (std::string::npos != pos)
+    {
+        executable_name_str = executable_name_str.substr(pos + 1);
+    }
     std::stringstream ss;
-    ss << "Usage: '" << executable_name << " <udp4|udp6|tcp4|tpc6";
+    ss << "Usage: '" << executable_name_str << " <udp4|udp6|tcp4|tpc6";
 #ifndef _WIN32
     ss << "|serial|pseudoterminal";
 #endif // _WIN32
