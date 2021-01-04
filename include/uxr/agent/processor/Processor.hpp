@@ -63,6 +63,10 @@ public:
             InputPacket<EndPoint>&& input_packet);
 
     bool process_get_info_packet(
+            InputPacket<EndPoint>&& input_packet,
+            OutputPacket<EndPoint>& output_packet) const;
+
+    bool process_get_info_packet(
             InputPacket<IPv4EndPoint>&& input_packet,
             std::vector<dds::xrce::TransportAddress>& address,
             OutputPacket<IPv4EndPoint>& output_packet) const;

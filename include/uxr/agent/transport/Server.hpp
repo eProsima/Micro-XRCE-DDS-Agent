@@ -54,7 +54,7 @@ public:
 
 private:
     void push_output_packet(
-            OutputPacket<EndPoint> output_packet);
+            OutputPacket<EndPoint>&& output_packet);
 
     virtual bool init() = 0;
 
