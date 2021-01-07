@@ -18,7 +18,6 @@
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/transport/TransportRc.hpp>
 #include <uxr/agent/transport/SessionManager.hpp>
-#include <uxr/agent/transport/endpoint/EndPoint.hpp>
 #include <uxr/agent/scheduler/FCFSScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
