@@ -15,14 +15,12 @@
 #ifndef _UXR_AGENT_TRANSPORT_SERIAL_ENDPOINT_HPP_
 #define _UXR_AGENT_TRANSPORT_SERIAL_ENDPOINT_HPP_
 
-#include <uxr/agent/transport/endpoint/EndPoint.hpp>
-
 #include <stdint.h>
 
 namespace eprosima {
 namespace uxr {
 
-class SerialEndPoint : public EndPoint
+class SerialEndPoint
 {
 public:
     SerialEndPoint() = default;
@@ -39,9 +37,10 @@ public:
         return (addr_ < other.addr_);
     }
 
-    std::ostream& print(std::ostream& os) const final
+    friend std::ostream& operator<<(std::ostream& os, const SerialEndPoint& endpoint)
     {
-        return os << int(addr_);
+        os << static_cast<int>(endpoint.addr_);
+        return os;
     }
 
     uint8_t get_addr() const { return addr_; }
