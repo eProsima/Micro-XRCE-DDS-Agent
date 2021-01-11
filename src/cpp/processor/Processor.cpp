@@ -66,10 +66,6 @@ void Processor<EndPoint>::process_input_packet(
                     break;
                 }
             }
-            if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
-            {
-                process_create_client_submessage(input_packet);
-            }
         }
     }
 
