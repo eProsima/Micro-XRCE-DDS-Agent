@@ -249,6 +249,8 @@ if(NOT Sanitizers_FOUND)
             ""
         INSTALL_COMMAND
             ""
+        CMAKE_ARGS
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},3.16.3>:-DCMAKE_POLICY_DEFAULT_CMP0077=OLD> # Disable CMP0077 unset warning
         CMAKE_CACHE_ARGS
             -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
         )
