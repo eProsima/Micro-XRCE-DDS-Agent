@@ -73,9 +73,11 @@ if(UAGENT_CLI_PROFILE)
     list(APPEND _deps "CLI11\;${_cli11_version}")
 endif()
 
+set(UAGENT_P2P_CLIENT_VERSION "1.2.3" CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG "v1.2.3" CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.2.3)
-    set(_microxrcedds_client_tag v1.2.3)
+    set(_microxrcedds_client_version ${UAGENT_P2P_CLIENT_VERSION})
+    set(_microxrcedds_client_tag ${UAGENT_P2P_CLIENT_TAG})
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
