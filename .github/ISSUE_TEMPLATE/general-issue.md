@@ -10,7 +10,7 @@ assignees: ''
 ## Issue template
 
 - Hardware description: <!-- hardware where you are running the micro XRCE-DDS Agent -->
-- RTOS: <!-- RTOS where you are using the micro XRCE-DDS Agent -->
+- OS: <!-- OS where you are using the micro XRCE-DDS Agent -->
 - Installation type: <!-- CMake flags, FastDDS version, etc  -->
 - Version or commit hash: <!-- version or branch used to compile the micro XRCE-DDS Agent -->
 
