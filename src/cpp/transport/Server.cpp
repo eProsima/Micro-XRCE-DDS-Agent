@@ -162,7 +162,7 @@ bool Server<EndPoint>::disable_p2p()
 
 template<typename EndPoint>
 void Server<EndPoint>::push_output_packet(
-        OutputPacket<EndPoint> output_packet)
+        OutputPacket<EndPoint>&& output_packet)
 {
     if (output_packet.message)
     {
