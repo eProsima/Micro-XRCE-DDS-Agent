@@ -97,36 +97,36 @@ bool AgentInstance::create(
     {
         case agent::TransportKind::UDP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, valid_transport,
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                &signals_
+                , &signals_
 #endif  // _WIN32
                 ));
             break;
         }
         case agent::TransportKind::UDP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, valid_transport,
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                &signals_
+                , &signals_
 #endif  // _WIN32
                 ));
             break;
         }
         case agent::TransportKind::TCP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, valid_transport,
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                &signals_
+                , &signals_
 #endif  // _WIN32
                 ));
             break;
         }
         case agent::TransportKind::TCP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, valid_transport,
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                &signals_
+                , &signals_
 #endif  // _WIN32
                 ));
             break;
