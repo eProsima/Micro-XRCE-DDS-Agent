@@ -88,7 +88,7 @@ Middleware::Kind get_mw_kind(
         const std::string& kind);
 } // namespace utils
 
-using dummy_type = bool;
+using dummy_type = uint8_t;
 
 enum class ArgumentKind
 {
@@ -145,6 +145,11 @@ public:
     ~Argument() = default;
 
     const T& value() const
+    {
+        return value_;
+    }
+
+    T& value()
     {
         return value_;
     }
@@ -304,6 +309,11 @@ public:
         return value_;
     }
 
+    std::string& value()
+    {
+        return value_;
+    }
+
     bool found()
     {
         return parse_found_;
@@ -435,7 +445,12 @@ public:
             result.first = false;
             return result;
         }
-        result.first &= static_cast<bool>(middleware_.parse_argument(argc, argv));
+
+        if (ParseResult::INVALID == middleware_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
         ParseResult refs_arg = refs_.parse_argument(argc, argv);
         if (ParseResult::VALID == refs_arg)
         {
@@ -447,13 +462,30 @@ public:
                 return result;
             }
         }
-        result.first &= static_cast<bool>(refs_arg);
-        result.first &= static_cast<bool>(verbose_.parse_argument(argc, argv));
+        else if (ParseResult::INVALID == refs_arg)
+        {
+            result.first = false;
+            return result;
+        }
+
+        if (ParseResult::INVALID == verbose_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #ifdef UAGENT_DISCOVERY_PROFILE
-        result.first &= static_cast<bool>(discovery_.parse_argument(argc, argv));
+        if (ParseResult::INVALID == discovery_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #endif
 #ifdef UAGENT_P2P_PROFILE
-        result.first &= static_cast<bool>(p2p_.parse_argument(argc, argv));
+        if (ParseResult::INVALID == p2p_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #endif
         return result;
     }
@@ -503,7 +535,7 @@ private:
     Argument<dummy_type> help_;
     Argument<std::string> middleware_;
     Argument<std::string> refs_;
-    Argument<uint16_t> verbose_;
+    Argument<uint8_t> verbose_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     Argument<uint16_t> discovery_;
 #endif
