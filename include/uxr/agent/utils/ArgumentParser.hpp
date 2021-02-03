@@ -803,8 +803,10 @@ public:
         ss << "  * IPvX (udp4, udp6, tcp4, tcp6)" << std::endl;
         ss << ip_args_.get_help();
         ss << "  * SERIAL" << std::endl;
+#ifndef _WIN32
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
+#endif // _WIN32
         std::cout << ss.str();
     }
 
