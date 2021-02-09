@@ -76,7 +76,6 @@ private:
 
     /* Transport. */
     uxrUDPTransport transport_;
-    uxrUDPPlatform platform_;
 
     /* Client. */
     uint32_t remote_client_key_;

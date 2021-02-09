@@ -25,15 +25,15 @@ add_test(
             -P ${CMAKE_CURRENT_SOURCE_DIR}/installation/InstallationTest.cmake
     )
 
-add_test(
-    NAME
-        test-case-packaging
-    COMMAND
-        ${CMAKE_COMMAND}
-            -DORIGINAL_DIR=${CMAKE_CURRENT_SOURCE_DIR}/packaging
-            -DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_PREFIX}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,/../,>
-            -DREQUIRED_VERSION=${PROJECT_VERSION}
-            -DCMAKE_GENERATOR_TOOLSET=${CMAKE_GENERATOR_TOOLSET}
-            -DCMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}
-            -P ${CMAKE_CURRENT_SOURCE_DIR}/packaging/Packaging.cmake
-    )
+# add_test(
+#     NAME
+#         test-case-packaging
+#     COMMAND
+#         ${CMAKE_COMMAND}
+#             -DORIGINAL_DIR=${CMAKE_CURRENT_SOURCE_DIR}/packaging
+#             -DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_PREFIX}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,/../,>
+#             -DREQUIRED_VERSION=${PROJECT_VERSION}
+#             -DCMAKE_GENERATOR_TOOLSET=${CMAKE_GENERATOR_TOOLSET}
+#             -DCMAKE_GENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}
+#             -P ${CMAKE_CURRENT_SOURCE_DIR}/packaging/Packaging.cmake
+#     )

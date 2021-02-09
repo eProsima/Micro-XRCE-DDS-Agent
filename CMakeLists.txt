@@ -36,8 +36,8 @@ option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_CLI_PROFILE "Build CLI profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build MicroXRCE-DDS Agent provided executable." ON)
 
-set(UAGENT_P2P_CLIENT_VERSION 1.2.3 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
-set(UAGENT_P2P_CLIENT_TAG v1.2.3 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
+set(UAGENT_P2P_CLIENT_VERSION 1.2.5 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG develop CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
