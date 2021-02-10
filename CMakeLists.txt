@@ -132,6 +132,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install)
 foreach(d ${_deps})
     list(GET d 0 _name)
     list(GET d 1 _version)
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install/${_name}-${_version})
     find_package(${_name} ${_version} REQUIRED)
 endforeach()
 
