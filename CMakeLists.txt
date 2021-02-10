@@ -496,8 +496,7 @@ endif()
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     file(GLOB _deps RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
     foreach(_d ${_deps})
-    message(INFO ${CMAKE_BINARY_DIR}/temp_install/${_d})
-    install(
+        install(
             DIRECTORY
                 ${CMAKE_BINARY_DIR}/temp_install/${_d}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,,/>
             DESTINATION
