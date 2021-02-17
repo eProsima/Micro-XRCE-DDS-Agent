@@ -42,8 +42,7 @@ int main(int argc, char** argv)
     /**
      * @brief Agent's initialization behaviour description.
      */
-    auto init_function = [&](
-            eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint>* /*agent*/) -> bool
+    eprosima::uxr::CustomAgent::InitFunction init_function = [&]() -> bool
     {
         bool rv = false;
         poll_fd.fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -57,41 +56,20 @@ int main(int argc, char** argv)
             address.sin_addr.s_addr = INADDR_ANY;
             memset(address.sin_zero, '\0', sizeof(address.sin_zero));
 
-            if (-1 != bind(poll_fd.fd, reinterpret_cast<struct sockaddr*>(&address), sizeof(address)))
+            if (-1 != bind(poll_fd.fd,
+                           reinterpret_cast<struct sockaddr*>(&address),
+                           sizeof(address)))
             {
                 poll_fd.events = POLLIN;
                 rv = true;
 
-                UXR_AGENT_LOG_DEBUG(
-                    UXR_DECORATE_GREEN("Custom agent opened"),
-                    "port: {}",
-                    agent_port);
-
                 UXR_AGENT_LOG_INFO(
-                    UXR_DECORATE_GREEN("Custom agent running..."),
+                    UXR_DECORATE_GREEN(
+                        "This is an example of a custom Micro XRCE-DDS Agent INIT function"),
                     "port: {}",
                     agent_port);
             }
-            else
-            {
-                UXR_AGENT_LOG_ERROR(
-                    UXR_DECORATE_RED("Custom agent bind error"),
-                    "port: {}, errno: {}",
-                    agent_port, errno);
-            }
         }
-        else
-        {
-            UXR_AGENT_LOG_ERROR(
-                UXR_DECORATE_RED("Custom agent socket error"),
-                "port: {}, errno: {}",
-                agent_port, errno);
-        }
-
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("This is an example of a custom Micro XRCE-DDS Agent INIT function"),
-            "port: {}",
-            agent_port);
 
         return rv;
     };
@@ -99,199 +77,174 @@ int main(int argc, char** argv)
     /**
      * @brief Agent's destruction actions.
      */
-    auto fini_function = [&](
-            eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint>* /*agent*/) -> bool
+    eprosima::uxr::CustomAgent::FiniFunction fini_function = [&]() -> bool
     {
         if (-1 == poll_fd.fd)
         {
             return true;
         }
 
-        bool rv = false;
         if (0 == ::close(poll_fd.fd))
         {
             poll_fd.fd = -1;
-            rv = true;
+
             UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("Custom agent server stopped"),
+                UXR_DECORATE_GREEN(
+                    "This is an example of a custom Micro XRCE-DDS Agent FINI function"),
                 "port: {}",
                 agent_port);
+
+            return true;
         }
         else
         {
-            UXR_AGENT_LOG_ERROR(
-                UXR_DECORATE_RED("Custom agent socket error"),
-                "port: {}, errno: {}",
-                agent_port, errno);
+            return false;
         }
-
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("This is an example of a custom Micro XRCE-DDS Agent FINI function"),
-            "port: {}",
-            agent_port);
-
-        return rv;
     };
 
     /**
      * @brief Agent's incoming data functionality.
      */
-    auto recv_msg_function = [&](
-            eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint>* agent,
+    eprosima::uxr::CustomAgent::RecvMsgFunction recv_msg_function = [&](
+            eprosima::uxr::CustomEndPoint& source_endpoint,
             uint8_t* buffer,
-            eprosima::uxr::InputPacket<eprosima::uxr::IPv4EndPoint>& input_packet,
+            size_t buffer_length,
             int timeout,
-            eprosima::uxr::TransportRc& transport_rc) -> bool
+            eprosima::uxr::TransportRc& transport_rc) -> ssize_t
     {
-        bool rv = false;
         struct sockaddr_in client_addr{};
         socklen_t client_addr_len = sizeof(struct sockaddr_in);
+        ssize_t bytes_received = -1;
 
         int poll_rv = poll(&poll_fd, 1, timeout);
+
         if (0 < poll_rv)
         {
-            ssize_t bytes_received =
-                    recvfrom(poll_fd.fd,
-                            buffer,
-                            agent->buffer_size(),
-                            0,
-                            reinterpret_cast<struct sockaddr*>(&client_addr),
-                            &client_addr_len);
-            if (-1 != bytes_received)
-            {
-                input_packet.message.reset(new eprosima::uxr::InputMessage(
-                    buffer, size_t(bytes_received)));
-                uint32_t addr = client_addr.sin_addr.s_addr;
-                uint16_t port = client_addr.sin_port;
-                input_packet.source = eprosima::uxr::IPv4EndPoint(addr, port);
-                rv = true;
+            bytes_received = recvfrom(
+                poll_fd.fd,
+                buffer,
+                buffer_length,
+                0,
+                reinterpret_cast<struct sockaddr *>(&client_addr),
+                &client_addr_len);
 
-                uint32_t raw_client_key = 0u;
-                agent->get_client_key(
-                    input_packet.source, raw_client_key);
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[==>> UDP <<==]"),
-                    raw_client_key,
-                    input_packet.message->get_buf(),
-                    input_packet.message->get_len());
-            }
-            else
-            {
-                transport_rc = eprosima::uxr::TransportRc::server_error;
-            }
+            transport_rc = (-1 != bytes_received)
+                ? eprosima::uxr::TransportRc::ok
+                : eprosima::uxr::TransportRc::server_error;
         }
         else
         {
-            transport_rc = (0 == poll_rv) ?
-                eprosima::uxr::TransportRc::timeout_error : eprosima::uxr::TransportRc::server_error;
+            transport_rc = (0 == poll_rv)
+                ? eprosima::uxr::TransportRc::timeout_error
+                : eprosima::uxr::TransportRc::server_error;
+            bytes_received = 0;
         }
 
-        if (rv)
+        if (eprosima::uxr::TransportRc::ok == transport_rc)
         {
             UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("This is an example of a custom Micro XRCE-DDS Agent RECV_MSG function"),
+                UXR_DECORATE_GREEN(
+                    "This is an example of a custom Micro XRCE-DDS Agent RECV_MSG function"),
                 "port: {}",
                 agent_port);
         }
 
-        return rv;
+        source_endpoint.set_member_value<uint32_t>("address",
+            static_cast<uint32_t>(client_addr.sin_addr.s_addr));
+        source_endpoint.set_member_value<uint16_t>("port",
+            static_cast<uint16_t>(client_addr.sin_port));
+
+        return bytes_received;
     };
 
     /**
      * @brief Agent's outcoming data flow definition.
      */
-    auto send_msg_function = [&](
-        eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint>* agent,
-        uint8_t* /*buffer*/,
-        eprosima::uxr::OutputPacket<eprosima::uxr::IPv4EndPoint> output_packet,
-        eprosima::uxr::TransportRc& transport_rc) -> bool
+    eprosima::uxr::CustomAgent::SendMsgFunction send_msg_function = [&](
+        const eprosima::uxr::CustomEndPoint& destination_endpoint,
+        uint8_t* buffer,
+        size_t message_length,
+        eprosima::uxr::TransportRc& transport_rc) -> ssize_t
     {
-        bool rv = false;
         struct sockaddr_in client_addr{};
 
         memset(&client_addr, 0, sizeof(client_addr));
         client_addr.sin_family = AF_INET;
-        client_addr.sin_port = output_packet.destination.get_port();
-        client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
+        client_addr.sin_port = destination_endpoint.get_member<uint16_t>("port");
+        client_addr.sin_addr.s_addr = destination_endpoint.get_member<uint32_t>("address");
 
         ssize_t bytes_sent =
             sendto(
                 poll_fd.fd,
-                output_packet.message->get_buf(),
-                output_packet.message->get_len(),
+                buffer,
+                message_length,
                 0,
                 reinterpret_cast<struct sockaddr*>(&client_addr),
                 sizeof(client_addr));
-        if (-1 != bytes_sent)
+
+        transport_rc = (-1 != bytes_sent)
+            ? eprosima::uxr::TransportRc::ok
+            : eprosima::uxr::TransportRc::server_error;
+
+        if (eprosima::uxr::TransportRc::ok == transport_rc)
         {
-            if (size_t(bytes_sent) == output_packet.message->get_len())
-            {
-                rv = true;
-                uint32_t raw_client_key = 0u;
-                agent->get_client_key(output_packet.destination, raw_client_key);
-                UXR_AGENT_LOG_MESSAGE(
-                    UXR_DECORATE_YELLOW("[** <<UDP>> **]"),
-                    raw_client_key,
-                    output_packet.message->get_buf(),
-                    output_packet.message->get_len());
-            }
-        }
-        else
-        {
-            transport_rc = eprosima::uxr::TransportRc::server_error;
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN(
+                    "This is an example of a custom Micro XRCE-DDS Agent SEND_MSG function"),
+                "port: {}",
+                agent_port);
         }
 
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("This is an example of a custom Micro XRCE-DDS Agent SEND_MSG function"),
-            "port: {}",
-            agent_port);
-
-        return rv;
+        return bytes_sent;
     };
 
     /**
-     * @brief Agent's error handling. This will be called, additionally, to init() and fini() methods.
+     * Run the main application.
      */
-    auto handle_error_function = [&](
-            eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint>* /*agent*/,
-            eprosima::uxr::TransportRc /*transport_rc*/) -> bool
+    try
     {
-        UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_GREEN("This is an example of a custom Micro XRCE-DDS Agent HANDLE_ERROR function"),
-            "port: {}",
-            agent_port);
+        /**
+         * EndPoint definition for this transport. We define an address and a port.
+         */
+        eprosima::uxr::CustomEndPoint custom_endpoint;
+        custom_endpoint.add_member<uint32_t>("address");
+        custom_endpoint.add_member<uint16_t>("port");
 
-        return true;
-    };
+        /**
+         * Create a custom agent instance.
+         */
+        eprosima::uxr::CustomAgent custom_agent(
+            "UDPv4_CUSTOM",
+            custom_endpoint,
+            mw_kind,
+            init_function,
+            fini_function,
+            recv_msg_function,
+            send_msg_function);
 
-    /**
-     * Create a custom agent instance.
-     */
-    eprosima::uxr::CustomAgent<eprosima::uxr::IPv4EndPoint> custom_agent(
-        mw_kind,
-        std::move(init_function),
-        std::move(fini_function),
-        std::move(recv_msg_function),
-        std::move(send_msg_function),
-        std::move(handle_error_function));
+        /**
+         * Set verbosity level
+         */
+        custom_agent.set_verbose_level(6);
 
-    /**
-     * Set verbosity level
-     */
-    custom_agent.set_verbose_level(6);
+        /**
+         * Run agent and wait until receiving an stop signal.
+         */
+        custom_agent.start();
 
-    /**
-     * Run agent and wait until receiving an stop signal.
-     */
-    custom_agent.start();
+        int n_signal = 0;
+        sigset_t signals;
+        sigwait(&signals, &n_signal);
 
-    int n_signal = 0;
-    sigset_t signals;
-    sigwait(&signals, &n_signal);
-
-    /**
-     * Stop agent, and exit.
-     */
-    custom_agent.stop();
-    return 0;
+        /**
+         * Stop agent, and exit.
+         */
+        custom_agent.stop();
+        return 0;
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return 1;
+    }
 }

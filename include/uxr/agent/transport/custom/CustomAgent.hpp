@@ -16,6 +16,7 @@
 #define UXR_AGENT_TRANSPORT_CUSTOM_AGENT_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -28,106 +29,87 @@ namespace uxr {
  *        Micro XRCE-DDS Agent, in terms of transport behaviour.
  *        To do so, several methods must be implemented, in order to init
  *        an agent instance, close it, and send and receive messages using
- *        the desired transport mechanism, as well as handling possible errors.
+ *        the desired transport mechanism.
  */
-template<typename EndPoint>
-class CustomAgent : public Server<EndPoint>
+
+class CustomAgent : public Server<CustomEndPoint>
 {
 public:
+    /**
+     * @brief Init function signature, to be implemented by final users.
+     * return true if successful transport initialization; false otherwise.
+     */
+    using InitFunction = std::function<bool ()>;
 
     /**
-     * @brief Method signatures that users must implement to create a custom agent.
-     *        They include the same input and return parameters as in the Server
-     *        class' virtual methods, plus a pointer to the self CustomAgent instance
-     *        which will store them. Also, for read and write operations, a pointer
-     *        to the octet buffer is provided, to use it when required.
+     * @brief Fini function signature, to be implemented by final users.
+     * return true if successful transport shutdown; false otherwise.
      */
-    using InitFunction = std::function<bool (
-        CustomAgent<EndPoint> *)>;
-    using FiniFunction = std::function<bool (
-        CustomAgent<EndPoint> *)>;
-    using RecvMsgFunction = std::function<bool (
-        CustomAgent<EndPoint> *,
-        uint8_t *,
-        InputPacket<EndPoint> &,
-        int,
-        TransportRc &)>;
-    using SendMsgFunction = std::function<bool (
-        CustomAgent<EndPoint> *,
-        uint8_t *,
-        OutputPacket<EndPoint>,
-        TransportRc &)>;
-    using HandleErrorFunction = std::function<bool (
-        CustomAgent<EndPoint> *,
-        TransportRc)>;
+    using FiniFunction = std::function<bool ()>;
+
+    /**
+     * @brief Receive message function signature, to be implemented by final users.
+     * @param source_endpoint User-defined, it should be filled accordingly
+     *        with the source metadata acquired from receiving a new packet/
+     *        byte stream through the middleware.
+     * @param buffer Pointer to octec buffer used to receive the information.
+     * @param buffer_length Reception buffer size.
+     * @param timeout Connection timeout for receiving a new message.
+     * @param transport_rc Transport return code, to be filled by the user.
+     * @return ssize_t Number of received bytes.
+     */
+    using RecvMsgFunction = std::function<ssize_t (
+        CustomEndPoint& /*source_endpoint*/,
+        uint8_t* /*buffer*/,
+        size_t /*buffer_length*/,
+        int /*timeout*/,
+        TransportRc& /*transport_rc*/)>;
+    /**
+     * @brief Send message function signature, to be implemented by final users.
+     * @param destination_endpoint Allows to retrieve the required enpoint
+     *        information to send the message back to the client.
+     * @param buffer Holds the message to be sent back to the client.
+     * @param message_length Number of bytes to be sent.
+     * @param transport_rc Transport return code, to be filled by the user.
+     * @return ssize_t Number of sent bytes.
+     */
+    using SendMsgFunction = std::function<ssize_t (
+        const CustomEndPoint& /*destination_endpoint*/,
+        uint8_t* /*buffer*/,
+        size_t /*message_length*/,
+        TransportRc& /*transport_rc*/)>;
 
     /**
      * @brief Constructor.
-     * @param middleware_kind   The middleware selected to represent the XRCE entities
-     *                          in the DDS world (FastDDS, FastRTPS, CED...)
-     * @param init_function     Custom user-defined function, called during initialization.
-     * @param fini_function     Custom user-defined function, called upon agent's destruction.
+     * @param name Name of the middleware to be implemented by this CustomAgent.
+     * @param middleware_kind The middleware selected to represent the XRCE entities
+     *        in the DDS world (FastDDS, FastRTPS, CED...)
+     * @param init_function Custom user-defined function, called during initialization.
+     * @param fini_function Custom user-defined function, called upon agent's destruction.
      * @param recv_msg_function Custom user-defined function, called when receiving some data.
      * @param send_msg_function Custom user-defined function, called when sending some information.
-     * @param error_function    Custom user-defined function, called to recover from an error.
      */
     CustomAgent(
+            const std::string& name,
+            CustomEndPoint& endpoint,
             Middleware::Kind middleware_kind,
-            InitFunction&& init_function,
-            FiniFunction&& fini_function,
-            RecvMsgFunction&& recv_msg_function,
-            SendMsgFunction&& send_msg_function,
-            HandleErrorFunction&& error_function)
-        : Server<EndPoint>(middleware_kind)
-        , custom_init_func_(std::move(init_function))
-        , custom_fini_func_(std::move(fini_function))
-        , custom_recv_msg_func_(std::move(recv_msg_function))
-        , custom_send_msg_func_(std::move(send_msg_function))
-        , custom_handle_error_func_(std::move(error_function))
-    {
-    }
+            InitFunction& init_function,
+            FiniFunction& fini_function,
+            RecvMsgFunction& recv_msg_function,
+            SendMsgFunction& send_msg_function);
 
     /**
      * @brief Destructor.
      */
-    ~CustomAgent() final
-    {
-        try
-        {
-            this->stop();
-        }
-        catch(std::exception& e)
-        {
-            UXR_AGENT_LOG_CRITICAL(
-                UXR_DECORATE_RED("Error stopping custom agent server"),
-                "exception: {}",
-                e.what());
-        }
-    }
-
-    /**
-     * @brief Helper method to retrieve the custom agent's internal buffer size.
-     *        Useful for some read/write operations.
-     * @return Buffer size, in bytes.
-     */
-    uint16_t buffer_size() const
-    {
-        return static_cast<uint16_t>(SERVER_BUFFER_SIZE);
-    }
+    ~CustomAgent() final;
 
 private:
     /**
      * @brief Override virtual Server operations.
      */
-    inline bool init() final
-    {
-        return custom_init_func_(this);
-    }
+    bool init() final;
 
-    inline bool fini() final
-    {
-        return custom_fini_func_(this);
-    }
+    bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     inline bool init_discovery(
@@ -155,42 +137,42 @@ private:
     }
 #endif // UAGENT_P2P_PROFILE
 
-    inline bool recv_message(
-            InputPacket<EndPoint>& input_packet,
+    bool recv_message(
+            InputPacket<CustomEndPoint>& input_packet,
             int timeout,
-            TransportRc& transport_rc) final
-    {
-        return custom_recv_msg_func_(this, buffer_, input_packet, timeout, transport_rc);
-    }
+            TransportRc& transport_rc) final;
 
-    inline bool send_message(
-            OutputPacket<EndPoint> output_packet,
-            TransportRc& transport_rc) final
-    {
-        return custom_send_msg_func_(this, buffer_, output_packet, transport_rc);
-    }
+    bool send_message(
+            OutputPacket<CustomEndPoint> output_packet,
+            TransportRc& transport_rc) final;
 
-    inline bool handle_error(
-            TransportRc transport_rc) final
-    {
-        return custom_handle_error_func_(this, transport_rc) && fini() && init();
-    }
+    bool handle_error(
+            TransportRc transport_rc) final;
 
+    /**
+     * @brief Internal buffer used for receiving messages.
+     */
     uint8_t buffer_[SERVER_BUFFER_SIZE];
 
     /**
-     * @brief Store user-defined operations for the custom agent server.
+     * @brief Custom agent middleware's name.
      */
-    InitFunction custom_init_func_;
+    const std::string name_;
 
-    FiniFunction custom_fini_func_;
+    /**
+     * @brief Reference to this custom agent's endpoint definition.
+     */
+    CustomEndPoint& endpoint_;
 
-    RecvMsgFunction custom_recv_msg_func_;
-
-    SendMsgFunction custom_send_msg_func_;
-
-    HandleErrorFunction custom_handle_error_func_;
+    /**
+     * @brief Reference to user-defined operations for the custom agent server.
+     */
+    InitFunction& custom_init_func_;
+    FiniFunction& custom_fini_func_;
+    RecvMsgFunction& custom_recv_msg_func_;
+    SendMsgFunction& custom_send_msg_func_;
 };
+
 } // namespace uxr
 } // namespace eprosima
 
