@@ -159,6 +159,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
         src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
+        src/cpp/transport/stream_framing/StreamFramingProtocol.cpp
         src/cpp/transport/custom/CustomAgent.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
@@ -196,7 +197,6 @@ set(SRCS
     src/cpp/message/OutputMessage.cpp
     $<$<NOT:$<BOOL:${UAGENT_CLI_PROFILE}>>:src/cpp/utils/ArgumentParser.cpp>
     src/cpp/transport/Server.cpp
-    src/cpp/transport/serial/SerialProtocol.cpp
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>

@@ -28,13 +28,13 @@ SerialAgent::SerialAgent(
     , addr_{addr}
     , poll_fd_{}
     , buffer_{0}
-    , serial_io_(
+    , framing_io_(
           addr,
           std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
           std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 {}
 
-size_t SerialAgent::write_data(
+ssize_t SerialAgent::write_data(
         uint8_t* buf,
         size_t len,
         TransportRc& transport_rc)
@@ -52,22 +52,18 @@ size_t SerialAgent::write_data(
     return rv;
 }
 
-size_t SerialAgent::read_data(
+ssize_t SerialAgent::read_data(
         uint8_t* buf,
         size_t len,
         int timeout,
         TransportRc& transport_rc)
 {
-    size_t rv = 0;
+    ssize_t bytes_read = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_read = read(poll_fd_.fd, buf, len);
-        if (0 < bytes_read)
-        {
-            rv = size_t(bytes_read);
-        }
-        else
+        bytes_read = read(poll_fd_.fd, buf, len);
+        if (0 > bytes_read)
         {
             transport_rc = TransportRc::server_error;
         }
@@ -76,7 +72,7 @@ size_t SerialAgent::read_data(
     {
         transport_rc = (poll_rv == 0) ? TransportRc::timeout_error : TransportRc::server_error;
     }
-    return rv;
+    return bytes_read;
 }
 
 bool SerialAgent::recv_message(
@@ -86,7 +82,7 @@ bool SerialAgent::recv_message(
 {
     bool rv = false;
     uint8_t remote_addr;
-    size_t bytes_read = serial_io_.read_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
+    ssize_t bytes_read = framing_io_.read_framed_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
@@ -111,13 +107,14 @@ bool SerialAgent::send_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    size_t bytes_written =
-            serial_io_.write_msg(
+    ssize_t bytes_written =
+            framing_io_.write_framed_msg(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
                 output_packet.destination.get_addr(),
                 transport_rc);
-    if ((0 < bytes_written) && (bytes_written == output_packet.message->get_len()))
+    if ((0 < bytes_written) && (
+         static_cast<size_t>(bytes_written) == output_packet.message->get_len()))
     {
         rv = true;
 

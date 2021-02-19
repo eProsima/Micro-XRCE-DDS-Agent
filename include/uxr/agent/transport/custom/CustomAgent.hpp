@@ -17,6 +17,7 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
+#include <uxr/agent/transport/stream_framing/StreamFramingProtocol.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -84,6 +85,7 @@ public:
      * @param name Name of the middleware to be implemented by this CustomAgent.
      * @param middleware_kind The middleware selected to represent the XRCE entities
      *        in the DDS world (FastDDS, FastRTPS, CED...)
+     * @param framing Whether this agent transport shall use framing or not.
      * @param init_function Custom user-defined function, called during initialization.
      * @param fini_function Custom user-defined function, called upon agent's destruction.
      * @param recv_msg_function Custom user-defined function, called when receiving some data.
@@ -93,6 +95,7 @@ public:
             const std::string& name,
             CustomEndPoint& endpoint,
             Middleware::Kind middleware_kind,
+            bool framing,
             InitFunction& init_function,
             FiniFunction& fini_function,
             RecvMsgFunction& recv_msg_function,
@@ -163,6 +166,16 @@ private:
      * @brief Reference to this custom agent's endpoint definition.
      */
     CustomEndPoint& endpoint_;
+
+    /**
+     * @brief Indicates the usage or non-usage of framing for R/W operations.
+     */
+    bool framing_;
+
+    /**
+     * @brief Holds the framing logics, if framing is used.
+     */
+    FramingIO framing_io_;
 
     /**
      * @brief Reference to user-defined operations for the custom agent server.

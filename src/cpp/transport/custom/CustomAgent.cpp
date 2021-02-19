@@ -14,6 +14,8 @@
 
 #include <uxr/agent/transport/custom/CustomAgent.hpp>
 
+#include <functional>
+
 namespace eprosima {
 namespace uxr {
 
@@ -48,6 +50,7 @@ CustomAgent::CustomAgent(
         const std::string& name,
         CustomEndPoint& endpoint,
         Middleware::Kind middleware_kind,
+        bool framing,
         InitFunction& init_function,
         FiniFunction& fini_function,
         RecvMsgFunction& recv_msg_function,
@@ -55,6 +58,19 @@ CustomAgent::CustomAgent(
     : Server<CustomEndPoint>(middleware_kind)
     , name_(name)
     , endpoint_(endpoint)
+    , framing_(framing)
+    , framing_io_(0x00,
+        std::bind(custom_send_msg_func_,
+                  endpoint_,
+                  std::placeholders::_1,
+                  std::placeholders::_2,
+                  std::placeholders::_3),
+        std::bind(custom_recv_msg_func_,
+                  endpoint_,
+                  std::placeholders::_1,
+                  std::placeholders::_2,
+                  std::placeholders::_3,
+                  std::placeholders::_4))
     , custom_init_func_(init_function)
     , custom_fini_func_(fini_function)
     , custom_recv_msg_func_(recv_msg_function)
@@ -155,13 +171,22 @@ bool CustomAgent::recv_message(
 
     try
     {
-        ssize_t recv_bytes = custom_recv_msg_func_(
-            endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
-
+        ssize_t recv_bytes;
+        if (framing_)
+        {
+            uint8_t remote_addr = 0x00;
+            recv_bytes = framing_io_.read_framed_msg(
+                buffer_, SERVER_BUFFER_SIZE, remote_addr, timeout, transport_rc);
+        }
+        else
+        {
+            recv_bytes = custom_recv_msg_func_(
+                endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
+        }
         // User must have filled all the members of the endpoint.
         endpoint_.check_non_empty_members();
 
-        bool success = (-1 != recv_bytes && TransportRc::ok == transport_rc);
+        bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
         if (success)
         {
             input_packet.message.reset(
@@ -211,11 +236,23 @@ bool CustomAgent::send_message(
 {
     try
     {
-        ssize_t sent_bytes = custom_send_msg_func_(
-            output_packet.destination,
-            output_packet.message->get_buf(),
-            output_packet.message->get_len(),
-            transport_rc);
+        ssize_t sent_bytes;
+        if (framing_)
+        {
+            sent_bytes = framing_io_.write_framed_msg(
+                output_packet.message->get_buf(),
+                output_packet.message->get_len(),
+                0x00,
+                transport_rc);
+        }
+        else
+        {
+            sent_bytes = custom_send_msg_func_(
+                output_packet.destination,
+                output_packet.message->get_buf(),
+                output_packet.message->get_len(),
+                transport_rc);
+        }
 
         bool success = (output_packet.message->get_len() == static_cast<size_t>(sent_bytes));
         if (success)
