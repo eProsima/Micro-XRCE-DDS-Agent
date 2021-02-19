@@ -115,7 +115,13 @@ public:
             ReadCallback read_callback);
 
     /**
-     * @TODO (jamoralp) docs
+     * @brief Write message using the stream framing protocol
+     *        and the previously user provided WriteCallback method.
+     * @param buf Buffer to write data into.
+     * @param len Length of the message to be written.
+     * @param remote_addr Remote address to where the message will be sent.
+     * @param transport_rc Return code of the write operation.
+     * @return size_t Number of written bytes.
      */
     size_t write_framed_msg(
             const uint8_t* buf,
@@ -124,7 +130,14 @@ public:
             TransportRc& transport_rc);
 
     /**
-     * @TODO (jamoralp) docs
+     * @brief Read message using the stream framing protocol
+     *        and the previously user provided ReadCallback method.
+     * @param buf Buffer to read data from.
+     * @param len Length of the buffer.
+     * @param remote_addr Remote address tfrom which the message will be read.
+     * @param timeout Timeout in milliseconds.
+     * @param transport_rc Return code of the read operation.
+     * @return size_t Number of read bytes.
      */
     size_t read_framed_msg(
             uint8_t* buf,
@@ -160,13 +173,18 @@ private:
             uint8_t octet);
 
     /**
-     * @TODO (jamoralp) docs
+     * @brief Internal write method implemented using circular write buffer.
+     * @param transport_rc Return code of the write operation.
+     * @return True if success, false otherwise.
      */
     bool transport_write(
             TransportRc& transport_rc);
 
     /**
-     * @TODO (jamoralp) docs
+     * @brief Internal read method implemented using circular read buffer.
+     * @param timeout Read timeout in milliseconds.
+     * @param transport_rc Return code of the read operation.
+     * @return True if success, false otherwise.
      */
     bool transport_read(
             int& timeout,
