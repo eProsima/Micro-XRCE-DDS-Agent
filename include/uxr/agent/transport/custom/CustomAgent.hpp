@@ -168,6 +168,14 @@ private:
     CustomEndPoint& endpoint_;
 
     /**
+     * @brief Reference to user-defined operations for the custom agent server.
+     */
+    InitFunction& custom_init_func_;
+    FiniFunction& custom_fini_func_;
+    RecvMsgFunction& custom_recv_msg_func_;
+    SendMsgFunction& custom_send_msg_func_;
+
+    /**
      * @brief Indicates the usage or non-usage of framing for R/W operations.
      */
     bool framing_;
@@ -176,14 +184,6 @@ private:
      * @brief Holds the framing logics, if framing is used.
      */
     FramingIO framing_io_;
-
-    /**
-     * @brief Reference to user-defined operations for the custom agent server.
-     */
-    InitFunction& custom_init_func_;
-    FiniFunction& custom_fini_func_;
-    RecvMsgFunction& custom_recv_msg_func_;
-    SendMsgFunction& custom_send_msg_func_;
 };
 
 } // namespace uxr

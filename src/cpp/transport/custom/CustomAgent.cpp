@@ -58,6 +58,10 @@ CustomAgent::CustomAgent(
     : Server<CustomEndPoint>(middleware_kind)
     , name_(name)
     , endpoint_(endpoint)
+    , custom_init_func_(init_function)
+    , custom_fini_func_(fini_function)
+    , custom_recv_msg_func_(recv_msg_function)
+    , custom_send_msg_func_(send_msg_function)
     , framing_(framing)
     , framing_io_(0x00,
         std::bind(custom_send_msg_func_,
@@ -71,10 +75,6 @@ CustomAgent::CustomAgent(
                   std::placeholders::_2,
                   std::placeholders::_3,
                   std::placeholders::_4))
-    , custom_init_func_(init_function)
-    , custom_fini_func_(fini_function)
-    , custom_recv_msg_func_(recv_msg_function)
-    , custom_send_msg_func_(send_msg_function)
 {
 }
 
