@@ -217,6 +217,7 @@ int main(int argc, char** argv)
             "UDPv4_CUSTOM",
             custom_endpoint,
             mw_kind,
+            false,
             init_function,
             fini_function,
             recv_msg_function,

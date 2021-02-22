@@ -67,7 +67,7 @@ public:
         TransportRc& /*transport_rc*/)>;
     /**
      * @brief Send message function signature, to be implemented by final users.
-     * @param destination_endpoint Allows to retrieve the required enpoint
+     * @param destination_endpoint Allows to retrieve the required endpoint
      *        information to send the message back to the client.
      * @param buffer Holds the message to be sent back to the client.
      * @param message_length Number of bytes to be sent.
