@@ -174,8 +174,8 @@ private:
      */
     InitFunction& custom_init_func_;
     FiniFunction& custom_fini_func_;
-    RecvMsgFunction& custom_recv_msg_func_;
     SendMsgFunction& custom_send_msg_func_;
+    RecvMsgFunction& custom_recv_msg_func_;
 
     /**
      * @brief Indicates the usage or non-usage of framing for R/W operations.
