@@ -53,16 +53,16 @@ CustomAgent::CustomAgent(
         bool framing,
         InitFunction& init_function,
         FiniFunction& fini_function,
-        RecvMsgFunction& recv_msg_function,
-        SendMsgFunction& send_msg_function)
+        SendMsgFunction& send_msg_function,
+        RecvMsgFunction& recv_msg_function)
     : Server<CustomEndPoint>(middleware_kind)
     , name_(name)
     , recv_endpoint_(endpoint)
     , send_endpoint_(nullptr)
     , custom_init_func_(init_function)
     , custom_fini_func_(fini_function)
-    , custom_recv_msg_func_(recv_msg_function)
     , custom_send_msg_func_(send_msg_function)
+    , custom_recv_msg_func_(recv_msg_function)
     , framing_(framing)
     , framing_io_(0x00,
         [&](

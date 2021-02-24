@@ -98,8 +98,8 @@ public:
             bool framing,
             InitFunction& init_function,
             FiniFunction& fini_function,
-            RecvMsgFunction& recv_msg_function,
-            SendMsgFunction& send_msg_function);
+            SendMsgFunction& send_msg_function,
+            RecvMsgFunction& recv_msg_function);
 
     /**
      * @brief Destructor.

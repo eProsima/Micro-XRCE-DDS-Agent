@@ -220,8 +220,8 @@ int main(int argc, char** argv)
             false,
             init_function,
             fini_function,
-            recv_msg_function,
-            send_msg_function);
+            send_msg_function,
+            recv_msg_function);
 
         /**
          * Set verbosity level
