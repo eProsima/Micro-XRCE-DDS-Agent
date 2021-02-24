@@ -48,7 +48,7 @@ const std::string transport_rc_to_str(
 
 CustomAgent::CustomAgent(
         const std::string& name,
-        CustomEndPoint& endpoint,
+        CustomEndPoint* endpoint,
         Middleware::Kind middleware_kind,
         bool framing,
         InitFunction& init_function,
@@ -57,24 +57,38 @@ CustomAgent::CustomAgent(
         SendMsgFunction& send_msg_function)
     : Server<CustomEndPoint>(middleware_kind)
     , name_(name)
-    , endpoint_(endpoint)
+    , recv_endpoint_(endpoint)
+    , send_endpoint_(nullptr)
     , custom_init_func_(init_function)
     , custom_fini_func_(fini_function)
     , custom_recv_msg_func_(recv_msg_function)
     , custom_send_msg_func_(send_msg_function)
     , framing_(framing)
     , framing_io_(0x00,
-        std::bind(custom_send_msg_func_,
-                  std::ref(endpoint_),
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  std::placeholders::_3),
-        std::bind(custom_recv_msg_func_,
-                  std::ref(endpoint_),
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  std::placeholders::_3,
-                  std::placeholders::_4))
+        [&](
+                uint8_t* buffer,
+                size_t message_length,
+                TransportRc& transport_rc) -> ssize_t
+        {
+            return custom_send_msg_func_(
+                send_endpoint_,
+                buffer,
+                message_length,
+                transport_rc);
+        },
+        [&](
+                uint8_t* buffer,
+                size_t buffer_length,
+                int timeout,
+                TransportRc& transport_rc) -> ssize_t
+        {
+            return custom_recv_msg_func_(
+                recv_endpoint_,
+                buffer,
+                buffer_length,
+                timeout,
+                transport_rc);
+        })
 {
 }
 
@@ -166,8 +180,8 @@ bool CustomAgent::recv_message(
         int timeout,
         TransportRc& transport_rc)
 {
-    // Reset endpoint_ members before receiving a new message.
-    endpoint_.reset();
+    // Reset recv_endpoint_ members before receiving a new message.
+    recv_endpoint_->reset();
 
     try
     {
@@ -181,18 +195,19 @@ bool CustomAgent::recv_message(
         else
         {
             recv_bytes = custom_recv_msg_func_(
-                endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
+                recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
         }
-        // User must have filled all the members of the endpoint.
-        endpoint_.check_non_empty_members();
 
         bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
         if (success)
         {
+            // User must have filled all the members of the endpoint.
+            recv_endpoint_->check_non_empty_members();
+
             input_packet.message.reset(
                 new eprosima::uxr::InputMessage(
                     buffer_, static_cast<size_t>(recv_bytes)));
-            input_packet.source = endpoint_;
+            input_packet.source = *recv_endpoint_;
 
             uint32_t raw_client_key = 0u;
             this->get_client_key(input_packet.source, raw_client_key);
@@ -239,16 +254,18 @@ bool CustomAgent::send_message(
         ssize_t sent_bytes;
         if (framing_)
         {
+            send_endpoint_ = &output_packet.destination;
             sent_bytes = framing_io_.write_framed_msg(
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
                 0x00,
                 transport_rc);
+            send_endpoint_ = nullptr;
         }
         else
         {
             sent_bytes = custom_send_msg_func_(
-                output_packet.destination,
+                &output_packet.destination,
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
                 transport_rc);

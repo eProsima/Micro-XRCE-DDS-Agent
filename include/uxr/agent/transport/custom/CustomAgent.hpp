@@ -60,7 +60,7 @@ public:
      * @return ssize_t Number of received bytes.
      */
     using RecvMsgFunction = std::function<ssize_t (
-        CustomEndPoint& /*source_endpoint*/,
+        CustomEndPoint* /*source_endpoint*/,
         uint8_t* /*buffer*/,
         size_t /*buffer_length*/,
         int /*timeout*/,
@@ -75,7 +75,7 @@ public:
      * @return ssize_t Number of sent bytes.
      */
     using SendMsgFunction = std::function<ssize_t (
-        const CustomEndPoint& /*destination_endpoint*/,
+        const CustomEndPoint* /*destination_endpoint*/,
         uint8_t* /*buffer*/,
         size_t /*message_length*/,
         TransportRc& /*transport_rc*/)>;
@@ -93,7 +93,7 @@ public:
      */
     CustomAgent(
             const std::string& name,
-            CustomEndPoint& endpoint,
+            CustomEndPoint* endpoint,
             Middleware::Kind middleware_kind,
             bool framing,
             InitFunction& init_function,
@@ -163,9 +163,11 @@ private:
     const std::string name_;
 
     /**
-     * @brief Reference to this custom agent's endpoint definition.
+     * @brief Pointers to this custom agent's endpoint definition.
+     *        They are used for receive and send operations, respectively.
      */
-    CustomEndPoint& endpoint_;
+    CustomEndPoint* recv_endpoint_;
+    CustomEndPoint* send_endpoint_;
 
     /**
      * @brief Reference to user-defined operations for the custom agent server.

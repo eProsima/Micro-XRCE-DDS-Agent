@@ -106,7 +106,7 @@ int main(int argc, char** argv)
      * @brief Agent's incoming data functionality.
      */
     eprosima::uxr::CustomAgent::RecvMsgFunction recv_msg_function = [&](
-            eprosima::uxr::CustomEndPoint& source_endpoint,
+            eprosima::uxr::CustomEndPoint* source_endpoint,
             uint8_t* buffer,
             size_t buffer_length,
             int timeout,
@@ -147,12 +147,12 @@ int main(int argc, char** argv)
                     "This is an example of a custom Micro XRCE-DDS Agent RECV_MSG function"),
                 "port: {}",
                 agent_port);
+            source_endpoint->set_member_value<uint32_t>("address",
+                static_cast<uint32_t>(client_addr.sin_addr.s_addr));
+            source_endpoint->set_member_value<uint16_t>("port",
+                static_cast<uint16_t>(client_addr.sin_port));
         }
 
-        source_endpoint.set_member_value<uint32_t>("address",
-            static_cast<uint32_t>(client_addr.sin_addr.s_addr));
-        source_endpoint.set_member_value<uint16_t>("port",
-            static_cast<uint16_t>(client_addr.sin_port));
 
         return bytes_received;
     };
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
      * @brief Agent's outcoming data flow definition.
      */
     eprosima::uxr::CustomAgent::SendMsgFunction send_msg_function = [&](
-        const eprosima::uxr::CustomEndPoint& destination_endpoint,
+        const eprosima::uxr::CustomEndPoint* destination_endpoint,
         uint8_t* buffer,
         size_t message_length,
         eprosima::uxr::TransportRc& transport_rc) -> ssize_t
@@ -170,8 +170,8 @@ int main(int argc, char** argv)
 
         memset(&client_addr, 0, sizeof(client_addr));
         client_addr.sin_family = AF_INET;
-        client_addr.sin_port = destination_endpoint.get_member<uint16_t>("port");
-        client_addr.sin_addr.s_addr = destination_endpoint.get_member<uint32_t>("address");
+        client_addr.sin_port = destination_endpoint->get_member<uint16_t>("port");
+        client_addr.sin_addr.s_addr = destination_endpoint->get_member<uint32_t>("address");
 
         ssize_t bytes_sent =
             sendto(
@@ -215,7 +215,7 @@ int main(int argc, char** argv)
          */
         eprosima::uxr::CustomAgent custom_agent(
             "UDPv4_CUSTOM",
-            custom_endpoint,
+            &custom_endpoint,
             mw_kind,
             false,
             init_function,
