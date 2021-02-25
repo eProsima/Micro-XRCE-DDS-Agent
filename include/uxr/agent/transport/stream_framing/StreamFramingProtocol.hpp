@@ -21,6 +21,11 @@
 #include <cstddef>
 #include <functional>
 
+#ifdef _WIN32
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 namespace eprosima {
 namespace uxr {
 
@@ -184,9 +189,9 @@ private:
      * @brief Internal read method implemented using circular read buffer.
      * @param timeout Read timeout in milliseconds.
      * @param transport_rc Return code of the read operation.
-     * @return True if success, false otherwise.
+     * @return Number of Bytes read.
      */
-    bool transport_read(
+    size_t transport_read(
             int& timeout,
             TransportRc& transport_rc);
 
