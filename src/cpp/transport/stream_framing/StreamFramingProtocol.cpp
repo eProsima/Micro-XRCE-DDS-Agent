@@ -410,7 +410,7 @@ bool FramingIO::transport_write(
     return false;
 }
 
-bool FramingIO::transport_read(
+size_t FramingIO::transport_read(
         int& timeout,
         TransportRc& transport_rc)
 {
