@@ -123,7 +123,7 @@ private:
 
     inline bool fini_discovery() final
     {
-        return false;
+        return true;
     }
 #endif // UAGENT_DISCOVERY_PROFILE
 
@@ -136,7 +136,7 @@ private:
 
     inline bool fini_p2p() final
     {
-        return false;
+        return true;
     }
 #endif // UAGENT_P2P_PROFILE
 
