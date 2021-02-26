@@ -96,7 +96,7 @@ public:
      * @param recv_msg_function Custom user-defined function, called when receiving some data.
      * @param send_msg_function Custom user-defined function, called when sending some information.
      */
-    CustomAgent(
+    UXR_AGENT_EXPORT CustomAgent(
             const std::string& name,
             CustomEndPoint* endpoint,
             Middleware::Kind middleware_kind,
@@ -109,7 +109,7 @@ public:
     /**
      * @brief Destructor.
      */
-    ~CustomAgent() final;
+    UXR_AGENT_EXPORT ~CustomAgent() final;
 
 private:
     /**
