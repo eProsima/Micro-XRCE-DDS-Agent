@@ -17,7 +17,7 @@
 
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
-#include <uxr/agent/transport/serial/SerialProtocol.hpp>
+#include <uxr/agent/transport/stream_framing/StreamFramingProtocol.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -61,12 +61,12 @@ private:
             OutputPacket<SerialEndPoint> output_packet,
             TransportRc& transport_rc) final;
 
-    size_t write_data(
+    ssize_t write_data(
             uint8_t* buf,
             size_t len,
             TransportRc& transport_rc);
 
-    size_t read_data(
+    ssize_t read_data(
             uint8_t* buf,
             size_t len,
             int timeout,
@@ -76,7 +76,7 @@ protected:
     const uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[SERVER_BUFFER_SIZE];
-    SerialIO serial_io_;
+    FramingIO framing_io_;
 };
 
 } // namespace uxr
