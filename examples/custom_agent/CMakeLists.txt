@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if (UAGENT_BUILD_EXAMPLES)
+if (UAGENT_BUILD_USAGE_EXAMPLES)
     add_executable(CustomXRCEAgent custom_agent.cpp)
     target_link_libraries(CustomXRCEAgent
         PRIVATE

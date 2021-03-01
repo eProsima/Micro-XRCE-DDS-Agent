@@ -35,7 +35,7 @@ option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_CLI_PROFILE "Build CLI profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
-option(UAGENT_BUILD_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
+option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
 
 set(UAGENT_P2P_CLIENT_VERSION 1.2.5 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
 set(UAGENT_P2P_CLIENT_TAG develop CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
@@ -331,7 +331,7 @@ if(UAGENT_BUILD_EXECUTABLE)
 endif()
 
 # Examples
-if(UAGENT_BUILD_EXAMPLES)
+if(UAGENT_BUILD_USAGE_EXAMPLES)
     add_subdirectory(examples/custom_agent)
 endif()
 
