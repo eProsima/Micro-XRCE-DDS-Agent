@@ -19,26 +19,8 @@ namespace eprosima {
 namespace uxr {
 
 AgentInstance::AgentInstance()
-#ifdef UAGENT_CLI_PROFILE
-    : app_("eProsima Micro XRCE-DDS Agent")
-    , udpv4_subcmd_(app_)
-    , udpv6_subcmd_(app_)
-    , tcpv4_subcmd_(app_)
-    , tcpv6_subcmd_(app_)
-#ifndef _WIN32
-    , termios_subcmd_(app_)
-    , pseudo_serial_subcmd_(app_)
-#endif  // _WIN32
-    , exit_subcmd_(app_)
-    , callback_factory_(callback_factory_.getInstance())
-#else
     : callback_factory_(callback_factory_.getInstance())
-#endif  // UAGENT_CLI_PROFILE
 {
-#ifdef UAGENT_CLI_PROFILE
-    app_.require_subcommand(1, 1);
-    app_.get_formatter()->column_width(42);
-#endif
 }
 
 AgentInstance& AgentInstance::getInstance()
@@ -59,32 +41,7 @@ bool AgentInstance::create(
         return false;
     }
 #endif  // _WIN32
-#ifdef UAGENT_CLI_PROFILE
-    // Parse CLI arguments.
-    std::stringstream ss;
-    for (int i = 1; i < argc; ++i)
-    {
-        ss << argv[i] << " ";
-    }
-    std::string cli_input(ss.str());
-    while (true)
-    {
-        try
-        {
-            app_.parse(cli_input);
-            break;
-        }
-        catch(const CLI::ParseError& e)
-        {
-            app_.exit(e);
-            std::cin.clear();
-            std::cout << std::endl;
-            std::cout << "Enter command: ";
-            std::getline(std::cin, cli_input);
-        }
-    }
-#else
-    // Use built-in argument parser
+
     if (2 > argc)
     {
         agent::parser::utils::usage(argv[0]);
@@ -159,28 +116,13 @@ bool AgentInstance::create(
             return false;
         }
     }
-#endif  // UAGENT_CLI_PROFILE
+
     return true;
 }
 
 void AgentInstance::run()
 {
-#ifdef UAGENT_CLI_PROFILE
-    // Wait until exit.
-#ifndef _WIN32
-    int n_signal = 0;
-    sigwait(&signals_, &n_signal);
-#else
-    std::cin.clear();
-    char exit_flag = 0;
-    while ('q' != exit_flag)
-    {
-        std::cin >> exit_flag;
-    }
-#endif  // _WIN32
-#else
     agent_thread_.join();
-#endif  // UAGENT_CLI_PROFILE
 }
 
 template <typename ... Args>

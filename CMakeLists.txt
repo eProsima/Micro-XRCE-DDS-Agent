@@ -33,7 +33,6 @@ option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
-option(UAGENT_CLI_PROFILE "Build CLI profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
 option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
 
@@ -70,12 +69,6 @@ set(_deps "")
 set(_fastcdr_version 1.0.13)
 set(_fastcdr_tag v1.0.13)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
-
-if(UAGENT_CLI_PROFILE)
-    set(_cli11_version 1.7.1)
-    set(_cli11_tag v1.7.1)
-    list(APPEND _deps "CLI11\;${_cli11_version}")
-endif()
 
 if(UAGENT_P2P_PROFILE)
     set(_microxrcedds_client_version ${UAGENT_P2P_CLIENT_VERSION})
@@ -193,7 +186,7 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
-    $<$<NOT:$<BOOL:${UAGENT_CLI_PROFILE}>>:src/cpp/utils/ArgumentParser.cpp>
+    src/cpp/utils/ArgumentParser.cpp
     src/cpp/transport/Server.cpp
     src/cpp/transport/stream_framing/StreamFramingProtocol.cpp
     src/cpp/transport/custom/CustomAgent.cpp
@@ -290,7 +283,6 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Windows>:ws2_32>
         $<$<PLATFORM_ID:Windows>:iphlpapi>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
-        $<$<BOOL:${UAGENT_CLI_PROFILE}>:CLI11::CLI11>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>

@@ -886,6 +886,7 @@ public:
         ss << serial_args_.get_help();
 #endif // _WIN32
         ss << std::endl;
+        // TODO(@jamoralp): Once documentation is updated with proper CLI section, add here an hyperlink to that section
         std::cout << ss.str();
     }
 
