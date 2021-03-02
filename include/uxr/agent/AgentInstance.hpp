@@ -17,11 +17,7 @@
 
 #include <uxr/agent/config.hpp>
 
-#ifdef UAGENT_CLI_PROFILE
-#include <uxr/agent/utils/CLI.hpp>
-#else
 #include <uxr/agent/utils/ArgumentParser.hpp>
-#endif  // UAGENT_CLI_PROFILE
 
 #include <csignal>
 
@@ -102,20 +98,7 @@ public:
             std::function<void (Args ...)>&& callback_function);
 
 private:
-#ifdef UAGENT_CLI_PROFILE
-    CLI::App app_;
-    cli::UDPv4Subcommand udpv4_subcmd_;
-    cli::UDPv6Subcommand udpv6_subcmd_;
-    cli::TCPv4Subcommand tcpv4_subcmd_;
-    cli::TCPv6Subcommand tcpv6_subcmd_;
-#ifndef _WIN32
-    cli::TermiosSubcommand termios_subcmd_;
-    cli::PseudoTerminalSubcommand pseudo_serial_subcmd_;
-#endif  // _WIN32
-    cli::ExitSubcommand exit_subcmd_;
-#else
     std::thread agent_thread_;
-#endif  // UAGENT_CLI_PROFILE
 #ifndef _WIN32
     sigset_t signals_;
 #endif  // _WIN32
