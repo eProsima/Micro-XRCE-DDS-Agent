@@ -16,7 +16,7 @@ The *Micro XRCE-DDS Agents* receive messages containing request operations from 
 The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
 
 *Agents* keep track of the *Clients* by means of a dedicated *ProxyClient* entity that acts on behalf of the latter.
-To do so, the *Agent* uses the *XRCE Entities* to interact with the DDS Global dataspace.
+This is made possible by the creation of *DDS Entities* on the *Agent* as a result of *Clients*' operations, such as *Participants*, *Topics*, *Publishers*, and *Subscribers*, which can interact with the DDS Global dataspace.
 
 The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* is achieved by means of several kinds of built-in transports: **UDPv4**, **UDPv6**, **TCPv4**, **TCPv6** and **Serial** communication.
 You can use an *Agent* with these transports by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select one among the list previously mentioned.
