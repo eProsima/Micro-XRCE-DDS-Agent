@@ -13,7 +13,7 @@
 *The Micro XRCE-DDS Agent* acts as a server to bridge the DDS dataspace network with *Micro XRCE-DDS Client* applications.
 
 The *Micro XRCE-DDS Agents* receive messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the DDS-RPC standard, are also supported, allowing to communicate according to a request/reply paradigm.
-The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe operations.
+The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
 Remote procedure calls, as defined by the DDS-RPC standard, are also supported.
 
 *Agents* keep track of the *Clients* and the *Micro XRCE-DDS Entities* they create, by means of a dedicated *ProxyClient* entity that acts on behalf of them.
