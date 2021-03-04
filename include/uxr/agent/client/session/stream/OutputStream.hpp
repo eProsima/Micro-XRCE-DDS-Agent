@@ -178,12 +178,14 @@ inline bool BestEffortOutputStream::push_submessage(
 
         /* Create message. */
         OutputMessagePtr output_message(new OutputMessage(message_header, session_info.mtu));
-        if (output_message.get()->get_len() < submessage.getCdrSerializedSize())
+        if (session_info.mtu < submessage.getCdrSerializedSize())
         {
             UXR_AGENT_LOG_WARN(
                 UXR_DECORATE_YELLOW("serialization warning"),
-                "Trying to serialize {:d} in smaller MTU stream",
-                submessage.getCdrSerializedSize());
+                "Trying to serialize {:d} in {:d} MTU stream",
+                submessage.getCdrSerializedSize(),
+                session_info.mtu);
+            rv = true;
         }
         else if (output_message->append_submessage(submessage_id, submessage))
         {
@@ -192,7 +194,6 @@ inline bool BestEffortOutputStream::push_submessage(
             last_sent_ += 1;
             rv = true;
         }
-        
     }
     return rv;
 }
