@@ -19,6 +19,7 @@
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/utils/SeqNum.hpp>
 #include <uxr/agent/client/session/SessionInfo.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <memory>
 #include <queue>
@@ -177,13 +178,21 @@ inline bool BestEffortOutputStream::push_submessage(
 
         /* Create message. */
         OutputMessagePtr output_message(new OutputMessage(message_header, session_info.mtu));
-        if (output_message->append_submessage(submessage_id, submessage))
+        if (output_message.get()->get_len() < submessage.getCdrSerializedSize())
+        {
+            UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("serialization warning"),
+                "Trying to serialize {:d} in smaller MTU stream",
+                submessage.getCdrSerializedSize());
+        }
+        else if (output_message->append_submessage(submessage_id, submessage))
         {
             /* Push message. */
             messages_.push(std::move(output_message));
             last_sent_ += 1;
             rv = true;
         }
+        
     }
     return rv;
 }
