@@ -10,7 +10,7 @@
 
 <a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
 
-*Micro XRCE-DDS Agent* acts as a server between the DDS dataspace network and *Micro XRCE-DDS Client* applications.
+*The Micro XRCE-DDS Agent* acts as a server to bridge the DDS dataspace network with *Micro XRCE-DDS Client* applications.
 
 *Micro XRCE-DDS Agents* receive messages containing request operations from *Clients* to publish and subscribe to/from the DDS global dataspace.
 The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe operations.
