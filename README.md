@@ -6,18 +6,21 @@
 [![Forks](https://img.shields.io/github/forks/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/network/members)
 [![Stars](https://img.shields.io/github/stars/eProsima/Micro-XRCE-DDS-Agent.svg)](https://github.com/eProsima/Micro-XRCE-DDS-Agent/stargazers)
 
-[![Docker Build Status](https://img.shields.io/docker/build/eprosima/micro-xrce-dds-agent.svg?logo=docker)](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/)
-[![Compare Images](https://images.microbadger.com/badges/image/eprosima/micro-xrce-dds-agent.svg)](https://microbadger.com/images/eprosima/micro-xrce-dds-agent/)
+[![Docker Build Status](https://img.shields.io/docker/cloud/build/eprosima/micro-xrce-dds-agent)](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/)
 
 <a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
 
-*Micro XRCE-DDS Agent* acts as a server between DDS Network and *Micro XRCE-DDS Clients*.
-*Micro XRCE-DDS Agents* receive messages containing Operations from Clients.
-Agents keep track of the Clients and the *Micro XRCE-DDS Entities* they create.
-The Agent uses the Entities to interact with DDS Global Data Space on behalf of the Client.
+*The Micro XRCE-DDS Agent* acts as a server to bridge the DDS dataspace network with *Micro XRCE-DDS Client* applications.
 
-The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* supports two kind transports: UDP or SerialPort.
-While running *Micro XRCE-DDS Agent* will attend any received request from your *Micro XRCE-DDS Clients*. *Micro XRCE-DDS Agent* answers back with the result of a request each time a request is attended.
+The *Micro XRCE-DDS Agents* receive messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the DDS-RPC standard, are also supported, allowing to communicate according to a request/reply paradigm.
+The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
+
+*Agents* keep track of the *Clients* by means of a dedicated *ProxyClient* entity that acts on behalf of the latter.
+This is made possible by the creation of *DDS Entities* on the *Agent* as a result of *Clients*' operations, such as *Participants*, *Topics*, *Publishers*, and *Subscribers*, which can interact with the DDS Global dataspace.
+
+The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* is achieved by means of several kinds of built-in transports: **UDPv4**, **UDPv6**, **TCPv4**, **TCPv6** and **Serial** communication. In addition, there is the possibility for the user to generate its own **Custom** transport.
+You can use an *Agent* with these transports by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select one of the transports listed above.
+This built-in *Agent* can also be installed and launched using the provided [Snap package](https://snapcraft.io/micro-xrce-dds-agent) or the provided [Docker image](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
 ![Architecture](docs/agent_architecture.png)
 
@@ -28,10 +31,6 @@ You can access *Micro XRCE-DDS* documentation online, which is hosted on Read th
 * [Start Page](http://micro-xrce-dds.readthedocs.io)
 * [Installation manual](http://micro-xrce-dds.readthedocs.io/en/latest/installation.html)
 * [User manual](http://micro-xrce-dds.readthedocs.io/en/latest/introduction.html)
-
-## Dockerfile
-
-There is a *Micro XRCE-DDS Agent* Dockerfile available on [Docker Hub](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
 ## Getting Help
 
