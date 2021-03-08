@@ -15,7 +15,7 @@ It follows a client/server paradigm and is composed by two libraries, the *Micro
 
 <p align="center"> <img src="docs/General.png" alt="Image" width="70%"/> </p>
 
-The *Micro XRCE-DDS Agent* receives messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the `DDS-RPC standard <https://www.omg.org/spec/DDS-RPC/About-DDS-RPC/>`_, are also supported, allowing to communicate according to a request/reply paradigm.
+The *Micro XRCE-DDS Agent* receives messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the [DDS-RPC standard](https://www.omg.org/spec/DDS-RPC/About-DDS-RPC/), are also supported, allowing to communicate according to a request/reply paradigm.
 The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
 
 *Agents* keep track of the *Clients* by means of a dedicated `ProxyClient` entity that acts on behalf of the latter.
