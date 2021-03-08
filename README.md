@@ -16,21 +16,22 @@ It follows a client/server paradigm and is composed by two libraries, the *Micro
 <p align="center"> <img src="docs/General.png" alt="Image" width="70%"/> </p>
 
 The *Micro XRCE-DDS Agent* receives messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the [DDS-RPC standard](https://www.omg.org/spec/DDS-RPC/About-DDS-RPC/), are also supported, allowing to communicate according to a request/reply paradigm.
-The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
+The *Agent* then processes these requests and sends back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
 
 *Agents* keep track of the *Clients* by means of a dedicated `ProxyClient` entity that acts on behalf of the latter.
 This is made possible by the creation of *DDS Entities* on the *Agent* as a result of *Clients*' operations, such as *Participants*, *Topics*, *Publishers*, and *Subscribers*, which can interact with the DDS global dataspace.
 
-<p align="center"> <img src="docs/Agent.png" alt="Image" width="70%"/> </p>
+<p align="center"> <img src="docs/Agent.png" alt="Image" width="80%"/> </p>
 
 The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* is achieved by means of several kinds of built-in transports: **UDPv4**, **UDPv6**, **TCPv4**, **TCPv6** and **Serial** communication. In addition, there is the possibility for the user to generate its own **Custom** transport.
-You can use an *Agent* with these transports by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select one of the transports listed above.
+An *Agent* with any of these transports can be launched by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select among the transports listed above.
+
 This built-in *Agent* can also be installed and launched using the provided [Snap package](https://snapcraft.io/micro-xrce-dds-agent) or the provided [Docker image](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
 
 ## Documentation
 
-You can access *Micro XRCE-DDS* documentation online, which is hosted on Read the Docs.
+You can access the *eProsima Micro XRCE-DDS* user documentation online, which is hosted on Read the Docs.
 
 * [Start Page](http://micro-xrce-dds.readthedocs.io)
 * [Installation manual](http://micro-xrce-dds.readthedocs.io/en/latest/installation.html)
