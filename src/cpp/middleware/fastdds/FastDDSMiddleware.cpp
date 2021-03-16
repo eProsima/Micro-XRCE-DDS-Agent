@@ -39,8 +39,8 @@ FastDDSMiddleware::FastDDSMiddleware()
 }
 
 FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
-    : participants_()
-    , Middleware(intraprocess_enabled)
+    : Middleware(intraprocess_enabled)
+    , participants_()
     , topics_()
     , publishers_()
     , subscribers_()
