@@ -15,6 +15,7 @@
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include "../../xmlobjects/xmlobjects.h"
 
 #include <uxr/agent/middleware/utils/Callbacks.hpp>
@@ -26,6 +27,20 @@ using namespace fastrtps::xmlparser;
 
 FastDDSMiddleware::FastDDSMiddleware()
     : participants_()
+    , topics_()
+    , publishers_()
+    , subscribers_()
+    , datawriters_()
+    , datareaders_()
+    , requesters_()
+    , repliers_()
+    , callback_factory_(callback_factory_.getInstance())
+{
+}
+
+FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
+    : participants_()
+    , Middleware(intraprocess_enabled)
     , topics_()
     , publishers_()
     , subscribers_()
@@ -653,7 +668,20 @@ bool FastDDSMiddleware::read_data(
    auto it = datareaders_.find(datareader_id);
    if (datareaders_.end() != it)
    {
-       rv = it->second->read(data, timeout);
+       fastdds::dds::SampleInfo sample_info;
+       rv = it->second->read(data, timeout, sample_info);
+        
+       if (intraprocess_enabled_)
+       {
+            for (auto dw = datawriters_.begin(); dw != datawriters_.end(); dw++)
+            {
+                if (dw->second->guid() == sample_info.sample_identity.writer_guid())
+                {
+                    rv = false;
+                    break;
+                }
+            }
+       }
    }
    return rv;
 }

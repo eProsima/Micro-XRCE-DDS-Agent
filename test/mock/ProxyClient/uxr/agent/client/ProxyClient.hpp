@@ -31,7 +31,8 @@ class ProxyClient
 public:
     explicit ProxyClient(
             const dds::xrce::CLIENT_Representation& /*representation*/,
-            Middleware::Kind /*middleware_kind*/) {}
+            Middleware::Kind /*middleware_kind*/,
+            bool intraprocess_enabled) {}
 
     ~ProxyClient() = default;
 

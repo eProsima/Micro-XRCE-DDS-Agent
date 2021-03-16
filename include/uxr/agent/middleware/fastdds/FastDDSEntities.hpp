@@ -293,7 +293,8 @@ public:
     bool match_from_xml(const std::string& xml) const;
     bool read(
             std::vector<uint8_t>& data,
-            std::chrono::milliseconds timeout);
+            std::chrono::milliseconds timeout,
+            fastdds::dds::SampleInfo& sample_info);
     const fastdds::dds::DataReader* ptr() const;
     const fastdds::dds::DomainParticipant* participant() const;
 

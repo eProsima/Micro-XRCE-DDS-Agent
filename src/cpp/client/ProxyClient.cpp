@@ -36,12 +36,14 @@ namespace uxr {
 
 ProxyClient::ProxyClient(
         const dds::xrce::CLIENT_Representation& representation,
-        Middleware::Kind middleware_kind)
+        Middleware::Kind middleware_kind,
+        std::unordered_map<std::string, std::string> properties)
     : representation_(representation)
     , objects_()
     , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
     , state_{State::alive}
     , timestamp_{std::chrono::steady_clock::now()}
+    , properties_{properties}
 {
     switch (middleware_kind)
     {
@@ -60,7 +62,10 @@ ProxyClient::ProxyClient(
         }
         case Middleware::Kind::FASTDDS:
         {
-            middleware_.reset(new FastDDSMiddleware());
+            bool intraprocess_enabled = 
+                properties_.find("uxrIP") != properties_.end() &&
+                properties_["uxrIP"] == "1";
+            middleware_.reset(new FastDDSMiddleware(intraprocess_enabled));
             break;
         }
 #endif

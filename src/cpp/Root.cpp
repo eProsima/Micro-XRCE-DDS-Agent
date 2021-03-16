@@ -83,9 +83,20 @@ dds::xrce::ResultStatus Root::create_client(
             auto it = clients_.find(client_key);
             if (it == clients_.end())
             {
+                std::unordered_map<std::string, std::string> client_properties;
+
+                if (client_representation.properties())
+                {   
+                    auto v = *client_representation.properties();
+                    for (auto it_props = v.begin(); it_props != v.end(); ++it_props){
+                        client_properties.insert(std::pair<std::string, std::string>(it_props->name(), it_props->value()));
+                    }
+                }
+
                 std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(
                     client_representation,
-                    middleware_kind);
+                    middleware_kind,
+                    client_properties);
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
                     UXR_AGENT_LOG_INFO(
@@ -118,6 +129,7 @@ dds::xrce::ResultStatus Root::create_client(
                     client->session().reset();
                 }
             }
+            
         }
         else
         {

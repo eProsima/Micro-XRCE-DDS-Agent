@@ -32,6 +32,7 @@ class FastDDSMiddleware : public Middleware
 {
 public:
     FastDDSMiddleware();
+    FastDDSMiddleware(bool intraprocess_enabled);
     ~FastDDSMiddleware() final = default;
 
 /**********************************************************************************************************************
