@@ -43,7 +43,7 @@ ProxyClient::ProxyClient(
     , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})
     , state_{State::alive}
     , timestamp_{std::chrono::steady_clock::now()}
-    , properties_{properties}
+    , properties_(std::move(properties))
 {
     switch (middleware_kind)
     {
