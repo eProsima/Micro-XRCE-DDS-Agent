@@ -88,7 +88,8 @@ dds::xrce::ResultStatus Root::create_client(
                 if (client_representation.properties())
                 {   
                     auto v = *client_representation.properties();
-                    for (auto it_props = v.begin(); it_props != v.end(); ++it_props){
+                    for (auto it_props = v.begin(); it_props != v.end(); ++it_props)
+                    {
                         client_properties.insert(std::pair<std::string, std::string>(it_props->name(), it_props->value()));
                     }
                 }
