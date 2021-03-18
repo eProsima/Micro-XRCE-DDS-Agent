@@ -129,7 +129,6 @@ dds::xrce::ResultStatus Root::create_client(
                     client->session().reset();
                 }
             }
-            
         }
         else
         {
