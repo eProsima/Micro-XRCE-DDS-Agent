@@ -44,8 +44,11 @@ public:
     };
 
     Middleware() = default;
-    Middleware(bool intraprocess_enabled) 
-    : intraprocess_enabled_(intraprocess_enabled) {};
+    Middleware(
+            bool intraprocess_enabled)
+        : intraprocess_enabled_(intraprocess_enabled)
+    {
+    };
     virtual ~Middleware() = default;
 
 /**********************************************************************************************************************
