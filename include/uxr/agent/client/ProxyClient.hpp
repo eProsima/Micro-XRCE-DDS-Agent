@@ -35,7 +35,8 @@ public:
 
     explicit ProxyClient(
             const dds::xrce::CLIENT_Representation& representation,
-            Middleware::Kind middleware_kind = Middleware::Kind(0));
+            Middleware::Kind middleware_kind = Middleware::Kind(0),
+            std::unordered_map<std::string, std::string>&& properties = {});
 
     ~ProxyClient() = default;
 
@@ -132,6 +133,7 @@ private:
     std::mutex state_mtx_;
     State state_;
     std::chrono::time_point<std::chrono::steady_clock> timestamp_;
+    std::unordered_map<std::string, std::string> properties_;
 };
 
 } // namespace uxr

@@ -692,7 +692,8 @@ bool FastDDSDataReader::match_from_xml(
 
 bool FastDDSDataReader::read(
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout)
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& sample_info)
 {
 
     bool rv = false;
@@ -700,8 +701,7 @@ bool FastDDSDataReader::read(
     fastrtps::Duration_t d((long double) timeout.count()/1000.0);
 
     if(ptr_->wait_for_unread_message(d)){
-        fastdds::dds::SampleInfo info;
-        rv = ReturnCode_t::RETCODE_OK == ptr_->take_next_sample(&data, &info);
+        rv = ReturnCode_t::RETCODE_OK == ptr_->take_next_sample(&data, &sample_info);
     }
 
     return rv;
