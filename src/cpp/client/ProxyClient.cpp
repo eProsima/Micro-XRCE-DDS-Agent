@@ -37,7 +37,7 @@ namespace uxr {
 ProxyClient::ProxyClient(
         const dds::xrce::CLIENT_Representation& representation,
         Middleware::Kind middleware_kind,
-        std::unordered_map<std::string, std::string> properties)
+        std::unordered_map<std::string, std::string>&& properties)
     : representation_(representation)
     , objects_()
     , session_(SessionInfo{representation.client_key(), representation.session_id(), representation.mtu()})

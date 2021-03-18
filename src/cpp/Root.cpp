@@ -97,7 +97,7 @@ dds::xrce::ResultStatus Root::create_client(
                 std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(
                     client_representation,
                     middleware_kind,
-                    client_properties);
+                    std::move(client_properties));
                 if (clients_.emplace(client_key, std::move(new_client)).second)
                 {
                     UXR_AGENT_LOG_INFO(
