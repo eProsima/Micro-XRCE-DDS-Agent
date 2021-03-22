@@ -78,7 +78,7 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    if(UAGENT_FAST_PROFILE AND NOT AGENT_USE_SYSTEM_FASTDDS)
+    if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
         set(_fastdds_version 2.0.0)
     else()
         set(_fastdds_version 2.0.2)
