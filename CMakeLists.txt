@@ -27,7 +27,7 @@ option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into separa
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
-option(UFORCE_SYSTEM_FAST "Find and use system FastMiddleware." ON)
+option(UAGENT_USE_SYSTEM_FASTDDS "Force find and use system installed Fast-DDS." OFF)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
@@ -78,10 +78,14 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastdds_version 2.0.2)
-    set(_fastdds_tag v2.0.2)
+    if(UAGENT_FAST_PROFILE AND NOT AGENT_USE_SYSTEM_FASTDDS)
+        set(_fastdds_version 2.0.0)
+    else()
+        set(_fastdds_version 2.0.2)
+        set(_fastdds_tag v2.0.2)
+        set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
+    endif()    
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
-    set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
