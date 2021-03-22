@@ -77,7 +77,7 @@ if(NOT fastcdr_FOUND)
     list(APPEND _deps fastcdr)
 endif()
 
-if(UAGENT_FAST_PROFILE)
+if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
     # Foonathan memory.
     unset(foonathan_memory_DIR CACHE)
     find_package(foonathan_memory QUIET)

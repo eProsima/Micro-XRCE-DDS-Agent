@@ -7,5 +7,6 @@
     ],
     "cmake-args":[
         "-DUAGENT_ISOLATED_INSTALL=OFF",
+        "-DUAGENT_USE_SYSTEM_FASTDDS=ON"
     ]
 }
