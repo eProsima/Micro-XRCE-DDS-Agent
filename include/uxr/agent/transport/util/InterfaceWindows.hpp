@@ -15,7 +15,6 @@
 #ifndef UXR_AGENT_TRANSPORT_UTIL_INTERFACEWINDOWS_HPP_
 #define UXR_AGENT_TRANSPORT_UTIL_INTERFACEWINDOWS_HPP_
 
-#include <uxr/agent/transport/util/Interface.hpp>
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #include <uxr/agent/logger/Logger.hpp>
