@@ -63,8 +63,8 @@ ProxyClient::ProxyClient(
         case Middleware::Kind::FASTDDS:
         {
             bool intraprocess_enabled = 
-                properties_.find("uxr_ip") != properties_.end() &&
-                properties_["uxr_ip"] == "1";
+                properties_.find("uxr_sm") != properties_.end() &&
+                properties_["uxr_sm"] == "1";
             middleware_.reset(new FastDDSMiddleware(intraprocess_enabled));
             break;
         }
