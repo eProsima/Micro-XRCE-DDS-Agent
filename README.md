@@ -10,21 +10,16 @@
 
 <a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
 
-*eProsima Micro XRCE-DDS* is a library implementing the [DDS-XRCE protocol](https://www.omg.org/spec/DDS-XRCE/About-DDS-XRCE/) as defined and maintained by the OMG, whose aim is to allow resource constrained devices such as microcontrollers to communicate with the [DDS](https://www.omg.org/spec/DDS/About-DDS/) world as any other DDS actor would do.
-It follows a client/server paradigm and is composed by two libraries, the *Micro XRCE-DDS Client* and the *Micro XRCE-DDS Agent*. The *Micro XRCE-DDS Clients* are lightweight entities meant to be compiled on e**X**tremely **R**esource **C**onstrained **E**nvironments, while the *Micro XRCE-DDS Agent* is a broker which bridges the *Clients* with the DDS world.
+*The Micro XRCE-DDS Agent* acts as a server to bridge the DDS dataspace network with *Micro XRCE-DDS Client* applications.
 
-<p align="center"> <img src="docs/General.png" alt="Image" width="70%"/> </p>
+The *Micro XRCE-DDS Agents* receive messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the DDS-RPC standard, are also supported, allowing to communicate according to a request/reply paradigm.
+The *Agents* then process these XRCE requests and send back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
 
-The *Micro XRCE-DDS Agent* receives messages containing request operations from the *Clients* to publish and subscribe to topics in the DDS global dataspace. Remote procedure calls, as defined by the [DDS-RPC standard](https://www.omg.org/spec/DDS-RPC/About-DDS-RPC/), are also supported, allowing to communicate according to a request/reply paradigm.
-The *Agent* then processes these requests and sends back a response with the operation status result and with the requested data, in the case of subscribe/reply operations.
-
-*Agents* keep track of the *Clients* by means of a dedicated `ProxyClient` entity that acts on behalf of the latter.
-This is made possible by the creation of *DDS Entities* on the *Agent* as a result of *Clients*' operations, such as *Participants*, *Topics*, *Publishers*, and *Subscribers*, which can interact with the DDS global dataspace.
-
-<p align="center"> <img src="docs/Agent.png" alt="Image" width="80%"/> </p>
+*Agents* keep track of the *Clients* by means of a dedicated *ProxyClient* entity that acts on behalf of the latter.
+This is made possible by the creation of *DDS Entities* on the *Agent* as a result of *Clients*' operations, such as *Participants*, *Topics*, *Publishers*, and *Subscribers*, which can interact with the DDS Global dataspace.
 
 The communication between a *Micro XRCE-DDS Client* and a *Micro XRCE-DDS Agent* is achieved by means of several kinds of built-in transports: **UDPv4**, **UDPv6**, **TCPv4**, **TCPv6** and **Serial** communication. In addition, there is the possibility for the user to generate its own **Custom** transport.
-An *Agent* using any of these built-in transports can be launched by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select among the transports listed above.
+You can use an *Agent* with these transports by means of the standalone executable generated when building the project, which comes with a built-in CLI tool to select one of the transports listed above.
 
 This built-in *Agent* can also be installed and launched using the provided [Snap package](https://snapcraft.io/micro-xrce-dds-agent) or the provided [Docker image](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
