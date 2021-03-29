@@ -30,8 +30,9 @@ class ProxyClient
 {
 public:
     explicit ProxyClient(
-            const dds::xrce::CLIENT_Representation& /*representation*/,
-            Middleware::Kind /*middleware_kind*/) {}
+        const dds::xrce::CLIENT_Representation& /*representation*/,
+        Middleware::Kind /*middleware_kind*/,
+        std::unordered_map<std::string, std::string>&& properties = {}) {};
 
     ~ProxyClient() = default;
 

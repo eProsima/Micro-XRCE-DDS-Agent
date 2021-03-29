@@ -15,8 +15,6 @@
 #ifndef UXR_AGENT_TRANSPORT_ENDPOINT_IPV4_ENDPOINT_HPP_
 #define UXR_AGENT_TRANSPORT_ENDPOINT_IPV4_ENDPOINT_HPP_
 
-#include <uxr/agent/transport/endpoint/EndPoint.hpp>
-
 #include <stdint.h>
 #include <iostream>
 
@@ -44,10 +42,10 @@ public:
 
    friend std::ostream& operator<<(std::ostream& os, const IPv4EndPoint& endpoint)
    {
-       os << int(uint8_t(endpoint.addr_)) << "."
-          << int(uint8_t(endpoint.addr_ >> 8)) << "."
-          << int(uint8_t(endpoint.addr_ >> 16)) << "."
-          << int(uint8_t(endpoint.addr_ >> 24)) << ":"
+       os << static_cast<int>(static_cast<uint8_t>(endpoint.addr_)) << "."
+          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 8)) << "."
+          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 16)) << "."
+          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 24)) << ":"
           << endpoint.get_port();
        return os;
    }

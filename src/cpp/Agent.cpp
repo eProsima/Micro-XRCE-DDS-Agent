@@ -16,7 +16,7 @@
 #include <uxr/agent/Root.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/datawriter/DataWriter.hpp>
-
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -214,6 +214,7 @@ void fill_object_variant<Agent::REPLIER_OBJK>(
  **********************************************************************************************************************/
 Agent::Agent()
     : root_(new Root())
+    , callback_factory_(callback_factory_.getInstance())
 {}
 
 Agent::~Agent() = default;
@@ -638,6 +639,56 @@ bool Agent::delete_object(
     return rv;
 }
 
+template <typename ... Args>
+void Agent::add_middleware_callback(
+        const Middleware::Kind& middleware_kind,
+        const middleware::CallbackKind& callback_kind,
+        std::function<void (Args ...)>&& callback_function)
+{
+    callback_factory_.add_callback(middleware_kind, callback_kind, std::move(callback_function));
+}
+
+// Specific template specializations for used callback signatures.
+#define AGENT_ADD_MW_CB(...) \
+template \
+UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
+    const Middleware::Kind &, \
+    const middleware::CallbackKind &, \
+    std::function<void (__VA_ARGS__)> &&);
+
+#ifdef UAGENT_FAST_PROFILE
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastrtps::Participant *,
+    const eprosima::fastrtps::Publisher *,
+    const eprosima::fastrtps::Subscriber *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataReader *)
+
+AGENT_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant *,
+    const eprosima::fastdds::dds::DataWriter *,
+    const eprosima::fastdds::dds::DataReader *)
+#endif  // UAGENT_FAST_PROFILE
 
 } // namespace uxr
 } // namespace eprosima

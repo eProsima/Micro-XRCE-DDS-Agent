@@ -24,6 +24,7 @@
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -47,9 +48,24 @@ void Processor<EndPoint>::process_input_packet(
     {
         if (input_packet.message->prepare_next_submessage())
         {
-            if (input_packet.message->get_subheader().submessage_id() == dds::xrce::CREATE_CLIENT)
+            switch (input_packet.message->get_subheader().submessage_id())
             {
-                process_create_client_submessage(input_packet);
+                case dds::xrce::CREATE_CLIENT:
+                {
+                    process_create_client_submessage(input_packet);
+                    break;
+                }
+                case dds::xrce::GET_INFO:
+                {
+                    OutputPacket<EndPoint> output_packet;
+                    process_get_info_packet(std::move(input_packet), output_packet);
+                    server_.push_output_packet(std::move(output_packet));
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
             }
         }
     }
@@ -110,7 +126,7 @@ void Processor<EndPoint>::process_input_packet(
                 output_packet.message.reset(new OutputMessage(acknack_header, message_size));
                 output_packet.message->append_submessage(dds::xrce::ACKNACK, acknack_payload);
 
-                server_.push_output_packet(output_packet);
+                server_.push_output_packet(std::move(output_packet));
             }
         }
         else
@@ -137,7 +153,7 @@ void Processor<EndPoint>::process_input_packet(
                     output_packet.message.reset(new OutputMessage(input_packet.message->get_header(), message_size));
                     output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
-                    server_.push_output_packet(output_packet);
+                    server_.push_output_packet(std::move(output_packet));
                 }
             }
         }
@@ -268,7 +284,7 @@ bool Processor<EndPoint>::process_create_client_submessage(
             output_packet.message = std::shared_ptr<OutputMessage>(new OutputMessage(status_header, message_size));
             output_packet.message->append_submessage(dds::xrce::STATUS_AGENT, status_agent);
 
-            server_.push_output_packet(output_packet);
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     else
@@ -309,7 +325,7 @@ bool Processor<EndPoint>::process_create_submessage(
         output_packet.destination = input_packet.source;
         while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
         {
-            server_.push_output_packet(output_packet);
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     return rv;
@@ -348,7 +364,7 @@ bool Processor<EndPoint>::process_delete_submessage(
 
             while (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
             {
-                server_.push_output_packet(output_packet);
+                server_.push_output_packet(std::move(output_packet));
             }
         }
         else
@@ -363,7 +379,7 @@ bool Processor<EndPoint>::process_delete_submessage(
 
             while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
-                server_.push_output_packet(output_packet);
+                server_.push_output_packet(std::move(output_packet));
             }
         }
     }
@@ -534,7 +550,7 @@ bool Processor<EndPoint>::process_read_data_submessage(
             output_packet.destination = input_packet.source;
             while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
             {
-                server_.push_output_packet(output_packet);
+                server_.push_output_packet(std::move(output_packet));
             }
         }
     }
@@ -570,14 +586,14 @@ bool Processor<EndPoint>::process_acknack_submessage(
             {
                 if (client.session().get_output_message(stream_id, first_message + i, output_packet.message))
                 {
-                    server_.push_output_packet(output_packet);
+                    server_.push_output_packet(std::move(output_packet));
                 }
             }
             if ((nack_bitmap.at(0) & mask) == mask)
             {
                 if (client.session().get_output_message(stream_id, first_message + i + 8, output_packet.message))
                 {
-                    server_.push_output_packet(output_packet);
+                    server_.push_output_packet(std::move(output_packet));
                 }
             }
         }
@@ -623,7 +639,7 @@ bool Processor<EndPoint>::process_heartbeat_submessage(
         output_packet.destination = input_packet.source;
         if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
         {
-            server_.push_output_packet(output_packet);
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     else
@@ -688,7 +704,7 @@ bool Processor<EndPoint>::process_timestamp_submessage(
         output_packet.destination = input_packet.source;
         if (client.session().get_next_output_message(dds::xrce::STREAMID_NONE, output_packet.message))
         {
-            server_.push_output_packet(output_packet);
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     else
@@ -722,13 +738,58 @@ bool Processor<EndPoint>::read_data_callback(
 
         while (cb_args.client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
         {
-            server_.push_output_packet(output_packet);
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     else
     {
         std::this_thread::sleep_for(timeout);
     }
+    return rv;
+}
+
+template<typename EndPoint>
+bool Processor<EndPoint>::process_get_info_packet(
+        InputPacket<EndPoint>&& input_packet,
+        OutputPacket<EndPoint>& output_packet) const
+{
+    bool rv = false;
+
+    dds::xrce::GET_INFO_Payload get_info_payload;
+    input_packet.message->get_payload(get_info_payload);
+
+    dds::xrce::ObjectInfo object_info;
+    dds::xrce::ResultStatus result_status = root_.get_info(object_info);
+    if (dds::xrce::STATUS_OK == result_status.status())
+    {
+        dds::xrce::AGENT_ActivityInfo agent_info;
+        agent_info.availability(1);
+
+        dds::xrce::ActivityInfoVariant info_variant;
+        info_variant.agent(agent_info);
+        object_info.activity(info_variant);
+
+        dds::xrce::INFO_Payload info_payload;
+        info_payload.related_request().request_id(get_info_payload.request_id());
+        info_payload.related_request().object_id(get_info_payload.object_id());
+        info_payload.result(result_status);
+        info_payload.object_info(object_info);
+
+        dds::xrce::SubmessageHeader info_subheader;
+        info_subheader.submessage_id(dds::xrce::INFO);
+        info_subheader.flags(dds::xrce::FLAG_LITTLE_ENDIANNESS);
+        info_subheader.submessage_length(uint16_t(info_payload.getCdrSerializedSize()));
+
+        const size_t message_size = input_packet.message->get_header().getCdrSerializedSize() +
+                                    info_subheader.getCdrSerializedSize() +
+                                    info_payload.getCdrSerializedSize();
+
+        output_packet.destination = input_packet.source;
+        output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header(),
+                                                                    message_size));
+        rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
+    }
+
     return rv;
 }
 
@@ -825,7 +886,7 @@ void Processor<EndPoint>::check_heartbeats()
                     output_packet.message = OutputMessagePtr(new OutputMessage(header, message_size));
                     output_packet.message->append_submessage(dds::xrce::HEARTBEAT, heartbeat);
 
-                    server_.push_output_packet(output_packet);
+                    server_.push_output_packet(std::move(output_packet));
                 }
             }
         }
@@ -835,6 +896,7 @@ void Processor<EndPoint>::check_heartbeats()
 template class Processor<IPv4EndPoint>;
 template class Processor<IPv6EndPoint>;
 template class Processor<SerialEndPoint>;
+template class Processor<CustomEndPoint>;
 
 } // namespace uxr
 } // namespace eprosima

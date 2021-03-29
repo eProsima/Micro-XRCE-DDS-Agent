@@ -24,11 +24,15 @@
 
 namespace eprosima {
 namespace uxr {
+namespace middleware {
+class CallbackFactory;
+} // namespace middleware
 
 class FastDDSMiddleware : public Middleware
 {
 public:
-    FastDDSMiddleware() = default;
+    FastDDSMiddleware();
+    FastDDSMiddleware(bool intraprocess_enabled);
     ~FastDDSMiddleware() final = default;
 
 /**********************************************************************************************************************
@@ -209,6 +213,14 @@ public:
             const std::string& xml) const override;
 
 private:
+    std::shared_ptr<FastDDSRequester> create_requester(
+        std::shared_ptr<FastDDSParticipant>& participant,
+        const fastrtps::RequesterAttributes& attrs);
+
+    std::shared_ptr<FastDDSReplier> create_replier(
+        std::shared_ptr<FastDDSParticipant>& participant,
+        const fastrtps::ReplierAttributes& attrs);
+
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSPublisher>> publishers_;
@@ -217,6 +229,8 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSDataReader>> datareaders_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSRequester>> requesters_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSReplier>> repliers_;
+
+    middleware::CallbackFactory& callback_factory_;
 };
 
 } // namespace uxr

@@ -44,6 +44,11 @@ public:
     };
 
     Middleware() = default;
+    Middleware(
+            bool intraprocess_enabled)
+        : intraprocess_enabled_(intraprocess_enabled)
+    {
+    };
     virtual ~Middleware() = default;
 
 /**********************************************************************************************************************
@@ -222,6 +227,12 @@ public:
     virtual bool matched_replier_from_xml(
             uint16_t replier_id,
             const std::string& xml) const = 0;
+
+/**********************************************************************************************************************
+ * Members.
+ **********************************************************************************************************************/
+protected: 
+    bool intraprocess_enabled_;
 };
 
 } // namespace uxr

@@ -15,8 +15,6 @@
 #ifndef UXR_AGENT_TRANSPORT_ENDPOINT_IPV6_ENDPOINT_HPP_
 #define UXR_AGENT_TRANSPORT_ENDPOINT_IPV6_ENDPOINT_HPP_
 
-#include <uxr/agent/transport/endpoint/EndPoint.hpp>
-
 #include <stdint.h>
 #include <iostream>
 #include <iomanip>

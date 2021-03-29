@@ -27,14 +27,18 @@ option(UAGENT_ISOLATED_INSTALL "Install the project and dependencies into separa
 option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
+option(UAGENT_USE_SYSTEM_FASTDDS "Force find and use system installed Fast-DDS." OFF)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
-option(UAGENT_CLI_PROFILE "Build CLI profile." ON)
-option(UAGENT_BUILD_EXECUTABLE "Build MicroXRCE-DDS Agent provided executable." ON)
+option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
+option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
+
+set(UAGENT_P2P_CLIENT_VERSION 2.0.0 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG develop CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -67,23 +71,21 @@ set(_fastcdr_version 1.0.13)
 set(_fastcdr_tag v1.0.13)
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
-if(UAGENT_CLI_PROFILE)
-    set(_cli11_version 1.7.1)
-    set(_cli11_tag v1.7.1)
-    list(APPEND _deps "CLI11\;${_cli11_version}")
-endif()
-
 if(UAGENT_P2P_PROFILE)
-    set(_microxrcedds_client_version 1.2.3)
-    set(_microxrcedds_client_tag v1.2.3)
+    set(_microxrcedds_client_version ${UAGENT_P2P_CLIENT_VERSION})
+    set(_microxrcedds_client_tag ${UAGENT_P2P_CLIENT_TAG})
     list(APPEND _deps "microxrcedds_client\;${_microxrcedds_client_version}")
 endif()
 
 if(UAGENT_FAST_PROFILE)
-    set(_fastdds_version 2.0)
-    set(_fastdds_tag 2.0.x)
+    if(UAGENT_USE_SYSTEM_FASTDDS)
+        set(_fastdds_version 2)
+    else()
+        set(_fastdds_version 2.0.2)
+        set(_fastdds_tag v2.0.2)
+        set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
+    endif()    
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
-    set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -97,7 +99,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "1.4.2" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "2.0.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -129,6 +131,7 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install)
 foreach(d ${_deps})
     list(GET d 0 _name)
     list(GET d 1 _version)
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${PROJECT_BINARY_DIR}/temp_install/${_name}-${_version})
     find_package(${_name} ${_version} REQUIRED)
 endforeach()
 
@@ -188,9 +191,10 @@ set(SRCS
     src/cpp/types/SubMessageHeader.cpp
     src/cpp/message/InputMessage.cpp
     src/cpp/message/OutputMessage.cpp
-    $<$<NOT:$<BOOL:${UAGENT_CLI_PROFILE}>>:src/cpp/utils/ArgumentParser.cpp>
+    src/cpp/utils/ArgumentParser.cpp
     src/cpp/transport/Server.cpp
-    src/cpp/transport/serial/SerialProtocol.cpp
+    src/cpp/transport/stream_framing/StreamFramingProtocol.cpp
+    src/cpp/transport/custom/CustomAgent.cpp
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>
@@ -284,7 +288,6 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Windows>:ws2_32>
         $<$<PLATFORM_ID:Windows>:iphlpapi>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
-        $<$<BOOL:${UAGENT_CLI_PROFILE}>:CLI11::CLI11>
     PRIVATE
         $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
@@ -322,6 +325,11 @@ if(UAGENT_BUILD_EXECUTABLE)
         CXX_STANDARD_REQUIRED
             YES
         )
+endif()
+
+# Examples
+if(UAGENT_BUILD_USAGE_EXAMPLES)
+    add_subdirectory(examples/custom_agent)
 endif()
 
 # XML default profile used to launch exec in the building folder

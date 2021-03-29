@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fast/FastMiddleware.hpp>
+#include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 #include <fastrtps/Domain.h>
 #include <fastrtps/xmlparser/XMLProfileManager.h>
@@ -22,6 +23,19 @@ namespace eprosima {
 namespace uxr {
 
 using namespace fastrtps::xmlparser;
+
+FastMiddleware::FastMiddleware()
+    : participants_()
+    , topics_()
+    , publishers_()
+    , subscribers_()
+    , datawriters_()
+    , datareaders_()
+    , requesters_()
+    , repliers_()
+    , callback_factory_(callback_factory_.getInstance())
+{
+}
 
 /**********************************************************************************************************************
  * Create functions.
@@ -40,7 +54,13 @@ bool FastMiddleware::create_participant_by_ref(
         if (nullptr != impl)
         {
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
-            rv = participants_.emplace(participant_id, std::move(participant)).second;
+            auto emplace_res = participants_.emplace(participant_id, std::move(participant));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_PARTICIPANT, impl);
+            }
         }
     }
     return rv;
@@ -61,7 +81,13 @@ bool FastMiddleware::create_participant_by_xml(
         if (nullptr != impl)
         {
             std::shared_ptr<FastParticipant> participant(new FastParticipant(impl));
-            rv = participants_.emplace(participant_id, std::move(participant)).second;
+            auto emplace_res = participants_.emplace(participant_id, std::move(participant));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_PARTICIPANT, impl);
+            }
         }
     }
     return rv;
@@ -211,7 +237,19 @@ bool FastMiddleware::create_datawriter_by_ref(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
-            rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
+            if (nullptr == datawriter)
+            {
+                return false;
+            }
+            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAWRITER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -231,7 +269,19 @@ bool FastMiddleware::create_datawriter_by_xml(
         {
             std::shared_ptr<FastDataWriter> datawriter =
                 create_datawriter(attrs, &listener_, it_publisher->second);
-            rv = datawriter && datawriters_.emplace(datawriter_id, std::move(datawriter)).second;
+            if (nullptr == datawriter)
+            {
+                return false;
+            }
+            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAWRITER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -273,7 +323,19 @@ bool FastMiddleware::create_datareader_by_ref(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
-            rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
+            if (nullptr == datareader)
+            {
+                return false;
+            }
+            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -293,7 +355,19 @@ bool FastMiddleware::create_datareader_by_xml(
         {
             std::shared_ptr<FastDataReader> datareader =
                 create_datareader(attrs, &listener_, it_subscriber->second);
-            rv = datareader && datareaders_.emplace(datareader_id, std::move(datareader)).second;
+            if (nullptr == datareader)
+            {
+                return false;
+            }
+            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    emplace_res.first->second->get_participant(),
+                    emplace_res.first->second->get_ptr());
+            }
         }
     }
     return rv;
@@ -333,7 +407,20 @@ bool FastMiddleware::create_requester_by_ref(
         if (XMLP_ret::XML_OK == XMLProfileManager::fillRequesterAttributes(ref, attrs))
         {
             std::shared_ptr<FastRequester> requester = create_requester(attrs, &listener_, participant);
-            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
+            if (nullptr == requester)
+            {
+                return false;
+            }
+            auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_REQUESTER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_request_datawriter(),
+                    emplace_res.first->second->get_reply_datareader());
+            }
         }
     }
     return rv;
@@ -353,7 +440,20 @@ bool FastMiddleware::create_requester_by_xml(
         if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
         {
             std::shared_ptr<FastRequester> requester = create_requester(attrs, &listener_, participant);
-            rv = requester && requesters_.emplace(requester_id, std::move(requester)).second;
+            if (nullptr == requester)
+            {
+                return false;
+            }
+            auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_REQUESTER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_request_datawriter(),
+                    emplace_res.first->second->get_reply_datareader());
+            }
         }
     }
     return rv;
@@ -393,7 +493,20 @@ bool FastMiddleware::create_replier_by_ref(
         if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
         {
             std::shared_ptr<FastReplier> replier = create_replier(attrs, &listener_, participant);
-            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
+            if (nullptr == replier)
+            {
+                return false;
+            }
+            auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_REPLIER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_reply_datawriter(),
+                    emplace_res.first->second->get_request_datareader());
+            }
         }
     }
     return rv;
@@ -413,7 +526,20 @@ bool FastMiddleware::create_replier_by_xml(
         if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
         {
             std::shared_ptr<FastReplier> replier = create_replier(attrs, &listener_, participant);
-            rv = replier && repliers_.emplace(replier_id, std::move(replier)).second;
+            if (nullptr == replier)
+            {
+                return false;
+            }
+            auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+                    middleware::CallbackKind::CREATE_REPLIER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_reply_datawriter(),
+                    emplace_res.first->second->get_request_datareader());
+            }
         }
     }
     return rv;
@@ -425,7 +551,21 @@ bool FastMiddleware::create_replier_by_xml(
 bool FastMiddleware::delete_participant(
         uint16_t participant_id)
 {
-    return (0 != participants_.erase(participant_id));
+    auto it = participants_.find(participant_id);
+    if (it == participants_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto participant = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            middleware::CallbackKind::DELETE_PARTICIPANT,
+            participant->get_ptr());
+
+        participants_.erase(participant_id);
+        return true;
+    }
 }
 
 bool FastMiddleware::delete_topic(
@@ -449,25 +589,87 @@ bool FastMiddleware::delete_subscriber(
 bool FastMiddleware::delete_datawriter(
         uint16_t datawriter_id)
 {
-    return (0 != datawriters_.erase(datawriter_id));
+    auto it = datawriters_.find(datawriter_id);
+    if (it == datawriters_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto datawriter = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            middleware::CallbackKind::DELETE_DATAWRITER,
+            datawriter->get_participant(),
+            datawriter->get_ptr());
+
+        datawriters_.erase(datawriter_id);
+        return true;
+    }
 }
 
 bool FastMiddleware::delete_datareader(
         uint16_t datareader_id)
 {
-    return (0 != datareaders_.erase(datareader_id));
+    auto it = datareaders_.find(datareader_id);
+    if (it == datareaders_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto datareader = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            middleware::CallbackKind::DELETE_DATAREADER,
+            datareader->get_participant(),
+            datareader->get_ptr());
+
+        datareaders_.erase(datareader_id);
+        return true;
+    }
 }
 
 bool FastMiddleware::delete_requester(
         uint16_t requester_id)
 {
-    return (0 != requesters_.erase(requester_id));
+    auto it = requesters_.find(requester_id);
+    if (it == requesters_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto requester = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            middleware::CallbackKind::DELETE_REQUESTER,
+            requester->get_participant(),
+            requester->get_request_datawriter(),
+            requester->get_reply_datareader());
+
+        requesters_.erase(requester_id);
+        return true;
+    }
 }
 
 bool FastMiddleware::delete_replier(
         uint16_t replier_id)
 {
-    return (0 != repliers_.erase(replier_id));
+    auto it = repliers_.find(replier_id);
+    if (it == repliers_.end())
+    {
+        return false;
+    }
+    else
+    {
+        auto replier = it->second;
+        callback_factory_.execute_callbacks(Middleware::Kind::FASTRTPS,
+            middleware::CallbackKind::DELETE_REPLIER,
+            replier->get_participant(),
+            replier->get_reply_datawriter(),
+            replier->get_request_datareader());
+
+        repliers_.erase(replier_id);
+        return true;
+    }
 }
 
 /**********************************************************************************************************************

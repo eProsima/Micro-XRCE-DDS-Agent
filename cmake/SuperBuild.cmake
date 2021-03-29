@@ -32,7 +32,7 @@ if(UAGENT_P2P_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install
+                ${PROJECT_BINARY_DIR}/temp_install/microxrcedds_client-${_microxrcedds_client_version}
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
@@ -77,7 +77,7 @@ if(NOT fastcdr_FOUND)
     list(APPEND _deps fastcdr)
 endif()
 
-if(UAGENT_FAST_PROFILE)
+if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
     # Foonathan memory.
     unset(foonathan_memory_DIR CACHE)
     find_package(foonathan_memory QUIET)
@@ -104,7 +104,7 @@ if(UAGENT_FAST_PROFILE)
     # Fast DDS.
     unset(fastdds_DIR CACHE)
     find_package(fastrtps ${_fastdds_version} EXACT QUIET)
-    if(NOT fastdds_FOUND)
+    if(NOT fastrtps_FOUND)
         ExternalProject_Add(fastdds
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-DDS.git
@@ -126,6 +126,7 @@ if(UAGENT_FAST_PROFILE)
                 -DTHIRDPARTY:BOOL=ON
                 -DCOMPILE_TOOLS:BOOL=OFF
                 -DSECURITY:BOOL=${UAGENT_SECURITY_PROFILE}
+                -DSHM_TRANSPORT_DEFAULT:BOOL=OFF
             DEPENDS
                 fastcdr
                 foonathan_memory
@@ -136,35 +137,6 @@ if(UAGENT_FAST_PROFILE)
                 COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
             )
         list(APPEND _deps fastdds)
-    endif()
-endif()
-
-# CLI11.
-if(UAGENT_CLI_PROFILE)
-    unset(CLI11_DIR CACHE)
-    find_package(CLI11 ${_cli11_version} EXACT QUIET)
-    if(NOT CLI11_FOUND)
-        ExternalProject_Add(cli11
-            GIT_REPOSITORY
-                https://github.com/CLIUtils/CLI11.git
-            GIT_TAG
-                ${_cli11_tag}
-            PREFIX
-                ${PROJECT_BINARY_DIR}/CLI11
-            INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/cli11-${_cli11_version}
-            CMAKE_CACHE_ARGS
-                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
-                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-                -DCLI11_TESTING:BOOL=OFF
-                -DCLI11_EXAMPLES:BOOL=OFF
-            )
-        list(APPEND _deps cli11)
     endif()
 endif()
 
@@ -248,6 +220,8 @@ if(NOT Sanitizers_FOUND)
             ""
         INSTALL_COMMAND
             ""
+        CMAKE_ARGS
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},3.16.3>:-DCMAKE_POLICY_DEFAULT_CMP0077=OLD> # Disable CMP0077 unset warning
         CMAKE_CACHE_ARGS
             -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
         )

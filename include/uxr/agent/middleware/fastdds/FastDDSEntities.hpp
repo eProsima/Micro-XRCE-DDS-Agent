@@ -57,6 +57,8 @@ public:
     // Proxy methods
 
     int16_t domain_id() const { return domain_id_; }
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
+    fastdds::dds::DomainParticipant* get_ptr() const { return ptr_; }
 
     ReturnCode_t unregister_type(
             const std::string& typeName);
@@ -106,6 +108,10 @@ public:
 
     std::shared_ptr<FastDDSTopic> find_local_topic(
             const std::string& topic_name) const;
+
+    fastdds::dds::DomainParticipant* operator * ();
+
+    const fastdds::dds::DomainParticipant* operator * () const;
 
 private:
     fastdds::dds::DomainParticipant* ptr_;
@@ -210,7 +216,7 @@ private:
 class FastDDSSubscriber
 {
 public:
-    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
     {}
@@ -230,7 +236,7 @@ public:
 
 
     std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
@@ -251,10 +257,15 @@ public:
 
     ~FastDDSDataWriter();
 
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
+
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool write(const std::vector<uint8_t>& data);
+    const fastdds::dds::DataWriter* ptr() const;
+    const fastdds::dds::DomainParticipant* participant() const;
+
 private:
     std::shared_ptr<FastDDSPublisher> publisher_;
     std::shared_ptr<FastDDSTopic> topic_;
@@ -274,13 +285,19 @@ public:
 
     ~FastDDSDataReader();
 
+    fastrtps::rtps::GUID_t guid() const { return ptr_->guid(); }
+
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool read(
             std::vector<uint8_t>& data,
-            std::chrono::milliseconds timeout);   
+            std::chrono::milliseconds timeout,
+            fastdds::dds::SampleInfo& sample_info);
+    const fastdds::dds::DataReader* ptr() const;
+    const fastdds::dds::DomainParticipant* participant() const;
+
 private:
     std::shared_ptr<FastDDSSubscriber> subscriber_;
     std::shared_ptr<FastDDSTopic> topic_;
@@ -308,6 +325,9 @@ public:
 
     ~FastDDSRequester();
 
+    fastrtps::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
+    fastrtps::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
+
     bool create_by_attributes(
         const fastrtps::RequesterAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
@@ -322,9 +342,15 @@ public:
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout);
 
+    const fastdds::dds::DomainParticipant* get_participant() const;
+
+    const fastdds::dds::DataWriter* get_request_datawriter() const;
+
+    const fastdds::dds::DataReader* get_reply_datareader() const;
+
 private:
     bool match(const fastrtps::RequesterAttributes& attrs) const;
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
 
@@ -363,6 +389,9 @@ public:
 
     ~FastDDSReplier();
 
+    fastrtps::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
+    fastrtps::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
+
     bool create_by_attributes(
         const fastrtps::ReplierAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
@@ -372,6 +401,12 @@ public:
     bool read(std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout);
 
+    const fastdds::dds::DomainParticipant* get_participant() const;
+
+    const fastdds::dds::DataReader* get_request_datareader() const;
+
+    const fastdds::dds::DataWriter* get_reply_datawriter() const;
+
 private:
     bool match(const fastrtps::ReplierAttributes& attrs) const;
     void transform_sample_identity(
@@ -380,7 +415,7 @@ private:
     void transport_sample_identity(
         const dds::SampleIdentity& dds_identity,
         fastrtps::rtps::SampleIdentity& fast_identity);
-    
+
 private:
     std::shared_ptr<FastDDSParticipant> participant_;
 

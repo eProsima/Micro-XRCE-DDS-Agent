@@ -60,6 +60,7 @@ enum class TransportKind
     SERIAL,
     PSEUDOTERMINAL,
 #endif // _WIN32
+    HELP
 };
 
 template <typename AgentKind>
@@ -77,6 +78,7 @@ namespace parser {
 namespace utils {
 
 bool usage(
+        const char* executable_name,
         bool no_help = true);
 
 TransportKind check_transport(
@@ -86,7 +88,7 @@ Middleware::Kind get_mw_kind(
         const std::string& kind);
 } // namespace utils
 
-using dummy_type = bool;
+using dummy_type = uint8_t;
 
 enum class ArgumentKind
 {
@@ -105,6 +107,7 @@ enum class ParseResult
 /*************************************************************************************************
  * Generic command line argument representation
  *************************************************************************************************/
+// TODO(jamoralp): add proper documentation for this whole file.
 template <typename T>
 class Argument
 {
@@ -113,11 +116,14 @@ public:
             const char* short_alias,
             const char* long_alias,
             ArgumentKind kind = ArgumentKind::VALUE,
-            const std::set<T> allowed_values = {})
+            const std::set<T> allowed_values = {},
+            bool enabled_by_default = true)
         : argument_kind_(kind)
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_()
+        , has_default_value_(false)
+        , enabled_by_default_(enabled_by_default)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
@@ -127,17 +133,27 @@ public:
             const char* short_alias,
             const char* long_alias,
             const T& default_value,
-            const std::set<T> allowed_values = {})
+            const std::set<T> allowed_values = {},
+            bool enabled_by_default = true)
         : argument_kind_(ArgumentKind::VALUE)
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_(default_value)
+        , has_default_value_(true)
+        , enabled_by_default_(enabled_by_default)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
     }
 
+    ~Argument() = default;
+
     const T& value() const
+    {
+        return value_;
+    }
+
+    T& value()
     {
         return value_;
     }
@@ -174,6 +190,29 @@ public:
                 {
                     exists_value = true;
                     value_str = argv[position];
+
+                    /**
+                     * It might occur that an argument is specified to enable some behaviour but we want
+                     * to use the default value. Handle that case.
+                     */
+                    if (std::string::npos != value_str.find("-"))
+                    {
+                        if (has_default_value_)
+                        {
+                            parse_found_ = true;
+                            return ParseResult::VALID;
+                        }
+                        else
+                        {
+                            parse_found_ = false;
+                            return ParseResult::INVALID;
+                        }
+                    }
+                }
+                else if (has_default_value_)
+                {
+                    parse_found_ = true;
+                    return ParseResult::VALID;
                 }
             }
             else if (0 == opt.find(short_alias_))
@@ -197,10 +236,10 @@ public:
                     {
                         std::stringstream ss;
                         ss << "Warning: introduced value for argument '" << long_alias_;
-                        ss << "' is not allowed. Please choose between { ";
+                        ss << "' is not allowed. Please choose between {";
                         for (const auto& allowed_value_ : allowed_values_)
                         {
-                            ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " }.");
+                            ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : "}.");
                         }
                         ss << std::endl;
                         std::cerr << ss.str();
@@ -215,6 +254,16 @@ public:
                 }
             }
         }
+
+        /**
+         * Argument not found, but maybe it is enabled by default.
+         */
+        if (enabled_by_default_ && has_default_value_)
+        {
+            parse_found_ = true;
+            return ParseResult::VALID;
+        }
+
         return ParseResult::NOT_FOUND;
     }
 
@@ -228,11 +277,11 @@ public:
         }
         if (!allowed_values_.empty())
         {
-            ss << " (";
-            for (const auto& allowed_value_ : allowed_values_)
-            {
-                ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " )");
-            }
+            ss << " (" << *allowed_values_.begin() << " - " << *allowed_values_.rbegin() << ")";
+        }
+        if (has_default_value_)
+        {
+            ss << " [default: '" << value_ << "']";
         }
         ss << ".";
         return ss.str();
@@ -243,6 +292,8 @@ private:
     std::string short_alias_;
     std::string long_alias_;
     T value_;
+    bool has_default_value_;
+    bool enabled_by_default_;
     bool parse_found_;
     std::set<T> allowed_values_;
 };
@@ -258,11 +309,14 @@ public:
             const char* short_alias,
             const char* long_alias,
             const std::set<std::string> allowed_values = {},
-            ArgumentKind kind = ArgumentKind::VALUE)
+            ArgumentKind kind = ArgumentKind::VALUE,
+            bool enabled_by_default = true)
         : argument_kind_(kind)
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_()
+        , has_default_value_(false)
+        , enabled_by_default_(enabled_by_default)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
@@ -272,17 +326,27 @@ public:
             const char* short_alias,
             const char* long_alias,
             const std::string& default_value,
-            const std::set<std::string> allowed_values = {})
+            const std::set<std::string> allowed_values = {},
+            bool enabled_by_default = true)
         : argument_kind_(ArgumentKind::VALUE)
         , short_alias_(short_alias)
         , long_alias_(long_alias)
         , value_(default_value)
+        , has_default_value_(true)
+        , enabled_by_default_(enabled_by_default)
         , parse_found_(false)
         , allowed_values_(allowed_values)
     {
     }
 
+    ~Argument() = default;
+
     const std::string& value() const
+    {
+        return value_;
+    }
+
+    std::string& value()
     {
         return value_;
     }
@@ -311,10 +375,10 @@ ParseResult parse_argument(
                         {
                             std::stringstream ss;
                             ss << "Warning: introduced value for argument '" << long_alias_;
-                            ss << "' is not allowed. Please choose between { ";
+                            ss << "' is not allowed. Please choose between {";
                             for (const auto& allowed_value_ : allowed_values_)
                             {
-                                ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " }.");
+                                ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : "}.");
                             }
                             ss << std::endl;
                             std::cerr << ss.str();
@@ -335,6 +399,16 @@ ParseResult parse_argument(
                 }
             }
         }
+
+        /**
+         * Argument not found, but maybe it is enabled by default.
+         */
+        if (enabled_by_default_ && has_default_value_)
+        {
+            parse_found_ = true;
+            return ParseResult::VALID;
+        }
+
         return ParseResult::NOT_FOUND;
     }
 
@@ -348,11 +422,15 @@ ParseResult parse_argument(
         }
         if (!allowed_values_.empty())
         {
-            ss << " ( ";
+            ss << " (";
             for (const auto& allowed_value_ : allowed_values_)
             {
-                ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : " )");
+                ss << allowed_value_ << ((*allowed_values_.rbegin() != allowed_value_) ? ", " : ")");
             }
+        }
+        if (has_default_value_)
+        {
+            ss << " [default: '" << value_ << "']";
         }
         ss << ".";
         return ss.str();
@@ -363,6 +441,8 @@ private:
     std::string short_alias_;
     std::string long_alias_;
     std::string value_;
+    bool has_default_value_;
+    bool enabled_by_default_;
     bool parse_found_;
     std::set<std::string> allowed_values_;
 };
@@ -382,7 +462,7 @@ public:
         , verbose_("-v", "--verbose", static_cast<uint16_t>(DEFAULT_VERBOSE_LEVEL),
             {0, 1, 2, 3, 4, 5, 6})
 #ifdef UAGENT_DISCOVERY_PROFILE
-        , discovery_("-d", "--discovery", static_cast<uint16_t>(DEFAULT_DISCOVERY_PORT))
+        , discovery_("-d", "--discovery", static_cast<uint16_t>(DEFAULT_DISCOVERY_PORT), {}, false)
 #endif
 #ifdef UAGENT_P2P_PROFILE
         , p2p_("-P", "--p2p")
@@ -412,7 +492,12 @@ public:
             result.first = false;
             return result;
         }
-        result.first &= static_cast<bool>(middleware_.parse_argument(argc, argv));
+
+        if (ParseResult::INVALID == middleware_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
         ParseResult refs_arg = refs_.parse_argument(argc, argv);
         if (ParseResult::VALID == refs_arg)
         {
@@ -424,13 +509,30 @@ public:
                 return result;
             }
         }
-        result.first &= static_cast<bool>(refs_arg);
-        result.first &= static_cast<bool>(verbose_.parse_argument(argc, argv));
+        else if (ParseResult::INVALID == refs_arg)
+        {
+            result.first = false;
+            return result;
+        }
+
+        if (ParseResult::INVALID == verbose_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #ifdef UAGENT_DISCOVERY_PROFILE
-        result.first &= static_cast<bool>(discovery_.parse_argument(argc, argv));
+        if (ParseResult::INVALID == discovery_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #endif
 #ifdef UAGENT_P2P_PROFILE
-        result.first &= static_cast<bool>(p2p_.parse_argument(argc, argv));
+        if (ParseResult::INVALID == p2p_.parse_argument(argc, argv))
+        {
+            result.first = false;
+            return result;
+        }
 #endif
         return result;
     }
@@ -480,7 +582,7 @@ private:
     Argument<dummy_type> help_;
     Argument<std::string> middleware_;
     Argument<std::string> refs_;
-    Argument<uint16_t> verbose_;
+    Argument<uint8_t> verbose_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     Argument<uint16_t> discovery_;
 #endif
@@ -604,7 +706,6 @@ public:
     {
         std::stringstream ss;
         ss << "    " << dev_.get_help();
-        ss << " (only available with 'serial' transport)" << std::endl;
         return ss.str();
     }
 
@@ -772,16 +873,20 @@ public:
 
     void show_help()
     {
-        utils::usage(false);
+        utils::usage(argv_[0], false);
         std::stringstream ss;
         ss << std::endl << "Available arguments (per transport):" << std::endl;
         ss << "  * COMMON" << std::endl;
         ss << common_args_.get_help();
         ss << "  * IPvX (udp4, udp6, tcp4, tcp6)" << std::endl;
         ss << ip_args_.get_help();
-        ss << "  * SERIAL" << std::endl;
+        ss << "  * SERIAL (serial, pseudoterminal)" << std::endl;
+#ifndef _WIN32
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
+#endif // _WIN32
+        ss << std::endl;
+        // TODO(@jamoralp): Once documentation is updated with proper CLI section, add here an hyperlink to that section
         std::cout << ss.str();
     }
 
@@ -823,7 +928,7 @@ inline std::thread create_agent_thread(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:
@@ -875,7 +980,7 @@ inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:
@@ -915,7 +1020,7 @@ inline std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
             case parser::ParseResult::INVALID:
             case parser::ParseResult::NOT_FOUND:
             {
-                parser::utils::usage();
+                parser::utils::usage(argv[0]);
                 break;
             }
             case parser::ParseResult::VALID:

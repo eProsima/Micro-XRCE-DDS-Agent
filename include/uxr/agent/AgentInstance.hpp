@@ -17,23 +17,26 @@
 
 #include <uxr/agent/config.hpp>
 
-#ifdef UAGENT_CLI_PROFILE
-#include <uxr/agent/utils/CLI.hpp>
-#else
 #include <uxr/agent/utils/ArgumentParser.hpp>
-#endif  // UAGENT_CLI_PROFILE
 
 #include <csignal>
 
 namespace eprosima {
 namespace uxr {
 
+namespace middleware {
+/**
+ * @brief   Forward declaration.
+ */
+class CallbackFactory;
+} // middleware
+
 /**
  * @brief   Singleton class to manage the launch process of a MicroXRCE-DDS Agent.
  */
 class AgentInstance
 {
-public:
+private:
     /**
      * @brief   Default constructor.
      */
@@ -56,6 +59,7 @@ public:
     UXR_AGENT_EXPORT AgentInstance& operator =(
             AgentInstance &&) = delete;
 
+public:
     /**
      * @brief   Get instance associated to this class.
      * @return  Static reference to the singleton AgentInstance object.
@@ -77,24 +81,28 @@ public:
      */
     UXR_AGENT_EXPORT void run();
 
+    /**
+     * @brief Sets a callback function for a specific create/delete middleware entity operation.
+     *        Note that not some middlewares might not implement every defined operation, or even
+     *        no operation at all.
+     * @param middleware_kind   Enumeration class defining all the supported pluggable middlewares for the agent.
+     * @param callback_kind     Enumeration class defining all the different operations available to which
+     *                          set a callback to.
+     * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
+     *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
+     */
+    template <typename ... Args>
+    UXR_AGENT_EXPORT void add_middleware_callback(
+            const Middleware::Kind& middleware_kind,
+            const middleware::CallbackKind& callback_kind,
+            std::function<void (Args ...)>&& callback_function);
+
 private:
-#ifdef UAGENT_CLI_PROFILE
-    CLI::App app_;
-    cli::UDPv4Subcommand udpv4_subcmd_;
-    cli::UDPv6Subcommand udpv6_subcmd_;
-    cli::TCPv4Subcommand tcpv4_subcmd_;
-    cli::TCPv6Subcommand tcpv6_subcmd_;
-#ifndef _WIN32
-    cli::TermiosSubcommand termios_subcmd_;
-    cli::PseudoTerminalSubcommand pseudo_serial_subcmd_;
-#endif  // _WIN32
-    cli::ExitSubcommand exit_subcmd_;
-#else
     std::thread agent_thread_;
-#endif  // UAGENT_CLI_PROFILE
 #ifndef _WIN32
     sigset_t signals_;
 #endif  // _WIN32
+    middleware::CallbackFactory& callback_factory_;
 };
 } // uxr
 } // eprosima

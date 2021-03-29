@@ -29,6 +29,7 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace eprosima { namespace fastcdr {
 
@@ -943,6 +944,56 @@ public:
      */
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
     
+    /*!
+     * @brief This function formats the IP address and port to ostream, for logging purpuses.
+     * @param os ostream object.
+     * @param address TransportAddress object to format.
+     * @return ostream object with formated address.
+     */
+    friend std::ostream & operator<<(std::ostream & os, TransportAddress const & address)
+    {
+        switch (address._d())
+        {
+            case ADDRESS_FORMAT_MEDIUM:
+                os << int(address.medium_locator().address().at(0)) << "."
+                << int(address.medium_locator().address().at(1)) << "."
+                << int(address.medium_locator().address().at(2)) << "."
+                << int(address.medium_locator().address().at(3)) << ":"
+                << address.medium_locator().port();
+                break;
+            case ADDRESS_FORMAT_LARGE:
+                os << std::hex << "["
+                << int(address.large_locator().address().at(0))
+                << int(address.large_locator().address().at(1))
+                << ":"
+                << int(address.large_locator().address().at(2))
+                << int(address.large_locator().address().at(3))
+                << ":"
+                << int(address.large_locator().address().at(4))
+                << int(address.large_locator().address().at(5))
+                << ":"
+                << int(address.large_locator().address().at(6))
+                << int(address.large_locator().address().at(7))
+                << ":"
+                << int(address.large_locator().address().at(8))
+                << int(address.large_locator().address().at(9))
+                << ":"
+                << int(address.large_locator().address().at(10))
+                << int(address.large_locator().address().at(11))
+                << ":"
+                << int(address.large_locator().address().at(12))
+                << int(address.large_locator().address().at(13))
+                << ":"
+                << int(address.large_locator().address().at(14))
+                << int(address.large_locator().address().at(15))
+                << "]:" << std::dec
+                << address.large_locator().port();
+            default:
+                break;
+        } 
+        return os;
+    }
+
 private:
     TransportAddressFormat m__d;
     
