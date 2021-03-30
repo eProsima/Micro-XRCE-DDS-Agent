@@ -340,7 +340,8 @@ public:
     bool read(
         uint32_t& sequence_number,
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 
@@ -399,7 +400,8 @@ public:
 
     bool write(const std::vector<uint8_t>& data);
     bool read(std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 
