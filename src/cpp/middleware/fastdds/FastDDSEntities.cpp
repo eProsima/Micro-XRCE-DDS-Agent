@@ -541,6 +541,18 @@ bool FastDDSSubscriber::create_by_xml(
     return rv;
 }
 
+bool FastDDSSubscriber::create_by_bin(
+        const dds::xrce::OBJK_Subscriber_Binary& /*subscriber_xrce*/)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::SubscriberQos qos;
+        ptr_ = participant_->create_subscriber(qos);
+        rv = (nullptr != ptr_);    }
+    return rv;
+}
+
 fastdds::dds::DataReader* FastDDSSubscriber::create_datareader(
         fastdds::dds::TopicDescription* topic,
         const fastdds::dds::DataReaderQos& reader_qos,

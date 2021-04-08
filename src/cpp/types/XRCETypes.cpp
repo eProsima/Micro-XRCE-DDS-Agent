@@ -3620,23 +3620,44 @@ size_t dds::xrce::OBJK_Subscriber_Binary::getCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_subscriber_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_subscriber_name).size() + 1;
 
-    current_alignment += m_qos.getCdrSerializedSize();
+    current_alignment += (*m_qos).getCdrSerializedSize();
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_Subscriber_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_subscriber_name;
-    scdr << m_qos;
+    scdr << bool(m_subscriber_name);
+    if (m_subscriber_name)
+    {
+        scdr << (*m_subscriber_name);
+    }
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << (*m_qos);
+    }
 }
 
 void dds::xrce::OBJK_Subscriber_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_subscriber_name;
-    dcdr >> m_qos;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp_subscriber_name;
+        dcdr >> temp_subscriber_name;
+        m_subscriber_name = temp_subscriber_name;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        OBJK_SUBSCRIBER_QosBinary temp_qos;
+        dcdr >> temp_qos;
+        m_qos = temp_qos;
+    }
 }
 
 dds::xrce::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary()

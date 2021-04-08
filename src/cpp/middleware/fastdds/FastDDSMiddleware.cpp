@@ -273,6 +273,25 @@ bool FastDDSMiddleware::create_subscriber_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_subscriber_by_bin(
+        uint16_t subscriber_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSSubscriber> subscriber(new FastDDSSubscriber(it_participant->second));
+        if (subscriber->create_by_bin(subscriber_xrce))
+        {
+            subscribers_.emplace(subscriber_id, std::move(subscriber));
+            rv = true;
+        }
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::create_datawriter_by_ref(
         uint16_t datawriter_id,
         uint16_t publisher_id,

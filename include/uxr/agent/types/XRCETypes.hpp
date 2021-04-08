@@ -4505,7 +4505,7 @@ public:
      */
     inline const std::string& subscriber_name() const
     {
-        return m_subscriber_name;
+        return *m_subscriber_name;
     }
 
     /*!
@@ -4514,7 +4514,7 @@ public:
      */
     inline std::string& subscriber_name()
     {
-        return m_subscriber_name;
+        return *m_subscriber_name;
     }
     /*!
      * @brief This function copies the value in member qos
@@ -4540,7 +4540,7 @@ public:
      */
     inline const OBJK_SUBSCRIBER_QosBinary& qos() const
     {
-        return m_qos;
+        return *m_qos;
     }
 
     /*!
@@ -4549,7 +4549,7 @@ public:
      */
     inline OBJK_SUBSCRIBER_QosBinary& qos()
     {
-        return m_qos;
+        return *m_qos;
     }
     
     /*!
@@ -4581,8 +4581,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_subscriber_name;
-    OBJK_SUBSCRIBER_QosBinary m_qos;
+    eprosima::Optional<std::string> m_subscriber_name;
+    eprosima::Optional<OBJK_SUBSCRIBER_QosBinary> m_qos;
 };
 /*!
  * @brief This class represents the enumeration EndpointQosFlags defined by the user in the IDL file.
