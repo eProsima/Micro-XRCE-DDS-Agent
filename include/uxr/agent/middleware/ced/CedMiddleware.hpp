@@ -123,6 +123,11 @@ public:
             uint16_t participant_id,
             const std::string&) override;
 
+    bool create_publisher_by_bin(
+            uint16_t publisher_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Publisher_Binary& publisher_xrce) override;
+
     /**
      * @startuml
      * !include agent/middleware/ced/create_subscriber.puml!0

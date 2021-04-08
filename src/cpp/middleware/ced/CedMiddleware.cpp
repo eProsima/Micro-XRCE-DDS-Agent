@@ -149,6 +149,14 @@ bool CedMiddleware::create_topic_by_xml(
     return create_topic_by_ref(topic_id, participant_id, xml);
 }
 
+bool CedMiddleware::create_topic_by_bin(
+        uint16_t /*topic_id*/,
+        uint16_t /*participant_id*/,
+        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
+{
+    return false;
+}
+
 bool CedMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
@@ -168,10 +176,10 @@ bool CedMiddleware::create_publisher_by_xml(
     return rv;
 }
 
-bool CedMiddleware::create_topic_by_bin(
-        uint16_t /*topic_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
+bool CedMiddleware::create_publisher_by_bin(
+        uint16_t publisher_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Publisher_Binary& publisher_xrce)
 {
     return false;
 }

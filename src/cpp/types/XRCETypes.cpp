@@ -3447,23 +3447,44 @@ size_t dds::xrce::OBJK_Publisher_Binary::getCdrSerializedSize(size_t current_ali
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_publisher_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_publisher_name).size() + 1;
 
-    current_alignment += m_qos.getCdrSerializedSize(current_alignment);
+    current_alignment += (*m_qos).getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_Publisher_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_publisher_name;
-    scdr << m_qos;
+    scdr << bool(m_publisher_name);
+    if (m_publisher_name)
+    {
+        scdr << (*m_publisher_name);
+    }
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << (*m_qos);
+    }
 }
 
 void dds::xrce::OBJK_Publisher_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_publisher_name;
-    dcdr >> m_qos;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp_publisher_name;
+        dcdr >> temp_publisher_name;
+        m_publisher_name = temp_publisher_name;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        OBJK_PUBLISHER_QosBinary temp_qos;
+        dcdr >> temp_qos;
+        m_qos = temp_qos;
+    }
 }
 
 dds::xrce::OBJK_SUBSCRIBER_QosBinary::OBJK_SUBSCRIBER_QosBinary()

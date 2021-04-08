@@ -89,6 +89,11 @@ public:
             uint16_t participant_id,
             const std::string& xml) = 0;
 
+    virtual bool create_publisher_by_bin(
+            uint16_t publisher_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Publisher_Binary& publisher_xrce) = 0;
+
     virtual bool create_subscriber_by_xml(
             uint16_t subscriber_id,
             uint16_t participant_id,

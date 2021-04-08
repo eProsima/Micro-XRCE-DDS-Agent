@@ -193,6 +193,7 @@ public:
     ~FastDDSPublisher();
 
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_Publisher_Binary&  publisher);
 
     fastdds::dds::DataWriter* create_datawriter(
             fastdds::dds::Topic* topic,

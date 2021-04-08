@@ -483,6 +483,18 @@ bool FastDDSPublisher::create_by_xml(
     return rv;
 }
 
+bool FastDDSPublisher::create_by_bin(
+        const dds::xrce::OBJK_Publisher_Binary& /*publisher_xrce*/)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::PublisherQos qos;
+        ptr_ = participant_->create_publisher(qos);
+        rv = (nullptr != ptr_);    }
+    return rv;
+}
+
 fastdds::dds::DataWriter* FastDDSPublisher::create_datawriter(
         fastdds::dds::Topic* topic,
         const fastdds::dds::DataWriterQos& qos,

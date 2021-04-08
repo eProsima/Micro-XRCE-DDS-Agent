@@ -4215,7 +4215,7 @@ public:
      */
     inline const std::string& publisher_name() const
     {
-        return m_publisher_name;
+        return *m_publisher_name;
     }
 
     /*!
@@ -4224,7 +4224,7 @@ public:
      */
     inline std::string& publisher_name()
     {
-        return m_publisher_name;
+        return *m_publisher_name;
     }
     /*!
      * @brief This function copies the value in member qos
@@ -4250,7 +4250,7 @@ public:
      */
     inline const OBJK_PUBLISHER_QosBinary& qos() const
     {
-        return m_qos;
+        return *m_qos;
     }
 
     /*!
@@ -4259,7 +4259,7 @@ public:
      */
     inline OBJK_PUBLISHER_QosBinary& qos()
     {
-        return m_qos;
+        return *m_qos;
     }
     
     /*!
@@ -4291,8 +4291,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_publisher_name;
-    OBJK_PUBLISHER_QosBinary m_qos;
+    eprosima::Optional<std::string> m_publisher_name;
+    eprosima::Optional<OBJK_PUBLISHER_QosBinary> m_qos;
 };
 /*!
  * @brief This class represents the structure OBJK_SUBSCRIBER_QosBinary defined by the user in the IDL file.
