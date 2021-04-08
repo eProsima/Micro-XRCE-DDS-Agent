@@ -57,6 +57,11 @@ public:
             uint16_t participant_id,
             const std::string& ref) override;
 
+    bool create_topic_by_bin(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) override;
+
     bool create_topic_by_xml(
             uint16_t topic_id,
             uint16_t participant_id,

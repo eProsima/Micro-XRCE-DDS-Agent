@@ -103,6 +103,11 @@ public:
             uint16_t participant_id,
             const std::string& xml) override;
 
+    bool create_topic_by_bin(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) override;
+
     /**
      * @startuml
      * !include agent/middleware/ced/create_publisher.puml!0

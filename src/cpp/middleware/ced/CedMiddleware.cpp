@@ -168,6 +168,14 @@ bool CedMiddleware::create_publisher_by_xml(
     return rv;
 }
 
+bool CedMiddleware::create_topic_by_bin(
+        uint16_t /*topic_id*/,
+        uint16_t /*participant_id*/,
+        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
+{
+    return false;
+}
+
 bool CedMiddleware::create_subscriber_by_xml(
         uint16_t subscirber_id,
         uint16_t participant_id,

@@ -3924,7 +3924,7 @@ public:
      */
     inline const std::string& type_name() const
     {
-        return m_type_name;
+        return *m_type_name;
     }
 
     /*!
@@ -3933,7 +3933,7 @@ public:
      */
     inline std::string& type_name()
     {
-        return m_type_name;
+        return *m_type_name;
     }
     /*!
      * @brief This function copies the value in member type_identifier
@@ -3959,7 +3959,7 @@ public:
      */
     inline const std::string& type_identifier() const
     {
-        return m_type_identifier;
+        return *m_type_identifier;
     }
 
     /*!
@@ -3968,7 +3968,7 @@ public:
      */
     inline std::string& type_identifier()
     {
-        return m_type_identifier;
+        return *m_type_identifier;
     }
     
     /*!
@@ -4001,8 +4001,8 @@ public:
 
 private:
     std::string m_topic_name;
-    std::string m_type_name;
-    std::string m_type_identifier;
+    eprosima::Optional<std::string> m_type_name;
+    eprosima::Optional<std::string> m_type_identifier;
 };
 /*!
  * @brief This class represents the structure OBJK_PUBLISHER_QosBinary defined by the user in the IDL file.

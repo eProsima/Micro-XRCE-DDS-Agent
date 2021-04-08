@@ -3269,9 +3269,9 @@ size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignme
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_type_name).size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_identifier.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_type_identifier).size() + 1;
 
 
     return current_alignment - initial_alignment;
@@ -3280,15 +3280,36 @@ size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignme
 void dds::xrce::OBJK_Topic_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_type_name;
-    scdr << m_type_identifier;
+    scdr << bool(m_type_identifier);
+    if (m_type_identifier)
+    {
+        scdr << *m_type_identifier;
+    }
+    scdr << bool(m_type_name);
+    if (m_type_name)
+    {
+        scdr << *m_type_name;
+    }
 }
 
 void dds::xrce::OBJK_Topic_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_topic_name;
-    dcdr >> m_type_name;
-    dcdr >> m_type_identifier;
+    bool temp;
+    dcdr >> temp;
+    if (temp)
+    {
+        std::string temp_type_identifier;
+        dcdr >> temp_type_identifier;
+        m_type_identifier = temp_type_identifier;
+    }
+    dcdr >> temp;
+    if (temp)
+    {
+        std::string temp_type_name;
+        dcdr >> temp_type_name;
+        m_type_name = temp_type_name;
+    }
 }
 
 dds::xrce::OBJK_PUBLISHER_QosBinary::OBJK_PUBLISHER_QosBinary()

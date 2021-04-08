@@ -197,6 +197,25 @@ bool FastDDSMiddleware::create_topic_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_topic_by_bin(
+        uint16_t topic_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Topic_Binary& topic_xrce)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        fastrtps::TopicAttributes attrs(
+            topic_xrce.topic_name().c_str(),
+            topic_xrce.type_name().c_str()
+        );
+        std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+        rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,

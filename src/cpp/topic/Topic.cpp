@@ -43,6 +43,18 @@ std::unique_ptr<Topic> Topic::create(
             created_entity = middleware.create_topic_by_xml(raw_object_id, participant_id, xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = representation.representation();
+            dds::xrce::OBJK_Topic_Binary topic_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            topic_xrce.deserialize(cdr);
+
+            created_entity = proxy_client->get_middleware().create_topic_by_bin(raw_object_id, participant_id, topic_xrce);
+            break;
+        }
         default:
             break;
     }

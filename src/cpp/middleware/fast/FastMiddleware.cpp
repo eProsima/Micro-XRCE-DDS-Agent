@@ -178,6 +178,14 @@ bool FastMiddleware::create_topic_by_xml(
     return rv;
 }
 
+bool FastMiddleware::create_topic_by_bin(
+        uint16_t /*topic_id*/,
+        uint16_t /*participant_id*/,
+        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
+{
+    return false;
+}
+
 bool FastMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
