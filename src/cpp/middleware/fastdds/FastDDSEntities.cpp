@@ -178,6 +178,19 @@ bool FastDDSParticipant::create_by_xml(
     return rv;
 }
 
+bool FastDDSParticipant::create_by_bin(
+        const dds::xrce::OBJK_DomainParticipant_Binary& /*participant_xrce*/)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::DomainParticipantQos qos;
+        ptr_ = factory_->create_participant(domain_id_, qos);
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
 bool FastDDSParticipant::match_from_ref(
         const std::string& ref) const
 {

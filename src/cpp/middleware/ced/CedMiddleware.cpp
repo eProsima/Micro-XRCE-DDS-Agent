@@ -92,6 +92,13 @@ bool CedMiddleware::create_participant_by_xml(
     return create_participant_by_ref(participant_id, domain_id, xml);
 }
 
+bool CedMiddleware::create_participant_by_bin(
+        uint16_t /*participant_id*/,
+        const dds::xrce::OBJK_DomainParticipant_Binary& /*participant*/)
+{
+    return false;
+}
+
 static
 std::shared_ptr<CedTopic> create_topic(
         std::shared_ptr<CedParticipant>& participant,

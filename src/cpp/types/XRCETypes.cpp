@@ -3114,8 +3114,6 @@ void dds::xrce::REPLIER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary()
 {
     m_domain_id = 0;
-
-
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary::~OBJK_DomainParticipant_Binary()
@@ -3158,8 +3156,6 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getMaxCdrSerializedSize(size_t 
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
@@ -3172,11 +3168,9 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_domain_referente).size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_domain_referente.size() + 1;
-
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_qos_profile.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_qos_profile).size() + 1;
 
 
     return current_alignment - initial_alignment;
@@ -3184,16 +3178,35 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 
 void dds::xrce::OBJK_DomainParticipant_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_domain_id;
-    scdr << m_domain_referente;
-    scdr << m_qos_profile;
+    scdr << bool(m_domain_referente);
+    if (m_domain_referente)
+    {
+        scdr << *m_domain_referente;
+    }
+    scdr << bool(m_qos_profile);
+    if (m_qos_profile)
+    {
+        scdr << *m_qos_profile;
+    }
 }
 
 void dds::xrce::OBJK_DomainParticipant_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_domain_id;
-    dcdr >> m_domain_referente;
-    dcdr >> m_qos_profile;
+    bool temp;
+    dcdr >> temp;
+    if (temp)
+    {
+        std::string temp_domain_referente;
+        dcdr >> temp_domain_referente;
+        m_domain_referente = temp_domain_referente;
+    }
+    dcdr >> temp;
+    if (temp)
+    {
+        std::string temp_qos_profile;
+        dcdr >> temp_qos_profile;
+        m_qos_profile = temp_qos_profile;
+    }
 }
 
 dds::xrce::OBJK_Topic_Binary::OBJK_Topic_Binary()

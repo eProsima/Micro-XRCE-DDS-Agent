@@ -97,6 +97,26 @@ bool FastDDSMiddleware::create_participant_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_participant_by_bin(
+        uint16_t participant_id,
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+{
+    bool rv = false;
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_xrce.domain_id()));
+    if (participant->create_by_bin(participant_xrce))
+    {
+        auto emplace_res = participants_.emplace(participant_id, std::move(participant));
+        rv = emplace_res.second;
+        if (rv)
+        {
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_PARTICIPANT,
+                **(emplace_res.first->second));
+        }
+    }
+    return rv;
+}
+
 static
 std::shared_ptr<FastDDSTopic> create_topic(
         std::shared_ptr<FastDDSParticipant>& participant,

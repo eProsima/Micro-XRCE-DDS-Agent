@@ -3743,7 +3743,7 @@ public:
      */
     inline const std::string& domain_referente() const
     {
-        return m_domain_referente;
+        return *m_domain_referente;
     }
 
     /*!
@@ -3752,7 +3752,7 @@ public:
      */
     inline std::string& domain_referente()
     {
-        return m_domain_referente;
+        return *m_domain_referente;
     }
     /*!
      * @brief This function copies the value in member qos_profile
@@ -3778,7 +3778,7 @@ public:
      */
     inline const std::string& qos_profile() const
     {
-        return m_qos_profile;
+        return *m_qos_profile;
     }
 
     /*!
@@ -3787,7 +3787,7 @@ public:
      */
     inline std::string& qos_profile()
     {
-        return m_qos_profile;
+        return *m_qos_profile;
     }
     
     /*!
@@ -3820,8 +3820,8 @@ public:
 
 private:
     int32_t m_domain_id;
-    std::string m_domain_referente;
-    std::string m_qos_profile;
+    eprosima::Optional<std::string> m_domain_referente;
+    eprosima::Optional<std::string> m_qos_profile;
 };
 /*!
  * @brief This class represents the structure OBJK_Topic_Binary defined by the user in the IDL file.

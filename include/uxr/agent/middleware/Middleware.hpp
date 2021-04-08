@@ -16,6 +16,7 @@
 #define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
 #include <uxr/agent/config.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
 
 #include <string>
 #include <cstdint>
@@ -63,6 +64,10 @@ public:
             uint16_t participant_id,
             int16_t domain_id,
             const std::string& xml) = 0;
+
+    virtual bool create_participant_by_bin(
+            uint16_t participant_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) = 0;
 
     virtual bool create_topic_by_ref(
             uint16_t topic_id,

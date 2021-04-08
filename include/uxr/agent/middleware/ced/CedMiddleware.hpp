@@ -63,6 +63,10 @@ public:
             int16_t domain_id,
             const std::string&) override;
 
+    bool create_participant_by_bin(
+            uint16_t participant_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) override;
+
     /**
      * @startuml
      * !include agent/middleware/ced/create_topic.puml!0

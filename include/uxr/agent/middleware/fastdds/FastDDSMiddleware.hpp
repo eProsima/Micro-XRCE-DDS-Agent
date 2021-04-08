@@ -48,6 +48,10 @@ public:
             int16_t domain_id,
             const std::string& xml) override;
 
+    bool create_participant_by_bin(
+            uint16_t participant_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce);
+
     bool create_topic_by_ref(
             uint16_t topic_id,
             uint16_t participant_id,

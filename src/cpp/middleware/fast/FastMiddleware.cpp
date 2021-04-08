@@ -93,6 +93,13 @@ bool FastMiddleware::create_participant_by_xml(
     return rv;
 }
 
+bool FastMiddleware::create_participant_by_bin(
+        uint16_t /*participant_id*/,
+        const dds::xrce::OBJK_DomainParticipant_Binary& /*participant*/)
+{
+    return false;
+}
+
 static
 std::shared_ptr<FastTopic> create_topic(
         std::shared_ptr<FastParticipant>& participant,
