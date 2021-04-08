@@ -264,6 +264,7 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool write(const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;

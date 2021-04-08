@@ -99,6 +99,11 @@ public:
             uint16_t publisher_id,
             const std::string& xml) override;
 
+    bool create_datawriter_by_bin(
+            uint16_t datawriter_id,
+            uint16_t publisher_id,
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) override;
+
     bool create_datareader_by_ref(
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -109,6 +114,11 @@ public:
             uint16_t subscriber_id,
             const std::string& xml) override;
 
+    bool create_datareader_by_bin(
+            uint16_t datareader_id,
+            uint16_t subscriber_id,
+            const dds::xrce::OBJK_DataReader_Binary& datareader_xrce) override;
+            
     bool create_requester_by_ref(
             uint16_t requester_id,
             uint16_t participant_id,

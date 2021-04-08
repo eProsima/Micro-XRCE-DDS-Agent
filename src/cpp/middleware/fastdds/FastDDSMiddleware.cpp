@@ -344,6 +344,32 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_datawriter_by_bin(
+        uint16_t datawriter_id,
+        uint16_t publisher_id,
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
+{
+    bool rv = false;
+    auto it_publisher = publishers_.find(publisher_id);
+    if (publishers_.end() != it_publisher)
+    {
+        std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
+        if (datawriter->create_by_bin(datawriter_xrce))
+        {
+            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_DATAWRITER,
+                    **it_publisher->second->get_participant(),
+                    emplace_res.first->second->ptr());
+            }
+        }
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
@@ -393,6 +419,16 @@ bool FastDDSMiddleware::create_datareader_by_xml(
             }
         }
     }
+    return rv;
+}
+
+bool FastDDSMiddleware::create_datareader_by_bin(
+        uint16_t datareader_id,
+        uint16_t subscriber_id,
+        const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
+{
+    bool rv = false;
+
     return rv;
 }
 

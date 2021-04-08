@@ -246,6 +246,14 @@ bool CedMiddleware::create_datawriter_by_xml(
     return create_datawriter_by_ref(datawriter_id, publisher_id, xml);
 }
 
+bool CedMiddleware::create_datawriter_by_bin(
+        uint16_t /*datawriter_id*/,
+        uint16_t /*publisher_id*/,
+        const dds::xrce::OBJK_DataWriter_Binary& /*datawriter_xrce*/)
+{
+    return false;
+}
+
 bool CedMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
@@ -278,6 +286,14 @@ bool CedMiddleware::create_datareader_by_xml(
         const std::string& xml)
 {
     return create_datareader_by_ref(datareader_id, subscriber_id, xml);
+}
+
+bool CedMiddleware::create_datareader_by_bin(
+        uint16_t /*datareader_id*/,
+        uint16_t /*subscriber_id*/,
+        const dds::xrce::OBJK_DataReader_Binary& /*datareader_xrce*/)
+{
+    return false;
 }
 
 /**********************************************************************************************************************

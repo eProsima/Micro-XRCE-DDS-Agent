@@ -318,6 +318,14 @@ bool FastMiddleware::create_datawriter_by_xml(
     return rv;
 }
 
+bool FastMiddleware::create_datawriter_by_bin(
+        uint16_t /*datawriter_id*/,
+        uint16_t /*publisher_id*/,
+        const dds::xrce::OBJK_DataWriter_Binary& /*datawriter_xrce*/)
+{
+    return false;
+}
+
 inline
 std::shared_ptr<FastDataReader> create_datareader(
         const fastrtps::SubscriberAttributes& attrs,
@@ -402,6 +410,14 @@ bool FastMiddleware::create_datareader_by_xml(
         }
     }
     return rv;
+}
+
+bool FastMiddleware::create_datareader_by_bin(
+        uint16_t /*datareader_id*/,
+        uint16_t /*subscriber_id*/,
+        const dds::xrce::OBJK_DataReader_Binary& /*datareader_xrce*/)
+{
+    return false;
 }
 
 static

@@ -619,6 +619,26 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
     return rv;
 }
 
+bool FastDDSDataWriter::create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
+{
+    bool rv = false;
+    // if (nullptr == ptr_){
+    //     fastrtps::PublisherAttributes attrs;
+    //     if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
+    //     {
+    //         topic_ = publisher_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
+    //         if(topic_){
+    //             fastdds::dds::DataWriterQos qos;
+    //             set_qos_from_attributes(qos, attrs);
+
+    //             ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
+    //             rv = (nullptr != ptr_) && bool(topic_);
+    //         }
+    //     }
+    // }
+    return rv;
+}
+
 bool FastDDSDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
 {
     fastdds::dds::DataWriterQos qos;
