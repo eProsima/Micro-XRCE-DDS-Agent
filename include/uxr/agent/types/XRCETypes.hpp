@@ -5100,67 +5100,41 @@ public:
         return m_topic_name;
     }
     /*!
-     * @brief This function copies the value in member endpoint_qos
-     * @param _endpoint_qos New value to be copied in member endpoint_qos
+     * @brief This function copies the value in member qos
+     * @param _qos New value to be copied in member qos
      */
-    inline void endpoint_qos(const OBJK_Endpoint_QosBinary &_endpoint_qos)
+    inline void qos(const OBJK_DataWriter_Binary_Qos& _qos)
     {
-        m_endpoint_qos = _endpoint_qos;
+        m_qos = _qos;
     }
 
     /*!
-     * @brief This function moves the value in member endpoint_qos
-     * @param _endpoint_qos New value to be moved in member endpoint_qos
+     * @brief This function moves the value in member qos
+     * @param _qos New value to be moved in member qos
      */
-    inline void endpoint_qos(OBJK_Endpoint_QosBinary &&_endpoint_qos)
+    inline void qos(OBJK_DataWriter_Binary_Qos&& _qos)
     {
-        m_endpoint_qos = std::move(_endpoint_qos);
+        m_qos = std::move(_qos);
     }
 
     /*!
-     * @brief This function returns a constant reference to member endpoint_qos
-     * @return Constant reference to member endpoint_qos
+     * @brief This function returns a constant reference to member qos
+     * @return Constant reference to member qos
      */
-    inline const OBJK_Endpoint_QosBinary& endpoint_qos() const
+    inline const OBJK_DataWriter_Binary_Qos& qos()
     {
-        return m_endpoint_qos;
+        return m_qos;
     }
 
     /*!
-     * @brief This function returns a reference to member endpoint_qos
-     * @return Reference to member endpoint_qos
+     * @brief This function returns a reference to member qos
+     * @return Reference to member qos
      */
-    inline OBJK_Endpoint_QosBinary& endpoint_qos()
+    inline OBJK_DataWriter_Binary_Qos& qos()
     {
-        return m_endpoint_qos;
-    }
-    /*!
-     * @brief This function sets a value in member ownership_strength
-     * @param _ownership_strength New value for member ownership_strength
-     */
-    inline void ownership_strength(uint32_t _ownership_strength)
-    {
-        m_ownership_strength = _ownership_strength;
+        return m_qos;
     }
 
-    /*!
-     * @brief This function returns the value of member ownership_strength
-     * @return Value of member ownership_strength
-     */
-    inline uint32_t ownership_strength() const
-    {
-        return m_ownership_strength;
-    }
-
-    /*!
-     * @brief This function returns a reference to member ownership_strength
-     * @return Reference to member ownership_strength
-     */
-    inline uint32_t& ownership_strength()
-    {
-        return m_ownership_strength;
-    }
-    
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -5191,8 +5165,7 @@ public:
 
 private:
     std::string m_topic_name;
-    OBJK_Endpoint_QosBinary m_endpoint_qos;
-    uint32_t m_ownership_strength;
+    eprosima::Optional<OBJK_DataWriter_Binary_Qos> m_qos;
 };
 /*!
  * @brief This class represents the union ObjectVariant defined by the user in the IDL file.

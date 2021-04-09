@@ -3819,7 +3819,7 @@ void dds::xrce::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary()
 {
-    m_ownership_strength = 0;
+    m_topic_name = "";
 }
 
 dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
@@ -3829,32 +3829,26 @@ dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary &x)
 {
     m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
-    m_ownership_strength = x.m_ownership_strength;
+    m_qos = x.m_qos;
 }
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(OBJK_DataWriter_Binary &&x)
 {
     m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
-    m_ownership_strength = x.m_ownership_strength;
+    m_qos = std::move(x.m_qos);
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(const OBJK_DataWriter_Binary &x)
 {
     m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
-    m_ownership_strength = x.m_ownership_strength;
-    
+    m_qos = x.m_qos;
     return *this;
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(OBJK_DataWriter_Binary &&x)
 {
     m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
-    m_ownership_strength = x.m_ownership_strength;
-    
+    m_qos = std::move(x.m_qos);
     return *this;
 }
 
@@ -3863,9 +3857,7 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size_t current
     size_t initial_alignment = current_alignment;
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
-
-    current_alignment += dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
 
 
     return current_alignment - initial_alignment;
@@ -3876,8 +3868,7 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
     size_t initial_alignment = current_alignment;
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
-    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += OBJK_DataWriter_Binary_Qos::getCdrSerializedSize(data.qos(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
@@ -3885,15 +3876,14 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
 void dds::xrce::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_endpoint_qos;
-    scdr << m_ownership_strength;
+    scdr << m_qos;
+
 }
 
 void dds::xrce::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_topic_name;
-    dcdr >> m_endpoint_qos;
-    dcdr >> m_ownership_strength;
+    dcdr >> m_qos;
 }
 
 dds::xrce::ObjectVariant::ObjectVariant()
