@@ -3726,93 +3726,324 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
     dcdr >> m_user_data;
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary()
+
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos()
 {
     m_timebasedfilter_msec = 0;
+    m_contentbased_filter = "";
 }
 
-dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
+dds::xrce::OBJK_DataReader_Binary_Qos::~OBJK_DataReader_Binary_Qos()
 {
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(const OBJK_DataReader_Binary &x)
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos(
+        const OBJK_DataReader_Binary_Qos& x)
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
+    m_base = x.m_base;
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = x.m_contentbased_filter;
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(OBJK_DataReader_Binary &&x)
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos(
+        OBJK_DataReader_Binary_Qos&& x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
+    m_base = std::move(x.m_base);
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = std::move(x.m_contentbased_filter);
 }
 
-dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator=(const OBJK_DataReader_Binary &x)
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary_Qos::operator =(
+        const OBJK_DataReader_Binary_Qos& x)
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
+
+    m_base = x.m_base;
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = x.m_contentbased_filter;
-    
+
     return *this;
 }
 
-dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator=(OBJK_DataReader_Binary &&x)
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary_Qos::operator =(
+        OBJK_DataReader_Binary_Qos&& x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
+
+    m_base = std::move(x.m_base);
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = std::move(x.m_contentbased_filter);
-    
+
     return *this;
 }
 
-size_t dds::xrce::OBJK_DataReader_Binary::getMaxCdrSerializedSize(size_t current_alignment)
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getMaxCdrSerializedSize(
+        size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
 
     current_alignment += dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(size_t current_alignment) const
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataReader_Binary_Qos& data,
+        size_t current_alignment)
 {
+    (void)data;
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
-    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_contentbased_filter.size() + 1;
 
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.contentbased_filter().size() + 1;
 
     return current_alignment - initial_alignment;
 }
 
-void dds::xrce::OBJK_DataReader_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
+void dds::xrce::OBJK_DataReader_Binary_Qos::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
 {
-    scdr << m_topic_name;
-    scdr << m_endpoint_qos;
+    scdr << m_base;
     scdr << m_timebasedfilter_msec;
     scdr << m_contentbased_filter;
 }
 
-void dds::xrce::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void dds::xrce::OBJK_DataReader_Binary_Qos::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> m_topic_name;
-    dcdr >> m_endpoint_qos;
+    dcdr >> m_base;
     dcdr >> m_timebasedfilter_msec;
     dcdr >> m_contentbased_filter;
+}
+
+/*!
+ * @brief This function copies the value in member base
+ * @param _base New value to be copied in member base
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::base(
+        const dds::xrce::OBJK_Endpoint_QosBinary& _base)
+{
+    m_base = _base;
+}
+
+/*!
+ * @brief This function moves the value in member base
+ * @param _base New value to be moved in member base
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::base(
+        dds::xrce::OBJK_Endpoint_QosBinary&& _base)
+{
+    m_base = std::move(_base);
+}
+
+/*!
+ * @brief This function returns a constant reference to member base
+ * @return Constant reference to member base
+ */
+const dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataReader_Binary_Qos::base() const
+{
+    return m_base;
+}
+
+/*!
+ * @brief This function returns a reference to member base
+ * @return Reference to member base
+ */
+dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataReader_Binary_Qos::base()
+{
+    return m_base;
+}
+/*!
+ * @brief This function sets a value in member timebasedfilter_msec
+ * @param _timebasedfilter_msec New value for member timebasedfilter_msec
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec(
+        uint32_t _timebasedfilter_msec)
+{
+    m_timebasedfilter_msec = _timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function returns the value of member timebasedfilter_msec
+ * @return Value of member timebasedfilter_msec
+ */
+uint32_t dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec() const
+{
+    return *m_timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function returns a reference to member timebasedfilter_msec
+ * @return Reference to member timebasedfilter_msec
+ */
+uint32_t& dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec()
+{
+    return *m_timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function copies the value in member contentbased_filter
+ * @param _contentbased_filter New value to be copied in member contentbased_filter
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter(
+        const std::string& _contentbased_filter)
+{
+    m_contentbased_filter = _contentbased_filter;
+}
+
+/*!
+ * @brief This function moves the value in member contentbased_filter
+ * @param _contentbased_filter New value to be moved in member contentbased_filter
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter(
+        std::string&& _contentbased_filter)
+{
+    m_contentbased_filter = std::move(_contentbased_filter);
+}
+
+/*!
+ * @brief This function returns a constant reference to member contentbased_filter
+ * @return Constant reference to member contentbased_filter
+ */
+const std::string& dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter() const
+{
+    return *m_contentbased_filter;
+}
+
+/*!
+ * @brief This function returns a reference to member contentbased_filter
+ * @return Reference to member contentbased_filter
+ */
+std::string& dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter()
+{
+    return *m_contentbased_filter;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getKeyMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t current_align = current_alignment;
+    return current_align;
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary()
+{
+    m_topic_name = "";
+}
+
+dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
+{
+
+
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
+        const OBJK_DataReader_Binary& x)
+{
+    m_topic_name = x.m_topic_name;
+    m_qos = x.m_qos;
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
+        OBJK_DataReader_Binary&& x)
+{
+    m_topic_name = std::move(x.m_topic_name);
+    m_qos = std::move(x.m_qos);
+}
+
+dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =(
+        const OBJK_DataReader_Binary& x)
+{
+
+    m_topic_name = x.m_topic_name;
+    m_qos = x.m_qos;
+
+    return *this;
+}
+
+dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =(
+        OBJK_DataReader_Binary&& x)
+{
+
+    m_topic_name = std::move(x.m_topic_name);
+    m_qos = std::move(x.m_qos);
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += dds::xrce::OBJK_DataReader_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataReader_Binary& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_name().size() + 1;
+
+    current_alignment += dds::xrce::OBJK_DataReader_Binary_Qos::getCdrSerializedSize(data.qos(), current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_DataReader_Binary::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_topic_name;
+    scdr << m_qos;
+
+}
+
+void dds::xrce::OBJK_DataReader_Binary::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_topic_name;
+    dcdr >> m_qos;
+}
+
+/*!
+ * @brief This function moves the value in member qos
+ * @param _qos New value to be moved in member qos
+ */
+void dds::xrce::OBJK_DataReader_Binary::qos(
+        dds::xrce::OBJK_DataReader_Binary_Qos&& _qos)
+{
+    m_qos = std::move(_qos);
+}
+
+/*!
+ * @brief This function returns a constant reference to member qos
+ * @return Constant reference to member qos
+ */
+const dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary::qos() const
+{
+    return *m_qos;
+}
+
+/*!
+ * @brief This function returns a reference to member qos
+ * @return Reference to member qos
+ */
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary::qos()
+{
+    return *m_qos;
 }
 
 dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos()

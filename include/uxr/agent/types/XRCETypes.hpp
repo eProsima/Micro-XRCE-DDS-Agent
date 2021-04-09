@@ -4815,6 +4815,185 @@ private:
     eprosima::Optional<std::vector<uint8_t>> m_user_data;
 };
 /*!
+* @brief This class represents the structure OBJK_DataReader_Binary_Qos defined by the user in the IDL file.
+* @ingroup TEST
+*/
+class OBJK_DataReader_Binary_Qos
+{
+public:
+
+    /*!
+        * @brief Default constructor.
+        */
+    OBJK_DataReader_Binary_Qos();
+
+    /*!
+        * @brief Default destructor.
+        */
+    ~OBJK_DataReader_Binary_Qos();
+
+    /*!
+        * @brief Copy constructor.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos(
+            const OBJK_DataReader_Binary_Qos& x);
+
+    /*!
+        * @brief Move constructor.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos(
+            OBJK_DataReader_Binary_Qos&& x);
+
+    /*!
+        * @brief Copy assignment.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos& operator =(
+            const OBJK_DataReader_Binary_Qos& x);
+
+    /*!
+        * @brief Move assignment.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos& operator =(
+            OBJK_DataReader_Binary_Qos&& x);
+
+    /*!
+        * @brief This function copies the value in member base
+        * @param _base New value to be copied in member base
+        */
+    void base(
+            const dds::xrce::OBJK_Endpoint_QosBinary& _base);
+
+    /*!
+        * @brief This function moves the value in member base
+        * @param _base New value to be moved in member base
+        */
+    void base(
+            dds::xrce::OBJK_Endpoint_QosBinary&& _base);
+
+    /*!
+        * @brief This function returns a constant reference to member base
+        * @return Constant reference to member base
+        */
+    const dds::xrce::OBJK_Endpoint_QosBinary& base() const;
+
+    /*!
+        * @brief This function returns a reference to member base
+        * @return Reference to member base
+        */
+    dds::xrce::OBJK_Endpoint_QosBinary& base();
+    /*!
+        * @brief This function sets a value in member timebasedfilter_msec
+        * @param _timebasedfilter_msec New value for member timebasedfilter_msec
+        */
+    void timebasedfilter_msec(
+            uint32_t _timebasedfilter_msec);
+
+    /*!
+        * @brief This function returns the value of member timebasedfilter_msec
+        * @return Value of member timebasedfilter_msec
+        */
+    uint32_t timebasedfilter_msec() const;
+
+    /*!
+        * @brief This function returns a reference to member timebasedfilter_msec
+        * @return Reference to member timebasedfilter_msec
+        */
+    uint32_t& timebasedfilter_msec();
+
+    /*!
+        * @brief This function copies the value in member contentbased_filter
+        * @param _contentbased_filter New value to be copied in member contentbased_filter
+        */
+    void contentbased_filter(
+            const std::string& _contentbased_filter);
+
+    /*!
+        * @brief This function moves the value in member contentbased_filter
+        * @param _contentbased_filter New value to be moved in member contentbased_filter
+        */
+    void contentbased_filter(
+            std::string&& _contentbased_filter);
+
+    /*!
+        * @brief This function returns a constant reference to member contentbased_filter
+        * @return Constant reference to member contentbased_filter
+        */
+    const std::string& contentbased_filter() const;
+
+    /*!
+        * @brief This function returns a reference to member contentbased_filter
+        * @return Reference to member contentbased_filter
+        */
+    std::string& contentbased_filter();
+
+    /*!
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const dds::xrce::OBJK_DataReader_Binary_Qos& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
+
+
+    /*!
+        * @brief This function returns the maximum serialized size of the Key of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getKeyMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function tells you if the Key has been defined for this type
+        */
+    static bool isKeyDefined();
+
+    /*!
+        * @brief This function serializes the key members of an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serializeKey(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+private:
+
+    dds::xrce::OBJK_Endpoint_QosBinary m_base;
+    eprosima::Optional<uint32_t> m_timebasedfilter_msec;
+    eprosima::Optional<std::string> m_contentbased_filter;
+};
+/*!
  * @brief This class represents the structure OBJK_DataReader_Binary defined by the user in the IDL file.
  * @ingroup TYPESMOD
  */
@@ -4892,135 +5071,67 @@ public:
         return m_topic_name;
     }
     /*!
-     * @brief This function copies the value in member endpoint_qos
-     * @param _endpoint_qos New value to be copied in member endpoint_qos
-     */
-    inline void endpoint_qos(const OBJK_Endpoint_QosBinary &_endpoint_qos)
-    {
-        m_endpoint_qos = _endpoint_qos;
-    }
+        * @brief This function copies the value in member qos
+        * @param _qos New value to be copied in member qos
+        */
+    void qos(
+            const dds::xrce::OBJK_DataReader_Binary_Qos& _qos);
 
     /*!
-     * @brief This function moves the value in member endpoint_qos
-     * @param _endpoint_qos New value to be moved in member endpoint_qos
-     */
-    inline void endpoint_qos(OBJK_Endpoint_QosBinary &&_endpoint_qos)
-    {
-        m_endpoint_qos = std::move(_endpoint_qos);
-    }
+        * @brief This function moves the value in member qos
+        * @param _qos New value to be moved in member qos
+        */
+    void qos(
+            dds::xrce::OBJK_DataReader_Binary_Qos&& _qos);
 
     /*!
-     * @brief This function returns a constant reference to member endpoint_qos
-     * @return Constant reference to member endpoint_qos
-     */
-    inline const OBJK_Endpoint_QosBinary& endpoint_qos() const
-    {
-        return m_endpoint_qos;
-    }
+        * @brief This function returns a constant reference to member qos
+        * @return Constant reference to member qos
+        */
+    const dds::xrce::OBJK_DataReader_Binary_Qos& qos() const;
 
     /*!
-     * @brief This function returns a reference to member endpoint_qos
-     * @return Reference to member endpoint_qos
-     */
-    inline OBJK_Endpoint_QosBinary& endpoint_qos()
-    {
-        return m_endpoint_qos;
-    }
-    /*!
-     * @brief This function sets a value in member timebasedfilter_msec
-     * @param _timebasedfilter_msec New value for member timebasedfilter_msec
-     */
-    inline void timebasedfilter_msec(uint32_t _timebasedfilter_msec)
-    {
-        m_timebasedfilter_msec = _timebasedfilter_msec;
-    }
+        * @brief This function returns a reference to member qos
+        * @return Reference to member qos
+        */
+    dds::xrce::OBJK_DataReader_Binary_Qos& qos();
 
     /*!
-     * @brief This function returns the value of member timebasedfilter_msec
-     * @return Value of member timebasedfilter_msec
-     */
-    inline uint32_t timebasedfilter_msec() const
-    {
-        return m_timebasedfilter_msec;
-    }
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
-     * @brief This function returns a reference to member timebasedfilter_msec
-     * @return Reference to member timebasedfilter_msec
-     */
-    inline uint32_t& timebasedfilter_msec()
-    {
-        return m_timebasedfilter_msec;
-    }
-    /*!
-     * @brief This function copies the value in member contentbased_filter
-     * @param _contentbased_filter New value to be copied in member contentbased_filter
-     */
-    inline void contentbased_filter(const std::string &_contentbased_filter)
-    {
-        m_contentbased_filter = _contentbased_filter;
-    }
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const dds::xrce::OBJK_DataReader_Binary& data,
+            size_t current_alignment = 0);
+
 
     /*!
-     * @brief This function moves the value in member contentbased_filter
-     * @param _contentbased_filter New value to be moved in member contentbased_filter
-     */
-    inline void contentbased_filter(std::string &&_contentbased_filter)
-    {
-        m_contentbased_filter = std::move(_contentbased_filter);
-    }
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
-     * @brief This function returns a constant reference to member contentbased_filter
-     * @return Constant reference to member contentbased_filter
-     */
-    inline const std::string& contentbased_filter() const
-    {
-        return m_contentbased_filter;
-    }
-
-    /*!
-     * @brief This function returns a reference to member contentbased_filter
-     * @return Reference to member contentbased_filter
-     */
-    inline std::string& contentbased_filter()
-    {
-        return m_contentbased_filter;
-    }
-    
-    /*!
-     * @brief This function returns the maximum serialized size of an object
-     * depending on the buffer alignment.
-     * @param current_alignment Buffer alignment.
-     * @return Maximum serialized size.
-     */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
-
-    /*!
-     * @brief This function returns the serialized size of a data depending on the buffer alignment.
-     * @param data Data which is calculated its serialized size.
-     * @param current_alignment Buffer alignment.
-     * @return Serialized size.
-     */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
-
-    /*!
-     * @brief This function serializes an object using CDR serialization.
-     * @param cdr CDR serialization object.
-     */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
-
-    /*!
-     * @brief This function deserializes an object using CDR serialization.
-     * @param cdr CDR serialization object.
-     */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 private:
     std::string m_topic_name;
-    OBJK_Endpoint_QosBinary m_endpoint_qos;
-    uint32_t m_timebasedfilter_msec;
-    std::string m_contentbased_filter;
+    eprosima::Optional<dds::xrce::OBJK_DataReader_Binary_Qos> m_qos;
 };
 
 /*!
