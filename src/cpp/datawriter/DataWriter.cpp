@@ -46,6 +46,18 @@ std::unique_ptr<DataWriter> DataWriter::create(
                 middleware.create_datawriter_by_xml(raw_object_id, publisher_id, xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = representation.representation();
+            dds::xrce::OBJK_DataWriter_Binary datawriter_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            datawriter_xrce.deserialize(cdr);
+
+            created_entity = proxy_client->get_middleware().create_datawriter_by_bin(raw_object_id, publisher_id, datawriter_xrce);
+            break;
+        }
         default:
             break;
     }

@@ -622,20 +622,15 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
 bool FastDDSDataWriter::create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
 {
     bool rv = false;
-    // if (nullptr == ptr_){
-    //     fastrtps::PublisherAttributes attrs;
-    //     if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
-    //     {
-    //         topic_ = publisher_->get_participant()->find_local_topic(attrs.topic.topicName.c_str());
-    //         if(topic_){
-    //             fastdds::dds::DataWriterQos qos;
-    //             set_qos_from_attributes(qos, attrs);
-
-    //             ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
-    //             rv = (nullptr != ptr_) && bool(topic_);
-    //         }
-    //     }
-    // }
+    if (nullptr == ptr_){
+        topic_ = publisher_->get_participant()->find_local_topic(datawriter_xrce.topic_name());
+        if(topic_){
+            fastdds::dds::DataWriterQos qos;
+            //TODO: configure qos using datawriter_xrce
+            ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
+            rv = (nullptr != ptr_) && bool(topic_);
+        }
+    }
     return rv;
 }
 
@@ -708,6 +703,21 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
                 ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
                 rv = (nullptr != ptr_);
             }
+        }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::create_by_bin(const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
+{
+    bool rv = false;
+    if (nullptr == ptr_){
+        topic_ = subscriber_->get_participant()->find_local_topic(datareader_xrce.topic_name());
+        if(topic_){
+            fastdds::dds::DataReaderQos qos;
+            //TODO: configure qos using datareader_xrce
+            ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
+            rv = (nullptr != ptr_) && bool(topic_);
         }
     }
     return rv;

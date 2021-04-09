@@ -293,6 +293,7 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool read(

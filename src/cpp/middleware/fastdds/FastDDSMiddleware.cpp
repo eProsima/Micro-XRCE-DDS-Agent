@@ -428,7 +428,23 @@ bool FastDDSMiddleware::create_datareader_by_bin(
         const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
 {
     bool rv = false;
-
+    auto it_subscriber = subscribers_.find(subscriber_id);
+    if (subscribers_.end() != it_subscriber)
+    {
+        std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
+        if (datareader->create_by_bin(datareader_xrce))
+        {
+            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+            rv = emplace_res.second;
+            if (rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_DATAREADER,
+                    **it_subscriber->second->get_participant(),
+                    emplace_res.first->second->ptr());
+            }
+        }
+    }
     return rv;
 }
 

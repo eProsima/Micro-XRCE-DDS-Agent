@@ -42,7 +42,7 @@ eprosima::fastcdr::Cdr& operator<<(eprosima::fastcdr::Cdr& cdr, const eprosima::
 }
 
 template<typename T>
-eprosima::fastcdr::Cdr& operator>>(eprosima::fastcdr::Cdr& cdr, eprosima::Optional<T> opt){
+eprosima::fastcdr::Cdr& operator>>(eprosima::fastcdr::Cdr& cdr, eprosima::Optional<T>& opt){
     bool flag;
     cdr >> flag;
     if(flag){
@@ -3617,11 +3617,6 @@ void dds::xrce::OBJK_Subscriber_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr
 
 dds::xrce::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary()
 {
-    m_qos_flags = dds::xrce::is_reliable;
-    m_history_depth = 0;
-    m_deadline_msec = 0;
-    m_lifespan_msec = 0;
-
 }
 
 dds::xrce::OBJK_Endpoint_QosBinary::~OBJK_Endpoint_QosBinary()
@@ -3729,8 +3724,6 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
 
 dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos()
 {
-    m_timebasedfilter_msec = 0;
-    m_contentbased_filter = "";
 }
 
 dds::xrce::OBJK_DataReader_Binary_Qos::~OBJK_DataReader_Binary_Qos()
@@ -4048,17 +4041,10 @@ dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary::qos()
 
 dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos()
 {
-    // m_base com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49e202ad
-
-    // m_ownership_strength com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1c72da34
-    m_ownership_strength = 0;
-
 }
 
 dds::xrce::OBJK_DataWriter_Binary_Qos::~OBJK_DataWriter_Binary_Qos()
 {
-
-
 }
 
 dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos(
@@ -4124,7 +4110,6 @@ size_t dds::xrce::OBJK_DataWriter_Binary_Qos::getCdrSerializedSize(
 void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
-
     scdr << m_base;
     scdr << m_ownership_strength;
 
@@ -4133,7 +4118,6 @@ void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
 void dds::xrce::OBJK_DataWriter_Binary_Qos::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
-
     dcdr >> m_base;
     dcdr >> m_ownership_strength;
 }
