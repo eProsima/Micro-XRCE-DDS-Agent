@@ -4680,7 +4680,7 @@ public:
      */
     inline uint16_t history_depth() const
     {
-        return m_history_depth;
+        return *m_history_depth;
     }
 
     /*!
@@ -4689,7 +4689,7 @@ public:
      */
     inline uint16_t& history_depth()
     {
-        return m_history_depth;
+        return *m_history_depth;
     }
     /*!
      * @brief This function sets a value in member deadline_msec
@@ -4706,7 +4706,7 @@ public:
      */
     inline uint32_t deadline_msec() const
     {
-        return m_deadline_msec;
+        return *m_deadline_msec;
     }
 
     /*!
@@ -4715,7 +4715,7 @@ public:
      */
     inline uint32_t& deadline_msec()
     {
-        return m_deadline_msec;
+        return *m_deadline_msec;
     }
     /*!
      * @brief This function sets a value in member lifespan_msec
@@ -4732,7 +4732,7 @@ public:
      */
     inline uint32_t lifespan_msec() const
     {
-        return m_lifespan_msec;
+        return *m_lifespan_msec;
     }
 
     /*!
@@ -4741,7 +4741,7 @@ public:
      */
     inline uint32_t& lifespan_msec()
     {
-        return m_lifespan_msec;
+        return *m_lifespan_msec;
     }
     /*!
      * @brief This function copies the value in member user_data
@@ -4767,7 +4767,7 @@ public:
      */
     inline const std::vector<uint8_t>& user_data() const
     {
-        return m_user_data;
+        return *m_user_data;
     }
 
     /*!
@@ -4776,7 +4776,7 @@ public:
      */
     inline std::vector<uint8_t>& user_data()
     {
-        return m_user_data;
+        return *m_user_data;
     }
     
     /*!
@@ -4809,10 +4809,10 @@ public:
 
 private:
     EndpointQosFlags m_qos_flags;
-    uint16_t m_history_depth;
-    uint32_t m_deadline_msec;
-    uint32_t m_lifespan_msec;
-    std::vector<uint8_t> m_user_data;
+    eprosima::Optional<uint16_t> m_history_depth;
+    eprosima::Optional<uint32_t> m_deadline_msec;
+    eprosima::Optional<uint32_t> m_lifespan_msec;
+    eprosima::Optional<std::vector<uint8_t>> m_user_data;
 };
 /*!
  * @brief This class represents the structure OBJK_DataReader_Binary defined by the user in the IDL file.
@@ -5022,6 +5022,138 @@ private:
     uint32_t m_timebasedfilter_msec;
     std::string m_contentbased_filter;
 };
+
+/*!
+ * @brief This class represents the structure OBJK_DataWriter_Binary_Qos defined by the user in the IDL file.
+ * @ingroup TEST
+ */
+class OBJK_DataWriter_Binary_Qos
+{
+public:
+
+    /*!
+     * @brief Default constructor.
+     */
+    OBJK_DataWriter_Binary_Qos();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~OBJK_DataWriter_Binary_Qos();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos(
+            const OBJK_DataWriter_Binary_Qos& x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos(
+            OBJK_DataWriter_Binary_Qos&& x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos& operator =(
+            const OBJK_DataWriter_Binary_Qos& x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos& operator =(
+            OBJK_DataWriter_Binary_Qos&& x);
+
+    /*!
+     * @brief This function copies the value in member base
+     * @param _base New value to be copied in member base
+     */
+    void base(
+            const OBJK_Endpoint_QosBinary& _base);
+
+    /*!
+     * @brief This function moves the value in member base
+     * @param _base New value to be moved in member base
+     */
+    void base(
+            OBJK_Endpoint_QosBinary&& _base);
+
+    /*!
+     * @brief This function returns a constant reference to member base
+     * @return Constant reference to member base
+     */
+    const OBJK_Endpoint_QosBinary& base() const;
+
+    /*!
+     * @brief This function returns a reference to member base
+     * @return Reference to member base
+     */
+    OBJK_Endpoint_QosBinary& base();
+    /*!
+     * @brief This function sets a value in member ownership_strength
+     * @param _ownership_strength New value for member ownership_strength
+     */
+    void ownership_strength(
+            uint32_t _ownership_strength);
+
+    /*!
+     * @brief This function returns the value of member ownership_strength
+     * @return Value of member ownership_strength
+     */
+    uint32_t ownership_strength() const;
+
+    /*!
+     * @brief This function returns a reference to member ownership_strength
+     * @return Reference to member ownership_strength
+     */
+    uint32_t& ownership_strength();
+
+
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    static size_t getCdrSerializedSize(
+            const OBJK_DataWriter_Binary_Qos& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
+private:
+
+    OBJK_Endpoint_QosBinary m_base;
+    eprosima::Optional<uint32_t> m_ownership_strength;
+};
+
 /*!
  * @brief This class represents the structure OBJK_DataWriter_Binary defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -5123,16 +5255,7 @@ public:
      */
     inline const OBJK_DataWriter_Binary_Qos& qos()
     {
-        return m_qos;
-    }
-
-    /*!
-     * @brief This function returns a reference to member qos
-     * @return Reference to member qos
-     */
-    inline OBJK_DataWriter_Binary_Qos& qos()
-    {
-        return m_qos;
+        return *m_qos;
     }
 
     /*!

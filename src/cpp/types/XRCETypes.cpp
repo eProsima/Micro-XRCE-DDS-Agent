@@ -3701,9 +3701,7 @@ size_t dds::xrce::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_a
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (m_user_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
-
+    current_alignment += ((*m_user_data).size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -3817,6 +3815,163 @@ void dds::xrce::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr
     dcdr >> m_contentbased_filter;
 }
 
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos()
+{
+    // m_base com.eprosima.fastdds.idl.parser.typecode.StructTypeCode@49e202ad
+
+    // m_ownership_strength com.eprosima.idl.parser.typecode.PrimitiveTypeCode@1c72da34
+    m_ownership_strength = 0;
+
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::~OBJK_DataWriter_Binary_Qos()
+{
+
+
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& x)
+{
+    m_base = x.m_base;
+    m_ownership_strength = x.m_ownership_strength;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos(
+        dds::xrce::OBJK_DataWriter_Binary_Qos&& x)
+{
+    m_base = std::move(x.m_base);
+    m_ownership_strength = x.m_ownership_strength;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos& dds::xrce::OBJK_DataWriter_Binary_Qos::operator =(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& x)
+{
+
+    m_base = x.m_base;
+    m_ownership_strength = x.m_ownership_strength;
+
+    return *this;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos& dds::xrce::OBJK_DataWriter_Binary_Qos::operator =(
+        dds::xrce::OBJK_DataWriter_Binary_Qos&& x)
+{
+
+    m_base = std::move(x.m_base);
+    m_ownership_strength = x.m_ownership_strength;
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+
+
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_DataWriter_Binary_Qos::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+
+    scdr << m_base;
+    scdr << m_ownership_strength;
+
+}
+
+void dds::xrce::OBJK_DataWriter_Binary_Qos::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+
+    dcdr >> m_base;
+    dcdr >> m_ownership_strength;
+}
+
+/*!
+ * @brief This function copies the value in member base
+ * @param _base New value to be copied in member base
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::base(
+        const OBJK_Endpoint_QosBinary& _base)
+{
+    m_base = _base;
+}
+
+/*!
+ * @brief This function moves the value in member base
+ * @param _base New value to be moved in member base
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::base(
+        OBJK_Endpoint_QosBinary&& _base)
+{
+    m_base = std::move(_base);
+}
+
+/*!
+ * @brief This function returns a constant reference to member base
+ * @return Constant reference to member base
+ */
+const dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataWriter_Binary_Qos::base() const
+{
+    return m_base;
+}
+
+/*!
+ * @brief This function returns a reference to member base
+ * @return Reference to member base
+ */
+dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataWriter_Binary_Qos::base()
+{
+    return m_base;
+}
+/*!
+ * @brief This function sets a value in member ownership_strength
+ * @param _ownership_strength New value for member ownership_strength
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength(
+        uint32_t _ownership_strength)
+{
+    m_ownership_strength = _ownership_strength;
+}
+
+/*!
+ * @brief This function returns the value of member ownership_strength
+ * @return Value of member ownership_strength
+ */
+uint32_t dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength() const
+{
+    return *m_ownership_strength;
+}
+
+/*!
+ * @brief This function returns a reference to member ownership_strength
+ * @return Reference to member ownership_strength
+ */
+uint32_t& dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength()
+{
+    return *m_ownership_strength;
+}
+
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary()
 {
     m_topic_name = "";
@@ -3857,7 +4012,7 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size_t current
     size_t initial_alignment = current_alignment;
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
-    current_alignment += OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
+    current_alignment += dds::xrce::OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
 
 
     return current_alignment - initial_alignment;
@@ -3868,7 +4023,6 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
     size_t initial_alignment = current_alignment;
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
-    current_alignment += OBJK_DataWriter_Binary_Qos::getCdrSerializedSize(data.qos(), current_alignment);
 
     return current_alignment - initial_alignment;
 }
