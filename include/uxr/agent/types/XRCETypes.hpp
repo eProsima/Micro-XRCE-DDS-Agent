@@ -11218,6 +11218,247 @@ enum SubmessageId : uint8_t
     PERFORMANCE     = 255
 };
 
+/*!
+    * @brief This class represents the structure OBJK_Requester_Binary defined by the user in the IDL file.
+    * @ingroup TEST
+    */
+class OBJK_Requester_Binary
+{
+public:
+
+    /*!
+        * @brief Default constructor.
+        */
+    OBJK_Requester_Binary();
+
+    /*!
+        * @brief Default destructor.
+        */
+    ~OBJK_Requester_Binary();
+
+    /*!
+        * @brief Copy constructor.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary(
+            const OBJK_Requester_Binary& x);
+
+    /*!
+        * @brief Move constructor.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary(
+            OBJK_Requester_Binary&& x);
+
+    /*!
+        * @brief Copy assignment.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary& operator =(
+            const OBJK_Requester_Binary& x);
+
+    /*!
+        * @brief Move assignment.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary& operator =(
+            OBJK_Requester_Binary&& x);
+
+    /*!
+        * @brief This function copies the value in member profile_name
+        * @param _profile_name New value to be copied in member profile_name
+        */
+    void profile_name(
+            const std::string& _profile_name);
+
+    /*!
+        * @brief This function moves the value in member profile_name
+        * @param _profile_name New value to be moved in member profile_name
+        */
+    void profile_name(
+            std::string&& _profile_name);
+
+    /*!
+        * @brief This function returns a constant reference to member profile_name
+        * @return Constant reference to member profile_name
+        */
+    const std::string& profile_name() const;
+
+    /*!
+        * @brief This function returns a reference to member profile_name
+        * @return Reference to member profile_name
+        */
+    std::string& profile_name();
+    /*!
+        * @brief This function copies the value in member service_name
+        * @param _service_name New value to be copied in member service_name
+        */
+    void service_name(
+            const std::string& _service_name);
+
+    /*!
+        * @brief This function moves the value in member service_name
+        * @param _service_name New value to be moved in member service_name
+        */
+    void service_name(
+            std::string&& _service_name);
+
+    /*!
+        * @brief This function returns a constant reference to member service_name
+        * @return Constant reference to member service_name
+        */
+    const std::string& service_name() const;
+
+    /*!
+        * @brief This function returns a reference to member service_name
+        * @return Reference to member service_name
+        */
+    std::string& service_name();
+    /*!
+        * @brief This function copies the value in member request_type
+        * @param _request_type New value to be copied in member request_type
+        */
+    void request_type(
+            const std::string& _request_type);
+
+    /*!
+        * @brief This function moves the value in member request_type
+        * @param _request_type New value to be moved in member request_type
+        */
+    void request_type(
+            std::string&& _request_type);
+
+    /*!
+        * @brief This function returns a constant reference to member request_type
+        * @return Constant reference to member request_type
+        */
+    const std::string& request_type() const;
+
+    /*!
+        * @brief This function returns a reference to member request_type
+        * @return Reference to member request_type
+        */
+    std::string& request_type();
+    /*!
+        * @brief This function copies the value in member reply_type
+        * @param _reply_type New value to be copied in member reply_type
+        */
+    void reply_type(
+            const std::string& _reply_type);
+
+    /*!
+        * @brief This function moves the value in member reply_type
+        * @param _reply_type New value to be moved in member reply_type
+        */
+    void reply_type(
+            std::string&& _reply_type);
+
+    /*!
+        * @brief This function returns a constant reference to member reply_type
+        * @return Constant reference to member reply_type
+        */
+    const std::string& reply_type() const;
+
+    /*!
+        * @brief This function returns a reference to member reply_type
+        * @return Reference to member reply_type
+        */
+    std::string& reply_type();
+    /*!
+        * @brief This function copies the value in member reply_topic_name
+        * @param _reply_topic_name New value to be copied in member reply_topic_name
+        */
+    void reply_topic_name(
+            const std::string& _reply_topic_name);
+
+    /*!
+        * @brief This function moves the value in member reply_topic_name
+        * @param _reply_topic_name New value to be moved in member reply_topic_name
+        */
+    void reply_topic_name(
+            std::string&& _reply_topic_name);
+
+    /*!
+        * @brief This function returns a constant reference to member reply_topic_name
+        * @return Constant reference to member reply_topic_name
+        */
+    const std::string& reply_topic_name() const;
+
+    /*!
+        * @brief This function returns a reference to member reply_topic_name
+        * @return Reference to member reply_topic_name
+        */
+    std::string& reply_topic_name();
+    /*!
+        * @brief This function copies the value in member request_topic_name
+        * @param _request_topic_name New value to be copied in member request_topic_name
+        */
+    void request_topic_name(
+            const std::string& _request_topic_name);
+
+    /*!
+        * @brief This function moves the value in member request_topic_name
+        * @param _request_topic_name New value to be moved in member request_topic_name
+        */
+    void request_topic_name(
+            std::string&& _request_topic_name);
+
+    /*!
+        * @brief This function returns a constant reference to member request_topic_name
+        * @return Constant reference to member request_topic_name
+        */
+    const std::string& request_topic_name() const;
+
+    /*!
+        * @brief This function returns a reference to member request_topic_name
+        * @return Reference to member request_topic_name
+        */
+    std::string& request_topic_name();
+
+    /*!
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const OBJK_Requester_Binary& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
+private:
+
+    std::string m_profile_name;
+    std::string m_service_name;
+    std::string m_request_type;
+    std::string m_reply_type;
+    eprosima::Optional<std::string> m_reply_topic_name;
+    eprosima::Optional<std::string> m_request_topic_name;
+};
+
 } // namespace xrce
 
 typedef std::array<uint8_t, 12> GuidPrefix_t;

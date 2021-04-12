@@ -9267,3 +9267,352 @@ void dds::SampleIdentity::deserialize(eprosima::fastcdr::Cdr &dcdr)
     dcdr >> m_writer_guid;
     dcdr >> m_sequence_number;
 }
+
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary()
+{
+}
+
+dds::xrce::OBJK_Requester_Binary::~OBJK_Requester_Binary()
+{
+}
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
+        const OBJK_Requester_Binary& x)
+{
+    m_profile_name = x.m_profile_name;
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+}
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
+        OBJK_Requester_Binary&& x)
+{
+    m_profile_name = std::move(x.m_profile_name);
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+}
+
+dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
+        const OBJK_Requester_Binary& x)
+{
+
+    m_profile_name = x.m_profile_name;
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+
+    return *this;
+}
+
+dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
+        OBJK_Requester_Binary&& x)
+{
+
+    m_profile_name = std::move(x.m_profile_name);
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_Requester_Binary::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_Requester_Binary::getCdrSerializedSize(
+        const dds::xrce::OBJK_Requester_Binary& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.profile_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.service_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_topic_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_topic_name().size() + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_Requester_Binary::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_profile_name;
+    scdr << m_service_name;
+    scdr << m_request_type;
+    scdr << m_reply_type;
+    scdr << m_reply_topic_name;
+    scdr << m_request_topic_name;
+
+}
+
+void dds::xrce::OBJK_Requester_Binary::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_profile_name;
+    dcdr >> m_service_name;
+    dcdr >> m_request_type;
+    dcdr >> m_reply_type;
+    dcdr >> m_reply_topic_name;
+    dcdr >> m_request_topic_name;
+}
+
+/*!
+ * @brief This function copies the value in member profile_name
+ * @param _profile_name New value to be copied in member profile_name
+ */
+void dds::xrce::OBJK_Requester_Binary::profile_name(
+        const std::string& _profile_name)
+{
+    m_profile_name = _profile_name;
+}
+
+/*!
+ * @brief This function moves the value in member profile_name
+ * @param _profile_name New value to be moved in member profile_name
+ */
+void dds::xrce::OBJK_Requester_Binary::profile_name(
+        std::string&& _profile_name)
+{
+    m_profile_name = std::move(_profile_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member profile_name
+ * @return Constant reference to member profile_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::profile_name() const
+{
+    return m_profile_name;
+}
+
+/*!
+ * @brief This function returns a reference to member profile_name
+ * @return Reference to member profile_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::profile_name()
+{
+    return m_profile_name;
+}
+/*!
+ * @brief This function copies the value in member service_name
+ * @param _service_name New value to be copied in member service_name
+ */
+void dds::xrce::OBJK_Requester_Binary::service_name(
+        const std::string& _service_name)
+{
+    m_service_name = _service_name;
+}
+
+/*!
+ * @brief This function moves the value in member service_name
+ * @param _service_name New value to be moved in member service_name
+ */
+void dds::xrce::OBJK_Requester_Binary::service_name(
+        std::string&& _service_name)
+{
+    m_service_name = std::move(_service_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member service_name
+ * @return Constant reference to member service_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::service_name() const
+{
+    return m_service_name;
+}
+
+/*!
+ * @brief This function returns a reference to member service_name
+ * @return Reference to member service_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::service_name()
+{
+    return m_service_name;
+}
+/*!
+ * @brief This function copies the value in member request_type
+ * @param _request_type New value to be copied in member request_type
+ */
+void dds::xrce::OBJK_Requester_Binary::request_type(
+        const std::string& _request_type)
+{
+    m_request_type = _request_type;
+}
+
+/*!
+ * @brief This function moves the value in member request_type
+ * @param _request_type New value to be moved in member request_type
+ */
+void dds::xrce::OBJK_Requester_Binary::request_type(
+        std::string&& _request_type)
+{
+    m_request_type = std::move(_request_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_type
+ * @return Constant reference to member request_type
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::request_type() const
+{
+    return m_request_type;
+}
+
+/*!
+ * @brief This function returns a reference to member request_type
+ * @return Reference to member request_type
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::request_type()
+{
+    return m_request_type;
+}
+/*!
+ * @brief This function copies the value in member reply_type
+ * @param _reply_type New value to be copied in member reply_type
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_type(
+        const std::string& _reply_type)
+{
+    m_reply_type = _reply_type;
+}
+
+/*!
+ * @brief This function moves the value in member reply_type
+ * @param _reply_type New value to be moved in member reply_type
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_type(
+        std::string&& _reply_type)
+{
+    m_reply_type = std::move(_reply_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_type
+ * @return Constant reference to member reply_type
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::reply_type() const
+{
+    return m_reply_type;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_type
+ * @return Reference to member reply_type
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::reply_type()
+{
+    return m_reply_type;
+}
+/*!
+ * @brief This function copies the value in member reply_topic_name
+ * @param _reply_topic_name New value to be copied in member reply_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_topic_name(
+        const std::string& _reply_topic_name)
+{
+    m_reply_topic_name = _reply_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member reply_topic_name
+ * @param _reply_topic_name New value to be moved in member reply_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_topic_name(
+        std::string&& _reply_topic_name)
+{
+    m_reply_topic_name = std::move(_reply_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_topic_name
+ * @return Constant reference to member reply_topic_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::reply_topic_name() const
+{
+    return *m_reply_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_topic_name
+ * @return Reference to member reply_topic_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::reply_topic_name()
+{
+    return *m_reply_topic_name;
+}
+/*!
+ * @brief This function copies the value in member request_topic_name
+ * @param _request_topic_name New value to be copied in member request_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::request_topic_name(
+        const std::string& _request_topic_name)
+{
+    m_request_topic_name = _request_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member request_topic_name
+ * @param _request_topic_name New value to be moved in member request_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::request_topic_name(
+        std::string&& _request_topic_name)
+{
+    m_request_topic_name = std::move(_request_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_topic_name
+ * @return Constant reference to member request_topic_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::request_topic_name() const
+{
+    return *m_request_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member request_topic_name
+ * @return Reference to member request_topic_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::request_topic_name()
+{
+    return *m_request_topic_name;
+}
