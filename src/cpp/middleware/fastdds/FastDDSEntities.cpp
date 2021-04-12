@@ -625,7 +625,7 @@ bool FastDDSDataWriter::create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& d
     if (nullptr == ptr_){
         topic_ = publisher_->get_participant()->find_local_topic(datawriter_xrce.topic_name());
         if(topic_){
-            fastdds::dds::DataWriterQos qos;
+            fastdds::dds::DataWriterQos qos = fastdds::dds::DATAWRITER_QOS_DEFAULT;
             //TODO: configure qos using datawriter_xrce
             ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
             rv = (nullptr != ptr_) && bool(topic_);

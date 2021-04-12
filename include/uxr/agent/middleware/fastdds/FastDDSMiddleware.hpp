@@ -127,6 +127,11 @@ public:
             uint16_t participant_id,
             const std::string& xml) override;
 
+    bool create_requester_by_bin(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Requester_Binary& requester_xrce) override;
+
     bool create_replier_by_ref(
             uint16_t replier_id,
             uint16_t participant_id,

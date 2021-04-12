@@ -9280,7 +9280,6 @@ dds::xrce::OBJK_Requester_Binary::~OBJK_Requester_Binary()
 dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
         const OBJK_Requester_Binary& x)
 {
-    m_profile_name = x.m_profile_name;
     m_service_name = x.m_service_name;
     m_request_type = x.m_request_type;
     m_reply_type = x.m_reply_type;
@@ -9291,7 +9290,6 @@ dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
 dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
         OBJK_Requester_Binary&& x)
 {
-    m_profile_name = std::move(x.m_profile_name);
     m_service_name = std::move(x.m_service_name);
     m_request_type = std::move(x.m_request_type);
     m_reply_type = std::move(x.m_reply_type);
@@ -9303,7 +9301,6 @@ dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
         const OBJK_Requester_Binary& x)
 {
 
-    m_profile_name = x.m_profile_name;
     m_service_name = x.m_service_name;
     m_request_type = x.m_request_type;
     m_reply_type = x.m_reply_type;
@@ -9317,7 +9314,6 @@ dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
         OBJK_Requester_Binary&& x)
 {
 
-    m_profile_name = std::move(x.m_profile_name);
     m_service_name = std::move(x.m_service_name);
     m_request_type = std::move(x.m_request_type);
     m_reply_type = std::move(x.m_reply_type);
@@ -9355,8 +9351,6 @@ size_t dds::xrce::OBJK_Requester_Binary::getCdrSerializedSize(
     (void)data;
     size_t initial_alignment = current_alignment;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.profile_name().size() + 1;
-
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.service_name().size() + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_type().size() + 1;
@@ -9374,7 +9368,6 @@ size_t dds::xrce::OBJK_Requester_Binary::getCdrSerializedSize(
 void dds::xrce::OBJK_Requester_Binary::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
-    scdr << m_profile_name;
     scdr << m_service_name;
     scdr << m_request_type;
     scdr << m_reply_type;
@@ -9386,7 +9379,6 @@ void dds::xrce::OBJK_Requester_Binary::serialize(
 void dds::xrce::OBJK_Requester_Binary::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> m_profile_name;
     dcdr >> m_service_name;
     dcdr >> m_request_type;
     dcdr >> m_reply_type;
@@ -9394,43 +9386,6 @@ void dds::xrce::OBJK_Requester_Binary::deserialize(
     dcdr >> m_request_topic_name;
 }
 
-/*!
- * @brief This function copies the value in member profile_name
- * @param _profile_name New value to be copied in member profile_name
- */
-void dds::xrce::OBJK_Requester_Binary::profile_name(
-        const std::string& _profile_name)
-{
-    m_profile_name = _profile_name;
-}
-
-/*!
- * @brief This function moves the value in member profile_name
- * @param _profile_name New value to be moved in member profile_name
- */
-void dds::xrce::OBJK_Requester_Binary::profile_name(
-        std::string&& _profile_name)
-{
-    m_profile_name = std::move(_profile_name);
-}
-
-/*!
- * @brief This function returns a constant reference to member profile_name
- * @return Constant reference to member profile_name
- */
-const std::string& dds::xrce::OBJK_Requester_Binary::profile_name() const
-{
-    return m_profile_name;
-}
-
-/*!
- * @brief This function returns a reference to member profile_name
- * @return Reference to member profile_name
- */
-std::string& dds::xrce::OBJK_Requester_Binary::profile_name()
-{
-    return m_profile_name;
-}
 /*!
  * @brief This function copies the value in member service_name
  * @param _service_name New value to be copied in member service_name

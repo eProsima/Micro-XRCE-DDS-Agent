@@ -93,13 +93,6 @@ bool FastMiddleware::create_participant_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_participant_by_bin(
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_DomainParticipant_Binary& /*participant*/)
-{
-    return false;
-}
-
 static
 std::shared_ptr<FastTopic> create_topic(
         std::shared_ptr<FastParticipant>& participant,
@@ -178,14 +171,6 @@ bool FastMiddleware::create_topic_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_topic_by_bin(
-        uint16_t /*topic_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
-{
-    return false;
-}
-
 bool FastMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
@@ -201,14 +186,6 @@ bool FastMiddleware::create_publisher_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_publisher_by_bin(
-        uint16_t /*publisher_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Publisher_Binary& /*publisher_xrce*/)
-{
-    return false;
-}
-
 bool FastMiddleware::create_subscriber_by_xml(
         uint16_t subscriber_id,
         uint16_t participant_id,
@@ -222,14 +199,6 @@ bool FastMiddleware::create_subscriber_by_xml(
         rv = subscribers_.emplace(subscriber_id, std::move(subscriber)).second;
     }
     return rv;
-}
-
-bool FastMiddleware::create_subscriber_by_bin(
-         uint16_t /*subscriber_id*/,
-         uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Subscriber_Binary& /*subscriber_xrce*/)
-{
-    return false;
 }
 
 inline
@@ -318,14 +287,6 @@ bool FastMiddleware::create_datawriter_by_xml(
     return rv;
 }
 
-bool FastMiddleware::create_datawriter_by_bin(
-        uint16_t /*datawriter_id*/,
-        uint16_t /*publisher_id*/,
-        const dds::xrce::OBJK_DataWriter_Binary& /*datawriter_xrce*/)
-{
-    return false;
-}
-
 inline
 std::shared_ptr<FastDataReader> create_datareader(
         const fastrtps::SubscriberAttributes& attrs,
@@ -410,14 +371,6 @@ bool FastMiddleware::create_datareader_by_xml(
         }
     }
     return rv;
-}
-
-bool FastMiddleware::create_datareader_by_bin(
-        uint16_t /*datareader_id*/,
-        uint16_t /*subscriber_id*/,
-        const dds::xrce::OBJK_DataReader_Binary& /*datareader_xrce*/)
-{
-    return false;
 }
 
 static

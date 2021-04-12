@@ -11265,31 +11265,6 @@ public:
             OBJK_Requester_Binary&& x);
 
     /*!
-        * @brief This function copies the value in member profile_name
-        * @param _profile_name New value to be copied in member profile_name
-        */
-    void profile_name(
-            const std::string& _profile_name);
-
-    /*!
-        * @brief This function moves the value in member profile_name
-        * @param _profile_name New value to be moved in member profile_name
-        */
-    void profile_name(
-            std::string&& _profile_name);
-
-    /*!
-        * @brief This function returns a constant reference to member profile_name
-        * @return Constant reference to member profile_name
-        */
-    const std::string& profile_name() const;
-
-    /*!
-        * @brief This function returns a reference to member profile_name
-        * @return Reference to member profile_name
-        */
-    std::string& profile_name();
-    /*!
         * @brief This function copies the value in member service_name
         * @param _service_name New value to be copied in member service_name
         */
@@ -11450,8 +11425,6 @@ public:
             eprosima::fastcdr::Cdr& cdr);
 
 private:
-
-    std::string m_profile_name;
     std::string m_service_name;
     std::string m_request_type;
     std::string m_reply_type;

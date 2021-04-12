@@ -533,6 +533,49 @@ bool FastDDSMiddleware::create_requester_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_requester_by_bin(
+        uint16_t requester_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Requester_Binary& requester_xrce)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::RequesterAttributes attrs;
+
+        attrs.service_name = requester_xrce.service_name();
+        attrs.reply_topic_name = requester_xrce.reply_topic_name();
+        attrs.request_topic_name = requester_xrce.request_topic_name();
+        attrs.reply_type = requester_xrce.reply_type();
+        attrs.request_type = requester_xrce.request_type();
+
+        attrs.publisher.topic.topicName = requester_xrce.request_topic_name();
+        attrs.publisher.topic.topicDataType = requester_xrce.request_type();
+
+        attrs.subscriber.topic.topicName = requester_xrce.reply_topic_name();
+        attrs.subscriber.topic.topicDataType = requester_xrce.reply_type();
+
+        std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
+        if (nullptr == requester)
+        {
+            return false;
+        }
+        auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+        rv = emplace_res.second;
+        if (rv)
+        {
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_REQUESTER,
+                participant->get_ptr(),
+                emplace_res.first->second->get_request_datawriter(),
+                emplace_res.first->second->get_reply_datareader());
+        }
+    }
+    return rv;
+}
+
 std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
         std::shared_ptr<FastDDSParticipant>& participant,
         const fastrtps::ReplierAttributes& attrs)

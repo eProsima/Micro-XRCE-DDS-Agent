@@ -48,6 +48,18 @@ std::unique_ptr<Requester> Requester::create(
             created_entity = middleware.create_requester_by_xml(raw_object_id, participant_id, xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = representation.representation();
+            dds::xrce::OBJK_Requester_Binary request_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            request_xrce.deserialize(cdr);
+
+            created_entity = proxy_client->get_middleware().create_requester_by_bin(raw_object_id, participant_id, request_xrce);
+            break;
+        }
         default:
             break;
     }

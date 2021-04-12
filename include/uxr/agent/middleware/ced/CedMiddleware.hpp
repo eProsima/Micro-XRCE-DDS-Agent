@@ -63,9 +63,14 @@ public:
             int16_t domain_id,
             const std::string&) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_participant_by_bin(
-            uint16_t participant_id,
-            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) override;
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */) override { return false; };
 
     /**
      * @startuml
@@ -103,10 +108,15 @@ public:
             uint16_t participant_id,
             const std::string& xml) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_topic_by_bin(
-            uint16_t topic_id,
-            uint16_t participant_id,
-            const dds::xrce::OBJK_Topic_Binary& topic_xrce) override;
+            uint16_t /* topic_id */,
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_Topic_Binary& /* topic_xrce */) override { return false; };
 
     /**
      * @startuml
@@ -123,10 +133,15 @@ public:
             uint16_t participant_id,
             const std::string&) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_publisher_by_bin(
-            uint16_t publisher_id,
-            uint16_t participant_id,
-            const dds::xrce::OBJK_Publisher_Binary& publisher_xrce) override;
+            uint16_t /* publisher_id */,
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_Publisher_Binary& /* publisher_xrce */) override { return false; };
 
     /**
      * @startuml
@@ -143,10 +158,15 @@ public:
             uint16_t participant_id,
             const std::string&) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_subscriber_by_bin(
-            uint16_t subscriber_id,
-            uint16_t participant_id,
-            const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce) override;
+            uint16_t /* subscriber_id */,
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_Subscriber_Binary& /* subscriber_xrce */) override { return false; };
             
     /**
      * @startuml
@@ -176,10 +196,15 @@ public:
             uint16_t publisher_id,
             const std::string& xml) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_datawriter_by_bin(
-            uint16_t datawriter_id,
-            uint16_t publisher_id,
-            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) override;
+            uint16_t /* datawriter_id */,
+            uint16_t /* publisher_id */,
+            const dds::xrce::OBJK_DataWriter_Binary& /* datawriter_xrce */) override { return false; };
 
     /**
      * @startuml
@@ -209,10 +234,15 @@ public:
             uint16_t subscriber_id,
             const std::string& xml) override;
 
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
     bool create_datareader_by_bin(
-            uint16_t datareader_id,
-            uint16_t subscriber_id,
-            const dds::xrce::OBJK_DataReader_Binary& datareader_xrce) override;
+            uint16_t /* datareader_id */,
+            uint16_t /* subscriber_id */,
+            const dds::xrce::OBJK_DataReader_Binary& /* datareader_xrce */) override { return false; };
 
     /**
      * @brief Not implemented.
@@ -241,6 +271,16 @@ public:
             uint16_t,
             uint16_t,
             const std::string&) override { return false; };
+
+    /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
+    bool create_requester_by_bin(
+            uint16_t /* requester_id */,
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */) override { return false; };
 
     /**
      * @brief Not implemented.

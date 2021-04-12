@@ -92,13 +92,6 @@ bool CedMiddleware::create_participant_by_xml(
     return create_participant_by_ref(participant_id, domain_id, xml);
 }
 
-bool CedMiddleware::create_participant_by_bin(
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_DomainParticipant_Binary& /*participant*/)
-{
-    return false;
-}
-
 static
 std::shared_ptr<CedTopic> create_topic(
         std::shared_ptr<CedParticipant>& participant,
@@ -149,14 +142,6 @@ bool CedMiddleware::create_topic_by_xml(
     return create_topic_by_ref(topic_id, participant_id, xml);
 }
 
-bool CedMiddleware::create_topic_by_bin(
-        uint16_t /*topic_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Topic_Binary& /*topic_xrce*/)
-{
-    return false;
-}
-
 bool CedMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
@@ -176,14 +161,6 @@ bool CedMiddleware::create_publisher_by_xml(
     return rv;
 }
 
-bool CedMiddleware::create_publisher_by_bin(
-        uint16_t /*publisher_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Publisher_Binary& /*publisher_xrce*/)
-{
-    return false;
-}
-
 bool CedMiddleware::create_subscriber_by_xml(
         uint16_t subscirber_id,
         uint16_t participant_id,
@@ -201,14 +178,6 @@ bool CedMiddleware::create_subscriber_by_xml(
         }
     }
     return rv;
-}
-
-bool CedMiddleware::create_subscriber_by_bin(
-        uint16_t /*subscriber_id*/,
-        uint16_t /*participant_id*/,
-        const dds::xrce::OBJK_Subscriber_Binary& /*subscriber_xrce*/)
-{
-    return false;
 }
 
 bool CedMiddleware::create_datawriter_by_ref(
@@ -246,14 +215,6 @@ bool CedMiddleware::create_datawriter_by_xml(
     return create_datawriter_by_ref(datawriter_id, publisher_id, xml);
 }
 
-bool CedMiddleware::create_datawriter_by_bin(
-        uint16_t /*datawriter_id*/,
-        uint16_t /*publisher_id*/,
-        const dds::xrce::OBJK_DataWriter_Binary& /*datawriter_xrce*/)
-{
-    return false;
-}
-
 bool CedMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
@@ -286,14 +247,6 @@ bool CedMiddleware::create_datareader_by_xml(
         const std::string& xml)
 {
     return create_datareader_by_ref(datareader_id, subscriber_id, xml);
-}
-
-bool CedMiddleware::create_datareader_by_bin(
-        uint16_t /*datareader_id*/,
-        uint16_t /*subscriber_id*/,
-        const dds::xrce::OBJK_DataReader_Binary& /*datareader_xrce*/)
-{
-    return false;
 }
 
 /**********************************************************************************************************************
