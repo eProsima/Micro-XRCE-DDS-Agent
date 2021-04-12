@@ -159,6 +159,11 @@ public:
             uint16_t participant_id,
             const std::string& xml) = 0;
 
+    virtual bool create_replier_by_bin(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Replier_Binary& replier_xrce) = 0;
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/

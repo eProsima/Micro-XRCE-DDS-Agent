@@ -661,6 +661,49 @@ bool FastDDSMiddleware::create_replier_by_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::create_replier_by_bin(
+        uint16_t replier_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Replier_Binary& replier_xrce)
+{
+    bool rv = false;
+    auto it_participant = participants_.find(participant_id);
+    if (participants_.end() != it_participant)
+    {
+        std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
+        fastrtps::ReplierAttributes attrs;
+
+        attrs.service_name = replier_xrce.service_name();
+        attrs.reply_topic_name = replier_xrce.reply_topic_name();
+        attrs.request_topic_name = replier_xrce.request_topic_name();
+        attrs.reply_type = replier_xrce.reply_type();
+        attrs.request_type = replier_xrce.request_type();
+
+        attrs.subscriber.topic.topicName = replier_xrce.request_topic_name();
+        attrs.subscriber.topic.topicDataType = replier_xrce.request_type();
+
+        attrs.publisher.topic.topicName = replier_xrce.reply_topic_name();
+        attrs.publisher.topic.topicDataType = replier_xrce.reply_type();        
+
+        std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
+        if (nullptr == replier)
+        {
+            return false;
+        }
+        auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+        rv = emplace_res.second;
+        if (rv)
+        {
+            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                middleware::CallbackKind::CREATE_REPLIER,
+                participant->get_ptr(),
+                emplace_res.first->second->get_reply_datawriter(),
+                emplace_res.first->second->get_request_datareader());
+        }
+    }
+    return rv;
+}
+
 /**********************************************************************************************************************
  * Delete functions.
  **********************************************************************************************************************/

@@ -311,6 +311,16 @@ public:
             const std::string&) override { return false; };
 
     /**
+     * @brief Not implemented.
+     * 
+     * @return false 
+     */
+    bool create_replier_by_bin(
+            uint16_t /* replier_id */,
+            uint16_t /* participant_id */,
+            const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */) override { return false; };
+
+    /**
      * @brief Removes a CedParticipant from the participants register.
      * @param participant_id    The CedParticipant identifier.
      * @return  true in case of the CedParticipant was found and removed, false in other case.
