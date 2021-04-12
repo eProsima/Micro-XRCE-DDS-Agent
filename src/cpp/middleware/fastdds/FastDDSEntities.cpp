@@ -626,7 +626,12 @@ bool FastDDSDataWriter::create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& d
         topic_ = publisher_->get_participant()->find_local_topic(datawriter_xrce.topic_name());
         if(topic_){
             fastdds::dds::DataWriterQos qos = fastdds::dds::DATAWRITER_QOS_DEFAULT;
+
+            dds::xrce::OBJK_DataWriter_Binary aux(datawriter_xrce);
+            qos.reliability().kind = (aux.qos().base().qos_flags() & dds::xrce::is_reliable) ? RELIABLE_RELIABILITY_QOS : BEST_EFFORT_RELIABILITY_QOS;
+            
             //TODO: configure qos using datawriter_xrce
+
             ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
             rv = (nullptr != ptr_) && bool(topic_);
         }
@@ -714,8 +719,13 @@ bool FastDDSDataReader::create_by_bin(const dds::xrce::OBJK_DataReader_Binary& d
     if (nullptr == ptr_){
         topic_ = subscriber_->get_participant()->find_local_topic(datareader_xrce.topic_name());
         if(topic_){
-            fastdds::dds::DataReaderQos qos;
+            fastdds::dds::DataReaderQos qos = fastdds::dds::DATAREADER_QOS_DEFAULT;
+
+            dds::xrce::OBJK_DataReader_Binary aux(datareader_xrce);
+            qos.reliability().kind = (aux.qos().base().qos_flags() & dds::xrce::is_reliable) ? RELIABLE_RELIABILITY_QOS : BEST_EFFORT_RELIABILITY_QOS;
+
             //TODO: configure qos using datareader_xrce
+
             ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
             rv = (nullptr != ptr_) && bool(topic_);
         }
