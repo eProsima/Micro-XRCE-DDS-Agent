@@ -102,7 +102,7 @@ bool FastDDSMiddleware::create_participant_by_bin(
         const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
     bool rv = false;
-    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_xrce.domain_id()));
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant((int16_t) participant_xrce.domain_id()));
     if (participant->create_by_bin(participant_xrce))
     {
         auto emplace_res = participants_.emplace(participant_id, std::move(participant));
