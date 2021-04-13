@@ -16,6 +16,7 @@
 #define _UXR_AGENT_TYPES_OPTIONAL_HPP_
 
 #include <utility>
+#include <fastcdr/Cdr.h>
 
 namespace eprosima {
 
@@ -84,6 +85,22 @@ class Optional
     explicit operator bool() const noexcept
     {
         return present_;
+    }
+
+    void serialize(eprosima::fastcdr::Cdr& cdr)
+    {
+        cdr << present_;
+        if(data_){
+            cdr << (data_);
+        }
+    }
+
+    void deserialize(eprosima::fastcdr::Cdr& cdr)
+    {
+        cdr >> present_;
+        if(present_){
+            cdr >> (data_);
+        }
     }
 
   private:
