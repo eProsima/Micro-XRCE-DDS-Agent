@@ -26,11 +26,8 @@ namespace { char dummy; }
 
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <fastcdr/Cdr.h>
-#include <fastcdr/exceptions/BadParamException.h>
 
 #include <utility>
-
-using namespace eprosima::fastcdr::exception;
 
 template<typename T>
 eprosima::fastcdr::Cdr& operator<<(eprosima::fastcdr::Cdr& cdr, const eprosima::Optional<T> opt){
@@ -52,6 +49,8 @@ eprosima::fastcdr::Cdr& operator>>(eprosima::fastcdr::Cdr& cdr, eprosima::Option
     }
     return cdr;
 }
+
+dds::xrce::XRCETypesException::XRCETypesException(const std::string& message) : message_(message) {}
 
 dds::xrce::Time_t::Time_t()
 {
@@ -559,7 +558,7 @@ void dds::xrce::TransportAddress::_d(dds::xrce::TransportAddressFormat __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -598,7 +597,7 @@ const dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locat
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_small_locator;
 }
@@ -615,7 +614,7 @@ dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_small_locator;
 }
@@ -643,7 +642,7 @@ const dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_loc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_medium_locator;
 }
@@ -660,7 +659,7 @@ dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_medium_locator;
 }
@@ -688,7 +687,7 @@ const dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locat
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_large_locator;
 }
@@ -705,7 +704,7 @@ dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_large_locator;
 }
@@ -733,7 +732,7 @@ const dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_loc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_string_locator;
 }
@@ -750,7 +749,7 @@ dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_string_locator;
 }
@@ -1303,7 +1302,7 @@ void dds::xrce::OBJK_Representation3Formats::_d(dds::xrce::RepresentationFormat 
             break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -1342,7 +1341,7 @@ const std::string& dds::xrce::OBJK_Representation3Formats::object_reference() co
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_object_reference;
 }
@@ -1359,7 +1358,7 @@ std::string& dds::xrce::OBJK_Representation3Formats::object_reference()
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_object_reference;
 }
@@ -1387,7 +1386,7 @@ const std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representa
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_xml_string_representation;
 }
@@ -1404,7 +1403,7 @@ std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representation()
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_xml_string_representation;
 }
@@ -1432,7 +1431,7 @@ const std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_repre
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_binary_representation;
 }
@@ -1449,7 +1448,7 @@ std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representat
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_binary_representation;
 }
@@ -1668,7 +1667,7 @@ void dds::xrce::OBJK_RepresentationRefAndXMLFormats::_d(dds::xrce::Representatio
         break;
     }
 
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
 
     m__d = __d;
 }
@@ -1707,7 +1706,7 @@ const std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::object_refere
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_object_reference;
 }
@@ -1724,7 +1723,7 @@ std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::object_reference()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_object_reference;
 }
@@ -1752,7 +1751,7 @@ const std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::string_repres
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -1769,7 +1768,7 @@ std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::string_representati
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -1969,7 +1968,7 @@ void dds::xrce::OBJK_RepresentationBinAndXMLFormats::_d(dds::xrce::Representatio
         break;
     }
 
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
 
     m__d = __d;
 }
@@ -2008,7 +2007,7 @@ const std::vector<uint8_t>& dds::xrce::OBJK_RepresentationBinAndXMLFormats::bina
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_binary_representation;
 }
@@ -2025,7 +2024,7 @@ std::vector<uint8_t>& dds::xrce::OBJK_RepresentationBinAndXMLFormats::binary_rep
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_binary_representation;
 }
@@ -2053,7 +2052,7 @@ const std::string& dds::xrce::OBJK_RepresentationBinAndXMLFormats::string_repres
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -2070,7 +2069,7 @@ std::string& dds::xrce::OBJK_RepresentationBinAndXMLFormats::string_representati
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -4606,7 +4605,7 @@ void dds::xrce::ObjectVariant::_d(dds::xrce::ObjectKind __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -4645,7 +4644,7 @@ const dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_agent;
 }
@@ -4662,7 +4661,7 @@ dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_agent;
 }
@@ -4690,7 +4689,7 @@ const dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_client;
 }
@@ -4707,7 +4706,7 @@ dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_client;
 }
@@ -4735,7 +4734,7 @@ const dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::appl
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_application;
 }
@@ -4752,7 +4751,7 @@ dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::applicatio
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_application;
 }
@@ -4780,7 +4779,7 @@ const dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::part
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_participant;
 }
@@ -4797,7 +4796,7 @@ dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::participan
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_participant;
 }
@@ -4825,7 +4824,7 @@ const dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_p
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_qos_profile;
 }
@@ -4842,7 +4841,7 @@ dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_profile
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_qos_profile;
 }
@@ -4870,7 +4869,7 @@ const dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type() cons
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_type;
 }
@@ -4887,7 +4886,7 @@ dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_type;
 }
@@ -4915,7 +4914,7 @@ const dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic() co
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_topic;
 }
@@ -4932,7 +4931,7 @@ dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_topic;
 }
@@ -4960,7 +4959,7 @@ const dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publis
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_publisher;
 }
@@ -4977,7 +4976,7 @@ dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publisher()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_publisher;
 }
@@ -5005,7 +5004,7 @@ const dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subsc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_subscriber;
 }
@@ -5022,7 +5021,7 @@ dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subscriber(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_subscriber;
 }
@@ -5050,7 +5049,7 @@ const dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_write
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -5067,7 +5066,7 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_writer()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -5095,7 +5094,7 @@ const dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reade
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_data_reader;
 }
@@ -5112,7 +5111,7 @@ dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reader()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -5141,7 +5140,7 @@ const dds::xrce::REQUESTER_Representation& dds::xrce::ObjectVariant::requester()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_requester;
 }
@@ -5158,7 +5157,7 @@ dds::xrce::REQUESTER_Representation& dds::xrce::ObjectVariant::requester()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_requester;
 }
@@ -5187,7 +5186,7 @@ const dds::xrce::REPLIER_Representation& dds::xrce::ObjectVariant::replier() con
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_replier;
 }
@@ -5204,7 +5203,7 @@ dds::xrce::REPLIER_Representation& dds::xrce::ObjectVariant::replier()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_replier;
 }
@@ -5972,7 +5971,7 @@ void dds::xrce::ActivityInfoVariant::_d(dds::xrce::ObjectKind __d)
             break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -6011,7 +6010,7 @@ const dds::xrce::AGENT_ActivityInfo& dds::xrce::ActivityInfoVariant::agent() con
         default:
             break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_agent;
 }
@@ -6028,7 +6027,7 @@ dds::xrce::AGENT_ActivityInfo& dds::xrce::ActivityInfoVariant::agent()
         default:
             break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_agent;
 }
@@ -6057,7 +6056,7 @@ const dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_w
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -6074,7 +6073,7 @@ dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_writer(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -6103,7 +6102,7 @@ const dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_r
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -6120,7 +6119,7 @@ dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_reader(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -7267,7 +7266,7 @@ void dds::xrce::DataRepresentation::_d(dds::xrce::DataFormat __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -7306,7 +7305,7 @@ const dds::xrce::SampleData& dds::xrce::DataRepresentation::data() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data;
 }
@@ -7323,7 +7322,7 @@ dds::xrce::SampleData& dds::xrce::DataRepresentation::data()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data;
 }
@@ -7351,7 +7350,7 @@ const dds::xrce::Sample& dds::xrce::DataRepresentation::sample() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample;
 }
@@ -7368,7 +7367,7 @@ dds::xrce::Sample& dds::xrce::DataRepresentation::sample()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample;
 }
@@ -7396,7 +7395,7 @@ const dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_seq;
 }
@@ -7413,7 +7412,7 @@ dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_seq;
 }
@@ -7441,7 +7440,7 @@ const dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample_seq;
 }
@@ -7458,7 +7457,7 @@ dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample_seq;
 }
@@ -7486,7 +7485,7 @@ const dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples() 
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_packed_samples;
 }
@@ -7503,7 +7502,7 @@ dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_packed_samples;
 }
