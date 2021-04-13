@@ -1075,6 +1075,8 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
     // TODO (jamoralp): shall we test for all defined callback types?
 }
 
+// TODO (pablogs): Add tests for binary entity creation
+
 INSTANTIATE_TEST_CASE_P(AgentUnitTestsParams,
                         AgentUnitTests,
                         ::testing::Values(Middleware::Kind::FASTRTPS,Middleware::Kind::FASTDDS));
