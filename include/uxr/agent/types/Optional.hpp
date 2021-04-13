@@ -87,15 +87,15 @@ class Optional
         return present_;
     }
 
-    void serialize(eprosima::fastcdr::Cdr& cdr)
+    void serialize(eprosima::fastcdr::Cdr& cdr) const
     {
         cdr << present_;
-        if(data_){
+        if(present_){
             cdr << (data_);
         }
     }
 
-    void deserialize(eprosima::fastcdr::Cdr& cdr)
+    void deserialize(eprosima::fastcdr::Cdr& cdr) const
     {
         cdr >> present_;
         if(present_){
