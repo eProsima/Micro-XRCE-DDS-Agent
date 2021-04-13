@@ -23,13 +23,13 @@
 #define _UXR_AGENT_TYPES_XRCETYPES_HPP_
 
 #include <uxr/agent/types/Optional.hpp>
+#include <fastcdr/exceptions/BadParamException.h>
 
 #include <cstdint>
 #include <array>
 #include <string>
 #include <vector>
 #include <iostream>
-#include <exception>
 
 namespace eprosima { namespace fastcdr {
 
@@ -38,16 +38,6 @@ class Cdr;
 } } // namespace eprosima::fastcdr
 
 namespace dds { namespace xrce {
-
-class XRCETypesException: public std::exception {
-private:
-    std::string message_;
-public:
-    explicit XRCETypesException(const std::string& message);
-    const char* what() const noexcept override {
-        return message_.c_str();
-    }
-};
 
 typedef std::array<uint8_t, 4> ClientKey;
 
@@ -809,7 +799,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(TransportAddressFormat __d);
     
@@ -840,14 +830,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member small_locator
      * @return Constant reference to member small_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressSmall& small_locator() const;
 
     /*!
      * @brief This function returns a reference to member small_locator
      * @return Reference to member small_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressSmall& small_locator();
     /*!
@@ -865,14 +855,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member medium_locator
      * @return Constant reference to member medium_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressMedium& medium_locator() const;
 
     /*!
      * @brief This function returns a reference to member medium_locator
      * @return Reference to member medium_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressMedium& medium_locator();
     /*!
@@ -890,14 +880,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member large_locator
      * @return Constant reference to member large_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressLarge& large_locator() const;
 
     /*!
      * @brief This function returns a reference to member large_locator
      * @return Reference to member large_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressLarge& large_locator();
     /*!
@@ -915,14 +905,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_locator
      * @return Constant reference to member string_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressString& string_locator() const;
 
     /*!
      * @brief This function returns a reference to member string_locator
      * @return Reference to member string_locator
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressString& string_locator();
     
@@ -1730,7 +1720,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
     
@@ -1761,14 +1751,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member object_reference
      * @return Constant reference to member object_reference
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& object_reference() const;
 
     /*!
      * @brief This function returns a reference to member object_reference
      * @return Reference to member object_reference
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& object_reference();
     /*!
@@ -1786,14 +1776,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member xml_string_representation
      * @return Constant reference to member xml_string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& xml_string_representation() const;
 
     /*!
      * @brief This function returns a reference to member xml_string_representation
      * @return Reference to member xml_string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
 
     std::string& xml_string_representation();
@@ -1813,14 +1803,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member binary_representation
      * @return Constant reference to member binary_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::vector<uint8_t>& binary_representation() const;
 
     /*!
      * @brief This function returns a reference to member binary_representation
      * @return Reference to member binary_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::vector<uint8_t>& binary_representation();
     
@@ -1905,7 +1895,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
 
@@ -1936,14 +1926,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member object_reference
      * @return Constant reference to member object_reference
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& object_reference() const;
 
     /*!
      * @brief This function returns a reference to member object_reference
      * @return Reference to member object_reference
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& object_reference();
     /*!
@@ -1961,14 +1951,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_representation
      * @return Constant reference to member string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& string_representation() const;
 
     /*!
      * @brief This function returns a reference to member string_representation
      * @return Reference to member string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& string_representation();
 
@@ -2052,7 +2042,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
 
@@ -2083,14 +2073,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member binary_representation
      * @return Constant reference to member binary_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::vector<uint8_t>& binary_representation() const;
 
     /*!
      * @brief This function returns a reference to member binary_representation
      * @return Reference to member binary_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::vector<uint8_t>& binary_representation();
     /*!
@@ -2108,14 +2098,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_representation
      * @return Constant reference to member string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& string_representation() const;
 
     /*!
      * @brief This function returns a reference to member string_representation
      * @return Reference to member string_representation
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& string_representation();
 
@@ -5456,7 +5446,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(ObjectKind __d);
     
@@ -5487,14 +5477,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member agent
      * @return Constant reference to member agent
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const AGENT_Representation& agent() const;
 
     /*!
      * @brief This function returns a reference to member agent
      * @return Reference to member agent
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     AGENT_Representation& agent();
     /*!
@@ -5512,14 +5502,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member client
      * @return Constant reference to member client
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const CLIENT_Representation& client() const;
 
     /*!
      * @brief This function returns a reference to member client
      * @return Reference to member client
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     CLIENT_Representation& client();
 
@@ -5538,14 +5528,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member application
      * @return Constant reference to member application
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_APPLICATION_Representation& application() const;
 
     /*!
      * @brief This function returns a reference to member application
      * @return Reference to member application
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_APPLICATION_Representation& application();
     /*!
@@ -5563,14 +5553,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member participant
      * @return Constant reference to member participant
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_PARTICIPANT_Representation& participant() const;
 
     /*!
      * @brief This function returns a reference to member participant
      * @return Reference to member participant
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_PARTICIPANT_Representation& participant();
     /*!
@@ -5588,14 +5578,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member qos_profile
      * @return Constant reference to member qos_profile
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_QOSPROFILE_Representation& qos_profile() const;
 
     /*!
      * @brief This function returns a reference to member qos_profile
      * @return Reference to member qos_profile
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_QOSPROFILE_Representation& qos_profile();
 
@@ -5614,14 +5604,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member type
      * @return Constant reference to member type
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_TYPE_Representation& type() const;
 
     /*!
      * @brief This function returns a reference to member type
      * @return Reference to member type
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_TYPE_Representation& type();
     /*!
@@ -5639,14 +5629,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member topic
      * @return Constant reference to member topic
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_TOPIC_Representation& topic() const;
 
     /*!
      * @brief This function returns a reference to member topic
      * @return Reference to member topic
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_TOPIC_Representation& topic();
 
@@ -5665,14 +5655,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member publisher
      * @return Constant reference to member publisher
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_PUBLISHER_Representation& publisher() const;
 
     /*!
      * @brief This function returns a reference to member publisher
      * @return Reference to member publisher
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_PUBLISHER_Representation& publisher();
 
@@ -5691,14 +5681,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member subscriber
      * @return Constant reference to member subscriber
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_SUBSCRIBER_Representation& subscriber() const;
 
     /*!
      * @brief This function returns a reference to member subscriber
      * @return Reference to member subscriber
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_SUBSCRIBER_Representation& subscriber();
     
@@ -5717,14 +5707,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_writer
      * @return Constant reference to member data_writer
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAWRITER_Representation& data_writer() const;
 
     /*!
      * @brief This function returns a reference to member data_writer
      * @return Reference to member data_writer
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAWRITER_Representation& data_writer();
 
@@ -5743,14 +5733,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_reader
      * @return Constant reference to member data_reader
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAREADER_Representation& data_reader() const;
 
     /*!
      * @brief This function returns a reference to member data_reader
      * @return Reference to member data_reader
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_Representation& data_reader();
 
@@ -5769,14 +5759,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member requester
      * @return Constant reference to member requester
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const REQUESTER_Representation& requester() const;
 
     /*!
      * @brief This function returns a reference to member requester
      * @return Reference to member requester
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     REQUESTER_Representation& requester();
 
@@ -5795,14 +5785,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member replier
      * @return Constant replier to member replier
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const REPLIER_Representation& replier() const;
 
     /*!
      * @brief This function returns a reference to member replier
      * @return Reference to member replier
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     REPLIER_Representation& replier();
     
@@ -6544,7 +6534,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(ObjectKind __d);
     
@@ -6575,14 +6565,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member agent
      * @return Constant reference to member agent
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const AGENT_ActivityInfo& agent() const;
 
     /*!
      * @brief This function returns a reference to member agent
      * @return Reference to member agent
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     AGENT_ActivityInfo& agent();
 
@@ -6601,14 +6591,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_writer
      * @return Constant reference to member data_writer
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAWRITER_ActivityInfo& data_writer() const;
 
     /*!
      * @brief This function returns a reference to member data_writer
      * @return Reference to member data_writer
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAWRITER_ActivityInfo& data_writer();
 
@@ -6627,14 +6617,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_reader
      * @return Constant reference to member data_reader
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAREADER_ActivityInfo& data_reader() const;
 
     /*!
      * @brief This function returns a reference to member data_reader
      * @return Reference to member data_reader
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_ActivityInfo& data_reader();
     
@@ -6747,7 +6737,7 @@ public:
     {
         if (!m_config)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_config;
     }
@@ -6760,7 +6750,7 @@ public:
     {
         if (!m_config)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_config;
     }
@@ -6795,7 +6785,7 @@ public:
     {
         if (!m_activity)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_activity;
     }
@@ -6808,7 +6798,7 @@ public:
     {
         if (!m_activity)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_activity;
     }
@@ -7447,7 +7437,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -7460,7 +7450,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -7496,7 +7486,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }
@@ -7509,7 +7499,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw dds::xrce::XRCETypesException("Optional member has not been selected");
+            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }
@@ -8477,7 +8467,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(DataFormat __d);
     
@@ -8508,14 +8498,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data
      * @return Constant reference to member data
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleData& data() const;
 
     /*!
      * @brief This function returns a reference to member data
      * @return Reference to member data
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     SampleData& data();
     /*!
@@ -8533,14 +8523,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member sample
      * @return Constant reference to member sample
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const Sample& sample() const;
 
     /*!
      * @brief This function returns a reference to member sample
      * @return Reference to member sample
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     Sample& sample();
     /*!
@@ -8558,14 +8548,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_seq
      * @return Constant reference to member data_seq
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleDataSeq& data_seq() const;
 
     /*!
      * @brief This function returns a reference to member data_seq
      * @return Reference to member data_seq
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     SampleDataSeq& data_seq();
     /*!
@@ -8583,14 +8573,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member sample_seq
      * @return Constant reference to member sample_seq
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleSeq& sample_seq() const;
 
     /*!
      * @brief This function returns a reference to member sample_seq
      * @return Reference to member sample_seq
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     SampleSeq& sample_seq();
     /*!
@@ -8608,14 +8598,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member packed_samples
      * @return Constant reference to member packed_samples
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     const PackedSamples& packed_samples() const;
 
     /*!
      * @brief This function returns a reference to member packed_samples
      * @return Reference to member packed_samples
-     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
+     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
      */
     PackedSamples& packed_samples();
     

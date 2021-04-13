@@ -17,6 +17,8 @@
 #include <uxr/agent/message/InputMessage.hpp>
 #include <uxr/agent/message/OutputMessage.hpp>
 
+#include <fastcdr/exceptions/BadParamException.h>
+
 #include <gtest/gtest.h>
 
 #include <fstream>
@@ -151,7 +153,7 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageNoFilter)
     ASSERT_TRUE(input.get_payload(deserialized_read_data));
 
     ASSERT_THROW(read_data.read_specification().content_filter_expression(),
-                 dds::xrce::XRCETypesException);
+                 eprosima::fastcdr::exception::BadParamException);
     ASSERT_EQ(read_data.object_id(), deserialized_read_data.object_id());
     ASSERT_EQ(read_data.request_id(), deserialized_read_data.request_id());
     ASSERT_EQ(read_data.read_specification().data_format(),
