@@ -54,6 +54,7 @@ public:
     bool create_by_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const;
 
     // Proxy methods
 
@@ -162,8 +163,8 @@ public:
         const std::shared_ptr<FastDDSType>& type);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Topic_Binary& topic_xrce) const;
     bool match(const fastrtps::TopicAttributes& attrs) const;
-
 
     const std::string& get_name() const { return ptr_->get_name(); }
     const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
@@ -266,6 +267,7 @@ public:
     bool create_by_xml(const std::string& xml);
     bool create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
+    bool match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
     bool write(const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;
     const fastdds::dds::DomainParticipant* participant() const;
@@ -296,6 +298,7 @@ public:
     bool create_by_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const;
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout,
@@ -337,6 +340,7 @@ public:
         const fastrtps::RequesterAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Requester_Binary& requester_xrce) const;
 
     bool write(
         uint32_t sequence_number,
@@ -401,6 +405,7 @@ public:
         const fastrtps::ReplierAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Replier_Binary& replier_xrce) const;
 
     bool write(const std::vector<uint8_t>& data);
     bool read(std::vector<uint8_t>& data,

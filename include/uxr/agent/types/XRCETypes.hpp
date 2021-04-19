@@ -4255,6 +4255,15 @@ public:
     }
 
     /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
+    }
+
+    /*!
      * @brief This function returns a constant reference to member qos
      * @return Constant reference to member qos
      */
@@ -4526,6 +4535,16 @@ public:
     {
         return *m_subscriber_name;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
+    }
+
     /*!
      * @brief This function copies the value in member qos
      * @param _qos New value to be copied in member qos
@@ -5223,6 +5242,15 @@ public:
             uint32_t _ownership_strength);
 
     /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_ownership_strength() const
+    {
+        return bool(m_ownership_strength);
+    }
+
+    /*!
      * @brief This function returns the value of member ownership_strength
      * @return Value of member ownership_strength
      */
@@ -5368,6 +5396,15 @@ public:
     inline void qos(OBJK_DataWriter_Binary_Qos&& _qos)
     {
         m_qos = std::move(_qos);
+    }
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
     }
 
     /*!

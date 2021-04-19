@@ -961,6 +961,20 @@ bool FastDDSMiddleware::matched_participant_from_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::matched_participant_from_bin(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce ) const
+{
+    bool rv = false;
+    auto it = participants_.find(participant_id);
+    if (participants_.end() != it)
+    {
+        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_bin(participant_xrce));
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::matched_topic_from_ref(
         uint16_t topic_id,
         const std::string& ref) const
@@ -991,6 +1005,19 @@ bool FastDDSMiddleware::matched_topic_from_xml(
         {
             rv = it->second->match(attrs);
         }
+    }
+    return rv;
+}
+
+bool FastDDSMiddleware::matched_topic_from_bin(
+        uint16_t topic_id,
+        const dds::xrce::OBJK_Topic_Binary& topic_xrce) const
+{
+    bool rv = false;
+    auto it = topics_.find(topic_id);
+    if (topics_.end() != it)
+    {
+        rv = it->second->match_from_bin(topic_xrce);
     }
     return rv;
 }
@@ -1029,6 +1056,19 @@ bool FastDDSMiddleware::matched_datawriter_from_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::matched_datawriter_from_bin(
+        uint16_t datawriter_id,
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const
+{
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        rv = it->second->match_from_bin(datawriter_xrce);
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::matched_datareader_from_ref(
         uint16_t datareader_id,
         const std::string& ref) const
@@ -1051,6 +1091,19 @@ bool FastDDSMiddleware::matched_datareader_from_xml(
     if (datareaders_.end() != it)
     {
         rv = it->second->match_from_xml(xml);
+    }
+    return rv;
+}
+
+bool FastDDSMiddleware::matched_datareader_from_bin(
+        uint16_t datareader_id,
+        const dds::xrce::OBJK_DataReader_Binary& datareader_xrce) const
+{
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        rv = it->second->match_from_bin(datareader_xrce);
     }
     return rv;
 }
@@ -1081,6 +1134,19 @@ bool FastDDSMiddleware::matched_requester_from_xml(
     return rv;
 }
 
+bool FastDDSMiddleware::matched_requester_from_bin(
+        uint16_t requester_id,
+        const dds::xrce::OBJK_Requester_Binary& requester_xrce) const
+{
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->match_from_bin(requester_xrce);
+    }
+    return rv;
+}
+
 bool FastDDSMiddleware::matched_replier_from_ref(
         uint16_t requester_id,
         const std::string& ref) const
@@ -1103,6 +1169,19 @@ bool FastDDSMiddleware::matched_replier_from_xml(
     if (repliers_.end() != it)
     {
         rv = it->second->match_from_ref(xml);
+    }
+    return rv;
+}
+
+bool FastDDSMiddleware::matched_replier_from_bin(
+        uint16_t requester_id,
+        const dds::xrce::OBJK_Replier_Binary& replier_xrce) const
+{
+    bool rv = false;
+    auto it = repliers_.find(requester_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->match_from_bin(replier_xrce);
     }
     return rv;
 }
