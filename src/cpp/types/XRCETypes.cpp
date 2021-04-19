@@ -3124,21 +3124,21 @@ dds::xrce::OBJK_DomainParticipant_Binary::~OBJK_DomainParticipant_Binary()
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary(const OBJK_DomainParticipant_Binary &x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = x.m_domain_referente;
+    m_domain_reference = x.m_domain_reference;
     m_qos_profile = x.m_qos_profile;
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary(OBJK_DomainParticipant_Binary &&x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = std::move(x.m_domain_referente);
+    m_domain_reference = std::move(x.m_domain_reference);
     m_qos_profile = std::move(x.m_qos_profile);
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Binary::operator=(const OBJK_DomainParticipant_Binary &x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = x.m_domain_referente;
+    m_domain_reference = x.m_domain_reference;
     m_qos_profile = x.m_qos_profile;
     
     return *this;
@@ -3147,7 +3147,7 @@ dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Bina
 dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Binary::operator=(OBJK_DomainParticipant_Binary &&x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = std::move(x.m_domain_referente);
+    m_domain_reference = std::move(x.m_domain_reference);
     m_qos_profile = std::move(x.m_qos_profile);
     
     return *this;
@@ -3169,7 +3169,7 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_domain_referente).size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_domain_reference).size() + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_qos_profile).size() + 1;
 
@@ -3179,10 +3179,10 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 
 void dds::xrce::OBJK_DomainParticipant_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << bool(m_domain_referente);
-    if (m_domain_referente)
+    scdr << bool(m_domain_reference);
+    if (m_domain_reference)
     {
-        scdr << *m_domain_referente;
+        scdr << *m_domain_reference;
     }
     
     scdr << bool(m_qos_profile);
@@ -3200,7 +3200,7 @@ void dds::xrce::OBJK_DomainParticipant_Binary::deserialize(eprosima::fastcdr::Cd
     {
         std::string temp;
         dcdr >> temp;
-        m_domain_referente = temp;
+        m_domain_reference = temp;
     }
     dcdr >> m_temp_flag;
     if (m_temp_flag)

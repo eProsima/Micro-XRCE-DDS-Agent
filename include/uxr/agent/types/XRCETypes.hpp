@@ -3735,7 +3735,7 @@ public:
      */
     inline void domain_referente(const std::string &_domain_referente)
     {
-        m_domain_referente = _domain_referente;
+        m_domain_reference = _domain_referente;
     }
 
     /*!
@@ -3744,7 +3744,7 @@ public:
      */
     inline void domain_referente(std::string &&_domain_referente)
     {
-        m_domain_referente = std::move(_domain_referente);
+        m_domain_reference = std::move(_domain_referente);
     }
 
     /*!
@@ -3753,7 +3753,7 @@ public:
      */
     inline const std::string& domain_referente() const
     {
-        return *m_domain_referente;
+        return *m_domain_reference;
     }
 
     /*!
@@ -3762,7 +3762,7 @@ public:
      */
     inline std::string& domain_referente()
     {
-        return *m_domain_referente;
+        return *m_domain_reference;
     }
     /*!
      * @brief This function copies the value in member qos_profile
@@ -3830,7 +3830,7 @@ public:
 
 private:
     int32_t m_domain_id;
-    eprosima::Optional<std::string> m_domain_referente;
+    eprosima::Optional<std::string> m_domain_reference;
     eprosima::Optional<std::string> m_qos_profile;
 };
 /*!
