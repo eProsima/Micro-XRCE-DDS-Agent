@@ -90,7 +90,7 @@ bool Requester::matched(
     }
 
     bool rv = false;
-    switch (new_object_rep.data_writer().representation()._d())
+    switch (new_object_rep.requester().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
@@ -102,6 +102,18 @@ bool Requester::matched(
         {
             const std::string& xml = new_object_rep.requester().representation().object_reference();
             rv = proxy_client_->get_middleware().matched_requester_from_xml(get_raw_id(), xml);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = new_object_rep.requester().representation();
+            dds::xrce::OBJK_Requester_Binary request_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            request_xrce.deserialize(cdr);
+
+            rv = proxy_client_->get_middleware().matched_requester_from_bin(get_raw_id(), request_xrce);
             break;
         }
         default:

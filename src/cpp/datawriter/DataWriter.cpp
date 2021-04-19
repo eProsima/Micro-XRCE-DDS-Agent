@@ -99,6 +99,18 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
             rv = proxy_client_->get_middleware().matched_datawriter_from_xml(get_raw_id(), xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = new_object_rep.data_writer().representation();
+            dds::xrce::OBJK_DataWriter_Binary datawriter_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            datawriter_xrce.deserialize(cdr);
+
+            rv = proxy_client_->get_middleware().matched_datawriter_from_bin(get_raw_id(), datawriter_xrce);
+            break;
+        }
         default:
             break;
     }

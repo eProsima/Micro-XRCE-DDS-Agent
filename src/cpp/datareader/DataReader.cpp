@@ -105,6 +105,18 @@ bool DataReader::matched(
             rv = proxy_client_->get_middleware().matched_datareader_from_xml(get_raw_id(), xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = new_object_rep.data_reader().representation();
+            dds::xrce::OBJK_DataReader_Binary datareader_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            datareader_xrce.deserialize(cdr);
+
+            rv = proxy_client_->get_middleware().matched_datareader_from_bin(get_raw_id(), datareader_xrce);
+            break;
+        }
         default:
             break;
     }

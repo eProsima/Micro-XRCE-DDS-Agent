@@ -211,6 +211,11 @@ public:
             int16_t domain_id,
             const std::string& xml) const override;
 
+    bool matched_participant_from_bin(
+            uint16_t /* participant_id */,
+            int16_t /* domain_id */,
+            const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */) const override { return false; };
+
     bool matched_topic_from_ref(
             uint16_t topic_id,
             const std::string& ref) const override;
@@ -218,6 +223,10 @@ public:
     bool matched_topic_from_xml(
             uint16_t topic_id,
             const std::string& xml) const override;
+
+    bool matched_topic_from_bin(
+            uint16_t /* topic_id */,
+            const dds::xrce::OBJK_Topic_Binary& /* topic_xrce */) const override { return false; };
 
     bool matched_datawriter_from_ref(
             uint16_t datawriter_id,
@@ -227,6 +236,10 @@ public:
             uint16_t datawriter_id,
             const std::string& xml) const override;
 
+    bool matched_datawriter_from_bin(
+            uint16_t /* datawriter_id */,
+            const dds::xrce::OBJK_DataWriter_Binary& /* datawriter_xrce */) const override { return false; };
+
     bool matched_datareader_from_ref(
             uint16_t datareader_id,
             const std::string& ref) const override;
@@ -234,6 +247,10 @@ public:
     bool matched_datareader_from_xml(
             uint16_t datareader_id,
             const std::string& xml) const override;
+
+    bool matched_datareader_from_bin(
+            uint16_t /* datareader_id */,
+            const dds::xrce::OBJK_DataReader_Binary& /* datareader_xrce */) const override { return false; };
 
     bool matched_requester_from_ref(
             uint16_t participant_id,
@@ -243,6 +260,10 @@ public:
             uint16_t participant_id,
             const std::string& xml) const override;
 
+    bool matched_requester_from_bin(
+            uint16_t /* requester_id */,
+            const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */) const override { return false; };
+
     bool matched_replier_from_ref(
             uint16_t participant_id,
             const std::string& ref) const override;
@@ -251,6 +272,9 @@ public:
             uint16_t participant_id,
             const std::string& xml) const override;
 
+    bool matched_replier_from_bin(
+            uint16_t /* replier_id */,
+            const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */) const override { return false; };
 private:
     std::shared_ptr<FastDDSRequester> create_requester(
         std::shared_ptr<FastDDSParticipant>& participant,
