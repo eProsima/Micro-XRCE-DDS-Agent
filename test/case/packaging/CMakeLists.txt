@@ -20,4 +20,4 @@ find_package(microxrcedds_agent EXACT ${REQUIRED_VERSION} REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} microxrcedds_agent)
+target_link_libraries(${PROJECT_NAME} fastcdr microxrcedds_agent)
