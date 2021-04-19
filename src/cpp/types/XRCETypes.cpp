@@ -32,27 +32,6 @@ namespace { char dummy; }
 
 using namespace eprosima::fastcdr::exception;
 
-template<typename T>
-eprosima::fastcdr::Cdr& operator<<(eprosima::fastcdr::Cdr& cdr, const eprosima::Optional<T> opt){
-    cdr << bool(opt);
-    if(opt){
-        cdr << (*opt);
-    }
-    return cdr;
-}
-
-template<typename T>
-eprosima::fastcdr::Cdr& operator>>(eprosima::fastcdr::Cdr& cdr, eprosima::Optional<T>& opt){
-    bool flag;
-    cdr >> flag;
-    if(flag){
-        T aux;
-        cdr >> aux;
-        opt = aux;
-    }
-    return cdr;
-}
-
 dds::xrce::Time_t::Time_t()
 {
     m_seconds = 0;
@@ -1053,7 +1032,12 @@ void dds::xrce::CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) c
     scdr << m_xrce_vendor_id;
     scdr << m_client_key;
     scdr << m_session_id;
-    scdr << m_properties;
+    scdr << bool(m_properties);
+    if (m_properties)
+    {
+        scdr << *m_properties;
+    }
+    
     scdr << m_mtu;
 }
 
@@ -1154,7 +1138,12 @@ void dds::xrce::AGENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) co
     scdr << m_xrce_cookie;
     scdr << m_xrce_version;
     scdr << m_xrce_vendor_id;
-    scdr << m_properties;
+    scdr << bool(m_properties);
+    if (m_properties)
+    {
+        scdr << *m_properties;
+    }
+    
 }
 
 void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3191,14 +3180,36 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 
 void dds::xrce::OBJK_DomainParticipant_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_domain_referente;
-    scdr << m_qos_profile;
+    scdr << bool(m_domain_referente);
+    if (m_domain_referente)
+    {
+        scdr << *m_domain_referente;
+    }
+    
+    scdr << bool(m_qos_profile);
+    if (m_qos_profile)
+    {
+        scdr << *m_qos_profile;
+    }
 }
 
 void dds::xrce::OBJK_DomainParticipant_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_domain_referente;
-    dcdr >> m_qos_profile;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_domain_referente = temp;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_qos_profile = temp;
+    }
 }
 
 dds::xrce::OBJK_Topic_Binary::OBJK_Topic_Binary()
@@ -3272,15 +3283,37 @@ size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignme
 void dds::xrce::OBJK_Topic_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_type_identifier;
-    scdr << m_type_name;
+    scdr << bool(m_type_identifier);
+    if (m_type_identifier)
+    {
+        scdr << *m_type_identifier;
+    }
+    scdr << bool(m_type_name);
+    if (m_type_name)
+    {
+        scdr << *m_type_name;
+    }
+    
 }
 
 void dds::xrce::OBJK_Topic_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
+    bool flag;
     dcdr >> m_topic_name;
-    dcdr >> m_type_identifier;
-    dcdr >> m_type_name;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_type_identifier = temp;
+    }
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_type_name = temp;
+    }
 }
 
 dds::xrce::OBJK_PUBLISHER_QosBinary::OBJK_PUBLISHER_QosBinary()
@@ -3427,8 +3460,16 @@ size_t dds::xrce::OBJK_Publisher_Binary::getCdrSerializedSize(size_t current_ali
 
 void dds::xrce::OBJK_Publisher_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_publisher_name;
-    scdr << m_qos;
+    scdr << bool(m_publisher_name);
+    if (m_publisher_name)
+    {
+        scdr << *m_publisher_name;
+    }
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_Publisher_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3592,8 +3633,17 @@ size_t dds::xrce::OBJK_Subscriber_Binary::getCdrSerializedSize(size_t current_al
 
 void dds::xrce::OBJK_Subscriber_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_subscriber_name;
-    scdr << m_qos;
+    scdr << bool(m_subscriber_name);
+    if (m_subscriber_name)
+    {
+        scdr << *m_subscriber_name;
+    }
+    
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_Subscriber_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3704,10 +3754,29 @@ size_t dds::xrce::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_a
 void dds::xrce::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << (uint16_t)m_qos_flags;
-    scdr << m_history_depth;
-    scdr << m_deadline_msec;
-    scdr << m_lifespan_msec;
-    scdr << m_user_data;
+    scdr << bool(m_history_depth);
+    if (m_history_depth)
+    {
+        scdr << *m_history_depth;
+    }
+    
+    scdr << bool(m_deadline_msec);
+    if (m_deadline_msec)
+    {
+        scdr << *m_deadline_msec;
+    }
+
+    scdr << bool(m_lifespan_msec);
+    if (m_lifespan_msec)
+    {
+        scdr << *m_lifespan_msec;
+    }
+
+    scdr << bool(m_user_data);
+    if (m_user_data)
+    {
+        scdr << *m_user_data;
+    }
 }
 
 void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3715,10 +3784,39 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
     std::underlying_type<dds::xrce::EndpointQosFlags>::type temp_qos_flags;
     dcdr >> temp_qos_flags;
     m_qos_flags = static_cast<dds::xrce::EndpointQosFlags>(temp_qos_flags);
-    dcdr >> m_history_depth;
-    dcdr >> m_deadline_msec;
-    dcdr >> m_lifespan_msec;
-    dcdr >> m_user_data;
+    
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint16_t temp;
+        dcdr >> temp;
+        m_history_depth = temp;
+    }
+    
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_deadline_msec = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_lifespan_msec = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        std::vector<uint8_t> temp;
+        dcdr >> temp;
+        m_user_data = temp;
+    }
 }
 
 
@@ -3801,16 +3899,40 @@ void dds::xrce::OBJK_DataReader_Binary_Qos::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_base;
-    scdr << m_timebasedfilter_msec;
-    scdr << m_contentbased_filter;
+    scdr << bool(m_timebasedfilter_msec);
+    if (m_timebasedfilter_msec)
+    {
+        scdr << *m_timebasedfilter_msec;
+    }
+    
+    scdr << bool(m_contentbased_filter);
+    if (m_contentbased_filter)
+    {
+        scdr << *m_contentbased_filter;
+    }
 }
 
 void dds::xrce::OBJK_DataReader_Binary_Qos::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_base;
-    dcdr >> m_timebasedfilter_msec;
-    dcdr >> m_contentbased_filter;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_timebasedfilter_msec = temp;
+    }
+    
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_contentbased_filter = temp;
+    }
 }
 
 /*!
@@ -4000,15 +4122,25 @@ void dds::xrce::OBJK_DataReader_Binary::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_qos;
-
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_DataReader_Binary::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_topic_name;
-    dcdr >> m_qos;
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        dds::xrce::OBJK_DataReader_Binary_Qos temp;
+        dcdr >> temp;
+        m_qos = temp;
+    }
 }
 
 /*!
@@ -4111,7 +4243,12 @@ void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_base;
-    scdr << m_ownership_strength;
+    scdr << bool(m_ownership_strength);
+    if (m_ownership_strength)
+    {
+        scdr << *m_ownership_strength;
+    }
+    
 
 }
 
@@ -4119,7 +4256,15 @@ void dds::xrce::OBJK_DataWriter_Binary_Qos::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_base;
-    dcdr >> m_ownership_strength;
+    
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_ownership_strength = temp;
+    }
 }
 
 /*!
@@ -4245,14 +4390,24 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
 void dds::xrce::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_qos;
-
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_topic_name;
-    dcdr >> m_qos;
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        dds::xrce::OBJK_DataWriter_Binary_Qos temp;
+        dcdr >> temp;
+        m_qos = temp;
+    }
 }
 
 dds::xrce::ObjectVariant::ObjectVariant()
@@ -6296,8 +6451,18 @@ size_t dds::xrce::ObjectInfo::getCdrSerializedSize(size_t current_alignment) con
 
 void dds::xrce::ObjectInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_config;
-    scdr << m_activity;
+    scdr << bool(m_config);
+    if (m_config)
+    {
+        scdr << *m_config;
+    }
+    
+    scdr << bool(m_activity);
+    if (m_activity)
+    {
+        scdr << *m_activity;
+    }
+    
 }
 
 void dds::xrce::ObjectInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -6637,16 +6802,39 @@ void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_preferred_stream_id;
     scdr << m_data_format;
-    scdr << m_content_filter_expression;
-    scdr << m_delivery_control;
-}
+    scdr << bool(m_content_filter_expression);
+    if (m_content_filter_expression)
+    {
+        scdr << *m_content_filter_expression;
+    }
+    scdr << bool(m_delivery_control);
+    if (m_delivery_control)
+    {
+        scdr << *m_delivery_control;
+    }
+    }
 
 void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_preferred_stream_id;
     dcdr >> m_data_format;
-    dcdr >> m_content_filter_expression;
-    dcdr >> m_delivery_control;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_content_filter_expression = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        dds::xrce::DataDeliveryControl temp;
+        dcdr >> temp;
+        m_delivery_control = temp;
+    }
 }
 
 dds::xrce::SampleInfo::SampleInfo()
@@ -9371,8 +9559,17 @@ void dds::xrce::OBJK_Requester_Binary::serialize(
     scdr << m_service_name;
     scdr << m_request_type;
     scdr << m_reply_type;
-    scdr << m_reply_topic_name;
-    scdr << m_request_topic_name;
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
+    }
+    
+    scdr << bool(m_request_topic_name);
+    if (m_request_topic_name)
+    {
+        scdr << *m_request_topic_name;
+    }
 
 }
 
@@ -9382,8 +9579,23 @@ void dds::xrce::OBJK_Requester_Binary::deserialize(
     dcdr >> m_service_name;
     dcdr >> m_request_type;
     dcdr >> m_reply_type;
-    dcdr >> m_reply_topic_name;
-    dcdr >> m_request_topic_name;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_reply_topic_name = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_request_topic_name = temp;
+    }
 }
 
 /*!
@@ -9674,8 +9886,16 @@ void dds::xrce::OBJK_Replier_Binary::serialize(
     scdr << m_service_name;
     scdr << m_request_type;
     scdr << m_reply_type;
-    scdr << m_reply_topic_name;
-    scdr << m_request_topic_name;
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
+    }
+    scdr << bool(m_request_topic_name);
+    if (m_request_topic_name)
+    {
+        scdr << *m_request_topic_name;
+    }
 
 }
 
@@ -9685,8 +9905,22 @@ void dds::xrce::OBJK_Replier_Binary::deserialize(
     dcdr >> m_service_name;
     dcdr >> m_request_type;
     dcdr >> m_reply_type;
-    dcdr >> m_reply_topic_name;
-    dcdr >> m_request_topic_name;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_reply_topic_name = temp;
+    }
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_request_topic_name = temp;
+    }
 }
 
 /*!

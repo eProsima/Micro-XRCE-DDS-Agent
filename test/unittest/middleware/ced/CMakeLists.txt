@@ -36,7 +36,6 @@ target_include_directories(${TEST_NAME}
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
-        fastcdr
         ${GTEST_BOTH_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )
