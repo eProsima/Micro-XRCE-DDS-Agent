@@ -141,111 +141,185 @@ static void set_qos_from_attributes(
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::DomainParticipantQos& qos,
-        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+        fastdds::dds::DomainParticipantQos& /* qos */,
+        const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */)
 {
-    // TODO
+    return;
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::PublisherQos& qos,
-        const dds::xrce::OBJK_Publisher_Binary& publisher_xrce)
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Publisher_Binary& /* publisher_xrce */)
 {
-    // TODO
-    // if (publisher_xrce.has_qos())
-    // {   
-    //     fastdds::dds::PartitionQosPolicy partition;
-    //     partition.setNames(publisher_xrce.qos().partitions());
-    //     qos.partition(partition);
-
-    //     fastdds::dds::GroupDataQosPolicy group_data;
-    //     group_data.setValue(publisher_xrce.qos().group_data());
-    //     qos.group_data(group_data);
-    // }
+    // TODO copy group_data
+    // TODO copy partition
+    return;
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::SubscriberQos& qos,
-        const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce)
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Subscriber_Binary& /* subscriber_xrce */)
 {
-    // TODO
-    // if (subscriber_xrce.has_qos())
-    // {   
-    //     fastdds::dds::PartitionQosPolicy partition;
-    //     partition.setNames(subscriber_xrce.qos().partitions());
-    //     qos.partition(partition);
-
-    //     fastdds::dds::GroupDataQosPolicy group_data;
-    //     group_data.setValue(publisher_xrce.qos().group_data());
-    //     qos.group_data(group_data);
-    // }
+    // TODO copy group_data
+    // TODO copy partition
+    return;
 }
 
 static void set_qos_from_xrce_object(
         fastdds::dds::DataWriterQos& qos,
         const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
 {
-    // TODO
-    // if (datawriter_xrce.has_qos())
-    // {
-    //     if (datawriter_xrce.qos().has_ownership_strength())
-    //     {
-    //         eprosima::dds::OwnershipQosPolicy ownership_strenght;
-    //         ownership_strenght.kind = (datawriter_xrce.qos().ownership_strength()) ? SHARED_OWNERSHIP_QOS : EXCLUSIVE_OWNERSHIP_QOS;
-    //         qos.ownership_strength(ownership_strenght);
-    //     }
-        
-    //     dds::xrce::OBJK_DataWriter_Binary aux(datawriter_xrce);
-    //     qos.reliability().kind = (aux.qos().base().qos_flags() & dds::xrce::is_reliable) ? RELIABLE_RELIABILITY_QOS : BEST_EFFORT_RELIABILITY_QOS;
+    if (datawriter_xrce.has_qos())
+    {   
+        ReliabilityQosPolicy reliability;
+        reliability.kind = 
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
+            ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
+            ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
+        qos.reliability() = reliability;
 
-    //     // TODO: complete this.
-    // }
+        // TODO set is_ownership_exclusive
+        // TODO set user data
+
+        DurabilityQosPolicy durability;
+        durability.kind = 
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local) ?
+            DurabilityQosPolicyKind::TRANSIENT_LOCAL_DURABILITY_QOS :
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient) ?
+                DurabilityQosPolicyKind::TRANSIENT_DURABILITY_QOS :
+                DurabilityQosPolicyKind::PERSISTENT_DURABILITY_QOS;
+        qos.durability() = durability;
+
+        HistoryQosPolicy history;
+        history.kind = 
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
+            HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
+            HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
+        
+        if (datawriter_xrce.qos().base().has_history_depth())
+        {
+            history.depth = datawriter_xrce.qos().base().history_depth();
+        }
+        qos.history() = history;
+
+        if (datawriter_xrce.qos().base().has_deadline_msec())
+        {
+            DeadlineQosPolicy deadline;
+            deadline.period = Duration_t(static_cast<long double>(datawriter_xrce.qos().base().deadline_msec()/1000.0));
+            qos.deadline() = deadline;
+        }
+
+        if (datawriter_xrce.qos().base().has_lifespan_msec())
+        {
+            LifespanQosPolicy lifespan;
+            lifespan.duration = Duration_t(static_cast<long double>(datawriter_xrce.qos().base().lifespan_msec()/1000.0));
+            qos.lifespan() = lifespan;
+        }
+
+        if (datawriter_xrce.qos().has_ownership_strength())
+        {
+            OwnershipStrengthQosPolicy ownership_strength;
+            ownership_strength.value = datawriter_xrce.qos().ownership_strength();
+            qos.ownership_strength() = ownership_strength;
+        }
+    } 
 }
 
 static void set_qos_from_xrce_object(
         fastdds::dds::DataReaderQos& qos,
         const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
 {
-    // TODO
-    // dds::xrce::OBJK_DataReader_Binary aux(datareader_xrce);
-    // qos.reliability().kind = (aux.qos().base().qos_flags() & dds::xrce::is_reliable) ? RELIABLE_RELIABILITY_QOS : BEST_EFFORT_RELIABILITY_QOS;
+    if (datareader_xrce.has_qos())
+    {
+        ReliabilityQosPolicy reliability;
+        reliability.kind = 
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
+            ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
+            ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
+        qos.reliability() = reliability;
 
-    //TODO: configure qos using datareader_xrce
+        // TODO set is_ownership_exclusive
+        // TODO set user data
+        // TODO set m_contentbased_filter
+
+        DurabilityQosPolicy durability;
+        durability.kind = 
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local) ?
+            DurabilityQosPolicyKind::TRANSIENT_LOCAL_DURABILITY_QOS :
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient) ?
+                DurabilityQosPolicyKind::TRANSIENT_DURABILITY_QOS :
+                DurabilityQosPolicyKind::PERSISTENT_DURABILITY_QOS;
+        qos.durability() = durability;
+
+        HistoryQosPolicy history;
+        history.kind = 
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
+            HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
+            HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
+        
+        if (datareader_xrce.qos().base().has_history_depth())
+        {
+            history.depth = datareader_xrce.qos().base().history_depth();
+        }
+        qos.history() = history;
+
+        if (datareader_xrce.qos().base().has_deadline_msec())
+        {
+            DeadlineQosPolicy deadline;
+            deadline.period = Duration_t(static_cast<long double>(datareader_xrce.qos().base().deadline_msec()/1000.0));
+            qos.deadline() = deadline;
+        }
+
+        if (datareader_xrce.qos().base().has_lifespan_msec())
+        {
+            LifespanQosPolicy lifespan;
+            lifespan.duration = Duration_t(static_cast<long double>(datareader_xrce.qos().base().lifespan_msec()/1000.0));
+            qos.lifespan() = lifespan;
+        }
+
+        if (datareader_xrce.qos().has_timebasedfilter_msec())
+        {
+            TimeBasedFilterQosPolicy timebased_filter;
+            timebased_filter.minimum_separation = Duration_t(static_cast<long double>(datareader_xrce.qos().timebasedfilter_msec()/1000.0));;
+            qos.time_based_filter() = timebased_filter;
+        }
+        
+    }
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::TopicQos& qos,
-        const dds::xrce::OBJK_Topic_Binary& topic_xrce)
+        fastdds::dds::TopicQos& /* qos */,
+        const dds::xrce::OBJK_Topic_Binary& /* topic_xrce */)
 {
-    // TODO
+    return;
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::PublisherQos& qos,
-        const dds::xrce::OBJK_Requester_Binary& requester_xrce)
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */)
 {
-    // TODO
+    return; 
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::SubscriberQos& qos,
-        const dds::xrce::OBJK_Requester_Binary& requester_xrce)
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */)
 {
-    // TODO
+    return;
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::PublisherQos& qos,
-        const dds::xrce::OBJK_Replier_Binary& replier_xrce)
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */)
 {
-    // TODO
+    return;
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::SubscriberQos& qos,
-        const dds::xrce::OBJK_Replier_Binary& replier_xrce)
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */)
 {
-    // TODO
+    return;
 }
 
 /**********************************************************************************************************************

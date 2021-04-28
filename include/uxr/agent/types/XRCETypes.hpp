@@ -4704,6 +4704,16 @@ public:
     }
 
     /*!
+     * @brief This function returns a boolean indicating if m_history_depth is present
+     * @return Bool
+     */
+
+    inline bool has_history_depth() const
+    {
+        return bool(m_history_depth);
+    }
+
+    /*!
      * @brief This function returns the value of member history_depth
      * @return Value of member history_depth
      */
@@ -4720,6 +4730,17 @@ public:
     {
         return *m_history_depth;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if deadline_msec is present
+     * @return Bool
+     */
+
+    inline bool has_deadline_msec() const
+    {
+        return bool(m_deadline_msec);
+    }
+
     /*!
      * @brief This function sets a value in member deadline_msec
      * @param _deadline_msec New value for member deadline_msec
@@ -4746,6 +4767,17 @@ public:
     {
         return *m_deadline_msec;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if lifespan_msec is present
+     * @return Bool
+     */
+
+    inline bool has_lifespan_msec() const
+    {
+        return bool(m_lifespan_msec);
+    }
+
     /*!
      * @brief This function sets a value in member lifespan_msec
      * @param _lifespan_msec New value for member lifespan_msec
@@ -4920,6 +4952,15 @@ public:
         */
     void timebasedfilter_msec(
             uint32_t _timebasedfilter_msec);
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_timebasedfilter_msec() const
+    {
+        return bool(m_timebasedfilter_msec);
+    }
 
     /*!
         * @brief This function returns the value of member timebasedfilter_msec
@@ -5112,6 +5153,15 @@ public:
         */
     void qos(
             dds::xrce::OBJK_DataReader_Binary_Qos&& _qos);
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
+    }
 
     /*!
         * @brief This function returns a constant reference to member qos
@@ -5411,7 +5461,7 @@ public:
      * @brief This function returns a constant reference to member qos
      * @return Constant reference to member qos
      */
-    inline const OBJK_DataWriter_Binary_Qos& qos()
+    inline const OBJK_DataWriter_Binary_Qos& qos() const
     {
         return *m_qos;
     }
