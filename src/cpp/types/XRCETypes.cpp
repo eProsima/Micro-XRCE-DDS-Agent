@@ -9558,16 +9558,16 @@ void dds::xrce::OBJK_Requester_Binary::serialize(
     scdr << m_service_name;
     scdr << m_request_type;
     scdr << m_reply_type;
-    scdr << bool(m_reply_topic_name);
-    if (m_reply_topic_name)
-    {
-        scdr << *m_reply_topic_name;
-    }
-    
     scdr << bool(m_request_topic_name);
     if (m_request_topic_name)
     {
         scdr << *m_request_topic_name;
+    }
+
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
     }
 
 }
@@ -9585,7 +9585,7 @@ void dds::xrce::OBJK_Requester_Binary::deserialize(
     {
         std::string temp;
         dcdr >> temp;
-        m_reply_topic_name = temp;
+        m_request_topic_name = temp;
     }
 
     dcdr >> flag;
@@ -9593,7 +9593,7 @@ void dds::xrce::OBJK_Requester_Binary::deserialize(
     {
         std::string temp;
         dcdr >> temp;
-        m_request_topic_name = temp;
+        m_reply_topic_name = temp;
     }
 }
 
@@ -9885,15 +9885,15 @@ void dds::xrce::OBJK_Replier_Binary::serialize(
     scdr << m_service_name;
     scdr << m_request_type;
     scdr << m_reply_type;
-    scdr << bool(m_reply_topic_name);
-    if (m_reply_topic_name)
-    {
-        scdr << *m_reply_topic_name;
-    }
     scdr << bool(m_request_topic_name);
     if (m_request_topic_name)
     {
         scdr << *m_request_topic_name;
+    }
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
     }
 
 }
@@ -9911,14 +9911,14 @@ void dds::xrce::OBJK_Replier_Binary::deserialize(
     {
         std::string temp;
         dcdr >> temp;
-        m_reply_topic_name = temp;
+        m_request_topic_name = temp;
     }
     dcdr >> flag;
     if (flag)
     {
         std::string temp;
         dcdr >> temp;
-        m_request_topic_name = temp;
+        m_reply_topic_name = temp;
     }
 }
 
