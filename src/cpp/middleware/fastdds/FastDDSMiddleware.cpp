@@ -695,7 +695,21 @@ bool FastDDSMiddleware::read_request(
    auto it = repliers_.find(replier_id);
    if (repliers_.end() != it)
    {
-       rv = it->second->read(data, timeout);
+        fastdds::dds::SampleInfo sample_info;
+        rv = it->second->read(data, timeout, sample_info);
+
+        if (intraprocess_enabled_)
+        {
+            for (auto rq = requesters_.begin(); rq != requesters_.end(); rq++)
+            {
+                if (rq->second->guid_datawriter() == sample_info.sample_identity.writer_guid())
+                {
+                    rv = false;
+                    break;
+                }
+            }
+        }
+
    }
    return rv;
 }
@@ -710,7 +724,20 @@ bool FastDDSMiddleware::read_reply(
    auto it = requesters_.find(requester_id);
    if (requesters_.end() != it)
    {
-       rv = it->second->read(sequence_number, data, timeout);
+       fastdds::dds::SampleInfo sample_info;
+       rv = it->second->read(sequence_number, data, timeout, sample_info);
+
+       if (intraprocess_enabled_)
+        {
+            for (auto rp = repliers_.begin(); rp != repliers_.end(); rp++)
+            {
+                if (rp->second->guid_datawriter() == sample_info.sample_identity.writer_guid())
+                {
+                    rv = false;
+                    break;
+                }
+            }
+        }
    }
    return rv;
 }

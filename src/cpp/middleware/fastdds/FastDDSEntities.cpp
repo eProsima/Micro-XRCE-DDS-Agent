@@ -835,12 +835,12 @@ bool FastDDSRequester::write(
 bool FastDDSRequester::read(
         uint32_t& sequence_number,
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout)
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info)
 {
     bool rv = false;
 
     fastrtps::Duration_t d((long double) timeout.count()/1000.0);
-    fastdds::dds::SampleInfo info;
 
     if(datareader_ptr_->wait_for_unread_message(d)){
         rv = ReturnCode_t::RETCODE_OK == datareader_ptr_->take_next_sample(&data, &info);
@@ -1028,14 +1028,14 @@ void FastDDSReplier::transform_sample_identity(
 
 bool FastDDSReplier::read(
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout)
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info)
 {
     std::vector<uint8_t> temp_data;
 
     bool rv = false;
 
     fastrtps::Duration_t d((long double) timeout.count()/1000.0);
-    fastdds::dds::SampleInfo info;
 
     if(datareader_ptr_->wait_for_unread_message(d)){
         rv = ReturnCode_t::RETCODE_OK == datareader_ptr_->take_next_sample(&temp_data, &info);
