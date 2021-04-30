@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
@@ -354,16 +355,20 @@ bool FastDDSMiddleware::create_datawriter_by_bin(
     if (publishers_.end() != it_publisher)
     {
         std::shared_ptr<FastDDSDataWriter> datawriter(new FastDDSDataWriter(it_publisher->second));
-        if (datawriter->create_by_bin(datawriter_xrce))
+        auto it_topics = topics_.find(conversion::objectid_to_raw(datawriter_xrce.topic_id()));
+        if (topics_.end() != it_topics)
         {
-            auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
-            rv = emplace_res.second;
-            if (rv)
+            if (datawriter->create_by_bin(datawriter_xrce, it_topics->second))
             {
-                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAWRITER,
-                    **it_publisher->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                auto emplace_res = datawriters_.emplace(datawriter_id, std::move(datawriter));
+                rv = emplace_res.second;
+                if (rv)
+                {
+                    callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                        middleware::CallbackKind::CREATE_DATAWRITER,
+                        **it_publisher->second->get_participant(),
+                        emplace_res.first->second->ptr());
+                }
             }
         }
     }
@@ -432,16 +437,20 @@ bool FastDDSMiddleware::create_datareader_by_bin(
     if (subscribers_.end() != it_subscriber)
     {
         std::shared_ptr<FastDDSDataReader> datareader(new FastDDSDataReader(it_subscriber->second));
-        if (datareader->create_by_bin(datareader_xrce))
+        auto it_topics = topics_.find(conversion::objectid_to_raw(datareader_xrce.topic_id()));
+        if (topics_.end() != it_topics)
         {
-            auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
-            rv = emplace_res.second;
-            if (rv)
+            if (datareader->create_by_bin(datareader_xrce, it_topics->second))
             {
-                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAREADER,
-                    **it_subscriber->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                auto emplace_res = datareaders_.emplace(datareader_id, std::move(datareader));
+                rv = emplace_res.second;
+                if (rv)
+                {
+                    callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                        middleware::CallbackKind::CREATE_DATAREADER,
+                        **it_subscriber->second->get_participant(),
+                        emplace_res.first->second->ptr());
+                }
             }
         }
     }

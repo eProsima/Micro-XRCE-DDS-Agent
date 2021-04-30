@@ -830,11 +830,13 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
     return rv;
 }
 
-bool FastDDSDataWriter::create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
+bool FastDDSDataWriter::create_by_bin(
+    const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
+    std::shared_ptr<eprosima::uxr::FastDDSTopic> topic)
 {
     bool rv = false;
+    topic_ = topic;
     if (nullptr == ptr_){
-        topic_ = publisher_->get_participant()->find_local_topic(datawriter_xrce.topic_name());
         if(topic_){
             fastdds::dds::DataWriterQos qos = fastdds::dds::DATAWRITER_QOS_DEFAULT;
             set_qos_from_xrce_object(qos, datawriter_xrce);
@@ -926,11 +928,13 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
     return rv;
 }
 
-bool FastDDSDataReader::create_by_bin(const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
+bool FastDDSDataReader::create_by_bin(
+    const dds::xrce::OBJK_DataReader_Binary& datareader_xrce,
+    std::shared_ptr<eprosima::uxr::FastDDSTopic> topic)
 {
     bool rv = false;
+    topic_ = topic;
     if (nullptr == ptr_){
-        topic_ = subscriber_->get_participant()->find_local_topic(datareader_xrce.topic_name());
         if(topic_){
             fastdds::dds::DataReaderQos qos = fastdds::dds::DATAREADER_QOS_DEFAULT;
             set_qos_from_xrce_object(qos, datareader_xrce);

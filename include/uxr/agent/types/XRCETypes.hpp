@@ -5109,36 +5109,36 @@ public:
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_name(const std::string &_topic_name)
+    inline void topic_id(const ObjectId &_topic_id)
     {
-        m_topic_name = _topic_name;
+        m_topic_id = _topic_id;
     }
 
     /*!
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_name(std::string &&_topic_name)
+    inline void topic_id(ObjectId &&_topic_id)
     {
-        m_topic_name = std::move(_topic_name);
+        m_topic_id = std::move(_topic_id);
     }
 
     /*!
      * @brief This function returns a constant reference to member topic_name
      * @return Constant reference to member topic_name
      */
-    inline const std::string& topic_name() const
+    inline const ObjectId& topic_id() const
     {
-        return m_topic_name;
+        return m_topic_id;
     }
 
     /*!
      * @brief This function returns a reference to member topic_name
      * @return Reference to member topic_name
      */
-    inline std::string& topic_name()
+    inline ObjectId& topic_id()
     {
-        return m_topic_name;
+        return m_topic_id;
     }
     /*!
         * @brief This function copies the value in member qos
@@ -5209,7 +5209,7 @@ public:
     void deserialize(
             eprosima::fastcdr::Cdr& cdr);
 private:
-    std::string m_topic_name;
+    ObjectId m_topic_id;
     eprosima::Optional<dds::xrce::OBJK_DataReader_Binary_Qos> m_qos;
 };
 
@@ -5399,36 +5399,36 @@ public:
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_name(const std::string &_topic_name)
+    inline void topic_id(const ObjectId &_topic_id)
     {
-        m_topic_name = _topic_name;
+        m_topic_id = _topic_id;
     }
 
     /*!
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_name(std::string &&_topic_name)
+    inline void topic_id(const ObjectId &&_topic_id)
     {
-        m_topic_name = std::move(_topic_name);
+        m_topic_id = std::move(_topic_id);
     }
 
     /*!
      * @brief This function returns a constant reference to member topic_name
      * @return Constant reference to member topic_name
      */
-    inline const std::string& topic_name() const
+    inline const ObjectId& topic_id() const
     {
-        return m_topic_name;
+        return m_topic_id;
     }
 
     /*!
      * @brief This function returns a reference to member topic_name
      * @return Reference to member topic_name
      */
-    inline std::string& topic_name()
+    inline ObjectId& topic_id()
     {
-        return m_topic_name;
+        return m_topic_id;
     }
     /*!
      * @brief This function copies the value in member qos
@@ -5495,7 +5495,7 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_topic_name;
+    ObjectId m_topic_id;
     eprosima::Optional<OBJK_DataWriter_Binary_Qos> m_qos;
 };
 /*!

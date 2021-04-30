@@ -265,7 +265,9 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
-    bool create_by_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce);
+    bool create_by_bin(
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
+        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
     bool match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
     bool write(const std::vector<uint8_t>& data);
@@ -295,7 +297,9 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
-    bool create_by_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce);
+    bool create_by_bin(
+        const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce,
+        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool match_from_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const;

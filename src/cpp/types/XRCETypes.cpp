@@ -4046,7 +4046,6 @@ size_t dds::xrce::OBJK_DataReader_Binary_Qos::getKeyMaxCdrSerializedSize(
 
 dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary()
 {
-    m_topic_name = "";
 }
 
 dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
@@ -4058,14 +4057,14 @@ dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
 dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
         const OBJK_DataReader_Binary& x)
 {
-    m_topic_name = x.m_topic_name;
+    m_topic_id = x.m_topic_id;
     m_qos = x.m_qos;
 }
 
 dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
         OBJK_DataReader_Binary&& x)
 {
-    m_topic_name = std::move(x.m_topic_name);
+    m_topic_id = std::move(x.m_topic_id);
     m_qos = std::move(x.m_qos);
 }
 
@@ -4073,7 +4072,7 @@ dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =
         const OBJK_DataReader_Binary& x)
 {
 
-    m_topic_name = x.m_topic_name;
+    m_topic_id = x.m_topic_id;
     m_qos = x.m_qos;
 
     return *this;
@@ -4083,7 +4082,7 @@ dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =
         OBJK_DataReader_Binary&& x)
 {
 
-    m_topic_name = std::move(x.m_topic_name);
+    m_topic_id = std::move(x.m_topic_id);
     m_qos = std::move(x.m_qos);
 
     return *this;
@@ -4110,7 +4109,7 @@ size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(
     size_t initial_alignment = current_alignment;
 
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_name().size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_id().size() + 1;
 
     current_alignment += dds::xrce::OBJK_DataReader_Binary_Qos::getCdrSerializedSize(data.qos(), current_alignment);
 
@@ -4120,7 +4119,7 @@ size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(
 void dds::xrce::OBJK_DataReader_Binary::serialize(
         eprosima::fastcdr::Cdr& scdr) const
 {
-    scdr << m_topic_name;
+    scdr << m_topic_id;
     scdr << bool(m_qos);
     if (m_qos)
     {
@@ -4131,7 +4130,7 @@ void dds::xrce::OBJK_DataReader_Binary::serialize(
 void dds::xrce::OBJK_DataReader_Binary::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
-    dcdr >> m_topic_name;
+    dcdr >> m_topic_id;
     bool flag;
     dcdr >> flag;
     if (flag)
@@ -4333,7 +4332,6 @@ uint32_t& dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength()
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary()
 {
-    m_topic_name = "";
 }
 
 dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
@@ -4342,26 +4340,26 @@ dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary &x)
 {
-    m_topic_name = x.m_topic_name;
+    m_topic_id = x.m_topic_id;
     m_qos = x.m_qos;
 }
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(OBJK_DataWriter_Binary &&x)
 {
-    m_topic_name = std::move(x.m_topic_name);
+    m_topic_id = std::move(x.m_topic_id);
     m_qos = std::move(x.m_qos);
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(const OBJK_DataWriter_Binary &x)
 {
-    m_topic_name = x.m_topic_name;
+    m_topic_id = x.m_topic_id;
     m_qos = x.m_qos;
     return *this;
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(OBJK_DataWriter_Binary &&x)
 {
-    m_topic_name = std::move(x.m_topic_name);
+    m_topic_id = std::move(x.m_topic_id);
     m_qos = std::move(x.m_qos);
     return *this;
 }
@@ -4381,14 +4379,14 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_id.size() + 1;
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_topic_name;
+    scdr << m_topic_id;
     scdr << bool(m_qos);
     if (m_qos)
     {
@@ -4398,7 +4396,7 @@ void dds::xrce::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) 
 
 void dds::xrce::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_topic_name;
+    dcdr >> m_topic_id;
     bool flag;
     dcdr >> flag;
     if (flag)
