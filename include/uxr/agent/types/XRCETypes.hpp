@@ -23,13 +23,13 @@
 #define _UXR_AGENT_TYPES_XRCETYPES_HPP_
 
 #include <uxr/agent/types/Optional.hpp>
-#include <fastcdr/exceptions/BadParamException.h>
 
 #include <cstdint>
 #include <array>
 #include <string>
 #include <vector>
 #include <iostream>
+#include <exception>
 
 namespace eprosima { namespace fastcdr {
 
@@ -38,6 +38,16 @@ class Cdr;
 } } // namespace eprosima::fastcdr
 
 namespace dds { namespace xrce {
+
+class XRCETypesException: public std::exception {
+private:
+    std::string message_;
+public:
+    explicit XRCETypesException(const std::string& message);
+    const char* what() const noexcept override {
+        return message_.c_str();
+    }
+};
 
 typedef std::array<uint8_t, 4> ClientKey;
 
@@ -799,7 +809,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(TransportAddressFormat __d);
     
@@ -830,14 +840,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member small_locator
      * @return Constant reference to member small_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressSmall& small_locator() const;
 
     /*!
      * @brief This function returns a reference to member small_locator
      * @return Reference to member small_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressSmall& small_locator();
     /*!
@@ -855,14 +865,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member medium_locator
      * @return Constant reference to member medium_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressMedium& medium_locator() const;
 
     /*!
      * @brief This function returns a reference to member medium_locator
      * @return Reference to member medium_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressMedium& medium_locator();
     /*!
@@ -880,14 +890,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member large_locator
      * @return Constant reference to member large_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressLarge& large_locator() const;
 
     /*!
      * @brief This function returns a reference to member large_locator
      * @return Reference to member large_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressLarge& large_locator();
     /*!
@@ -905,14 +915,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_locator
      * @return Constant reference to member string_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const TransportAddressString& string_locator() const;
 
     /*!
      * @brief This function returns a reference to member string_locator
      * @return Reference to member string_locator
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressString& string_locator();
     
@@ -1720,7 +1730,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
     
@@ -1751,14 +1761,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member object_reference
      * @return Constant reference to member object_reference
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& object_reference() const;
 
     /*!
      * @brief This function returns a reference to member object_reference
      * @return Reference to member object_reference
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& object_reference();
     /*!
@@ -1776,14 +1786,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member xml_string_representation
      * @return Constant reference to member xml_string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& xml_string_representation() const;
 
     /*!
      * @brief This function returns a reference to member xml_string_representation
      * @return Reference to member xml_string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
 
     std::string& xml_string_representation();
@@ -1803,14 +1813,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member binary_representation
      * @return Constant reference to member binary_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::vector<uint8_t>& binary_representation() const;
 
     /*!
      * @brief This function returns a reference to member binary_representation
      * @return Reference to member binary_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::vector<uint8_t>& binary_representation();
     
@@ -1895,7 +1905,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
 
@@ -1926,14 +1936,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member object_reference
      * @return Constant reference to member object_reference
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& object_reference() const;
 
     /*!
      * @brief This function returns a reference to member object_reference
      * @return Reference to member object_reference
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& object_reference();
     /*!
@@ -1951,14 +1961,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_representation
      * @return Constant reference to member string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& string_representation() const;
 
     /*!
      * @brief This function returns a reference to member string_representation
      * @return Reference to member string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& string_representation();
 
@@ -2042,7 +2052,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(RepresentationFormat __d);
 
@@ -2073,14 +2083,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member binary_representation
      * @return Constant reference to member binary_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::vector<uint8_t>& binary_representation() const;
 
     /*!
      * @brief This function returns a reference to member binary_representation
      * @return Reference to member binary_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::vector<uint8_t>& binary_representation();
     /*!
@@ -2098,14 +2108,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member string_representation
      * @return Constant reference to member string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const std::string& string_representation() const;
 
     /*!
      * @brief This function returns a reference to member string_representation
      * @return Reference to member string_representation
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::string& string_representation();
 
@@ -3725,7 +3735,7 @@ public:
      */
     inline void domain_referente(const std::string &_domain_referente)
     {
-        m_domain_referente = _domain_referente;
+        m_domain_reference = _domain_referente;
     }
 
     /*!
@@ -3734,7 +3744,7 @@ public:
      */
     inline void domain_referente(std::string &&_domain_referente)
     {
-        m_domain_referente = std::move(_domain_referente);
+        m_domain_reference = std::move(_domain_referente);
     }
 
     /*!
@@ -3743,7 +3753,7 @@ public:
      */
     inline const std::string& domain_referente() const
     {
-        return m_domain_referente;
+        return *m_domain_reference;
     }
 
     /*!
@@ -3752,7 +3762,7 @@ public:
      */
     inline std::string& domain_referente()
     {
-        return m_domain_referente;
+        return *m_domain_reference;
     }
     /*!
      * @brief This function copies the value in member qos_profile
@@ -3778,7 +3788,7 @@ public:
      */
     inline const std::string& qos_profile() const
     {
-        return m_qos_profile;
+        return *m_qos_profile;
     }
 
     /*!
@@ -3787,7 +3797,7 @@ public:
      */
     inline std::string& qos_profile()
     {
-        return m_qos_profile;
+        return *m_qos_profile;
     }
     
     /*!
@@ -3820,8 +3830,8 @@ public:
 
 private:
     int32_t m_domain_id;
-    std::string m_domain_referente;
-    std::string m_qos_profile;
+    eprosima::Optional<std::string> m_domain_reference;
+    eprosima::Optional<std::string> m_qos_profile;
 };
 /*!
  * @brief This class represents the structure OBJK_Topic_Binary defined by the user in the IDL file.
@@ -3924,7 +3934,7 @@ public:
      */
     inline const std::string& type_name() const
     {
-        return m_type_name;
+        return *m_type_name;
     }
 
     /*!
@@ -3933,7 +3943,7 @@ public:
      */
     inline std::string& type_name()
     {
-        return m_type_name;
+        return *m_type_name;
     }
     /*!
      * @brief This function copies the value in member type_identifier
@@ -3959,7 +3969,7 @@ public:
      */
     inline const std::string& type_identifier() const
     {
-        return m_type_identifier;
+        return *m_type_identifier;
     }
 
     /*!
@@ -3968,7 +3978,7 @@ public:
      */
     inline std::string& type_identifier()
     {
-        return m_type_identifier;
+        return *m_type_identifier;
     }
     
     /*!
@@ -4001,8 +4011,8 @@ public:
 
 private:
     std::string m_topic_name;
-    std::string m_type_name;
-    std::string m_type_identifier;
+    eprosima::Optional<std::string> m_type_name;
+    eprosima::Optional<std::string> m_type_identifier;
 };
 /*!
  * @brief This class represents the structure OBJK_PUBLISHER_QosBinary defined by the user in the IDL file.
@@ -4215,7 +4225,7 @@ public:
      */
     inline const std::string& publisher_name() const
     {
-        return m_publisher_name;
+        return *m_publisher_name;
     }
 
     /*!
@@ -4224,7 +4234,7 @@ public:
      */
     inline std::string& publisher_name()
     {
-        return m_publisher_name;
+        return *m_publisher_name;
     }
     /*!
      * @brief This function copies the value in member qos
@@ -4245,12 +4255,21 @@ public:
     }
 
     /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
+    }
+
+    /*!
      * @brief This function returns a constant reference to member qos
      * @return Constant reference to member qos
      */
     inline const OBJK_PUBLISHER_QosBinary& qos() const
     {
-        return m_qos;
+        return *m_qos;
     }
 
     /*!
@@ -4259,7 +4278,7 @@ public:
      */
     inline OBJK_PUBLISHER_QosBinary& qos()
     {
-        return m_qos;
+        return *m_qos;
     }
     
     /*!
@@ -4291,8 +4310,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_publisher_name;
-    OBJK_PUBLISHER_QosBinary m_qos;
+    eprosima::Optional<std::string> m_publisher_name;
+    eprosima::Optional<OBJK_PUBLISHER_QosBinary> m_qos;
 };
 /*!
  * @brief This class represents the structure OBJK_SUBSCRIBER_QosBinary defined by the user in the IDL file.
@@ -4505,7 +4524,7 @@ public:
      */
     inline const std::string& subscriber_name() const
     {
-        return m_subscriber_name;
+        return *m_subscriber_name;
     }
 
     /*!
@@ -4514,8 +4533,18 @@ public:
      */
     inline std::string& subscriber_name()
     {
-        return m_subscriber_name;
+        return *m_subscriber_name;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_qos() const
+    {
+        return bool(m_qos);
+    }
+
     /*!
      * @brief This function copies the value in member qos
      * @param _qos New value to be copied in member qos
@@ -4540,7 +4569,7 @@ public:
      */
     inline const OBJK_SUBSCRIBER_QosBinary& qos() const
     {
-        return m_qos;
+        return *m_qos;
     }
 
     /*!
@@ -4549,7 +4578,7 @@ public:
      */
     inline OBJK_SUBSCRIBER_QosBinary& qos()
     {
-        return m_qos;
+        return *m_qos;
     }
     
     /*!
@@ -4581,8 +4610,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_subscriber_name;
-    OBJK_SUBSCRIBER_QosBinary m_qos;
+    eprosima::Optional<std::string> m_subscriber_name;
+    eprosima::Optional<OBJK_SUBSCRIBER_QosBinary> m_qos;
 };
 /*!
  * @brief This class represents the enumeration EndpointQosFlags defined by the user in the IDL file.
@@ -4675,12 +4704,22 @@ public:
     }
 
     /*!
+     * @brief This function returns a boolean indicating if m_history_depth is present
+     * @return Bool
+     */
+
+    inline bool has_history_depth() const
+    {
+        return bool(m_history_depth);
+    }
+
+    /*!
      * @brief This function returns the value of member history_depth
      * @return Value of member history_depth
      */
     inline uint16_t history_depth() const
     {
-        return m_history_depth;
+        return *m_history_depth;
     }
 
     /*!
@@ -4689,8 +4728,19 @@ public:
      */
     inline uint16_t& history_depth()
     {
-        return m_history_depth;
+        return *m_history_depth;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if deadline_msec is present
+     * @return Bool
+     */
+
+    inline bool has_deadline_msec() const
+    {
+        return bool(m_deadline_msec);
+    }
+
     /*!
      * @brief This function sets a value in member deadline_msec
      * @param _deadline_msec New value for member deadline_msec
@@ -4706,7 +4756,7 @@ public:
      */
     inline uint32_t deadline_msec() const
     {
-        return m_deadline_msec;
+        return *m_deadline_msec;
     }
 
     /*!
@@ -4715,8 +4765,19 @@ public:
      */
     inline uint32_t& deadline_msec()
     {
-        return m_deadline_msec;
+        return *m_deadline_msec;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if lifespan_msec is present
+     * @return Bool
+     */
+
+    inline bool has_lifespan_msec() const
+    {
+        return bool(m_lifespan_msec);
+    }
+
     /*!
      * @brief This function sets a value in member lifespan_msec
      * @param _lifespan_msec New value for member lifespan_msec
@@ -4732,7 +4793,7 @@ public:
      */
     inline uint32_t lifespan_msec() const
     {
-        return m_lifespan_msec;
+        return *m_lifespan_msec;
     }
 
     /*!
@@ -4741,7 +4802,7 @@ public:
      */
     inline uint32_t& lifespan_msec()
     {
-        return m_lifespan_msec;
+        return *m_lifespan_msec;
     }
     /*!
      * @brief This function copies the value in member user_data
@@ -4767,7 +4828,7 @@ public:
      */
     inline const std::vector<uint8_t>& user_data() const
     {
-        return m_user_data;
+        return *m_user_data;
     }
 
     /*!
@@ -4776,7 +4837,7 @@ public:
      */
     inline std::vector<uint8_t>& user_data()
     {
-        return m_user_data;
+        return *m_user_data;
     }
     
     /*!
@@ -4809,10 +4870,198 @@ public:
 
 private:
     EndpointQosFlags m_qos_flags;
-    uint16_t m_history_depth;
-    uint32_t m_deadline_msec;
-    uint32_t m_lifespan_msec;
-    std::vector<uint8_t> m_user_data;
+    eprosima::Optional<uint16_t> m_history_depth;
+    eprosima::Optional<uint32_t> m_deadline_msec;
+    eprosima::Optional<uint32_t> m_lifespan_msec;
+    eprosima::Optional<std::vector<uint8_t>> m_user_data;
+};
+/*!
+* @brief This class represents the structure OBJK_DataReader_Binary_Qos defined by the user in the IDL file.
+* @ingroup TEST
+*/
+class OBJK_DataReader_Binary_Qos
+{
+public:
+
+    /*!
+        * @brief Default constructor.
+        */
+    OBJK_DataReader_Binary_Qos();
+
+    /*!
+        * @brief Default destructor.
+        */
+    ~OBJK_DataReader_Binary_Qos();
+
+    /*!
+        * @brief Copy constructor.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos(
+            const OBJK_DataReader_Binary_Qos& x);
+
+    /*!
+        * @brief Move constructor.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos(
+            OBJK_DataReader_Binary_Qos&& x);
+
+    /*!
+        * @brief Copy assignment.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos& operator =(
+            const OBJK_DataReader_Binary_Qos& x);
+
+    /*!
+        * @brief Move assignment.
+        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+        */
+    OBJK_DataReader_Binary_Qos& operator =(
+            OBJK_DataReader_Binary_Qos&& x);
+
+    /*!
+        * @brief This function copies the value in member base
+        * @param _base New value to be copied in member base
+        */
+    void base(
+            const dds::xrce::OBJK_Endpoint_QosBinary& _base);
+
+    /*!
+        * @brief This function moves the value in member base
+        * @param _base New value to be moved in member base
+        */
+    void base(
+            dds::xrce::OBJK_Endpoint_QosBinary&& _base);
+
+    /*!
+        * @brief This function returns a constant reference to member base
+        * @return Constant reference to member base
+        */
+    const dds::xrce::OBJK_Endpoint_QosBinary& base() const;
+
+    /*!
+        * @brief This function returns a reference to member base
+        * @return Reference to member base
+        */
+    dds::xrce::OBJK_Endpoint_QosBinary& base();
+    /*!
+        * @brief This function sets a value in member timebasedfilter_msec
+        * @param _timebasedfilter_msec New value for member timebasedfilter_msec
+        */
+    void timebasedfilter_msec(
+            uint32_t _timebasedfilter_msec);
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_timebasedfilter_msec() const
+    {
+        return bool(m_timebasedfilter_msec);
+    }
+
+    /*!
+        * @brief This function returns the value of member timebasedfilter_msec
+        * @return Value of member timebasedfilter_msec
+        */
+    uint32_t timebasedfilter_msec() const;
+
+    /*!
+        * @brief This function returns a reference to member timebasedfilter_msec
+        * @return Reference to member timebasedfilter_msec
+        */
+    uint32_t& timebasedfilter_msec();
+
+    /*!
+        * @brief This function copies the value in member contentbased_filter
+        * @param _contentbased_filter New value to be copied in member contentbased_filter
+        */
+    void contentbased_filter(
+            const std::string& _contentbased_filter);
+
+    /*!
+        * @brief This function moves the value in member contentbased_filter
+        * @param _contentbased_filter New value to be moved in member contentbased_filter
+        */
+    void contentbased_filter(
+            std::string&& _contentbased_filter);
+
+    /*!
+        * @brief This function returns a constant reference to member contentbased_filter
+        * @return Constant reference to member contentbased_filter
+        */
+    const std::string& contentbased_filter() const;
+
+    /*!
+        * @brief This function returns a reference to member contentbased_filter
+        * @return Reference to member contentbased_filter
+        */
+    std::string& contentbased_filter();
+
+    /*!
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const dds::xrce::OBJK_DataReader_Binary_Qos& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
+
+
+    /*!
+        * @brief This function returns the maximum serialized size of the Key of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getKeyMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function tells you if the Key has been defined for this type
+        */
+    static bool isKeyDefined();
+
+    /*!
+        * @brief This function serializes the key members of an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serializeKey(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+private:
+
+    dds::xrce::OBJK_Endpoint_QosBinary m_base;
+    eprosima::Optional<uint32_t> m_timebasedfilter_msec;
+    eprosima::Optional<std::string> m_contentbased_filter;
 };
 /*!
  * @brief This class represents the structure OBJK_DataReader_Binary defined by the user in the IDL file.
@@ -4860,141 +5109,218 @@ public:
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_name(const std::string &_topic_name)
+    inline void topic_id(const ObjectId &_topic_id)
     {
-        m_topic_name = _topic_name;
+        m_topic_id = _topic_id;
     }
 
     /*!
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_name(std::string &&_topic_name)
+    inline void topic_id(ObjectId &&_topic_id)
     {
-        m_topic_name = std::move(_topic_name);
+        m_topic_id = std::move(_topic_id);
     }
 
     /*!
      * @brief This function returns a constant reference to member topic_name
      * @return Constant reference to member topic_name
      */
-    inline const std::string& topic_name() const
+    inline const ObjectId& topic_id() const
     {
-        return m_topic_name;
+        return m_topic_id;
     }
 
     /*!
      * @brief This function returns a reference to member topic_name
      * @return Reference to member topic_name
      */
-    inline std::string& topic_name()
+    inline ObjectId& topic_id()
     {
-        return m_topic_name;
+        return m_topic_id;
     }
     /*!
-     * @brief This function copies the value in member endpoint_qos
-     * @param _endpoint_qos New value to be copied in member endpoint_qos
+        * @brief This function copies the value in member qos
+        * @param _qos New value to be copied in member qos
+        */
+    void qos(
+            const dds::xrce::OBJK_DataReader_Binary_Qos& _qos);
+
+    /*!
+        * @brief This function moves the value in member qos
+        * @param _qos New value to be moved in member qos
+        */
+    void qos(
+            dds::xrce::OBJK_DataReader_Binary_Qos&& _qos);
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
      */
-    inline void endpoint_qos(const OBJK_Endpoint_QosBinary &_endpoint_qos)
+    inline bool has_qos() const
     {
-        m_endpoint_qos = _endpoint_qos;
+        return bool(m_qos);
     }
 
     /*!
-     * @brief This function moves the value in member endpoint_qos
-     * @param _endpoint_qos New value to be moved in member endpoint_qos
+        * @brief This function returns a constant reference to member qos
+        * @return Constant reference to member qos
+        */
+    const dds::xrce::OBJK_DataReader_Binary_Qos& qos() const;
+
+    /*!
+        * @brief This function returns a reference to member qos
+        * @return Reference to member qos
+        */
+    dds::xrce::OBJK_DataReader_Binary_Qos& qos();
+
+    /*!
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const dds::xrce::OBJK_DataReader_Binary& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+private:
+    ObjectId m_topic_id;
+    eprosima::Optional<dds::xrce::OBJK_DataReader_Binary_Qos> m_qos;
+};
+
+/*!
+ * @brief This class represents the structure OBJK_DataWriter_Binary_Qos defined by the user in the IDL file.
+ * @ingroup TEST
+ */
+class OBJK_DataWriter_Binary_Qos
+{
+public:
+
+    /*!
+     * @brief Default constructor.
      */
-    inline void endpoint_qos(OBJK_Endpoint_QosBinary &&_endpoint_qos)
+    OBJK_DataWriter_Binary_Qos();
+
+    /*!
+     * @brief Default destructor.
+     */
+    ~OBJK_DataWriter_Binary_Qos();
+
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos(
+            const OBJK_DataWriter_Binary_Qos& x);
+
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos(
+            OBJK_DataWriter_Binary_Qos&& x);
+
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos& operator =(
+            const OBJK_DataWriter_Binary_Qos& x);
+
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object OBJK_DataWriter_Binary_Qos that will be copied.
+     */
+    OBJK_DataWriter_Binary_Qos& operator =(
+            OBJK_DataWriter_Binary_Qos&& x);
+
+    /*!
+     * @brief This function copies the value in member base
+     * @param _base New value to be copied in member base
+     */
+    void base(
+            const OBJK_Endpoint_QosBinary& _base);
+
+    /*!
+     * @brief This function moves the value in member base
+     * @param _base New value to be moved in member base
+     */
+    void base(
+            OBJK_Endpoint_QosBinary&& _base);
+
+    /*!
+     * @brief This function returns a constant reference to member base
+     * @return Constant reference to member base
+     */
+    const OBJK_Endpoint_QosBinary& base() const;
+
+    /*!
+     * @brief This function returns a reference to member base
+     * @return Reference to member base
+     */
+    OBJK_Endpoint_QosBinary& base();
+    /*!
+     * @brief This function sets a value in member ownership_strength
+     * @param _ownership_strength New value for member ownership_strength
+     */
+    void ownership_strength(
+            uint32_t _ownership_strength);
+
+    /*!
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
+     */
+    inline bool has_ownership_strength() const
     {
-        m_endpoint_qos = std::move(_endpoint_qos);
+        return bool(m_ownership_strength);
     }
 
     /*!
-     * @brief This function returns a constant reference to member endpoint_qos
-     * @return Constant reference to member endpoint_qos
+     * @brief This function returns the value of member ownership_strength
+     * @return Value of member ownership_strength
      */
-    inline const OBJK_Endpoint_QosBinary& endpoint_qos() const
-    {
-        return m_endpoint_qos;
-    }
+    uint32_t ownership_strength() const;
 
     /*!
-     * @brief This function returns a reference to member endpoint_qos
-     * @return Reference to member endpoint_qos
+     * @brief This function returns a reference to member ownership_strength
+     * @return Reference to member ownership_strength
      */
-    inline OBJK_Endpoint_QosBinary& endpoint_qos()
-    {
-        return m_endpoint_qos;
-    }
-    /*!
-     * @brief This function sets a value in member timebasedfilter_msec
-     * @param _timebasedfilter_msec New value for member timebasedfilter_msec
-     */
-    inline void timebasedfilter_msec(uint32_t _timebasedfilter_msec)
-    {
-        m_timebasedfilter_msec = _timebasedfilter_msec;
-    }
+    uint32_t& ownership_strength();
 
-    /*!
-     * @brief This function returns the value of member timebasedfilter_msec
-     * @return Value of member timebasedfilter_msec
-     */
-    inline uint32_t timebasedfilter_msec() const
-    {
-        return m_timebasedfilter_msec;
-    }
 
-    /*!
-     * @brief This function returns a reference to member timebasedfilter_msec
-     * @return Reference to member timebasedfilter_msec
-     */
-    inline uint32_t& timebasedfilter_msec()
-    {
-        return m_timebasedfilter_msec;
-    }
-    /*!
-     * @brief This function copies the value in member contentbased_filter
-     * @param _contentbased_filter New value to be copied in member contentbased_filter
-     */
-    inline void contentbased_filter(const std::string &_contentbased_filter)
-    {
-        m_contentbased_filter = _contentbased_filter;
-    }
-
-    /*!
-     * @brief This function moves the value in member contentbased_filter
-     * @param _contentbased_filter New value to be moved in member contentbased_filter
-     */
-    inline void contentbased_filter(std::string &&_contentbased_filter)
-    {
-        m_contentbased_filter = std::move(_contentbased_filter);
-    }
-
-    /*!
-     * @brief This function returns a constant reference to member contentbased_filter
-     * @return Constant reference to member contentbased_filter
-     */
-    inline const std::string& contentbased_filter() const
-    {
-        return m_contentbased_filter;
-    }
-
-    /*!
-     * @brief This function returns a reference to member contentbased_filter
-     * @return Reference to member contentbased_filter
-     */
-    inline std::string& contentbased_filter()
-    {
-        return m_contentbased_filter;
-    }
-    
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -5002,26 +5328,31 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    static size_t getCdrSerializedSize(
+            const OBJK_DataWriter_Binary_Qos& data,
+            size_t current_alignment = 0);
+
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
-    std::string m_topic_name;
-    OBJK_Endpoint_QosBinary m_endpoint_qos;
-    uint32_t m_timebasedfilter_msec;
-    std::string m_contentbased_filter;
+
+    OBJK_Endpoint_QosBinary m_base;
+    eprosima::Optional<uint32_t> m_ownership_strength;
 };
+
 /*!
  * @brief This class represents the structure OBJK_DataWriter_Binary defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -5068,99 +5399,73 @@ public:
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_name(const std::string &_topic_name)
+    inline void topic_id(const ObjectId &_topic_id)
     {
-        m_topic_name = _topic_name;
+        m_topic_id = _topic_id;
     }
 
     /*!
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_name(std::string &&_topic_name)
+    inline void topic_id(const ObjectId &&_topic_id)
     {
-        m_topic_name = std::move(_topic_name);
+        m_topic_id = std::move(_topic_id);
     }
 
     /*!
      * @brief This function returns a constant reference to member topic_name
      * @return Constant reference to member topic_name
      */
-    inline const std::string& topic_name() const
+    inline const ObjectId& topic_id() const
     {
-        return m_topic_name;
+        return m_topic_id;
     }
 
     /*!
      * @brief This function returns a reference to member topic_name
      * @return Reference to member topic_name
      */
-    inline std::string& topic_name()
+    inline ObjectId& topic_id()
     {
-        return m_topic_name;
+        return m_topic_id;
     }
     /*!
-     * @brief This function copies the value in member endpoint_qos
-     * @param _endpoint_qos New value to be copied in member endpoint_qos
+     * @brief This function copies the value in member qos
+     * @param _qos New value to be copied in member qos
      */
-    inline void endpoint_qos(const OBJK_Endpoint_QosBinary &_endpoint_qos)
+    inline void qos(const OBJK_DataWriter_Binary_Qos& _qos)
     {
-        m_endpoint_qos = _endpoint_qos;
+        m_qos = _qos;
     }
 
     /*!
-     * @brief This function moves the value in member endpoint_qos
-     * @param _endpoint_qos New value to be moved in member endpoint_qos
+     * @brief This function moves the value in member qos
+     * @param _qos New value to be moved in member qos
      */
-    inline void endpoint_qos(OBJK_Endpoint_QosBinary &&_endpoint_qos)
+    inline void qos(OBJK_DataWriter_Binary_Qos&& _qos)
     {
-        m_endpoint_qos = std::move(_endpoint_qos);
+        m_qos = std::move(_qos);
     }
 
     /*!
-     * @brief This function returns a constant reference to member endpoint_qos
-     * @return Constant reference to member endpoint_qos
+     * @brief This function returns a boolean indicating if qos is present
+     * @return Bool
      */
-    inline const OBJK_Endpoint_QosBinary& endpoint_qos() const
+    inline bool has_qos() const
     {
-        return m_endpoint_qos;
+        return bool(m_qos);
     }
 
     /*!
-     * @brief This function returns a reference to member endpoint_qos
-     * @return Reference to member endpoint_qos
+     * @brief This function returns a constant reference to member qos
+     * @return Constant reference to member qos
      */
-    inline OBJK_Endpoint_QosBinary& endpoint_qos()
+    inline const OBJK_DataWriter_Binary_Qos& qos() const
     {
-        return m_endpoint_qos;
-    }
-    /*!
-     * @brief This function sets a value in member ownership_strength
-     * @param _ownership_strength New value for member ownership_strength
-     */
-    inline void ownership_strength(uint32_t _ownership_strength)
-    {
-        m_ownership_strength = _ownership_strength;
+        return *m_qos;
     }
 
-    /*!
-     * @brief This function returns the value of member ownership_strength
-     * @return Value of member ownership_strength
-     */
-    inline uint32_t ownership_strength() const
-    {
-        return m_ownership_strength;
-    }
-
-    /*!
-     * @brief This function returns a reference to member ownership_strength
-     * @return Reference to member ownership_strength
-     */
-    inline uint32_t& ownership_strength()
-    {
-        return m_ownership_strength;
-    }
-    
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -5190,9 +5495,8 @@ public:
     virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
 
 private:
-    std::string m_topic_name;
-    OBJK_Endpoint_QosBinary m_endpoint_qos;
-    uint32_t m_ownership_strength;
+    ObjectId m_topic_id;
+    eprosima::Optional<OBJK_DataWriter_Binary_Qos> m_qos;
 };
 /*!
  * @brief This class represents the union ObjectVariant defined by the user in the IDL file.
@@ -5239,7 +5543,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(ObjectKind __d);
     
@@ -5270,14 +5574,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member agent
      * @return Constant reference to member agent
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const AGENT_Representation& agent() const;
 
     /*!
      * @brief This function returns a reference to member agent
      * @return Reference to member agent
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     AGENT_Representation& agent();
     /*!
@@ -5295,14 +5599,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member client
      * @return Constant reference to member client
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const CLIENT_Representation& client() const;
 
     /*!
      * @brief This function returns a reference to member client
      * @return Reference to member client
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     CLIENT_Representation& client();
 
@@ -5321,14 +5625,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member application
      * @return Constant reference to member application
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_APPLICATION_Representation& application() const;
 
     /*!
      * @brief This function returns a reference to member application
      * @return Reference to member application
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_APPLICATION_Representation& application();
     /*!
@@ -5346,14 +5650,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member participant
      * @return Constant reference to member participant
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_PARTICIPANT_Representation& participant() const;
 
     /*!
      * @brief This function returns a reference to member participant
      * @return Reference to member participant
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_PARTICIPANT_Representation& participant();
     /*!
@@ -5371,14 +5675,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member qos_profile
      * @return Constant reference to member qos_profile
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_QOSPROFILE_Representation& qos_profile() const;
 
     /*!
      * @brief This function returns a reference to member qos_profile
      * @return Reference to member qos_profile
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_QOSPROFILE_Representation& qos_profile();
 
@@ -5397,14 +5701,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member type
      * @return Constant reference to member type
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_TYPE_Representation& type() const;
 
     /*!
      * @brief This function returns a reference to member type
      * @return Reference to member type
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_TYPE_Representation& type();
     /*!
@@ -5422,14 +5726,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member topic
      * @return Constant reference to member topic
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_TOPIC_Representation& topic() const;
 
     /*!
      * @brief This function returns a reference to member topic
      * @return Reference to member topic
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_TOPIC_Representation& topic();
 
@@ -5448,14 +5752,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member publisher
      * @return Constant reference to member publisher
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_PUBLISHER_Representation& publisher() const;
 
     /*!
      * @brief This function returns a reference to member publisher
      * @return Reference to member publisher
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_PUBLISHER_Representation& publisher();
 
@@ -5474,14 +5778,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member subscriber
      * @return Constant reference to member subscriber
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const OBJK_SUBSCRIBER_Representation& subscriber() const;
 
     /*!
      * @brief This function returns a reference to member subscriber
      * @return Reference to member subscriber
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_SUBSCRIBER_Representation& subscriber();
     
@@ -5500,14 +5804,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_writer
      * @return Constant reference to member data_writer
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAWRITER_Representation& data_writer() const;
 
     /*!
      * @brief This function returns a reference to member data_writer
      * @return Reference to member data_writer
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     DATAWRITER_Representation& data_writer();
 
@@ -5526,14 +5830,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_reader
      * @return Constant reference to member data_reader
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAREADER_Representation& data_reader() const;
 
     /*!
      * @brief This function returns a reference to member data_reader
      * @return Reference to member data_reader
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_Representation& data_reader();
 
@@ -5552,14 +5856,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member requester
      * @return Constant reference to member requester
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const REQUESTER_Representation& requester() const;
 
     /*!
      * @brief This function returns a reference to member requester
      * @return Reference to member requester
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     REQUESTER_Representation& requester();
 
@@ -5578,14 +5882,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member replier
      * @return Constant replier to member replier
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const REPLIER_Representation& replier() const;
 
     /*!
      * @brief This function returns a reference to member replier
      * @return Reference to member replier
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     REPLIER_Representation& replier();
     
@@ -6327,7 +6631,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(ObjectKind __d);
     
@@ -6358,14 +6662,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member agent
      * @return Constant reference to member agent
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const AGENT_ActivityInfo& agent() const;
 
     /*!
      * @brief This function returns a reference to member agent
      * @return Reference to member agent
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     AGENT_ActivityInfo& agent();
 
@@ -6384,14 +6688,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_writer
      * @return Constant reference to member data_writer
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAWRITER_ActivityInfo& data_writer() const;
 
     /*!
      * @brief This function returns a reference to member data_writer
      * @return Reference to member data_writer
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     DATAWRITER_ActivityInfo& data_writer();
 
@@ -6410,14 +6714,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_reader
      * @return Constant reference to member data_reader
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const DATAREADER_ActivityInfo& data_reader() const;
 
     /*!
      * @brief This function returns a reference to member data_reader
      * @return Reference to member data_reader
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_ActivityInfo& data_reader();
     
@@ -6530,7 +6834,7 @@ public:
     {
         if (!m_config)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_config;
     }
@@ -6543,7 +6847,7 @@ public:
     {
         if (!m_config)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_config;
     }
@@ -6578,7 +6882,7 @@ public:
     {
         if (!m_activity)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_activity;
     }
@@ -6591,7 +6895,7 @@ public:
     {
         if (!m_activity)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_activity;
     }
@@ -7230,7 +7534,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -7243,7 +7547,7 @@ public:
     {
         if (!m_content_filter_expression)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_content_filter_expression;
     }
@@ -7279,7 +7583,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }
@@ -7292,7 +7596,7 @@ public:
     {
         if (!m_delivery_control)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Optional member has not been selected");
+            throw dds::xrce::XRCETypesException("Optional member has not been selected");
         }
         return *m_delivery_control;
     }
@@ -8260,7 +8564,7 @@ public:
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the new value doesn't correspond to the selected union member.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
     void _d(DataFormat __d);
     
@@ -8291,14 +8595,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data
      * @return Constant reference to member data
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleData& data() const;
 
     /*!
      * @brief This function returns a reference to member data
      * @return Reference to member data
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     SampleData& data();
     /*!
@@ -8316,14 +8620,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member sample
      * @return Constant reference to member sample
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const Sample& sample() const;
 
     /*!
      * @brief This function returns a reference to member sample
      * @return Reference to member sample
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     Sample& sample();
     /*!
@@ -8341,14 +8645,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member data_seq
      * @return Constant reference to member data_seq
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleDataSeq& data_seq() const;
 
     /*!
      * @brief This function returns a reference to member data_seq
      * @return Reference to member data_seq
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     SampleDataSeq& data_seq();
     /*!
@@ -8366,14 +8670,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member sample_seq
      * @return Constant reference to member sample_seq
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const SampleSeq& sample_seq() const;
 
     /*!
      * @brief This function returns a reference to member sample_seq
      * @return Reference to member sample_seq
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     SampleSeq& sample_seq();
     /*!
@@ -8391,14 +8695,14 @@ public:
     /*!
      * @brief This function returns a constant reference to member packed_samples
      * @return Constant reference to member packed_samples
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     const PackedSamples& packed_samples() const;
 
     /*!
      * @brief This function returns a reference to member packed_samples
      * @return Reference to member packed_samples
-     * @exception eprosima::fastcdr::BadParamException This exception is thrown if the requested union member is not the current selection.
+     * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     PackedSamples& packed_samples();
     
@@ -11009,6 +11313,435 @@ enum SubmessageId : uint8_t
     TIMESTAMP       = 14,
     TIMESTAMP_REPLY = 15,
     PERFORMANCE     = 255
+};
+
+/*!
+    * @brief This class represents the structure OBJK_Requester_Binary defined by the user in the IDL file.
+    * @ingroup TEST
+    */
+class OBJK_Requester_Binary
+{
+public:
+
+    /*!
+        * @brief Default constructor.
+        */
+    OBJK_Requester_Binary();
+
+    /*!
+        * @brief Default destructor.
+        */
+    ~OBJK_Requester_Binary();
+
+    /*!
+        * @brief Copy constructor.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary(
+            const OBJK_Requester_Binary& x);
+
+    /*!
+        * @brief Move constructor.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary(
+            OBJK_Requester_Binary&& x);
+
+    /*!
+        * @brief Copy assignment.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary& operator =(
+            const OBJK_Requester_Binary& x);
+
+    /*!
+        * @brief Move assignment.
+        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+        */
+    OBJK_Requester_Binary& operator =(
+            OBJK_Requester_Binary&& x);
+
+    /*!
+        * @brief This function copies the value in member service_name
+        * @param _service_name New value to be copied in member service_name
+        */
+    void service_name(
+            const std::string& _service_name);
+
+    /*!
+        * @brief This function moves the value in member service_name
+        * @param _service_name New value to be moved in member service_name
+        */
+    void service_name(
+            std::string&& _service_name);
+
+    /*!
+        * @brief This function returns a constant reference to member service_name
+        * @return Constant reference to member service_name
+        */
+    const std::string& service_name() const;
+
+    /*!
+        * @brief This function returns a reference to member service_name
+        * @return Reference to member service_name
+        */
+    std::string& service_name();
+    /*!
+        * @brief This function copies the value in member request_type
+        * @param _request_type New value to be copied in member request_type
+        */
+    void request_type(
+            const std::string& _request_type);
+
+    /*!
+        * @brief This function moves the value in member request_type
+        * @param _request_type New value to be moved in member request_type
+        */
+    void request_type(
+            std::string&& _request_type);
+
+    /*!
+        * @brief This function returns a constant reference to member request_type
+        * @return Constant reference to member request_type
+        */
+    const std::string& request_type() const;
+
+    /*!
+        * @brief This function returns a reference to member request_type
+        * @return Reference to member request_type
+        */
+    std::string& request_type();
+    /*!
+        * @brief This function copies the value in member reply_type
+        * @param _reply_type New value to be copied in member reply_type
+        */
+    void reply_type(
+            const std::string& _reply_type);
+
+    /*!
+        * @brief This function moves the value in member reply_type
+        * @param _reply_type New value to be moved in member reply_type
+        */
+    void reply_type(
+            std::string&& _reply_type);
+
+    /*!
+        * @brief This function returns a constant reference to member reply_type
+        * @return Constant reference to member reply_type
+        */
+    const std::string& reply_type() const;
+
+    /*!
+        * @brief This function returns a reference to member reply_type
+        * @return Reference to member reply_type
+        */
+    std::string& reply_type();
+    /*!
+        * @brief This function copies the value in member reply_topic_name
+        * @param _reply_topic_name New value to be copied in member reply_topic_name
+        */
+    void reply_topic_name(
+            const std::string& _reply_topic_name);
+
+    /*!
+        * @brief This function moves the value in member reply_topic_name
+        * @param _reply_topic_name New value to be moved in member reply_topic_name
+        */
+    void reply_topic_name(
+            std::string&& _reply_topic_name);
+
+    /*!
+        * @brief This function returns a constant reference to member reply_topic_name
+        * @return Constant reference to member reply_topic_name
+        */
+    const std::string& reply_topic_name() const;
+
+    /*!
+        * @brief This function returns a reference to member reply_topic_name
+        * @return Reference to member reply_topic_name
+        */
+    std::string& reply_topic_name();
+    /*!
+        * @brief This function copies the value in member request_topic_name
+        * @param _request_topic_name New value to be copied in member request_topic_name
+        */
+    void request_topic_name(
+            const std::string& _request_topic_name);
+
+    /*!
+        * @brief This function moves the value in member request_topic_name
+        * @param _request_topic_name New value to be moved in member request_topic_name
+        */
+    void request_topic_name(
+            std::string&& _request_topic_name);
+
+    /*!
+        * @brief This function returns a constant reference to member request_topic_name
+        * @return Constant reference to member request_topic_name
+        */
+    const std::string& request_topic_name() const;
+
+    /*!
+        * @brief This function returns a reference to member request_topic_name
+        * @return Reference to member request_topic_name
+        */
+    std::string& request_topic_name();
+
+    /*!
+        * @brief This function returns the maximum serialized size of an object
+        * depending on the buffer alignment.
+        * @param current_alignment Buffer alignment.
+        * @return Maximum serialized size.
+        */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
+
+    /*!
+        * @brief This function returns the serialized size of a data depending on the buffer alignment.
+        * @param data Data which is calculated its serialized size.
+        * @param current_alignment Buffer alignment.
+        * @return Serialized size.
+        */
+    static size_t getCdrSerializedSize(
+            const OBJK_Requester_Binary& data,
+            size_t current_alignment = 0);
+
+
+    /*!
+        * @brief This function serializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
+
+    /*!
+        * @brief This function deserializes an object using CDR serialization.
+        * @param cdr CDR serialization object.
+        */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
+private:
+    std::string m_service_name;
+    std::string m_request_type;
+    std::string m_reply_type;
+    eprosima::Optional<std::string> m_reply_topic_name;
+    eprosima::Optional<std::string> m_request_topic_name;
+};
+
+/*!
+* @brief This class represents the structure OBJK_Replier_Binary defined by the user in the IDL file.
+* @ingroup TEST
+*/
+class OBJK_Replier_Binary
+{
+public:
+
+/*!
+    * @brief Default constructor.
+    */
+OBJK_Replier_Binary();
+
+/*!
+    * @brief Default destructor.
+    */
+~OBJK_Replier_Binary();
+
+/*!
+    * @brief Copy constructor.
+    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+    */
+OBJK_Replier_Binary(
+        const OBJK_Replier_Binary& x);
+
+/*!
+    * @brief Move constructor.
+    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+    */
+OBJK_Replier_Binary(
+        OBJK_Replier_Binary&& x);
+
+/*!
+    * @brief Copy assignment.
+    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+    */
+OBJK_Replier_Binary& operator =(
+        const OBJK_Replier_Binary& x);
+
+/*!
+    * @brief Move assignment.
+    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+    */
+OBJK_Replier_Binary& operator =(
+        OBJK_Replier_Binary&& x);
+
+/*!
+    * @brief This function copies the value in member service_name
+    * @param _service_name New value to be copied in member service_name
+    */
+void service_name(
+        const std::string& _service_name);
+
+/*!
+    * @brief This function moves the value in member service_name
+    * @param _service_name New value to be moved in member service_name
+    */
+void service_name(
+        std::string&& _service_name);
+
+/*!
+    * @brief This function returns a constant reference to member service_name
+    * @return Constant reference to member service_name
+    */
+const std::string& service_name() const;
+
+/*!
+    * @brief This function returns a reference to member service_name
+    * @return Reference to member service_name
+    */
+std::string& service_name();
+/*!
+    * @brief This function copies the value in member request_type
+    * @param _request_type New value to be copied in member request_type
+    */
+void request_type(
+        const std::string& _request_type);
+
+/*!
+    * @brief This function moves the value in member request_type
+    * @param _request_type New value to be moved in member request_type
+    */
+void request_type(
+        std::string&& _request_type);
+
+/*!
+    * @brief This function returns a constant reference to member request_type
+    * @return Constant reference to member request_type
+    */
+const std::string& request_type() const;
+
+/*!
+    * @brief This function returns a reference to member request_type
+    * @return Reference to member request_type
+    */
+std::string& request_type();
+/*!
+    * @brief This function copies the value in member reply_type
+    * @param _reply_type New value to be copied in member reply_type
+    */
+void reply_type(
+        const std::string& _reply_type);
+
+/*!
+    * @brief This function moves the value in member reply_type
+    * @param _reply_type New value to be moved in member reply_type
+    */
+void reply_type(
+        std::string&& _reply_type);
+
+/*!
+    * @brief This function returns a constant reference to member reply_type
+    * @return Constant reference to member reply_type
+    */
+const std::string& reply_type() const;
+
+/*!
+    * @brief This function returns a reference to member reply_type
+    * @return Reference to member reply_type
+    */
+std::string& reply_type();
+/*!
+    * @brief This function copies the value in member reply_topic_name
+    * @param _reply_topic_name New value to be copied in member reply_topic_name
+    */
+void reply_topic_name(
+        const std::string& _reply_topic_name);
+
+/*!
+    * @brief This function moves the value in member reply_topic_name
+    * @param _reply_topic_name New value to be moved in member reply_topic_name
+    */
+void reply_topic_name(
+        std::string&& _reply_topic_name);
+
+/*!
+    * @brief This function returns a constant reference to member reply_topic_name
+    * @return Constant reference to member reply_topic_name
+    */
+const std::string& reply_topic_name() const;
+
+/*!
+    * @brief This function returns a reference to member reply_topic_name
+    * @return Reference to member reply_topic_name
+    */
+std::string& reply_topic_name();
+/*!
+    * @brief This function copies the value in member request_topic_name
+    * @param _request_topic_name New value to be copied in member request_topic_name
+    */
+void request_topic_name(
+        const std::string& _request_topic_name);
+
+/*!
+    * @brief This function moves the value in member request_topic_name
+    * @param _request_topic_name New value to be moved in member request_topic_name
+    */
+void request_topic_name(
+        std::string&& _request_topic_name);
+
+/*!
+    * @brief This function returns a constant reference to member request_topic_name
+    * @return Constant reference to member request_topic_name
+    */
+const std::string& request_topic_name() const;
+
+/*!
+    * @brief This function returns a reference to member request_topic_name
+    * @return Reference to member request_topic_name
+    */
+std::string& request_topic_name();
+
+/*!
+    * @brief This function returns the maximum serialized size of an object
+    * depending on the buffer alignment.
+    * @param current_alignment Buffer alignment.
+    * @return Maximum serialized size.
+    */
+static size_t getMaxCdrSerializedSize(
+        size_t current_alignment = 0);
+
+/*!
+    * @brief This function returns the serialized size of a data depending on the buffer alignment.
+    * @param data Data which is calculated its serialized size.
+    * @param current_alignment Buffer alignment.
+    * @return Serialized size.
+    */
+static size_t getCdrSerializedSize(
+        const dds::xrce::OBJK_Replier_Binary& data,
+        size_t current_alignment = 0);
+
+
+/*!
+    * @brief This function serializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+void serialize(
+        eprosima::fastcdr::Cdr& cdr) const;
+
+/*!
+    * @brief This function deserializes an object using CDR serialization.
+    * @param cdr CDR serialization object.
+    */
+void deserialize(
+        eprosima::fastcdr::Cdr& cdr);
+
+private:
+
+std::string m_service_name;
+std::string m_request_type;
+std::string m_reply_type;
+eprosima::Optional<std::string> m_reply_topic_name;
+eprosima::Optional<std::string> m_request_topic_name;
 };
 
 } // namespace xrce

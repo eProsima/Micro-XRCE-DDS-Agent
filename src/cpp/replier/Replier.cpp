@@ -46,6 +46,18 @@ std::unique_ptr<Replier> Replier::create(
             created_entity = middleware.create_replier_by_xml(raw_object_id, participant_id, xml);
             break;
         }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = representation.representation();
+            dds::xrce::OBJK_Replier_Binary replier_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            replier_xrce.deserialize(cdr);
+
+            created_entity = proxy_client->get_middleware().create_replier_by_bin(raw_object_id, participant_id, replier_xrce);
+            break;
+        }
         default:
             break;
     }
@@ -76,7 +88,7 @@ bool Replier::matched(
     }
 
     bool rv = false;
-    switch (new_object_rep.data_writer().representation()._d())
+    switch (new_object_rep.replier().representation()._d())
     {
         case dds::xrce::REPRESENTATION_BY_REFERENCE:
         {
@@ -88,6 +100,18 @@ bool Replier::matched(
         {
             const std::string& xml = new_object_rep.replier().representation().object_reference();
             rv = proxy_client_->get_middleware().matched_replier_from_xml(get_raw_id(), xml);
+            break;
+        }
+        case dds::xrce::REPRESENTATION_IN_BINARY:
+        {
+            auto rep = new_object_rep.replier().representation();
+            dds::xrce::OBJK_Replier_Binary replier_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            replier_xrce.deserialize(cdr);
+
+            rv = proxy_client_->get_middleware().matched_replier_from_bin(get_raw_id(), replier_xrce);
             break;
         }
         default:

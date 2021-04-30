@@ -26,11 +26,10 @@ namespace { char dummy; }
 
 #include <uxr/agent/types/XRCETypes.hpp>
 #include <fastcdr/Cdr.h>
-#include <fastcdr/exceptions/BadParamException.h>
 
 #include <utility>
 
-using namespace eprosima::fastcdr::exception;
+dds::xrce::XRCETypesException::XRCETypesException(const std::string& message) : message_(message) {}
 
 dds::xrce::Time_t::Time_t()
 {
@@ -538,7 +537,7 @@ void dds::xrce::TransportAddress::_d(dds::xrce::TransportAddressFormat __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -577,7 +576,7 @@ const dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locat
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_small_locator;
 }
@@ -594,7 +593,7 @@ dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_small_locator;
 }
@@ -622,7 +621,7 @@ const dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_loc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_medium_locator;
 }
@@ -639,7 +638,7 @@ dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_medium_locator;
 }
@@ -667,7 +666,7 @@ const dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locat
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_large_locator;
 }
@@ -684,7 +683,7 @@ dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_large_locator;
 }
@@ -712,7 +711,7 @@ const dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_loc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_string_locator;
 }
@@ -729,7 +728,7 @@ dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_locator()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_string_locator;
 }
@@ -1035,8 +1034,9 @@ void dds::xrce::CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) c
     scdr << bool(m_properties);
     if (m_properties)
     {
-        scdr << (*m_properties);
+        scdr << *m_properties;
     }
+    
     scdr << m_mtu;
 }
 
@@ -1140,8 +1140,9 @@ void dds::xrce::AGENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) co
     scdr << bool(m_properties);
     if (m_properties)
     {
-        scdr << (*m_properties);
+        scdr << *m_properties;
     }
+    
 }
 
 void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -1290,7 +1291,7 @@ void dds::xrce::OBJK_Representation3Formats::_d(dds::xrce::RepresentationFormat 
             break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -1329,7 +1330,7 @@ const std::string& dds::xrce::OBJK_Representation3Formats::object_reference() co
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_object_reference;
 }
@@ -1346,7 +1347,7 @@ std::string& dds::xrce::OBJK_Representation3Formats::object_reference()
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_object_reference;
 }
@@ -1374,7 +1375,7 @@ const std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representa
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_xml_string_representation;
 }
@@ -1391,7 +1392,7 @@ std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representation()
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_xml_string_representation;
 }
@@ -1419,7 +1420,7 @@ const std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_repre
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_binary_representation;
 }
@@ -1436,7 +1437,7 @@ std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representat
         default:
             break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_binary_representation;
 }
@@ -1655,7 +1656,7 @@ void dds::xrce::OBJK_RepresentationRefAndXMLFormats::_d(dds::xrce::Representatio
         break;
     }
 
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
 
     m__d = __d;
 }
@@ -1694,7 +1695,7 @@ const std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::object_refere
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_object_reference;
 }
@@ -1711,7 +1712,7 @@ std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::object_reference()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_object_reference;
 }
@@ -1739,7 +1740,7 @@ const std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::string_repres
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -1756,7 +1757,7 @@ std::string& dds::xrce::OBJK_RepresentationRefAndXMLFormats::string_representati
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -1956,7 +1957,7 @@ void dds::xrce::OBJK_RepresentationBinAndXMLFormats::_d(dds::xrce::Representatio
         break;
     }
 
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
 
     m__d = __d;
 }
@@ -1995,7 +1996,7 @@ const std::vector<uint8_t>& dds::xrce::OBJK_RepresentationBinAndXMLFormats::bina
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_binary_representation;
 }
@@ -2012,7 +2013,7 @@ std::vector<uint8_t>& dds::xrce::OBJK_RepresentationBinAndXMLFormats::binary_rep
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_binary_representation;
 }
@@ -2040,7 +2041,7 @@ const std::string& dds::xrce::OBJK_RepresentationBinAndXMLFormats::string_repres
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -2057,7 +2058,7 @@ std::string& dds::xrce::OBJK_RepresentationBinAndXMLFormats::string_representati
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_string_representation;
 }
@@ -3114,8 +3115,6 @@ void dds::xrce::REPLIER_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary()
 {
     m_domain_id = 0;
-
-
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary::~OBJK_DomainParticipant_Binary()
@@ -3125,21 +3124,21 @@ dds::xrce::OBJK_DomainParticipant_Binary::~OBJK_DomainParticipant_Binary()
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary(const OBJK_DomainParticipant_Binary &x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = x.m_domain_referente;
+    m_domain_reference = x.m_domain_reference;
     m_qos_profile = x.m_qos_profile;
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary::OBJK_DomainParticipant_Binary(OBJK_DomainParticipant_Binary &&x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = std::move(x.m_domain_referente);
+    m_domain_reference = std::move(x.m_domain_reference);
     m_qos_profile = std::move(x.m_qos_profile);
 }
 
 dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Binary::operator=(const OBJK_DomainParticipant_Binary &x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = x.m_domain_referente;
+    m_domain_reference = x.m_domain_reference;
     m_qos_profile = x.m_qos_profile;
     
     return *this;
@@ -3148,7 +3147,7 @@ dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Bina
 dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Binary::operator=(OBJK_DomainParticipant_Binary &&x)
 {
     m_domain_id = x.m_domain_id;
-    m_domain_referente = std::move(x.m_domain_referente);
+    m_domain_reference = std::move(x.m_domain_reference);
     m_qos_profile = std::move(x.m_qos_profile);
     
     return *this;
@@ -3158,8 +3157,6 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getMaxCdrSerializedSize(size_t 
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
@@ -3172,11 +3169,9 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_domain_reference).size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_domain_referente.size() + 1;
-
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_qos_profile.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_qos_profile).size() + 1;
 
 
     return current_alignment - initial_alignment;
@@ -3184,16 +3179,36 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t cur
 
 void dds::xrce::OBJK_DomainParticipant_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_domain_id;
-    scdr << m_domain_referente;
-    scdr << m_qos_profile;
+    scdr << bool(m_domain_reference);
+    if (m_domain_reference)
+    {
+        scdr << *m_domain_reference;
+    }
+    
+    scdr << bool(m_qos_profile);
+    if (m_qos_profile)
+    {
+        scdr << *m_qos_profile;
+    }
 }
 
 void dds::xrce::OBJK_DomainParticipant_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_domain_id;
-    dcdr >> m_domain_referente;
-    dcdr >> m_qos_profile;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_domain_reference = temp;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_qos_profile = temp;
+    }
 }
 
 dds::xrce::OBJK_Topic_Binary::OBJK_Topic_Binary()
@@ -3256,9 +3271,9 @@ size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignme
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_type_name).size() + 1;
 
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_type_identifier.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_type_identifier).size() + 1;
 
 
     return current_alignment - initial_alignment;
@@ -3267,15 +3282,37 @@ size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignme
 void dds::xrce::OBJK_Topic_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << m_topic_name;
-    scdr << m_type_name;
-    scdr << m_type_identifier;
+    scdr << bool(m_type_identifier);
+    if (m_type_identifier)
+    {
+        scdr << *m_type_identifier;
+    }
+    scdr << bool(m_type_name);
+    if (m_type_name)
+    {
+        scdr << *m_type_name;
+    }
+    
 }
 
 void dds::xrce::OBJK_Topic_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
+    bool flag;
     dcdr >> m_topic_name;
-    dcdr >> m_type_name;
-    dcdr >> m_type_identifier;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_type_identifier = temp;
+    }
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_type_name = temp;
+    }
 }
 
 dds::xrce::OBJK_PUBLISHER_QosBinary::OBJK_PUBLISHER_QosBinary()
@@ -3413,23 +3450,44 @@ size_t dds::xrce::OBJK_Publisher_Binary::getCdrSerializedSize(size_t current_ali
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_publisher_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_publisher_name).size() + 1;
 
-    current_alignment += m_qos.getCdrSerializedSize(current_alignment);
+    current_alignment += (*m_qos).getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_Publisher_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_publisher_name;
-    scdr << m_qos;
+    scdr << bool(m_publisher_name);
+    if (m_publisher_name)
+    {
+        scdr << *m_publisher_name;
+    }
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_Publisher_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_publisher_name;
-    dcdr >> m_qos;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp_publisher_name;
+        dcdr >> temp_publisher_name;
+        m_publisher_name = temp_publisher_name;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        OBJK_PUBLISHER_QosBinary temp_qos;
+        dcdr >> temp_qos;
+        m_qos = temp_qos;
+    }
 }
 
 dds::xrce::OBJK_SUBSCRIBER_QosBinary::OBJK_SUBSCRIBER_QosBinary()
@@ -3565,32 +3623,49 @@ size_t dds::xrce::OBJK_Subscriber_Binary::getCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_subscriber_name.size() + 1;
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_subscriber_name).size() + 1;
 
-    current_alignment += m_qos.getCdrSerializedSize();
+    current_alignment += (*m_qos).getCdrSerializedSize();
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_Subscriber_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_subscriber_name;
-    scdr << m_qos;
+    scdr << bool(m_subscriber_name);
+    if (m_subscriber_name)
+    {
+        scdr << *m_subscriber_name;
+    }
+    
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_Subscriber_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_subscriber_name;
-    dcdr >> m_qos;
+    bool m_temp_flag;
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        std::string temp_subscriber_name;
+        dcdr >> temp_subscriber_name;
+        m_subscriber_name = temp_subscriber_name;
+    }
+    dcdr >> m_temp_flag;
+    if (m_temp_flag)
+    {
+        OBJK_SUBSCRIBER_QosBinary temp_qos;
+        dcdr >> temp_qos;
+        m_qos = temp_qos;
+    }
 }
 
 dds::xrce::OBJK_Endpoint_QosBinary::OBJK_Endpoint_QosBinary()
 {
-    m_qos_flags = dds::xrce::is_reliable;
-    m_history_depth = 0;
-    m_deadline_msec = 0;
-    m_lifespan_msec = 0;
-
 }
 
 dds::xrce::OBJK_Endpoint_QosBinary::~OBJK_Endpoint_QosBinary()
@@ -3670,9 +3745,7 @@ size_t dds::xrce::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_a
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += (m_user_data.size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
-
-
+    current_alignment += ((*m_user_data).size() * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     return current_alignment - initial_alignment;
 }
@@ -3680,10 +3753,29 @@ size_t dds::xrce::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_a
 void dds::xrce::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
     scdr << (uint16_t)m_qos_flags;
-    scdr << m_history_depth;
-    scdr << m_deadline_msec;
-    scdr << m_lifespan_msec;
-    scdr << m_user_data;
+    scdr << bool(m_history_depth);
+    if (m_history_depth)
+    {
+        scdr << *m_history_depth;
+    }
+    
+    scdr << bool(m_deadline_msec);
+    if (m_deadline_msec)
+    {
+        scdr << *m_deadline_msec;
+    }
+
+    scdr << bool(m_lifespan_msec);
+    if (m_lifespan_msec)
+    {
+        scdr << *m_lifespan_msec;
+    }
+
+    scdr << bool(m_user_data);
+    if (m_user_data)
+    {
+        scdr << *m_user_data;
+    }
 }
 
 void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3691,104 +3783,555 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
     std::underlying_type<dds::xrce::EndpointQosFlags>::type temp_qos_flags;
     dcdr >> temp_qos_flags;
     m_qos_flags = static_cast<dds::xrce::EndpointQosFlags>(temp_qos_flags);
-    dcdr >> m_history_depth;
-    dcdr >> m_deadline_msec;
-    dcdr >> m_lifespan_msec;
-    dcdr >> m_user_data;
+    
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint16_t temp;
+        dcdr >> temp;
+        m_history_depth = temp;
+    }
+    
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_deadline_msec = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_lifespan_msec = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        std::vector<uint8_t> temp;
+        dcdr >> temp;
+        m_user_data = temp;
+    }
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary()
-{
-    m_timebasedfilter_msec = 0;
-}
 
-dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos()
 {
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(const OBJK_DataReader_Binary &x)
+dds::xrce::OBJK_DataReader_Binary_Qos::~OBJK_DataReader_Binary_Qos()
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
+}
+
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos(
+        const OBJK_DataReader_Binary_Qos& x)
+{
+    m_base = x.m_base;
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = x.m_contentbased_filter;
 }
 
-dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(OBJK_DataReader_Binary &&x)
+dds::xrce::OBJK_DataReader_Binary_Qos::OBJK_DataReader_Binary_Qos(
+        OBJK_DataReader_Binary_Qos&& x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
+    m_base = std::move(x.m_base);
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = std::move(x.m_contentbased_filter);
 }
 
-dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator=(const OBJK_DataReader_Binary &x)
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary_Qos::operator =(
+        const OBJK_DataReader_Binary_Qos& x)
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
+
+    m_base = x.m_base;
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = x.m_contentbased_filter;
-    
+
     return *this;
 }
 
-dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator=(OBJK_DataReader_Binary &&x)
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary_Qos::operator =(
+        OBJK_DataReader_Binary_Qos&& x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
+
+    m_base = std::move(x.m_base);
     m_timebasedfilter_msec = x.m_timebasedfilter_msec;
     m_contentbased_filter = std::move(x.m_contentbased_filter);
-    
+
     return *this;
 }
 
-size_t dds::xrce::OBJK_DataReader_Binary::getMaxCdrSerializedSize(size_t current_alignment)
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getMaxCdrSerializedSize(
+        size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
 
     current_alignment += dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
 
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(size_t current_alignment) const
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataReader_Binary_Qos& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.contentbased_filter().size() + 1;
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_DataReader_Binary_Qos::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_base;
+    scdr << bool(m_timebasedfilter_msec);
+    if (m_timebasedfilter_msec)
+    {
+        scdr << *m_timebasedfilter_msec;
+    }
+    
+    scdr << bool(m_contentbased_filter);
+    if (m_contentbased_filter)
+    {
+        scdr << *m_contentbased_filter;
+    }
+}
+
+void dds::xrce::OBJK_DataReader_Binary_Qos::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_base;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_timebasedfilter_msec = temp;
+    }
+    
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_contentbased_filter = temp;
+    }
+}
+
+/*!
+ * @brief This function copies the value in member base
+ * @param _base New value to be copied in member base
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::base(
+        const dds::xrce::OBJK_Endpoint_QosBinary& _base)
+{
+    m_base = _base;
+}
+
+/*!
+ * @brief This function moves the value in member base
+ * @param _base New value to be moved in member base
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::base(
+        dds::xrce::OBJK_Endpoint_QosBinary&& _base)
+{
+    m_base = std::move(_base);
+}
+
+/*!
+ * @brief This function returns a constant reference to member base
+ * @return Constant reference to member base
+ */
+const dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataReader_Binary_Qos::base() const
+{
+    return m_base;
+}
+
+/*!
+ * @brief This function returns a reference to member base
+ * @return Reference to member base
+ */
+dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataReader_Binary_Qos::base()
+{
+    return m_base;
+}
+/*!
+ * @brief This function sets a value in member timebasedfilter_msec
+ * @param _timebasedfilter_msec New value for member timebasedfilter_msec
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec(
+        uint32_t _timebasedfilter_msec)
+{
+    m_timebasedfilter_msec = _timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function returns the value of member timebasedfilter_msec
+ * @return Value of member timebasedfilter_msec
+ */
+uint32_t dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec() const
+{
+    return *m_timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function returns a reference to member timebasedfilter_msec
+ * @return Reference to member timebasedfilter_msec
+ */
+uint32_t& dds::xrce::OBJK_DataReader_Binary_Qos::timebasedfilter_msec()
+{
+    return *m_timebasedfilter_msec;
+}
+
+/*!
+ * @brief This function copies the value in member contentbased_filter
+ * @param _contentbased_filter New value to be copied in member contentbased_filter
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter(
+        const std::string& _contentbased_filter)
+{
+    m_contentbased_filter = _contentbased_filter;
+}
+
+/*!
+ * @brief This function moves the value in member contentbased_filter
+ * @param _contentbased_filter New value to be moved in member contentbased_filter
+ */
+void dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter(
+        std::string&& _contentbased_filter)
+{
+    m_contentbased_filter = std::move(_contentbased_filter);
+}
+
+/*!
+ * @brief This function returns a constant reference to member contentbased_filter
+ * @return Constant reference to member contentbased_filter
+ */
+const std::string& dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter() const
+{
+    return *m_contentbased_filter;
+}
+
+/*!
+ * @brief This function returns a reference to member contentbased_filter
+ * @return Reference to member contentbased_filter
+ */
+std::string& dds::xrce::OBJK_DataReader_Binary_Qos::contentbased_filter()
+{
+    return *m_contentbased_filter;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary_Qos::getKeyMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t current_align = current_alignment;
+    return current_align;
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary()
+{
+}
+
+dds::xrce::OBJK_DataReader_Binary::~OBJK_DataReader_Binary()
+{
+
+
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
+        const OBJK_DataReader_Binary& x)
+{
+    m_topic_id = x.m_topic_id;
+    m_qos = x.m_qos;
+}
+
+dds::xrce::OBJK_DataReader_Binary::OBJK_DataReader_Binary(
+        OBJK_DataReader_Binary&& x)
+{
+    m_topic_id = std::move(x.m_topic_id);
+    m_qos = std::move(x.m_qos);
+}
+
+dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =(
+        const OBJK_DataReader_Binary& x)
+{
+
+    m_topic_id = x.m_topic_id;
+    m_qos = x.m_qos;
+
+    return *this;
+}
+
+dds::xrce::OBJK_DataReader_Binary& dds::xrce::OBJK_DataReader_Binary::operator =(
+        OBJK_DataReader_Binary&& x)
+{
+
+    m_topic_id = std::move(x.m_topic_id);
+    m_qos = std::move(x.m_qos);
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary::getMaxCdrSerializedSize(
+        size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
-    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += dds::xrce::OBJK_DataReader_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_DataReader_Binary::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataReader_Binary& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.topic_id().size() + 1;
+
+    current_alignment += dds::xrce::OBJK_DataReader_Binary_Qos::getCdrSerializedSize(data.qos(), current_alignment);
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_DataReader_Binary::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_topic_id;
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
+}
+
+void dds::xrce::OBJK_DataReader_Binary::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_topic_id;
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        dds::xrce::OBJK_DataReader_Binary_Qos temp;
+        dcdr >> temp;
+        m_qos = temp;
+    }
+}
+
+/*!
+ * @brief This function moves the value in member qos
+ * @param _qos New value to be moved in member qos
+ */
+void dds::xrce::OBJK_DataReader_Binary::qos(
+        dds::xrce::OBJK_DataReader_Binary_Qos&& _qos)
+{
+    m_qos = std::move(_qos);
+}
+
+/*!
+ * @brief This function returns a constant reference to member qos
+ * @return Constant reference to member qos
+ */
+const dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary::qos() const
+{
+    return *m_qos;
+}
+
+/*!
+ * @brief This function returns a reference to member qos
+ * @return Reference to member qos
+ */
+dds::xrce::OBJK_DataReader_Binary_Qos& dds::xrce::OBJK_DataReader_Binary::qos()
+{
+    return *m_qos;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos()
+{
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::~OBJK_DataWriter_Binary_Qos()
+{
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& x)
+{
+    m_base = x.m_base;
+    m_ownership_strength = x.m_ownership_strength;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos::OBJK_DataWriter_Binary_Qos(
+        dds::xrce::OBJK_DataWriter_Binary_Qos&& x)
+{
+    m_base = std::move(x.m_base);
+    m_ownership_strength = x.m_ownership_strength;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos& dds::xrce::OBJK_DataWriter_Binary_Qos::operator =(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& x)
+{
+
+    m_base = x.m_base;
+    m_ownership_strength = x.m_ownership_strength;
+
+    return *this;
+}
+
+dds::xrce::OBJK_DataWriter_Binary_Qos& dds::xrce::OBJK_DataWriter_Binary_Qos::operator =(
+        dds::xrce::OBJK_DataWriter_Binary_Qos&& x)
+{
+
+    m_base = std::move(x.m_base);
+    m_ownership_strength = x.m_ownership_strength;
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_contentbased_filter.size() + 1;
+
 
 
     return current_alignment - initial_alignment;
 }
 
-void dds::xrce::OBJK_DataReader_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
+size_t dds::xrce::OBJK_DataWriter_Binary_Qos::getCdrSerializedSize(
+        const dds::xrce::OBJK_DataWriter_Binary_Qos& data,
+        size_t current_alignment)
 {
-    scdr << m_topic_name;
-    scdr << m_endpoint_qos;
-    scdr << m_timebasedfilter_msec;
-    scdr << m_contentbased_filter;
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+
+    return current_alignment - initial_alignment;
 }
 
-void dds::xrce::OBJK_DataReader_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
 {
-    dcdr >> m_topic_name;
-    dcdr >> m_endpoint_qos;
-    dcdr >> m_timebasedfilter_msec;
-    dcdr >> m_contentbased_filter;
+    scdr << m_base;
+    scdr << bool(m_ownership_strength);
+    if (m_ownership_strength)
+    {
+        scdr << *m_ownership_strength;
+    }
+    
+
+}
+
+void dds::xrce::OBJK_DataWriter_Binary_Qos::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_base;
+    
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        uint32_t temp;
+        dcdr >> temp;
+        m_ownership_strength = temp;
+    }
+}
+
+/*!
+ * @brief This function copies the value in member base
+ * @param _base New value to be copied in member base
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::base(
+        const OBJK_Endpoint_QosBinary& _base)
+{
+    m_base = _base;
+}
+
+/*!
+ * @brief This function moves the value in member base
+ * @param _base New value to be moved in member base
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::base(
+        OBJK_Endpoint_QosBinary&& _base)
+{
+    m_base = std::move(_base);
+}
+
+/*!
+ * @brief This function returns a constant reference to member base
+ * @return Constant reference to member base
+ */
+const dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataWriter_Binary_Qos::base() const
+{
+    return m_base;
+}
+
+/*!
+ * @brief This function returns a reference to member base
+ * @return Reference to member base
+ */
+dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_DataWriter_Binary_Qos::base()
+{
+    return m_base;
+}
+/*!
+ * @brief This function sets a value in member ownership_strength
+ * @param _ownership_strength New value for member ownership_strength
+ */
+void dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength(
+        uint32_t _ownership_strength)
+{
+    m_ownership_strength = _ownership_strength;
+}
+
+/*!
+ * @brief This function returns the value of member ownership_strength
+ * @return Value of member ownership_strength
+ */
+uint32_t dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength() const
+{
+    return *m_ownership_strength;
+}
+
+/*!
+ * @brief This function returns a reference to member ownership_strength
+ * @return Reference to member ownership_strength
+ */
+uint32_t& dds::xrce::OBJK_DataWriter_Binary_Qos::ownership_strength()
+{
+    return *m_ownership_strength;
 }
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary()
 {
-    m_ownership_strength = 0;
 }
 
 dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
@@ -3797,33 +4340,27 @@ dds::xrce::OBJK_DataWriter_Binary::~OBJK_DataWriter_Binary()
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary &x)
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
-    m_ownership_strength = x.m_ownership_strength;
+    m_topic_id = x.m_topic_id;
+    m_qos = x.m_qos;
 }
 
 dds::xrce::OBJK_DataWriter_Binary::OBJK_DataWriter_Binary(OBJK_DataWriter_Binary &&x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
-    m_ownership_strength = x.m_ownership_strength;
+    m_topic_id = std::move(x.m_topic_id);
+    m_qos = std::move(x.m_qos);
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(const OBJK_DataWriter_Binary &x)
 {
-    m_topic_name = x.m_topic_name;
-    m_endpoint_qos = x.m_endpoint_qos;
-    m_ownership_strength = x.m_ownership_strength;
-    
+    m_topic_id = x.m_topic_id;
+    m_qos = x.m_qos;
     return *this;
 }
 
 dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(OBJK_DataWriter_Binary &&x)
 {
-    m_topic_name = std::move(x.m_topic_name);
-    m_endpoint_qos = std::move(x.m_endpoint_qos);
-    m_ownership_strength = x.m_ownership_strength;
-    
+    m_topic_id = std::move(x.m_topic_id);
+    m_qos = std::move(x.m_qos);
     return *this;
 }
 
@@ -3832,9 +4369,7 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size_t current
     size_t initial_alignment = current_alignment;
             
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
-
-    current_alignment += dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += dds::xrce::OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
 
 
     return current_alignment - initial_alignment;
@@ -3844,25 +4379,32 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_al
 {
     size_t initial_alignment = current_alignment;
             
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
-    current_alignment += m_endpoint_qos.getCdrSerializedSize(current_alignment);
-    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_id.size() + 1;
 
     return current_alignment - initial_alignment;
 }
 
 void dds::xrce::OBJK_DataWriter_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr << m_topic_name;
-    scdr << m_endpoint_qos;
-    scdr << m_ownership_strength;
+    scdr << m_topic_id;
+    scdr << bool(m_qos);
+    if (m_qos)
+    {
+        scdr << *m_qos;
+    }
 }
 
 void dds::xrce::OBJK_DataWriter_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr >> m_topic_name;
-    dcdr >> m_endpoint_qos;
-    dcdr >> m_ownership_strength;
+    dcdr >> m_topic_id;
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        dds::xrce::OBJK_DataWriter_Binary_Qos temp;
+        dcdr >> temp;
+        m_qos = temp;
+    }
 }
 
 dds::xrce::ObjectVariant::ObjectVariant()
@@ -4216,7 +4758,7 @@ void dds::xrce::ObjectVariant::_d(dds::xrce::ObjectKind __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -4255,7 +4797,7 @@ const dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_agent;
 }
@@ -4272,7 +4814,7 @@ dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_agent;
 }
@@ -4300,7 +4842,7 @@ const dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_client;
 }
@@ -4317,7 +4859,7 @@ dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_client;
 }
@@ -4345,7 +4887,7 @@ const dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::appl
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_application;
 }
@@ -4362,7 +4904,7 @@ dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::applicatio
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_application;
 }
@@ -4390,7 +4932,7 @@ const dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::part
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_participant;
 }
@@ -4407,7 +4949,7 @@ dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::participan
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_participant;
 }
@@ -4435,7 +4977,7 @@ const dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_p
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_qos_profile;
 }
@@ -4452,7 +4994,7 @@ dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_profile
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_qos_profile;
 }
@@ -4480,7 +5022,7 @@ const dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type() cons
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_type;
 }
@@ -4497,7 +5039,7 @@ dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_type;
 }
@@ -4525,7 +5067,7 @@ const dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic() co
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_topic;
 }
@@ -4542,7 +5084,7 @@ dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_topic;
 }
@@ -4570,7 +5112,7 @@ const dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publis
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_publisher;
 }
@@ -4587,7 +5129,7 @@ dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publisher()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_publisher;
 }
@@ -4615,7 +5157,7 @@ const dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subsc
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_subscriber;
 }
@@ -4632,7 +5174,7 @@ dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subscriber(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_subscriber;
 }
@@ -4660,7 +5202,7 @@ const dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_write
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -4677,7 +5219,7 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_writer()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -4705,7 +5247,7 @@ const dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reade
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_data_reader;
 }
@@ -4722,7 +5264,7 @@ dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reader()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -4751,7 +5293,7 @@ const dds::xrce::REQUESTER_Representation& dds::xrce::ObjectVariant::requester()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_requester;
 }
@@ -4768,7 +5310,7 @@ dds::xrce::REQUESTER_Representation& dds::xrce::ObjectVariant::requester()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_requester;
 }
@@ -4797,7 +5339,7 @@ const dds::xrce::REPLIER_Representation& dds::xrce::ObjectVariant::replier() con
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_replier;
 }
@@ -4814,7 +5356,7 @@ dds::xrce::REPLIER_Representation& dds::xrce::ObjectVariant::replier()
         default:
         break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_replier;
 }
@@ -5582,7 +6124,7 @@ void dds::xrce::ActivityInfoVariant::_d(dds::xrce::ObjectKind __d)
             break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -5621,7 +6163,7 @@ const dds::xrce::AGENT_ActivityInfo& dds::xrce::ActivityInfoVariant::agent() con
         default:
             break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_agent;
 }
@@ -5638,7 +6180,7 @@ dds::xrce::AGENT_ActivityInfo& dds::xrce::ActivityInfoVariant::agent()
         default:
             break;
     }
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
 
     return m_agent;
 }
@@ -5667,7 +6209,7 @@ const dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_w
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -5684,7 +6226,7 @@ dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_writer(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_writer;
 }
@@ -5713,7 +6255,7 @@ const dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_r
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -5730,7 +6272,7 @@ dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_reader(
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_reader;
 }
@@ -5909,13 +6451,15 @@ void dds::xrce::ObjectInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
     scdr << bool(m_config);
     if (m_config)
     {
-        scdr << (*m_config);
+        scdr << *m_config;
     }
+    
     scdr << bool(m_activity);
     if (m_activity)
     {
-        scdr << (*m_activity);
+        scdr << *m_activity;
     }
+    
 }
 
 void dds::xrce::ObjectInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -6265,26 +6809,28 @@ void dds::xrce::ReadSpecification::serialize(eprosima::fastcdr::Cdr &scdr) const
     {
         scdr << *m_delivery_control;
     }
-}
+    }
 
 void dds::xrce::ReadSpecification::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_preferred_stream_id;
     dcdr >> m_data_format;
-    bool temp;
-    dcdr >> temp;
-    if (temp)
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
     {
-        std::string temp_content_filter_expression;
-        dcdr >> temp_content_filter_expression;
-        m_content_filter_expression = temp_content_filter_expression;
+        std::string temp;
+        dcdr >> temp;
+        m_content_filter_expression = temp;
     }
-    dcdr >> temp;
-    if (temp)
+
+    dcdr >> flag;
+    if (flag)
     {
-        dds::xrce::DataDeliveryControl temp_delivery_control;
-        dcdr >> temp_delivery_control;
-        m_delivery_control = temp_delivery_control;
+        dds::xrce::DataDeliveryControl temp;
+        dcdr >> temp;
+        m_delivery_control = temp;
     }
 }
 
@@ -6906,7 +7452,7 @@ void dds::xrce::DataRepresentation::_d(dds::xrce::DataFormat __d)
         break;
     }
     
-    if(!b) throw BadParamException("Discriminator doesn't correspond with the selected union member");
+    if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
     
     m__d = __d;
 }
@@ -6945,7 +7491,7 @@ const dds::xrce::SampleData& dds::xrce::DataRepresentation::data() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data;
 }
@@ -6962,7 +7508,7 @@ dds::xrce::SampleData& dds::xrce::DataRepresentation::data()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data;
 }
@@ -6990,7 +7536,7 @@ const dds::xrce::Sample& dds::xrce::DataRepresentation::sample() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample;
 }
@@ -7007,7 +7553,7 @@ dds::xrce::Sample& dds::xrce::DataRepresentation::sample()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample;
 }
@@ -7035,7 +7581,7 @@ const dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_seq;
 }
@@ -7052,7 +7598,7 @@ dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_data_seq;
 }
@@ -7080,7 +7626,7 @@ const dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq() const
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample_seq;
 }
@@ -7097,7 +7643,7 @@ dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_sample_seq;
 }
@@ -7125,7 +7671,7 @@ const dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples() 
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_packed_samples;
 }
@@ -7142,7 +7688,7 @@ dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples()
         default:
         break;
     }    
-    if(!b) throw BadParamException("This member is not been selected");
+    if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
     
     return m_packed_samples;
 }
@@ -8905,4 +9451,657 @@ void dds::SampleIdentity::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
     dcdr >> m_writer_guid;
     dcdr >> m_sequence_number;
+}
+
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary()
+{
+}
+
+dds::xrce::OBJK_Requester_Binary::~OBJK_Requester_Binary()
+{
+}
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
+        const OBJK_Requester_Binary& x)
+{
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+}
+
+dds::xrce::OBJK_Requester_Binary::OBJK_Requester_Binary(
+        OBJK_Requester_Binary&& x)
+{
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+}
+
+dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
+        const OBJK_Requester_Binary& x)
+{
+
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+
+    return *this;
+}
+
+dds::xrce::OBJK_Requester_Binary& dds::xrce::OBJK_Requester_Binary::operator =(
+        OBJK_Requester_Binary&& x)
+{
+
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_Requester_Binary::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_Requester_Binary::getCdrSerializedSize(
+        const dds::xrce::OBJK_Requester_Binary& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.service_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_topic_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_topic_name().size() + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_Requester_Binary::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_service_name;
+    scdr << m_request_type;
+    scdr << m_reply_type;
+    scdr << bool(m_request_topic_name);
+    if (m_request_topic_name)
+    {
+        scdr << *m_request_topic_name;
+    }
+
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
+    }
+
+}
+
+void dds::xrce::OBJK_Requester_Binary::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_service_name;
+    dcdr >> m_request_type;
+    dcdr >> m_reply_type;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_request_topic_name = temp;
+    }
+
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_reply_topic_name = temp;
+    }
+}
+
+/*!
+ * @brief This function copies the value in member service_name
+ * @param _service_name New value to be copied in member service_name
+ */
+void dds::xrce::OBJK_Requester_Binary::service_name(
+        const std::string& _service_name)
+{
+    m_service_name = _service_name;
+}
+
+/*!
+ * @brief This function moves the value in member service_name
+ * @param _service_name New value to be moved in member service_name
+ */
+void dds::xrce::OBJK_Requester_Binary::service_name(
+        std::string&& _service_name)
+{
+    m_service_name = std::move(_service_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member service_name
+ * @return Constant reference to member service_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::service_name() const
+{
+    return m_service_name;
+}
+
+/*!
+ * @brief This function returns a reference to member service_name
+ * @return Reference to member service_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::service_name()
+{
+    return m_service_name;
+}
+/*!
+ * @brief This function copies the value in member request_type
+ * @param _request_type New value to be copied in member request_type
+ */
+void dds::xrce::OBJK_Requester_Binary::request_type(
+        const std::string& _request_type)
+{
+    m_request_type = _request_type;
+}
+
+/*!
+ * @brief This function moves the value in member request_type
+ * @param _request_type New value to be moved in member request_type
+ */
+void dds::xrce::OBJK_Requester_Binary::request_type(
+        std::string&& _request_type)
+{
+    m_request_type = std::move(_request_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_type
+ * @return Constant reference to member request_type
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::request_type() const
+{
+    return m_request_type;
+}
+
+/*!
+ * @brief This function returns a reference to member request_type
+ * @return Reference to member request_type
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::request_type()
+{
+    return m_request_type;
+}
+/*!
+ * @brief This function copies the value in member reply_type
+ * @param _reply_type New value to be copied in member reply_type
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_type(
+        const std::string& _reply_type)
+{
+    m_reply_type = _reply_type;
+}
+
+/*!
+ * @brief This function moves the value in member reply_type
+ * @param _reply_type New value to be moved in member reply_type
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_type(
+        std::string&& _reply_type)
+{
+    m_reply_type = std::move(_reply_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_type
+ * @return Constant reference to member reply_type
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::reply_type() const
+{
+    return m_reply_type;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_type
+ * @return Reference to member reply_type
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::reply_type()
+{
+    return m_reply_type;
+}
+/*!
+ * @brief This function copies the value in member reply_topic_name
+ * @param _reply_topic_name New value to be copied in member reply_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_topic_name(
+        const std::string& _reply_topic_name)
+{
+    m_reply_topic_name = _reply_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member reply_topic_name
+ * @param _reply_topic_name New value to be moved in member reply_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::reply_topic_name(
+        std::string&& _reply_topic_name)
+{
+    m_reply_topic_name = std::move(_reply_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_topic_name
+ * @return Constant reference to member reply_topic_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::reply_topic_name() const
+{
+    return *m_reply_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_topic_name
+ * @return Reference to member reply_topic_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::reply_topic_name()
+{
+    return *m_reply_topic_name;
+}
+/*!
+ * @brief This function copies the value in member request_topic_name
+ * @param _request_topic_name New value to be copied in member request_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::request_topic_name(
+        const std::string& _request_topic_name)
+{
+    m_request_topic_name = _request_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member request_topic_name
+ * @param _request_topic_name New value to be moved in member request_topic_name
+ */
+void dds::xrce::OBJK_Requester_Binary::request_topic_name(
+        std::string&& _request_topic_name)
+{
+    m_request_topic_name = std::move(_request_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_topic_name
+ * @return Constant reference to member request_topic_name
+ */
+const std::string& dds::xrce::OBJK_Requester_Binary::request_topic_name() const
+{
+    return *m_request_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member request_topic_name
+ * @return Reference to member request_topic_name
+ */
+std::string& dds::xrce::OBJK_Requester_Binary::request_topic_name()
+{
+    return *m_request_topic_name;
+}
+
+dds::xrce::OBJK_Replier_Binary::OBJK_Replier_Binary()
+{
+}
+
+dds::xrce::OBJK_Replier_Binary::~OBJK_Replier_Binary()
+{
+}
+
+dds::xrce::OBJK_Replier_Binary::OBJK_Replier_Binary(
+        const OBJK_Replier_Binary& x)
+{
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+}
+
+dds::xrce::OBJK_Replier_Binary::OBJK_Replier_Binary(
+        OBJK_Replier_Binary&& x)
+{
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+}
+
+dds::xrce::OBJK_Replier_Binary& dds::xrce::OBJK_Replier_Binary::operator =(
+        const OBJK_Replier_Binary& x)
+{
+
+    m_service_name = x.m_service_name;
+    m_request_type = x.m_request_type;
+    m_reply_type = x.m_reply_type;
+    m_reply_topic_name = x.m_reply_topic_name;
+    m_request_topic_name = x.m_request_topic_name;
+
+    return *this;
+}
+
+dds::xrce::OBJK_Replier_Binary& dds::xrce::OBJK_Replier_Binary::operator =(
+        OBJK_Replier_Binary&& x)
+{
+
+    m_service_name = std::move(x.m_service_name);
+    m_request_type = std::move(x.m_request_type);
+    m_reply_type = std::move(x.m_reply_type);
+    m_reply_topic_name = std::move(x.m_reply_topic_name);
+    m_request_topic_name = std::move(x.m_request_topic_name);
+
+    return *this;
+}
+
+size_t dds::xrce::OBJK_Replier_Binary::getMaxCdrSerializedSize(
+        size_t current_alignment)
+{
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+size_t dds::xrce::OBJK_Replier_Binary::getCdrSerializedSize(
+        const dds::xrce::OBJK_Replier_Binary& data,
+        size_t current_alignment)
+{
+    (void)data;
+    size_t initial_alignment = current_alignment;
+
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.service_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_type().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.reply_topic_name().size() + 1;
+
+    current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + data.request_topic_name().size() + 1;
+
+
+    return current_alignment - initial_alignment;
+}
+
+void dds::xrce::OBJK_Replier_Binary::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
+{
+    scdr << m_service_name;
+    scdr << m_request_type;
+    scdr << m_reply_type;
+    scdr << bool(m_request_topic_name);
+    if (m_request_topic_name)
+    {
+        scdr << *m_request_topic_name;
+    }
+    scdr << bool(m_reply_topic_name);
+    if (m_reply_topic_name)
+    {
+        scdr << *m_reply_topic_name;
+    }
+
+}
+
+void dds::xrce::OBJK_Replier_Binary::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
+{
+    dcdr >> m_service_name;
+    dcdr >> m_request_type;
+    dcdr >> m_reply_type;
+
+    bool flag;
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_request_topic_name = temp;
+    }
+    dcdr >> flag;
+    if (flag)
+    {
+        std::string temp;
+        dcdr >> temp;
+        m_reply_topic_name = temp;
+    }
+}
+
+/*!
+ * @brief This function copies the value in member service_name
+ * @param _service_name New value to be copied in member service_name
+ */
+void dds::xrce::OBJK_Replier_Binary::service_name(
+        const std::string& _service_name)
+{
+    m_service_name = _service_name;
+}
+
+/*!
+ * @brief This function moves the value in member service_name
+ * @param _service_name New value to be moved in member service_name
+ */
+void dds::xrce::OBJK_Replier_Binary::service_name(
+        std::string&& _service_name)
+{
+    m_service_name = std::move(_service_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member service_name
+ * @return Constant reference to member service_name
+ */
+const std::string& dds::xrce::OBJK_Replier_Binary::service_name() const
+{
+    return m_service_name;
+}
+
+/*!
+ * @brief This function returns a reference to member service_name
+ * @return Reference to member service_name
+ */
+std::string& dds::xrce::OBJK_Replier_Binary::service_name()
+{
+    return m_service_name;
+}
+/*!
+ * @brief This function copies the value in member request_type
+ * @param _request_type New value to be copied in member request_type
+ */
+void dds::xrce::OBJK_Replier_Binary::request_type(
+        const std::string& _request_type)
+{
+    m_request_type = _request_type;
+}
+
+/*!
+ * @brief This function moves the value in member request_type
+ * @param _request_type New value to be moved in member request_type
+ */
+void dds::xrce::OBJK_Replier_Binary::request_type(
+        std::string&& _request_type)
+{
+    m_request_type = std::move(_request_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_type
+ * @return Constant reference to member request_type
+ */
+const std::string& dds::xrce::OBJK_Replier_Binary::request_type() const
+{
+    return m_request_type;
+}
+
+/*!
+ * @brief This function returns a reference to member request_type
+ * @return Reference to member request_type
+ */
+std::string& dds::xrce::OBJK_Replier_Binary::request_type()
+{
+    return m_request_type;
+}
+/*!
+ * @brief This function copies the value in member reply_type
+ * @param _reply_type New value to be copied in member reply_type
+ */
+void dds::xrce::OBJK_Replier_Binary::reply_type(
+        const std::string& _reply_type)
+{
+    m_reply_type = _reply_type;
+}
+
+/*!
+ * @brief This function moves the value in member reply_type
+ * @param _reply_type New value to be moved in member reply_type
+ */
+void dds::xrce::OBJK_Replier_Binary::reply_type(
+        std::string&& _reply_type)
+{
+    m_reply_type = std::move(_reply_type);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_type
+ * @return Constant reference to member reply_type
+ */
+const std::string& dds::xrce::OBJK_Replier_Binary::reply_type() const
+{
+    return m_reply_type;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_type
+ * @return Reference to member reply_type
+ */
+std::string& dds::xrce::OBJK_Replier_Binary::reply_type()
+{
+    return m_reply_type;
+}
+/*!
+ * @brief This function copies the value in member reply_topic_name
+ * @param _reply_topic_name New value to be copied in member reply_topic_name
+ */
+void dds::xrce::OBJK_Replier_Binary::reply_topic_name(
+        const std::string& _reply_topic_name)
+{
+    m_reply_topic_name = _reply_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member reply_topic_name
+ * @param _reply_topic_name New value to be moved in member reply_topic_name
+ */
+void dds::xrce::OBJK_Replier_Binary::reply_topic_name(
+        std::string&& _reply_topic_name)
+{
+    m_reply_topic_name = std::move(_reply_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member reply_topic_name
+ * @return Constant reference to member reply_topic_name
+ */
+const std::string& dds::xrce::OBJK_Replier_Binary::reply_topic_name() const
+{
+    return *m_reply_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member reply_topic_name
+ * @return Reference to member reply_topic_name
+ */
+std::string& dds::xrce::OBJK_Replier_Binary::reply_topic_name()
+{
+    return *m_reply_topic_name;
+}
+/*!
+ * @brief This function copies the value in member request_topic_name
+ * @param _request_topic_name New value to be copied in member request_topic_name
+ */
+void dds::xrce::OBJK_Replier_Binary::request_topic_name(
+        const std::string& _request_topic_name)
+{
+    m_request_topic_name = _request_topic_name;
+}
+
+/*!
+ * @brief This function moves the value in member request_topic_name
+ * @param _request_topic_name New value to be moved in member request_topic_name
+ */
+void dds::xrce::OBJK_Replier_Binary::request_topic_name(
+        std::string&& _request_topic_name)
+{
+    m_request_topic_name = std::move(_request_topic_name);
+}
+
+/*!
+ * @brief This function returns a constant reference to member request_topic_name
+ * @return Constant reference to member request_topic_name
+ */
+const std::string& dds::xrce::OBJK_Replier_Binary::request_topic_name() const
+{
+    return *m_request_topic_name;
+}
+
+/*!
+ * @brief This function returns a reference to member request_topic_name
+ * @return Reference to member request_topic_name
+ */
+std::string& dds::xrce::OBJK_Replier_Binary::request_topic_name()
+{
+    return *m_request_topic_name;
 }
