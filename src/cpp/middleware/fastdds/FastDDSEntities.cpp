@@ -22,7 +22,6 @@
 #include <fastcdr/Cdr.h>
 #include "../../xmlobjects/xmlobjects.h"
 
-
 namespace eprosima {
 namespace uxr {
 
@@ -169,6 +168,9 @@ static void set_qos_from_xrce_object(
         fastdds::dds::DataWriterQos& qos,
         const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
 {
+    qos.endpoint().history_memory_policy = 
+        fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
     if (datawriter_xrce.has_qos())
     {   
         ReliabilityQosPolicy reliability;
@@ -229,6 +231,9 @@ static void set_qos_from_xrce_object(
         fastdds::dds::DataReaderQos& qos,
         const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
 {
+    qos.endpoint().history_memory_policy = 
+        fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
     if (datareader_xrce.has_qos())
     {
         ReliabilityQosPolicy reliability;
