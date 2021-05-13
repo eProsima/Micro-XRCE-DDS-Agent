@@ -53,17 +53,14 @@ bool TermiosAgent::init()
 
     // Check if serial port exist
     int serial_exist = access(dev_.c_str(), F_OK );
-    if( serial_exist != 0 ) {
+    while(serial_exist != 0)
+    {
         UXR_AGENT_LOG_INFO(
-            UXR_DECORATE_YELLOW("Serial port not found."),
-                    "device: {}, waiting for connection...",
-                    dev_);
-
-        while(serial_exist != 0)
-        {
-            std::this_thread::sleep_for((std::chrono::seconds) 1);
-            serial_exist = access(dev_.c_str(), F_OK );
-        }
+        UXR_DECORATE_YELLOW("Serial port not found."),
+                "device: {}, waiting for connection...",
+                dev_);
+        std::this_thread::sleep_for((std::chrono::seconds) 1);
+        serial_exist = access(dev_.c_str(), F_OK );
     }
 
     poll_fd_.fd = open(dev_.c_str(), open_flags_);
