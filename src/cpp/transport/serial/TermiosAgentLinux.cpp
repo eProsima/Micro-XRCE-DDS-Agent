@@ -21,16 +21,17 @@ namespace eprosima {
 namespace uxr {
 
 TermiosAgent::TermiosAgent(
-        char const * dev,
+        char const* dev,
         int open_flags,
-        termios const & termios_attrs,
+        termios const& termios_attrs,
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : SerialAgent(addr, middleware_kind)
     , dev_{dev}
     , open_flags_{open_flags}
     , termios_attrs_{termios_attrs}
-{}
+{
+}
 
 TermiosAgent::~TermiosAgent()
 {
@@ -61,24 +62,27 @@ bool TermiosAgent::init()
         {
             std::this_thread::sleep_for((std::chrono::milliseconds) 10);
 
-            if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
+            if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
             {
-                begin = std::chrono::steady_clock::now();
-                UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_YELLOW("Serial port not found."),
+                if (EACCES == errno || EBUSY == errno)
+                {
+                    // Resource busy or superuser privileges required
+                    break;
+                }
+                else
+                {
+                    begin = std::chrono::steady_clock::now();
+                    UXR_AGENT_LOG_INFO(
+                        UXR_DECORATE_YELLOW("Serial port not found."),
                         "device: {}, error {}, waiting for connection...",
                         dev_, errno);
-                
-                if (EACCES == errno)
-                {
-                    break;
                 }
             }
         }
 
         serial_exist = access(dev_.c_str(), W_OK );
     }
-    while(serial_exist != 0);
+    while (serial_exist != 0);
 
     poll_fd_.fd = open(dev_.c_str(), open_flags_);
     if (0 < poll_fd_.fd)
