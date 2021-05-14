@@ -66,8 +66,13 @@ bool TermiosAgent::init()
                 begin = std::chrono::steady_clock::now();
                 UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_YELLOW("Serial port not found."),
-                        "device: {}, waiting for connection...",
-                        dev_);
+                        "device: {}, error {}, waiting for connection...",
+                        dev_, errno);
+                
+                if (EACCES == errno)
+                {
+                    break;
+                }
             }
         }
 
