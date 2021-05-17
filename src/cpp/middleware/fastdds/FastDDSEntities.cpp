@@ -184,12 +184,23 @@ static void set_qos_from_xrce_object(
         // TODO set user data
 
         DurabilityQosPolicy durability;
-        durability.kind = 
-            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local) ?
-            DurabilityQosPolicyKind::TRANSIENT_LOCAL_DURABILITY_QOS :
-            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent) ?
-                DurabilityQosPolicyKind::PERSISTENT_DURABILITY_QOS :
-                DurabilityQosPolicyKind::TRANSIENT_DURABILITY_QOS;
+        if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local)
+        {
+            durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+        }
+        else if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient)
+        {
+            durability.kind = TRANSIENT_DURABILITY_QOS;
+        }
+        else if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent)
+        {
+            durability.kind = PERSISTENT_DURABILITY_QOS;
+        }
+        else
+        {
+            durability.kind = VOLATILE_DURABILITY_QOS;
+        }
+
         qos.durability() = durability;
 
         HistoryQosPolicy history;
@@ -248,12 +259,22 @@ static void set_qos_from_xrce_object(
         // TODO set m_contentbased_filter
 
         DurabilityQosPolicy durability;
-        durability.kind = 
-            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local) ?
-            DurabilityQosPolicyKind::TRANSIENT_LOCAL_DURABILITY_QOS :
-            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent) ?
-                DurabilityQosPolicyKind::PERSISTENT_DURABILITY_QOS :
-                DurabilityQosPolicyKind::TRANSIENT_DURABILITY_QOS;
+        if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local)
+        {
+            durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+        }
+        else if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient)
+        {
+            durability.kind = TRANSIENT_DURABILITY_QOS;
+        }
+        else if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent)
+        {
+            durability.kind = PERSISTENT_DURABILITY_QOS;
+        }
+        else
+        {
+            durability.kind = VOLATILE_DURABILITY_QOS;
+        }
         qos.durability() = durability;
 
         HistoryQosPolicy history;
