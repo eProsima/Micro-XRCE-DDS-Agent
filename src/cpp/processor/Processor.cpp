@@ -403,7 +403,7 @@ bool Processor<EndPoint>::process_write_data_submessage(
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
     size_t submessage_length = input_packet.message->get_subheader().submessage_length();
     
-    // Out of the standard feature
+#ifdef UAGENT_TWEAK_XRCE_WRITE_LIMIT
     if (submessage_length == 0)
     {
         submessage_length = 
@@ -411,7 +411,8 @@ bool Processor<EndPoint>::process_write_data_submessage(
             - input_packet.message->get_header().getCdrSerializedSize(0)
             - input_packet.message->get_subheader().getCdrSerializedSize(0);
     }
-    
+#endif
+
     switch (flags)
     {
         case dds::xrce::FORMAT_DATA_FLAG:
