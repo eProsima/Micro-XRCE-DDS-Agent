@@ -63,7 +63,7 @@ set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dea
 set(UAGENT_SERVER_BUFFER_SIZE                  65535    CACHE STRING "Server buffer size.")
 
 # Off-standard features and tweaks
-option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WRITE DATA submessages grater than 64 kB." ON)
+option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WRITE DATA submessages greater than 64 kB." ON)
 
 ###############################################################################
 # Dependencies
