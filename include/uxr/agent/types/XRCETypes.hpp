@@ -3764,6 +3764,16 @@ public:
     {
         return *m_domain_reference;
     }
+
+    /*!
+     * @brief This function returns a boolean indicating if qos_profile is present
+     * @return Bool
+     */
+    inline bool has_qos_profile() const
+    {
+        return bool(m_qos_profile);
+    }
+
     /*!
      * @brief This function copies the value in member qos_profile
      * @param _qos_profile New value to be copied in member qos_profile

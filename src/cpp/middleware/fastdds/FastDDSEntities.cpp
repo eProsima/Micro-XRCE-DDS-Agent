@@ -140,10 +140,17 @@ static void set_qos_from_attributes(
 }
 
 static void set_qos_from_xrce_object(
-        fastdds::dds::DomainParticipantQos& /* qos */,
-        const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */)
+        fastdds::dds::DomainParticipantQos& qos,
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
-    return;
+    if (participant_xrce.has_qos_profile())
+    {
+        qos.name() = participant_xrce.qos_profile();
+    }
+    else
+    {
+        qos.name() = "MicroXRCEParticipant";
+    }
 }
 
 static void set_qos_from_xrce_object(
