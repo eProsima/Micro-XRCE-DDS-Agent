@@ -60,7 +60,11 @@ ssize_t SerialAgent::read_data(
 {
     ssize_t bytes_read = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
-    if (0 < poll_rv)
+    if(poll_fd_.revents & (POLLERR+POLLHUP))
+    {
+        transport_rc = TransportRc::server_error;;
+    }
+    else if (0 < poll_rv)
     {
         bytes_read = read(poll_fd_.fd, buf, len);
         if (0 > bytes_read)
