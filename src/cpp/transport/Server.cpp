@@ -191,6 +191,7 @@ void Server<EndPoint>::receiver_loop()
                 std::unique_lock<std::mutex> lock(error_mtx_);
                 transport_rc_ = transport_rc;
                 error_cv_.notify_one();
+                error_cv_.wait(lock);
             }
         }
     }
@@ -213,6 +214,7 @@ void Server<EndPoint>::sender_loop()
                     transport_rc_ = transport_rc;
                     output_scheduler_.push_front(std::move(output_packet));
                     error_cv_.notify_one();
+                    error_cv_.wait(lock);
                 }
             }
         }
@@ -258,6 +260,7 @@ void Server<EndPoint>::error_handler_loop()
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
             transport_rc_ = TransportRc::ok;
+            error_cv_.notify_one();
         }
     }
 }
