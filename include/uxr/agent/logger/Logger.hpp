@@ -41,6 +41,7 @@
 #endif
 
 #define UXR_CLIENT_KEY_STR      "client_key"
+#define UXR_FILE_FD_STR         "fd"
 #define UXR_SESSION_ID_STR      "session_id"
 #define UXR_OBJECT_ID_STR       "object_id"
 #define UXR_PARTICIPANT_ID_STR  "participant_id"
@@ -55,6 +56,7 @@
 #define UXR_DATA_STR            "data"
 
 #define UXR_CLIENT_KEY_FORMAT       "0x{:08X}"
+#define UXR_FILE_FD_FORMAT          "{}"
 #define UXR_SESSION_ID_FORMAT       "0x{:02X}"
 #define UXR_OBJECT_ID_FORMAT        "0x{:04X}"
 #define UXR_PARTICIPANT_ID_FORMAT   "0x{:03X}(1)"
@@ -89,6 +91,7 @@
 #define UXR_CREATE_REPLIER_PATTERN      UXR_CREATE_FORMAT_BASE(REPLIER_ID)      UXR_ADD_FIELD(PARTICIPANT_ID)
 #define UXR_MESSAGE_PATTERN             UXR_FIELD(CLIENT_KEY)                   UXR_ADD_FIELD(LEN)
 #define UXR_MESSAGE_WITH_DATA_PATTERN   UXR_MESSAGE_PATTERN                     UXR_ADD_FIELD(DATA)
+#define UXR_MESSAGE_WITH_FD_PATTERN     UXR_CREATE_FORMAT_BASE(FILE_FD)         UXR_ADD_FIELD(LEN)      UXR_ADD_FIELD(DATA)
 
 
 
@@ -143,6 +146,17 @@
     else \
     { \
         UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_PATTERN, CLIENT_KEY, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+    } \
+    void(0)
+
+#define UXR_MULTIAGENT_LOG_MESSAGE(STATUS, CLIENT_KEY, FD, BUF, LEN) \
+    if (spdlog::default_logger()->should_log(spdlog::level::trace)) \
+    { \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_WITH_FD_PATTERN, CLIENT_KEY, FD, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
+    } \
+    else \
+    { \
+        UXR_AGENT_LOG_DEBUG(STATUS, UXR_MESSAGE_PATTERN, CLIENT_KEY, FD, LEN, spdlog::to_hex(BUF, BUF + LEN)); \
     } \
     void(0)
 #else

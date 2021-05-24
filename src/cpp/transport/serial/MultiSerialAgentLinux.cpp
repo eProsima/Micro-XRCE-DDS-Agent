@@ -88,7 +88,6 @@ bool MultiSerialAgent::recv_message(
         {
             if (FD_ISSET(it->first, &fds))
             {
-                // Read it->first fd
                 uint8_t remote_addr;
                 ssize_t bytes_read = it->second.read_framed_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
 
@@ -101,9 +100,10 @@ bool MultiSerialAgent::recv_message(
                     uint32_t raw_client_key;
                     if (Server<MultiSerialEndPoint>::get_client_key(input_packet.source, raw_client_key))
                     {
-                        UXR_AGENT_LOG_MESSAGE(
+                        UXR_MULTIAGENT_LOG_MESSAGE(
                             UXR_DECORATE_YELLOW("[==>> SER <<==]"),
                             raw_client_key,
+                            it->first,
                             input_packet.message->get_buf(),
                             input_packet.message->get_len());
                     }
@@ -150,9 +150,10 @@ bool MultiSerialAgent::send_message(
         uint32_t raw_client_key;
         if (Server<MultiSerialEndPoint>::get_client_key(output_packet.destination, raw_client_key))
         {
-            UXR_AGENT_LOG_MESSAGE(
+            UXR_MULTIAGENT_LOG_MESSAGE(
                 UXR_DECORATE_YELLOW("[** <<SER>> **]"),
                 raw_client_key,
+                output_packet.destination.get_fd(),
                 output_packet.message->get_buf(),
                 output_packet.message->get_len());
         }
