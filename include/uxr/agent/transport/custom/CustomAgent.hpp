@@ -61,6 +61,7 @@ public:
      * @param buffer Pointer to octec buffer used to receive the information.
      * @param buffer_length Reception buffer size.
      * @param timeout Connection timeout for receiving a new message.
+     * @param serial_fd Serial file descriptor.
      * @param transport_rc Transport return code, to be filled by the user.
      * @return ssize_t Number of received bytes.
      */
@@ -69,6 +70,7 @@ public:
         uint8_t* /*buffer*/,
         size_t /*buffer_length*/,
         int /*timeout*/,
+        uint8_t /*read file descriptor*/,
         TransportRc& /*transport_rc*/)>;
     /**
      * @brief Send message function signature, to be implemented by final users.
@@ -76,6 +78,7 @@ public:
      *        information to send the message back to the client.
      * @param buffer Holds the message to be sent back to the client.
      * @param message_length Number of bytes to be sent.
+     * @param serial_fd Serial file descriptor.
      * @param transport_rc Transport return code, to be filled by the user.
      * @return ssize_t Number of sent bytes.
      */
@@ -83,6 +86,7 @@ public:
         const CustomEndPoint* /*destination_endpoint*/,
         uint8_t* /*buffer*/,
         size_t /*message_length*/,
+        uint8_t /*write file descriptor*/,
         TransportRc& /*transport_rc*/)>;
 
     /**

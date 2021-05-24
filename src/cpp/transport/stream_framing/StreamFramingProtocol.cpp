@@ -22,10 +22,12 @@ constexpr uint16_t FramingIO::crc16_table[256];
 
 FramingIO::FramingIO(
         uint8_t local_addr,
+        uint8_t remote_fd,
         WriteCallback write_callback,
         ReadCallback read_callback)
     : state_(InputState::UXR_FRAMING_UNINITIALIZED)
     , local_addr_(local_addr)
+    , remote_fd_(remote_fd)
     , remote_addr_(0)
     , read_buffer_()
     , read_buffer_head_(0)
@@ -396,7 +398,7 @@ bool FramingIO::transport_write(
 
     do
     {
-        ssize_t write_res = write_callback_(write_buffer_, write_buffer_pos_, transport_rc);
+        ssize_t write_res = write_callback_(write_buffer_, write_buffer_pos_, remote_fd_, transport_rc);
         last_written = (0 < write_res) ? write_res : 0;
         bytes_written += last_written;
     } while (bytes_written < write_buffer_pos_ && 0 < last_written);
@@ -459,6 +461,7 @@ size_t FramingIO::transport_read(
         ssize_t read_res = read_callback_(&read_buffer_[read_buffer_head_],
                                        available_length[0],
                                        timeout,
+                                       remote_fd_,
                                        transport_rc);
         bytes_read[0] = (0 < read_res) ? read_res : 0;
 
@@ -472,6 +475,7 @@ size_t FramingIO::transport_read(
                 read_res = read_callback_(&read_buffer_[read_buffer_head_],
                                        available_length[1],
                                        0,
+                                       remote_fd_,
                                        transport_rc);
                 bytes_read[1] = (0 < read_res) ? read_res : 0;
 

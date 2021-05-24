@@ -64,22 +64,25 @@ CustomAgent::CustomAgent(
     , custom_send_msg_func_(send_msg_function)
     , custom_recv_msg_func_(recv_msg_function)
     , framing_(framing)
-    , framing_io_(0x00,
+    , framing_io_(0x00, 0x00,
         [&](
                 uint8_t* buffer,
                 size_t message_length,
+                uint8_t serial_fd,
                 TransportRc& transport_rc) -> ssize_t
         {
             return custom_send_msg_func_(
                 send_endpoint_,
                 buffer,
                 message_length,
+                serial_fd,
                 transport_rc);
         },
         [&](
                 uint8_t* buffer,
                 size_t buffer_length,
                 int timeout,
+                uint8_t serial_fd,
                 TransportRc& transport_rc) -> ssize_t
         {
             return custom_recv_msg_func_(
@@ -87,6 +90,7 @@ CustomAgent::CustomAgent(
                 buffer,
                 buffer_length,
                 timeout,
+                serial_fd,
                 transport_rc);
         })
 {
@@ -195,7 +199,7 @@ bool CustomAgent::recv_message(
         else
         {
             recv_bytes = custom_recv_msg_func_(
-                recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
+                recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, 0x00, transport_rc);
         }
 
         bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
@@ -268,6 +272,7 @@ bool CustomAgent::send_message(
                 &output_packet.destination,
                 output_packet.message->get_buf(),
                 output_packet.message->get_len(),
+                0x00,
                 transport_rc);
         }
 

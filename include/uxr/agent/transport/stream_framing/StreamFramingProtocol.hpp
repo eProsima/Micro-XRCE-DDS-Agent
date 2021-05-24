@@ -92,12 +92,14 @@ public:
      * @brief Write callback function signature.
      * @param buffer Raw octet buffer to write into.
      * @param message_length Number of bytes to be written.
+     * @param serial_fd Serial file descriptor.
      * @param transport_rc Return code to be set by the callback logic.
      * @return size_t Number of written bytes.
      */
     using WriteCallback = std::function<ssize_t (
             uint8_t* /*buffer*/,
             size_t /*message_length*/,
+            uint8_t /*write file descriptor*/,
             TransportRc& /*transport_rc*/)>;
 
     /**
@@ -105,6 +107,7 @@ public:
      * @param buffer Raw octet buffer to read data from.
      * @param buffer_length Length of the buffer.
      * @param timeout Read timeout.
+     * @param serial_fd Serial file descriptor.
      * @param transport_rc Return code to be set by the callback logic.
      * @return size_t Number of read bytes.
      */
@@ -112,10 +115,12 @@ public:
             uint8_t* /*buffer*/,
             size_t /*buffer_length*/,
             int /*timeout*/,
+            uint8_t /*read file descriptor*/,
             TransportRc& /*transport_rc*/)>;
 
     FramingIO(
             uint8_t local_addr,
+            uint8_t remote_fd,
             WriteCallback write_callback,
             ReadCallback read_callback);
 
@@ -198,6 +203,7 @@ private:
     InputState state_;
 
     uint8_t local_addr_;
+    uint8_t remote_fd_;
     uint8_t remote_addr_;
 
     uint8_t read_buffer_[42];

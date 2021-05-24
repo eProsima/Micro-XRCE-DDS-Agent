@@ -95,6 +95,12 @@ bool AgentInstance::create(
                 valid_transport, &signals_));
             break;
         }
+        case agent::TransportKind::MULTISERIAL:
+        {
+            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv,
+                valid_transport, &signals_));
+            break;
+        }
         case agent::TransportKind::PSEUDOTERMINAL:
         {
             agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv,
