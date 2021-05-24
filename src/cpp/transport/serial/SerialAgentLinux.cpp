@@ -41,7 +41,7 @@ ssize_t SerialAgent::write_data(
 {
     size_t rv = 0;
     ssize_t bytes_written = ::write(poll_fd_.fd, buf, len);
-    if ((0 < bytes_written)  && size_t(bytes_written) == len)
+    if (0 < bytes_written)
     {
         rv = size_t(bytes_written);
     }
