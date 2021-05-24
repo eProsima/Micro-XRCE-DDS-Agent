@@ -29,18 +29,16 @@ SerialAgent::SerialAgent(
     , poll_fd_{}
     , buffer_{0}
     , framing_io_(
-          addr_, 0x00,
-          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4),
-          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5))
+          addr,
+          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
 {}
 
 ssize_t SerialAgent::write_data(
         uint8_t* buf,
         size_t len,
-        uint8_t serial_fd,
         TransportRc& transport_rc)
 {
-	(void) serial_fd;
     size_t rv = 0;
     ssize_t bytes_written = ::write(poll_fd_.fd, buf, len);
     if ((0 < bytes_written)  && size_t(bytes_written) == len)
@@ -58,10 +56,8 @@ ssize_t SerialAgent::read_data(
         uint8_t* buf,
         size_t len,
         int timeout,
-        uint8_t serial_fd,
         TransportRc& transport_rc)
 {
-	(void) serial_fd;
     ssize_t bytes_read = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if(poll_fd_.revents & (POLLERR+POLLHUP))

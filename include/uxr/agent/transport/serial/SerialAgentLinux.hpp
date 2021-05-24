@@ -64,14 +64,12 @@ private:
     ssize_t write_data(
             uint8_t* buf,
             size_t len,
-            uint8_t serial_fd,
             TransportRc& transport_rc);
 
     ssize_t read_data(
             uint8_t* buf,
             size_t len,
             int timeout,
-            uint8_t serial_fd,
             TransportRc& transport_rc);
 
 protected:

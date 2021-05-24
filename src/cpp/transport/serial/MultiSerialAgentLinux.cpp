@@ -36,9 +36,9 @@ void MultiSerialAgent::insert_serial(int serial_fd)
 {
     utils::ExclusiveLock lk(framing_mtx);
     FD_SET(serial_fd, &read_fds);
-    FramingIO aux_framing_io(addr_, (uint8_t) serial_fd,
-        std::bind(&MultiSerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4),
-        std::bind(&MultiSerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+    FramingIO aux_framing_io(addr_,
+        std::bind(&MultiSerialAgent::write_data, this, (uint8_t) serial_fd, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+        std::bind(&MultiSerialAgent::read_data, this, (uint8_t) serial_fd, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     
     framing_io.insert(std::pair<int, FramingIO>(serial_fd, aux_framing_io));
 }
@@ -161,10 +161,10 @@ bool MultiSerialAgent::send_message(
 }
 
 ssize_t MultiSerialAgent::read_data(
+        uint8_t serial_fd,
         uint8_t* buf,
         size_t len,
         int timeout,
-        uint8_t serial_fd,
         TransportRc& transport_rc)
 {
     // Modify timeout?
@@ -200,9 +200,9 @@ ssize_t MultiSerialAgent::read_data(
 }
 
 ssize_t MultiSerialAgent::write_data(
+        uint8_t serial_fd,
         uint8_t* buf,
         size_t len,
-        uint8_t serial_fd,
         TransportRc& transport_rc)
 {
     size_t rv = 0;
