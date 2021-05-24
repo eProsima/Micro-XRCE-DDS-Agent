@@ -25,9 +25,9 @@ MultiSerialAgent::MultiSerialAgent(
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : Server<MultiSerialEndPoint>{middleware_kind}
+    , framing_io{}
     , addr_{addr}
     , buffer_{0}
-    , framing_io{}
 {
     FD_ZERO(&read_fds);
 }
