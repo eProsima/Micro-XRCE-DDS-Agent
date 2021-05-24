@@ -60,7 +60,7 @@ void MultiTermiosAgent::init_multiport()
     do
     {
         std::unique_lock<std::mutex> lk(devs_mtx);
-        for(std::vector<std::string>::iterator it = devs_.begin(); it!=devs_.end(); )
+        for(auto it = devs_.begin(); it!=devs_.end(); )
         {
             if(access(it->c_str(), W_OK | R_OK ) == 0)
             {
@@ -185,7 +185,7 @@ bool MultiTermiosAgent::fini()
         init_serial.join();
     }
 
-    for (std::map<int, std::string>::iterator it = initialized_devs_.begin(); it != initialized_devs_.end();)
+    for (auto it = initialized_devs_.begin(); it != initialized_devs_.end();)
     {
         if (restart_serial(it))
         {
@@ -237,7 +237,7 @@ bool MultiTermiosAgent::handle_error(
     {
         std::unique_lock<std::mutex> devs_lk(devs_mtx);
 
-        for(std::vector<int>::iterator serial_fd = error_fd.begin(); serial_fd!=error_fd.end(); )
+        for(auto serial_fd = error_fd.begin(); serial_fd!=error_fd.end(); )
         {
             std::map<int, std::string>::iterator it = initialized_devs_.find(*serial_fd);
             

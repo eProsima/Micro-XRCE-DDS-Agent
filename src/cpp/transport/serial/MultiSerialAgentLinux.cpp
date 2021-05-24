@@ -84,7 +84,7 @@ bool MultiSerialAgent::recv_message(
     
     if (0 < ret)
     {
-        for (std::map<int, FramingIO>::iterator it = framing_io.begin(); it != framing_io.end(); it++)
+        for (auto it = framing_io.begin(); it != framing_io.end(); it++)
         {
             if (FD_ISSET(it->first, &fds))
             {
