@@ -42,14 +42,14 @@ private:
     bool init_discovery(
             uint16_t /*discovery_port*/) final { return false; }
 
-    bool fini_discovery() final { return false; }
+    bool fini_discovery() final { return true; }
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     bool init_p2p(
             uint16_t /*p2p_port*/) final { return false; } // TODO
 
-    bool fini_p2p() final { return false; } // TODO
+    bool fini_p2p() final { return true; } // TODO
 #endif
 
     bool recv_message(

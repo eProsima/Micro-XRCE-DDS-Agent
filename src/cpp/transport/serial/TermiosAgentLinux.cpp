@@ -161,6 +161,8 @@ bool TermiosAgent::fini()
             "fd: {}, errno: {}",
             poll_fd_.fd, errno);
     }
+
+    poll_fd_.fd = -1;
     return rv;
 }
 

@@ -210,7 +210,7 @@ void Server<EndPoint>::sender_loop()
             TransportRc transport_rc = TransportRc::ok;
             if (!send_message(output_packet, transport_rc))
             {
-                if (TransportRc::server_error == transport_rc)
+                if (TransportRc::server_error == transport_rc && running_cond_)
                 {
                     std::unique_lock<std::mutex> lock(error_mtx_);
                     transport_rc_ = transport_rc;
