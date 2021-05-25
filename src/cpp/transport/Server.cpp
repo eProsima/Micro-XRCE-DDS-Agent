@@ -186,7 +186,7 @@ void Server<EndPoint>::receiver_loop()
         {
             input_scheduler_.push(std::move(input_packet), 0);
         }
-        else
+        else if(running_cond_)
         {
             if (TransportRc::server_error == transport_rc)
             {
@@ -262,7 +262,7 @@ void Server<EndPoint>::error_handler_loop()
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
             transport_rc_ = TransportRc::ok;
-            error_cv_.notify_one();
+            error_cv_.notify_all();
         }
     }
 }
