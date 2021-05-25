@@ -956,7 +956,7 @@ public:
         struct termios attr = init_termios(multiserial_args_.baud_rate().c_str());
 
         agent_server_.reset(new MultiTermiosAgent(
-            multiserial_args_.devs(),  O_RDWR | O_NOCTTY | O_NONBLOCK, attr, 0, utils::get_mw_kind(common_args_.middleware())));
+            multiserial_args_.devs(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
 
         if (agent_server_->start())
         {

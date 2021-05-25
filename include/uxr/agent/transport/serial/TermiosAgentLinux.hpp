@@ -34,6 +34,8 @@ public:
 
     ~TermiosAgent();
 
+    int getfd() { return poll_fd_.fd; };
+
 private:
     bool init() final;
     bool fini() final;

@@ -90,7 +90,7 @@ bool Server<EndPoint>::stop()
     input_scheduler_.deinit();
     output_scheduler_.deinit();
 
-    error_cv_.notify_one();
+    error_cv_.notify_all();
 
     /* Join threads. */
     if (receiver_thread_.joinable())
