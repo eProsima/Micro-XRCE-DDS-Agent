@@ -38,6 +38,17 @@ public:
 
     bool restart_serial(std::map<int, std::string>::iterator initialized_devs_it);
 
+    std::vector<int> getfds(){
+        std::vector<int> result;
+        std::unique_lock<std::mutex> lk(devs_mtx);
+        for (auto & element : initialized_devs_)
+        {
+            result.push_back(element.first);
+        }
+
+        return result;
+    }
+
 private:
     void init_multiport();
     bool init() final;
