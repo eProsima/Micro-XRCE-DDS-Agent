@@ -55,8 +55,9 @@ MultiTermiosAgent::~MultiTermiosAgent()
 void MultiTermiosAgent::init_multiport()
 {
     std::chrono::steady_clock::time_point begin;
+    bool wake_main = false;
     exitSignal = false;
-
+    
     do
     {
         std::unique_lock<std::mutex> lk(devs_mtx);
@@ -87,7 +88,6 @@ void MultiTermiosAgent::init_multiport()
                             // Add open port to MultiSerialAgent
                             insert_serial(aux_poll_fd.fd);
                             initialized_devs_.insert(std::pair<int, std::string>(aux_poll_fd.fd, *it));
-                            init_serial_cv.notify_one();
 
                             UXR_AGENT_LOG_INFO(
                                 UXR_DECORATE_GREEN("Serial port running..."),
@@ -134,6 +134,12 @@ void MultiTermiosAgent::init_multiport()
 
         if (devs_.size() > 0)
         {
+            if (!wake_main && initialized_devs_.size())
+            {
+                init_serial_cv.notify_one();
+                wake_main = true;
+            }
+            
             std::this_thread::sleep_for((std::chrono::milliseconds) 10);
 
             if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
@@ -156,6 +162,7 @@ void MultiTermiosAgent::init_multiport()
             // Wait for more ports
             init_serial_cv.wait(lk);
         }
+
         lk.unlock();
 
     } while (!exitSignal);
