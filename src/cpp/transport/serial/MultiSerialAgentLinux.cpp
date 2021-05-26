@@ -34,7 +34,7 @@ MultiSerialAgent::MultiSerialAgent(
 
 void MultiSerialAgent::insert_serial(int serial_fd)
 {
-    utils::ExclusiveLock lk(framing_mtx);
+    utils::ExclusiveLockPriority lk(framing_mtx);
     FD_SET(serial_fd, &read_fds);
     FramingIO aux_framing_io(addr_,
         std::bind(&MultiSerialAgent::write_data, this, (uint8_t) serial_fd, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
@@ -46,7 +46,7 @@ void MultiSerialAgent::insert_serial(int serial_fd)
 bool MultiSerialAgent::remove_serial(int serial_fd)
 {
     bool rv = false;
-    utils::ExclusiveLock lk(framing_mtx);
+    utils::ExclusiveLockPriority lk(framing_mtx);
 
     FD_CLR(serial_fd, &read_fds);
     framing_io.erase(serial_fd);
@@ -71,14 +71,14 @@ bool MultiSerialAgent::remove_serial(int serial_fd)
 }
 
 bool MultiSerialAgent::recv_message(
-        InputPacket<MultiSerialEndPoint>& input_packet,
+        std::vector<InputPacket<MultiSerialEndPoint>>& input_packet,
         int timeout,
         TransportRc& transport_rc)
 {
     struct timeval timeout_ = { 1, 0 }; /* Seconds, Microseconds */
     bool rv = false;
 
-    utils::SharedLock lk(framing_mtx);
+    utils::SharedLockPriority lk(framing_mtx);
     fd_set fds = read_fds;
     int ret = select(framing_io.rbegin()->first+1, &fds, NULL, NULL, &timeout_);
     
@@ -93,20 +93,23 @@ bool MultiSerialAgent::recv_message(
 
                 if (0 < bytes_read)
                 {
-                    input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
-                    input_packet.source = MultiSerialEndPoint(it->first, remote_addr);
+                    struct InputPacket<MultiSerialEndPoint> aux_pack{};
+                    aux_pack.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
+                    aux_pack.source = MultiSerialEndPoint(it->first, remote_addr);
                     rv = true;
 
                     uint32_t raw_client_key;
-                    if (Server<MultiSerialEndPoint>::get_client_key(input_packet.source, raw_client_key))
+                    if (Server<MultiSerialEndPoint>::get_client_key(aux_pack.source, raw_client_key))
                     {
                         UXR_MULTIAGENT_LOG_MESSAGE(
                             UXR_DECORATE_YELLOW("[==>> SER <<==]"),
                             raw_client_key,
                             it->first,
-                            input_packet.message->get_buf(),
-                            input_packet.message->get_len());
+                            aux_pack.message->get_buf(),
+                            aux_pack.message->get_len());
                     }
+
+                    input_packet.push_back(std::move(aux_pack));
                 }
             }
         }
@@ -126,7 +129,7 @@ bool MultiSerialAgent::send_message(
     bool rv = false;
     int client_fd = output_packet.destination.get_fd();
 
-    utils::SharedLock lk(framing_mtx);
+    utils::SharedLockPriority lk(framing_mtx);
     std::map<int, FramingIO>::iterator it = framing_io.find(client_fd);
     
     if (it == framing_io.end())

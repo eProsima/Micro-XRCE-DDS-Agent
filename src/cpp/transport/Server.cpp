@@ -199,6 +199,36 @@ void Server<EndPoint>::receiver_loop()
     }
 }
 
+template<>
+void Server<MultiSerialEndPoint>::receiver_loop()
+{
+    std::vector<InputPacket<MultiSerialEndPoint>> input_packet;
+
+    while (running_cond_)
+    {
+        TransportRc transport_rc = TransportRc::ok;
+        if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
+        {
+            for (auto & element : input_packet)
+            {
+                input_scheduler_.push(std::move(element), 0);
+            }
+        }
+        else if(running_cond_)
+        {
+            if (TransportRc::server_error == transport_rc)
+            {
+                std::unique_lock<std::mutex> lock(error_mtx_);
+                transport_rc_ = transport_rc;
+                error_cv_.notify_one();
+                error_cv_.wait(lock);
+            }
+        }
+
+        input_packet.clear();
+    }
+}
+
 template<typename EndPoint>
 void Server<EndPoint>::sender_loop()
 {

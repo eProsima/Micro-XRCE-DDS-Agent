@@ -61,6 +61,16 @@ private:
             int timeout,
             TransportRc& transport_rc) final;
 
+    bool recv_message(
+            std::vector<InputPacket<IPv4EndPoint>>& input_packet,
+            int timeout,
+            TransportRc& transport_rc)  final { 
+                    (void) input_packet;
+                    (void) timeout;
+                    (void) transport_rc;
+                    return false; 
+                };
+
     bool send_message(
             OutputPacket<IPv4EndPoint> output_packet,
             TransportRc& transport_rc) final;

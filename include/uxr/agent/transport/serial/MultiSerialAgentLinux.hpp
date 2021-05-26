@@ -18,7 +18,7 @@
 #include <uxr/agent/transport/Server.hpp>
 #include <uxr/agent/transport/endpoint/MultiSerialEndPoint.hpp>
 #include <uxr/agent/transport/stream_framing/StreamFramingProtocol.hpp>
-#include <uxr/agent/utils/SharedMutex.hpp>
+#include <uxr/agent/utils/SharedMutexPriority.hpp>
 
 #include <cstdint>
 #include <cstddef>
@@ -62,6 +62,16 @@ private:
     bool recv_message(
             InputPacket<MultiSerialEndPoint>& input_packet,
             int timeout,
+            TransportRc& transport_rc) final { 
+                    (void) input_packet;
+                    (void) timeout;
+                    (void) transport_rc;
+                    return false; 
+                };
+
+    bool recv_message(
+            std::vector<InputPacket<MultiSerialEndPoint>>& input_packet,
+            int timeout,
             TransportRc& transport_rc) final;
 
     bool send_message(
@@ -85,7 +95,7 @@ protected:
     std::mutex error_mtx;
     std::vector<int> error_fd;
     
-    utils::SharedMutex framing_mtx;
+    utils::SharedMutexPriority framing_mtx;
     std::map<int, FramingIO> framing_io;
     fd_set read_fds;
 

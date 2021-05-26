@@ -77,6 +77,11 @@ private:
             int timeout,
             TransportRc& transport_rc) = 0;
 
+    virtual bool recv_message(
+            std::vector<InputPacket<EndPoint>>& input_packet,
+            int timeout,
+            TransportRc& transport_rc) = 0;
+
     virtual bool send_message(
             OutputPacket<EndPoint> output_packet,
             TransportRc& transport_rc) = 0;
