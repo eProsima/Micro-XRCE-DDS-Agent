@@ -150,6 +150,16 @@ private:
             int timeout,
             TransportRc& transport_rc) final;
 
+    bool recv_message(
+            std::vector<InputPacket<CustomEndPoint>>& input_packet,
+            int timeout,
+            TransportRc& transport_rc)  final { 
+                    (void) input_packet;
+                    (void) timeout;
+                    (void) transport_rc;
+                    return false; 
+                };
+
     bool send_message(
             OutputPacket<CustomEndPoint> output_packet,
             TransportRc& transport_rc) final;
