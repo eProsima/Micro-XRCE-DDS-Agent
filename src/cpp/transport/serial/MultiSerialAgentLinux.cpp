@@ -75,7 +75,7 @@ bool MultiSerialAgent::recv_message(
         int timeout,
         TransportRc& transport_rc)
 {
-    struct timeval timeout_ = { 1, 0 }; /* Seconds, Microseconds */
+    struct timeval timeout_ = { 0, timeout*1000 }; /* Seconds, Microseconds */
     bool rv = false;
 
     utils::SharedLockPriority lk(framing_mtx);
