@@ -62,7 +62,7 @@ private:
     std::mutex devs_mtx;
     std::atomic<bool> exitSignal;
 
-    std::vector<std::string> devs_;
+    std::vector<std::pair<int, std::string>> devs_;
     std::map<int, std::string> initialized_devs_;
 
     const int open_flags_;

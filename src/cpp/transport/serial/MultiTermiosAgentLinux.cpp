@@ -30,11 +30,15 @@ MultiTermiosAgent::MultiTermiosAgent(
         Middleware::Kind middleware_kind)
     : MultiSerialAgent(addr, middleware_kind)
     , exitSignal(false)
-    , devs_{devs}
+    , devs_{}
     , initialized_devs_{}
     , open_flags_{open_flags}
     , termios_attrs_{termios_attrs}
 {
+    for (auto & element : devs)
+    {
+        devs_.push_back(std::pair<int, std::string>(0, element));
+    }
 }
 
 MultiTermiosAgent::~MultiTermiosAgent()
@@ -54,7 +58,7 @@ MultiTermiosAgent::~MultiTermiosAgent()
 
 void MultiTermiosAgent::init_multiport()
 {
-    std::chrono::steady_clock::time_point begin;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();;
     bool wake_main = false;
     exitSignal = false;
     
@@ -63,10 +67,10 @@ void MultiTermiosAgent::init_multiport()
         std::unique_lock<std::mutex> lk(devs_mtx);
         for(auto it = devs_.begin(); it!=devs_.end(); )
         {
-            if(access(it->c_str(), W_OK | R_OK ) == 0)
+            if(access(it->second.c_str(), W_OK | R_OK ) == 0 || it->first > 10)
             {
                 pollfd aux_poll_fd;
-                aux_poll_fd.fd = open(it->c_str(), open_flags_);
+                aux_poll_fd.fd = open(it->second.c_str(), open_flags_);
                 if (0 < aux_poll_fd.fd)
                 {
                     struct termios new_attrs;
@@ -87,12 +91,12 @@ void MultiTermiosAgent::init_multiport()
                         {
                             // Add open port to MultiSerialAgent
                             insert_serial(aux_poll_fd.fd);
-                            initialized_devs_.insert(std::pair<int, std::string>(aux_poll_fd.fd, *it));
+                            initialized_devs_.insert(std::pair<int, std::string>(aux_poll_fd.fd, it->second));
 
                             UXR_AGENT_LOG_INFO(
                                 UXR_DECORATE_GREEN("Serial port running..."),
                                 "device: {}, fd: {}",
-                                *it, aux_poll_fd.fd);
+                                it->second, aux_poll_fd.fd);
                         }
                         else
                         {
@@ -115,7 +119,7 @@ void MultiTermiosAgent::init_multiport()
                     UXR_AGENT_LOG_ERROR(
                         UXR_DECORATE_RED("open device error"),
                         "device: {}, errno: {}{}",
-                        *it, errno,
+                        it->second, errno,
                         (EACCES == errno) ? ". Please re-run with superuser privileges." : "");
                 }
 
@@ -125,7 +129,8 @@ void MultiTermiosAgent::init_multiport()
             {
                 if (EACCES == errno || EBUSY == errno)
                 {
-                    // TODO: Add error counter and delete from devs_ or update periodic message with error info
+                    // Increase error counter
+                    it->first++;
                 }
 
                 it++;
@@ -145,7 +150,7 @@ void MultiTermiosAgent::init_multiport()
             if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
             {
                 std::string aux_str;
-                for (const auto &port : devs_) aux_str += (" " + port);
+                for (const auto &port : devs_) aux_str += (" " + port.second);
 
                 begin = std::chrono::steady_clock::now();
                 UXR_AGENT_LOG_INFO(
@@ -278,7 +283,7 @@ bool MultiTermiosAgent::restart_serial(std::map<int, std::string>::iterator init
 
     if (rv)
     {
-        devs_.push_back(initialized_devs_it->second);
+        devs_.push_back(std::pair<int, std::string>(0, initialized_devs_it->second));
     }
 
     return rv;

@@ -55,6 +55,7 @@ bool TermiosAgent::init()
     // Check if serial port exist
     std::chrono::steady_clock::time_point begin;
     int serial_exist = 0;
+    int error_count = 0;
 
     do
     {
@@ -62,21 +63,24 @@ bool TermiosAgent::init()
         {
             std::this_thread::sleep_for((std::chrono::milliseconds) 10);
 
-            if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
+            if (EACCES == errno || EBUSY == errno)
             {
-                if (EACCES == errno || EBUSY == errno)
+                // Increase error count
+                error_count++;
+
+                if (error_count > 10)
                 {
                     // Resource busy or superuser privileges required
                     break;
                 }
-                else
-                {
-                    begin = std::chrono::steady_clock::now();
-                    UXR_AGENT_LOG_INFO(
-                        UXR_DECORATE_YELLOW("Serial port not found."),
-                        "device: {}, error {}, waiting for connection...",
-                        dev_, errno);
-                }
+            }
+            else if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
+            {
+                begin = std::chrono::steady_clock::now();
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_YELLOW("Serial port not found."),
+                    "device: {}, error {}, waiting for connection...",
+                    dev_, errno);
             }
         }
 
