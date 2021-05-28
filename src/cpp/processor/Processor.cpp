@@ -24,6 +24,7 @@
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/MultiSerialEndPoint.hpp>
 #include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
 
 namespace eprosima {
@@ -907,6 +908,7 @@ void Processor<EndPoint>::check_heartbeats()
 template class Processor<IPv4EndPoint>;
 template class Processor<IPv6EndPoint>;
 template class Processor<SerialEndPoint>;
+template class Processor<MultiSerialEndPoint>;
 template class Processor<CustomEndPoint>;
 
 } // namespace uxr

@@ -12,38 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_SERIAL_TERMIOSAGENTLINUX_HPP_
-#define UXR_AGENT_TRANSPORT_SERIAL_TERMIOSAGENTLINUX_HPP_
+#ifndef UXR_AGENT_TRANSPORT_MULTISERIAL_TERMIOSAGENTLINUX_HPP_
+#define UXR_AGENT_TRANSPORT_MULTISERIAL_TERMIOSAGENTLINUX_HPP_
 
-#include <uxr/agent/transport/serial/SerialAgentLinux.hpp>
+#include <uxr/agent/transport/serial/MultiSerialAgentLinux.hpp>
 
 #include <termios.h>
+#include <vector>
+#include <atomic>
 
 namespace eprosima {
 namespace uxr {
 
-class TermiosAgent : public SerialAgent
+class MultiTermiosAgent : public MultiSerialAgent
 {
 public:
-    TermiosAgent(
-            char const * dev,
+    MultiTermiosAgent(
+            std::vector<std::string> devs,
             int open_flags,
             termios const & termios_attrs,
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-    ~TermiosAgent();
+    ~MultiTermiosAgent();
 
-    int getfd() { return poll_fd_.fd; };
+    bool restart_serial(std::map<int, std::string>::iterator initialized_devs_it);
+
+    std::vector<int> getfds(){
+        std::vector<int> result;
+        std::unique_lock<std::mutex> lk(devs_mtx);
+        for (auto & element : initialized_devs_)
+        {
+            result.push_back(element.first);
+        }
+
+        return result;
+    }
 
 private:
+    void init_multiport();
     bool init() final;
     bool fini() final;
     bool handle_error(
             TransportRc transport_rc) final;
 
-private:
-    const std::string dev_;
+    std::thread init_serial;
+    std::condition_variable init_serial_cv;
+
+    std::mutex devs_mtx;
+    std::atomic<bool> exitSignal;
+
+    std::vector<std::pair<int, std::string>> devs_;
+    std::map<int, std::string> initialized_devs_;
+
     const int open_flags_;
     const termios termios_attrs_;
 };
@@ -51,4 +72,4 @@ private:
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_SERIAL_TERMIOSAGENTLINUX_HPP_
+#endif // UXR_AGENT_TRANSPORT_MULTISERIAL_TERMIOSAGENTLINUX_HPP_

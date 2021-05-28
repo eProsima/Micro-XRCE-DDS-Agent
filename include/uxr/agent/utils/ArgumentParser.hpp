@@ -16,6 +16,7 @@
 #define UXR_AGENT_UTILS_ARGUMENTPARSER_HPP_
 
 #include <sstream>
+#include <fstream>
 #include <csignal>
 #include <type_traits>
 #include <unordered_map>
@@ -32,6 +33,7 @@
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
 #include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
+#include <uxr/agent/transport/serial/MultiTermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
 
@@ -58,6 +60,7 @@ enum class TransportKind
     TCP6,
 #ifndef _WIN32
     SERIAL,
+    MULTISERIAL,
     PSEUDOTERMINAL,
 #endif // _WIN32
     HELP
@@ -712,6 +715,85 @@ public:
 private:
     Argument<std::string> dev_;
 };
+
+/*************************************************************************************************
+ * Specific arguments for multi serial termios transports
+ *************************************************************************************************/
+template <typename AgentType>
+class MultiSerialArgs : public PseudoTerminalArgs<AgentType>
+{
+public:
+    MultiSerialArgs()
+        : PseudoTerminalArgs<AgentType>()
+        , devs_("-D", "--devs")
+        , file_("-f", "--file")
+    {
+    }
+
+    bool parse(
+            int argc,
+            char** argv)
+    {
+        if (!PseudoTerminalArgs<AgentType>::parse(argc, argv))
+        {
+            return false;
+        }
+        ParseResult parse_devs = devs_.parse_argument(argc, argv);
+        ParseResult parse_file = file_.parse_argument(argc, argv);
+        if (ParseResult::VALID != parse_devs && ParseResult::VALID != parse_file)
+        {
+            std::cerr << "Warning: '--devs <values>' or '--file <value>' is required" << std::endl;
+        }
+        else if(ParseResult::VALID == parse_devs && ParseResult::VALID == parse_file)
+        {
+            std::cerr << "Warning: '--devs <values>' and '--file <value>' are not allowed" << std::endl;
+        }
+
+        return (((ParseResult::VALID == parse_devs) ^ (ParseResult::VALID == parse_file)) ? true : false);
+    }
+
+    std::vector<std::string> devs()
+    {
+        std::vector<std::string> ports;
+
+        if (devs_.found())
+        {
+            std::istringstream iss(devs_.value());
+            for (std::string s; iss >> s; )
+            {
+                ports.push_back(s);
+            }
+        }
+        else if (file_.found())
+        {
+            std::string line;
+            std::ifstream myfile(file_.value());
+
+            if (myfile.fail())
+            {
+                std::cerr << "Error opening file: " << strerror(errno) << std::endl;
+            }
+
+            while (std::getline(myfile, line))
+            {
+                ports.push_back(line);
+            }
+        }
+
+        return ports;
+    }
+
+    const std::string get_help() const
+    {
+        std::stringstream ss;
+        ss << "    " << devs_.get_help();
+        return ss.str();
+    }
+
+private:
+    Argument<std::string> devs_;
+    Argument<std::string> file_;
+};
 #endif // _WIN32
 
 /*************************************************************************************************
@@ -731,6 +813,7 @@ public:
         , ip_args_()
 #ifndef _WIN32
         , serial_args_()
+        , multiserial_args_()
         , pseudoterminal_args_()
 #endif // _WIN32
         , transport_kind_(transport_kind)
@@ -767,6 +850,11 @@ public:
                 result &= serial_args_.parse(argc_, argv_);
                 break;
             }
+            case TransportKind::MULTISERIAL:
+            {
+                result &= multiserial_args_.parse(argc_, argv_);
+                break;
+            }
             case TransportKind::PSEUDOTERMINAL:
             {
                 result &= pseudoterminal_args_.parse(argc_, argv_);
@@ -799,7 +887,8 @@ public:
     }
 
 #ifndef _WIN32
-    bool launch_termios_agent()
+
+    termios init_termios(const char * baudrate_str)
     {
         struct termios attr = {};
 
@@ -836,9 +925,17 @@ public:
         attr.c_cc[VTIME] = 1;
 
         /* Setting baudrate. */
-        speed_t baudrate = getBaudRate(serial_args_.baud_rate().c_str());
+        speed_t baudrate = getBaudRate(baudrate_str);
         attr.c_ispeed = baudrate;
         attr.c_ospeed = baudrate;
+
+        return attr;
+    }
+
+    bool launch_termios_agent()
+    {
+        struct termios attr = init_termios(serial_args_.baud_rate().c_str());
+        
         agent_server_.reset(new TermiosAgent(
             serial_args_.dev().c_str(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
 
@@ -850,6 +947,25 @@ public:
         else
         {
             std::cerr << "Error while starting serial agent!" << std::endl;
+            return false;
+        }
+    }
+
+    bool launch_multitermios_agent()
+    {
+        struct termios attr = init_termios(multiserial_args_.baud_rate().c_str());
+
+        agent_server_.reset(new MultiTermiosAgent(
+            multiserial_args_.devs(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
+
+        if (agent_server_->start())
+        {
+            common_args_.apply_actions(agent_server_);
+            return true;
+        }
+        else
+        {
+            std::cerr << "Error while multistarting serial agent!" << std::endl;
             return false;
         }
     }
@@ -880,7 +996,7 @@ public:
         ss << common_args_.get_help();
         ss << "  * IPvX (udp4, udp6, tcp4, tcp6)" << std::endl;
         ss << ip_args_.get_help();
-        ss << "  * SERIAL (serial, pseudoterminal)" << std::endl;
+        ss << "  * SERIAL (serial, multiserial, pseudoterminal)" << std::endl;
 #ifndef _WIN32
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
@@ -897,6 +1013,7 @@ private:
     IPvXArgs<AgentType> ip_args_;
 #ifndef _WIN32
     SerialArgs<AgentType> serial_args_;
+    MultiSerialArgs<AgentType> multiserial_args_;
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
 #endif // _WIN32
     TransportKind transport_kind_;
@@ -1001,6 +1118,47 @@ inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
         }
     });
     return agent_thread;
+}
+
+template <>
+inline std::thread create_agent_thread<eprosima::uxr::MultiTermiosAgent>(
+        int argc,
+        char** argv,
+        eprosima::uxr::agent::TransportKind transport_kind,
+        const sigset_t* signals)
+{
+    
+    std::thread agent_thread = std::thread([=]() -> void
+    {
+        eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::MultiTermiosAgent>
+        parser(argc, argv, transport_kind);
+
+        switch (parser.parse_arguments())
+        {
+            case parser::ParseResult::INVALID:
+            case parser::ParseResult::NOT_FOUND:
+            {
+                parser::utils::usage(argv[0]);
+                break;
+            }
+            case parser::ParseResult::VALID:
+            {
+                if (parser.launch_multitermios_agent())
+                {
+                    int n_signal = 0;
+                    sigwait(signals, &n_signal);
+                }
+                break;
+            }
+            case parser::ParseResult::HELP:
+            {
+                parser.show_help();
+                break;
+            }
+        }
+    });
+    return agent_thread;
+    
 }
 
 template <>
