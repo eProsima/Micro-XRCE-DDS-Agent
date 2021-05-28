@@ -60,12 +60,9 @@ private:
 #endif
 
     bool recv_message(
-            InputPacket<MultiSerialEndPoint>& input_packet,
-            int timeout,
-            TransportRc& transport_rc) final { 
-                    (void) input_packet;
-                    (void) timeout;
-                    (void) transport_rc;
+            InputPacket<MultiSerialEndPoint>& /* input_packet */,
+            int /* timeout */,
+            TransportRc& /* transport_rc */) final { 
                     return false; 
                 };
 
