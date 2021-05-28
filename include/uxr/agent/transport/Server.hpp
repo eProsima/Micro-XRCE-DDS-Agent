@@ -78,12 +78,9 @@ private:
             TransportRc& transport_rc) = 0;
 
     virtual bool recv_message(
-            std::vector<InputPacket<EndPoint>>& input_packet,
-            int timeout,
-            TransportRc& transport_rc) {
-                    (void) input_packet;
-                    (void) timeout;
-                    (void) transport_rc;
+            std::vector<InputPacket<EndPoint>>& /* input_packet */,
+            int /* timeout */,
+            TransportRc& /* transport_rc */) {
                     return false; 
                 };
 
