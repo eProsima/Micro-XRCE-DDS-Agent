@@ -61,15 +61,27 @@ private:
     virtual bool fini() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    virtual bool init_discovery(uint16_t discovery_port) = 0;
+    virtual bool has_discovery() = 0;
 
-    virtual bool fini_discovery() = 0;
+    virtual bool init_discovery(uint16_t /* discovery_port */) {
+                    return false; 
+                };
+
+    virtual bool fini_discovery() {
+                    return false; 
+                };
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    virtual bool init_p2p(uint16_t p2p_port) = 0;
+    virtual bool has_p2p() = 0;
 
-    virtual bool fini_p2p() = 0;
+    virtual bool init_p2p(uint16_t /* p2p_port */) {
+                    return false; 
+                };
+
+    virtual bool fini_p2p() {
+                    return false; 
+                };
 #endif
 
     virtual bool recv_message(

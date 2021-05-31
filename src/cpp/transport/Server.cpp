@@ -117,12 +117,17 @@ bool Server<EndPoint>::stop()
 
     /* Close servers. */
     bool rv = true;
-    // TODO: check at run time if P2P and discovery are implemented
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv = fini_discovery() && rv;
+    if (has_discovery())
+    {
+        rv = fini_discovery() && rv;
+    }
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv = fini_p2p() && rv;
+    if (has_p2p())
+    {
+        rv = fini_p2p() && rv;
+    }
 #endif
     rv = fini() && rv;
     return rv;
@@ -133,7 +138,7 @@ template<typename EndPoint>
 bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
 {
     bool rv = false;
-    if (running_cond_)
+    if (has_discovery() && running_cond_)
     {
         rv = init_discovery(discovery_port);
     }
@@ -152,7 +157,7 @@ template<typename EndPoint>
 bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
 {
     bool rv = false;
-    if (running_cond_)
+    if (has_p2p() && running_cond_)
     {
         rv = init_p2p(p2p_port);
     }
