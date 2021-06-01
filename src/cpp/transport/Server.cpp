@@ -138,7 +138,7 @@ template<typename EndPoint>
 bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
 {
     bool rv = false;
-    if (has_discovery() && running_cond_)
+    if (running_cond_)
     {
         rv = init_discovery(discovery_port);
     }
@@ -157,7 +157,7 @@ template<typename EndPoint>
 bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
 {
     bool rv = false;
-    if (has_p2p() && running_cond_)
+    if (running_cond_)
     {
         rv = init_p2p(p2p_port);
     }

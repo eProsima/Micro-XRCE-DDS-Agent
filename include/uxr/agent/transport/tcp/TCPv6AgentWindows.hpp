@@ -48,21 +48,23 @@ public:
 
     UXR_AGENT_EXPORT ~TCPv6Agent() final;
 
+#ifdef UAGENT_DISCOVERY_PROFILE
+    bool has_discovery() final { return true; }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+    bool has_p2p() final { return false; }
+#endif
+
 private:
     bool init() final;
 
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-
     bool init_discovery(uint16_t discovery_port) final;
 
     bool fini_discovery() final;
-#endif
-
-#ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
 #endif
 
     bool recv_message(

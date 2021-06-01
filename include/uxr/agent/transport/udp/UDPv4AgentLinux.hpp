@@ -43,22 +43,26 @@ public:
 
     ~UDPv4Agent() final;
 
+#ifdef UAGENT_DISCOVERY_PROFILE
+    bool has_discovery() final { return true; }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+    bool has_p2p() final { return true; }
+#endif
+
 private:
     bool init() final;
 
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-
     bool init_discovery(uint16_t discovery_port) final;
 
     bool fini_discovery() final;
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return true; }
-
     bool init_p2p(uint16_t p2p_port) final;
 
     bool fini_p2p() final;

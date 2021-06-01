@@ -33,11 +33,6 @@ public:
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
-private:
-    virtual bool init() = 0;
-
-    virtual bool fini() = 0;
-
 #ifdef UAGENT_DISCOVERY_PROFILE
     bool has_discovery() final { return false; }
 #endif
@@ -45,6 +40,11 @@ private:
 #ifdef UAGENT_P2P_PROFILE
     bool has_p2p() final { return false; }
 #endif
+
+private:
+    virtual bool init() = 0;
+
+    virtual bool fini() = 0;
 
     bool recv_message(
             InputPacket<SerialEndPoint>& input_packet,
