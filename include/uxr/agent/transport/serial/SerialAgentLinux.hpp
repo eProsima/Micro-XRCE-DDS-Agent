@@ -33,24 +33,18 @@ public:
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
+#ifdef UAGENT_DISCOVERY_PROFILE
+    bool has_discovery() final { return false; }
+#endif
+
+#ifdef UAGENT_P2P_PROFILE
+    bool has_p2p() final { return false; }
+#endif
+
 private:
     virtual bool init() = 0;
 
     virtual bool fini() = 0;
-
-#ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(
-            uint16_t /*discovery_port*/) final { return false; }
-
-    bool fini_discovery() final { return true; }
-#endif
-
-#ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(
-            uint16_t /*p2p_port*/) final { return false; } // TODO
-
-    bool fini_p2p() final { return true; } // TODO
-#endif
 
     bool recv_message(
             InputPacket<SerialEndPoint>& input_packet,

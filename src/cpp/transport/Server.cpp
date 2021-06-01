@@ -117,12 +117,17 @@ bool Server<EndPoint>::stop()
 
     /* Close servers. */
     bool rv = true;
-    // TODO: check at run time if P2P and discovery are implemented
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv = fini_discovery() && rv;
+    if (has_discovery())
+    {
+        rv = fini_discovery() && rv;
+    }
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv = fini_p2p() && rv;
+    if (has_p2p())
+    {
+        rv = fini_p2p() && rv;
+    }
 #endif
     rv = fini() && rv;
     return rv;

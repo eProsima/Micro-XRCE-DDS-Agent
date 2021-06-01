@@ -546,13 +546,33 @@ public:
 #ifdef UAGENT_DISCOVERY_PROFILE
         if (discovery_.found())
         {
-            server->enable_discovery(discovery_.value());
+            if (server->has_discovery())
+            {
+                server->enable_discovery(discovery_.value());
+            }
+            else
+            {
+                UXR_AGENT_LOG_WARN(
+                        UXR_DECORATE_YELLOW("Discovery protocol error"),
+                        "Not supported on selected transport",
+                        "");
+            }
         }
 #endif
 #ifdef UAGENT_P2P_PROFILE
         if (p2p_.found())
         {
-            server->enable_p2p(p2p_.value());
+            if (server->has_p2p())
+            {
+                server->enable_p2p(p2p_.value());
+            }
+            else 
+            {
+                UXR_AGENT_LOG_WARN(
+                        UXR_DECORATE_YELLOW("P2P protocol error"),
+                        "Not supported on selected transport",
+                        "");
+            }
         }
 #endif
         if (refs_.found())
