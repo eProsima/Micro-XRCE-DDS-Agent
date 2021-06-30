@@ -28,6 +28,7 @@ option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_USE_SYSTEM_FASTDDS "Force find and use system installed Fast-DDS." OFF)
+option(UAGENT_USE_SYSTEM_FASTCDR "Force find and use system installed Fast-CDR." OFF)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
@@ -70,7 +71,7 @@ option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WR
 ###############################################################################
 set(_deps "")
 
-if(UAGENT_USE_SYSTEM_FASTDDS)
+if(UAGENT_USE_SYSTEM_FASTCDR)
     set(_fastcdr_version 1)
 else()
     set(_fastcdr_version 1.0.13)
