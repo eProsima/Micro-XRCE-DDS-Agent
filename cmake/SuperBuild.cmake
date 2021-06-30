@@ -49,7 +49,7 @@ if(UAGENT_P2P_PROFILE)
 endif()
 
 # Fast CDR.
-if(NOT UAGENT_USE_SYSTEM_FASTDDS)
+if(NOT UAGENT_USE_SYSTEM_FASTCDR)
     unset(fastcdr_DIR CACHE)
     find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
     if(NOT fastcdr_FOUND)
