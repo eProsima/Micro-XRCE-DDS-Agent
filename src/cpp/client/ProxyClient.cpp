@@ -62,7 +62,7 @@ ProxyClient::ProxyClient(
         }
         case Middleware::Kind::FASTDDS:
         {
-            bool intraprocess_enabled = 
+            bool intraprocess_enabled =
                 properties_.find("uxr_sm") != properties_.end() &&
                 properties_["uxr_sm"] == "1";
             middleware_.reset(new FastDDSMiddleware(intraprocess_enabled));
@@ -277,7 +277,7 @@ bool ProxyClient::create_participant(
         if (objects_.emplace(object_id, std::move(participant)).second)
         {
             rv = true;
-            UXR_AGENT_LOG_DEBUG(
+            UXR_AGENT_LOG_INFO(
                 UXR_DECORATE_GREEN("participant created"),
                 UXR_CREATE_PARTICIPANT_PATTERN,
                 conversion::clientkey_to_raw(representation_.client_key()),
@@ -324,7 +324,7 @@ bool ProxyClient::create_topic(
             if (objects_.emplace(object_id, std::move(topic)).second)
             {
                 rv = true;
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("topic created"),
                     UXR_CREATE_TOPIC_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -382,7 +382,7 @@ bool ProxyClient::create_publisher(
             if (objects_.emplace(object_id, std::move(publisher)).second)
             {
                 rv = true;
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("publisher created"),
                     UXR_CREATE_PUBLISHER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -439,7 +439,7 @@ bool ProxyClient::create_subscriber(
         {
             if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("subscriber created"),
                     UXR_CREATE_SUBSCRIBER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -497,7 +497,7 @@ bool ProxyClient::create_datawriter(
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("datawriter created"),
                     UXR_CREATE_DATAWRITER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -555,7 +555,7 @@ bool ProxyClient::create_datareader(
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("datareader created"),
                     UXR_CREATE_DATAREADER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -613,7 +613,7 @@ bool ProxyClient::create_requester(
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("requester created"),
                     UXR_CREATE_REQUESTER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
@@ -671,7 +671,7 @@ bool ProxyClient::create_replier(
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
-                UXR_AGENT_LOG_DEBUG(
+                UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("replier created"),
                     UXR_CREATE_REQUESTER_PATTERN,
                     conversion::clientkey_to_raw(representation_.client_key()),
