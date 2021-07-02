@@ -198,7 +198,7 @@ bool CustomAgent::recv_message(
                 recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
         }
 
-        bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
+        bool success = (0 < recv_bytes && TransportRc::ok == transport_rc);
         if (success)
         {
             // User must have filled all the members of the endpoint.
