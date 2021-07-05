@@ -175,13 +175,13 @@ static void set_qos_from_xrce_object(
         fastdds::dds::DataWriterQos& qos,
         const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
 {
-    qos.endpoint().history_memory_policy = 
+    qos.endpoint().history_memory_policy =
         fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
 
     if (datawriter_xrce.has_qos())
-    {   
+    {
         ReliabilityQosPolicy reliability;
-        reliability.kind = 
+        reliability.kind =
             (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
             ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
             ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
@@ -211,11 +211,11 @@ static void set_qos_from_xrce_object(
         qos.durability() = durability;
 
         HistoryQosPolicy history;
-        history.kind = 
+        history.kind =
             (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
             HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
             HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
-        
+
         if (datawriter_xrce.qos().base().has_history_depth())
         {
             history.depth = datawriter_xrce.qos().base().history_depth();
@@ -242,20 +242,20 @@ static void set_qos_from_xrce_object(
             ownership_strength.value = datawriter_xrce.qos().ownership_strength();
             qos.ownership_strength() = ownership_strength;
         }
-    } 
+    }
 }
 
 static void set_qos_from_xrce_object(
         fastdds::dds::DataReaderQos& qos,
         const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
 {
-    qos.endpoint().history_memory_policy = 
+    qos.endpoint().history_memory_policy =
         fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
 
     if (datareader_xrce.has_qos())
     {
         ReliabilityQosPolicy reliability;
-        reliability.kind = 
+        reliability.kind =
             (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
             ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
             ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
@@ -285,11 +285,11 @@ static void set_qos_from_xrce_object(
         qos.durability() = durability;
 
         HistoryQosPolicy history;
-        history.kind = 
+        history.kind =
             (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
             HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
             HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
-        
+
         if (datareader_xrce.qos().base().has_history_depth())
         {
             history.depth = datareader_xrce.qos().base().history_depth();
@@ -316,7 +316,7 @@ static void set_qos_from_xrce_object(
             timebased_filter.minimum_separation = Duration_t(static_cast<long double>(datareader_xrce.qos().timebasedfilter_msec()/1000.0));;
             qos.time_based_filter() = timebased_filter;
         }
-        
+
     }
 }
 
@@ -331,7 +331,7 @@ static void set_qos_from_xrce_object(
         fastdds::dds::PublisherQos& /* qos */,
         const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */)
 {
-    return; 
+    return;
 }
 
 static void set_qos_from_xrce_object(
@@ -384,7 +384,7 @@ bool FastDDSParticipant::create_by_xml(
         fastrtps::ParticipantAttributes attrs;
         if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
         {
-            fastdds::dds::DomainParticipantQos qos;
+            fastdds::dds::DomainParticipantQos qos = factory_->get_default_participant_qos();
             set_qos_from_attributes(qos, attrs.rtps);
             ptr_ = factory_->create_participant(domain_id_, qos);
         }
@@ -398,8 +398,8 @@ bool FastDDSParticipant::create_by_bin(
 {
     bool rv = false;
     if (nullptr == ptr_)
-    {   
-        fastdds::dds::DomainParticipantQos qos = fastdds::dds::PARTICIPANT_QOS_DEFAULT;
+    {
+        fastdds::dds::DomainParticipantQos qos = factory_->get_default_participant_qos();
         set_qos_from_xrce_object(qos, participant_xrce);
         ptr_ = factory_->create_participant(domain_id_, qos);
         rv = (nullptr != ptr_);
@@ -586,7 +586,7 @@ FastDDSTopic::~FastDDSTopic()
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
 {
-    bool rv = false; 
+    bool rv = false;
     fastrtps::TopicAttributes attrs;
     if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
     {
@@ -614,7 +614,7 @@ bool FastDDSTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs)
         fastdds::dds::TopicQos qos;
         set_qos_from_attributes(qos, attrs);
 
-        ptr_ = participant_->create_topic(attrs.getTopicName().to_string(), 
+        ptr_ = participant_->create_topic(attrs.getTopicName().to_string(),
                 attrs.getTopicDataType().to_string(), qos);
 
         rv = (nullptr != ptr_);
