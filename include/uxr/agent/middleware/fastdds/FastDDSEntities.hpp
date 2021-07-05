@@ -45,14 +45,18 @@ public:
         : ptr_{nullptr}
         , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
         , domain_id_{domain_id}
-    {}
+    {
+        factory_->load_profiles();
+    }
 
     ~FastDDSParticipant();
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const;
 
     // Proxy methods
 
@@ -147,7 +151,7 @@ private:
 class FastDDSTopic
 {
 public:
-    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_(participant)
         , type_{nullptr}
         , ptr_{nullptr}
@@ -157,12 +161,12 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
-    bool create_by_name_type(const std::string& name, 
+    bool create_by_name_type(const std::string& name,
         const std::shared_ptr<FastDDSType>& type);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Topic_Binary& topic_xrce) const;
     bool match(const fastrtps::TopicAttributes& attrs) const;
-
 
     const std::string& get_name() const { return ptr_->get_name(); }
     const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
@@ -184,14 +188,15 @@ private:
 class FastDDSPublisher
 {
 public:
-    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
     {}
-    
+
     ~FastDDSPublisher();
 
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_Publisher_Binary&  publisher_xrce);
 
     fastdds::dds::DataWriter* create_datawriter(
             fastdds::dds::Topic* topic,
@@ -224,6 +229,7 @@ public:
     ~FastDDSSubscriber();
 
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(const dds::xrce::OBJK_Subscriber_Binary&  subscriber_xrce);
 
     fastdds::dds::DataReader* create_datareader(
             fastdds::dds::TopicDescription* topic,
@@ -261,7 +267,11 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
+        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
     bool match(const fastrtps::PublisherAttributes& attrs) const;
+    bool match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
     bool write(const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;
     const fastdds::dds::DomainParticipant* participant() const;
@@ -289,8 +299,12 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
+    bool create_by_bin(
+        const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce,
+        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const;
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout,
@@ -332,6 +346,7 @@ public:
         const fastrtps::RequesterAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Requester_Binary& requester_xrce) const;
 
     bool write(
         uint32_t sequence_number,
@@ -340,7 +355,8 @@ public:
     bool read(
         uint32_t& sequence_number,
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 
@@ -396,10 +412,12 @@ public:
         const fastrtps::ReplierAttributes& attrs);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
+    bool match_from_bin(const dds::xrce::OBJK_Replier_Binary& replier_xrce) const;
 
     bool write(const std::vector<uint8_t>& data);
     bool read(std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 

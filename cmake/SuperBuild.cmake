@@ -32,7 +32,7 @@ if(UAGENT_P2P_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/microxrcedds_client-${_microxrcedds_client_version}
+                ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
@@ -42,39 +42,42 @@ if(UAGENT_P2P_PROFILE)
                 -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                -DUCLIENT_ISOLATED_INSTALL:BOOL=ON
             )
         list(APPEND _deps microxrcedds_client)
     endif()
 endif()
 
 # Fast CDR.
-unset(fastcdr_DIR CACHE)
-find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
-if(NOT fastcdr_FOUND)
-    ExternalProject_Add(fastcdr
-        GIT_REPOSITORY
-            https://github.com/eProsima/Fast-CDR.git
-        GIT_TAG
-            ${_fastcdr_tag}
-        PREFIX
-            ${PROJECT_BINARY_DIR}/fastcdr
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install/fastcdr-${_fastcdr_version}
-        CMAKE_CACHE_ARGS
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-            -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-        UPDATE_COMMAND
-            COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
-            COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
-        TEST_COMMAND
-            COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
-        )
-    list(APPEND _deps fastcdr)
+if(NOT UAGENT_USE_SYSTEM_FASTCDR)
+    unset(fastcdr_DIR CACHE)
+    find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
+    if(NOT fastcdr_FOUND)
+        ExternalProject_Add(fastcdr
+            GIT_REPOSITORY
+                https://github.com/eProsima/Fast-CDR.git
+            GIT_TAG
+                ${_fastcdr_tag}
+            PREFIX
+                ${PROJECT_BINARY_DIR}/fastcdr
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install/fastcdr-${_fastcdr_version}
+            CMAKE_CACHE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+            UPDATE_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
+                COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+            TEST_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
+            )
+        list(APPEND _deps fastcdr)
+    endif()
 endif()
 
 if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)

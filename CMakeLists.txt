@@ -28,6 +28,7 @@ option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_USE_SYSTEM_FASTDDS "Force find and use system installed Fast-DDS." OFF)
+option(UAGENT_USE_SYSTEM_FASTCDR "Force find and use system installed Fast-CDR." OFF)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
@@ -62,13 +63,20 @@ set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum se
 set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dead time in milliseconds.")
 set(UAGENT_SERVER_BUFFER_SIZE                  65535    CACHE STRING "Server buffer size.")
 
+# Off-standard features and tweaks
+option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WRITE DATA submessages greater than 64 kB." ON)
+
 ###############################################################################
 # Dependencies
 ###############################################################################
 set(_deps "")
 
-set(_fastcdr_version 1.0.13)
-set(_fastcdr_tag v1.0.13)
+if(UAGENT_USE_SYSTEM_FASTCDR)
+    set(_fastcdr_version 1)
+else()
+    set(_fastcdr_version 1.0.13)
+    set(_fastcdr_tag v1.0.13)
+endif()
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
 if(UAGENT_P2P_PROFILE)
@@ -84,7 +92,7 @@ if(UAGENT_FAST_PROFILE)
         set(_fastdds_version 2.0.2)
         set(_fastdds_tag v2.0.2)
         set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
-    endif()    
+    endif()
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
 endif()
 
@@ -156,6 +164,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
+        src/cpp/transport/serial/MultiSerialAgentLinux.cpp
+        src/cpp/transport/serial/MultiTermiosAgentLinux.cpp
         src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>

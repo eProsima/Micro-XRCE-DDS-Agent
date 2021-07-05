@@ -22,7 +22,6 @@
 #include <fastcdr/Cdr.h>
 #include "../../xmlobjects/xmlobjects.h"
 
-
 namespace eprosima {
 namespace uxr {
 
@@ -140,6 +139,222 @@ static void set_qos_from_attributes(
     qos.resource_limits() = attr.topic.resourceLimitsQos;
 }
 
+static void set_qos_from_xrce_object(
+        fastdds::dds::DomainParticipantQos& qos,
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+{
+    if (participant_xrce.has_qos_profile())
+    {
+        qos.name() = participant_xrce.qos_profile();
+    }
+    else
+    {
+        qos.name() = "MicroXRCEParticipant";
+    }
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Publisher_Binary& /* publisher_xrce */)
+{
+    // TODO copy group_data
+    // TODO copy partition
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Subscriber_Binary& /* subscriber_xrce */)
+{
+    // TODO copy group_data
+    // TODO copy partition
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::DataWriterQos& qos,
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
+{
+    qos.endpoint().history_memory_policy =
+        fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
+    if (datawriter_xrce.has_qos())
+    {
+        ReliabilityQosPolicy reliability;
+        reliability.kind =
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
+            ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
+            ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
+        qos.reliability() = reliability;
+
+        // TODO set is_ownership_exclusive
+        // TODO set user data
+
+        DurabilityQosPolicy durability;
+        if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local)
+        {
+            durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+        }
+        else if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient)
+        {
+            durability.kind = TRANSIENT_DURABILITY_QOS;
+        }
+        else if (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent)
+        {
+            durability.kind = PERSISTENT_DURABILITY_QOS;
+        }
+        else
+        {
+            durability.kind = VOLATILE_DURABILITY_QOS;
+        }
+
+        qos.durability() = durability;
+
+        HistoryQosPolicy history;
+        history.kind =
+            (datawriter_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
+            HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
+            HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
+
+        if (datawriter_xrce.qos().base().has_history_depth())
+        {
+            history.depth = datawriter_xrce.qos().base().history_depth();
+        }
+        qos.history() = history;
+
+        if (datawriter_xrce.qos().base().has_deadline_msec())
+        {
+            DeadlineQosPolicy deadline;
+            deadline.period = Duration_t(static_cast<long double>(datawriter_xrce.qos().base().deadline_msec()/1000.0));
+            qos.deadline() = deadline;
+        }
+
+        if (datawriter_xrce.qos().base().has_lifespan_msec())
+        {
+            LifespanQosPolicy lifespan;
+            lifespan.duration = Duration_t(static_cast<long double>(datawriter_xrce.qos().base().lifespan_msec()/1000.0));
+            qos.lifespan() = lifespan;
+        }
+
+        if (datawriter_xrce.qos().has_ownership_strength())
+        {
+            OwnershipStrengthQosPolicy ownership_strength;
+            ownership_strength.value = datawriter_xrce.qos().ownership_strength();
+            qos.ownership_strength() = ownership_strength;
+        }
+    }
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::DataReaderQos& qos,
+        const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
+{
+    qos.endpoint().history_memory_policy =
+        fastrtps::rtps::MemoryManagementPolicy::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
+    if (datareader_xrce.has_qos())
+    {
+        ReliabilityQosPolicy reliability;
+        reliability.kind =
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_reliable) ?
+            ReliabilityQosPolicyKind::RELIABLE_RELIABILITY_QOS :
+            ReliabilityQosPolicyKind::BEST_EFFORT_RELIABILITY_QOS;
+        qos.reliability() = reliability;
+
+        // TODO set is_ownership_exclusive
+        // TODO set user data
+        // TODO set m_contentbased_filter
+
+        DurabilityQosPolicy durability;
+        if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient_local)
+        {
+            durability.kind = TRANSIENT_LOCAL_DURABILITY_QOS;
+        }
+        else if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_transient)
+        {
+            durability.kind = TRANSIENT_DURABILITY_QOS;
+        }
+        else if (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_durability_persistent)
+        {
+            durability.kind = PERSISTENT_DURABILITY_QOS;
+        }
+        else
+        {
+            durability.kind = VOLATILE_DURABILITY_QOS;
+        }
+        qos.durability() = durability;
+
+        HistoryQosPolicy history;
+        history.kind =
+            (datareader_xrce.qos().base().qos_flags() & dds::xrce::EndpointQosFlags::is_history_keep_last) ?
+            HistoryQosPolicyKind::KEEP_LAST_HISTORY_QOS :
+            HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
+
+        if (datareader_xrce.qos().base().has_history_depth())
+        {
+            history.depth = datareader_xrce.qos().base().history_depth();
+        }
+        qos.history() = history;
+
+        if (datareader_xrce.qos().base().has_deadline_msec())
+        {
+            DeadlineQosPolicy deadline;
+            deadline.period = Duration_t(static_cast<long double>(datareader_xrce.qos().base().deadline_msec()/1000.0));
+            qos.deadline() = deadline;
+        }
+
+        if (datareader_xrce.qos().base().has_lifespan_msec())
+        {
+            LifespanQosPolicy lifespan;
+            lifespan.duration = Duration_t(static_cast<long double>(datareader_xrce.qos().base().lifespan_msec()/1000.0));
+            qos.lifespan() = lifespan;
+        }
+
+        if (datareader_xrce.qos().has_timebasedfilter_msec())
+        {
+            TimeBasedFilterQosPolicy timebased_filter;
+            timebased_filter.minimum_separation = Duration_t(static_cast<long double>(datareader_xrce.qos().timebasedfilter_msec()/1000.0));;
+            qos.time_based_filter() = timebased_filter;
+        }
+
+    }
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::TopicQos& /* qos */,
+        const dds::xrce::OBJK_Topic_Binary& /* topic_xrce */)
+{
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */)
+{
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Requester_Binary& /* requester_xrce */)
+{
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::PublisherQos& /* qos */,
+        const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */)
+{
+    return;
+}
+
+static void set_qos_from_xrce_object(
+        fastdds::dds::SubscriberQos& /* qos */,
+        const dds::xrce::OBJK_Replier_Binary& /* replier_xrce */)
+{
+    return;
+}
+
 /**********************************************************************************************************************
  * FastDDSParticipant
  **********************************************************************************************************************/
@@ -169,10 +384,24 @@ bool FastDDSParticipant::create_by_xml(
         fastrtps::ParticipantAttributes attrs;
         if (xmlobjects::parse_participant(xml.data(), xml.size(), attrs))
         {
-            fastdds::dds::DomainParticipantQos qos;
+            fastdds::dds::DomainParticipantQos qos = factory_->get_default_participant_qos();
             set_qos_from_attributes(qos, attrs.rtps);
             ptr_ = factory_->create_participant(domain_id_, qos);
         }
+        rv = (nullptr != ptr_);
+    }
+    return rv;
+}
+
+bool FastDDSParticipant::create_by_bin(
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::DomainParticipantQos qos = factory_->get_default_participant_qos();
+        set_qos_from_xrce_object(qos, participant_xrce);
+        ptr_ = factory_->create_participant(domain_id_, qos);
         rv = (nullptr != ptr_);
     }
     return rv;
@@ -208,6 +437,19 @@ bool FastDDSParticipant::match_from_xml(
             set_qos_from_attributes(qos, attrs.rtps);
             rv = (ptr_->get_qos() == qos);
         }
+    }
+    return rv;
+}
+
+bool FastDDSParticipant::match_from_bin(
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastdds::dds::DomainParticipantQos qos;
+        set_qos_from_xrce_object(qos, participant_xrce);
+        rv = (ptr_->get_qos() == qos);
     }
     return rv;
 }
@@ -344,7 +586,7 @@ FastDDSTopic::~FastDDSTopic()
 
 bool FastDDSTopic::create_by_ref(const std::string& ref)
 {
-    bool rv = false; 
+    bool rv = false;
     fastrtps::TopicAttributes attrs;
     if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
     {
@@ -372,7 +614,7 @@ bool FastDDSTopic::create_by_attributes(const fastrtps::TopicAttributes& attrs)
         fastdds::dds::TopicQos qos;
         set_qos_from_attributes(qos, attrs);
 
-        ptr_ = participant_->create_topic(attrs.getTopicName().to_string(), 
+        ptr_ = participant_->create_topic(attrs.getTopicName().to_string(),
                 attrs.getTopicDataType().to_string(), qos);
 
         rv = (nullptr != ptr_);
@@ -435,6 +677,19 @@ bool FastDDSTopic::match_from_xml(
     return rv;
 }
 
+bool FastDDSTopic::match_from_bin(
+        const dds::xrce::OBJK_Topic_Binary& topic_xrce) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastdds::dds::TopicQos qos;
+        set_qos_from_xrce_object(qos, topic_xrce);
+        rv = (ptr_->get_qos() == qos);
+    }
+    return rv;
+}
+
 bool FastDDSTopic::match(const fastrtps::TopicAttributes& attrs) const
 {
     return (attrs.getTopicName() == ptr_->get_name())
@@ -465,6 +720,19 @@ bool FastDDSPublisher::create_by_xml(
         {
             set_qos_from_attributes(qos, attrs);
         }
+        ptr_ = participant_->create_publisher(qos);
+        rv = (nullptr != ptr_);    }
+    return rv;
+}
+
+bool FastDDSPublisher::create_by_bin(
+        const dds::xrce::OBJK_Publisher_Binary& publisher_xrce)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::PublisherQos qos = fastdds::dds::PUBLISHER_QOS_DEFAULT;
+        set_qos_from_xrce_object(qos, publisher_xrce);
         ptr_ = participant_->create_publisher(qos);
         rv = (nullptr != ptr_);    }
     return rv;
@@ -513,6 +781,19 @@ bool FastDDSSubscriber::create_by_xml(
         ptr_ = participant_->create_subscriber(qos);
         rv = (nullptr != ptr_);
     }
+    return rv;
+}
+
+bool FastDDSSubscriber::create_by_bin(
+        const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce)
+{
+    bool rv = false;
+    if (nullptr == ptr_)
+    {
+        fastdds::dds::SubscriberQos qos = fastdds::dds::SUBSCRIBER_QOS_DEFAULT;
+        set_qos_from_xrce_object(qos, subscriber_xrce);
+        ptr_ = participant_->create_subscriber(qos);
+        rv = (nullptr != ptr_);    }
     return rv;
 }
 
@@ -582,6 +863,23 @@ bool FastDDSDataWriter::create_by_xml(const std::string& xml)
     return rv;
 }
 
+bool FastDDSDataWriter::create_by_bin(
+    const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
+    std::shared_ptr<eprosima::uxr::FastDDSTopic> topic)
+{
+    bool rv = false;
+    topic_ = topic;
+    if (nullptr == ptr_){
+        if(topic_){
+            fastdds::dds::DataWriterQos qos = fastdds::dds::DATAWRITER_QOS_DEFAULT;
+            set_qos_from_xrce_object(qos, datawriter_xrce);
+            ptr_ = publisher_->create_datawriter(topic_->get_ptr(), qos);
+            rv = (nullptr != ptr_) && bool(topic_);
+        }
+    }
+    return rv;
+}
+
 bool FastDDSDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
 {
     fastdds::dds::DataWriterQos qos;
@@ -589,6 +887,13 @@ bool FastDDSDataWriter::match(const fastrtps::PublisherAttributes& attrs) const
     return (ptr_->get_qos() == qos);
 }
 
+
+bool FastDDSDataWriter::match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const
+{
+    fastdds::dds::DataWriterQos qos;
+    set_qos_from_xrce_object(qos, datawriter_xrce);
+    return (ptr_->get_qos() == qos);
+}
 
 bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
 {
@@ -656,6 +961,23 @@ bool FastDDSDataReader::create_by_xml(const std::string& xml)
     return rv;
 }
 
+bool FastDDSDataReader::create_by_bin(
+    const dds::xrce::OBJK_DataReader_Binary& datareader_xrce,
+    std::shared_ptr<eprosima::uxr::FastDDSTopic> topic)
+{
+    bool rv = false;
+    topic_ = topic;
+    if (nullptr == ptr_){
+        if(topic_){
+            fastdds::dds::DataReaderQos qos = fastdds::dds::DATAREADER_QOS_DEFAULT;
+            set_qos_from_xrce_object(qos, datareader_xrce);
+            ptr_ = subscriber_->create_datareader(topic_->get_ptr(), qos);
+            rv = (nullptr != ptr_) && bool(topic_);
+        }
+    }
+    return rv;
+}
+
 bool FastDDSDataReader::match_from_ref(
         const std::string& ref) const
 {
@@ -686,6 +1008,19 @@ bool FastDDSDataReader::match_from_xml(
             set_qos_from_attributes(qos, attrs);
             rv = (ptr_->get_qos() == qos);
         }
+    }
+    return rv;
+}
+
+bool FastDDSDataReader::match_from_bin(
+        const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const
+{
+    bool rv = false;
+    if (nullptr != ptr_)
+    {
+        fastdds::dds::DataReaderQos qos;
+        set_qos_from_xrce_object(qos, datawriter_xrce);
+        rv = (ptr_->get_qos() == qos);
     }
     return rv;
 }
@@ -794,6 +1129,18 @@ bool FastDDSRequester::match_from_xml(const std::string& xml) const
     return rv;
 }
 
+bool FastDDSRequester::match_from_bin(const dds::xrce::OBJK_Requester_Binary& requester_xrce) const
+{
+    fastdds::dds::PublisherQos qos_publisher;
+    set_qos_from_xrce_object(qos_publisher, requester_xrce);
+    fastdds::dds::SubscriberQos qos_subscriber;
+    set_qos_from_xrce_object(qos_subscriber, requester_xrce);
+
+    return publisher_ptr_->get_qos() == qos_publisher
+        && subscriber_ptr_->get_qos() == qos_subscriber;
+        // TODO Check topic names
+}
+
 bool FastDDSRequester::match(const fastrtps::RequesterAttributes& attrs) const
 {
     fastdds::dds::PublisherQos qos_publisher;
@@ -835,12 +1182,12 @@ bool FastDDSRequester::write(
 bool FastDDSRequester::read(
         uint32_t& sequence_number,
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout)
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info)
 {
     bool rv = false;
 
     fastrtps::Duration_t d((long double) timeout.count()/1000.0);
-    fastdds::dds::SampleInfo info;
 
     if(datareader_ptr_->wait_for_unread_message(d)){
         rv = ReturnCode_t::RETCODE_OK == datareader_ptr_->take_next_sample(&data, &info);
@@ -959,6 +1306,18 @@ bool FastDDSReplier::match_from_xml(const std::string& xml) const
     return rv;
 }
 
+bool FastDDSReplier::match_from_bin(const dds::xrce::OBJK_Replier_Binary& replier_xrce) const
+{
+    fastdds::dds::PublisherQos qos_publisher;
+    set_qos_from_xrce_object(qos_publisher, replier_xrce);
+    fastdds::dds::SubscriberQos qos_subscriber;
+    set_qos_from_xrce_object(qos_subscriber, replier_xrce);
+
+    return publisher_ptr_->get_qos() == qos_publisher
+        && subscriber_ptr_->get_qos() == qos_subscriber;
+        // TODO Check topic names
+}
+
 bool FastDDSReplier::match(const fastrtps::ReplierAttributes& attrs) const
 {
     fastdds::dds::PublisherQos qos_publisher;
@@ -1028,14 +1387,14 @@ void FastDDSReplier::transform_sample_identity(
 
 bool FastDDSReplier::read(
         std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout)
+        std::chrono::milliseconds timeout,
+        fastdds::dds::SampleInfo& info)
 {
     std::vector<uint8_t> temp_data;
 
     bool rv = false;
 
     fastrtps::Duration_t d((long double) timeout.count()/1000.0);
-    fastdds::dds::SampleInfo info;
 
     if(datareader_ptr_->wait_for_unread_message(d)){
         rv = ReturnCode_t::RETCODE_OK == datareader_ptr_->take_next_sample(&temp_data, &info);

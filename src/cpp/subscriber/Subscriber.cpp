@@ -38,7 +38,14 @@ std::unique_ptr<Subscriber> Subscriber::create(
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
         {
-            // TODO (julibert): implement binary representation.
+            auto rep = representation.representation();
+            dds::xrce::OBJK_Subscriber_Binary subscriber_xrce;
+
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            subscriber_xrce.deserialize(cdr);
+
+            created_entity = proxy_client->get_middleware().create_subscriber_by_bin(raw_object_id, participant_id, subscriber_xrce);
             break;
         }
     }

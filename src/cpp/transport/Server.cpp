@@ -21,11 +21,13 @@
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/MultiSerialEndPoint.hpp>
 #include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
 
 #include <functional>
 
 #define RECEIVE_TIMEOUT 1
+#define RECEIVE_TIMEOUT_MULTI 1000   // Milliseconds
 
 namespace eprosima {
 namespace uxr {
@@ -33,6 +35,7 @@ namespace uxr {
 extern template class Processor<IPv4EndPoint>;
 extern template class Processor<IPv6EndPoint>;
 extern template class Processor<SerialEndPoint>;
+extern template class Processor<MultiSerialEndPoint>;
 extern template class Processor<CustomEndPoint>;
 
 template<typename EndPoint>
@@ -88,7 +91,7 @@ bool Server<EndPoint>::stop()
     input_scheduler_.deinit();
     output_scheduler_.deinit();
 
-    error_cv_.notify_one();
+    error_cv_.notify_all();
 
     /* Join threads. */
     if (receiver_thread_.joinable())
@@ -114,12 +117,17 @@ bool Server<EndPoint>::stop()
 
     /* Close servers. */
     bool rv = true;
-    // TODO: check at run time if P2P and discovery are implemented
 #ifdef UAGENT_DISCOVERY_PROFILE
-    rv = fini_discovery() && rv;
+    if (has_discovery())
+    {
+        rv = fini_discovery() && rv;
+    }
 #endif
 #ifdef UAGENT_P2P_PROFILE
-    rv = fini_p2p() && rv;
+    if (has_p2p())
+    {
+        rv = fini_p2p() && rv;
+    }
 #endif
     rv = fini() && rv;
     return rv;
@@ -184,15 +192,46 @@ void Server<EndPoint>::receiver_loop()
         {
             input_scheduler_.push(std::move(input_packet), 0);
         }
-        else
+        else if(running_cond_)
         {
             if (TransportRc::server_error == transport_rc)
             {
                 std::unique_lock<std::mutex> lock(error_mtx_);
                 transport_rc_ = transport_rc;
                 error_cv_.notify_one();
+                error_cv_.wait(lock);
             }
         }
+    }
+}
+
+template<>
+void Server<MultiSerialEndPoint>::receiver_loop()
+{
+    std::vector<InputPacket<MultiSerialEndPoint>> input_packet;
+
+    while (running_cond_)
+    {
+        TransportRc transport_rc = TransportRc::ok;
+        if (recv_message(input_packet, RECEIVE_TIMEOUT_MULTI, transport_rc))
+        {
+            for (auto & element : input_packet)
+            {
+                input_scheduler_.push(std::move(element), 0);
+            }
+        }
+        else if(running_cond_)
+        {
+            if (TransportRc::server_error == transport_rc)
+            {
+                std::unique_lock<std::mutex> lock(error_mtx_);
+                transport_rc_ = transport_rc;
+                error_cv_.notify_one();
+                error_cv_.wait(lock);
+            }
+        }
+
+        input_packet.clear();
     }
 }
 
@@ -207,12 +246,13 @@ void Server<EndPoint>::sender_loop()
             TransportRc transport_rc = TransportRc::ok;
             if (!send_message(output_packet, transport_rc))
             {
-                if (TransportRc::server_error == transport_rc)
+                if (TransportRc::server_error == transport_rc && running_cond_)
                 {
                     std::unique_lock<std::mutex> lock(error_mtx_);
                     transport_rc_ = transport_rc;
                     output_scheduler_.push_front(std::move(output_packet));
                     error_cv_.notify_one();
+                    error_cv_.wait(lock);
                 }
             }
         }
@@ -258,6 +298,7 @@ void Server<EndPoint>::error_handler_loop()
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
             transport_rc_ = TransportRc::ok;
+            error_cv_.notify_all();
         }
     }
 }
@@ -265,6 +306,7 @@ void Server<EndPoint>::error_handler_loop()
 template class Server<IPv4EndPoint>;
 template class Server<IPv6EndPoint>;
 template class Server<SerialEndPoint>;
+template class Server<MultiSerialEndPoint>;
 template class Server<CustomEndPoint>;
 
 } // namespace uxr

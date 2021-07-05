@@ -24,6 +24,7 @@
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/MultiSerialEndPoint.hpp>
 #include <uxr/agent/transport/endpoint/CustomEndPoint.hpp>
 
 namespace eprosima {
@@ -401,7 +402,18 @@ bool Processor<EndPoint>::process_write_data_submessage(
 {
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
-    uint16_t submessage_length = input_packet.message->get_subheader().submessage_length();
+    size_t submessage_length = input_packet.message->get_subheader().submessage_length();
+    
+#ifdef UAGENT_TWEAK_XRCE_WRITE_LIMIT
+    if (submessage_length == 0)
+    {
+        submessage_length = 
+            input_packet.message->get_len()
+            - input_packet.message->get_header().getCdrSerializedSize(0)
+            - input_packet.message->get_subheader().getCdrSerializedSize(0);
+    }
+#endif
+
     switch (flags)
     {
         case dds::xrce::FORMAT_DATA_FLAG:
@@ -896,6 +908,7 @@ void Processor<EndPoint>::check_heartbeats()
 template class Processor<IPv4EndPoint>;
 template class Processor<IPv6EndPoint>;
 template class Processor<SerialEndPoint>;
+template class Processor<MultiSerialEndPoint>;
 template class Processor<CustomEndPoint>;
 
 } // namespace uxr

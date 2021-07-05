@@ -16,6 +16,7 @@
 #define UXR_AGENT_MIDDLEWARE_MIDDLEWARE_HPP_
 
 #include <uxr/agent/config.hpp>
+#include <uxr/agent/types/XRCETypes.hpp>
 
 #include <string>
 #include <cstdint>
@@ -64,6 +65,10 @@ public:
             int16_t domain_id,
             const std::string& xml) = 0;
 
+    virtual bool create_participant_by_bin(
+            uint16_t participant_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) = 0;
+
     virtual bool create_topic_by_ref(
             uint16_t topic_id,
             uint16_t participant_id,
@@ -74,15 +79,30 @@ public:
             uint16_t participant_id,
             const std::string& xml) = 0;
 
+    virtual bool create_topic_by_bin(
+            uint16_t topic_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) = 0;
+
     virtual bool create_publisher_by_xml(
             uint16_t publisher_id,
             uint16_t participant_id,
             const std::string& xml) = 0;
 
+    virtual bool create_publisher_by_bin(
+            uint16_t publisher_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Publisher_Binary& publisher_xrce) = 0;
+
     virtual bool create_subscriber_by_xml(
             uint16_t subscriber_id,
             uint16_t participant_id,
             const std::string& xml) = 0;
+
+    virtual bool create_subscriber_by_bin(
+            uint16_t subscriber_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce) = 0;
 
     virtual bool create_datawriter_by_ref(
             uint16_t datawriter_id,
@@ -94,6 +114,11 @@ public:
             uint16_t publisher_id,
             const std::string& xml) = 0;
 
+    virtual bool create_datawriter_by_bin(
+            uint16_t datawriter_id,
+            uint16_t publisher_id,
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) = 0;
+
     virtual bool create_datareader_by_ref(
             uint16_t datareader_id,
             uint16_t subscriber_id,
@@ -103,6 +128,11 @@ public:
             uint16_t datareader_id,
             uint16_t subscriber_id,
             const std::string& xml) = 0;
+
+    virtual bool create_datareader_by_bin(
+            uint16_t datareader_id,
+            uint16_t subscriber_id,
+            const dds::xrce::OBJK_DataReader_Binary& datareader_xrce) = 0;
 
     virtual bool create_requester_by_ref(
             uint16_t requester_id,
@@ -114,6 +144,11 @@ public:
             uint16_t participant_id,
             const std::string& xml) = 0;
 
+    virtual bool create_requester_by_bin(
+            uint16_t requester_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Requester_Binary& requester_xrce) = 0;
+
     virtual bool create_replier_by_ref(
             uint16_t replier_id,
             uint16_t participant_id,
@@ -123,6 +158,11 @@ public:
             uint16_t replier_id,
             uint16_t participant_id,
             const std::string& xml) = 0;
+
+    virtual bool create_replier_by_bin(
+            uint16_t replier_id,
+            uint16_t participant_id,
+            const dds::xrce::OBJK_Replier_Binary& replier_xrce) = 0;
 
 /**********************************************************************************************************************
  * Delete functions.
@@ -188,6 +228,11 @@ public:
             int16_t domain_id,
             const std::string& xml) const = 0;
 
+    virtual bool matched_participant_from_bin(
+            uint16_t participant_id,
+            int16_t domain_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const = 0;
+
     virtual bool matched_topic_from_ref(
             uint16_t topic_id,
             const std::string& ref) const = 0;
@@ -195,6 +240,10 @@ public:
     virtual bool matched_topic_from_xml(
             uint16_t topic_id,
             const std::string& xml) const = 0;
+
+    virtual bool matched_topic_from_bin(
+            uint16_t topic_id,
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) const = 0;
 
     virtual bool matched_datawriter_from_ref(
             uint16_t datawriter_id,
@@ -204,6 +253,10 @@ public:
             uint16_t datawriter_id,
             const std::string& xml) const = 0;
 
+    virtual bool matched_datawriter_from_bin(
+            uint16_t datawriter_id,
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const = 0;
+
     virtual bool matched_datareader_from_ref(
             uint16_t datareader_id,
             const std::string& ref) const = 0;
@@ -211,6 +264,10 @@ public:
     virtual bool matched_datareader_from_xml(
             uint16_t datareader_id,
             const std::string& xml) const = 0;
+
+    virtual bool matched_datareader_from_bin(
+            uint16_t datareader_id,
+            const dds::xrce::OBJK_DataReader_Binary& datareader_xrce) const = 0;
 
     virtual bool matched_requester_from_ref(
             uint16_t requester_id,
@@ -220,6 +277,10 @@ public:
             uint16_t requester_id,
             const std::string& xml) const = 0;
 
+    virtual bool matched_requester_from_bin(
+            uint16_t requester_id,
+            const dds::xrce::OBJK_Requester_Binary& requester_xrce) const = 0;
+
     virtual bool matched_replier_from_ref(
             uint16_t replier_id,
             const std::string& ref) const = 0;
@@ -227,6 +288,10 @@ public:
     virtual bool matched_replier_from_xml(
             uint16_t replier_id,
             const std::string& xml) const = 0;
+
+    virtual bool matched_replier_from_bin(
+            uint16_t replier_id,
+            const dds::xrce::OBJK_Replier_Binary& replier_xrce) const = 0;
 
 /**********************************************************************************************************************
  * Members.
