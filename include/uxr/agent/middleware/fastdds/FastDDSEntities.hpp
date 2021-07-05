@@ -45,7 +45,9 @@ public:
         : ptr_{nullptr}
         , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
         , domain_id_{domain_id}
-    {}
+    {
+        factory_->load_profiles();
+    }
 
     ~FastDDSParticipant();
 
@@ -149,7 +151,7 @@ private:
 class FastDDSTopic
 {
 public:
-    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_(participant)
         , type_{nullptr}
         , ptr_{nullptr}
@@ -159,7 +161,7 @@ public:
 
     bool create_by_ref(const std::string& ref);
     bool create_by_xml(const std::string& xml);
-    bool create_by_name_type(const std::string& name, 
+    bool create_by_name_type(const std::string& name,
         const std::shared_ptr<FastDDSType>& type);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
@@ -186,11 +188,11 @@ private:
 class FastDDSPublisher
 {
 public:
-    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant) 
+    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
     {}
-    
+
     ~FastDDSPublisher();
 
     bool create_by_xml(const std::string& xml);
