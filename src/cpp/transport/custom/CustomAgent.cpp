@@ -182,6 +182,7 @@ bool CustomAgent::recv_message(
 {
     // Reset recv_endpoint_ members before receiving a new message.
     recv_endpoint_->reset();
+    bool success = false;
 
     try
     {
@@ -198,27 +199,31 @@ bool CustomAgent::recv_message(
                 recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
         }
 
-        bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
-        if (success)
+        if (TransportRc::ok == transport_rc)
         {
-            // User must have filled all the members of the endpoint.
-            recv_endpoint_->check_non_empty_members();
+            if (0 < recv_bytes)
+            {
+                // User must have filled all the members of the endpoint.
+                recv_endpoint_->check_non_empty_members();
 
-            input_packet.message.reset(
-                new eprosima::uxr::InputMessage(
-                    buffer_, static_cast<size_t>(recv_bytes)));
-            input_packet.source = *recv_endpoint_;
+                input_packet.message.reset(
+                    new eprosima::uxr::InputMessage(
+                        buffer_, static_cast<size_t>(recv_bytes)));
+                input_packet.source = *recv_endpoint_;
 
-            uint32_t raw_client_key = 0u;
-            this->get_client_key(input_packet.source, raw_client_key);
+                uint32_t raw_client_key = 0u;
+                this->get_client_key(input_packet.source, raw_client_key);
 
-            std::stringstream ss;
-            ss << UXR_COLOR_YELLOW << "[==>> " << name_ << " <<==]" << UXR_COLOR_RESET;
-            UXR_AGENT_LOG_MESSAGE(
-                ss.str(),
-                raw_client_key,
-                input_packet.message->get_buf(),
-                input_packet.message->get_len());
+                std::stringstream ss;
+                ss << UXR_COLOR_YELLOW << "[==>> " << name_ << " <<==]" << UXR_COLOR_RESET;
+                UXR_AGENT_LOG_MESSAGE(
+                    ss.str(),
+                    raw_client_key,
+                    input_packet.message->get_buf(),
+                    input_packet.message->get_len());
+                
+                success= true;
+            }
         }
         else if (TransportRc::timeout_error != transport_rc)
         {
