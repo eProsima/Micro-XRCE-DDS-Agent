@@ -150,36 +150,36 @@ UXR_AGENT_EXPORT void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
 
 #ifdef UAGENT_FAST_PROFILE
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *)
+    eprosima::fastrtps::Participant *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *)
+    eprosima::fastrtps::Participant *,
+    eprosima::fastrtps::Publisher *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Subscriber *)
+    eprosima::fastrtps::Participant *,
+    eprosima::fastrtps::Subscriber *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *,
-    const eprosima::fastrtps::Subscriber *)
+    eprosima::fastrtps::Participant *,
+    eprosima::fastrtps::Publisher *,
+    eprosima::fastrtps::Subscriber *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *)
+    eprosima::fastdds::dds::DomainParticipant *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *)
+    eprosima::fastdds::dds::DomainParticipant *,
+    eprosima::fastdds::dds::DataWriter *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataReader *)
+    eprosima::fastdds::dds::DomainParticipant *,
+    eprosima::fastdds::dds::DataReader *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *,
-    const eprosima::fastdds::dds::DataReader *)
+    eprosima::fastdds::dds::DomainParticipant *,
+    eprosima::fastdds::dds::DataWriter *,
+    eprosima::fastdds::dds::DataReader *)
 #endif  // UAGENT_FAST_PROFILE
 
 } // namespace uxr
