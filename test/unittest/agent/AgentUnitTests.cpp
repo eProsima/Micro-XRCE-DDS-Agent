@@ -1001,9 +1001,9 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
         case Middleware::Kind::FASTRTPS:
         {
             std::function<void (
-                const fastrtps::Participant *)> on_create_participant
+                fastrtps::Participant *)> on_create_participant
                 ([&](
-                    const fastrtps::Participant* /*participant*/) -> void
+                    fastrtps::Participant* /*participant*/) -> void
                 {
                     participant_callback_flag = true;
                 });
@@ -1013,9 +1013,9 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
                 std::move(on_create_participant));
 
             std::function<void (
-                const fastrtps::Participant *)> on_delete_participant
+                fastrtps::Participant *)> on_delete_participant
                 ([&](
-                    const fastrtps::Participant* /*participant*/) -> void
+                    fastrtps::Participant* /*participant*/) -> void
                 {
                     participant_callback_flag = false;
                 });
@@ -1028,9 +1028,9 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
         case Middleware::Kind::FASTDDS:
         {
             std::function<void (
-                const fastdds::dds::DomainParticipant *)> on_create_participant
+                fastdds::dds::DomainParticipant *)> on_create_participant
                 ([&](
-                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                    fastdds::dds::DomainParticipant* /*participant*/) -> void
                 {
                     participant_callback_flag = true;
                 });
@@ -1040,9 +1040,9 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
                 std::move(on_create_participant));
 
             std::function<void (
-                const fastdds::dds::DomainParticipant *)> on_delete_participant
+                fastdds::dds::DomainParticipant *)> on_delete_participant
                 ([&](
-                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                    fastdds::dds::DomainParticipant* /*participant*/) -> void
                 {
                     participant_callback_flag = false;
                 });
