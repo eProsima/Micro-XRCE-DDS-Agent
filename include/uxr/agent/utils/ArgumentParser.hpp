@@ -941,7 +941,7 @@ public:
         attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
 
         /* Setting OUTPUT CHARACTERS. */
-        attr.c_cc[VMIN] = 10;
+        attr.c_cc[VMIN] = 1;
         attr.c_cc[VTIME] = 1;
 
         /* Setting baudrate. */
