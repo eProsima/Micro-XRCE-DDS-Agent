@@ -70,7 +70,7 @@ void SessionManager<EndPoint>::establish_session(
         it_client->second = endpoint;
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session re-established"),
-            "client_key: 0x{:08}, address: {}",
+            "client_key: 0x{:08X}, address: {}",
             client_key,
             endpoint);
     }
@@ -79,7 +79,7 @@ void SessionManager<EndPoint>::establish_session(
         client_to_endpoint_map_.emplace(client_key, endpoint);
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session established"),
-            "client_key: 0x{:08}, address: {}",
+            "client_key: 0x{:08X}, address: {}",
             client_key,
             endpoint);
     }
