@@ -22,25 +22,10 @@
 #include <unordered_map>
 #include <uxr/agent/transport/Server.hpp>
 
-#ifdef _WIN32
-#include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
-#include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
-#include <uxr/agent/transport/tcp/TCPv6AgentWindows.hpp>
-#else
-#include <uxr/agent/transport/udp/UDPv4AgentLinux.hpp>
-#include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
-#include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
-#include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
-#include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
-#include <uxr/agent/transport/serial/MultiTermiosAgentLinux.hpp>
-#include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
-#include <uxr/agent/transport/serial/baud_rate_table_linux.h>
+#include  <uxr/agent/utils/AgentServer.hpp>
 
-#include <termios.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#endif // _WIN32
 
 #define DEFAULT_MIDDLEWARE      "dds"
 #define DEFAULT_VERBOSE_LEVEL   4
@@ -50,21 +35,6 @@
 namespace eprosima {
 namespace uxr {
 namespace agent {
-
-enum class TransportKind
-{
-    INVALID,
-    UDP4,
-    UDP6,
-    TCP4,
-    TCP6,
-#ifndef _WIN32
-    SERIAL,
-    MULTISERIAL,
-    PSEUDOTERMINAL,
-#endif // _WIN32
-    HELP
-};
 
 template <typename AgentKind>
 std::thread create_agent_thread(
@@ -541,38 +511,18 @@ public:
     }
 
     void apply_actions(
-            std::unique_ptr<AgentType>& server)
+            AgentServer<AgentType>* server)
     {
 #ifdef UAGENT_DISCOVERY_PROFILE
         if (discovery_.found())
         {
-            if (server->has_discovery())
-            {
-                server->enable_discovery(discovery_.value());
-            }
-            else
-            {
-                UXR_AGENT_LOG_WARN(
-                        UXR_DECORATE_YELLOW("Discovery protocol error"),
-                        "Not supported on selected transport",
-                        "");
-            }
+            server->enable_discovery(discovery_.value());
         }
 #endif
 #ifdef UAGENT_P2P_PROFILE
         if (p2p_.found())
         {
-            if (server->has_p2p())
-            {
-                server->enable_p2p(p2p_.value());
-            }
-            else 
-            {
-                UXR_AGENT_LOG_WARN(
-                        UXR_DECORATE_YELLOW("P2P protocol error"),
-                        "Not supported on selected transport",
-                        "");
-            }
+            server->enable_p2p(p2p_.value());
         }
 #endif
         if (refs_.found())
@@ -891,122 +841,6 @@ public:
         return (result ? ParseResult::VALID : ParseResult::INVALID);
     }
 
-    bool launch_ipvx_agent()
-    {
-        agent_server_.reset(new AgentType(ip_args_.port(), utils::get_mw_kind(common_args_.middleware())));
-        if (agent_server_->start())
-        {
-            common_args_.apply_actions(agent_server_);
-            return true;
-        }
-        else
-        {
-            std::cerr << "Error while starting IPvX agent!" << std::endl;
-            return false;
-        }
-    }
-
-#ifndef _WIN32
-
-    termios init_termios(const char * baudrate_str)
-    {
-        struct termios attr = {};
-
-        /* Setting CONTROL OPTIONS. */
-        attr.c_cflag |= unsigned(CREAD);    // Enable read.
-        attr.c_cflag |= unsigned(CLOCAL);   // Set local mode.
-        attr.c_cflag &= unsigned(~PARENB);  // Disable parity.
-        attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
-        attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
-        attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
-        attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
-
-        /* Setting LOCAL OPTIONS. */
-        attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
-        attr.c_lflag &= unsigned(~ECHO);    // Disable echoing of input characters.
-        attr.c_lflag &= unsigned(~ECHOE);   // Disable echoing the erase character.
-        attr.c_lflag &= unsigned(~ISIG);    // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals.
-
-        /* Setting INPUT OPTIONS. */
-        attr.c_iflag &= unsigned(~IXON);    // Disable output software flow control.
-        attr.c_iflag &= unsigned(~IXOFF);   // Disable input software flow control.
-        attr.c_iflag &= unsigned(~INPCK);   // Disable parity check.
-        attr.c_iflag &= unsigned(~ISTRIP);  // Disable strip parity bits.
-        attr.c_iflag &= unsigned(~IGNBRK);  // No ignore break condition.
-        attr.c_iflag &= unsigned(~IGNCR);   // No ignore carrier return.
-        attr.c_iflag &= unsigned(~INLCR);   // No map NL to CR.
-        attr.c_iflag &= unsigned(~ICRNL);   // No map CR to NL.
-
-        /* Setting OUTPUT OPTIONS. */
-        attr.c_oflag &= unsigned(~OPOST);   // Set raw output.
-
-        /* Setting OUTPUT CHARACTERS. */
-        attr.c_cc[VMIN] = 1;
-        attr.c_cc[VTIME] = 1;
-
-        /* Setting baudrate. */
-        speed_t baudrate = getBaudRate(baudrate_str);
-        attr.c_ispeed = baudrate;
-        attr.c_ospeed = baudrate;
-
-        return attr;
-    }
-
-    bool launch_termios_agent()
-    {
-        struct termios attr = init_termios(serial_args_.baud_rate().c_str());
-        
-        agent_server_.reset(new TermiosAgent(
-            serial_args_.dev().c_str(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
-
-        if (agent_server_->start())
-        {
-            common_args_.apply_actions(agent_server_);
-            return true;
-        }
-        else
-        {
-            std::cerr << "Error while starting serial agent!" << std::endl;
-            return false;
-        }
-    }
-
-    bool launch_multitermios_agent()
-    {
-        struct termios attr = init_termios(multiserial_args_.baud_rate().c_str());
-
-        agent_server_.reset(new MultiTermiosAgent(
-            multiserial_args_.devs(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
-
-        if (agent_server_->start())
-        {
-            common_args_.apply_actions(agent_server_);
-            return true;
-        }
-        else
-        {
-            std::cerr << "Error while multistarting serial agent!" << std::endl;
-            return false;
-        }
-    }
-
-    bool launch_pseudoterminal_agent()
-    {
-        agent_server_.reset(new PseudoTerminalAgent(
-            O_RDWR | O_NOCTTY, pseudoterminal_args_.baud_rate().c_str(), 0, utils::get_mw_kind(common_args_.middleware())));
-        if (agent_server_->start())
-        {
-            common_args_.apply_actions(agent_server_);
-            return true;
-        }
-        else
-        {
-            std::cerr << "Error while starting pseudoterminal agent!" << std::endl;
-            return false;
-        }
-    }
-#endif // _WIN32
-
     void show_help()
     {
         utils::usage(argv_[0], false);
@@ -1026,6 +860,23 @@ public:
         std::cout << ss.str();
     }
 
+    bool launch_agent()
+    {
+        agent_server_.configure_agent_ipv4(ip_args_.port(), utils::get_mw_kind(common_args_.middleware()));
+
+        if (agent_server_.start_agent())
+        {
+            common_args_.apply_actions(&agent_server_);
+            return true;
+        }
+        else
+        {
+            std::cerr << "Error while starting IPvX agent!" << std::endl;
+        }
+
+        return false;
+    }
+
 private:
     int argc_;
     char** argv_;
@@ -1037,8 +888,61 @@ private:
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
 #endif // _WIN32
     TransportKind transport_kind_;
-    std::unique_ptr<AgentType> agent_server_;
+    AgentServer<AgentType> agent_server_;
 };
+
+#ifndef _WIN32
+template<> inline bool ArgumentParser<TermiosAgent>::launch_agent()
+{
+    agent_server_.configure_agent_serial(serial_args_.dev(), serial_args_.baud_rate(), utils::get_mw_kind(common_args_.middleware()));
+
+    if (agent_server_.start_agent())
+    {
+        common_args_.apply_actions(&agent_server_);
+        return true;
+    }
+    else
+    {
+        std::cerr << "Error while serial serial agent!" << std::endl;
+    }
+
+    return false;
+}
+
+template<> inline bool ArgumentParser<MultiTermiosAgent>::launch_agent()
+{
+    agent_server_.configure_agent_multiserial(multiserial_args_.devs(), multiserial_args_.baud_rate(), utils::get_mw_kind(common_args_.middleware()));
+
+    if (agent_server_.start_agent())
+    {
+        common_args_.apply_actions(&agent_server_);
+        return true;
+    }
+    else
+    {
+        std::cerr << "Error while starting multiserial agent!" << std::endl;
+    }
+
+    return false;
+}
+
+template<> inline bool ArgumentParser<PseudoTerminalAgent>::launch_agent()
+{
+    agent_server_.configure_agent_pseudoterminal(pseudoterminal_args_.baud_rate(), utils::get_mw_kind(common_args_.middleware()));
+
+    if (agent_server_.start_agent())
+    {
+        common_args_.apply_actions(&agent_server_);
+        return true;
+    }
+    else
+    {
+        std::cerr << "Error while starting pseudoterminal agent!" << std::endl;
+    }
+
+    return false;
+}
+#endif // _WIN32
 
 } // namespace parser
 
@@ -1070,7 +974,7 @@ inline std::thread create_agent_thread(
             }
             case parser::ParseResult::VALID:
             {
-                if (parser.launch_ipvx_agent())
+                if (parser.launch_agent())
                 {
 #ifdef _WIN32
                     /* Waiting until exit. */
@@ -1099,128 +1003,6 @@ inline std::thread create_agent_thread(
     return agent_thread;
 }
 
-#ifndef _WIN32
-template <>
-inline std::thread create_agent_thread<eprosima::uxr::TermiosAgent>(
-        int argc,
-        char** argv,
-        eprosima::uxr::agent::TransportKind transport_kind,
-        const sigset_t* signals)
-{
-    std::thread agent_thread = std::thread([=]() -> void
-    {
-        eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::TermiosAgent>
-            parser(argc, argv, transport_kind);
-
-        switch (parser.parse_arguments())
-        {
-            case parser::ParseResult::INVALID:
-            case parser::ParseResult::NOT_FOUND:
-            {
-                parser::utils::usage(argv[0]);
-                break;
-            }
-            case parser::ParseResult::VALID:
-            {
-                if (parser.launch_termios_agent())
-                {
-                    /* Wait for defined signals. */
-                    int n_signal = 0;
-                    sigwait(signals, &n_signal);
-                }
-                break;
-            }
-            case parser::ParseResult::HELP:
-            {
-                parser.show_help();
-                break;
-            }
-        }
-    });
-    return agent_thread;
-}
-
-template <>
-inline std::thread create_agent_thread<eprosima::uxr::MultiTermiosAgent>(
-        int argc,
-        char** argv,
-        eprosima::uxr::agent::TransportKind transport_kind,
-        const sigset_t* signals)
-{
-    
-    std::thread agent_thread = std::thread([=]() -> void
-    {
-        eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::MultiTermiosAgent>
-        parser(argc, argv, transport_kind);
-
-        switch (parser.parse_arguments())
-        {
-            case parser::ParseResult::INVALID:
-            case parser::ParseResult::NOT_FOUND:
-            {
-                parser::utils::usage(argv[0]);
-                break;
-            }
-            case parser::ParseResult::VALID:
-            {
-                if (parser.launch_multitermios_agent())
-                {
-                    int n_signal = 0;
-                    sigwait(signals, &n_signal);
-                }
-                break;
-            }
-            case parser::ParseResult::HELP:
-            {
-                parser.show_help();
-                break;
-            }
-        }
-    });
-    return agent_thread;
-    
-}
-
-template <>
-inline std::thread create_agent_thread<eprosima::uxr::PseudoTerminalAgent>(
-        int argc,
-        char** argv,
-        eprosima::uxr::agent::TransportKind transport_kind,
-        const sigset_t* signals)
-{
-    std::thread agent_thread = std::thread([=]() -> void
-    {
-        eprosima::uxr::agent::parser::ArgumentParser<eprosima::uxr::PseudoTerminalAgent>
-            parser(argc, argv, transport_kind);
-
-        switch (parser.parse_arguments())
-        {
-            case parser::ParseResult::INVALID:
-            case parser::ParseResult::NOT_FOUND:
-            {
-                parser::utils::usage(argv[0]);
-                break;
-            }
-            case parser::ParseResult::VALID:
-            {
-                if (parser.launch_pseudoterminal_agent())
-                {
-                    /* Wait for defined signals. */
-                    int n_signal = 0;
-                    sigwait(signals, &n_signal);
-                }
-                break;
-            }
-            case parser::ParseResult::HELP:
-            {
-                parser.show_help();
-                break;
-            }
-        }
-    });
-    return agent_thread;
-}
-#endif // _WIN32
 
 } // namespace agent
 } // namespace uxr
