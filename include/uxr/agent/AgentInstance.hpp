@@ -18,6 +18,7 @@
 #include <uxr/agent/config.hpp>
 
 #include <uxr/agent/utils/ArgumentParser.hpp>
+#include <uxr/agent/utils/AgentServer.hpp>
 
 #include <csignal>
 
@@ -104,6 +105,71 @@ private:
 #endif  // _WIN32
     middleware::CallbackFactory& callback_factory_;
 };
+
+template<typename AgentType>
+class AgentInstanceAPI
+{
+public:
+    UXR_AGENT_EXPORT AgentInstanceAPI(){};
+
+	UXR_AGENT_EXPORT void configure(uint16_t port)
+	{
+		agent_.configure_agent_ipv4(port, Middleware::Kind::FASTDDS);
+	}
+
+	UXR_AGENT_EXPORT void configure(std::string dev, const std::string baudrate);
+	UXR_AGENT_EXPORT void configure(std::vector<std::string> devs, const std::string baudrate);
+	UXR_AGENT_EXPORT void configure(const std::string baudrate);
+	
+    UXR_AGENT_EXPORT void run()
+    {
+        std::thread agent_thread = std::thread([=]() -> void
+        {
+            agent_.start_agent();
+        });
+
+        agent_thread_ = std::move(agent_thread);
+    }
+
+    UXR_AGENT_EXPORT void stop()
+    {
+        if (agent_thread_.joinable())
+        {
+			agent_.stop_agent();
+			agent_thread_.join();
+        }
+    };
+
+    template <typename ... Args>
+    UXR_AGENT_EXPORT void add_middleware_callback(
+            const Middleware::Kind& middleware_kind,
+            const middleware::CallbackKind& callback_kind,
+            std::function<void (Args ...)>&& callback_function)
+    {
+        AgentInstance agent_instance = AgentInstance::getInstance();
+        agent_instance.add_middleware_callback(middleware_kind, callback_kind, callback_function);
+    }
+
+private:
+    agent::AgentServer<AgentType> agent_;
+    std::thread agent_thread_;
+};
+
+template<> inline UXR_AGENT_EXPORT void AgentInstanceAPI<TermiosAgent>::configure(std::string dev, const std::string baudrate)
+{
+    agent_.configure_agent_serial(dev, baudrate, Middleware::Kind::FASTDDS);
+}
+
+template<> inline UXR_AGENT_EXPORT void AgentInstanceAPI<MultiTermiosAgent>::configure(std::vector<std::string> devs, const std::string baudrate)
+{
+    agent_.configure_agent_multiserial(devs, baudrate, Middleware::Kind::FASTDDS);
+}
+
+template<> inline UXR_AGENT_EXPORT void AgentInstanceAPI<PseudoTerminalAgent>::configure(const std::string baudrate)
+{
+    agent_.configure_agent_pseudoterminal(baudrate, Middleware::Kind::FASTDDS);
+}
+
 } // uxr
 } // eprosima
 

@@ -113,7 +113,6 @@ bool AgentInstance::create(
             // TODO(jamoralp): avoid creating this object just to show help
             agent::parser::ArgumentParser<UDPv4Agent>(argc, argv, valid_transport).show_help();
             return false;
-            break;
         }
         case agent::TransportKind::INVALID:
         {
