@@ -279,6 +279,10 @@ size_t FramingIO::read_framed_msg(
                         {
                             state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
                         }
+                        else if (0 < transport_read(timeout, transport_rc))
+                        {
+                            /* Do nothing */
+                        }
                         else
                         {
                             exit_cond = true;
@@ -303,6 +307,10 @@ size_t FramingIO::read_framed_msg(
                         if (framing_begin_flag == octet)
                         {
                             state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                        }
+                        else if (0 < transport_read(timeout, transport_rc))
+                        {
+                            /* Do nothing */
                         }
                         else
                         {
