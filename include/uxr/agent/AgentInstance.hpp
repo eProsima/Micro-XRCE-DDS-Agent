@@ -121,6 +121,11 @@ public:
 	UXR_AGENT_EXPORT void configure(std::vector<std::string> devs, const std::string baudrate);
 	UXR_AGENT_EXPORT void configure(const std::string baudrate);
 	
+    UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level)
+    {
+        agent_.set_verbose_level(verbose_level);
+    }
+
     UXR_AGENT_EXPORT void run()
     {
         std::thread agent_thread = std::thread([=]() -> void
