@@ -112,6 +112,11 @@ class AgentInstanceAPI
 public:
     UXR_AGENT_EXPORT AgentInstanceAPI(){};
 
+    UXR_AGENT_EXPORT ~AgentInstanceAPI()
+    {
+        stop();
+    };
+
 	UXR_AGENT_EXPORT void configure(uint16_t port)
 	{
 		agent_.configure_agent_ipv4(port, Middleware::Kind::FASTDDS);

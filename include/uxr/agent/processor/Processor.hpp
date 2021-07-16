@@ -73,6 +73,8 @@ public:
 
     void check_heartbeats();
 
+    void reset();
+
 private:
     void process_input_message(
             ProxyClient& client,

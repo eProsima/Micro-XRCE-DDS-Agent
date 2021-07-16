@@ -905,6 +905,12 @@ void Processor<EndPoint>::check_heartbeats()
     }
 }
 
+template<typename EndPoint>
+void Processor<EndPoint>::reset()
+{
+    root_.reset();
+}
+
 template class Processor<IPv4EndPoint>;
 template class Processor<IPv6EndPoint>;
 template class Processor<SerialEndPoint>;

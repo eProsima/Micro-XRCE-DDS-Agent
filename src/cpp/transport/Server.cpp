@@ -115,6 +115,9 @@ bool Server<EndPoint>::stop()
         error_handler_thread_.join();
     }
 
+    // Delete created clients and entities
+    processor_->reset();
+
     /* Close servers. */
     bool rv = true;
 #ifdef UAGENT_DISCOVERY_PROFILE

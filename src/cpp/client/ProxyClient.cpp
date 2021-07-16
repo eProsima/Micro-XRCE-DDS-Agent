@@ -210,6 +210,19 @@ std::shared_ptr<XRCEObject> ProxyClient::get_object(const dds::xrce::ObjectId& o
 
 void ProxyClient::release()
 {
+    // Delete created entities
+    std::vector<dds::xrce::ObjectId> objectID;
+
+    for(auto & element : objects_) 
+    {
+        objectID.push_back(element.first);
+    }
+    
+    for(auto & element : objectID) 
+    {
+        delete_object(element);
+    }
+
     objects_.clear();
 }
 
