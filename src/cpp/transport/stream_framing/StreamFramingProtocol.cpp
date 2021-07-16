@@ -486,10 +486,12 @@ size_t FramingIO::transport_read(
         }
     }
 
-    timeout -= static_cast<int>(
+    int time_elapsed = static_cast<int>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
-            time_init - std::chrono::system_clock::now())
+            std::chrono::system_clock::now() - time_init)
             .count());
+
+    timeout -= (time_elapsed == 0) ? 1 : time_elapsed;
 
     return bytes_read[0] + bytes_read[1];
 }
