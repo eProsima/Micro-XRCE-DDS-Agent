@@ -185,7 +185,7 @@ bool CustomAgent::recv_message(
 
     try
     {
-        ssize_t recv_bytes;
+        ssize_t recv_bytes = 0;
         if (framing_)
         {
             uint8_t remote_addr = 0x00;
@@ -198,7 +198,7 @@ bool CustomAgent::recv_message(
                 recv_endpoint_, buffer_, SERVER_BUFFER_SIZE, timeout, transport_rc);
         }
 
-        bool success = (0 <= recv_bytes && TransportRc::ok == transport_rc);
+        bool success = (0 < recv_bytes && TransportRc::ok == transport_rc);
         if (success)
         {
             // User must have filled all the members of the endpoint.
@@ -240,6 +240,7 @@ bool CustomAgent::recv_message(
             UXR_DECORATE_RED("Error while receiving message"),
             "custom {} agent, exception: {}",
             name_, e.what());
+        transport_rc = TransportRc::server_error;
 
         return false;
     }
