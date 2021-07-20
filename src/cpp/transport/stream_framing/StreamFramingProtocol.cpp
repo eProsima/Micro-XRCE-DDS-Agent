@@ -108,41 +108,73 @@ size_t FramingIO::read_framed_msg(
         uint8_t* buf,
         size_t len,
         uint8_t& remote_addr,
-        int timeout,
+        int& timeout,
         TransportRc& transport_rc)
 {
     size_t rv = 0;
-    size_t read_bytes = 0;
-    
-    do
+
+    size_t read_bytes = transport_read(timeout, transport_rc);
+
+    if (0 < read_bytes || (read_buffer_tail_ != read_buffer_head_))
     {
-        read_bytes = transport_read(timeout, transport_rc);
-
-        if (0 < read_bytes || (read_buffer_tail_ != read_buffer_head_))
+        /**
+         * State Machine.
+         */
+        bool exit_cond = false;
+        while (!exit_cond)
         {
-            /**
-             * State Machine.
-             */
-            bool exit_cond = false;
-            while (!exit_cond)
+            uint8_t octet = 0;
+            switch (state_)
             {
-                uint8_t octet = 0;
-                switch (state_)
+                case InputState::UXR_FRAMING_UNINITIALIZED:
                 {
-                    case InputState::UXR_FRAMING_UNINITIALIZED:
+                    octet = 0;
+                    while ((framing_begin_flag != octet) &&
+                           (read_buffer_head_ != read_buffer_tail_))
                     {
-                        octet = 0;
-                        while ((framing_begin_flag != octet) &&
-                               (read_buffer_head_ != read_buffer_tail_))
-                        {
-                            octet = read_buffer_[read_buffer_tail_];
-                            read_buffer_tail_ =
-                                static_cast<uint8_t>(
-                                    static_cast<size_t>(
-                                        read_buffer_tail_ + 1) %
-                                        sizeof(read_buffer_));
-                        }
+                        octet = read_buffer_[read_buffer_tail_];
+                        read_buffer_tail_ =
+                            static_cast<uint8_t>(
+                                static_cast<size_t>(
+                                    read_buffer_tail_ + 1) %
+                                    sizeof(read_buffer_));
+                    }
 
+                    if (framing_begin_flag == octet)
+                    {
+                        state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                    }
+                    else
+                    {
+                        exit_cond = true;
+                    }
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_SRC_ADDR:
+                {
+                    if (get_next_octet(remote_addr_))
+                    {
+                        state_ = InputState::UXR_FRAMING_READING_DST_ADDR;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag != remote_addr_)
+                        {
+                            exit_cond = true;
+                        }
+                    }
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_DST_ADDR:
+                {
+                    if (get_next_octet(octet))
+                    {
+                        state_ = (octet == local_addr_)
+                                ? InputState::UXR_FRAMING_READING_LEN_LSB
+                                : InputState::UXR_FRAMING_UNINITIALIZED;
+                    }
+                    else
+                    {
                         if (framing_begin_flag == octet)
                         {
                             state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
@@ -151,173 +183,136 @@ size_t FramingIO::read_framed_msg(
                         {
                             exit_cond = true;
                         }
-                        break;
                     }
-                    case InputState::UXR_FRAMING_READING_SRC_ADDR:
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_LEN_LSB:
+                {
+                    if (get_next_octet(octet))
                     {
-                        if (get_next_octet(remote_addr_))
+                        msg_len_ = octet;
+                        state_ = InputState::UXR_FRAMING_READING_LEN_MSB;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag == octet)
                         {
-                            state_ = InputState::UXR_FRAMING_READING_DST_ADDR;
+                            state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
                         }
                         else
                         {
-                            if (framing_begin_flag != remote_addr_)
-                            {
-                                exit_cond = true;
-                            }
+                            exit_cond = true;
                         }
-                        break;
                     }
-                    case InputState::UXR_FRAMING_READING_DST_ADDR:
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_LEN_MSB:
+                {
+                    if (get_next_octet(octet))
                     {
-                        if (get_next_octet(octet))
+                        msg_len_ += (octet << 8);
+                        msg_pos_ = 0;
+                        cmp_crc_ = 0;
+                        if (len < msg_len_)
                         {
-                            state_ = (octet == local_addr_)
-                                    ? InputState::UXR_FRAMING_READING_LEN_LSB
-                                    : InputState::UXR_FRAMING_UNINITIALIZED;
-                        }
-                        else
-                        {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
-                        }
-                        break;
-                    }
-                    case InputState::UXR_FRAMING_READING_LEN_LSB:
-                    {
-                        if (get_next_octet(octet))
-                        {
-                            msg_len_ = octet;
-                            state_ = InputState::UXR_FRAMING_READING_LEN_MSB;
-                        }
-                        else
-                        {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
-                        }
-                        break;
-                    }
-                    case InputState::UXR_FRAMING_READING_LEN_MSB:
-                    {
-                        if (get_next_octet(octet))
-                        {
-                            msg_len_ += (octet << 8);
-                            msg_pos_ = 0;
-                            cmp_crc_ = 0;
-                            if (len < msg_len_)
-                            {
-                                state_ = InputState::UXR_FRAMING_UNINITIALIZED;
-                                exit_cond = true;
-                            }
-                            else
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_PAYLOAD;
-                            }
-                        }
-                        else
-                        {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
-                        }
-                        break;
-                    }
-                    case InputState::UXR_FRAMING_READING_PAYLOAD:
-                    {
-                        while ((msg_pos_ < msg_len_) && get_next_octet(octet))
-                        {
-                            buf[static_cast<size_t>(msg_pos_)] = octet;
-                            ++msg_pos_;
-                            update_crc(cmp_crc_, octet);
-                        }
-
-                        if (msg_pos_ == msg_len_)
-                        {
-                            state_ = InputState::UXR_FRAMING_READING_CRC_LSB;
-                        }
-                        else
-                        {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else if (0 < transport_read(timeout, transport_rc))
-                            {
-                                /* Do nothing */
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
-                        }
-                        break;
-                    }
-                    case InputState::UXR_FRAMING_READING_CRC_LSB:
-                    {
-                        if (get_next_octet(octet))
-                        {
-                            msg_crc_ = octet;
-                            state_ = InputState::UXR_FRAMING_READING_CRC_MSB;
-                        }
-                        else
-                        {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
-                        }
-                        break;
-                    }
-                    case InputState::UXR_FRAMING_READING_CRC_MSB:
-                        if (get_next_octet(octet))
-                        {
-                            msg_crc_ += (octet << 8);
                             state_ = InputState::UXR_FRAMING_UNINITIALIZED;
-                            if (cmp_crc_ == msg_crc_)
-                            {
-                                remote_addr = remote_addr_;
-                                rv = msg_len_;
-                            }
                             exit_cond = true;
                         }
                         else
                         {
-                            if (framing_begin_flag == octet)
-                            {
-                                state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
-                            }
-                            else
-                            {
-                                exit_cond = true;
-                            }
+                            state_ = InputState::UXR_FRAMING_READING_PAYLOAD;
                         }
-                        break;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag == octet)
+                        {
+                            state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                        }
+                        else
+                        {
+                            exit_cond = true;
+                        }
+                    }
+                    break;
                 }
+                case InputState::UXR_FRAMING_READING_PAYLOAD:
+                {
+                    while ((msg_pos_ < msg_len_) && get_next_octet(octet))
+                    {
+                        buf[static_cast<size_t>(msg_pos_)] = octet;
+                        ++msg_pos_;
+                        update_crc(cmp_crc_, octet);
+                    }
+
+                    if (msg_pos_ == msg_len_)
+                    {
+                        state_ = InputState::UXR_FRAMING_READING_CRC_LSB;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag == octet)
+                        {
+                            state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                        }
+                        else if (0 < transport_read(timeout, transport_rc))
+                        {
+                            /* Do nothing */
+                        }
+                        else
+                        {
+                            exit_cond = true;
+                        }
+                    }
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_CRC_LSB:
+                {
+                    if (get_next_octet(octet))
+                    {
+                        msg_crc_ = octet;
+                        state_ = InputState::UXR_FRAMING_READING_CRC_MSB;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag == octet)
+                        {
+                            state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                        }
+                        else
+                        {
+                            exit_cond = true;
+                        }
+                    }
+                    break;
+                }
+                case InputState::UXR_FRAMING_READING_CRC_MSB:
+                    if (get_next_octet(octet))
+                    {
+                        msg_crc_ += (octet << 8);
+                        state_ = InputState::UXR_FRAMING_UNINITIALIZED;
+                        if (cmp_crc_ == msg_crc_)
+                        {
+                            remote_addr = remote_addr_;
+                            rv = msg_len_;
+                        }
+                        exit_cond = true;
+                    }
+                    else
+                    {
+                        if (framing_begin_flag == octet)
+                        {
+                            state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
+                        }
+                        else
+                        {
+                            exit_cond = true;
+                        }
+                    }
+                    break;
             }
         }
     }
-    while ((0 == rv) && (0 < timeout));
 
     return rv;
 }
