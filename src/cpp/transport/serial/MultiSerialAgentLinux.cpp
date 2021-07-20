@@ -88,8 +88,15 @@ bool MultiSerialAgent::recv_message(
         {
             if (FD_ISSET(it->first, &fds))
             {
-                uint8_t remote_addr;
-                ssize_t bytes_read = it->second.read_framed_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
+                uint8_t remote_addr = 0x00;
+                ssize_t bytes_read = 0;
+
+                do
+                {
+                    bytes_read = it->second.read_framed_msg(
+                        buffer_, sizeof (buffer_), remote_addr, timeout, transport_rc);
+                }
+                while ((0 == bytes_read) && (0 < timeout));
 
                 if (0 < bytes_read)
                 {

@@ -85,8 +85,16 @@ bool SerialAgent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    uint8_t remote_addr;
-    ssize_t bytes_read = framing_io_.read_framed_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
+    uint8_t remote_addr = 0x00;
+    ssize_t bytes_read = 0;
+
+    do
+    {
+        bytes_read = framing_io_.read_framed_msg(
+            buffer_, SERVER_BUFFER_SIZE, remote_addr, timeout, transport_rc);
+    }
+    while ((0 == bytes_read) && (0 < timeout));
+
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));

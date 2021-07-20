@@ -189,8 +189,13 @@ bool CustomAgent::recv_message(
         if (framing_)
         {
             uint8_t remote_addr = 0x00;
-            recv_bytes = framing_io_.read_framed_msg(
-                buffer_, SERVER_BUFFER_SIZE, remote_addr, timeout, transport_rc);
+
+            do
+            {
+                recv_bytes = framing_io_.read_framed_msg(
+                    buffer_, SERVER_BUFFER_SIZE, remote_addr, timeout, transport_rc);
+            }
+            while ((0 == recv_bytes) && (0 < timeout));
         }
         else
         {
