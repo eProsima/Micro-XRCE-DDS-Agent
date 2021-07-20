@@ -108,7 +108,7 @@ size_t FramingIO::read_framed_msg(
         uint8_t* buf,
         size_t len,
         uint8_t& remote_addr,
-        int timeout,
+        int& timeout,
         TransportRc& transport_rc)
 {
     size_t rv = 0;
@@ -481,10 +481,12 @@ size_t FramingIO::transport_read(
         }
     }
 
-    timeout -= static_cast<int>(
+    int time_elapsed = static_cast<int>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
-            time_init - std::chrono::system_clock::now())
+            std::chrono::system_clock::now() - time_init)
             .count());
+
+    timeout -= (time_elapsed == 0) ? 1 : time_elapsed;
 
     return bytes_read[0] + bytes_read[1];
 }

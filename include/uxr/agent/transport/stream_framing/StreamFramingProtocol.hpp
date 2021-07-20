@@ -148,7 +148,7 @@ public:
             uint8_t* buf,
             size_t len,
             uint8_t& remote_addr,
-            int timeout,
+            int& timeout,
             TransportRc& transport_rc);
 
 private:
