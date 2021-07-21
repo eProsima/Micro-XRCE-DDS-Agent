@@ -70,6 +70,7 @@ template <typename AgentKind>
 std::thread create_agent_thread(
         int argc,
         char** argv,
+        bool* exit_,
 #ifndef _WIN32
         TransportKind transport_kind,
         const sigset_t* signals);
@@ -1054,6 +1055,7 @@ template <typename AgentKind>
 inline std::thread create_agent_thread(
         int argc,
         char** argv,
+        bool* exit_,
 #ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
         const sigset_t* signals)
@@ -1064,6 +1066,10 @@ inline std::thread create_agent_thread(
     std::thread agent_thread = std::thread([=]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<AgentKind> parser(argc, argv, transport_kind);
+
+        struct timespec timeout;
+        timeout.tv_sec = 1;
+	    timeout.tv_nsec = 0;
 
         switch (parser.parse_arguments())
         {
@@ -1086,9 +1092,14 @@ inline std::thread create_agent_thread(
                         std::cin >> exit_flag;
                     }
 #else
-                    /* Wait for defined signals. */
-                    int n_signal = 0;
-                    sigwait(signals, &n_signal);
+                    /* Wait for defined signals or exit flag. */
+                    while (sigtimedwait(signals, NULL, &timeout) < 0)
+                    {
+                        if (*exit_)
+                        {
+                            break;
+                        }
+                    }
 #endif // _WIN32
                 }
                 break;
