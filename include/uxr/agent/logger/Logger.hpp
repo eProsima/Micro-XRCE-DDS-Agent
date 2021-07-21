@@ -161,6 +161,7 @@
     void(0)
 #else
 #define UXR_AGENT_LOG_MESSAGE(...) void(0)
+#define UXR_MULTIAGENT_LOG_MESSAGE(...) void(0)
 #endif
 
 #endif // UXR_AGENT_LOGGER_LOGGER_HPP_
