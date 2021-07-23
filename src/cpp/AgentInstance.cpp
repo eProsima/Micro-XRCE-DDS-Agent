@@ -34,6 +34,7 @@ bool AgentInstance::create(
         char** argv)
 {
 #ifndef _WIN32
+    exit_signal = false;
     sigemptyset(&signals_);
     if (sigaddset(&signals_, SIGINT) && sigaddset(&signals_, SIGTERM))
     {
@@ -56,7 +57,7 @@ bool AgentInstance::create(
         {
             agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                , &signals_
+                , &exit_signal, &signals_
 #endif  // _WIN32
                 ));
             break;
@@ -65,7 +66,7 @@ bool AgentInstance::create(
         {
             agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                , &signals_
+                , &exit_signal, &signals_
 #endif  // _WIN32
                 ));
             break;
@@ -74,7 +75,7 @@ bool AgentInstance::create(
         {
             agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                , &signals_
+                , &exit_signal, &signals_
 #endif  // _WIN32
                 ));
             break;
@@ -83,7 +84,7 @@ bool AgentInstance::create(
         {
             agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, valid_transport
 #ifndef _WIN32
-                , &signals_
+                , &exit_signal, &signals_
 #endif  // _WIN32
                 ));
             break;
@@ -91,20 +92,20 @@ bool AgentInstance::create(
 #ifndef _WIN32
         case agent::TransportKind::SERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv,
-                valid_transport, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, valid_transport,
+                &exit_signal, &signals_));
             break;
         }
         case agent::TransportKind::MULTISERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv,
-                valid_transport, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, valid_transport,
+                &exit_signal, &signals_));
             break;
         }
         case agent::TransportKind::PSEUDOTERMINAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv,
-                valid_transport, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, valid_transport,
+                &exit_signal, &signals_));
             break;
         }
 #endif  // _WIN32
@@ -113,7 +114,6 @@ bool AgentInstance::create(
             // TODO(jamoralp): avoid creating this object just to show help
             agent::parser::ArgumentParser<UDPv4Agent>(argc, argv, valid_transport).show_help();
             return false;
-            break;
         }
         case agent::TransportKind::INVALID:
         {
@@ -130,6 +130,17 @@ void AgentInstance::run()
 {
     agent_thread_.join();
 }
+
+#ifndef _WIN32
+void AgentInstance::stop()
+{
+    if (agent_thread_.joinable())
+    {
+        exit_signal = true;
+        agent_thread_.join();
+    }    
+}
+#endif
 
 template <typename ... Args>
 void AgentInstance::add_middleware_callback(
