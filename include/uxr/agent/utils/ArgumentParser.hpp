@@ -70,9 +70,9 @@ template <typename AgentKind>
 std::thread create_agent_thread(
         int argc,
         char** argv,
-        bool* exit_,
 #ifndef _WIN32
         TransportKind transport_kind,
+        bool* exit_,
         const sigset_t* signals);
 #else
         TransportKind transport_kind);
@@ -1055,9 +1055,9 @@ template <typename AgentKind>
 inline std::thread create_agent_thread(
         int argc,
         char** argv,
-        bool* exit_,
 #ifndef _WIN32
         eprosima::uxr::agent::TransportKind transport_kind,
+        bool* exit_,
         const sigset_t* signals)
 #else
         eprosima::uxr::agent::TransportKind transport_kind)
