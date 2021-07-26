@@ -33,16 +33,6 @@ bool AgentInstance::create(
         int argc,
         char** argv)
 {
-#ifndef _WIN32
-    exit_signal = false;
-    sigemptyset(&signals_);
-    if (sigaddset(&signals_, SIGINT) && sigaddset(&signals_, SIGTERM))
-    {
-        std :: cerr << "Wrong signalset!" << std::endl;
-        return false;
-    }
-#endif  // _WIN32
-
     if (2 > argc)
     {
         agent::parser::utils::usage(argv[0]);
@@ -55,57 +45,38 @@ bool AgentInstance::create(
     {
         case agent::TransportKind::UDP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, valid_transport
-#ifndef _WIN32
-                , &exit_signal, &signals_
-#endif  // _WIN32
-                ));
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
         case agent::TransportKind::UDP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, valid_transport
-#ifndef _WIN32
-                , &exit_signal, &signals_
-#endif  // _WIN32
-                ));
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
         case agent::TransportKind::TCP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, valid_transport
-#ifndef _WIN32
-                , &exit_signal, &signals_
-#endif  // _WIN32
-                ));
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
         case agent::TransportKind::TCP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, valid_transport
-#ifndef _WIN32
-                , &exit_signal, &signals_
-#endif  // _WIN32
-                ));
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
 #ifndef _WIN32
         case agent::TransportKind::SERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, valid_transport,
-                &exit_signal, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
         case agent::TransportKind::MULTISERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, valid_transport,
-                &exit_signal, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
         case agent::TransportKind::PSEUDOTERMINAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, valid_transport,
-                &exit_signal, &signals_));
+            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, std::ref(exit_signal), valid_transport));
             break;
         }
 #endif  // _WIN32
@@ -136,7 +107,7 @@ void AgentInstance::stop()
 {
     if (agent_thread_.joinable())
     {
-        exit_signal = true;
+        exit_signal.notify_all();
         agent_thread_.join();
     }    
 }

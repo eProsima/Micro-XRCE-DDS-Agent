@@ -70,13 +70,8 @@ template <typename AgentKind>
 std::thread create_agent_thread(
         int argc,
         char** argv,
-#ifndef _WIN32
-        TransportKind transport_kind,
-        bool* exit_,
-        const sigset_t* signals);
-#else
+        std::condition_variable& cv,
         TransportKind transport_kind);
-#endif // _WIN32
 
 namespace parser {
 namespace utils {
@@ -1055,21 +1050,12 @@ template <typename AgentKind>
 inline std::thread create_agent_thread(
         int argc,
         char** argv,
-#ifndef _WIN32
-        eprosima::uxr::agent::TransportKind transport_kind,
-        bool* exit_,
-        const sigset_t* signals)
-#else
+        std::condition_variable& cv,
         eprosima::uxr::agent::TransportKind transport_kind)
-#endif // _WIN32
 {
-    std::thread agent_thread = std::thread([=]() -> void
+    std::thread agent_thread = std::thread([&]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<AgentKind> parser(argc, argv, transport_kind);
-
-        struct timespec timeout;
-        timeout.tv_sec = 1;
-	    timeout.tv_nsec = 0;
 
         switch (parser.parse_arguments())
         {
@@ -1083,24 +1069,10 @@ inline std::thread create_agent_thread(
             {
                 if (parser.launch_agent())
                 {
-#ifdef _WIN32
-                    /* Waiting until exit. */
-                    std::cin.clear();
-                    char exit_flag = 0;
-                    while ('q' != exit_flag)
-                    {
-                        std::cin >> exit_flag;
-                    }
-#else
-                    /* Wait for defined signals or exit flag. */
-                    while (sigtimedwait(signals, NULL, &timeout) < 0)
-                    {
-                        if (*exit_)
-                        {
-                            break;
-                        }
-                    }
-#endif // _WIN32
+                    /* Wait for defined signals or conditional variable. */
+                    std::mutex m;
+                    std::unique_lock<std::mutex> lock(m);
+                    cv.wait(lock);
                 }
                 break;
             }
