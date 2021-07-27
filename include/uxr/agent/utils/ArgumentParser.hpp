@@ -1053,7 +1053,7 @@ inline std::thread create_agent_thread(
         std::condition_variable& cv,
         eprosima::uxr::agent::TransportKind transport_kind)
 {
-    std::thread agent_thread = std::thread([&]() -> void
+    std::thread agent_thread = std::thread([argc, argv, &cv, transport_kind]() -> void
     {
         eprosima::uxr::agent::parser::ArgumentParser<AgentKind> parser(argc, argv, transport_kind);
 
@@ -1067,9 +1067,10 @@ inline std::thread create_agent_thread(
             }
             case parser::ParseResult::VALID:
             {
+                // TODO: Handle serial/multiserial 'wait for device' stop
                 if (parser.launch_agent())
                 {
-                    /* Wait for defined signals or conditional variable. */
+                    /* Wait for user stop */
                     std::mutex m;
                     std::unique_lock<std::mutex> lock(m);
                     cv.wait(lock);

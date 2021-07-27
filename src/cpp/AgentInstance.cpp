@@ -45,38 +45,38 @@ bool AgentInstance::create(
     {
         case agent::TransportKind::UDP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv4Agent>(argc, argv, exit_signal, valid_transport));
             break;
         }
         case agent::TransportKind::UDP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<UDPv6Agent>(argc, argv, exit_signal, valid_transport));
             break;
         }
         case agent::TransportKind::TCP4:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv4Agent>(argc, argv, exit_signal, valid_transport));
             break;
         }
         case agent::TransportKind::TCP6:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, exit_signal, valid_transport));
             break;
         }
 #ifndef _WIN32
         case agent::TransportKind::SERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));
             break;
         }
         case agent::TransportKind::MULTISERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, exit_signal, valid_transport));
             break;
         }
         case agent::TransportKind::PSEUDOTERMINAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, std::ref(exit_signal), valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, exit_signal, valid_transport));
             break;
         }
 #endif  // _WIN32
