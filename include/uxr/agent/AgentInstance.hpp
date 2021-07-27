@@ -103,10 +103,7 @@ public:
 
 private:
     std::thread agent_thread_;
-#ifndef _WIN32
-    bool exit_signal;
-    sigset_t signals_;
-#endif  // _WIN32
+    std::condition_variable exit_signal;
     middleware::CallbackFactory& callback_factory_;
 };
 } // uxr
