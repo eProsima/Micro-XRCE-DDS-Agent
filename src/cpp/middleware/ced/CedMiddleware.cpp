@@ -97,7 +97,7 @@ bool CedMiddleware::create_participant_by_bin(
             uint16_t participant_id,
             const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
-    return create_participant_by_ref(participant_id, participant_xrce.domain_id(), participant_xrce.domain_referente());
+    return create_participant_by_ref(participant_id, (int16_t) participant_xrce.domain_id(), std::string());
 }
 
 static
@@ -180,9 +180,9 @@ bool CedMiddleware::create_publisher_by_xml(
 bool CedMiddleware::create_publisher_by_bin(
         uint16_t publisher_id,
         uint16_t participant_id,
-        const dds::xrce::OBJK_Publisher_Binary& publisher_xrce)
+        const dds::xrce::OBJK_Publisher_Binary& /* publisher_xrce */)
 {
-    return create_publisher_by_xml(publisher_id, participant_id, publisher_xrce.publisher_name());
+    return create_publisher_by_xml(publisher_id, participant_id, std::string());
 }
 
 bool CedMiddleware::create_subscriber_by_xml(
@@ -207,9 +207,9 @@ bool CedMiddleware::create_subscriber_by_xml(
 bool CedMiddleware::create_subscriber_by_bin(
         uint16_t subscriber_id,
         uint16_t participant_id,
-        const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce)
+        const dds::xrce::OBJK_Subscriber_Binary& /* subscriber_xrce */)
 {
-    return create_subscriber_by_xml(subscriber_id, participant_id, subscriber_xrce.subscriber_name());
+    return create_subscriber_by_xml(subscriber_id, participant_id, std::string());
 }
 
 bool CedMiddleware::create_datawriter_by_ref(
@@ -406,9 +406,9 @@ bool CedMiddleware::matched_participant_from_xml(
 bool CedMiddleware::matched_participant_from_bin(
         uint16_t participant_id,
         int16_t domain_id,
-        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const
+        const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */) const
 {
-    return matched_participant_from_ref(participant_id, domain_id, participant_xrce.domain_referente());
+    return matched_participant_from_ref(participant_id, domain_id, std::string());
 }
 
 bool CedMiddleware::matched_topic_from_ref(
