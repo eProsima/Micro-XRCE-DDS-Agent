@@ -84,7 +84,7 @@ if(UAGENT_FAST_PROFILE)
         set(_fastdds_version 2.0.2)
         set(_fastdds_tag v2.0.2)
         set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
-    endif()
+    endif()    
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
 endif()
 
@@ -514,8 +514,6 @@ endif()
 
 # Generate Windows Installer.
 if(WIN32 AND UAGENT_INSTALLER AND UAGENT_BUILD_EXECUTABLE)
-    message(STATUS "Building installer.")
-
     # Set product name.
     set(PRODUCT_NAME_SHORT "MicroXRCEAgent")
     set(PRODUCT_NAME_LONG "Micro XRCE-DDS Agent")
