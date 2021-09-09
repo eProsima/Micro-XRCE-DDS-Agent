@@ -21,7 +21,8 @@ jobs:
     - name: Build
       run: |
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-        cpack -G NSIS --Config Release
+        cpack -G NSIS -C ${{github.workspace}}/build
+
 
     # - name: Test
     #   working-directory: ${{github.workspace}}/build
