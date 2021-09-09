@@ -18,6 +18,7 @@
 #include <sstream>
 #include <fstream>
 #include <csignal>
+#include <algorithm>
 #include <type_traits>
 #include <unordered_map>
 #include <uxr/agent/transport/Server.hpp>
