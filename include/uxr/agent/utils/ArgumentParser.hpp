@@ -698,6 +698,7 @@ public:
     SerialArgs()
         : PseudoTerminalArgs<AgentType>()
         , dev_("-D", "--dev")
+        , file_("-f", "--file")
     {
     }
 
@@ -710,16 +711,55 @@ public:
             return false;
         }
         ParseResult parse_dev = dev_.parse_argument(argc, argv);
-        if (ParseResult::VALID != parse_dev)
+        ParseResult parse_file = file_.parse_argument(argc, argv);
+        if (ParseResult::VALID != parse_dev && ParseResult::VALID != parse_file)
         {
-            std::cerr << "Warning: '--dev <value>' is required" << std::endl;
+            std::cerr << "Warning: '--dev <value>' or '--file <value>' is required" << std::endl;
         }
-        return (ParseResult::VALID == parse_dev ? true : false);
+        else if(ParseResult::VALID == parse_dev && ParseResult::VALID == parse_file)
+        {
+            std::cerr << "Warning: '--dev <value>' and '--file <value>' are not allowed" << std::endl;
+        }
+        else if(ParseResult::VALID == parse_file)
+        {
+            std::ifstream myfile(file_.value());
+
+            if (!myfile)
+            {
+                std::cerr << "Error opening file '" << file_.value() << "': " << strerror(errno) << std::endl;
+                return false;
+            }
+            
+            myfile.close();
+        }
+
+
+        return (((ParseResult::VALID == parse_dev) ^ (ParseResult::VALID == parse_file)) ? true : false);
     }
 
-    const std::string dev() const
+    const std::string dev()
     {
-        return dev_.value();
+        std::string port;
+
+        if (dev_.found())
+        {
+            port = dev_.value();
+        }
+        else if (file_.found())
+        {
+            std::string line;
+            std::ifstream myfile(file_.value());
+
+            if (myfile.fail())
+            {
+                std::cerr << "Error opening file: " << strerror(errno) << std::endl;
+            }
+
+            std::getline(myfile, port);
+            myfile.close();
+        }
+
+        return port;
     }
 
     const std::string get_help() const
@@ -731,6 +771,7 @@ public:
 
 private:
     Argument<std::string> dev_;
+    Argument<std::string> file_;
 };
 
 /*************************************************************************************************
@@ -764,6 +805,18 @@ public:
         else if(ParseResult::VALID == parse_devs && ParseResult::VALID == parse_file)
         {
             std::cerr << "Warning: '--devs <values>' and '--file <value>' are not allowed" << std::endl;
+        }
+        else if(ParseResult::VALID == parse_file)
+        {
+            std::ifstream myfile(file_.value());
+
+            if (!myfile)
+            {
+                std::cerr << "Error opening file '" << file_.value() << "': " << strerror(errno) << std::endl;
+                return false;
+            }
+            
+            myfile.close();
         }
 
         return (((ParseResult::VALID == parse_devs) ^ (ParseResult::VALID == parse_file)) ? true : false);
