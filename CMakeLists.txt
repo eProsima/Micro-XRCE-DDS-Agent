@@ -84,7 +84,7 @@ if(UAGENT_FAST_PROFILE)
         set(_fastdds_version 2.0.2)
         set(_fastdds_tag v2.0.2)
         set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
-    endif()    
+    endif()
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
 endif()
 
@@ -556,11 +556,10 @@ if(WIN32 AND UAGENT_INSTALLER AND UAGENT_BUILD_EXECUTABLE)
         "Uninstall.exe" "Uninstall ${PRODUCT_NAME_SHORT}"
         )
     if(CMAKE_CL_64)
-        file(TO_NATIVE_PATH $ENV{PROGRAMFILES}/eProsima _install_root)
-        set(CPACK_NSIS_INSTALL_ROOT ${_install_root})
+        file(TO_NATIVE_PATH $ENV{PROGRAMFILES}/eProsima CPACK_NSIS_INSTALL_ROOT)
     else()
         set(PF86_STR "PROGRAMFILES(x86)")
-        set(CPACK_NSIS_INSTALL_ROOT "$ENV{${PF86_STR}}\\eProsima")
+        file(TO_NATIVE_PATH "$ENV{${PF86_STR}}/eProsima" CPACK_NSIS_INSTALL_ROOT)
     endif()
 
     # Setup configure files for NSIS installer.

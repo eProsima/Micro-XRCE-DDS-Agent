@@ -239,8 +239,6 @@ ExternalProject_Add(uagent
     CMAKE_CACHE_ARGS
         -DUAGENT_SUPERBUILD:BOOL=OFF
         -DUAGENT_USE_INTERNAL_GTEST:BOOL=${UAGENT_USE_INTERNAL_GTEST}
-    INSTALL_COMMAND
-        ""
     DEPENDS
         ${_deps}
     )
