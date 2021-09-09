@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <thread>
 #include <vector>
+#include <algorithm>
 
 namespace eprosima {
 namespace uxr {
