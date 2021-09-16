@@ -450,7 +450,7 @@ public:
     }
 
 private:
-    std::map<const std::string, Member> members_;
+    std::map<std::string, Member> members_;
 };
 
 /**
