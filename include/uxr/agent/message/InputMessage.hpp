@@ -68,6 +68,10 @@ public:
 
     bool prepare_next_submessage();
 
+    size_t count_submessages();
+
+    dds::xrce::SubmessageId get_submessage_id();
+
 private:
     template<class T>
     bool deserialize(T& data);
@@ -92,6 +96,49 @@ inline bool InputMessage::prepare_next_submessage()
         rv = deserialize(subheader_);
     }
     return rv;
+}
+
+inline size_t InputMessage::count_submessages()
+{
+    fastcdr::Cdr local_deserializer(fastbuffer_);
+    dds::xrce::MessageHeader local_header;
+    dds::xrce::SubmessageHeader local_subheader;
+
+    local_header.deserialize(local_deserializer);
+
+    bool rv = false;
+    size_t count = 0;
+
+    do
+    {
+        local_deserializer.jump((4 - ((local_deserializer.getCurrentPosition() - local_deserializer.getBufferPointer()) & 3)) & 3);
+        if (fastbuffer_.getBufferSize() > local_deserializer.getSerializedDataLength())
+        {
+            local_subheader.deserialize(local_deserializer);
+            count++;
+        } else {
+            rv = false;
+        }
+    } while (rv);
+
+    return count;
+}
+
+inline dds::xrce::SubmessageId InputMessage::get_submessage_id()
+{
+    fastcdr::Cdr local_deserializer(fastbuffer_);
+    dds::xrce::MessageHeader local_header;
+    dds::xrce::SubmessageHeader local_subheader;
+
+    local_header.deserialize(local_deserializer);
+
+    local_deserializer.jump((4 - ((local_deserializer.getCurrentPosition() - local_deserializer.getBufferPointer()) & 3)) & 3);
+    if (fastbuffer_.getBufferSize() > local_deserializer.getSerializedDataLength())
+    {
+        local_subheader.deserialize(local_deserializer);
+    }
+
+    return local_subheader.submessage_id();
 }
 
 template<class T>
