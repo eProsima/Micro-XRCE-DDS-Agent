@@ -26,10 +26,10 @@ namespace eprosima {
 namespace uxr {
 
 template<class T>
-class FCFSScheduler : public Scheduler<T>
+class PacketScheduler : public Scheduler<T>
 {
 public:
-    FCFSScheduler(
+    PacketScheduler(
             size_t max_size)
         : deque_()
         , mtx_()
@@ -67,14 +67,14 @@ private:
 };
 
 template<class T>
-inline void FCFSScheduler<T>::set_priority_size(uint8_t priority, size_t size)
+inline void PacketScheduler<T>::set_priority_size(uint8_t priority, size_t size)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     sizes_[priority] = size;
 }
 
 template<class T>
-inline void FCFSScheduler<T>::init()
+inline void PacketScheduler<T>::init()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     sizes_[0] = max_size_;
@@ -82,7 +82,7 @@ inline void FCFSScheduler<T>::init()
 }
 
 template<class T>
-inline void FCFSScheduler<T>::deinit()
+inline void PacketScheduler<T>::deinit()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -90,7 +90,7 @@ inline void FCFSScheduler<T>::deinit()
 }
 
 template<class T>
-inline void FCFSScheduler<T>::push(
+inline void PacketScheduler<T>::push(
         T&& element,
         uint8_t priority)
 {
@@ -104,7 +104,7 @@ inline void FCFSScheduler<T>::push(
 }
 
 template<class T>
-inline void FCFSScheduler<T>::push_front(
+inline void PacketScheduler<T>::push_front(
         T&& element,
         uint8_t priority)
 {
@@ -113,7 +113,7 @@ inline void FCFSScheduler<T>::push_front(
 }
 
 template<class T>
-inline bool FCFSScheduler<T>::empty()
+inline bool PacketScheduler<T>::empty()
 {
     for (auto& deque : deque_) {
         if (!deque.second.empty())
@@ -126,7 +126,7 @@ inline bool FCFSScheduler<T>::empty()
 }
 
 template<class T>
-inline bool FCFSScheduler<T>::pop(
+inline bool PacketScheduler<T>::pop(
         T& element)
 {
     bool rv = false;

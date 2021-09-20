@@ -18,7 +18,7 @@
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/transport/TransportRc.hpp>
 #include <uxr/agent/transport/SessionManager.hpp>
-#include <uxr/agent/scheduler/FCFSScheduler.hpp>
+#include <uxr/agent/scheduler/PacketScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
@@ -64,21 +64,21 @@ private:
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     virtual bool init_discovery(uint16_t /* discovery_port */) {
-                    return false; 
+                    return false;
                 };
 
     virtual bool fini_discovery() {
-                    return false; 
+                    return false;
                 };
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
     virtual bool init_p2p(uint16_t /* p2p_port */) {
-                    return false; 
+                    return false;
                 };
 
     virtual bool fini_p2p() {
-                    return false; 
+                    return false;
                 };
 #endif
 
@@ -91,7 +91,7 @@ private:
             std::vector<InputPacket<EndPoint>>& /* input_packet */,
             int /* timeout */,
             TransportRc& /* transport_rc */) {
-                    return false; 
+                    return false;
                 };
 
     virtual bool send_message(
@@ -121,8 +121,8 @@ private:
     std::thread heartbeat_thread_;
     std::thread error_handler_thread_;
     std::atomic<bool> running_cond_;
-    FCFSScheduler<InputPacket<EndPoint>> input_scheduler_;
-    FCFSScheduler<OutputPacket<EndPoint>> output_scheduler_;
+    PacketScheduler<InputPacket<EndPoint>> input_scheduler_;
+    PacketScheduler<OutputPacket<EndPoint>> output_scheduler_;
     TransportRc transport_rc_;
     std::mutex error_mtx_;
     std::condition_variable error_cv_;
