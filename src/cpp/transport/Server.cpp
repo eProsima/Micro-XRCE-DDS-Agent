@@ -26,8 +26,7 @@
 
 #include <functional>
 
-#define RECEIVE_TIMEOUT 1
-#define RECEIVE_TIMEOUT_MULTI 1000   // Milliseconds
+#define RECEIVE_TIMEOUT 1000   // Milliseconds
 
 namespace eprosima {
 namespace uxr {
@@ -213,7 +212,7 @@ void Server<MultiSerialEndPoint>::receiver_loop()
     while (running_cond_)
     {
         TransportRc transport_rc = TransportRc::ok;
-        if (recv_message(input_packet, RECEIVE_TIMEOUT_MULTI, transport_rc))
+        if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
             for (auto & element : input_packet)
             {

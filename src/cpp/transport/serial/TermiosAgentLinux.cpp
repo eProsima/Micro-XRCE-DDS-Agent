@@ -110,6 +110,8 @@ bool TermiosAgent::init()
                 rv = true;
                 poll_fd_.events = POLLIN;
 
+                tcflush(poll_fd_.fd, TCIOFLUSH);
+
                 UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("running..."),
                     "fd: {}",
