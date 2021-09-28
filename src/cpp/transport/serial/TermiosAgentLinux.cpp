@@ -102,8 +102,12 @@ bool TermiosAgent::init()
             new_attrs.c_cc[VMIN] = termios_attrs_.c_cc[VMIN];
             new_attrs.c_cc[VTIME] = termios_attrs_.c_cc[VTIME];
 
+#if _HAVE_STRUCT_TERMIOS_C_ISPEED
             cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
+#endif
+#if _HAVE_STRUCT_TERMIOS_C_OSPEED
             cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
+#endif
 
             if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
             {

@@ -996,8 +996,12 @@ public:
 
         /* Setting baudrate. */
         speed_t baudrate = getBaudRate(baudrate_str);
+#if _HAVE_STRUCT_TERMIOS_C_ISPEED
         attr.c_ispeed = baudrate;
+#endif
+#if _HAVE_STRUCT_TERMIOS_C_OSPEED
         attr.c_ospeed = baudrate;
+#endif
 
         return attr;
     }
