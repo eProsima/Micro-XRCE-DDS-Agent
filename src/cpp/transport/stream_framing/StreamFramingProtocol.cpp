@@ -113,9 +113,12 @@ size_t FramingIO::read_framed_msg(
 {
     size_t rv = 0;
 
-    size_t read_bytes = transport_read(timeout, transport_rc);
+    if (read_buffer_tail_ == read_buffer_head_)
+    {
+        transport_read(timeout, transport_rc, 5);
+    }
 
-    if (0 < read_bytes || (read_buffer_tail_ != read_buffer_head_))
+    if (read_buffer_tail_ != read_buffer_head_)
     {
         /**
          * State Machine.
@@ -156,6 +159,10 @@ size_t FramingIO::read_framed_msg(
                     {
                         state_ = InputState::UXR_FRAMING_READING_DST_ADDR;
                     }
+                    else if(0 < transport_read(timeout, transport_rc, 4))
+                    {
+
+                    }
                     else
                     {
                         if (framing_begin_flag != remote_addr_)
@@ -172,6 +179,10 @@ size_t FramingIO::read_framed_msg(
                         state_ = (octet == local_addr_)
                                 ? InputState::UXR_FRAMING_READING_LEN_LSB
                                 : InputState::UXR_FRAMING_UNINITIALIZED;
+                    }
+                    else if(0 < transport_read(timeout, transport_rc, 3))
+                    {
+
                     }
                     else
                     {
@@ -192,6 +203,10 @@ size_t FramingIO::read_framed_msg(
                     {
                         msg_len_ = octet;
                         state_ = InputState::UXR_FRAMING_READING_LEN_MSB;
+                    }
+                    else if(0 < transport_read(timeout, transport_rc, 2))
+                    {
+
                     }
                     else
                     {
@@ -222,6 +237,10 @@ size_t FramingIO::read_framed_msg(
                         {
                             state_ = InputState::UXR_FRAMING_READING_PAYLOAD;
                         }
+                    }
+                    else if(0 < transport_read(timeout, transport_rc, 1))
+                    {
+
                     }
                     else
                     {
@@ -255,7 +274,7 @@ size_t FramingIO::read_framed_msg(
                         {
                             state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
                         }
-                        else if (0 < transport_read(timeout, transport_rc))
+                        else if (0 < transport_read(timeout, transport_rc, (msg_len_ - msg_pos_) + 2))
                         {
                             /* Do nothing */
                         }
@@ -272,6 +291,10 @@ size_t FramingIO::read_framed_msg(
                     {
                         msg_crc_ = octet;
                         state_ = InputState::UXR_FRAMING_READING_CRC_MSB;
+                    }
+                    else if(0 < transport_read(timeout, transport_rc, 2))
+                    {
+
                     }
                     else
                     {
@@ -297,6 +320,10 @@ size_t FramingIO::read_framed_msg(
                             rv = msg_len_;
                         }
                         exit_cond = true;
+                    }
+                    else if(0 < transport_read(timeout, transport_rc, 1))
+                    {
+
                     }
                     else
                     {
@@ -412,7 +439,8 @@ bool FramingIO::transport_write(
 
 size_t FramingIO::transport_read(
         int& timeout,
-        TransportRc& transport_rc)
+        TransportRc& transport_rc,
+        size_t max_size)
 {
     const auto time_init = std::chrono::system_clock::now();
 
@@ -454,6 +482,15 @@ size_t FramingIO::transport_read(
      * Read from serial, according to the fragment size previously calculated.
      */
     size_t bytes_read[2] = {0, 0};
+
+    // Limit the reading size
+    if (max_size < available_length[0]){
+        available_length[0] = (uint8_t)max_size;
+        available_length[1] = 0;
+    } else if(max_size < available_length[0] + available_length[1]){
+        available_length[1] = (uint8_t)(max_size - available_length[0]);
+    }
+
     if (0 < available_length[0])
     {
         ssize_t read_res = read_callback_(&read_buffer_[read_buffer_head_],

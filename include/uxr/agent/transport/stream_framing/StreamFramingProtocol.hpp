@@ -193,7 +193,8 @@ private:
      */
     size_t transport_read(
             int& timeout,
-            TransportRc& transport_rc);
+            TransportRc& transport_rc,
+            size_t max_size);
 
     InputState state_;
 
