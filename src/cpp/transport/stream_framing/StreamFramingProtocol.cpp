@@ -274,7 +274,7 @@ size_t FramingIO::read_framed_msg(
                         {
                             state_ = InputState::UXR_FRAMING_READING_SRC_ADDR;
                         }
-                        else if (0 < transport_read(timeout, transport_rc, msg_len_ - msg_pos_))
+                        else if (0 < transport_read(timeout, transport_rc, (msg_len_ - msg_pos_) + 2))
                         {
                             /* Do nothing */
                         }
