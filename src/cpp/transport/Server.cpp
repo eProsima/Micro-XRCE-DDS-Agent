@@ -67,6 +67,7 @@ bool Server<EndPoint>::start()
 
     /* Scheduler initialization. */
     input_scheduler_.init();
+    input_scheduler_.set_priority_size(1, 1); // Priority 1 used for heartbeats
     output_scheduler_.init();
 
     /* Thread initialization. */
@@ -189,7 +190,13 @@ void Server<EndPoint>::receiver_loop()
         TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
-            input_scheduler_.push(std::move(input_packet), 0);
+            if(dds::xrce::HEARTBEAT == input_packet.message->get_submessage_id() && 1U == input_packet.message->count_submessages()){
+                input_scheduler_.push(std::move(input_packet), 1);
+            }
+            else
+            {
+                input_scheduler_.push(std::move(input_packet), 0);
+            }
         }
         else if(running_cond_)
         {
@@ -249,7 +256,7 @@ void Server<EndPoint>::sender_loop()
                 {
                     std::unique_lock<std::mutex> lock(error_mtx_);
                     transport_rc_ = transport_rc;
-                    output_scheduler_.push_front(std::move(output_packet));
+                    output_scheduler_.push_front(std::move(output_packet), 0);
                     error_cv_.notify_one();
                     error_cv_.wait(lock);
                 }
