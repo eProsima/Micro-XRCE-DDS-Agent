@@ -156,7 +156,7 @@ endif()
 # Sources
 ###############################################################################
 # Check platform.
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
