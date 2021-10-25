@@ -325,14 +325,11 @@ bool Processor<EndPoint>::process_create_submessage(
             status_payload,
             std::chrono::milliseconds(0));
 
-        if (is_reliable_stream(stream_kind))
+        OutputPacket<EndPoint> output_packet;
+        output_packet.destination = input_packet.source;
+        while (client.session().get_next_output_message(stream_kind, output_packet.message))
         {
-            OutputPacket<EndPoint> output_packet;
-            output_packet.destination = input_packet.source;
-            while (client.session().get_next_output_message(stream_kind, output_packet.message))
-            {
-                server_.push_output_packet(std::move(output_packet));
-            }
+            server_.push_output_packet(std::move(output_packet));
         }
     }
     return rv;
@@ -387,12 +384,9 @@ bool Processor<EndPoint>::process_delete_submessage(
                 status_payload,
                 std::chrono::milliseconds(0));
 
-            if (is_reliable_stream(stream_kind))
+            while (client.session().get_next_output_message(stream_kind, output_packet.message))
             {
-                while (client.session().get_next_output_message(stream_kind, output_packet.message))
-                {
-                    server_.push_output_packet(std::move(output_packet));
-                }
+                server_.push_output_packet(std::move(output_packet));
             }
         }
     }
