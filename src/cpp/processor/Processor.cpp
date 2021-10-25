@@ -303,6 +303,9 @@ bool Processor<EndPoint>::process_create_submessage(
 {
     bool rv = true;
     dds::xrce::CreationMode creation_mode;
+    dds::xrce::StreamId stream_kind = is_reliable_stream(input_packet.message->get_header().stream_id()) ?
+            dds::xrce::STREAMID_BUILTIN_RELIABLE : dds::xrce::STREAMID_BUILTIN_BEST_EFFORTS;
+
     creation_mode.reuse(0 < (input_packet.message->get_subheader().flags() & dds::xrce::FLAG_REUSE));
     creation_mode.replace(0 < (input_packet.message->get_subheader().flags() & dds::xrce::FLAG_REPLACE));
 
@@ -317,14 +320,14 @@ bool Processor<EndPoint>::process_create_submessage(
                                                    create_payload.object_representation()));
 
         client.session().push_output_submessage(
-            dds::xrce::STREAMID_BUILTIN_RELIABLE,
+            stream_kind,
             dds::xrce::STATUS,
             status_payload,
             std::chrono::milliseconds(0));
 
         OutputPacket<EndPoint> output_packet;
         output_packet.destination = input_packet.source;
-        while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
+        while (client.session().get_next_output_message(stream_kind, output_packet.message))
         {
             server_.push_output_packet(std::move(output_packet));
         }
@@ -370,15 +373,18 @@ bool Processor<EndPoint>::process_delete_submessage(
         }
         else
         {
+            dds::xrce::StreamId stream_kind = is_reliable_stream(input_packet.message->get_header().stream_id()) ?
+                    dds::xrce::STREAMID_BUILTIN_RELIABLE : dds::xrce::STREAMID_BUILTIN_BEST_EFFORTS;
+
             status_payload.result(client.delete_object(delete_payload.object_id()));
 
             client.session().push_output_submessage(
-                dds::xrce::STREAMID_BUILTIN_RELIABLE,
+                stream_kind,
                 dds::xrce::STATUS,
                 status_payload,
                 std::chrono::milliseconds(0));
 
-            while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
+            while (client.session().get_next_output_message(stream_kind, output_packet.message))
             {
                 server_.push_output_packet(std::move(output_packet));
             }
