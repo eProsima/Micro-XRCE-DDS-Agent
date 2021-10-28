@@ -33,6 +33,7 @@
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
+#include <uxr/agent/transport/can/CanAgentLinux.hpp>
 #include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/MultiTermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
@@ -60,6 +61,7 @@ enum class TransportKind
     TCP4,
     TCP6,
 #ifndef _WIN32
+    CAN,
     SERIAL,
     MULTISERIAL,
     PSEUDOTERMINAL,
@@ -864,6 +866,59 @@ private:
     Argument<std::string> devs_;
     Argument<std::string> file_;
 };
+
+
+/*************************************************************************************************
+ * Specific arguments for CAN transports
+ *************************************************************************************************/
+template <typename AgentType>
+class CanArgs
+{
+public:
+    CanArgs()
+        : dev_("-D", "--dev")
+        , can_id_("-I", "--id", DEFAULT_CAN_ID)
+    {
+    }
+
+    bool parse(
+            int argc,
+            char** argv)
+    {
+        ParseResult parse_dev = dev_.parse_argument(argc, argv);
+        if (ParseResult::VALID != parse_dev)
+        {
+            std::cerr << "Warning: '--dev <value>' is required" << std::endl;
+        }
+        else
+        {
+            can_id_.parse_argument(argc, argv);
+        }
+
+        return (ParseResult::VALID == parse_dev ? true : false);
+    }
+
+    const std::string dev()
+    {
+        return dev_.value();
+    }
+
+    const std::string can_id()
+    {
+        return can_id_.value();
+    }
+
+    const std::string get_help() const
+    {
+        std::stringstream ss;
+        ss << "    " << dev_.get_help();
+        return ss.str();
+    }
+
+private:
+    Argument<std::string> dev_;
+    Argument<std::string> can_id_;
+};
 #endif // _WIN32
 
 /*************************************************************************************************
@@ -882,6 +937,7 @@ public:
         , common_args_()
         , ip_args_()
 #ifndef _WIN32
+        , can_args_()
         , serial_args_()
         , multiserial_args_()
         , pseudoterminal_args_()
@@ -915,6 +971,11 @@ public:
                 break;
             }
 #ifndef _WIN32
+            case TransportKind::CAN:
+            {
+                result &= can_args_.parse(argc_, argv_);
+                break;
+            }
             case TransportKind::SERIAL:
             {
                 result &= serial_args_.parse(argc_, argv_);
@@ -1016,10 +1077,12 @@ public:
         ss << common_args_.get_help();
         ss << "  * IPvX (udp4, udp6, tcp4, tcp6)" << std::endl;
         ss << ip_args_.get_help();
-        ss << "  * SERIAL (serial, multiserial, pseudoterminal)" << std::endl;
 #ifndef _WIN32
+        ss << "  * SERIAL (serial, multiserial, pseudoterminal)" << std::endl;
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
+        ss << "  * CAN FD (canfd)" << std::endl;
+        ss << can_args_.get_help();
 #endif // _WIN32
         ss << std::endl;
         // TODO(@jamoralp): Once documentation is updated with proper CLI section, add here an hyperlink to that section
@@ -1032,6 +1095,7 @@ private:
     CommonArgs<AgentType> common_args_;
     IPvXArgs<AgentType> ip_args_;
 #ifndef _WIN32
+    CanArgs<AgentType> can_args_;
     SerialArgs<AgentType> serial_args_;
     MultiSerialArgs<AgentType> multiserial_args_;
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
@@ -1093,6 +1157,25 @@ template<> inline bool ArgumentParser<PseudoTerminalAgent>::launch_agent()
     else
     {
         std::cerr << "Error while starting pseudoterminal agent!" << std::endl;
+    }
+
+    return false;
+}
+
+template<> inline bool ArgumentParser<CanAgent>::launch_agent()
+{
+    // TODO: include can id in args?
+    uint32_t can_id = strtoul(can_args_.can_id().c_str(), NULL, 16);
+    agent_server_.reset(new CanAgent(
+            can_args_.dev().c_str(), can_id, utils::get_mw_kind(common_args_.middleware())));
+    if (agent_server_->start())
+    {
+        common_args_.apply_actions(agent_server_);
+        return true;
+    }
+    else
+    {
+        std::cerr << "Error while starting canfd agent!" << std::endl;
     }
 
     return false;
