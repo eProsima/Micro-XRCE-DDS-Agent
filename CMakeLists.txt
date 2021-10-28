@@ -162,6 +162,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
         src/cpp/transport/tcp/TCPv4AgentLinux.cpp
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
+        src/cpp/transport/can/CanAgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
         src/cpp/transport/serial/MultiSerialAgentLinux.cpp
