@@ -220,8 +220,7 @@ bool CanAgent::send_message(
 
     if (0 < poll_rv)
     {
-        // Use extended frame format (EFF)
-        frame.can_id = can_id_ | CAN_EFF_FLAG;
+        frame.can_id = output_packet.destination.get_can_id();
         frame.len = (uint8_t) packet_len;
         memcpy(&frame.data[0], output_packet.message->get_buf(), packet_len);
 
