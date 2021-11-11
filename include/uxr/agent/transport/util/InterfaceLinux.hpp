@@ -48,7 +48,7 @@ void get_transport_interfaces<IPv4EndPoint>(
     {
         for (ptr = ifaddr; ptr != nullptr; ptr = ptr->ifa_next)
         {
-            if (AF_INET == ptr->ifa_addr->sa_family)
+            if (NULL != ptr->ifa_addr && AF_INET == ptr->ifa_addr->sa_family)
             {
                 dds::xrce::TransportAddressMedium medium_locator;
                 medium_locator.port(agent_port);
