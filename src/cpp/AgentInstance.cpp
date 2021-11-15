@@ -64,6 +64,11 @@ bool AgentInstance::create(
             break;
         }
 #ifndef _WIN32
+        case agent::TransportKind::CAN:
+        {
+            agent_thread_ = std::move(agent::create_agent_thread<CanAgent>(argc, argv, exit_signal, valid_transport));
+            break;
+        }
         case agent::TransportKind::SERIAL:
         {
             agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));
