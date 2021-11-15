@@ -1164,7 +1164,6 @@ template<> inline bool ArgumentParser<PseudoTerminalAgent>::launch_agent()
 
 template<> inline bool ArgumentParser<CanAgent>::launch_agent()
 {
-    // TODO: include can id in args?
     uint32_t can_id = strtoul(can_args_.can_id().c_str(), NULL, 16);
     agent_server_.reset(new CanAgent(
             can_args_.dev().c_str(), can_id, utils::get_mw_kind(common_args_.middleware())));
