@@ -40,8 +40,6 @@ if(GMOCK_FOUND)
         )
     add_executable(tree_test ${SRCS})
 
-    add_sanitizers(tree_test)
-
     add_gtest(tree_test
         SOURCES
             ${SRCS}

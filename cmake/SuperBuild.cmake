@@ -223,29 +223,6 @@ if(UAGENT_BUILD_TESTS)
     endif()
 endif()
 
-# sanitizers.
-unset(Sanitizers_DIR CACHE)
-find_package(Sanitizers QUIET)
-if(NOT Sanitizers_FOUND)
-    ExternalProject_Add(sanitizers
-        GIT_REPOSITORY
-            https://github.com/arsenm/sanitizers-cmake
-        PREFIX
-            ${PROJECT_BINARY_DIR}/sanitizers
-        BUILD_COMMAND
-            ""
-        INSTALL_COMMAND
-            ""
-        CMAKE_ARGS
-            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},3.16.3>:-DCMAKE_POLICY_DEFAULT_CMP0077=OLD> # Disable CMP0077 unset warning
-        CMAKE_CACHE_ARGS
-            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-        )
-    ExternalProject_Get_Property(sanitizers SOURCE_DIR)
-    set(SANITIZERS_ROOT ${SOURCE_DIR} CACHE INTERNAL "")
-    list(APPEND _deps sanitizers)
-endif()
-
 # Main project.
 ExternalProject_Add(uagent
     SOURCE_DIR
