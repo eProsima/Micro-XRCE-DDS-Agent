@@ -144,15 +144,6 @@ foreach(d ${_deps})
 endforeach()
 
 ###############################################################################
-# Load external CMake Modules.
-###############################################################################
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SANITIZERS_ROOT}/cmake)
-find_package(Sanitizers REQUIRED)
-if(SANITIZE_ADDRESS)
-    message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
-endif()
-
-###############################################################################
 # Sources
 ###############################################################################
 # Check platform.
@@ -244,7 +235,6 @@ endif()
 ###############################################################################
 # Library
 add_library(${PROJECT_NAME} ${SRCS})
-add_sanitizers(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION
