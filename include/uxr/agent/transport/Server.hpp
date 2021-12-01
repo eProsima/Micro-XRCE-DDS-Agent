@@ -18,7 +18,7 @@
 #include <uxr/agent/Agent.hpp>
 #include <uxr/agent/transport/TransportRc.hpp>
 #include <uxr/agent/transport/SessionManager.hpp>
-#include <uxr/agent/scheduler/FCFSScheduler.hpp>
+#include <uxr/agent/scheduler/PacketScheduler.hpp>
 #include <uxr/agent/message/Packet.hpp>
 #include <uxr/agent/processor/Processor.hpp>
 
@@ -43,11 +43,13 @@ public:
     UXR_AGENT_EXPORT bool stop();
 
 #ifdef UAGENT_DISCOVERY_PROFILE
+    UXR_AGENT_EXPORT virtual bool has_discovery() = 0;
     UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);
     UXR_AGENT_EXPORT bool disable_discovery();
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
+    UXR_AGENT_EXPORT virtual bool has_p2p() = 0;
     UXR_AGENT_EXPORT bool enable_p2p(uint16_t p2p_port);
     UXR_AGENT_EXPORT bool disable_p2p();
 #endif
@@ -61,21 +63,36 @@ private:
     virtual bool fini() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    virtual bool init_discovery(uint16_t discovery_port) = 0;
+    virtual bool init_discovery(uint16_t /* discovery_port */) {
+                    return false;
+                };
 
-    virtual bool fini_discovery() = 0;
+    virtual bool fini_discovery() {
+                    return false;
+                };
 #endif
 
 #ifdef UAGENT_P2P_PROFILE
-    virtual bool init_p2p(uint16_t p2p_port) = 0;
+    virtual bool init_p2p(uint16_t /* p2p_port */) {
+                    return false;
+                };
 
-    virtual bool fini_p2p() = 0;
+    virtual bool fini_p2p() {
+                    return false;
+                };
 #endif
 
     virtual bool recv_message(
             InputPacket<EndPoint>& input_packet,
             int timeout,
             TransportRc& transport_rc) = 0;
+
+    virtual bool recv_message(
+            std::vector<InputPacket<EndPoint>>& /* input_packet */,
+            int /* timeout */,
+            TransportRc& /* transport_rc */) {
+                    return false;
+                };
 
     virtual bool send_message(
             OutputPacket<EndPoint> output_packet,
@@ -104,8 +121,8 @@ private:
     std::thread heartbeat_thread_;
     std::thread error_handler_thread_;
     std::atomic<bool> running_cond_;
-    FCFSScheduler<InputPacket<EndPoint>> input_scheduler_;
-    FCFSScheduler<OutputPacket<EndPoint>> output_scheduler_;
+    PacketScheduler<InputPacket<EndPoint>> input_scheduler_;
+    PacketScheduler<OutputPacket<EndPoint>> output_scheduler_;
     TransportRc transport_rc_;
     std::mutex error_mtx_;
     std::condition_variable error_cv_;

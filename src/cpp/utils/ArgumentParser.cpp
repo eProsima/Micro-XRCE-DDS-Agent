@@ -32,7 +32,7 @@ bool eprosima::uxr::agent::parser::utils::usage(
     std::stringstream ss;
     ss << "Usage: '" << executable_name_str << " <udp4|udp6|tcp4|tpc6";
 #ifndef _WIN32
-    ss << "|serial|pseudoterminal";
+    ss << "|serial|multiserial|pseudoterminal";
 #endif // _WIN32
     ss << "> <<args>>'" << std::endl;
     if (no_help)
@@ -53,7 +53,9 @@ eprosima::uxr::agent::TransportKind eprosima::uxr::agent::parser::utils::check_t
     {"tcp4", eprosima::uxr::agent::TransportKind::TCP4},
     {"tcp6", eprosima::uxr::agent::TransportKind::TCP6},
 #ifndef _WIN32
+    {"canfd", eprosima::uxr::agent::TransportKind::CAN},
     {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
+    {"multiserial", eprosima::uxr::agent::TransportKind::MULTISERIAL},
     {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},
 #endif // _WIN32
     {"-h", eprosima::uxr::agent::TransportKind::HELP},

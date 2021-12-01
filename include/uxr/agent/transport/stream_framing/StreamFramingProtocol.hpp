@@ -148,7 +148,7 @@ public:
             uint8_t* buf,
             size_t len,
             uint8_t& remote_addr,
-            int timeout,
+            int& timeout,
             TransportRc& transport_rc);
 
 private:
@@ -193,7 +193,8 @@ private:
      */
     size_t transport_read(
             int& timeout,
-            TransportRc& transport_rc);
+            TransportRc& transport_rc,
+            size_t max_size);
 
     InputState state_;
 

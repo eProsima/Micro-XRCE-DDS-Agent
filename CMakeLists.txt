@@ -28,6 +28,7 @@ option(UAGENT_USE_INTERNAL_GTEST "Enable internal GTest libraries." OFF)
 option(BUILD_SHARED_LIBS "Control shared/static building." ON)
 
 option(UAGENT_USE_SYSTEM_FASTDDS "Force find and use system installed Fast-DDS." OFF)
+option(UAGENT_USE_SYSTEM_FASTCDR "Force find and use system installed Fast-CDR." OFF)
 option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
@@ -37,8 +38,8 @@ option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
 option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
 
-set(UAGENT_P2P_CLIENT_VERSION 2.0.0 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
-set(UAGENT_P2P_CLIENT_TAG develop CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
+set(UAGENT_P2P_CLIENT_VERSION 2.1.0 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG v2.1.0 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -62,13 +63,20 @@ set(UAGENT_CONFIG_SERVER_QUEUE_MAX_SIZE        32000    CACHE STRING "Maximum se
 set(UAGENT_CONFIG_CLIENT_DEAD_TIME             30000    CACHE STRING "Client dead time in milliseconds.")
 set(UAGENT_SERVER_BUFFER_SIZE                  65535    CACHE STRING "Server buffer size.")
 
+# Off-standard features and tweaks
+option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WRITE DATA submessages greater than 64 kB." ON)
+
 ###############################################################################
 # Dependencies
 ###############################################################################
 set(_deps "")
 
-set(_fastcdr_version 1.0.13)
-set(_fastcdr_tag v1.0.13)
+if(UAGENT_USE_SYSTEM_FASTCDR)
+    set(_fastcdr_version 1)
+else()
+    set(_fastcdr_version 1.0.22)
+    set(_fastcdr_tag v1.0.22)
+endif()
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
 if(UAGENT_P2P_PROFILE)
@@ -81,10 +89,10 @@ if(UAGENT_FAST_PROFILE)
     if(UAGENT_USE_SYSTEM_FASTDDS)
         set(_fastdds_version 2)
     else()
-        set(_fastdds_version 2.0.2)
-        set(_fastdds_tag v2.0.2)
-        set(_foonathan_memory_tag c619113) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
-    endif()    
+        set(_fastdds_version 2.4.1)
+        set(_fastdds_tag v2.4.1)
+        set(_foonathan_memory_tag v0.7-1) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
+    endif()
     list(APPEND _deps "fastrtps\;${_fastdds_version}")
 endif()
 
@@ -99,7 +107,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "2.0.0" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "2.1.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -136,26 +144,20 @@ foreach(d ${_deps})
 endforeach()
 
 ###############################################################################
-# Load external CMake Modules.
-###############################################################################
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SANITIZERS_ROOT}/cmake)
-find_package(Sanitizers REQUIRED)
-if(SANITIZE_ADDRESS)
-    message(STATUS "Preloading AddressSanitizer library could be done using \"${ASan_WRAPPER}\" to run your program.")
-endif()
-
-###############################################################################
 # Sources
 ###############################################################################
 # Check platform.
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
         src/cpp/transport/tcp/TCPv4AgentLinux.cpp
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
+        src/cpp/transport/can/CanAgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
+        src/cpp/transport/serial/MultiSerialAgentLinux.cpp
+        src/cpp/transport/serial/MultiTermiosAgentLinux.cpp
         src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
@@ -233,7 +235,6 @@ endif()
 ###############################################################################
 # Library
 add_library(${PROJECT_NAME} ${SRCS})
-add_sanitizers(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION

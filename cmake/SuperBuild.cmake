@@ -19,6 +19,13 @@ unset(_deps)
 enable_language(C)
 enable_language(CXX)
 
+if(ANDROID)
+    set(CROSS_CMAKE_ARGS
+        -DCMAKE_SYSTEM_VERSION:STRING=${CMAKE_SYSTEM_VERSION}
+        -DCMAKE_ANDROID_ARCH_ABI:STRING=${CMAKE_ANDROID_ARCH_ABI}
+        )
+endif()
+
 if(UAGENT_P2P_PROFILE)
     # Micro XRCE-DDS Client.
     unset(microxrcedds_client_DIR CACHE)
@@ -32,7 +39,7 @@ if(UAGENT_P2P_PROFILE)
             PREFIX
                 ${PROJECT_BINARY_DIR}/microxrcedds_client
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/microxrcedds_client-${_microxrcedds_client_version}
+                ${PROJECT_BINARY_DIR}/temp_install
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
@@ -42,39 +49,44 @@ if(UAGENT_P2P_PROFILE)
                 -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                ${CROSS_CMAKE_ARGS}
+                -DUCLIENT_ISOLATED_INSTALL:BOOL=ON
             )
         list(APPEND _deps microxrcedds_client)
     endif()
 endif()
 
 # Fast CDR.
-unset(fastcdr_DIR CACHE)
-find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
-if(NOT fastcdr_FOUND)
-    ExternalProject_Add(fastcdr
-        GIT_REPOSITORY
-            https://github.com/eProsima/Fast-CDR.git
-        GIT_TAG
-            ${_fastcdr_tag}
-        PREFIX
-            ${PROJECT_BINARY_DIR}/fastcdr
-        INSTALL_DIR
-            ${PROJECT_BINARY_DIR}/temp_install/fastcdr-${_fastcdr_version}
-        CMAKE_CACHE_ARGS
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
-            -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-            -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-        UPDATE_COMMAND
-            COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
-            COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
-        TEST_COMMAND
-            COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
-        )
-    list(APPEND _deps fastcdr)
+if(NOT UAGENT_USE_SYSTEM_FASTCDR)
+    unset(fastcdr_DIR CACHE)
+    find_package(fastcdr ${_fastcdr_version} EXACT QUIET)
+    if(NOT fastcdr_FOUND)
+        ExternalProject_Add(fastcdr
+            GIT_REPOSITORY
+                https://github.com/eProsima/Fast-CDR.git
+            GIT_TAG
+                ${_fastcdr_tag}
+            PREFIX
+                ${PROJECT_BINARY_DIR}/fastcdr
+            INSTALL_DIR
+                ${PROJECT_BINARY_DIR}/temp_install/fastcdr-${_fastcdr_version}
+            CMAKE_CACHE_ARGS
+                -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH}
+                -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+                -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+                -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+                -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                ${CROSS_CMAKE_ARGS}
+            UPDATE_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/cpp/CMakeLists.txt <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak
+                COMMAND ${CMAKE_COMMAND} -DSOVERSION_FILE=<SOURCE_DIR>/src/cpp/CMakeLists.txt -P ${PROJECT_SOURCE_DIR}/cmake/Soversion.cmake
+            TEST_COMMAND
+                COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/src/cpp/CMakeLists.txt.bak <SOURCE_DIR>/src/cpp/CMakeLists.txt
+            )
+        list(APPEND _deps fastcdr)
+    endif()
 endif()
 
 if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
@@ -98,6 +110,8 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
                 -DFOONATHAN_MEMORY_BUILD_TOOLS:BOOL=ON
                 -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                ${CROSS_CMAKE_ARGS}
             )
     endif()
 
@@ -119,6 +133,7 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install
                 -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                ${CROSS_CMAKE_ARGS}
                 -DCMAKE_FIND_ROOT_PATH:PATH=${PROJECT_BINARY_DIR}/temp_install
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -159,6 +174,7 @@ if(UAGENT_LOGGER_PROFILE)
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
                 -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
+                ${CROSS_CMAKE_ARGS}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                 -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
@@ -205,29 +221,6 @@ if(UAGENT_BUILD_TESTS)
         set(UAGENT_USE_INTERNAL_GTEST ON)
         list(APPEND _deps googletest)
     endif()
-endif()
-
-# sanitizers.
-unset(Sanitizers_DIR CACHE)
-find_package(Sanitizers QUIET)
-if(NOT Sanitizers_FOUND)
-    ExternalProject_Add(sanitizers
-        GIT_REPOSITORY
-            https://github.com/arsenm/sanitizers-cmake
-        PREFIX
-            ${PROJECT_BINARY_DIR}/sanitizers
-        BUILD_COMMAND
-            ""
-        INSTALL_COMMAND
-            ""
-        CMAKE_ARGS
-            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},3.16.3>:-DCMAKE_POLICY_DEFAULT_CMP0077=OLD> # Disable CMP0077 unset warning
-        CMAKE_CACHE_ARGS
-            -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
-        )
-    ExternalProject_Get_Property(sanitizers SOURCE_DIR)
-    set(SANITIZERS_ROOT ${SOURCE_DIR} CACHE INTERNAL "")
-    list(APPEND _deps sanitizers)
 endif()
 
 # Main project.

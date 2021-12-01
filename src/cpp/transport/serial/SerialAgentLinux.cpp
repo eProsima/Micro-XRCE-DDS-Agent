@@ -41,7 +41,7 @@ ssize_t SerialAgent::write_data(
 {
     size_t rv = 0;
     ssize_t bytes_written = ::write(poll_fd_.fd, buf, len);
-    if ((0 < bytes_written)  && size_t(bytes_written) == len)
+    if (0 < bytes_written)
     {
         rv = size_t(bytes_written);
     }
@@ -60,7 +60,11 @@ ssize_t SerialAgent::read_data(
 {
     ssize_t bytes_read = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
-    if (0 < poll_rv)
+    if(poll_fd_.revents & (POLLERR+POLLHUP))
+    {
+        transport_rc = TransportRc::server_error;;
+    }
+    else if (0 < poll_rv)
     {
         bytes_read = read(poll_fd_.fd, buf, len);
         if (0 > bytes_read)
@@ -81,8 +85,16 @@ bool SerialAgent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    uint8_t remote_addr;
-    ssize_t bytes_read = framing_io_.read_framed_msg(buffer_,sizeof (buffer_), remote_addr, timeout, transport_rc);
+    uint8_t remote_addr = 0x00;
+    ssize_t bytes_read = 0;
+
+    do
+    {
+        bytes_read = framing_io_.read_framed_msg(
+            buffer_, SERVER_BUFFER_SIZE, remote_addr, timeout, transport_rc);
+    }
+    while ((0 == bytes_read) && (0 < timeout));
+
     if (0 < bytes_read)
     {
         input_packet.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));

@@ -21,16 +21,17 @@ namespace eprosima {
 namespace uxr {
 
 TermiosAgent::TermiosAgent(
-        char const * dev,
+        char const* dev,
         int open_flags,
-        termios const & termios_attrs,
+        termios const& termios_attrs,
         uint8_t addr,
         Middleware::Kind middleware_kind)
     : SerialAgent(addr, middleware_kind)
     , dev_{dev}
     , open_flags_{open_flags}
     , termios_attrs_{termios_attrs}
-{}
+{
+}
 
 TermiosAgent::~TermiosAgent()
 {
@@ -50,6 +51,43 @@ TermiosAgent::~TermiosAgent()
 bool TermiosAgent::init()
 {
     bool rv = false;
+
+    // Check if serial port exist
+    std::chrono::steady_clock::time_point begin;
+    int serial_exist = 0;
+    int error_count = 0;
+
+    do
+    {
+        if (serial_exist != 0)
+        {
+            std::this_thread::sleep_for((std::chrono::milliseconds) 10);
+
+            if (EACCES == errno || EBUSY == errno)
+            {
+                // Increase error count
+                error_count++;
+
+                if (error_count > 10)
+                {
+                    // Resource busy or superuser privileges required
+                    break;
+                }
+            }
+            else if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
+            {
+                begin = std::chrono::steady_clock::now();
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_YELLOW("Serial port not found."),
+                    "device: {}, error {}, waiting for connection...",
+                    dev_, errno);
+            }
+        }
+
+        serial_exist = access(dev_.c_str(), W_OK );
+    }
+    while (serial_exist != 0);
+
     poll_fd_.fd = open(dev_.c_str(), open_flags_);
     if (0 < poll_fd_.fd)
     {
@@ -64,13 +102,19 @@ bool TermiosAgent::init()
             new_attrs.c_cc[VMIN] = termios_attrs_.c_cc[VMIN];
             new_attrs.c_cc[VTIME] = termios_attrs_.c_cc[VTIME];
 
+#if _HAVE_STRUCT_TERMIOS_C_ISPEED
             cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
+#endif
+#if _HAVE_STRUCT_TERMIOS_C_OSPEED
             cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
+#endif
 
             if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
             {
                 rv = true;
                 poll_fd_.events = POLLIN;
+
+                tcflush(poll_fd_.fd, TCIOFLUSH);
 
                 UXR_AGENT_LOG_INFO(
                     UXR_DECORATE_GREEN("running..."),
@@ -127,6 +171,8 @@ bool TermiosAgent::fini()
             "fd: {}, errno: {}",
             poll_fd_.fd, errno);
     }
+
+    poll_fd_.fd = -1;
     return rv;
 }
 

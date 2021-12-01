@@ -12,68 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_
-#define UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_
+#ifndef UXR_AGENT_TRANSPORT_CAN_CANAGENTLINUX_HPP_
+#define UXR_AGENT_TRANSPORT_CAN_CANAGENTLINUX_HPP_
 
 #include <uxr/agent/transport/Server.hpp>
-#include <uxr/agent/transport/endpoint/SerialEndPoint.hpp>
+#include <uxr/agent/transport/endpoint/CanEndPoint.hpp>
 #include <uxr/agent/transport/stream_framing/StreamFramingProtocol.hpp>
-
-#include <cstdint>
-#include <cstddef>
 #include <sys/poll.h>
+
+#define DEFAULT_CAN_ID "0x00000001"
 
 namespace eprosima {
 namespace uxr {
 
-class SerialAgent : public Server<SerialEndPoint>
+class CanAgent : public Server<CanEndPoint>
 {
 public:
-    SerialAgent(
-            uint8_t addr,
+    CanAgent(
+            char const * dev,
+            uint32_t can_id,
             Middleware::Kind middleware_kind);
 
-#ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return false; }
-#endif
+    ~CanAgent();
 
-#ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
-#endif
+    #ifdef UAGENT_DISCOVERY_PROFILE
+        bool has_discovery() final { return false; }
+    #endif
+
+    #ifdef UAGENT_P2P_PROFILE
+        bool has_p2p() final { return false; }
+    #endif
 
 private:
-    virtual bool init() = 0;
-
-    virtual bool fini() = 0;
+    bool init() final;
+    bool fini() final;
+    bool handle_error(
+            TransportRc transport_rc) final;
 
     bool recv_message(
-            InputPacket<SerialEndPoint>& input_packet,
+            InputPacket<CanEndPoint>& input_packet,
             int timeout,
             TransportRc& transport_rc) final;
 
     bool send_message(
-            OutputPacket<SerialEndPoint> output_packet,
+            OutputPacket<CanEndPoint> output_packet,
             TransportRc& transport_rc) final;
 
-    ssize_t write_data(
-            uint8_t* buf,
-            size_t len,
-            TransportRc& transport_rc);
-
-    ssize_t read_data(
-            uint8_t* buf,
-            size_t len,
-            int timeout,
-            TransportRc& transport_rc);
-
-protected:
-    const uint8_t addr_;
+private:
+    const std::string dev_;
+    const uint32_t can_id_;
     struct pollfd poll_fd_;
-    uint8_t buffer_[SERVER_BUFFER_SIZE];
-    FramingIO framing_io_;
 };
 
 } // namespace uxr
 } // namespace eprosima
 
-#endif // UXR_AGENT_TRANSPORT_SERIAL_SERIALAGENTLINUX_HPP_
+#endif // UXR_AGENT_TRANSPORT_CAN_CANAGENTLINUX_HPP_

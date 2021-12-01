@@ -27,8 +27,6 @@ set(SRCS
 
 add_executable(test-root ${SRCS})
 
-add_sanitizers(test-root)
-
 add_gtest(test-root
     SOURCES
         ${SRCS}

@@ -26,10 +26,10 @@ namespace eprosima {
 namespace uxr {
 
 template<class T>
-class FCFSScheduler : public Scheduler<T>
+class PacketScheduler : public Scheduler<T>
 {
 public:
-    FCFSScheduler(
+    PacketScheduler(
             size_t max_size)
         : deque_()
         , mtx_()
@@ -37,6 +37,8 @@ public:
         , running_cond_(false)
         , max_size_{max_size}
     {}
+
+    void set_priority_size(uint8_t priority, size_t size);
 
     void init() final;
 
@@ -47,13 +49,17 @@ public:
             uint8_t priority) final;
 
     void push_front(
-            T&& element);
+            T&& element,
+            uint8_t priority);
 
     bool pop(
             T& element) final;
 
 private:
-    std::deque<T> deque_;
+    bool empty();
+
+    std::map<uint8_t, std::deque<T>> deque_;
+    std::map<uint8_t, size_t> sizes_;
     std::mutex mtx_;
     std::condition_variable cond_var_;
     bool running_cond_;
@@ -61,14 +67,22 @@ private:
 };
 
 template<class T>
-inline void FCFSScheduler<T>::init()
+inline void PacketScheduler<T>::set_priority_size(uint8_t priority, size_t size)
 {
     std::lock_guard<std::mutex> lock(mtx_);
+    sizes_[priority] = size;
+}
+
+template<class T>
+inline void PacketScheduler<T>::init()
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+    sizes_[0] = max_size_;
     running_cond_ = true;
 }
 
 template<class T>
-inline void FCFSScheduler<T>::deinit()
+inline void PacketScheduler<T>::deinit()
 {
     std::lock_guard<std::mutex> lock(mtx_);
     running_cond_ = false;
@@ -76,39 +90,61 @@ inline void FCFSScheduler<T>::deinit()
 }
 
 template<class T>
-inline void FCFSScheduler<T>::push(
+inline void PacketScheduler<T>::push(
         T&& element,
         uint8_t priority)
 {
-    (void) priority;
     std::lock_guard<std::mutex> lock(mtx_);
-    if (max_size_ <= deque_.size())
+    if (sizes_[priority] <= deque_[priority].size())
     {
-        deque_.pop_front();
+        deque_[priority].pop_front();
     }
-    deque_.push_back(std::move(element));
+    deque_[priority].push_back(std::move(element));
     cond_var_.notify_one();
 }
 
 template<class T>
-inline void FCFSScheduler<T>::push_front(
-        T&& element)
+inline void PacketScheduler<T>::push_front(
+        T&& element,
+        uint8_t priority)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    deque_.push_front(std::forward<T>(element));
+    deque_[priority].push_front(std::forward<T>(element));
 }
 
 template<class T>
-inline bool FCFSScheduler<T>::pop(
+inline bool PacketScheduler<T>::empty()
+{
+    for (auto& deque : deque_) {
+        if (!deque.second.empty())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<class T>
+inline bool PacketScheduler<T>::pop(
         T& element)
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
-    cond_var_.wait(lock, [this] { return !(deque_.empty() && running_cond_); });
+    cond_var_.wait(lock, [this] { return !(empty() && running_cond_); });
     if (running_cond_)
     {
-        element = std::move(deque_.front());
-        deque_.pop_front();
+        uint8_t available_priority;
+
+        for(auto iter = deque_.rbegin(); iter != deque_.rend(); ++iter){
+            if(iter->second.size() > 0){
+                available_priority = iter->first;
+                break;
+            }
+        }
+
+        element = std::move(deque_[available_priority].front());
+        deque_[available_priority].pop_front();
         rv = true;
         cond_var_.notify_one();
     }

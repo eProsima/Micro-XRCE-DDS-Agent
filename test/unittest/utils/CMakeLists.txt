@@ -22,8 +22,6 @@ set(SRCS
 
 add_executable(test-token-bucket ${SRCS})
 
-add_sanitizers(test-token-bucket)
-
 add_gtest(test-token-bucket
     SOURCES
         ${SRCS}

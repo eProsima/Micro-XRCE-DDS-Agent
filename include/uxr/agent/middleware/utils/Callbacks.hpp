@@ -158,12 +158,12 @@ public:
 #endif // UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
             case Middleware::Kind::CED:
+#endif // UAGENT_CED_PROFILE
             case Middleware::Kind::NONE:
             {
                 // Callbacks not implemented
                 break;
             }
-#endif // UAGENT_CED_PROFILE
         }
     }
 
@@ -198,12 +198,12 @@ public:
 #endif // UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
             case Middleware::Kind::CED:
+#endif // UAGENT_CED_PROFILE
             case Middleware::Kind::NONE:
             {
                 // Callbacks not implemented
                 break;
             }
-#endif // UAGENT_CED_PROFILE
         }
     }
 

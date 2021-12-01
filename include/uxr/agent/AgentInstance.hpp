@@ -81,6 +81,10 @@ public:
      */
     UXR_AGENT_EXPORT void run();
 
+#ifndef _WIN32
+    UXR_AGENT_EXPORT void stop();
+#endif
+
     /**
      * @brief Sets a callback function for a specific create/delete middleware entity operation.
      *        Note that not some middlewares might not implement every defined operation, or even
@@ -99,9 +103,7 @@ public:
 
 private:
     std::thread agent_thread_;
-#ifndef _WIN32
-    sigset_t signals_;
-#endif  // _WIN32
+    std::condition_variable exit_signal;
     middleware::CallbackFactory& callback_factory_;
 };
 } // uxr

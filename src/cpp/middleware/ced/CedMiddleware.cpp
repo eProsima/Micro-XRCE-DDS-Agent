@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
+#include <uxr/agent/utils/Conversion.hpp>
 
 namespace eprosima {
 namespace uxr {
@@ -92,6 +93,13 @@ bool CedMiddleware::create_participant_by_xml(
     return create_participant_by_ref(participant_id, domain_id, xml);
 }
 
+bool CedMiddleware::create_participant_by_bin(
+            uint16_t participant_id,
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+{
+    return create_participant_by_ref(participant_id, (int16_t) participant_xrce.domain_id(), std::string());
+}
+
 static
 std::shared_ptr<CedTopic> create_topic(
         std::shared_ptr<CedParticipant>& participant,
@@ -142,6 +150,14 @@ bool CedMiddleware::create_topic_by_xml(
     return create_topic_by_ref(topic_id, participant_id, xml);
 }
 
+bool CedMiddleware::create_topic_by_bin(
+        uint16_t topic_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Topic_Binary& topic_xrce)
+{
+    return create_topic_by_ref(topic_id, participant_id, topic_xrce.topic_name());
+}
+
 bool CedMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
@@ -161,6 +177,14 @@ bool CedMiddleware::create_publisher_by_xml(
     return rv;
 }
 
+bool CedMiddleware::create_publisher_by_bin(
+        uint16_t publisher_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Publisher_Binary& /* publisher_xrce */)
+{
+    return create_publisher_by_xml(publisher_id, participant_id, std::string());
+}
+
 bool CedMiddleware::create_subscriber_by_xml(
         uint16_t subscirber_id,
         uint16_t participant_id,
@@ -178,6 +202,14 @@ bool CedMiddleware::create_subscriber_by_xml(
         }
     }
     return rv;
+}
+
+bool CedMiddleware::create_subscriber_by_bin(
+        uint16_t subscriber_id,
+        uint16_t participant_id,
+        const dds::xrce::OBJK_Subscriber_Binary& /* subscriber_xrce */)
+{
+    return create_subscriber_by_xml(subscriber_id, participant_id, std::string());
 }
 
 bool CedMiddleware::create_datawriter_by_ref(
@@ -215,6 +247,22 @@ bool CedMiddleware::create_datawriter_by_xml(
     return create_datawriter_by_ref(datawriter_id, publisher_id, xml);
 }
 
+bool CedMiddleware::create_datawriter_by_bin(
+        uint16_t datawriter_id,
+        uint16_t publisher_id,
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce)
+{
+    bool rv = false;
+    auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datawriter_xrce.topic_id()));
+
+     if (topics_.end() != it)
+    {
+        rv = create_datawriter_by_ref(datawriter_id, publisher_id, it->second->get_name());
+    }
+
+    return rv;
+}
+
 bool CedMiddleware::create_datareader_by_ref(
         uint16_t datareader_id,
         uint16_t subscriber_id,
@@ -247,6 +295,22 @@ bool CedMiddleware::create_datareader_by_xml(
         const std::string& xml)
 {
     return create_datareader_by_ref(datareader_id, subscriber_id, xml);
+}
+
+bool CedMiddleware::create_datareader_by_bin(
+        uint16_t datareader_id,
+        uint16_t subscriber_id,
+        const dds::xrce::OBJK_DataReader_Binary& datareader_xrce)
+{
+    bool rv = false;
+    auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datareader_xrce.topic_id()));
+
+     if (topics_.end() != it)
+    {
+        rv = create_datareader_by_ref(datareader_id, subscriber_id, it->second->get_name());
+    }
+
+    return rv;
 }
 
 /**********************************************************************************************************************
@@ -339,6 +403,14 @@ bool CedMiddleware::matched_participant_from_xml(
     return matched_participant_from_ref(participant_id, domain_id, xml);
 }
 
+bool CedMiddleware::matched_participant_from_bin(
+        uint16_t participant_id,
+        int16_t domain_id,
+        const dds::xrce::OBJK_DomainParticipant_Binary& /* participant_xrce */) const
+{
+    return matched_participant_from_ref(participant_id, domain_id, std::string());
+}
+
 bool CedMiddleware::matched_topic_from_ref(
         uint16_t topic_id,
         const std::string& ref) const
@@ -357,6 +429,13 @@ bool CedMiddleware::matched_topic_from_xml(
         const std::string& xml) const
 {
     return matched_topic_from_ref(topic_id, xml);
+}
+
+bool CedMiddleware::matched_topic_from_bin(
+            uint16_t topic_id,
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) const
+{
+    return matched_topic_from_ref(topic_id, topic_xrce.topic_name());
 }
 
 bool CedMiddleware::matched_datawriter_from_ref(
@@ -379,6 +458,21 @@ bool CedMiddleware::matched_datawriter_from_xml(
     return matched_datawriter_from_ref(datawriter_id, xml);
 }
 
+bool CedMiddleware::matched_datawriter_from_bin(
+            uint16_t datawriter_id,
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const
+{
+    bool rv = false;
+    auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datawriter_xrce.topic_id()));
+
+    if (topics_.end() != it)
+    {
+        rv = matched_datawriter_from_ref(datawriter_id, it->second->get_name());
+    }
+
+    return rv;
+}
+
 bool CedMiddleware::matched_datareader_from_ref(
         uint16_t datareader_id,
         const std::string& ref) const
@@ -397,6 +491,21 @@ bool CedMiddleware::matched_datareader_from_xml(
         const std::string& xml) const
 {
     return matched_datareader_from_ref(datareader_id, xml);
+}
+
+bool CedMiddleware::matched_datareader_from_bin(
+            uint16_t datareader_id,
+            const dds::xrce::OBJK_DataReader_Binary&  datareader_xrce) const
+{
+    bool rv = false;
+    auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datareader_xrce.topic_id()));
+
+    if (topics_.end() != it)
+    {
+        rv = matched_datareader_from_ref(datareader_id, it->second->get_name());
+    }
+
+    return rv;
 }
 
 } // namespace uxr
