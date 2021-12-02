@@ -32,7 +32,7 @@ bool eprosima::uxr::agent::parser::utils::usage(
     std::stringstream ss;
     ss << "Usage: '" << executable_name_str << " <udp4|udp6|tcp4|tpc6";
 #ifndef _WIN32
-    ss << "|serial|multiserial|pseudoterminal";
+    ss << "|canfd|serial|multiserial|pseudoterminal";
 #endif // _WIN32
     ss << "> <<args>>'" << std::endl;
     if (no_help)
