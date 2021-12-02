@@ -88,15 +88,7 @@ bool CanAgent::init()
                     dev_, poll_fd_.fd);
 
 
-                    // TODO: add filter for micro-ROS msgs??
-                    /*
-                    struct can_filter rfilter;
-
-                    rfilter.can_id   = 22;
-                    rfilter.can_mask = CAN_EFF_MASK;
-
-                    setsockopt(poll_fd_.fd, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
-                    */
+                    // TODO: add filter for micro-ROS devices
             }
             else
             {
