@@ -162,8 +162,9 @@ bool CanAgent::recv_message(
         {
             // Omit EFF, RTR, ERR flags (Assume EFF on CAN FD)
             uint32_t can_id = frame.can_id & CAN_ERR_MASK;
+            size_t len = frame.data[0];
 
-            input_packet.message.reset(new InputMessage(frame.data, size_t(frame.len)));
+            input_packet.message.reset(new InputMessage(&frame.data[1], len));
             input_packet.source = CanEndPoint(can_id);
             rv = true;
 
@@ -200,7 +201,7 @@ bool CanAgent::send_message(
     struct pollfd poll_fd_write_;
     size_t packet_len = output_packet.message->get_len();
 
-    if (packet_len > CANFD_MTU)
+    if (packet_len > (CANFD_MTU-1))
     {
         // Overflow MTU
         return 0;
@@ -214,7 +215,9 @@ bool CanAgent::send_message(
     {
         frame.can_id = output_packet.destination.get_can_id() | CAN_EFF_FLAG;
         frame.len = (uint8_t) packet_len;
-        memcpy(&frame.data[0], output_packet.message->get_buf(), packet_len);
+        frame.data[0] = (uint8_t) packet_len;
+
+        memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
 
         if (0 < ::write(poll_fd_.fd, &frame, static_cast<size_t>(CANFD_MTU)))
         {
