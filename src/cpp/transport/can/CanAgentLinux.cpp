@@ -162,7 +162,13 @@ bool CanAgent::recv_message(
         {
             // Omit EFF, RTR, ERR flags (Assume EFF on CAN FD)
             uint32_t can_id = frame.can_id & CAN_ERR_MASK;
-            size_t len = frame.data[0];
+            size_t len = frame.data[0];   // XRCE payload lenght
+
+            if (len > (CANFD_MTU - 1))
+            {
+                // Overflow MTU (63 bytes)
+                return false;
+            }
 
             input_packet.message.reset(new InputMessage(&frame.data[1], len));
             input_packet.source = CanEndPoint(can_id);
@@ -171,7 +177,6 @@ bool CanAgent::recv_message(
             uint32_t raw_client_key;
             if (Server<CanEndPoint>::get_client_key(input_packet.source, raw_client_key))
             {
-                // TODO: add can_id to messages?
                 UXR_AGENT_LOG_MESSAGE(
                     UXR_DECORATE_YELLOW("[==>> CAN <<==]"),
                     raw_client_key,
@@ -203,7 +208,7 @@ bool CanAgent::send_message(
 
     if (packet_len > (CANFD_MTU-1))
     {
-        // Overflow MTU
+        // Overflow MTU (63 bytes)
         return 0;
     }
 
@@ -214,8 +219,8 @@ bool CanAgent::send_message(
     if (0 < poll_rv)
     {
         frame.can_id = output_packet.destination.get_can_id() | CAN_EFF_FLAG;
-        frame.len = (uint8_t) packet_len;
-        frame.data[0] = (uint8_t) packet_len;
+        frame.data[0] = (uint8_t) packet_len;   // XRCE payload lenght
+        frame.len = (uint8_t) packet_len;       // CAN frame DLC
 
         memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
 
