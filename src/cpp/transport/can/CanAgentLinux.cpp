@@ -220,7 +220,7 @@ bool CanAgent::send_message(
     {
         frame.can_id = output_packet.destination.get_can_id() | CAN_EFF_FLAG;
         frame.data[0] = (uint8_t) packet_len;   // XRCE payload lenght
-        frame.len = (uint8_t) packet_len;       // CAN frame DLC
+        frame.len = (uint8_t) (packet_len+1);   // CAN frame DLC
 
         memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
 
