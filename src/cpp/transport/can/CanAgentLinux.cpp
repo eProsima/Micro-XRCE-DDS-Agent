@@ -28,13 +28,14 @@ namespace eprosima {
 namespace uxr {
 
 CanAgent::CanAgent(
-        char const * dev,
+        char const* dev,
         uint32_t can_id,
         Middleware::Kind middleware_kind)
     : Server<CanEndPoint>{middleware_kind}
     , dev_{dev}
     , can_id_{can_id}
-{}
+{
+}
 
 CanAgent::~CanAgent()
 {
@@ -60,7 +61,7 @@ bool CanAgent::init()
 
     if (-1 != poll_fd_.fd)
     {
-        struct sockaddr_can address{};
+        struct sockaddr_can address {};
         struct ifreq ifr;
 
         // Get interface index by name
@@ -72,12 +73,12 @@ bool CanAgent::init()
         address.can_ifindex = ifr.ifr_ifindex;
 
         if (-1 != bind(poll_fd_.fd,
-                        reinterpret_cast<struct sockaddr*>(&address),
-                        sizeof(address)))
+                reinterpret_cast<struct sockaddr*>(&address),
+                sizeof(address)))
         {
             // Enable CAN FD
             if (-1 != setsockopt(poll_fd_.fd, SOL_CAN_RAW, CAN_RAW_FD_FRAMES,
-                &enable_canfd, sizeof(enable_canfd)))
+                    &enable_canfd, sizeof(enable_canfd)))
             {
                 poll_fd_.events = POLLIN;
                 rv = true;
@@ -88,7 +89,7 @@ bool CanAgent::init()
                     dev_, poll_fd_.fd);
 
 
-                    // TODO: add filter for micro-ROS devices
+                // TODO: add filter for micro-ROS devices
             }
             else
             {
@@ -144,7 +145,6 @@ bool CanAgent::fini()
     poll_fd_.fd = -1;
     return rv;
 }
-
 
 bool CanAgent::recv_message(
         InputPacket<CanEndPoint>& input_packet,
@@ -206,7 +206,7 @@ bool CanAgent::send_message(
     struct pollfd poll_fd_write_;
     size_t packet_len = output_packet.message->get_len();
 
-    if (packet_len > (CANFD_MTU-1))
+    if (packet_len > (CANFD_MTU - 1))
     {
         // Overflow MTU (63 bytes)
         return 0;
@@ -220,7 +220,7 @@ bool CanAgent::send_message(
     {
         frame.can_id = output_packet.destination.get_can_id() | CAN_EFF_FLAG;
         frame.data[0] = (uint8_t) packet_len;   // XRCE payload lenght
-        frame.len = (uint8_t) (packet_len+1);   // CAN frame DLC
+        frame.len = (uint8_t) (packet_len + 1);   // CAN frame DLC
 
         memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
 
