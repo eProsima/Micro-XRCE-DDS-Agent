@@ -158,7 +158,7 @@ bool CanAgent::recv_message(
 
     if (0 < poll_rv)
     {
-        if (0 < read(poll_fd_.fd, &frame, sizeof(struct can_frame)))
+        if (0 < read(poll_fd_.fd, &frame, sizeof(struct canfd_frame)))
         {
             // Omit EFF, RTR, ERR flags (Assume EFF on CAN FD)
             uint32_t can_id = frame.can_id & CAN_ERR_MASK;
@@ -224,7 +224,7 @@ bool CanAgent::send_message(
 
         memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
 
-        if (0 < ::write(poll_fd_.fd, &frame, sizeof(struct can_frame)))
+        if (0 < ::write(poll_fd_.fd, &frame, sizeof(struct canfd_frame)))
         {
             rv = true;
 
