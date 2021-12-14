@@ -28,13 +28,14 @@ namespace eprosima {
 namespace uxr {
 
 CanAgent::CanAgent(
-        char const * dev,
+        char const* dev,
         uint32_t can_id,
         Middleware::Kind middleware_kind)
     : Server<CanEndPoint>{middleware_kind}
     , dev_{dev}
     , can_id_{can_id}
-{}
+{
+}
 
 CanAgent::~CanAgent()
 {
@@ -60,7 +61,7 @@ bool CanAgent::init()
 
     if (-1 != poll_fd_.fd)
     {
-        struct sockaddr_can address{};
+        struct sockaddr_can address {};
         struct ifreq ifr;
 
         // Get interface index by name
@@ -72,12 +73,12 @@ bool CanAgent::init()
         address.can_ifindex = ifr.ifr_ifindex;
 
         if (-1 != bind(poll_fd_.fd,
-                        reinterpret_cast<struct sockaddr*>(&address),
-                        sizeof(address)))
+                reinterpret_cast<struct sockaddr*>(&address),
+                sizeof(address)))
         {
             // Enable CAN FD
             if (-1 != setsockopt(poll_fd_.fd, SOL_CAN_RAW, CAN_RAW_FD_FRAMES,
-                &enable_canfd, sizeof(enable_canfd)))
+                    &enable_canfd, sizeof(enable_canfd)))
             {
                 poll_fd_.events = POLLIN;
                 rv = true;
@@ -88,7 +89,7 @@ bool CanAgent::init()
                     dev_, poll_fd_.fd);
 
 
-                    // TODO: add filter for micro-ROS devices
+                // TODO: add filter for micro-ROS devices
             }
             else
             {
@@ -145,7 +146,6 @@ bool CanAgent::fini()
     return rv;
 }
 
-
 bool CanAgent::recv_message(
         InputPacket<CanEndPoint>& input_packet,
         int timeout,
@@ -158,19 +158,25 @@ bool CanAgent::recv_message(
 
     if (0 < poll_rv)
     {
-        if (0 < read(poll_fd_.fd, &frame, static_cast<size_t>(CANFD_MTU)))
+        if (0 < read(poll_fd_.fd, &frame, sizeof(struct canfd_frame)))
         {
             // Omit EFF, RTR, ERR flags (Assume EFF on CAN FD)
             uint32_t can_id = frame.can_id & CAN_ERR_MASK;
+            size_t len = frame.data[0];   // XRCE payload lenght
 
-            input_packet.message.reset(new InputMessage(frame.data, size_t(frame.len)));
+            if (len > (CANFD_MTU - 1))
+            {
+                // Overflow MTU (63 bytes)
+                return false;
+            }
+
+            input_packet.message.reset(new InputMessage(&frame.data[1], len));
             input_packet.source = CanEndPoint(can_id);
             rv = true;
 
             uint32_t raw_client_key;
             if (Server<CanEndPoint>::get_client_key(input_packet.source, raw_client_key))
             {
-                // TODO: add can_id to messages?
                 UXR_AGENT_LOG_MESSAGE(
                     UXR_DECORATE_YELLOW("[==>> CAN <<==]"),
                     raw_client_key,
@@ -200,9 +206,9 @@ bool CanAgent::send_message(
     struct pollfd poll_fd_write_;
     size_t packet_len = output_packet.message->get_len();
 
-    if (packet_len > CANFD_MTU)
+    if (packet_len > (CANFD_MTU - 1))
     {
-        // Overflow MTU
+        // Overflow MTU (63 bytes)
         return 0;
     }
 
@@ -213,10 +219,12 @@ bool CanAgent::send_message(
     if (0 < poll_rv)
     {
         frame.can_id = output_packet.destination.get_can_id() | CAN_EFF_FLAG;
-        frame.len = (uint8_t) packet_len;
-        memcpy(&frame.data[0], output_packet.message->get_buf(), packet_len);
+        frame.data[0] = (uint8_t) packet_len;   // XRCE payload lenght
+        frame.len = (uint8_t) (packet_len + 1);   // CAN frame DLC
 
-        if (0 < ::write(poll_fd_.fd, &frame, static_cast<size_t>(CANFD_MTU)))
+        memcpy(&frame.data[1], output_packet.message->get_buf(), packet_len);
+
+        if (0 < ::write(poll_fd_.fd, &frame, sizeof(struct canfd_frame)))
         {
             rv = true;
 
