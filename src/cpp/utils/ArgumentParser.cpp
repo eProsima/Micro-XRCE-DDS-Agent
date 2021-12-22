@@ -53,7 +53,9 @@ eprosima::uxr::agent::TransportKind eprosima::uxr::agent::parser::utils::check_t
     {"tcp4", eprosima::uxr::agent::TransportKind::TCP4},
     {"tcp6", eprosima::uxr::agent::TransportKind::TCP6},
 #ifndef _WIN32
+#ifndef __APPLE__
     {"canfd", eprosima::uxr::agent::TransportKind::CAN},
+#endif // __APPLE__
     {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
     {"multiserial", eprosima::uxr::agent::TransportKind::MULTISERIAL},
     {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},

@@ -149,7 +149,7 @@ speed_t getBaudRate(const char* baudrate_str)
     {
         rv = B4000000;
     }
-#endif
+#endif // __APPLE__
     else
     {
         speed_t custom_baud_rate = (speed_t)atoi(baudrate_str);

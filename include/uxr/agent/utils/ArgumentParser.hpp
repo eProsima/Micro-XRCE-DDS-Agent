@@ -33,7 +33,9 @@
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
+#ifndef __APPLE__
 #include <uxr/agent/transport/can/CanAgentLinux.hpp>
+#endif // __APPLE__
 #include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/MultiTermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
@@ -61,7 +63,9 @@ enum class TransportKind
     TCP4,
     TCP6,
 #ifndef _WIN32
+#ifndef __APPLE__
     CAN,
+#endif // __APPLE__
     SERIAL,
     MULTISERIAL,
     PSEUDOTERMINAL,
@@ -867,7 +871,7 @@ private:
     Argument<std::string> file_;
 };
 
-
+#ifndef __APPLE__
 /*************************************************************************************************
  * Specific arguments for CAN transports
  *************************************************************************************************/
@@ -919,6 +923,7 @@ private:
     Argument<std::string> dev_;
     Argument<std::string> can_id_;
 };
+#endif // __APPLE__
 #endif // _WIN32
 
 /*************************************************************************************************
@@ -937,7 +942,9 @@ public:
         , common_args_()
         , ip_args_()
 #ifndef _WIN32
+#ifndef __APPLE__
         , can_args_()
+#endif // __APPLE__
         , serial_args_()
         , multiserial_args_()
         , pseudoterminal_args_()
@@ -971,11 +978,13 @@ public:
                 break;
             }
 #ifndef _WIN32
+#ifndef __APPLE__
             case TransportKind::CAN:
             {
                 result &= can_args_.parse(argc_, argv_);
                 break;
             }
+#endif // __APPLE__
             case TransportKind::SERIAL:
             {
                 result &= serial_args_.parse(argc_, argv_);
@@ -1081,8 +1090,10 @@ public:
         ss << "  * SERIAL (serial, multiserial, pseudoterminal)" << std::endl;
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
+#ifndef __APPLE__
         ss << "  * CAN FD (canfd)" << std::endl;
         ss << can_args_.get_help();
+#endif // __APPLE__
 #endif // _WIN32
         ss << std::endl;
         // TODO(@jamoralp): Once documentation is updated with proper CLI section, add here an hyperlink to that section
@@ -1095,7 +1106,9 @@ private:
     CommonArgs<AgentType> common_args_;
     IPvXArgs<AgentType> ip_args_;
 #ifndef _WIN32
+#ifndef __APPLE__
     CanArgs<AgentType> can_args_;
+#endif // __APPLE__
     SerialArgs<AgentType> serial_args_;
     MultiSerialArgs<AgentType> multiserial_args_;
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
