@@ -97,8 +97,8 @@ if(UAGENT_FAST_PROFILE)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
-    set(_spdlog_version 1.4.2)
-    set(_spdlog_tag v1.4.2)
+    set(_spdlog_version 1.9.2)
+    set(_spdlog_tag v1.9.2)
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
 
@@ -154,6 +154,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
         src/cpp/transport/tcp/TCPv4AgentLinux.cpp
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
         src/cpp/transport/can/CanAgentLinux.cpp
+        src/cpp/transport/serial/SerialAgentLinux.cpp
+        src/cpp/transport/serial/TermiosAgentLinux.cpp
+        src/cpp/transport/serial/MultiSerialAgentLinux.cpp
+        src/cpp/transport/serial/MultiTermiosAgentLinux.cpp
+        src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
+        $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
+        $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
+        )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(TRANSPORT_SRCS
+        src/cpp/transport/udp/UDPv4AgentLinux.cpp
+        src/cpp/transport/udp/UDPv6AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv4AgentLinux.cpp
+        src/cpp/transport/tcp/TCPv6AgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
         src/cpp/transport/serial/MultiSerialAgentLinux.cpp

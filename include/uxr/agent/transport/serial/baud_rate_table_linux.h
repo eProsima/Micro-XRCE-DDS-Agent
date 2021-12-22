@@ -100,6 +100,7 @@ speed_t getBaudRate(const char* baudrate_str)
     {
         rv = B230400;
     }
+#ifndef __APPLE__
     else if (0 == strcmp(baudrate_str, "460800"))
     {
         rv = B460800;
@@ -148,6 +149,7 @@ speed_t getBaudRate(const char* baudrate_str)
     {
         rv = B4000000;
     }
+#endif
     else
     {
         speed_t custom_baud_rate = (speed_t)atoi(baudrate_str);
