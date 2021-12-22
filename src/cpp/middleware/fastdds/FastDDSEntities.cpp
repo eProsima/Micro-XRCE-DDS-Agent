@@ -360,6 +360,12 @@ static void set_qos_from_xrce_object(
  **********************************************************************************************************************/
 FastDDSParticipant::~FastDDSParticipant()
 {
+    if (ptr_->has_active_entities())
+    {
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // ptr_->delete_contained_entities();
+    }
+    
     factory_->delete_participant(ptr_);
 }
 
@@ -489,6 +495,30 @@ fastdds::dds::Publisher* FastDDSParticipant::create_publisher(
 ReturnCode_t FastDDSParticipant::delete_publisher(
         fastdds::dds::Publisher* publisher)
 {
+    if (publisher->has_datawriters())
+    {
+        ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
+
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // ret = publisher->delete_contained_entities();
+
+        //if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        {
+            std::vector<eprosima::fastdds::dds::DataWriter*> writers;
+            publisher->get_datawriters(writers);
+
+            for (auto datawriter : writers)
+            {
+                ret = publisher->delete_datawriter(datawriter);
+
+                if (ReturnCode_t::RETCODE_OK != ret)
+                {
+                    return ret;
+                }
+            }
+        }       
+    }
+
     return ptr_->delete_publisher(publisher);
 }
 
@@ -503,6 +533,30 @@ fastdds::dds::Subscriber* FastDDSParticipant::create_subscriber(
 ReturnCode_t FastDDSParticipant::delete_subscriber(
         fastdds::dds::Subscriber* subscriber)
 {
+    if (subscriber->has_datareaders())
+    {
+        ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
+
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // ret = subscriber->delete_contained_entities();
+
+        // if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        {
+            std::vector<eprosima::fastdds::dds::DataReader*> readers;
+            subscriber->get_datareaders(readers);
+
+            for (auto datareader : readers)
+            {
+                ret = subscriber->delete_datareader(datareader);
+
+                if (ReturnCode_t::RETCODE_OK != ret)
+                {
+                    return ret;
+                }
+            }
+        }       
+    }
+
     return ptr_->delete_subscriber(subscriber);
 }
 
