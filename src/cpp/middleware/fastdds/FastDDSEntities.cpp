@@ -362,9 +362,9 @@ FastDDSParticipant::~FastDDSParticipant()
 {
     if (ptr_)
     {
-        if (ptr_->has_active_entities())
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // if (ptr_->has_active_entities())
         {
-            // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
             // ptr_->delete_contained_entities();
         }
 
