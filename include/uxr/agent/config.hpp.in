@@ -27,6 +27,7 @@ namespace uxr {
 #ifdef UAGENT_CED_PROFILE
 #cmakedefine UAGENT_P2P_PROFILE
 #endif
+#cmakedefine UAGENT_SOCKETCAN_PROFILE
 #cmakedefine UAGENT_LOGGER_PROFILE
 
 const uint16_t DISCOVERY_PORT = 7400;
