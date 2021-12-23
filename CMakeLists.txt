@@ -102,8 +102,8 @@ if(UAGENT_FAST_PROFILE)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
-    set(_spdlog_version 1.4.2)
-    set(_spdlog_tag v1.4.2)
+    set(_spdlog_version 1.9.2)
+    set(_spdlog_tag v1.9.2)
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
 
