@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <uxr/agent/config.hpp>
 #include <uxr/agent/AgentInstance.hpp>
 #include <uxr/agent/middleware/utils/Callbacks.hpp>
 
@@ -64,11 +65,13 @@ bool AgentInstance::create(
             break;
         }
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
         case agent::TransportKind::CAN:
         {
             agent_thread_ = std::move(agent::create_agent_thread<CanAgent>(argc, argv, exit_signal, valid_transport));
             break;
         }
+#endif // UAGENT_SOCKETCAN_PROFILE
         case agent::TransportKind::SERIAL:
         {
             agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));

@@ -33,6 +33,7 @@ option(UAGENT_FAST_PROFILE "Build FastMiddleware profile." ON)
 option(UAGENT_CED_PROFILE "Build CedMiddleware profile." ON)
 option(UAGENT_DISCOVERY_PROFILE "Build Discovery profile." ON)
 option(UAGENT_P2P_PROFILE "Build P2P discovery profile." ON)
+option(UAGENT_SOCKETCAN_PROFILE "Build Agent CAN FD transport." ON)
 option(UAGENT_LOGGER_PROFILE "Build logger profile." ON)
 option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
@@ -52,6 +53,10 @@ endif()
 
 if((CMAKE_SYSTEM_NAME STREQUAL "") AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
     set(UAGENT_P2P_PROFILE OFF)
+endif()
+
+if((CMAKE_SYSTEM_NAME STREQUAL "Darwin") OR (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
+    set(UAGENT_SOCKETCAN_PROFILE OFF)
 endif()
 
 set(UAGENT_CONFIG_RELIABLE_STREAM_DEPTH        16       CACHE STRING "Reliable streams depth.")
@@ -97,8 +102,8 @@ if(UAGENT_FAST_PROFILE)
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
-    set(_spdlog_version 1.4.2)
-    set(_spdlog_tag v1.4.2)
+    set(_spdlog_version 1.9.2)
+    set(_spdlog_tag v1.9.2)
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
 
@@ -147,18 +152,18 @@ endforeach()
 # Sources
 ###############################################################################
 # Check platform.
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(TRANSPORT_SRCS
         src/cpp/transport/udp/UDPv4AgentLinux.cpp
         src/cpp/transport/udp/UDPv6AgentLinux.cpp
         src/cpp/transport/tcp/TCPv4AgentLinux.cpp
         src/cpp/transport/tcp/TCPv6AgentLinux.cpp
-        src/cpp/transport/can/CanAgentLinux.cpp
         src/cpp/transport/serial/SerialAgentLinux.cpp
         src/cpp/transport/serial/TermiosAgentLinux.cpp
         src/cpp/transport/serial/MultiSerialAgentLinux.cpp
         src/cpp/transport/serial/MultiTermiosAgentLinux.cpp
         src/cpp/transport/serial/PseudoTerminalAgentLinux.cpp
+        $<$<BOOL:${UAGENT_SOCKETCAN_PROFILE}>:src/cpp/transport/can/CanAgentLinux.cpp>
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerLinux.cpp>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:src/cpp/transport/p2p/AgentDiscovererLinux.cpp>
         )
