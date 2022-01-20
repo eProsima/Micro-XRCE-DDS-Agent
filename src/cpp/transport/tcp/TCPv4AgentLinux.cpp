@@ -83,6 +83,15 @@ bool TCPv4Agent::init()
 
     if (-1 != listener_poll_.fd)
     {
+        int value = 1;
+        if (0 == setsockopt(listener_poll_.fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)))
+        {
+            UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_YELLOW("SO_REUSEADDR socket option failed"),
+                    "port: {}, errno: {}",
+                    agent_port_, errno);
+        }
+
         struct sockaddr_in address;
 
         address.sin_family = AF_INET;
