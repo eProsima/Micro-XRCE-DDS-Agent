@@ -160,6 +160,13 @@ if(UAGENT_LOGGER_PROFILE)
     unset(spdlog_DIR CACHE)
     find_package(spdlog ${_spdlog_version} EXACT QUIET)
     if(NOT spdlog_FOUND)
+
+        if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+            set(SPDLOG_SHARED OFF)
+        else()
+            set(SPDLOG_SHARED TRUE)
+        endif()
+
         ExternalProject_Add(spdlog
             GIT_REPOSITORY
                 https://github.com/gabime/spdlog.git
@@ -172,7 +179,7 @@ if(UAGENT_LOGGER_PROFILE)
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}
-                -DBUILD_SHARED_LIBS:BOOL=OFF
+                -DBUILD_SHARED_LIBS:BOOL=${SPDLOG_SHARED}
                 -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}
                 ${CROSS_CMAKE_ARGS}
                 -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
