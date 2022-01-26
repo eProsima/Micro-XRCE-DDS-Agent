@@ -155,18 +155,11 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
     endif()
 endif()
 
-if(UAGENT_LOGGER_PROFILE)
+if(UAGENT_LOGGER_PROFILE AND NOT UAGENT_USE_SYSTEM_LOGGER)
     # spdlog.
     unset(spdlog_DIR CACHE)
     find_package(spdlog ${_spdlog_version} EXACT QUIET)
     if(NOT spdlog_FOUND)
-
-        if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-            set(SPDLOG_SHARED OFF)
-        else()
-            set(SPDLOG_SHARED TRUE)
-        endif()
-
         ExternalProject_Add(spdlog
             GIT_REPOSITORY
                 https://github.com/gabime/spdlog.git
