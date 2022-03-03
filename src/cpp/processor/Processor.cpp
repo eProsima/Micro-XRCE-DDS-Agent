@@ -781,6 +781,15 @@ bool Processor<EndPoint>::process_get_info_packet(
     dds::xrce::ResultStatus result_status = root_.get_info(object_info);
     if (dds::xrce::STATUS_OK == result_status.status())
     {
+        uint32_t raw_client_key;
+        if (server_.get_client_key(input_packet.source, raw_client_key))
+        {
+            result_status.implementation_status(1);
+        } else
+        {
+            result_status.implementation_status(0);
+        }
+
         dds::xrce::AGENT_ActivityInfo agent_info;
         agent_info.availability(1);
 
