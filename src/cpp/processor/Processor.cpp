@@ -785,7 +785,8 @@ bool Processor<EndPoint>::process_get_info_packet(
         if (server_.get_client_key(input_packet.source, raw_client_key))
         {
             result_status.implementation_status(1);
-        } else
+        } 
+        else
         {
             result_status.implementation_status(0);
         }
