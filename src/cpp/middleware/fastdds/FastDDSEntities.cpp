@@ -360,7 +360,16 @@ static void set_qos_from_xrce_object(
  **********************************************************************************************************************/
 FastDDSParticipant::~FastDDSParticipant()
 {
-    factory_->delete_participant(ptr_);
+    if (ptr_)
+    {
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // if (ptr_->has_active_entities())
+        {
+            // ptr_->delete_contained_entities();
+        }
+
+        factory_->delete_participant(ptr_);
+    }
 }
 
 bool FastDDSParticipant::create_by_ref(
@@ -489,6 +498,35 @@ fastdds::dds::Publisher* FastDDSParticipant::create_publisher(
 ReturnCode_t FastDDSParticipant::delete_publisher(
         fastdds::dds::Publisher* publisher)
 {
+    if (NULL == publisher)
+    {
+        return ReturnCode_t::RETCODE_ALREADY_DELETED;
+    }
+
+    if (publisher->has_datawriters())
+    {
+        ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
+
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // ret = publisher->delete_contained_entities();
+
+        //if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        {
+            std::vector<eprosima::fastdds::dds::DataWriter*> writers;
+            publisher->get_datawriters(writers);
+
+            for (auto datawriter : writers)
+            {
+                ret = publisher->delete_datawriter(datawriter);
+
+                if (ReturnCode_t::RETCODE_OK != ret)
+                {
+                    return ret;
+                }
+            }
+        }       
+    }
+
     return ptr_->delete_publisher(publisher);
 }
 
@@ -503,6 +541,35 @@ fastdds::dds::Subscriber* FastDDSParticipant::create_subscriber(
 ReturnCode_t FastDDSParticipant::delete_subscriber(
         fastdds::dds::Subscriber* subscriber)
 {
+    if (NULL == subscriber)
+    {
+        return ReturnCode_t::RETCODE_ALREADY_DELETED;
+    }
+
+    if (subscriber->has_datareaders())
+    {
+        ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
+
+        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
+        // ret = subscriber->delete_contained_entities();
+
+        // if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        {
+            std::vector<eprosima::fastdds::dds::DataReader*> readers;
+            subscriber->get_datareaders(readers);
+
+            for (auto datareader : readers)
+            {
+                ret = subscriber->delete_datareader(datareader);
+
+                if (ReturnCode_t::RETCODE_OK != ret)
+                {
+                    return ret;
+                }
+            }
+        }       
+    }
+
     return ptr_->delete_subscriber(subscriber);
 }
 
@@ -750,6 +817,11 @@ fastdds::dds::DataWriter* FastDDSPublisher::create_datawriter(
 ReturnCode_t FastDDSPublisher::delete_datawriter(
     fastdds::dds::DataWriter* writer)
 {
+    if (NULL == writer)
+    {
+        return ReturnCode_t::RETCODE_ALREADY_DELETED;
+    }
+
     return ptr_->delete_datawriter(writer);
 }
 
@@ -809,6 +881,11 @@ fastdds::dds::DataReader* FastDDSSubscriber::create_datareader(
 ReturnCode_t FastDDSSubscriber::delete_datareader(
         fastdds::dds::DataReader* reader)
 {
+    if (NULL == reader)
+    {
+        return ReturnCode_t::RETCODE_ALREADY_DELETED;
+    }
+
     return ptr_->delete_datareader(reader);
 }
 

@@ -15,6 +15,7 @@
 #ifndef UXR_AGENT_UTILS_ARGUMENTPARSER_CPP_
 #define UXR_AGENT_UTILS_ARGUMENTPARSER_CPP_
 
+#include <uxr/agent/config.hpp>
 #include <uxr/agent/utils/ArgumentParser.hpp>
 
 // TODO(jamoralp): move definitions of ArgumentParser.hpp into this file, to maintain code coherence.
@@ -32,7 +33,7 @@ bool eprosima::uxr::agent::parser::utils::usage(
     std::stringstream ss;
     ss << "Usage: '" << executable_name_str << " <udp4|udp6|tcp4|tpc6";
 #ifndef _WIN32
-    ss << "|serial|multiserial|pseudoterminal";
+    ss << "|canfd|serial|multiserial|pseudoterminal";
 #endif // _WIN32
     ss << "> <<args>>'" << std::endl;
     if (no_help)
@@ -53,7 +54,9 @@ eprosima::uxr::agent::TransportKind eprosima::uxr::agent::parser::utils::check_t
     {"tcp4", eprosima::uxr::agent::TransportKind::TCP4},
     {"tcp6", eprosima::uxr::agent::TransportKind::TCP6},
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
     {"canfd", eprosima::uxr::agent::TransportKind::CAN},
+#endif // UAGENT_SOCKETCAN_PROFILE
     {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
     {"multiserial", eprosima::uxr::agent::TransportKind::MULTISERIAL},
     {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},

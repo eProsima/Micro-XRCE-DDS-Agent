@@ -22,6 +22,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <uxr/agent/transport/Server.hpp>
+#include <uxr/agent/config.hpp>
 
 #ifdef _WIN32
 #include <uxr/agent/transport/udp/UDPv4AgentWindows.hpp>
@@ -33,11 +34,14 @@
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentLinux.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentLinux.hpp>
-#include <uxr/agent/transport/can/CanAgentLinux.hpp>
 #include <uxr/agent/transport/serial/TermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/MultiTermiosAgentLinux.hpp>
 #include <uxr/agent/transport/serial/PseudoTerminalAgentLinux.hpp>
 #include <uxr/agent/transport/serial/baud_rate_table_linux.h>
+
+#ifdef UAGENT_SOCKETCAN_PROFILE
+#include <uxr/agent/transport/can/CanAgentLinux.hpp>
+#endif // UAGENT_SOCKETCAN_PROFILE
 
 #include <termios.h>
 #include <fcntl.h>
@@ -61,7 +65,9 @@ enum class TransportKind
     TCP4,
     TCP6,
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
     CAN,
+#endif // UAGENT_SOCKETCAN_PROFILE
     SERIAL,
     MULTISERIAL,
     PSEUDOTERMINAL,
@@ -867,7 +873,7 @@ private:
     Argument<std::string> file_;
 };
 
-
+#ifdef UAGENT_SOCKETCAN_PROFILE
 /*************************************************************************************************
  * Specific arguments for CAN transports
  *************************************************************************************************/
@@ -919,6 +925,7 @@ private:
     Argument<std::string> dev_;
     Argument<std::string> can_id_;
 };
+#endif // UAGENT_SOCKETCAN_PROFILE
 #endif // _WIN32
 
 /*************************************************************************************************
@@ -937,7 +944,9 @@ public:
         , common_args_()
         , ip_args_()
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
         , can_args_()
+#endif // UAGENT_SOCKETCAN_PROFILE
         , serial_args_()
         , multiserial_args_()
         , pseudoterminal_args_()
@@ -971,11 +980,13 @@ public:
                 break;
             }
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
             case TransportKind::CAN:
             {
                 result &= can_args_.parse(argc_, argv_);
                 break;
             }
+#endif // UAGENT_SOCKETCAN_PROFILE
             case TransportKind::SERIAL:
             {
                 result &= serial_args_.parse(argc_, argv_);
@@ -1081,8 +1092,10 @@ public:
         ss << "  * SERIAL (serial, multiserial, pseudoterminal)" << std::endl;
         ss << pseudoterminal_args_.get_help();
         ss << serial_args_.get_help();
+#ifdef UAGENT_SOCKETCAN_PROFILE
         ss << "  * CAN FD (canfd)" << std::endl;
         ss << can_args_.get_help();
+#endif // UAGENT_SOCKETCAN_PROFILE
 #endif // _WIN32
         ss << std::endl;
         // TODO(@jamoralp): Once documentation is updated with proper CLI section, add here an hyperlink to that section
@@ -1095,7 +1108,9 @@ private:
     CommonArgs<AgentType> common_args_;
     IPvXArgs<AgentType> ip_args_;
 #ifndef _WIN32
+#ifdef UAGENT_SOCKETCAN_PROFILE
     CanArgs<AgentType> can_args_;
+#endif // UAGENT_SOCKETCAN_PROFILE
     SerialArgs<AgentType> serial_args_;
     MultiSerialArgs<AgentType> multiserial_args_;
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
@@ -1162,6 +1177,7 @@ template<> inline bool ArgumentParser<PseudoTerminalAgent>::launch_agent()
     return false;
 }
 
+#ifdef UAGENT_SOCKETCAN_PROFILE
 template<> inline bool ArgumentParser<CanAgent>::launch_agent()
 {
     uint32_t can_id = strtoul(can_args_.can_id().c_str(), NULL, 16);
@@ -1179,6 +1195,7 @@ template<> inline bool ArgumentParser<CanAgent>::launch_agent()
 
     return false;
 }
+#endif // UAGENT_SOCKETCAN_PROFILE
 #endif // _WIN32
 
 } // namespace parser
