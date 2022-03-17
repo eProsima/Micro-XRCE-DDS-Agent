@@ -79,9 +79,14 @@ ProxyClient::ProxyClient(
         }
 #endif
     }
-    hard_liveliness_check_ = properties_.find("uxr_hr_lv") != properties_.end();
+    hard_liveliness_check_ = properties_.find("uxr_hl") != properties_.end();
     if (hard_liveliness_check_) {
-        client_dead_time_ = std::chrono::milliseconds(std::stoi(properties_["uxr_hr_lv"]));
+        client_dead_time_ = std::chrono::milliseconds(std::stoi(properties_["uxr_hl"]));
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session hard timeout enabled"),
+            "client_key: 0x{:08X}, timeout: {} ms",
+            conversion::clientkey_to_raw(representation.client_key()),
+            std::stoi(properties_["uxr_hl"]));
     }
 }
 
