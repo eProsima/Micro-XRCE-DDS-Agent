@@ -41,6 +41,9 @@ public:
     void destroy_session(
             const EndPoint& endpoint);
 
+    void destroy_session(
+        const uint32_t& client_key);
+
     bool get_client_key(
             const EndPoint& endpoint,
             uint32_t& client_key);
@@ -114,6 +117,25 @@ void SessionManager<EndPoint>::destroy_session(
             endpoint);
         client_to_endpoint_map_.erase(it->second);
         endpoint_to_client_map_.erase(it->first);
+    }
+}
+
+template<typename EndPoint>
+void SessionManager<EndPoint>::destroy_session(
+        const uint32_t& client_key)
+{
+    std::lock_guard<std::mutex> lock(mtx_);
+
+    auto it = client_to_endpoint_map_.find(client_key);
+    if (it != client_to_endpoint_map_.end())
+    {
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session closed"),
+            "client_key: 0x{:08X}, address: {}",
+            client_key,
+            it->second);
+        endpoint_to_client_map_.erase(it->second);
+        client_to_endpoint_map_.erase(it->first);
     }
 }
 
