@@ -46,20 +46,6 @@ void Processor<EndPoint>::process_input_packet(
         InputPacket<EndPoint>&& input_packet)
 {
     dds::xrce::MessageHeader header = input_packet.message->get_header();
-    dds::xrce::ClientKey client_key = dds::xrce::CLIENTKEY_INVALID;
-    if (128 > header.session_id())
-    {
-        client_key = header.client_key();
-    }
-    else
-    {
-        uint32_t raw_client_key;
-        if (server_.get_client_key(input_packet.source, raw_client_key))
-        {
-            client_key = conversion::raw_to_clientkey(raw_client_key);
-        }
-    }
-    std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
 
     if ((header.session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY) ||
         (header.session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY))
@@ -90,6 +76,21 @@ void Processor<EndPoint>::process_input_packet(
     }
     else
     {
+        dds::xrce::ClientKey client_key = dds::xrce::CLIENTKEY_INVALID;
+        if (128 > header.session_id())
+        {
+            client_key = header.client_key();
+        }
+        else
+        {
+            uint32_t raw_client_key;
+            if (server_.get_client_key(input_packet.source, raw_client_key))
+            {
+                client_key = conversion::raw_to_clientkey(raw_client_key);
+            }
+        }
+        std::shared_ptr<ProxyClient> client = root_.get_client(client_key);
+
         if (client)
         {
             client->update_state();
@@ -208,7 +209,6 @@ bool Processor<EndPoint>::process_submessage(
             break;
         case dds::xrce::GET_INFO:
             rv = process_get_info_submessage(client, input_packet);
-            rv = false;
             break;
         case dds::xrce::DELETE_ID:
             rv = process_delete_submessage(client, input_packet);
@@ -429,11 +429,11 @@ bool Processor<EndPoint>::process_write_data_submessage(
     bool deserialized = false, written = false;
     uint8_t flags = input_packet.message->get_subheader().flags() & 0x0E;
     size_t submessage_length = input_packet.message->get_subheader().submessage_length();
-    
+
 #ifdef UAGENT_TWEAK_XRCE_WRITE_LIMIT
     if (submessage_length == 0)
     {
-        submessage_length = 
+        submessage_length =
             input_packet.message->get_len()
             - input_packet.message->get_header().getCdrSerializedSize(0)
             - input_packet.message->get_subheader().getCdrSerializedSize(0);
@@ -859,7 +859,7 @@ bool Processor<EndPoint>::process_get_info_packet(
         if (server_.get_client_key(input_packet.source, raw_client_key))
         {
             result_status.implementation_status(1);
-        } 
+        }
         else
         {
             result_status.implementation_status(0);
