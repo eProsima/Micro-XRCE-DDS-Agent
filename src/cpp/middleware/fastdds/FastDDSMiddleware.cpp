@@ -697,6 +697,9 @@ bool FastDDSMiddleware::create_replier_by_bin(
         attrs.publisher.topic.topicName = replier_xrce.reply_topic_name();
         attrs.publisher.topic.topicDataType = replier_xrce.reply_type();
 
+        attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
         std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
         if (nullptr == replier)
         {
