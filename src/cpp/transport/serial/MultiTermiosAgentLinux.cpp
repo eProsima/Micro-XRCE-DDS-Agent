@@ -97,6 +97,7 @@ void MultiTermiosAgent::init_multiport()
                             // Add open port to MultiSerialAgent
                             insert_serial(aux_poll_fd.fd);
                             initialized_devs_.insert(std::pair<int, std::string>(aux_poll_fd.fd, it->second));
+                            tcflush(aux_poll_fd.fd, TCIOFLUSH);
 
                             UXR_AGENT_LOG_INFO(
                                 UXR_DECORATE_GREEN("Serial port running..."),
