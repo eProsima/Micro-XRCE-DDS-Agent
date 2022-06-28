@@ -44,6 +44,8 @@ ProxyClient::ProxyClient(
     , state_{State::alive}
     , timestamp_{std::chrono::steady_clock::now()}
     , properties_(std::move(properties))
+    , client_dead_time_(CLIENT_DEAD_TIME)
+    , hard_liveliness_check_(false)
 {
     switch (middleware_kind)
     {
@@ -76,6 +78,15 @@ ProxyClient::ProxyClient(
             break;
         }
 #endif
+    }
+    hard_liveliness_check_ = properties_.find("uxr_hl") != properties_.end();
+    if (hard_liveliness_check_) {
+        client_dead_time_ = std::chrono::milliseconds(std::stoi(properties_["uxr_hl"]));
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_GREEN("session hard timeout enabled"),
+            "client_key: 0x{:08X}, timeout: {} ms",
+            conversion::clientkey_to_raw(representation.client_key()),
+            std::stoi(properties_["uxr_hl"]));
     }
 }
 
@@ -744,18 +755,21 @@ ProxyClient::State ProxyClient::get_state()
     if (State::alive == state_)
     {
         using namespace std::chrono;
-        state_ = (duration_cast<milliseconds>(steady_clock::now() - timestamp_) < CLIENT_DEAD_TIME)
+        state_ = (duration_cast<milliseconds>(steady_clock::now() - timestamp_) < client_dead_time_)
             ? State::alive
             : State::dead;
     }
     return state_;
 }
 
-void ProxyClient::update_state()
+void ProxyClient::update_state(const ProxyClient::State state)
 {
     std::lock_guard<std::mutex> lock(state_mtx_);
-    state_ = State::alive;
-    timestamp_ = std::chrono::steady_clock::now();
+    state_ = state;
+    if (State::alive == state_) {
+        timestamp_ = std::chrono::steady_clock::now();
+        hard_liveliness_check_tries_ = 0;
+    }
 }
 
 } // namespace uxr

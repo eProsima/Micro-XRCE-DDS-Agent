@@ -30,7 +30,8 @@ public:
     enum class State : uint8_t
     {
         alive,
-        dead
+        dead,
+        to_remove
     };
 
     explicit ProxyClient(
@@ -71,10 +72,13 @@ public:
 
     State get_state();
 
-    void update_state();
+    void update_state(const ProxyClient::State state = State::alive);
 
     Middleware& get_middleware() { return *middleware_ ; };
 
+    bool has_hard_liveliness_check() const { return hard_liveliness_check_; }
+
+    uint8_t & get_hard_liveliness_check_tries() { return hard_liveliness_check_tries_; }
 private:
     bool create_object(
             const dds::xrce::ObjectId& object_id,
@@ -134,6 +138,9 @@ private:
     State state_;
     std::chrono::time_point<std::chrono::steady_clock> timestamp_;
     std::unordered_map<std::string, std::string> properties_;
+    std::chrono::milliseconds client_dead_time_;
+    bool hard_liveliness_check_;
+    uint8_t  hard_liveliness_check_tries_;
 };
 
 } // namespace uxr

@@ -75,13 +75,16 @@ bool MultiSerialAgent::recv_message(
         int timeout,
         TransportRc& transport_rc)
 {
-    struct timeval timeout_ = { 0, timeout*1000 }; /* Seconds, Microseconds */
+    struct timeval timeout_;
+    timeout_.tv_sec = timeout / 1000;
+    timeout_.tv_usec = (timeout % 1000) * 1000;
+
     bool rv = false;
 
     utils::SharedLockPriority lk(framing_mtx);
     fd_set fds = read_fds;
     int ret = select(framing_io.rbegin()->first+1, &fds, NULL, NULL, &timeout_);
-    
+
     if (0 < ret)
     {
         for (auto it = framing_io.begin(); it != framing_io.end(); it++)
@@ -90,13 +93,14 @@ bool MultiSerialAgent::recv_message(
             {
                 uint8_t remote_addr = 0x00;
                 ssize_t bytes_read = 0;
+                int timeout_ms = timeout_.tv_sec*1000 + timeout_.tv_usec/1000;
 
                 do
                 {
                     bytes_read = it->second.read_framed_msg(
-                        buffer_, sizeof (buffer_), remote_addr, timeout, transport_rc);
+                        buffer_, sizeof (buffer_), remote_addr, timeout_ms, transport_rc);
                 }
-                while ((0 == bytes_read) && (0 < timeout));
+                while ((0 == bytes_read) && (0 < timeout_ms));
 
                 if (0 < bytes_read)
                 {
@@ -138,7 +142,7 @@ bool MultiSerialAgent::send_message(
 
     utils::SharedLockPriority lk(framing_mtx);
     std::map<int, FramingIO>::iterator it = framing_io.find(client_fd);
-    
+
     if (it == framing_io.end())
     {
         // Destination client not found on active ports
@@ -181,7 +185,7 @@ ssize_t MultiSerialAgent::read_data(
     // Modify timeout?
     ssize_t bytes_read = 0;
     pollfd read_file = {serial_fd, POLLIN, 0};
-    
+
     int poll_rv = poll(&read_file, 1, timeout);
 
     if(read_file.revents & (POLLERR+POLLHUP))
@@ -199,14 +203,14 @@ ssize_t MultiSerialAgent::read_data(
     else
     {
         transport_rc = (poll_rv == 0) ? TransportRc::timeout_error : TransportRc::server_error;
-    } 
-    
+    }
+
     if (transport_rc == TransportRc::server_error)
     {
         std::unique_lock<std::mutex> lk(error_mtx);
         error_fd.push_back(serial_fd);
     }
-    
+
     return bytes_read;
 }
 

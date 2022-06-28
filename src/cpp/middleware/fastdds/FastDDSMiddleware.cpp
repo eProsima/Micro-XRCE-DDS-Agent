@@ -566,6 +566,9 @@ bool FastDDSMiddleware::create_requester_by_bin(
         attrs.subscriber.topic.topicName = requester_xrce.reply_topic_name();
         attrs.subscriber.topic.topicDataType = requester_xrce.reply_type();
 
+        attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+
         std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
         if (nullptr == requester)
         {
@@ -692,7 +695,10 @@ bool FastDDSMiddleware::create_replier_by_bin(
         attrs.subscriber.topic.topicDataType = replier_xrce.request_type();
 
         attrs.publisher.topic.topicName = replier_xrce.reply_topic_name();
-        attrs.publisher.topic.topicDataType = replier_xrce.reply_type();        
+        attrs.publisher.topic.topicDataType = replier_xrce.reply_type();
+
+        attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
 
         std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
         if (nullptr == replier)
@@ -894,7 +900,7 @@ bool FastDDSMiddleware::read_data(
    {
        fastdds::dds::SampleInfo sample_info;
        rv = it->second->read(data, timeout, sample_info);
-        
+
        if (intraprocess_enabled_)
        {
             for (auto dw = datawriters_.begin(); dw != datawriters_.end(); dw++)
