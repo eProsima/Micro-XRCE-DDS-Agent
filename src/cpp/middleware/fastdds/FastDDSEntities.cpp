@@ -362,10 +362,9 @@ FastDDSParticipant::~FastDDSParticipant()
 {
     if (ptr_)
     {
-        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
-        // if (ptr_->has_active_entities())
+        if (ptr_->has_active_entities())
         {
-            // ptr_->delete_contained_entities();
+            ptr_->delete_contained_entities();
         }
 
         factory_->delete_participant(ptr_);
@@ -507,10 +506,9 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
     {
         ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
 
-        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
-        // ret = publisher->delete_contained_entities();
+        ret = publisher->delete_contained_entities();
 
-        //if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
         {
             std::vector<eprosima::fastdds::dds::DataWriter*> writers;
             publisher->get_datawriters(writers);
@@ -524,7 +522,7 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
                     return ret;
                 }
             }
-        }       
+        }
     }
 
     return ptr_->delete_publisher(publisher);
@@ -550,10 +548,9 @@ ReturnCode_t FastDDSParticipant::delete_subscriber(
     {
         ReturnCode_t ret = ReturnCode_t::RETCODE_OK;
 
-        // TODO: Not available on foxy (Need FastDDS >= 2.2.0 for declaration and FastDDS >= 2.4.1 for implementation)
-        // ret = subscriber->delete_contained_entities();
+        ret = subscriber->delete_contained_entities();
 
-        // if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
+        if (ReturnCode_t::RETCODE_UNSUPPORTED == ret)
         {
             std::vector<eprosima::fastdds::dds::DataReader*> readers;
             subscriber->get_datareaders(readers);
@@ -567,7 +564,7 @@ ReturnCode_t FastDDSParticipant::delete_subscriber(
                     return ret;
                 }
             }
-        }       
+        }
     }
 
     return ptr_->delete_subscriber(subscriber);
