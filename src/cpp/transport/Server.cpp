@@ -192,7 +192,7 @@ void Server<EndPoint>::receiver_loop()
         TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
-            if(dds::xrce::HEARTBEAT == input_packet.message->get_submessage_id() && 1U == input_packet.message->count_submessages()){
+            if(input_packet.message->is_valid_xrce_message() && 1U == input_packet.message->count_submessages() && dds::xrce::HEARTBEAT == input_packet.message->get_submessage_id()){
                 input_scheduler_.push(std::move(input_packet), 1);
             }
             else
