@@ -38,7 +38,10 @@ public:
           deserializer_(fastbuffer_)
     {
         memcpy(buf_, buf, len);
-        deserialize(header_);
+
+        // A valid XRCE message must have a valid header and at least 1 submessage
+        valid_xrce_message_ = deserialize(header_);
+        valid_xrce_message_ = valid_xrce_message_ && count_submessages() > 0;
     }
 
     uint8_t* get_buf() const { return buf_; }
@@ -70,6 +73,8 @@ public:
 
     size_t count_submessages();
 
+    bool is_valid_xrce_message() { return valid_xrce_message_; }
+
     dds::xrce::SubmessageId get_submessage_id();
 
 private:
@@ -85,6 +90,7 @@ private:
     dds::xrce::SubmessageHeader subheader_;
     fastcdr::FastBuffer fastbuffer_;
     fastcdr::Cdr deserializer_;
+    bool valid_xrce_message_ = false;
 };
 
 inline bool InputMessage::prepare_next_submessage()
@@ -114,8 +120,15 @@ inline size_t InputMessage::count_submessages()
         local_deserializer.jump((4 - ((local_deserializer.getCurrentPosition() - local_deserializer.getBufferPointer()) & 3)) & 3);
         if (fastbuffer_.getBufferSize() > local_deserializer.getSerializedDataLength())
         {
-            local_subheader.deserialize(local_deserializer);
-            count++;
+            try
+            {
+                local_subheader.deserialize(local_deserializer);
+                count++;
+            }
+            catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+            {
+                rv = false;
+            }
         } else {
             rv = false;
         }
