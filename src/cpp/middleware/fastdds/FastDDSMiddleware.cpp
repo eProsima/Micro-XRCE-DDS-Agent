@@ -568,6 +568,7 @@ bool FastDDSMiddleware::create_requester_by_bin(
 
         attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
         attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        attrs.subscriber.qos.m_reliability.kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
         std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
         if (nullptr == requester)
@@ -699,6 +700,7 @@ bool FastDDSMiddleware::create_replier_by_bin(
 
         attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
         attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        attrs.subscriber.qos.m_reliability.kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
         std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
         if (nullptr == replier)
