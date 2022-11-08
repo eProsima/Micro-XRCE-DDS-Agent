@@ -100,7 +100,7 @@ bool Requester::matched(
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
-            const std::string& xml = new_object_rep.requester().representation().object_reference();
+            const std::string& xml = new_object_rep.requester().representation().xml_string_representation();
             rv = proxy_client_->get_middleware().matched_requester_from_xml(get_raw_id(), xml);
             break;
         }

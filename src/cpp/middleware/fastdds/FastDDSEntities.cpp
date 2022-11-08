@@ -524,7 +524,7 @@ ReturnCode_t FastDDSParticipant::delete_publisher(
                     return ret;
                 }
             }
-        }       
+        }
     }
 
     return ptr_->delete_publisher(publisher);
@@ -567,7 +567,7 @@ ReturnCode_t FastDDSParticipant::delete_subscriber(
                     return ret;
                 }
             }
-        }       
+        }
     }
 
     return ptr_->delete_subscriber(subscriber);
@@ -1225,8 +1225,8 @@ bool FastDDSRequester::match(const fastrtps::RequesterAttributes& attrs) const
     fastdds::dds::SubscriberQos qos_subscriber;
     set_qos_from_attributes(qos_subscriber, attrs.subscriber);
 
-    return reply_topic_->match(attrs.publisher.topic)
-        && request_topic_->match(attrs.subscriber.topic)
+    return reply_topic_->match(attrs.subscriber.topic)
+        && request_topic_->match(attrs.publisher.topic)
         && publisher_ptr_->get_qos() == qos_publisher
         && subscriber_ptr_->get_qos() == qos_subscriber;
 }
