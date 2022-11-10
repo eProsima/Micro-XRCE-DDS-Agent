@@ -1173,7 +1173,7 @@ bool FastDDSMiddleware::matched_requester_from_xml(
     auto it = requesters_.find(requester_id);
     if (requesters_.end() != it)
     {
-        rv = it->second->match_from_ref(xml);
+        rv = it->second->match_from_xml(xml);
     }
     return rv;
 }
@@ -1212,7 +1212,7 @@ bool FastDDSMiddleware::matched_replier_from_xml(
     auto it = repliers_.find(requester_id);
     if (repliers_.end() != it)
     {
-        rv = it->second->match_from_ref(xml);
+        rv = it->second->match_from_xml(xml);
     }
     return rv;
 }
