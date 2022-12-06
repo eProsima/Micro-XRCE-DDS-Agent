@@ -25,6 +25,7 @@
 #include <fastrtps/attributes/all_attributes.h>
 #include <uxr/agent/types/TopicPubSubType.hpp>
 #include <uxr/agent/types/XRCETypes.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <unordered_map>
 
@@ -46,6 +47,16 @@ public:
         , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
         , domain_id_{domain_id}
     {
+        // Override default domain id from environment variable
+        const char* domain_id_env = std::getenv("MICRO_XRCEDDS_AGENT_DOMAIN_ID_OVERRIDE");
+        if (nullptr != domain_id_env)
+        {
+            domain_id_ = std::atoi(domain_id_env);
+            UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("Overriding Micro XRCE-DDS Client DOMAIN_ID with domain id"),
+                "{}", domain_id_);
+        }
+
         factory_->load_profiles();
     }
 
