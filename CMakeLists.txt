@@ -15,7 +15,7 @@
 ###############################################################################
 # CMake build rules for Micro XRCE-DDS Agent
 ###############################################################################
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 ###############################################################################
 # Build options
