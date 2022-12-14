@@ -427,7 +427,7 @@ bool FastDDSParticipant::match_from_ref(
         {
             fastdds::dds::DomainParticipantQos qos;
             set_qos_from_attributes(qos, attrs.rtps);
-            rv = (ptr_->get_qos() == qos);
+            rv = (ptr_->get_qos().name() == qos.name());
         }
     }
     return rv;
@@ -444,7 +444,7 @@ bool FastDDSParticipant::match_from_xml(
         {
             fastdds::dds::DomainParticipantQos qos;
             set_qos_from_attributes(qos, attrs.rtps);
-            rv = (ptr_->get_qos() == qos);
+            rv = (ptr_->get_qos().name() == qos.name());
         }
     }
     return rv;
@@ -458,7 +458,7 @@ bool FastDDSParticipant::match_from_bin(
     {
         fastdds::dds::DomainParticipantQos qos;
         set_qos_from_xrce_object(qos, participant_xrce);
-        rv = (ptr_->get_qos() == qos);
+        rv = (ptr_->get_qos().name() == qos.name());
     }
     return rv;
 }
