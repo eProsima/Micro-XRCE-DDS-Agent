@@ -25,6 +25,8 @@
 #include <functional>
 #include <chrono>
 
+#define UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF (255)
+
 namespace eprosima {
 namespace uxr {
 

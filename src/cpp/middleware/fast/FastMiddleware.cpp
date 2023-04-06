@@ -49,7 +49,9 @@ bool FastMiddleware::create_participant_by_ref(
     fastrtps::ParticipantAttributes attrs;
     if (XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
     {
-        attrs.domainId = uint32_t(domain_id);
+        if(domain_id != UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF) {
+            attrs.domainId = domain_id;
+        }
         fastrtps::Participant* impl = fastrtps::Domain::createParticipant(attrs, &listener_);
         if (nullptr != impl)
         {
@@ -773,7 +775,9 @@ bool FastMiddleware::matched_participant_from_ref(
         fastrtps::ParticipantAttributes attrs;
         if (XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
         {
-            attrs.domainId = uint32_t(domain_id);
+            if(domain_id != UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF) {
+                attrs.domainId = domain_id;
+            }
             rv = it->second->match(attrs);
         }
     }

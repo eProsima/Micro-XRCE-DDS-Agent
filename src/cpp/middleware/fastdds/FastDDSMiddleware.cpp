@@ -62,7 +62,13 @@ bool FastDDSMiddleware::create_participant_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
+    fastrtps::ParticipantAttributes attrs;
+    auto participant_domain_id = domain_id;
+    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+    {
+        participant_domain_id = attrs.domainId;
+    }
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_domain_id));
     if (participant->create_by_ref(ref))
     {
         auto emplace_res = participants_.emplace(participant_id, std::move(participant));
@@ -986,7 +992,13 @@ bool FastDDSMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
+        fastrtps::ParticipantAttributes attrs;
+        auto participant_domain_id = domain_id;
+        if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+        {
+            participant_domain_id = attrs.domainId;
+        }
+        rv = (participant_domain_id== it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
     return rv;
 }
