@@ -66,7 +66,7 @@ bool FastDDSMiddleware::create_participant_by_ref(
     auto participant_domain_id = domain_id;
     if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
     {
-        participant_domain_id = attrs.domainId;
+        participant_domain_id = static_cast<int16_t>(attrs.domainId);
     }
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_domain_id));
     if (participant->create_by_ref(ref))
@@ -996,7 +996,7 @@ bool FastDDSMiddleware::matched_participant_from_ref(
         auto participant_domain_id = domain_id;
         if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
         {
-            participant_domain_id = attrs.domainId;
+            participant_domain_id = static_cast<int16_t>(attrs.domainId);
         }
         rv = (participant_domain_id== it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
