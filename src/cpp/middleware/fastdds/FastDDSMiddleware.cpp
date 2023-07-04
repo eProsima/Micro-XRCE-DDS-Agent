@@ -122,7 +122,8 @@ bool FastDDSMiddleware::create_participant_by_bin(
         participant_domain_id = agent_domain_id_;
         UXR_AGENT_LOG_WARN(
                 UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
-                "domain_id: {}", participant_domain_id);
+                "domain_id: {}", participant_domain_id
+        );
     }
 
     bool rv = false;
