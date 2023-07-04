@@ -1262,7 +1262,7 @@ bool FastDDSMiddleware::matched_replier_from_bin(
 
 int16_t FastDDSMiddleware::get_domain_id_from_env(){
     int16_t agent_domain_id = 0;
-    const char * agent_domain_id_env = std::getenv( "ROS_DOMAIN_ID" );
+    const char * agent_domain_id_env = std::getenv( "XRCE_DOMAIN_ID_OVERRIDE" );
     if (nullptr != agent_domain_id_env)
     {
         agent_domain_id = static_cast<int16_t>(std::atoi(agent_domain_id_env));
