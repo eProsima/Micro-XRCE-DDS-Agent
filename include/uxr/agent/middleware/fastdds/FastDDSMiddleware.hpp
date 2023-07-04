@@ -284,9 +284,9 @@ private:
         std::shared_ptr<FastDDSParticipant>& participant,
         const fastrtps::ReplierAttributes& attrs);
 
-    uint8_t get_domain_id_from_env();
+    int16_t get_domain_id_from_env();
 
-    uint8_t agent_domain_id_ = 0;
+    int16_t agent_domain_id_ = 0;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<FastDDSPublisher>> publishers_;

@@ -119,7 +119,7 @@ bool FastDDSMiddleware::create_participant_by_bin(
 {
     auto participant_domain_id = static_cast<int16_t>(participant_xrce.domain_id());
     if(participant_domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
-        participant_domain_id = static_cast<int16_t>(agent_domain_id_);
+        participant_domain_id = agent_domain_id_;
         UXR_AGENT_LOG_WARN(
                 UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
                 "domain_id: {}", participant_domain_id);
@@ -1259,12 +1259,12 @@ bool FastDDSMiddleware::matched_replier_from_bin(
     return rv;
 }
 
-uint8_t FastDDSMiddleware::get_domain_id_from_env(){
-    uint8_t agent_domain_id = 0;
+int16_t FastDDSMiddleware::get_domain_id_from_env(){
+    int16_t agent_domain_id = 0;
     const char * agent_domain_id_env = std::getenv( "ROS_DOMAIN_ID" );
     if (nullptr != agent_domain_id_env)
     {
-        agent_domain_id = std::atoi(agent_domain_id_env);
+        agent_domain_id = static_cast<int16_t>(std::atoi(agent_domain_id_env));
     }
     return agent_domain_id;
 }
