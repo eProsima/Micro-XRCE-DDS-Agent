@@ -14,6 +14,7 @@
 
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
 #include <uxr/agent/utils/Conversion.hpp>
+#include <uxr/agent/logger/Logger.hpp>
 
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
@@ -51,6 +52,14 @@ FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
     , repliers_()
     , callback_factory_(callback_factory_.getInstance())
 {
+    agent_domain_id_ = get_domain_id_from_env();
+    if (agent_domain_id_)
+    {
+        UXR_AGENT_LOG_INFO(
+                UXR_DECORATE_GREEN("Micro XRCE-DDS Agent DOMAIN_ID read from env"),
+                "domain_id: {}", agent_domain_id_);
+    }
+
 }
 
 /**********************************************************************************************************************
@@ -62,7 +71,13 @@ bool FastDDSMiddleware::create_participant_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
+    fastrtps::ParticipantAttributes attrs;
+    auto participant_domain_id = domain_id;
+    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+    {
+        participant_domain_id = static_cast<int16_t>(attrs.domainId);
+    }
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_domain_id));
     if (participant->create_by_ref(ref))
     {
         auto emplace_res = participants_.emplace(participant_id, std::move(participant));
@@ -102,8 +117,17 @@ bool FastDDSMiddleware::create_participant_by_bin(
         uint16_t participant_id,
         const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
+    auto participant_domain_id = static_cast<int16_t>(participant_xrce.domain_id());
+    if(participant_domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+        participant_domain_id = agent_domain_id_;
+        UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+                "domain_id: {}", participant_domain_id
+        );
+    }
+
     bool rv = false;
-    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant((int16_t) participant_xrce.domain_id()));
+    std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_domain_id));
     if (participant->create_by_bin(participant_xrce))
     {
         auto emplace_res = participants_.emplace(participant_id, std::move(participant));
@@ -986,7 +1010,13 @@ bool FastDDSMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        rv = (domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
+        fastrtps::ParticipantAttributes attrs;
+        auto participant_domain_id = domain_id;
+        if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+        {
+            participant_domain_id = static_cast<int16_t>(attrs.domainId);
+        }
+        rv = (participant_domain_id== it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
     return rv;
 }
@@ -1228,6 +1258,16 @@ bool FastDDSMiddleware::matched_replier_from_bin(
         rv = it->second->match_from_bin(replier_xrce);
     }
     return rv;
+}
+
+int16_t FastDDSMiddleware::get_domain_id_from_env(){
+    int16_t agent_domain_id = 0;
+    const char * agent_domain_id_env = std::getenv( "XRCE_DOMAIN_ID_OVERRIDE" );
+    if (nullptr != agent_domain_id_env)
+    {
+        agent_domain_id = static_cast<int16_t>(std::atoi(agent_domain_id_env));
+    }
+    return agent_domain_id;
 }
 
 } // namespace uxr

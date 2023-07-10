@@ -25,6 +25,9 @@
 #include <functional>
 #include <chrono>
 
+#define UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF (255)
+#define UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV (255)
+
 namespace eprosima {
 namespace uxr {
 
@@ -296,7 +299,7 @@ public:
 /**********************************************************************************************************************
  * Members.
  **********************************************************************************************************************/
-protected: 
+protected:
     bool intraprocess_enabled_;
 };
 
