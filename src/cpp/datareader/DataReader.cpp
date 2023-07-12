@@ -54,7 +54,7 @@ std::unique_ptr<DataReader> DataReader::create(
             dds::xrce::OBJK_DataReader_Binary datareader_xrce;
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, representation.endianness());
             datareader_xrce.deserialize(cdr);
 
             created_entity = proxy_client->get_middleware().create_datareader_by_bin(raw_object_id, subscriber_id, datareader_xrce);
@@ -111,7 +111,7 @@ bool DataReader::matched(
             dds::xrce::OBJK_DataReader_Binary datareader_xrce;
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, new_object_rep.endianness());
             datareader_xrce.deserialize(cdr);
 
             rv = proxy_client_->get_middleware().matched_datareader_from_bin(get_raw_id(), datareader_xrce);

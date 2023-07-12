@@ -48,7 +48,7 @@ std::unique_ptr<Participant> Participant::create(
             participant_xrce.domain_id(representation.domain_id());
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, representation.endianness());
             participant_xrce.deserialize(cdr);
 
             created_entity = proxy_client->get_middleware().create_participant_by_bin(raw_object_id, participant_xrce);
@@ -106,7 +106,7 @@ bool Participant::matched(const dds::xrce::ObjectVariant& new_object_rep) const
             participant_xrce.domain_id(domain_id);
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, new_object_rep.endianness());
             participant_xrce.deserialize(cdr);
 
             rv = proxy_client_->get_middleware().matched_participant_from_bin(get_raw_id(), domain_id, participant_xrce);
