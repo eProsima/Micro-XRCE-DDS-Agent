@@ -22,8 +22,6 @@
 #ifndef _UXR_AGENT_TYPES_XRCETYPES_HPP_
 #define _UXR_AGENT_TYPES_XRCETYPES_HPP_
 
-#include <fastcdr/Cdr.h>
-
 #include <uxr/agent/types/Optional.hpp>
 
 #include <cstdint>
@@ -2367,8 +2365,8 @@ public:
     }
 
     /*!
-     * @brief xxx
-     * @param _representation xxx
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
      */
     inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
     {
@@ -2376,6 +2374,8 @@ public:
     }
 
     /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
      */
     inline eprosima::fastcdr::Cdr::Endianness endianness() const
     {
@@ -2495,8 +2495,8 @@ public:
     }
 
     /*!
-     * @brief xxx
-     * @param _representation xxx
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
      */
     inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
     {
@@ -2504,6 +2504,8 @@ public:
     }
 
     /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
      */
     inline eprosima::fastcdr::Cdr::Endianness endianness() const
     {
@@ -5940,8 +5942,8 @@ public:
     REPLIER_Representation& replier();
 
     /*!
-     * @brief xxx
-     * @param _representation xxx
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
      */
     inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
     {
@@ -5958,6 +5960,8 @@ public:
     }
 
     /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
      */
     inline eprosima::fastcdr::Cdr::Endianness endianness() const
     {
