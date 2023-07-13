@@ -91,6 +91,15 @@ const XrceVersion XRCE_VERSION = {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR};
 const uint8_t XRCE_VENDOR_INVALID1 = 0x00;
 const uint8_t XRCE_VENDOR_INVALID2 = 0x00;
 
+//! @brief This enumeration represents the two posible values of the SubMessage endianness flag.
+typedef enum Endianness
+{
+    //! @brief Big endianness.
+    BIG_ENDIANNESS = 0x0,
+    //! @brief Little endianness.
+    LITTLE_ENDIANNESS = 0x1
+} Endianness;
+
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -2368,7 +2377,7 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
+    inline void endianness(Endianness endianness)
     {
         m_endianness = endianness;
     }
@@ -2377,7 +2386,7 @@ public:
      * @brief This function returns a copy to the representation endianness
      * @return Representation endianness
      */
-    inline eprosima::fastcdr::Cdr::Endianness endianness() const
+    inline Endianness endianness() const
     {
         return m_endianness;
     }
@@ -2413,7 +2422,7 @@ public:
 
 private:
     OBJK_RepresentationBinAndXMLFormats m_representation;
-    eprosima::fastcdr::Cdr::Endianness m_endianness;
+    Endianness m_endianness;
 };
 
 /*!
@@ -2498,7 +2507,7 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
+    inline void endianness(Endianness endianness)
     {
         m_endianness = endianness;
     }
@@ -2507,7 +2516,7 @@ public:
      * @brief This function returns a copy to the representation endianness
      * @return Representation endianness
      */
-    inline eprosima::fastcdr::Cdr::Endianness endianness() const
+    inline Endianness endianness() const
     {
         return m_endianness;
     }
@@ -2542,7 +2551,7 @@ public:
 
 private:
     OBJK_Representation3Formats m_representation;
-    eprosima::fastcdr::Cdr::Endianness m_endianness;
+    Endianness m_endianness;
 };
 
 /*!
@@ -5945,7 +5954,7 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(eprosima::fastcdr::Cdr::Endianness endianness)
+    inline void endianness(Endianness endianness)
     {
         m_endianness = endianness;
 
@@ -5963,7 +5972,7 @@ public:
      * @brief This function returns a copy to the representation endianness
      * @return Representation endianness
      */
-    inline eprosima::fastcdr::Cdr::Endianness endianness() const
+    inline Endianness endianness() const
     {
         return m_endianness;
     }
@@ -5998,7 +6007,7 @@ public:
 
 private:
     ObjectKind m__d;
-    eprosima::fastcdr::Cdr::Endianness m_endianness;
+    Endianness m_endianness;
 
     AGENT_Representation m_agent;
     CLIENT_Representation m_client;
