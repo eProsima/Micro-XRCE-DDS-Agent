@@ -52,7 +52,8 @@ std::unique_ptr<DataWriter> DataWriter::create(
             dds::xrce::OBJK_DataWriter_Binary datawriter_xrce;
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
+            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness);
             datawriter_xrce.deserialize(cdr);
 
             created_entity = proxy_client->get_middleware().create_datawriter_by_bin(raw_object_id, publisher_id, datawriter_xrce);
@@ -105,7 +106,8 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
             dds::xrce::OBJK_DataWriter_Binary datawriter_xrce;
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr cdr(fastbuffer);
+            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
+            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness);
             datawriter_xrce.deserialize(cdr);
 
             rv = proxy_client_->get_middleware().matched_datawriter_from_bin(get_raw_id(), datawriter_xrce);

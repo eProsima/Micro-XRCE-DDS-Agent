@@ -332,6 +332,9 @@ bool Processor<EndPoint>::process_create_submessage(
     dds::xrce::CREATE_Payload create_payload;
     if (input_packet.message->get_payload(create_payload))
     {
+        dds::xrce::Endianness endianness = static_cast<dds::xrce::Endianness>(input_packet.message->get_subheader().flags() & 0x01);
+        create_payload.object_representation().endianness(endianness);
+
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(create_payload.request_id());
         status_payload.related_request().object_id(create_payload.object_id());
