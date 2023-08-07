@@ -230,14 +230,10 @@ if(UAGENT_ISOLATED_INSTALL)
 endif()
 
 include(GNUInstallDirs)
-set(BIN_INSTALL_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for binaries")
-set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for C headers")
-set(LIB_INSTALL_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
-set(DATA_INSTALL_DIR    ${CMAKE_INSTALL_DATADIR}    CACHE PATH "Installation directory for data")
 if(WIN32)
     set(LICENSE_INSTALL_DIR . CACHE PATH "Installation directory for licenses")
 else()
-    set(LICENSE_INSTALL_DIR ${DATA_INSTALL_DIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
+    set(LICENSE_INSTALL_DIR ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME} CACHE PATH "Installation directory for licenses")
 endif()
 
 ###############################################################################
@@ -310,7 +306,7 @@ target_include_directories(${PROJECT_NAME} BEFORE
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         $<TARGET_PROPERTY:fastcdr,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
@@ -397,11 +393,11 @@ install(
     EXPORT
         ${PROJECT_NAME}Targets
     RUNTIME DESTINATION
-        ${BIN_INSTALL_DIR}
+        ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION
-        ${LIB_INSTALL_DIR}
+        ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION
-        ${LIB_INSTALL_DIR}
+        ${CMAKE_INSTALL_LIBDIR}
     COMPONENT
         libraries
     )
@@ -411,7 +407,7 @@ install(
     DIRECTORY
         ${PROJECT_SOURCE_DIR}/include/uxr/agent/
     DESTINATION
-        ${INCLUDE_INSTALL_DIR}/uxr/agent
+        ${CMAKE_INSTALL_INCLUDEDIR}/uxr/agent
     FILES_MATCHING
         PATTERN "*.hpp"
         PATTERN "*.h"
@@ -422,7 +418,7 @@ install(
     EXPORT
         ${PROJECT_NAME}Targets
     DESTINATION
-        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+        ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/cmake
     )
 
 # Install agent exec
@@ -433,11 +429,11 @@ if(UAGENT_BUILD_EXECUTABLE)
         EXPORT
             MicroXRCEAgentTargets
         RUNTIME
-            DESTINATION ${BIN_INSTALL_DIR}
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY
-            DESTINATION ${LIB_INSTALL_DIR}
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE
-            DESTINATION ${LIB_INSTALL_DIR}
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT
             executables
         )
@@ -453,7 +449,7 @@ install(
     FILES
         ${PROJECT_BINARY_DIR}/include/uxr/agent/config.hpp
     DESTINATION
-        ${INCLUDE_INSTALL_DIR}/uxr/agent
+        ${CMAKE_INSTALL_INCLUDEDIR}/uxr/agent
     )
 
 # Install licenses
@@ -473,12 +469,12 @@ configure_package_config_file(
     ${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION
-        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+        ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/cmake
     PATH_VARS
-        BIN_INSTALL_DIR
-        INCLUDE_INSTALL_DIR
-        LIB_INSTALL_DIR
-        DATA_INSTALL_DIR
+        CMAKE_INSTALL_BINDIR
+        CMAKE_INSTALL_INCLUDEDIR
+        CMAKE_INSTALL_LIBDIR
+        CMAKE_INSTALL_DATADIR
     )
 
 write_basic_package_version_file(
@@ -494,7 +490,7 @@ install(
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}ConfigVersion.cmake
     DESTINATION
-        ${DATA_INSTALL_DIR}/${PROJECT_NAME}/cmake
+        ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/cmake
     )
 
 # Install default profile XML.
@@ -503,7 +499,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         FILES
             ${PROJECT_SOURCE_DIR}/agent.refs
         DESTINATION
-            ${BIN_INSTALL_DIR}
+            ${CMAKE_INSTALL_BINDIR}
         )
 endif()
 
@@ -511,15 +507,17 @@ endif()
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
     file(GLOB _deps RELATIVE ${CMAKE_BINARY_DIR}/temp_install ${CMAKE_BINARY_DIR}/temp_install/*)
     foreach(_d ${_deps})
-        install(
-            DIRECTORY
-                ${CMAKE_BINARY_DIR}/temp_install/${_d}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,,/>
-            DESTINATION
-                ${CMAKE_INSTALL_PREFIX}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,/../,>
-            COMPONENT
-                ${_d}
-            USE_SOURCE_PERMISSIONS
-        )
+        if(UAGENT_ISOLATED_INSTALL)
+            install(
+                DIRECTORY
+                    ${CMAKE_BINARY_DIR}/temp_install/${_d}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,,/>
+                DESTINATION
+                    ${CMAKE_INSTALL_PREFIX}$<IF:$<BOOL:${UAGENT_ISOLATED_INSTALL}>,/../,>
+                COMPONENT
+                    ${_d}
+                USE_SOURCE_PERMISSIONS
+            )
+        endif()
     endforeach()
 endif()
 
