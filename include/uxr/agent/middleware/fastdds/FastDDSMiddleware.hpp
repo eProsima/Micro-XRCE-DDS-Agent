@@ -32,7 +32,7 @@ class FastDDSMiddleware : public Middleware
 {
 public:
     FastDDSMiddleware();
-    FastDDSMiddleware(bool intraprocess_enabled);
+    FastDDSMiddleware(bool intraprocess_enabled, bool is_little_endian = true);
     ~FastDDSMiddleware() final = default;
 
 /**********************************************************************************************************************

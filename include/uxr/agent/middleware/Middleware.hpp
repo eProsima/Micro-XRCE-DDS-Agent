@@ -49,8 +49,10 @@ public:
 
     Middleware() = default;
     Middleware(
-            bool intraprocess_enabled)
+            bool intraprocess_enabled,
+            bool is_little_endian = true)
         : intraprocess_enabled_(intraprocess_enabled)
+        , is_little_endian_(is_little_endian)
     {
     };
     virtual ~Middleware() = default;
@@ -301,6 +303,7 @@ public:
  **********************************************************************************************************************/
 protected:
     bool intraprocess_enabled_;
+    bool is_little_endian_ = true;
 };
 
 } // namespace uxr

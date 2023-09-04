@@ -19,19 +19,31 @@
 namespace eprosima {
 namespace uxr {
 
-TopicPubSubType::TopicPubSubType(bool with_key) {
+TopicPubSubType::TopicPubSubType(bool with_key, bool is_little_endian) {
     m_typeSize = 1024 + 4 /*encapsulation*/;
     m_isGetKeyDefined = with_key;
+    is_little_endian_ = is_little_endian;
 }
 
 bool TopicPubSubType::serialize(void *data, rtps::SerializedPayload_t *payload)
 {
     bool rv = false;
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
-    payload->data[0] = 0;
-    payload->data[1] = 1;
-    payload->data[2] = 0;
-    payload->data[3] = 0;
+    if(is_little_endian_)
+    {
+        payload->data[0] = 0;
+        payload->data[1] = 1;
+        payload->data[2] = 0;
+        payload->data[3] = 0;
+    }
+    else
+    {
+        payload->data[0] = 0;
+        payload->data[1] = 2;
+        payload->data[2] = 0;
+        payload->data[3] = 0;
+    }
+
     if (buffer->size() <= (payload->max_size - 4))
     {
         memcpy(&payload->data[4], buffer->data(), buffer->size());

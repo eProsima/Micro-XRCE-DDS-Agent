@@ -28,7 +28,7 @@ class TopicPubSubType: public TopicDataType
 public:
     typedef std::vector<unsigned char> type;
 
-    explicit TopicPubSubType(bool with_key);
+    explicit TopicPubSubType(bool with_key, bool is_little_endian = true);
     ~TopicPubSubType() override = default;
     bool serialize(void* data, rtps::SerializedPayload_t* payload) override;
     bool deserialize(rtps::SerializedPayload_t* payload, void* data) override;
@@ -36,6 +36,9 @@ public:
     bool getKey(void* data, rtps::InstanceHandle_t* ihandle, bool force_md5 = false) override;
     void* createData() override;
     void deleteData(void* data) override;
+
+private:
+    bool is_little_endian_;
 };
 
 } // namespace uxr

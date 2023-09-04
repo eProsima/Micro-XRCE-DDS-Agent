@@ -67,7 +67,9 @@ ProxyClient::ProxyClient(
             bool intraprocess_enabled =
                 properties_.find("uxr_sm") != properties_.end() &&
                 properties_["uxr_sm"] == "1";
-            middleware_.reset(new FastDDSMiddleware(intraprocess_enabled));
+            bool big_endian_payload = properties_.find("uxr_be_pl") != properties_.end() &&
+                properties_["uxr_be_pl"] == "1";
+            middleware_.reset(new FastDDSMiddleware(intraprocess_enabled, !big_endian_payload));
             break;
         }
 #endif

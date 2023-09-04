@@ -40,8 +40,8 @@ FastDDSMiddleware::FastDDSMiddleware()
 {
 }
 
-FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
-    : Middleware(intraprocess_enabled)
+FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled, bool is_little_endian)
+    : Middleware(intraprocess_enabled, is_little_endian)
     , participants_()
     , topics_()
     , publishers_()
@@ -145,7 +145,8 @@ bool FastDDSMiddleware::create_participant_by_bin(
 static
 std::shared_ptr<FastDDSTopic> create_topic(
         std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::TopicAttributes& attrs)
+        const fastrtps::TopicAttributes& attrs,
+        bool is_little_endian)
 {
     std::shared_ptr<FastDDSTopic> topic = participant->find_local_topic(attrs.getTopicName().c_str());
     if (topic)
@@ -161,7 +162,7 @@ std::shared_ptr<FastDDSTopic> create_topic(
         std::shared_ptr<FastDDSType> type = participant->find_local_type(type_name);
         if (!type)
         {
-            fastdds::dds::TypeSupport type_support(new TopicPubSubType{false});
+            fastdds::dds::TypeSupport type_support(new TopicPubSubType{false, is_little_endian});
             type_support->setName(type_name);
             type_support->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
             type = std::make_shared<FastDDSType>(type_support, participant);
@@ -196,7 +197,7 @@ bool FastDDSMiddleware::create_topic_by_ref(
         auto it_participant = participants_.find(participant_id);
         if (participants_.end() != it_participant)
         {
-            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs, is_little_endian_);
             rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
@@ -215,7 +216,7 @@ bool FastDDSMiddleware::create_topic_by_xml(
         auto it_participant = participants_.find(participant_id);
         if (participants_.end() != it_participant)
         {
-            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs, is_little_endian_);
             rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
@@ -235,7 +236,7 @@ bool FastDDSMiddleware::create_topic_by_bin(
             topic_xrce.topic_name().c_str(),
             topic_xrce.type_name().c_str()
         );
-        std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
+        std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs, is_little_endian_);
         rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
     }
     return rv;
@@ -486,8 +487,8 @@ std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
         const fastrtps::RequesterAttributes& attrs)
 {
     std::shared_ptr<FastDDSRequester> requester{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.publisher.topic);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.subscriber.topic);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.publisher.topic, is_little_endian_);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.subscriber.topic, is_little_endian_);
     if (request_topic && reply_topic)
     {
         requester =
@@ -618,8 +619,8 @@ std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
         const fastrtps::ReplierAttributes& attrs)
 {
     std::shared_ptr<FastDDSReplier> replier{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.subscriber.topic);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.publisher.topic);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.subscriber.topic, is_little_endian_);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.publisher.topic, is_little_endian_);
     if (request_topic && reply_topic)
     {
         replier =
