@@ -85,10 +85,10 @@ void MultiTermiosAgent::init_multiport()
                         new_attrs.c_cc[VMIN] = termios_attrs_.c_cc[VMIN];
                         new_attrs.c_cc[VTIME] = termios_attrs_.c_cc[VTIME];
 
-#if _HAVE_STRUCT_TERMIOS_C_ISPEED
+#if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
                         cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
 #endif
-#if _HAVE_STRUCT_TERMIOS_C_OSPEED
+#if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
                         cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
 #endif
 
