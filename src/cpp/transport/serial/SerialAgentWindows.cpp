@@ -54,7 +54,7 @@ ssize_t SerialAgent::write_data(
 ssize_t SerialAgent::read_data(
         uint8_t* buf,
         size_t len,
-        int timeout,
+        int /*timeout*/,
         TransportRc& transport_rc)
 {
     DWORD bytes_read = 0;
