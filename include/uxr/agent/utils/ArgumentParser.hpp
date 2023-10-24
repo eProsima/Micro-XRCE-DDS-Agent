@@ -29,6 +29,8 @@
 #include <uxr/agent/transport/udp/UDPv6AgentWindows.hpp>
 #include <uxr/agent/transport/tcp/TCPv4AgentWindows.hpp>
 #include <uxr/agent/transport/tcp/TCPv6AgentWindows.hpp>
+#include <uxr/agent/transport/serial/TermiosAgentWindows.hpp>
+#include <uxr/agent/transport/serial/baud_rate_table_windows.h>
 #else
 #include <uxr/agent/transport/udp/UDPv4AgentLinux.hpp>
 #include <uxr/agent/transport/udp/UDPv6AgentLinux.hpp>
@@ -64,11 +66,11 @@ enum class TransportKind
     UDP6,
     TCP4,
     TCP6,
+    SERIAL,
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
     CAN,
 #endif // UAGENT_SOCKETCAN_PROFILE
-    SERIAL,
     MULTISERIAL,
     PSEUDOTERMINAL,
 #endif // _WIN32
@@ -659,7 +661,6 @@ private:
     Argument<uint16_t> port_;
 };
 
-#ifndef _WIN32
 /*************************************************************************************************
  * Specific arguments for pseudoterminal transports
  *************************************************************************************************/
@@ -782,6 +783,8 @@ private:
     Argument<std::string> file_;
 };
 
+
+#ifndef _WIN32
 /*************************************************************************************************
  * Specific arguments for multi serial termios transports
  *************************************************************************************************/
@@ -943,11 +946,11 @@ public:
         , argv_(argv)
         , common_args_()
         , ip_args_()
+        , serial_args_()
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
         , can_args_()
 #endif // UAGENT_SOCKETCAN_PROFILE
-        , serial_args_()
         , multiserial_args_()
         , pseudoterminal_args_()
 #endif // _WIN32
@@ -979,6 +982,11 @@ public:
                 result &= ip_args_.parse(argc_, argv_);
                 break;
             }
+            case TransportKind::SERIAL:
+            {
+                result &= serial_args_.parse(argc_, argv_);
+                break;
+            }
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
             case TransportKind::CAN:
@@ -987,11 +995,6 @@ public:
                 break;
             }
 #endif // UAGENT_SOCKETCAN_PROFILE
-            case TransportKind::SERIAL:
-            {
-                result &= serial_args_.parse(argc_, argv_);
-                break;
-            }
             case TransportKind::MULTISERIAL:
             {
                 result &= multiserial_args_.parse(argc_, argv_);
@@ -1077,6 +1080,29 @@ public:
 
         return attr;
     }
+#else
+    DCB init_termios(const char* baudrate_str) {
+        DCB attr = {};
+
+        /* Setting baudrate. */
+        attr.Parity = NOPARITY;
+        attr.StopBits = ONESTOPBIT;
+        attr.ByteSize = 8;
+        attr.BaudRate = getBaudRate(baudrate_str);
+
+        attr.fBinary = FALSE;
+        attr.fParity = FALSE;
+        attr.fOutxCtsFlow = FALSE;
+        attr.fOutxDsrFlow = FALSE;
+        attr.fDtrControl = DTR_CONTROL_ENABLE;
+        attr.fRtsControl = RTS_CONTROL_ENABLE;
+        attr.fInX = FALSE;
+        attr.fOutX = FALSE;
+        attr.fDsrSensitivity = FALSE;
+        attr.fErrorChar = FALSE;
+
+        return attr;
+    }
 #endif // _WIN32
 
     void show_help()
@@ -1107,11 +1133,11 @@ private:
     char** argv_;
     CommonArgs<AgentType> common_args_;
     IPvXArgs<AgentType> ip_args_;
+    SerialArgs<AgentType> serial_args_;
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
     CanArgs<AgentType> can_args_;
 #endif // UAGENT_SOCKETCAN_PROFILE
-    SerialArgs<AgentType> serial_args_;
     MultiSerialArgs<AgentType> multiserial_args_;
     PseudoTerminalArgs<AgentType> pseudoterminal_args_;
 #endif // _WIN32
@@ -1119,13 +1145,20 @@ private:
     std::unique_ptr<AgentType> agent_server_;
 };
 
+template<> inline bool ArgumentParser<TermiosAgent>::launch_agent() {
 #ifndef _WIN32
-template<> inline bool ArgumentParser<TermiosAgent>::launch_agent()
-{
-    struct termios attr = init_termios(serial_args_.baud_rate().c_str());
-    
+    termios
+#else
+    DCB
+#endif
+    attr = init_termios(serial_args_.baud_rate().c_str());
+
     agent_server_.reset(new TermiosAgent(
-        serial_args_.dev().c_str(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
+#ifndef _WIN32
+        serial_args_.dev().c_str(), O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
+#else
+        serial_args_.dev().c_str(), attr, 0, utils::get_mw_kind(common_args_.middleware())));
+#endif
 
     if (agent_server_->start())
     {
@@ -1140,6 +1173,8 @@ template<> inline bool ArgumentParser<TermiosAgent>::launch_agent()
     return false;
 }
 
+
+#ifndef _WIN32
 template<> inline bool ArgumentParser<MultiTermiosAgent>::launch_agent()
 {
     struct termios attr = init_termios(multiserial_args_.baud_rate().c_str());

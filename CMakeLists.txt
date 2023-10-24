@@ -178,6 +178,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/cpp/transport/udp/UDPv6AgentWindows.cpp
         src/cpp/transport/tcp/TCPv4AgentWindows.cpp
         src/cpp/transport/tcp/TCPv6AgentWindows.cpp
+        src/cpp/transport/serial/SerialAgentWindows.cpp
+        src/cpp/transport/serial/TermiosAgentWindows.cpp
         $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServerWindows.cpp>
         )
 endif()
