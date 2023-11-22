@@ -1068,10 +1068,10 @@ public:
 
         /* Setting baudrate. */
         speed_t baudrate = getBaudRate(baudrate_str);
-#if _HAVE_STRUCT_TERMIOS_C_ISPEED
+#if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
         attr.c_ispeed = baudrate;
 #endif
-#if _HAVE_STRUCT_TERMIOS_C_OSPEED
+#if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
         attr.c_ospeed = baudrate;
 #endif
 

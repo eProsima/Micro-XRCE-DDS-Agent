@@ -91,6 +91,15 @@ const XrceVersion XRCE_VERSION = {XRCE_VERSION_MAJOR, XRCE_VERSION_MINOR};
 const uint8_t XRCE_VENDOR_INVALID1 = 0x00;
 const uint8_t XRCE_VENDOR_INVALID2 = 0x00;
 
+//! @brief This enumeration represents the two posible values of the SubMessage endianness flag.
+typedef enum Endianness
+{
+    //! @brief Big endianness.
+    BIG_ENDIANNESS = 0x0,
+    //! @brief Little endianness.
+    LITTLE_ENDIANNESS = 0x1
+} Endianness;
+
 /*!
  * @brief This class represents the structure Time_t defined by the user in the IDL file.
  * @ingroup TYPESMOD
@@ -2365,6 +2374,24 @@ public:
     }
 
     /*!
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
+     */
+    inline void endianness(Endianness endianness)
+    {
+        m_endianness = endianness;
+    }
+
+    /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
+     */
+    inline Endianness endianness() const
+    {
+        return m_endianness;
+    }
+
+    /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
@@ -2395,6 +2422,7 @@ public:
 
 private:
     OBJK_RepresentationBinAndXMLFormats m_representation;
+    Endianness m_endianness;
 };
 
 /*!
@@ -2474,7 +2502,25 @@ public:
     {
         return m_representation;
     }
-    
+
+    /*!
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
+     */
+    inline void endianness(Endianness endianness)
+    {
+        m_endianness = endianness;
+    }
+
+    /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
+     */
+    inline Endianness endianness() const
+    {
+        return m_endianness;
+    }
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -2505,6 +2551,7 @@ public:
 
 private:
     OBJK_Representation3Formats m_representation;
+    Endianness m_endianness;
 };
 
 /*!
@@ -5902,7 +5949,34 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     REPLIER_Representation& replier();
-    
+
+    /*!
+     * @brief This function updates the value in representation endianness
+     * @param endianness New value of representation endianness
+     */
+    inline void endianness(Endianness endianness)
+    {
+        m_endianness = endianness;
+
+        m_participant.endianness(m_endianness);
+        m_topic.endianness(m_endianness);
+        m_publisher.endianness(m_endianness);
+        m_subscriber.endianness(m_endianness);
+        m_data_writer.endianness(m_endianness);
+        m_data_reader.endianness(m_endianness);
+        m_requester.endianness(m_endianness);
+        m_replier.endianness(m_endianness);
+    }
+
+    /*!
+     * @brief This function returns a copy to the representation endianness
+     * @return Representation endianness
+     */
+    inline Endianness endianness() const
+    {
+        return m_endianness;
+    }
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
@@ -5933,7 +6007,8 @@ public:
 
 private:
     ObjectKind m__d;
-    
+    Endianness m_endianness;
+
     AGENT_Representation m_agent;
     CLIENT_Representation m_client;
     OBJK_APPLICATION_Representation m_application;

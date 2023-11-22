@@ -70,6 +70,14 @@ bool FastDDSMiddleware::create_participant_by_ref(
         int16_t domain_id,
         const std::string& ref)
 {
+    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+        domain_id = agent_domain_id_;
+        UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+                "domain_id: {}", domain_id
+        );
+    }
+
     bool rv = false;
     fastrtps::ParticipantAttributes attrs;
     auto participant_domain_id = domain_id;
@@ -97,6 +105,14 @@ bool FastDDSMiddleware::create_participant_by_xml(
         int16_t domain_id,
         const std::string& xml)
 {
+    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+        domain_id = agent_domain_id_;
+        UXR_AGENT_LOG_WARN(
+                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+                "domain_id: {}", domain_id
+        );
+    }
+
     bool rv = false;
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(domain_id));
     if (participant->create_by_xml(xml))

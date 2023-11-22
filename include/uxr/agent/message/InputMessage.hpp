@@ -100,6 +100,13 @@ inline bool InputMessage::prepare_next_submessage()
     if (fastbuffer_.getBufferSize() > deserializer_.getSerializedDataLength())
     {
         rv = deserialize(subheader_);
+
+        // Check submessage endianness
+        fastcdr::Cdr::Endianness endianness = static_cast<fastcdr::Cdr::Endianness>(subheader_.flags() & 0x01);
+        if (endianness != deserializer_.endianness())
+        {
+            deserializer_.changeEndianness(endianness);
+        }
     }
     return rv;
 }
