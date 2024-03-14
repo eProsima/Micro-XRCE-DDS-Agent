@@ -1438,8 +1438,8 @@ bool FastDDSReplier::write(
     fastrtps::rtps::WriteParams wparams;
     transport_sample_identity(sample_identity, wparams.related_sample_identity());
 
-    std::vector<uint8_t> output_data(data.size() - deserializer.getSerializedDataLength());
-    deserializer.deserializeArray(output_data.data(), output_data.size());
+    std::vector<uint8_t> output_data(data.size() - deserializer.get_serialized_data_length());
+    deserializer.deserialize_array(output_data.data(), output_data.size());
 
     return datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data), wparams);
 }
@@ -1491,7 +1491,7 @@ bool FastDDSReplier::read(
         try
         {
             sample_identity.serialize(serializer);
-            serializer.serializeArray(temp_data.data(), temp_data.size());
+            serializer.serialize_array(temp_data.data(), temp_data.size());
         }
         catch(const std::exception&)
         {

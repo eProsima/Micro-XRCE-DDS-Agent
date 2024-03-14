@@ -208,7 +208,7 @@ bool Requester::read_fn(
         fastcdr::Cdr serializer(fastbuffer);
 
         request.serialize(serializer);
-        serializer.serializeArray(temp_data.data(), temp_data.size());
+        serializer.serialize_array(temp_data.data(), temp_data.size());
 
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[==>> DDS <<==]"),
