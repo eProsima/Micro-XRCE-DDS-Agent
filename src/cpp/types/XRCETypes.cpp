@@ -29,6 +29,86 @@ namespace { char dummy; }
 
 #include <utility>
 
+// Fast CDR SerDes specializations for XRCE Objects
+#define CDR_XRCE_TYPE_SPECIALIZATION(TYPE) \
+    eprosima::fastcdr::Cdr& operator <<(eprosima::fastcdr::Cdr& cdr, const TYPE& value) \
+    { \
+        value.serialize(cdr); \
+        return cdr; \
+    } \
+    eprosima::fastcdr::Cdr& operator >>(eprosima::fastcdr::Cdr& cdr, TYPE& value) \
+    { \
+        value.deserialize(cdr); \
+        return cdr; \
+    } \
+    namespace eprosima { \
+    namespace fastcdr { \
+        template<> \
+        void serialize(Cdr& cdr, const TYPE &value) \
+        { \
+            value.serialize(cdr); \
+        } \
+        \
+        template<> \
+        void deserialize(Cdr& cdr, TYPE &value) \
+        { \
+            value.deserialize(cdr); \
+        } \
+    } \
+    } \
+
+
+CDR_XRCE_TYPE_SPECIALIZATION(dds::EntityId_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::GUID_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::SequenceNumber_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ActivityInfoVariant)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::AGENT_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::AGENT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::BaseObjectRequest)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::CLIENT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DataDeliveryControl)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAREADER_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAREADER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAWRITER_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAWRITER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ObjectInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ObjectVariant)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_APPLICATION_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_DataReader_Binary_Qos)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_DataWriter_Binary_Qos)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_Endpoint_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PARTICIPANT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PUBLISHER_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PUBLISHER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_QOSPROFILE_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_Representation3Formats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_RepresentationBinAndXMLFormats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_RepresentationRefAndXMLFormats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_SUBSCRIBER_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_SUBSCRIBER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_TOPIC_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_TYPE_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::PackedSamples)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Property)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ReadSpecification)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::REPLIER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::REQUESTER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ResultStatus)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Sample)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleData)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleDelta)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleInfoDelta)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Time_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddress)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressLarge)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressMedium)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressSmall)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressString)
+
+#undef CDR_XRCE_TYPE_SPECIALIZATION
+
+
 dds::xrce::XRCETypesException::XRCETypesException(const std::string& message) : message_(message) {}
 
 dds::xrce::Time_t::Time_t()
