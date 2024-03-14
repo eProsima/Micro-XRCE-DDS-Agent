@@ -35,7 +35,7 @@ public:
           header_(),
           subheader_(),
           fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          deserializer_(fastbuffer_)
+          deserializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         memcpy(buf_, buf, len);
 
@@ -113,7 +113,7 @@ inline bool InputMessage::prepare_next_submessage()
 
 inline size_t InputMessage::count_submessages()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_);
+    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 
@@ -146,7 +146,7 @@ inline size_t InputMessage::count_submessages()
 
 inline dds::xrce::SubmessageId InputMessage::get_submessage_id()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_);
+    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 

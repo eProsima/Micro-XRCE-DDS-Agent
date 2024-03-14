@@ -34,7 +34,7 @@ public:
         : buf_(new uint8_t[len]{0}),
           len_(len),
           fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          serializer_(fastbuffer_)
+          serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         serialize(header);
     }

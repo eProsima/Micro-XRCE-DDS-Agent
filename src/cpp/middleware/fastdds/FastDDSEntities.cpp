@@ -1430,7 +1430,7 @@ bool FastDDSReplier::write(
         const std::vector<uint8_t>& data)
 {
     fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(data.data())), data.size()};
-    fastcdr::Cdr deserializer(fastbuffer);
+    fastcdr::Cdr deserializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
 
     dds::SampleIdentity sample_identity;
     sample_identity.deserialize(deserializer);
@@ -1486,7 +1486,7 @@ bool FastDDSReplier::read(
         data.resize(sample_identity.getCdrSerializedSize() + temp_data.size());
 
         fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(data.data()), data.size()};
-        fastcdr::Cdr serializer(fastbuffer);
+        fastcdr::Cdr serializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
 
         try
         {

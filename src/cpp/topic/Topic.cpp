@@ -50,7 +50,7 @@ std::unique_ptr<Topic> Topic::create(
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
-            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
             topic_xrce.deserialize(cdr);
 
             created_entity = proxy_client->get_middleware().create_topic_by_bin(raw_object_id, participant_id, topic_xrce);
@@ -105,7 +105,7 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
-            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
             topic_xrce.deserialize(cdr);
 
             rv = proxy_client_->get_middleware().matched_topic_from_bin(get_raw_id(), topic_xrce);
