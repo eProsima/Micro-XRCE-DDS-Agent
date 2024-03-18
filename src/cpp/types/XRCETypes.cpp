@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*! 
+/*!
  * @file Types.cpp
  * This source file contains the definition of the described types in the IDL file.
  *
@@ -28,6 +28,86 @@ namespace { char dummy; }
 #include <fastcdr/Cdr.h>
 
 #include <utility>
+
+// Fast CDR SerDes specializations for XRCE Objects
+#define CDR_XRCE_TYPE_SPECIALIZATION(TYPE) \
+    eprosima::fastcdr::Cdr& operator <<(eprosima::fastcdr::Cdr& cdr, const TYPE& value) \
+    { \
+        value.serialize(cdr); \
+        return cdr; \
+    } \
+    eprosima::fastcdr::Cdr& operator >>(eprosima::fastcdr::Cdr& cdr, TYPE& value) \
+    { \
+        value.deserialize(cdr); \
+        return cdr; \
+    } \
+    namespace eprosima { \
+    namespace fastcdr { \
+        template<> \
+        void serialize(Cdr& cdr, const TYPE &value) \
+        { \
+            value.serialize(cdr); \
+        } \
+        \
+        template<> \
+        void deserialize(Cdr& cdr, TYPE &value) \
+        { \
+            value.deserialize(cdr); \
+        } \
+    } \
+    } \
+
+
+CDR_XRCE_TYPE_SPECIALIZATION(dds::EntityId_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::GUID_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::SequenceNumber_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ActivityInfoVariant)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::AGENT_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::AGENT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::BaseObjectRequest)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::CLIENT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DataDeliveryControl)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAREADER_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAREADER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAWRITER_ActivityInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::DATAWRITER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ObjectInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ObjectVariant)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_APPLICATION_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_DataReader_Binary_Qos)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_DataWriter_Binary_Qos)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_Endpoint_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PARTICIPANT_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PUBLISHER_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_PUBLISHER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_QOSPROFILE_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_Representation3Formats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_RepresentationBinAndXMLFormats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_RepresentationRefAndXMLFormats)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_SUBSCRIBER_QosBinary)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_SUBSCRIBER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_TOPIC_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::OBJK_TYPE_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::PackedSamples)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Property)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ReadSpecification)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::REPLIER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::REQUESTER_Representation)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::ResultStatus)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Sample)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleData)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleDelta)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleInfo)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::SampleInfoDelta)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::Time_t)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddress)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressLarge)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressMedium)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressSmall)
+CDR_XRCE_TYPE_SPECIALIZATION(dds::xrce::TransportAddressString)
+
+#undef CDR_XRCE_TYPE_SPECIALIZATION
+
 
 dds::xrce::XRCETypesException::XRCETypesException(const std::string& message) : message_(message) {}
 
@@ -57,7 +137,7 @@ dds::xrce::Time_t& dds::xrce::Time_t::operator=(const Time_t &x)
 {
     m_seconds = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
-    
+
     return *this;
 }
 
@@ -65,14 +145,14 @@ dds::xrce::Time_t& dds::xrce::Time_t::operator=(Time_t &&x)
 {
     m_seconds = x.m_seconds;
     m_nanoseconds = x.m_nanoseconds;
-    
+
     return *this;
 }
 
 size_t dds::xrce::Time_t::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -84,7 +164,7 @@ size_t dds::xrce::Time_t::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::Time_t::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -131,7 +211,7 @@ dds::xrce::TransportAddressSmall& dds::xrce::TransportAddressSmall::operator=(co
 {
     m_address = x.m_address;
     m_port = x.m_port;
-    
+
     return *this;
 }
 
@@ -139,14 +219,14 @@ dds::xrce::TransportAddressSmall& dds::xrce::TransportAddressSmall::operator=(Tr
 {
     m_address = std::move(x.m_address);
     m_port = x.m_port;
-    
+
     return *this;
 }
 
 size_t dds::xrce::TransportAddressSmall::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -158,7 +238,7 @@ size_t dds::xrce::TransportAddressSmall::getMaxCdrSerializedSize(size_t current_
 size_t dds::xrce::TransportAddressSmall::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -204,7 +284,7 @@ dds::xrce::TransportAddressMedium& dds::xrce::TransportAddressMedium::operator=(
 {
     m_address = x.m_address;
     m_port = x.m_port;
-    
+
     return *this;
 }
 
@@ -212,14 +292,14 @@ dds::xrce::TransportAddressMedium& dds::xrce::TransportAddressMedium::operator=(
 {
     m_address = std::move(x.m_address);
     m_port = x.m_port;
-    
+
     return *this;
 }
 
 size_t dds::xrce::TransportAddressMedium::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -231,7 +311,7 @@ size_t dds::xrce::TransportAddressMedium::getMaxCdrSerializedSize(size_t current
 size_t dds::xrce::TransportAddressMedium::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
@@ -277,7 +357,7 @@ dds::xrce::TransportAddressLarge& dds::xrce::TransportAddressLarge::operator=(co
 {
     m_address = x.m_address;
     m_port = x.m_port;
-    
+
     return *this;
 }
 
@@ -285,14 +365,14 @@ dds::xrce::TransportAddressLarge& dds::xrce::TransportAddressLarge::operator=(Tr
 {
     m_address = std::move(x.m_address);
     m_port = x.m_port;
-    
+
     return *this;
 }
 
 size_t dds::xrce::TransportAddressLarge::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((16) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -304,7 +384,7 @@ size_t dds::xrce::TransportAddressLarge::getMaxCdrSerializedSize(size_t current_
 size_t dds::xrce::TransportAddressLarge::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((16) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
@@ -345,21 +425,21 @@ dds::xrce::TransportAddressString::TransportAddressString(TransportAddressString
 dds::xrce::TransportAddressString& dds::xrce::TransportAddressString::operator=(const TransportAddressString &x)
 {
     m_value = x.m_value;
-    
+
     return *this;
 }
 
 dds::xrce::TransportAddressString& dds::xrce::TransportAddressString::operator=(TransportAddressString &&x)
 {
     m_value = std::move(x.m_value);
-    
+
     return *this;
 }
 
 size_t dds::xrce::TransportAddressString::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
     return current_alignment - initial_alignment;
@@ -368,7 +448,7 @@ size_t dds::xrce::TransportAddressString::getMaxCdrSerializedSize(size_t current
 size_t dds::xrce::TransportAddressString::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_value.size() + 1;
 
     return current_alignment - initial_alignment;
@@ -396,7 +476,7 @@ dds::xrce::TransportAddress::~TransportAddress()
 dds::xrce::TransportAddress::TransportAddress(const TransportAddress &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -419,7 +499,7 @@ dds::xrce::TransportAddress::TransportAddress(const TransportAddress &x)
 dds::xrce::TransportAddress::TransportAddress(TransportAddress &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -442,7 +522,7 @@ dds::xrce::TransportAddress::TransportAddress(TransportAddress &&x)
 dds::xrce::TransportAddress& dds::xrce::TransportAddress::operator=(const TransportAddress &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -460,14 +540,14 @@ dds::xrce::TransportAddress& dds::xrce::TransportAddress::operator=(const Transp
         default:
         break;
     }
-    
+
     return *this;
 }
 
 dds::xrce::TransportAddress& dds::xrce::TransportAddress::operator=(TransportAddress &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -485,14 +565,14 @@ dds::xrce::TransportAddress& dds::xrce::TransportAddress::operator=(TransportAdd
         default:
         break;
     }
-    
+
     return *this;
 }
 
 void dds::xrce::TransportAddress::_d(dds::xrce::TransportAddressFormat __d)
 {
     bool b = false;
-    
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -536,9 +616,9 @@ void dds::xrce::TransportAddress::_d(dds::xrce::TransportAddressFormat __d)
         }
         break;
     }
-    
+
     if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
-    
+
     m__d = __d;
 }
 
@@ -567,7 +647,7 @@ void dds::xrce::TransportAddress::small_locator(dds::xrce::TransportAddressSmall
 const dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locator() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -575,16 +655,16 @@ const dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locat
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_small_locator;
 }
 
 dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locator()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_SMALL:
@@ -592,9 +672,9 @@ dds::xrce::TransportAddressSmall& dds::xrce::TransportAddress::small_locator()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_small_locator;
 }
 void dds::xrce::TransportAddress::medium_locator(const dds::xrce::TransportAddressMedium &_medium_locator)
@@ -612,7 +692,7 @@ void dds::xrce::TransportAddress::medium_locator(dds::xrce::TransportAddressMedi
 const dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_locator() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_MEDIUM:
@@ -620,16 +700,16 @@ const dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_loc
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_medium_locator;
 }
 
 dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_locator()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_MEDIUM:
@@ -637,9 +717,9 @@ dds::xrce::TransportAddressMedium& dds::xrce::TransportAddress::medium_locator()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_medium_locator;
 }
 void dds::xrce::TransportAddress::large_locator(const dds::xrce::TransportAddressLarge &_large_locator)
@@ -657,7 +737,7 @@ void dds::xrce::TransportAddress::large_locator(dds::xrce::TransportAddressLarge
 const dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locator() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_LARGE:
@@ -665,16 +745,16 @@ const dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locat
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_large_locator;
 }
 
 dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locator()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_LARGE:
@@ -682,9 +762,9 @@ dds::xrce::TransportAddressLarge& dds::xrce::TransportAddress::large_locator()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_large_locator;
 }
 void dds::xrce::TransportAddress::string_locator(const dds::xrce::TransportAddressString &_string_locator)
@@ -702,7 +782,7 @@ void dds::xrce::TransportAddress::string_locator(dds::xrce::TransportAddressStri
 const dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_locator() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_STRING:
@@ -710,16 +790,16 @@ const dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_loc
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_string_locator;
 }
 
 dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_locator()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case dds::xrce::ADDRESS_FORMAT_STRING:
@@ -727,9 +807,9 @@ dds::xrce::TransportAddressString& dds::xrce::TransportAddress::string_locator()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_string_locator;
 }
 
@@ -749,7 +829,7 @@ size_t dds::xrce::TransportAddress::getMaxCdrSerializedSize(size_t current_align
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::TransportAddressMedium::getMaxCdrSerializedSize(reset_alignment);
@@ -757,7 +837,7 @@ size_t dds::xrce::TransportAddress::getMaxCdrSerializedSize(size_t current_align
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::TransportAddressLarge::getMaxCdrSerializedSize(reset_alignment);
@@ -765,7 +845,7 @@ size_t dds::xrce::TransportAddress::getMaxCdrSerializedSize(size_t current_align
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::TransportAddressString::getMaxCdrSerializedSize(reset_alignment);
@@ -773,7 +853,7 @@ size_t dds::xrce::TransportAddress::getMaxCdrSerializedSize(size_t current_align
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
 
     return union_max_size_serialized - initial_alignment;
 }
@@ -879,7 +959,7 @@ dds::xrce::Property& dds::xrce::Property::operator=(const Property &x)
 {
     m_name = x.m_name;
     m_value = x.m_value;
-    
+
     return *this;
 }
 
@@ -887,14 +967,14 @@ dds::xrce::Property& dds::xrce::Property::operator=(Property &&x)
 {
     m_name = std::move(x.m_name);
     m_value = std::move(x.m_value);
-    
+
     return *this;
 }
 
 size_t dds::xrce::Property::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
@@ -906,7 +986,7 @@ size_t dds::xrce::Property::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::Property::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_name.size() + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_value.size() + 1;
@@ -967,7 +1047,7 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(co
     m_session_id = x.m_session_id;
     m_properties = x.m_properties;
     m_mtu = x.m_mtu;
-    
+
     return *this;
 }
 
@@ -980,14 +1060,14 @@ dds::xrce::CLIENT_Representation& dds::xrce::CLIENT_Representation::operator=(CL
     m_session_id = x.m_session_id;
     m_properties = std::move(x.m_properties);
     m_mtu = x.m_mtu;
-    
+
     return *this;
 }
 
 size_t dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1002,7 +1082,7 @@ size_t dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(size_t current_
 size_t dds::xrce::CLIENT_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1036,7 +1116,7 @@ void dds::xrce::CLIENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) c
     {
         scdr << *m_properties;
     }
-    
+
     scdr << m_mtu;
 }
 
@@ -1085,7 +1165,7 @@ dds::xrce::AGENT_Representation& dds::xrce::AGENT_Representation::operator=(cons
     m_xrce_cookie = x.m_xrce_cookie;
     m_xrce_version = x.m_xrce_version;
     m_xrce_vendor_id = x.m_xrce_vendor_id;
-    
+
     return *this;
 }
 
@@ -1094,14 +1174,14 @@ dds::xrce::AGENT_Representation& dds::xrce::AGENT_Representation::operator=(AGEN
     m_xrce_cookie = std::move(x.m_xrce_cookie);
     m_xrce_version = std::move(x.m_xrce_version);
     m_xrce_vendor_id = std::move(x.m_xrce_vendor_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1114,7 +1194,7 @@ size_t dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(size_t current_a
 size_t dds::xrce::AGENT_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((4) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -1142,7 +1222,7 @@ void dds::xrce::AGENT_Representation::serialize(eprosima::fastcdr::Cdr &scdr) co
     {
         scdr << *m_properties;
     }
-    
+
 }
 
 void dds::xrce::AGENT_Representation::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -1172,7 +1252,7 @@ dds::xrce::OBJK_Representation3Formats::~OBJK_Representation3Formats()
 dds::xrce::OBJK_Representation3Formats::OBJK_Representation3Formats(const OBJK_Representation3Formats &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1192,7 +1272,7 @@ dds::xrce::OBJK_Representation3Formats::OBJK_Representation3Formats(const OBJK_R
 dds::xrce::OBJK_Representation3Formats::OBJK_Representation3Formats(OBJK_Representation3Formats &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1212,7 +1292,7 @@ dds::xrce::OBJK_Representation3Formats::OBJK_Representation3Formats(OBJK_Represe
 dds::xrce::OBJK_Representation3Formats& dds::xrce::OBJK_Representation3Formats::operator=(const OBJK_Representation3Formats &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1227,14 +1307,14 @@ dds::xrce::OBJK_Representation3Formats& dds::xrce::OBJK_Representation3Formats::
         default:
             break;
     }
-    
+
     return *this;
 }
 
 dds::xrce::OBJK_Representation3Formats& dds::xrce::OBJK_Representation3Formats::operator=(OBJK_Representation3Formats &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1249,14 +1329,14 @@ dds::xrce::OBJK_Representation3Formats& dds::xrce::OBJK_Representation3Formats::
         default:
             break;
     }
-    
+
     return *this;
 }
 
 void dds::xrce::OBJK_Representation3Formats::_d(dds::xrce::RepresentationFormat __d)
 {
     bool b = false;
-    
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1290,9 +1370,9 @@ void dds::xrce::OBJK_Representation3Formats::_d(dds::xrce::RepresentationFormat 
             }
             break;
     }
-    
+
     if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
-    
+
     m__d = __d;
 }
 
@@ -1321,7 +1401,7 @@ void dds::xrce::OBJK_Representation3Formats::object_reference(std::string &&_obj
 const std::string& dds::xrce::OBJK_Representation3Formats::object_reference() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1329,16 +1409,16 @@ const std::string& dds::xrce::OBJK_Representation3Formats::object_reference() co
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_object_reference;
 }
 
 std::string& dds::xrce::OBJK_Representation3Formats::object_reference()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_BY_REFERENCE:
@@ -1346,9 +1426,9 @@ std::string& dds::xrce::OBJK_Representation3Formats::object_reference()
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_object_reference;
 }
 void dds::xrce::OBJK_Representation3Formats::xml_string_representation(const std::string &_xml_string_representation)
@@ -1366,7 +1446,7 @@ void dds::xrce::OBJK_Representation3Formats::xml_string_representation(std::stri
 const std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representation() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_AS_XML_STRING:
@@ -1374,16 +1454,16 @@ const std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representa
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_xml_string_representation;
 }
 
 std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representation()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_AS_XML_STRING:
@@ -1391,9 +1471,9 @@ std::string& dds::xrce::OBJK_Representation3Formats::xml_string_representation()
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_xml_string_representation;
 }
 void dds::xrce::OBJK_Representation3Formats::binary_representation(const std::vector<uint8_t> &_binary_representation)
@@ -1411,7 +1491,7 @@ void dds::xrce::OBJK_Representation3Formats::binary_representation(std::vector<u
 const std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representation() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_IN_BINARY:
@@ -1419,16 +1499,16 @@ const std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_repre
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_binary_representation;
 }
 
 std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representation()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case REPRESENTATION_IN_BINARY:
@@ -1436,9 +1516,9 @@ std::vector<uint8_t>& dds::xrce::OBJK_Representation3Formats::binary_representat
             break;
         default:
             break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_binary_representation;
 }
 
@@ -1459,7 +1539,7 @@ size_t dds::xrce::OBJK_Representation3Formats::getMaxCdrSerializedSize(size_t cu
         union_max_size_serialized = reset_alignment;
     }
 
-    
+
     reset_alignment = current_alignment;
 
     reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4) + 255 + 1;
@@ -2293,21 +2373,21 @@ dds::xrce::OBJK_Representation3_Base::OBJK_Representation3_Base(OBJK_Representat
 dds::xrce::OBJK_Representation3_Base& dds::xrce::OBJK_Representation3_Base::operator=(const OBJK_Representation3_Base &x)
 {
     m_representation = x.m_representation;
-    
+
     return *this;
 }
 
 dds::xrce::OBJK_Representation3_Base& dds::xrce::OBJK_Representation3_Base::operator=(OBJK_Representation3_Base &&x)
 {
     m_representation = std::move(x.m_representation);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_Representation3_Base::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3Formats::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2316,7 +2396,7 @@ size_t dds::xrce::OBJK_Representation3_Base::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2365,7 +2445,7 @@ dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::OBJK_QOSPROFILE_Representa
 size_t dds::xrce::OBJK_QOSPROFILE_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2374,7 +2454,7 @@ size_t dds::xrce::OBJK_QOSPROFILE_Representation::getMaxCdrSerializedSize(size_t
 size_t dds::xrce::OBJK_QOSPROFILE_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2423,7 +2503,7 @@ dds::xrce::OBJK_TYPE_Representation& dds::xrce::OBJK_TYPE_Representation::operat
 size_t dds::xrce::OBJK_TYPE_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2432,7 +2512,7 @@ size_t dds::xrce::OBJK_TYPE_Representation::getMaxCdrSerializedSize(size_t curre
 size_t dds::xrce::OBJK_TYPE_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2481,7 +2561,7 @@ dds::xrce::OBJK_DOMAIN_Representation& dds::xrce::OBJK_DOMAIN_Representation::op
 size_t dds::xrce::OBJK_DOMAIN_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2490,7 +2570,7 @@ size_t dds::xrce::OBJK_DOMAIN_Representation::getMaxCdrSerializedSize(size_t cur
 size_t dds::xrce::OBJK_DOMAIN_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2539,7 +2619,7 @@ dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::OBJK_APPLICATION_Represen
 size_t dds::xrce::OBJK_APPLICATION_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2548,7 +2628,7 @@ size_t dds::xrce::OBJK_APPLICATION_Representation::getMaxCdrSerializedSize(size_
 size_t dds::xrce::OBJK_APPLICATION_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationRefAndXML_Base::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -2593,7 +2673,7 @@ dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::OBJK_PARTICIPANT_Represen
 
 dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::OBJK_PARTICIPANT_Representation::operator=(OBJK_PARTICIPANT_Representation &&x)
 {
-    OBJK_Representation3_Base::operator=(x); 
+    OBJK_Representation3_Base::operator=(x);
     m_domain_id = std::move(x.m_domain_id);
     return *this;
 }
@@ -2601,7 +2681,7 @@ dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::OBJK_PARTICIPANT_Represen
 size_t dds::xrce::OBJK_PARTICIPANT_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
@@ -2611,7 +2691,7 @@ size_t dds::xrce::OBJK_PARTICIPANT_Representation::getMaxCdrSerializedSize(size_
 size_t dds::xrce::OBJK_PARTICIPANT_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
@@ -2654,7 +2734,7 @@ dds::xrce::OBJK_TOPIC_Representation& dds::xrce::OBJK_TOPIC_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id = x.m_participant_id;
-    
+
     return *this;
 }
 
@@ -2662,14 +2742,14 @@ dds::xrce::OBJK_TOPIC_Representation& dds::xrce::OBJK_TOPIC_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_participant_id = std::move(x.m_participant_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_TOPIC_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2680,7 +2760,7 @@ size_t dds::xrce::OBJK_TOPIC_Representation::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::OBJK_TOPIC_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2731,14 +2811,14 @@ dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::OBJK_PUBLISHER_Representati
 {
     OBJK_RepresentationBinAndXML_Base::operator=(x);
     m_participant_id = std::move(x.m_participant_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2748,7 +2828,7 @@ size_t dds::xrce::OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(size_t 
 size_t dds::xrce::OBJK_PUBLISHER_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2791,7 +2871,7 @@ dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::OBJK_SUBSCRIBER_Representa
 {
     OBJK_RepresentationBinAndXML_Base::operator=(x);
     m_participant_id = x.m_participant_id;
-    
+
     return *this;
 }
 
@@ -2799,14 +2879,14 @@ dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::OBJK_SUBSCRIBER_Representa
 {
     OBJK_RepresentationBinAndXML_Base::operator=(x);
     m_participant_id = std::move(x.m_participant_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_SUBSCRIBER_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2817,7 +2897,7 @@ size_t dds::xrce::OBJK_SUBSCRIBER_Representation::getMaxCdrSerializedSize(size_t
 size_t dds::xrce::OBJK_SUBSCRIBER_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2860,7 +2940,7 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::DATAWRITER_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_publisher_id = x.m_publisher_id;
-    
+
     return *this;
 }
 
@@ -2868,14 +2948,14 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::DATAWRITER_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_publisher_id = std::move(x.m_publisher_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATAWRITER_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2886,7 +2966,7 @@ size_t dds::xrce::DATAWRITER_Representation::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::DATAWRITER_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2929,7 +3009,7 @@ dds::xrce::DATAREADER_Representation& dds::xrce::DATAREADER_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_subscriber_id = x.m_subscriber_id;
-    
+
     return *this;
 }
 
@@ -2937,14 +3017,14 @@ dds::xrce::DATAREADER_Representation& dds::xrce::DATAREADER_Representation::oper
 {
     OBJK_Representation3_Base::operator=(x);
     m_subscriber_id = std::move(x.m_subscriber_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATAREADER_Representation::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_RepresentationBinAndXML_Base::getMaxCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -2955,7 +3035,7 @@ size_t dds::xrce::DATAREADER_Representation::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::DATAREADER_Representation::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::OBJK_Representation3_Base::getCdrSerializedSize(current_alignment);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -3140,7 +3220,7 @@ dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Bina
     m_domain_id = x.m_domain_id;
     m_domain_reference = x.m_domain_reference;
     m_qos_profile = x.m_qos_profile;
-    
+
     return *this;
 }
 
@@ -3149,14 +3229,14 @@ dds::xrce::OBJK_DomainParticipant_Binary& dds::xrce::OBJK_DomainParticipant_Bina
     m_domain_id = x.m_domain_id;
     m_domain_reference = std::move(x.m_domain_reference);
     m_qos_profile = std::move(x.m_qos_profile);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_DomainParticipant_Binary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 128 + 1;
@@ -3168,7 +3248,7 @@ size_t dds::xrce::OBJK_DomainParticipant_Binary::getMaxCdrSerializedSize(size_t 
 size_t dds::xrce::OBJK_DomainParticipant_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_domain_reference).size() + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_qos_profile).size() + 1;
@@ -3184,7 +3264,7 @@ void dds::xrce::OBJK_DomainParticipant_Binary::serialize(eprosima::fastcdr::Cdr 
     {
         scdr << *m_domain_reference;
     }
-    
+
     scdr << bool(m_qos_profile);
     if (m_qos_profile)
     {
@@ -3238,7 +3318,7 @@ dds::xrce::OBJK_Topic_Binary& dds::xrce::OBJK_Topic_Binary::operator=(const OBJK
     m_topic_name = x.m_topic_name;
     m_type_name = x.m_type_name;
     m_type_identifier = x.m_type_identifier;
-    
+
     return *this;
 }
 
@@ -3247,14 +3327,14 @@ dds::xrce::OBJK_Topic_Binary& dds::xrce::OBJK_Topic_Binary::operator=(OBJK_Topic
     m_topic_name = std::move(x.m_topic_name);
     m_type_name = std::move(x.m_type_name);
     m_type_identifier = std::move(x.m_type_identifier);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_Topic_Binary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 256 + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 256 + 1;
@@ -3268,7 +3348,7 @@ size_t dds::xrce::OBJK_Topic_Binary::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::OBJK_Topic_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_name.size() + 1;
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_type_name).size() + 1;
@@ -3292,7 +3372,7 @@ void dds::xrce::OBJK_Topic_Binary::serialize(eprosima::fastcdr::Cdr &scdr) const
     {
         scdr << *m_type_name;
     }
-    
+
 }
 
 void dds::xrce::OBJK_Topic_Binary::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -3339,7 +3419,7 @@ dds::xrce::OBJK_PUBLISHER_QosBinary& dds::xrce::OBJK_PUBLISHER_QosBinary::operat
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
-    
+
     return *this;
 }
 
@@ -3347,14 +3427,14 @@ dds::xrce::OBJK_PUBLISHER_QosBinary& dds::xrce::OBJK_PUBLISHER_QosBinary::operat
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_PUBLISHER_QosBinary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
     {
@@ -3372,7 +3452,7 @@ size_t dds::xrce::OBJK_PUBLISHER_QosBinary::getMaxCdrSerializedSize(size_t curre
 size_t dds::xrce::OBJK_PUBLISHER_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_partitions.size(); ++a)
     {
@@ -3423,7 +3503,7 @@ dds::xrce::OBJK_Publisher_Binary& dds::xrce::OBJK_Publisher_Binary::operator=(co
 {
     m_publisher_name = x.m_publisher_name;
     m_qos = x.m_qos;
-    
+
     return *this;
 }
 
@@ -3431,14 +3511,14 @@ dds::xrce::OBJK_Publisher_Binary& dds::xrce::OBJK_Publisher_Binary::operator=(OB
 {
     m_publisher_name = std::move(x.m_publisher_name);
     m_qos = std::move(x.m_qos);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_Publisher_Binary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
     current_alignment += dds::xrce::OBJK_PUBLISHER_QosBinary::getMaxCdrSerializedSize(current_alignment);
@@ -3449,7 +3529,7 @@ size_t dds::xrce::OBJK_Publisher_Binary::getMaxCdrSerializedSize(size_t current_
 size_t dds::xrce::OBJK_Publisher_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_publisher_name).size() + 1;
 
     current_alignment += (*m_qos).getCdrSerializedSize(current_alignment);
@@ -3514,7 +3594,7 @@ dds::xrce::OBJK_SUBSCRIBER_QosBinary& dds::xrce::OBJK_SUBSCRIBER_QosBinary::oper
 {
     m_partitions = x.m_partitions;
     m_group_data = x.m_group_data;
-    
+
     return *this;
 }
 
@@ -3522,14 +3602,14 @@ dds::xrce::OBJK_SUBSCRIBER_QosBinary& dds::xrce::OBJK_SUBSCRIBER_QosBinary::oper
 {
     m_partitions = std::move(x.m_partitions);
     m_group_data = std::move(x.m_group_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_SUBSCRIBER_QosBinary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
     {
@@ -3546,7 +3626,7 @@ size_t dds::xrce::OBJK_SUBSCRIBER_QosBinary::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::OBJK_SUBSCRIBER_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_partitions.size(); ++a)
     {
@@ -3596,7 +3676,7 @@ dds::xrce::OBJK_Subscriber_Binary& dds::xrce::OBJK_Subscriber_Binary::operator=(
 {
     m_subscriber_name = x.m_subscriber_name;
     m_qos = x.m_qos;
-    
+
     return *this;
 }
 
@@ -3604,14 +3684,14 @@ dds::xrce::OBJK_Subscriber_Binary& dds::xrce::OBJK_Subscriber_Binary::operator=(
 {
     m_subscriber_name = std::move(x.m_subscriber_name);
     m_qos = std::move(x.m_qos);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_Subscriber_Binary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
 
     current_alignment += dds::xrce::OBJK_SUBSCRIBER_QosBinary::getMaxCdrSerializedSize(current_alignment);
@@ -3622,7 +3702,7 @@ size_t dds::xrce::OBJK_Subscriber_Binary::getMaxCdrSerializedSize(size_t current
 size_t dds::xrce::OBJK_Subscriber_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + (*m_subscriber_name).size() + 1;
 
     current_alignment += (*m_qos).getCdrSerializedSize();
@@ -3637,7 +3717,7 @@ void dds::xrce::OBJK_Subscriber_Binary::serialize(eprosima::fastcdr::Cdr &scdr) 
     {
         scdr << *m_subscriber_name;
     }
-    
+
     scdr << bool(m_qos);
     if (m_qos)
     {
@@ -3697,7 +3777,7 @@ dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_Endpoint_QosBinary::operator
     m_deadline_msec = x.m_deadline_msec;
     m_lifespan_msec = x.m_lifespan_msec;
     m_user_data = x.m_user_data;
-    
+
     return *this;
 }
 
@@ -3708,14 +3788,14 @@ dds::xrce::OBJK_Endpoint_QosBinary& dds::xrce::OBJK_Endpoint_QosBinary::operator
     m_deadline_msec = x.m_deadline_msec;
     m_lifespan_msec = x.m_lifespan_msec;
     m_user_data = std::move(x.m_user_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -3735,7 +3815,7 @@ size_t dds::xrce::OBJK_Endpoint_QosBinary::getMaxCdrSerializedSize(size_t curren
 size_t dds::xrce::OBJK_Endpoint_QosBinary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -3758,7 +3838,7 @@ void dds::xrce::OBJK_Endpoint_QosBinary::serialize(eprosima::fastcdr::Cdr &scdr)
     {
         scdr << *m_history_depth;
     }
-    
+
     scdr << bool(m_deadline_msec);
     if (m_deadline_msec)
     {
@@ -3783,7 +3863,7 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
     std::underlying_type<dds::xrce::EndpointQosFlags>::type temp_qos_flags;
     dcdr >> temp_qos_flags;
     m_qos_flags = static_cast<dds::xrce::EndpointQosFlags>(temp_qos_flags);
-    
+
     bool flag;
     dcdr >> flag;
     if (flag)
@@ -3792,7 +3872,7 @@ void dds::xrce::OBJK_Endpoint_QosBinary::deserialize(eprosima::fastcdr::Cdr &dcd
         dcdr >> temp;
         m_history_depth = temp;
     }
-    
+
     dcdr >> flag;
     if (flag)
     {
@@ -3903,7 +3983,7 @@ void dds::xrce::OBJK_DataReader_Binary_Qos::serialize(
     {
         scdr << *m_timebasedfilter_msec;
     }
-    
+
     scdr << bool(m_contentbased_filter);
     if (m_contentbased_filter)
     {
@@ -3924,7 +4004,7 @@ void dds::xrce::OBJK_DataReader_Binary_Qos::deserialize(
         dcdr >> temp;
         m_timebasedfilter_msec = temp;
     }
-    
+
     dcdr >> flag;
     if (flag)
     {
@@ -4246,7 +4326,7 @@ void dds::xrce::OBJK_DataWriter_Binary_Qos::serialize(
     {
         scdr << *m_ownership_strength;
     }
-    
+
 
 }
 
@@ -4254,7 +4334,7 @@ void dds::xrce::OBJK_DataWriter_Binary_Qos::deserialize(
         eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_base;
-    
+
     bool flag;
     dcdr >> flag;
     if (flag)
@@ -4367,7 +4447,7 @@ dds::xrce::OBJK_DataWriter_Binary& dds::xrce::OBJK_DataWriter_Binary::operator=(
 size_t dds::xrce::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
     current_alignment += dds::xrce::OBJK_DataWriter_Binary_Qos::getMaxCdrSerializedSize(current_alignment);
 
@@ -4378,7 +4458,7 @@ size_t dds::xrce::OBJK_DataWriter_Binary::getMaxCdrSerializedSize(size_t current
 size_t dds::xrce::OBJK_DataWriter_Binary::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + m_topic_id.size() + 1;
 
     return current_alignment - initial_alignment;
@@ -4419,7 +4499,7 @@ dds::xrce::ObjectVariant::~ObjectVariant()
 dds::xrce::ObjectVariant::ObjectVariant(const ObjectVariant &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4469,7 +4549,7 @@ dds::xrce::ObjectVariant::ObjectVariant(const ObjectVariant &x)
 dds::xrce::ObjectVariant::ObjectVariant(ObjectVariant &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4519,7 +4599,7 @@ dds::xrce::ObjectVariant::ObjectVariant(ObjectVariant &&x)
 dds::xrce::ObjectVariant& dds::xrce::ObjectVariant::operator=(const ObjectVariant &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4564,14 +4644,14 @@ dds::xrce::ObjectVariant& dds::xrce::ObjectVariant::operator=(const ObjectVarian
         default:
         break;
     }
-    
+
     return *this;
 }
 
 dds::xrce::ObjectVariant& dds::xrce::ObjectVariant::operator=(ObjectVariant &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4616,14 +4696,14 @@ dds::xrce::ObjectVariant& dds::xrce::ObjectVariant::operator=(ObjectVariant &&x)
         default:
         break;
     }
-    
+
     return *this;
 }
 
 void dds::xrce::ObjectVariant::_d(dds::xrce::ObjectKind __d)
 {
     bool b = false;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4757,9 +4837,9 @@ void dds::xrce::ObjectVariant::_d(dds::xrce::ObjectKind __d)
         }
         break;
     }
-    
+
     if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
-    
+
     m__d = __d;
 }
 
@@ -4788,7 +4868,7 @@ void dds::xrce::ObjectVariant::agent(dds::xrce::AGENT_Representation &&_agent)
 const dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4796,16 +4876,16 @@ const dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_agent;
 }
 
 dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -4813,9 +4893,9 @@ dds::xrce::AGENT_Representation& dds::xrce::ObjectVariant::agent()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_agent;
 }
 void dds::xrce::ObjectVariant::client(const dds::xrce::CLIENT_Representation &_client)
@@ -4833,7 +4913,7 @@ void dds::xrce::ObjectVariant::client(dds::xrce::CLIENT_Representation &&_client
 const dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_CLIENT:
@@ -4841,16 +4921,16 @@ const dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_client;
 }
 
 dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_CLIENT:
@@ -4858,9 +4938,9 @@ dds::xrce::CLIENT_Representation& dds::xrce::ObjectVariant::client()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_client;
 }
 void dds::xrce::ObjectVariant::application(const dds::xrce::OBJK_APPLICATION_Representation &_application)
@@ -4878,7 +4958,7 @@ void dds::xrce::ObjectVariant::application(dds::xrce::OBJK_APPLICATION_Represent
 const dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::application() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_APPLICATION:
@@ -4886,16 +4966,16 @@ const dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::appl
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_application;
 }
 
 dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::application()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_APPLICATION:
@@ -4903,9 +4983,9 @@ dds::xrce::OBJK_APPLICATION_Representation& dds::xrce::ObjectVariant::applicatio
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_application;
 }
 void dds::xrce::ObjectVariant::participant(const dds::xrce::OBJK_PARTICIPANT_Representation &_participant)
@@ -4923,7 +5003,7 @@ void dds::xrce::ObjectVariant::participant(dds::xrce::OBJK_PARTICIPANT_Represent
 const dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::participant() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_PARTICIPANT:
@@ -4931,16 +5011,16 @@ const dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::part
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_participant;
 }
 
 dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::participant()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_PARTICIPANT:
@@ -4948,9 +5028,9 @@ dds::xrce::OBJK_PARTICIPANT_Representation& dds::xrce::ObjectVariant::participan
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_participant;
 }
 void dds::xrce::ObjectVariant::qos_profile(const dds::xrce::OBJK_QOSPROFILE_Representation &_qos_profile)
@@ -4968,7 +5048,7 @@ void dds::xrce::ObjectVariant::qos_profile(dds::xrce::OBJK_QOSPROFILE_Representa
 const dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_profile() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_QOSPROFILE:
@@ -4976,16 +5056,16 @@ const dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_p
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_qos_profile;
 }
 
 dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_profile()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_QOSPROFILE:
@@ -4993,9 +5073,9 @@ dds::xrce::OBJK_QOSPROFILE_Representation& dds::xrce::ObjectVariant::qos_profile
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_qos_profile;
 }
 void dds::xrce::ObjectVariant::type(const dds::xrce::OBJK_TYPE_Representation &_type)
@@ -5013,7 +5093,7 @@ void dds::xrce::ObjectVariant::type(dds::xrce::OBJK_TYPE_Representation &&_type)
 const dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_TYPE:
@@ -5021,16 +5101,16 @@ const dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type() cons
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_type;
 }
 
 dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_TYPE:
@@ -5038,9 +5118,9 @@ dds::xrce::OBJK_TYPE_Representation& dds::xrce::ObjectVariant::type()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_type;
 }
 void dds::xrce::ObjectVariant::topic(const dds::xrce::OBJK_TOPIC_Representation &_topic)
@@ -5058,7 +5138,7 @@ void dds::xrce::ObjectVariant::topic(dds::xrce::OBJK_TOPIC_Representation &&_top
 const dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_TOPIC:
@@ -5066,16 +5146,16 @@ const dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic() co
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_topic;
 }
 
 dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_TOPIC:
@@ -5083,9 +5163,9 @@ dds::xrce::OBJK_TOPIC_Representation& dds::xrce::ObjectVariant::topic()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_topic;
 }
 void dds::xrce::ObjectVariant::publisher(const dds::xrce::OBJK_PUBLISHER_Representation &_publisher)
@@ -5103,7 +5183,7 @@ void dds::xrce::ObjectVariant::publisher(dds::xrce::OBJK_PUBLISHER_Representatio
 const dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publisher() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_PUBLISHER:
@@ -5111,16 +5191,16 @@ const dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publis
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_publisher;
 }
 
 dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publisher()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_PUBLISHER:
@@ -5128,9 +5208,9 @@ dds::xrce::OBJK_PUBLISHER_Representation& dds::xrce::ObjectVariant::publisher()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_publisher;
 }
 void dds::xrce::ObjectVariant::subscriber(const dds::xrce::OBJK_SUBSCRIBER_Representation &_subscriber)
@@ -5148,7 +5228,7 @@ void dds::xrce::ObjectVariant::subscriber(dds::xrce::OBJK_SUBSCRIBER_Representat
 const dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subscriber() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_SUBSCRIBER:
@@ -5156,16 +5236,16 @@ const dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subsc
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_subscriber;
 }
 
 dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subscriber()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_SUBSCRIBER:
@@ -5173,9 +5253,9 @@ dds::xrce::OBJK_SUBSCRIBER_Representation& dds::xrce::ObjectVariant::subscriber(
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_subscriber;
 }
 void dds::xrce::ObjectVariant::data_writer(const dds::xrce::DATAWRITER_Representation &_data_writer)
@@ -5193,7 +5273,7 @@ void dds::xrce::ObjectVariant::data_writer(dds::xrce::DATAWRITER_Representation 
 const dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_writer() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAWRITER:
@@ -5201,16 +5281,16 @@ const dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_write
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_writer;
 }
 
 dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_writer()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAWRITER:
@@ -5218,9 +5298,9 @@ dds::xrce::DATAWRITER_Representation& dds::xrce::ObjectVariant::data_writer()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_writer;
 }
 void dds::xrce::ObjectVariant::data_reader(const dds::xrce::DATAREADER_Representation &_data_reader)
@@ -5255,7 +5335,7 @@ const dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reade
 dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reader()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAREADER:
@@ -5263,9 +5343,9 @@ dds::xrce::DATAREADER_Representation& dds::xrce::ObjectVariant::data_reader()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_reader;
 }
 
@@ -5377,7 +5457,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5385,7 +5465,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_APPLICATION_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5393,7 +5473,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_PARTICIPANT_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5401,7 +5481,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_QOSPROFILE_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5409,7 +5489,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_TYPE_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5417,7 +5497,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_TOPIC_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5425,7 +5505,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_PUBLISHER_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5433,7 +5513,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::OBJK_SUBSCRIBER_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5441,7 +5521,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::DATAWRITER_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5449,7 +5529,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::DATAREADER_Representation::getMaxCdrSerializedSize(reset_alignment);
@@ -5468,7 +5548,7 @@ size_t dds::xrce::ObjectVariant::getMaxCdrSerializedSize(size_t current_alignmen
 
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
-        
+
 
     return union_max_size_serialized - initial_alignment;
 }
@@ -5654,7 +5734,7 @@ dds::xrce::CreationMode& dds::xrce::CreationMode::operator=(const CreationMode &
 {
     m_reuse = x.m_reuse;
     m_replace = x.m_replace;
-    
+
     return *this;
 }
 
@@ -5662,14 +5742,14 @@ dds::xrce::CreationMode& dds::xrce::CreationMode::operator=(CreationMode &&x)
 {
     m_reuse = x.m_reuse;
     m_replace = x.m_replace;
-    
+
     return *this;
 }
 
 size_t dds::xrce::CreationMode::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -5681,7 +5761,7 @@ size_t dds::xrce::CreationMode::getMaxCdrSerializedSize(size_t current_alignment
 size_t dds::xrce::CreationMode::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -5728,7 +5808,7 @@ dds::xrce::ResultStatus& dds::xrce::ResultStatus::operator=(const ResultStatus &
 {
     m_status = x.m_status;
     m_implementation_status = x.m_implementation_status;
-    
+
     return *this;
 }
 
@@ -5736,14 +5816,14 @@ dds::xrce::ResultStatus& dds::xrce::ResultStatus::operator=(ResultStatus &&x)
 {
     m_status = x.m_status;
     m_implementation_status = x.m_implementation_status;
-    
+
     return *this;
 }
 
 size_t dds::xrce::ResultStatus::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -5755,7 +5835,7 @@ size_t dds::xrce::ResultStatus::getMaxCdrSerializedSize(size_t current_alignment
 size_t dds::xrce::ResultStatus::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -5802,7 +5882,7 @@ dds::xrce::AGENT_ActivityInfo& dds::xrce::AGENT_ActivityInfo::operator=(const AG
 {
     m_availability = x.m_availability;
     m_address_seq = x.m_address_seq;
-    
+
     return *this;
 }
 
@@ -5810,14 +5890,14 @@ dds::xrce::AGENT_ActivityInfo& dds::xrce::AGENT_ActivityInfo::operator=(AGENT_Ac
 {
     m_availability = x.m_availability;
     m_address_seq = std::move(x.m_address_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::AGENT_ActivityInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -5832,7 +5912,7 @@ size_t dds::xrce::AGENT_ActivityInfo::getMaxCdrSerializedSize(size_t current_ali
 size_t dds::xrce::AGENT_ActivityInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_address_seq.size(); ++a)
@@ -5878,21 +5958,21 @@ dds::xrce::DATAREADER_ActivityInfo::DATAREADER_ActivityInfo(DATAREADER_ActivityI
 dds::xrce::DATAREADER_ActivityInfo& dds::xrce::DATAREADER_ActivityInfo::operator=(const DATAREADER_ActivityInfo &x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
-    
+
     return *this;
 }
 
 dds::xrce::DATAREADER_ActivityInfo& dds::xrce::DATAREADER_ActivityInfo::operator=(DATAREADER_ActivityInfo &&x)
 {
     m_highest_acked_num = x.m_highest_acked_num;
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATAREADER_ActivityInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
 
@@ -5902,7 +5982,7 @@ size_t dds::xrce::DATAREADER_ActivityInfo::getMaxCdrSerializedSize(size_t curren
 size_t dds::xrce::DATAREADER_ActivityInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
 
@@ -5945,7 +6025,7 @@ dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::DATAWRITER_ActivityInfo::operator
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
-    
+
     return *this;
 }
 
@@ -5953,14 +6033,14 @@ dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::DATAWRITER_ActivityInfo::operator
 {
     m_stream_seq_num = x.m_stream_seq_num;
     m_sample_seq_num = x.m_sample_seq_num;
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATAWRITER_ActivityInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
@@ -5972,7 +6052,7 @@ size_t dds::xrce::DATAWRITER_ActivityInfo::getMaxCdrSerializedSize(size_t curren
 size_t dds::xrce::DATAWRITER_ActivityInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
 
     current_alignment += 8 + eprosima::fastcdr::Cdr::alignment(current_alignment, 8);
@@ -6005,7 +6085,7 @@ dds::xrce::ActivityInfoVariant::~ActivityInfoVariant()
 dds::xrce::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfoVariant &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -6025,7 +6105,7 @@ dds::xrce::ActivityInfoVariant::ActivityInfoVariant(const ActivityInfoVariant &x
 dds::xrce::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVariant &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -6045,7 +6125,7 @@ dds::xrce::ActivityInfoVariant::ActivityInfoVariant(ActivityInfoVariant &&x)
 dds::xrce::ActivityInfoVariant& dds::xrce::ActivityInfoVariant::operator=(const ActivityInfoVariant &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -6060,14 +6140,14 @@ dds::xrce::ActivityInfoVariant& dds::xrce::ActivityInfoVariant::operator=(const 
         default:
             break;
     }
-    
+
     return *this;
 }
 
 dds::xrce::ActivityInfoVariant& dds::xrce::ActivityInfoVariant::operator=(ActivityInfoVariant &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -6082,14 +6162,14 @@ dds::xrce::ActivityInfoVariant& dds::xrce::ActivityInfoVariant::operator=(Activi
         default:
             break;
     }
-    
+
     return *this;
 }
 
 void dds::xrce::ActivityInfoVariant::_d(dds::xrce::ObjectKind __d)
 {
     bool b = false;
-    
+
     switch(m__d)
     {
         case OBJK_AGENT:
@@ -6123,9 +6203,9 @@ void dds::xrce::ActivityInfoVariant::_d(dds::xrce::ObjectKind __d)
             }
             break;
     }
-    
+
     if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
-    
+
     m__d = __d;
 }
 
@@ -6200,7 +6280,7 @@ void dds::xrce::ActivityInfoVariant::data_writer(dds::xrce::DATAWRITER_ActivityI
 const dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_writer() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAWRITER:
@@ -6208,16 +6288,16 @@ const dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_w
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_writer;
 }
 
 dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_writer()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAWRITER:
@@ -6225,9 +6305,9 @@ dds::xrce::DATAWRITER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_writer(
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_writer;
 }
 
@@ -6246,7 +6326,7 @@ void dds::xrce::ActivityInfoVariant::data_reader(dds::xrce::DATAREADER_ActivityI
 const dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_reader() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAREADER:
@@ -6254,16 +6334,16 @@ const dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_r
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_reader;
 }
 
 dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_reader()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case OBJK_DATAREADER:
@@ -6271,9 +6351,9 @@ dds::xrce::DATAREADER_ActivityInfo& dds::xrce::ActivityInfoVariant::data_reader(
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_reader;
 }
 
@@ -6299,7 +6379,7 @@ size_t dds::xrce::ActivityInfoVariant::getMaxCdrSerializedSize(size_t current_al
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::DATAREADER_ActivityInfo::getMaxCdrSerializedSize(reset_alignment);
@@ -6307,7 +6387,7 @@ size_t dds::xrce::ActivityInfoVariant::getMaxCdrSerializedSize(size_t current_al
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
 
     return union_max_size_serialized - initial_alignment;
 }
@@ -6401,7 +6481,7 @@ dds::xrce::ObjectInfo& dds::xrce::ObjectInfo::operator=(const ObjectInfo &x)
 {
     m_config = x.m_config;
     m_activity = x.m_activity;
-    
+
     return *this;
 }
 
@@ -6409,14 +6489,14 @@ dds::xrce::ObjectInfo& dds::xrce::ObjectInfo::operator=(ObjectInfo &&x)
 {
     m_config = std::move(x.m_config);
     m_activity = std::move(x.m_activity);
-    
+
     return *this;
 }
 
 size_t dds::xrce::ObjectInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += dds::xrce::ObjectVariant::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -6428,7 +6508,7 @@ size_t dds::xrce::ObjectInfo::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::ObjectInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     /* Optional config. */
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     if (m_config)
@@ -6453,13 +6533,13 @@ void dds::xrce::ObjectInfo::serialize(eprosima::fastcdr::Cdr &scdr) const
     {
         scdr << *m_config;
     }
-    
+
     scdr << bool(m_activity);
     if (m_activity)
     {
         scdr << *m_activity;
     }
-    
+
 }
 
 void dds::xrce::ObjectInfo::deserialize(eprosima::fastcdr::Cdr &dcdr)
@@ -6508,7 +6588,7 @@ dds::xrce::BaseObjectRequest& dds::xrce::BaseObjectRequest::operator=(const Base
 {
     m_request_id = x.m_request_id;
     m_object_id = x.m_object_id;
-    
+
     return *this;
 }
 
@@ -6516,14 +6596,14 @@ dds::xrce::BaseObjectRequest& dds::xrce::BaseObjectRequest::operator=(BaseObject
 {
     m_request_id = std::move(x.m_request_id);
     m_object_id = std::move(x.m_object_id);
-    
+
     return *this;
 }
 
 size_t dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -6535,7 +6615,7 @@ size_t dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::BaseObjectRequest::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -6580,7 +6660,7 @@ dds::xrce::BaseObjectReply& dds::xrce::BaseObjectReply::operator=(const BaseObje
 {
     m_related_request = x.m_related_request;
     m_result = x.m_result;
-    
+
     return *this;
 }
 
@@ -6588,14 +6668,14 @@ dds::xrce::BaseObjectReply& dds::xrce::BaseObjectReply::operator=(BaseObjectRepl
 {
     m_related_request = std::move(x.m_related_request);
     m_result = std::move(x.m_result);
-    
+
     return *this;
 }
 
 size_t dds::xrce::BaseObjectReply::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::ResultStatus::getMaxCdrSerializedSize(current_alignment);
 
@@ -6605,7 +6685,7 @@ size_t dds::xrce::BaseObjectReply::getMaxCdrSerializedSize(size_t current_alignm
 size_t dds::xrce::BaseObjectReply::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_related_request.getCdrSerializedSize(current_alignment);
     current_alignment += m_result.getCdrSerializedSize(current_alignment);
 
@@ -6658,7 +6738,7 @@ dds::xrce::DataDeliveryControl& dds::xrce::DataDeliveryControl::operator=(const 
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
     m_min_pace_period = x.m_min_pace_period;
-    
+
     return *this;
 }
 
@@ -6668,14 +6748,14 @@ dds::xrce::DataDeliveryControl& dds::xrce::DataDeliveryControl::operator=(DataDe
     m_max_elapsed_time = x.m_max_elapsed_time;
     m_max_bytes_per_second = x.m_max_bytes_per_second;
     m_min_pace_period = x.m_min_pace_period;
-    
+
     return *this;
 }
 
 size_t dds::xrce::DataDeliveryControl::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -6687,7 +6767,7 @@ size_t dds::xrce::DataDeliveryControl::getMaxCdrSerializedSize(size_t current_al
 size_t dds::xrce::DataDeliveryControl::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -6744,7 +6824,7 @@ dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(const Read
     m_data_format = x.m_data_format;
     m_content_filter_expression = x.m_content_filter_expression;
     m_delivery_control = x.m_delivery_control;
-    
+
     return *this;
 }
 
@@ -6754,14 +6834,14 @@ dds::xrce::ReadSpecification& dds::xrce::ReadSpecification::operator=(ReadSpecif
     m_data_format = x.m_data_format;
     m_content_filter_expression = std::move(x.m_content_filter_expression);
     m_delivery_control = std::move(x.m_delivery_control);
-    
+
     return *this;
 }
 
 size_t dds::xrce::ReadSpecification::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4) + 255 + 1;
@@ -6773,7 +6853,7 @@ size_t dds::xrce::ReadSpecification::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::ReadSpecification::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
@@ -6864,7 +6944,7 @@ dds::xrce::SampleInfo& dds::xrce::SampleInfo::operator=(const SampleInfo &x)
     m_state = x.m_state;
     m_sequence_number = x.m_sequence_number;
     m_session_time_offset = x.m_session_time_offset;
-    
+
     return *this;
 }
 
@@ -6873,14 +6953,14 @@ dds::xrce::SampleInfo& dds::xrce::SampleInfo::operator=(SampleInfo &&x)
     m_state = x.m_state;
     m_sequence_number = x.m_sequence_number;
     m_session_time_offset = x.m_session_time_offset;
-    
+
     return *this;
 }
 
 size_t dds::xrce::SampleInfo::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -6894,7 +6974,7 @@ size_t dds::xrce::SampleInfo::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::SampleInfo::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
@@ -6948,7 +7028,7 @@ dds::xrce::SampleInfoDelta& dds::xrce::SampleInfoDelta::operator=(const SampleIn
     m_state = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
     m_timestamp_delta = x.m_timestamp_delta;
-    
+
     return *this;
 }
 
@@ -6957,14 +7037,14 @@ dds::xrce::SampleInfoDelta& dds::xrce::SampleInfoDelta::operator=(SampleInfoDelt
     m_state = x.m_state;
     m_seq_number_delta = x.m_seq_number_delta;
     m_timestamp_delta = x.m_timestamp_delta;
-    
+
     return *this;
 }
 
 size_t dds::xrce::SampleInfoDelta::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -6978,7 +7058,7 @@ size_t dds::xrce::SampleInfoDelta::getMaxCdrSerializedSize(size_t current_alignm
 size_t dds::xrce::SampleInfoDelta::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
 
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -7025,14 +7105,14 @@ dds::xrce::SampleData::SampleData(SampleData &&x)
 dds::xrce::SampleData& dds::xrce::SampleData::operator=(const SampleData &x)
 {
     m_serialized_data = x.m_serialized_data;
-    
+
     return *this;
 }
 
 dds::xrce::SampleData& dds::xrce::SampleData::operator=(SampleData &&x)
 {
     m_serialized_data = std::move(x.m_serialized_data);
-    
+
     return *this;
 }
 
@@ -7056,12 +7136,12 @@ size_t dds::xrce::SampleData::getCdrSerializedSize(size_t current_alignment) con
 
 void dds::xrce::SampleData::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    scdr.serializeArray(m_serialized_data.data(), m_serialized_data.size());
+    scdr.serialize_array(m_serialized_data.data(), m_serialized_data.size());
 }
 
 void dds::xrce::SampleData::deserialize(eprosima::fastcdr::Cdr &dcdr)
 {
-    dcdr.deserializeArray(m_serialized_data.data(), m_serialized_data.size());
+    dcdr.deserialize_array(m_serialized_data.data(), m_serialized_data.size());
 }
 
 dds::xrce::Sample::Sample()
@@ -7088,7 +7168,7 @@ dds::xrce::Sample& dds::xrce::Sample::operator=(const Sample &x)
 {
     m_info = x.m_info;
     m_data = x.m_data;
-    
+
     return *this;
 }
 
@@ -7096,14 +7176,14 @@ dds::xrce::Sample& dds::xrce::Sample::operator=(Sample &&x)
 {
     m_info = std::move(x.m_info);
     m_data = std::move(x.m_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::Sample::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::SampleInfo::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::SampleData::getMaxCdrSerializedSize(current_alignment);
 
@@ -7113,7 +7193,7 @@ size_t dds::xrce::Sample::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::Sample::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_info.getCdrSerializedSize(current_alignment);
     current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
@@ -7156,7 +7236,7 @@ dds::xrce::SampleDelta& dds::xrce::SampleDelta::operator=(const SampleDelta &x)
 {
     m_info_delta = x.m_info_delta;
     m_data = x.m_data;
-    
+
     return *this;
 }
 
@@ -7164,14 +7244,14 @@ dds::xrce::SampleDelta& dds::xrce::SampleDelta::operator=(SampleDelta &&x)
 {
     m_info_delta = std::move(x.m_info_delta);
     m_data = std::move(x.m_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::SampleDelta::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::SampleInfoDelta::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::SampleData::getMaxCdrSerializedSize(current_alignment);
 
@@ -7181,7 +7261,7 @@ size_t dds::xrce::SampleDelta::getMaxCdrSerializedSize(size_t current_alignment)
 size_t dds::xrce::SampleDelta::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_info_delta.getCdrSerializedSize(current_alignment);
     current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
@@ -7224,7 +7304,7 @@ dds::xrce::PackedSamples& dds::xrce::PackedSamples::operator=(const PackedSample
 {
     m_info_base = x.m_info_base;
     m_sample_delta_seq = x.m_sample_delta_seq;
-    
+
     return *this;
 }
 
@@ -7232,14 +7312,14 @@ dds::xrce::PackedSamples& dds::xrce::PackedSamples::operator=(PackedSamples &&x)
 {
     m_info_base = std::move(x.m_info_base);
     m_sample_delta_seq = std::move(x.m_sample_delta_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::PackedSamples::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::SampleInfo::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -7253,7 +7333,7 @@ size_t dds::xrce::PackedSamples::getMaxCdrSerializedSize(size_t current_alignmen
 size_t dds::xrce::PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_info_base.getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_sample_delta_seq.size(); ++a)
@@ -7289,7 +7369,7 @@ dds::xrce::DataRepresentation::~DataRepresentation()
 dds::xrce::DataRepresentation::DataRepresentation(const DataRepresentation &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7315,7 +7395,7 @@ dds::xrce::DataRepresentation::DataRepresentation(const DataRepresentation &x)
 dds::xrce::DataRepresentation::DataRepresentation(DataRepresentation &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7341,7 +7421,7 @@ dds::xrce::DataRepresentation::DataRepresentation(DataRepresentation &&x)
 dds::xrce::DataRepresentation& dds::xrce::DataRepresentation::operator=(const DataRepresentation &x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7362,14 +7442,14 @@ dds::xrce::DataRepresentation& dds::xrce::DataRepresentation::operator=(const Da
         default:
         break;
     }
-    
+
     return *this;
 }
 
 dds::xrce::DataRepresentation& dds::xrce::DataRepresentation::operator=(DataRepresentation &&x)
 {
     m__d = x.m__d;
-    
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7390,14 +7470,14 @@ dds::xrce::DataRepresentation& dds::xrce::DataRepresentation::operator=(DataRepr
         default:
         break;
     }
-    
+
     return *this;
 }
 
 void dds::xrce::DataRepresentation::_d(dds::xrce::DataFormat __d)
 {
     bool b = false;
-    
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7451,9 +7531,9 @@ void dds::xrce::DataRepresentation::_d(dds::xrce::DataFormat __d)
         }
         break;
     }
-    
+
     if(!b) throw dds::xrce::XRCETypesException("Discriminator doesn't correspond with the selected union member");
-    
+
     m__d = __d;
 }
 
@@ -7482,7 +7562,7 @@ void dds::xrce::DataRepresentation::data(dds::xrce::SampleData &&_data)
 const dds::xrce::SampleData& dds::xrce::DataRepresentation::data() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7490,16 +7570,16 @@ const dds::xrce::SampleData& dds::xrce::DataRepresentation::data() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data;
 }
 
 dds::xrce::SampleData& dds::xrce::DataRepresentation::data()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_DATA:
@@ -7507,9 +7587,9 @@ dds::xrce::SampleData& dds::xrce::DataRepresentation::data()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data;
 }
 void dds::xrce::DataRepresentation::sample(const dds::xrce::Sample &_sample)
@@ -7527,7 +7607,7 @@ void dds::xrce::DataRepresentation::sample(dds::xrce::Sample &&_sample)
 const dds::xrce::Sample& dds::xrce::DataRepresentation::sample() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_SAMPLE:
@@ -7535,16 +7615,16 @@ const dds::xrce::Sample& dds::xrce::DataRepresentation::sample() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_sample;
 }
 
 dds::xrce::Sample& dds::xrce::DataRepresentation::sample()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_SAMPLE:
@@ -7552,9 +7632,9 @@ dds::xrce::Sample& dds::xrce::DataRepresentation::sample()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_sample;
 }
 void dds::xrce::DataRepresentation::data_seq(const dds::xrce::SampleDataSeq &_data_seq)
@@ -7572,7 +7652,7 @@ void dds::xrce::DataRepresentation::data_seq(dds::xrce::SampleDataSeq &&_data_se
 const dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_DATA_SEQ:
@@ -7580,16 +7660,16 @@ const dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_seq;
 }
 
 dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_DATA_SEQ:
@@ -7597,9 +7677,9 @@ dds::xrce::SampleDataSeq& dds::xrce::DataRepresentation::data_seq()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_data_seq;
 }
 void dds::xrce::DataRepresentation::sample_seq(const dds::xrce::SampleSeq &_sample_seq)
@@ -7617,7 +7697,7 @@ void dds::xrce::DataRepresentation::sample_seq(dds::xrce::SampleSeq &&_sample_se
 const dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_SAMPLE_SEQ:
@@ -7625,16 +7705,16 @@ const dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq() const
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_sample_seq;
 }
 
 dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_SAMPLE_SEQ:
@@ -7642,9 +7722,9 @@ dds::xrce::SampleSeq& dds::xrce::DataRepresentation::sample_seq()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_sample_seq;
 }
 void dds::xrce::DataRepresentation::packed_samples(const dds::xrce::PackedSamples &_packed_samples)
@@ -7662,7 +7742,7 @@ void dds::xrce::DataRepresentation::packed_samples(dds::xrce::PackedSamples &&_p
 const dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples() const
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_PACKED_SAMPLES:
@@ -7670,16 +7750,16 @@ const dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples() 
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_packed_samples;
 }
 
 dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples()
 {
     bool b = false;
-        
+
     switch(m__d)
     {
         case FORMAT_PACKED_SAMPLES:
@@ -7687,9 +7767,9 @@ dds::xrce::PackedSamples& dds::xrce::DataRepresentation::packed_samples()
         break;
         default:
         break;
-    }    
+    }
     if(!b) throw dds::xrce::XRCETypesException("This member is not been selected");
-    
+
     return m_packed_samples;
 }
 
@@ -7709,7 +7789,7 @@ size_t dds::xrce::DataRepresentation::getMaxCdrSerializedSize(size_t current_ali
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::Sample::getMaxCdrSerializedSize(reset_alignment);
@@ -7717,7 +7797,7 @@ size_t dds::xrce::DataRepresentation::getMaxCdrSerializedSize(size_t current_ali
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4);
@@ -7728,7 +7808,7 @@ size_t dds::xrce::DataRepresentation::getMaxCdrSerializedSize(size_t current_ali
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += 4 + eprosima::fastcdr::Cdr::alignment(reset_alignment, 4);
@@ -7739,7 +7819,7 @@ size_t dds::xrce::DataRepresentation::getMaxCdrSerializedSize(size_t current_ali
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
         reset_alignment = current_alignment;
 
         reset_alignment += dds::xrce::PackedSamples::getMaxCdrSerializedSize(reset_alignment);
@@ -7747,7 +7827,7 @@ size_t dds::xrce::DataRepresentation::getMaxCdrSerializedSize(size_t current_ali
         if(union_max_size_serialized < reset_alignment)
             union_max_size_serialized = reset_alignment;
 
-        
+
 
     return union_max_size_serialized - initial_alignment;
 }
@@ -7863,21 +7943,21 @@ dds::xrce::CREATE_CLIENT_Payload::CREATE_CLIENT_Payload(CREATE_CLIENT_Payload &&
 dds::xrce::CREATE_CLIENT_Payload& dds::xrce::CREATE_CLIENT_Payload::operator=(const CREATE_CLIENT_Payload &x)
 {
     m_client_representation = x.m_client_representation;
-    
+
     return *this;
 }
 
 dds::xrce::CREATE_CLIENT_Payload& dds::xrce::CREATE_CLIENT_Payload::operator=(CREATE_CLIENT_Payload &&x)
 {
     m_client_representation = std::move(x.m_client_representation);
-    
+
     return *this;
 }
 
 size_t dds::xrce::CREATE_CLIENT_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::CLIENT_Representation::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7886,7 +7966,7 @@ size_t dds::xrce::CREATE_CLIENT_Payload::getMaxCdrSerializedSize(size_t current_
 size_t dds::xrce::CREATE_CLIENT_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_client_representation.getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -7926,7 +8006,7 @@ dds::xrce::CREATE_Payload& dds::xrce::CREATE_Payload::operator=(const CREATE_Pay
 {
     BaseObjectRequest::operator=(x);
     m_object_representation = x.m_object_representation;
-    
+
     return *this;
 }
 
@@ -7934,14 +8014,14 @@ dds::xrce::CREATE_Payload& dds::xrce::CREATE_Payload::operator=(CREATE_Payload &
 {
     BaseObjectRequest::operator=(x);
     m_object_representation = std::move(x.m_object_representation);
-    
+
     return *this;
 }
 
 size_t dds::xrce::CREATE_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::ObjectVariant::getMaxCdrSerializedSize(current_alignment);
 
@@ -7951,7 +8031,7 @@ size_t dds::xrce::CREATE_Payload::getMaxCdrSerializedSize(size_t current_alignme
 size_t dds::xrce::CREATE_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_object_representation.getCdrSerializedSize(current_alignment);
 
@@ -7995,7 +8075,7 @@ dds::xrce::GET_INFO_Payload& dds::xrce::GET_INFO_Payload::operator=(const GET_IN
 {
     BaseObjectRequest::operator=(x);
     m_info_mask = x.m_info_mask;
-    
+
     return *this;
 }
 
@@ -8003,14 +8083,14 @@ dds::xrce::GET_INFO_Payload& dds::xrce::GET_INFO_Payload::operator=(GET_INFO_Pay
 {
     BaseObjectRequest::operator=(x);
     m_info_mask = x.m_info_mask;
-    
+
     return *this;
 }
 
 size_t dds::xrce::GET_INFO_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
@@ -8020,7 +8100,7 @@ size_t dds::xrce::GET_INFO_Payload::getMaxCdrSerializedSize(size_t current_align
 size_t dds::xrce::GET_INFO_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
 
@@ -8062,21 +8142,21 @@ dds::xrce::DELETE_Payload::DELETE_Payload(DELETE_Payload &&x)
 dds::xrce::DELETE_Payload& dds::xrce::DELETE_Payload::operator=(const DELETE_Payload &x)
 {
     BaseObjectRequest::operator=(x);
-    
+
     return *this;
 }
 
 dds::xrce::DELETE_Payload& dds::xrce::DELETE_Payload::operator=(DELETE_Payload &&x)
 {
     BaseObjectRequest::operator=(x);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DELETE_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -8085,7 +8165,7 @@ size_t dds::xrce::DELETE_Payload::getMaxCdrSerializedSize(size_t current_alignme
 size_t dds::xrce::DELETE_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -8122,21 +8202,21 @@ dds::xrce::STATUS_AGENT_Payload::STATUS_AGENT_Payload(STATUS_AGENT_Payload &&x)
 dds::xrce::STATUS_AGENT_Payload& dds::xrce::STATUS_AGENT_Payload::operator=(const STATUS_AGENT_Payload &x)
 {
     m_agent_info = x.m_agent_info;
-    
+
     return *this;
 }
 
 dds::xrce::STATUS_AGENT_Payload& dds::xrce::STATUS_AGENT_Payload::operator=(STATUS_AGENT_Payload &&x)
 {
     m_agent_info = std::move(x.m_agent_info);
-    
+
     return *this;
 }
 
 size_t dds::xrce::STATUS_AGENT_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::ResultStatus::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::AGENT_Representation::getMaxCdrSerializedSize(current_alignment);
 
@@ -8146,7 +8226,7 @@ size_t dds::xrce::STATUS_AGENT_Payload::getMaxCdrSerializedSize(size_t current_a
 size_t dds::xrce::STATUS_AGENT_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += m_result.getCdrSerializedSize(current_alignment);
     current_alignment += m_agent_info.getCdrSerializedSize(current_alignment);
 
@@ -8186,21 +8266,21 @@ dds::xrce::STATUS_Payload::STATUS_Payload(STATUS_Payload &&x)
 dds::xrce::STATUS_Payload& dds::xrce::STATUS_Payload::operator=(const STATUS_Payload &x)
 {
     BaseObjectReply::operator=(x);
-    
+
     return *this;
 }
 
 dds::xrce::STATUS_Payload& dds::xrce::STATUS_Payload::operator=(STATUS_Payload &&x)
 {
     BaseObjectReply::operator=(x);
-    
+
     return *this;
 }
 
 size_t dds::xrce::STATUS_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectReply::getMaxCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -8209,7 +8289,7 @@ size_t dds::xrce::STATUS_Payload::getMaxCdrSerializedSize(size_t current_alignme
 size_t dds::xrce::STATUS_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectReply::getCdrSerializedSize(current_alignment);
 
     return current_alignment - initial_alignment;
@@ -8250,7 +8330,7 @@ dds::xrce::INFO_Payload& dds::xrce::INFO_Payload::operator=(const INFO_Payload &
 {
     BaseObjectReply::operator=(x);
     m_object_info = x.m_object_info;
-    
+
     return *this;
 }
 
@@ -8258,14 +8338,14 @@ dds::xrce::INFO_Payload& dds::xrce::INFO_Payload::operator=(INFO_Payload &&x)
 {
     BaseObjectReply::operator=(x);
     m_object_info = std::move(x.m_object_info);
-    
+
     return *this;
 }
 
 size_t dds::xrce::INFO_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectReply::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::ObjectInfo::getMaxCdrSerializedSize(current_alignment);
 
@@ -8275,7 +8355,7 @@ size_t dds::xrce::INFO_Payload::getMaxCdrSerializedSize(size_t current_alignment
 size_t dds::xrce::INFO_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectReply::getCdrSerializedSize(current_alignment);
     current_alignment += m_object_info.getCdrSerializedSize(current_alignment);
 
@@ -8318,7 +8398,7 @@ dds::xrce::READ_DATA_Payload& dds::xrce::READ_DATA_Payload::operator=(const READ
 {
     BaseObjectRequest::operator=(x);
     m_read_specification = x.m_read_specification;
-    
+
     return *this;
 }
 
@@ -8326,14 +8406,14 @@ dds::xrce::READ_DATA_Payload& dds::xrce::READ_DATA_Payload::operator=(READ_DATA_
 {
     BaseObjectRequest::operator=(x);
     m_read_specification = std::move(x.m_read_specification);
-    
+
     return *this;
 }
 
 size_t dds::xrce::READ_DATA_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::ReadSpecification::getMaxCdrSerializedSize(current_alignment);
 
@@ -8343,7 +8423,7 @@ size_t dds::xrce::READ_DATA_Payload::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::READ_DATA_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_read_specification.getCdrSerializedSize(current_alignment);
 
@@ -8387,22 +8467,22 @@ dds::xrce::WRITE_DATA_Payload_Data& dds::xrce::WRITE_DATA_Payload_Data::operator
 {
     BaseObjectRequest::operator=(x);
     m_data = x.m_data;
-    
+
     return *this;
 }
 
 dds::xrce::WRITE_DATA_Payload_Data& dds::xrce::WRITE_DATA_Payload_Data::operator=(WRITE_DATA_Payload_Data &&x)
 {
-    BaseObjectRequest::operator=(x);    
+    BaseObjectRequest::operator=(x);
     m_data = std::move(x.m_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::WRITE_DATA_Payload_Data::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::SampleData::getMaxCdrSerializedSize(current_alignment);
 
@@ -8412,7 +8492,7 @@ size_t dds::xrce::WRITE_DATA_Payload_Data::getMaxCdrSerializedSize(size_t curren
 size_t dds::xrce::WRITE_DATA_Payload_Data::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
@@ -8421,7 +8501,7 @@ size_t dds::xrce::WRITE_DATA_Payload_Data::getCdrSerializedSize(size_t current_a
 
 void dds::xrce::WRITE_DATA_Payload_Data::serialize(eprosima::fastcdr::Cdr &scdr) const
 {
-    BaseObjectRequest::serialize(scdr); 
+    BaseObjectRequest::serialize(scdr);
     scdr << m_data;
 }
 
@@ -8455,7 +8535,7 @@ dds::xrce::WRITE_DATA_Payload_Sample& dds::xrce::WRITE_DATA_Payload_Sample::oper
 {
     BaseObjectRequest::operator=(x);
     m_sample = x.m_sample;
-    
+
     return *this;
 }
 
@@ -8463,14 +8543,14 @@ dds::xrce::WRITE_DATA_Payload_Sample& dds::xrce::WRITE_DATA_Payload_Sample::oper
 {
     BaseObjectRequest::operator=(x);
     m_sample = std::move(x.m_sample);
-    
+
     return *this;
 }
 
 size_t dds::xrce::WRITE_DATA_Payload_Sample::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::Sample::getMaxCdrSerializedSize(current_alignment);
 
@@ -8480,7 +8560,7 @@ size_t dds::xrce::WRITE_DATA_Payload_Sample::getMaxCdrSerializedSize(size_t curr
 size_t dds::xrce::WRITE_DATA_Payload_Sample::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_sample.getCdrSerializedSize(current_alignment);
 
@@ -8523,7 +8603,7 @@ dds::xrce::WRITE_DATA_Payload_DataSeq& dds::xrce::WRITE_DATA_Payload_DataSeq::op
 {
     BaseObjectRequest::operator=(x);
     m_data_seq = x.m_data_seq;
-    
+
     return *this;
 }
 
@@ -8531,14 +8611,14 @@ dds::xrce::WRITE_DATA_Payload_DataSeq& dds::xrce::WRITE_DATA_Payload_DataSeq::op
 {
     BaseObjectRequest::operator=(x);
     m_data_seq = std::move(x.m_data_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::WRITE_DATA_Payload_DataSeq::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -8552,7 +8632,7 @@ size_t dds::xrce::WRITE_DATA_Payload_DataSeq::getMaxCdrSerializedSize(size_t cur
 size_t dds::xrce::WRITE_DATA_Payload_DataSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_data_seq.size(); ++a)
@@ -8599,7 +8679,7 @@ dds::xrce::WRITE_DATA_Payload_SampleSeq& dds::xrce::WRITE_DATA_Payload_SampleSeq
 {
     BaseObjectRequest::operator=(x);
     m_sample_seq = x.m_sample_seq;
-    
+
     return *this;
 }
 
@@ -8607,14 +8687,14 @@ dds::xrce::WRITE_DATA_Payload_SampleSeq& dds::xrce::WRITE_DATA_Payload_SampleSeq
 {
     BaseObjectRequest::operator=(x);
     m_sample_seq = std::move(x.m_sample_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::WRITE_DATA_Payload_SampleSeq::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -8628,7 +8708,7 @@ size_t dds::xrce::WRITE_DATA_Payload_SampleSeq::getMaxCdrSerializedSize(size_t c
 size_t dds::xrce::WRITE_DATA_Payload_SampleSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_sample_seq.size(); ++a)
@@ -8676,7 +8756,7 @@ dds::xrce::WRITE_DATA_Payload_PackedSamples& dds::xrce::WRITE_DATA_Payload_Packe
 {
     BaseObjectRequest::operator=(x);
     m_packed_samples = x.m_packed_samples;
-    
+
     return *this;
 }
 
@@ -8684,14 +8764,14 @@ dds::xrce::WRITE_DATA_Payload_PackedSamples& dds::xrce::WRITE_DATA_Payload_Packe
 {
     BaseObjectRequest::operator=(x);
     m_packed_samples = std::move(x.m_packed_samples);
-    
+
     return *this;
 }
 
 size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::PackedSamples::getMaxCdrSerializedSize(current_alignment);
 
@@ -8701,7 +8781,7 @@ size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getMaxCdrSerializedSize(size
 size_t dds::xrce::WRITE_DATA_Payload_PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_packed_samples.getCdrSerializedSize(current_alignment);
 
@@ -8744,7 +8824,7 @@ dds::xrce::DATA_Payload_Data& dds::xrce::DATA_Payload_Data::operator=(const DATA
 {
     BaseObjectRequest::operator=(x);
     m_data = x.m_data;
-    
+
     return *this;
 }
 
@@ -8752,14 +8832,14 @@ dds::xrce::DATA_Payload_Data& dds::xrce::DATA_Payload_Data::operator=(DATA_Paylo
 {
     BaseObjectRequest::operator=(x);
     m_data = std::move(x.m_data);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATA_Payload_Data::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::SampleData::getMaxCdrSerializedSize(current_alignment);
 
@@ -8769,7 +8849,7 @@ size_t dds::xrce::DATA_Payload_Data::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::DATA_Payload_Data::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_data.getCdrSerializedSize(current_alignment);
 
@@ -8812,7 +8892,7 @@ dds::xrce::DATA_Payload_Sample& dds::xrce::DATA_Payload_Sample::operator=(const 
 {
     BaseObjectRequest::operator=(x);
     m_sample = x.m_sample;
-    
+
     return *this;
 }
 
@@ -8820,14 +8900,14 @@ dds::xrce::DATA_Payload_Sample& dds::xrce::DATA_Payload_Sample::operator=(DATA_P
 {
     BaseObjectRequest::operator=(x);
     m_sample = std::move(x.m_sample);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATA_Payload_Sample::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::Sample::getMaxCdrSerializedSize(current_alignment);
 
@@ -8837,7 +8917,7 @@ size_t dds::xrce::DATA_Payload_Sample::getMaxCdrSerializedSize(size_t current_al
 size_t dds::xrce::DATA_Payload_Sample::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_sample.getCdrSerializedSize(current_alignment);
 
@@ -8880,7 +8960,7 @@ dds::xrce::DATA_Payload_DataSeq& dds::xrce::DATA_Payload_DataSeq::operator=(cons
 {
     BaseObjectRequest::operator=(x);
     m_data_seq = x.m_data_seq;
-    
+
     return *this;
 }
 
@@ -8888,14 +8968,14 @@ dds::xrce::DATA_Payload_DataSeq& dds::xrce::DATA_Payload_DataSeq::operator=(DATA
 {
     BaseObjectRequest::operator=(x);
     m_data_seq = std::move(x.m_data_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATA_Payload_DataSeq::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -8909,12 +8989,12 @@ size_t dds::xrce::DATA_Payload_DataSeq::getMaxCdrSerializedSize(size_t current_a
 size_t dds::xrce::DATA_Payload_DataSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_data_seq.size(); ++a)
     {
-        current_alignment += m_data_seq.at(a).getCdrSerializedSize(current_alignment); 
+        current_alignment += m_data_seq.at(a).getCdrSerializedSize(current_alignment);
     }
 
     return current_alignment - initial_alignment;
@@ -8956,7 +9036,7 @@ dds::xrce::DATA_Payload_SampleSeq& dds::xrce::DATA_Payload_SampleSeq::operator=(
 {
     BaseObjectRequest::operator=(x);
     m_sample_seq = x.m_sample_seq;
-    
+
     return *this;
 }
 
@@ -8964,14 +9044,14 @@ dds::xrce::DATA_Payload_SampleSeq& dds::xrce::DATA_Payload_SampleSeq::operator=(
 {
     BaseObjectRequest::operator=(x);
     m_sample_seq = std::move(x.m_sample_seq);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATA_Payload_SampleSeq::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < 100; ++a)
@@ -8985,7 +9065,7 @@ size_t dds::xrce::DATA_Payload_SampleSeq::getMaxCdrSerializedSize(size_t current
 size_t dds::xrce::DATA_Payload_SampleSeq::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += 4 + eprosima::fastcdr::Cdr::alignment(current_alignment, 4);
     for(size_t a = 0; a < m_sample_seq.size(); ++a)
@@ -9032,7 +9112,7 @@ dds::xrce::DATA_Payload_PackedSamples& dds::xrce::DATA_Payload_PackedSamples::op
 {
     BaseObjectRequest::operator=(x);
     m_packed_samples = x.m_packed_samples;
-    
+
     return *this;
 }
 
@@ -9040,14 +9120,14 @@ dds::xrce::DATA_Payload_PackedSamples& dds::xrce::DATA_Payload_PackedSamples::op
 {
     BaseObjectRequest::operator=(x);
     m_packed_samples = std::move(x.m_packed_samples);
-    
+
     return *this;
 }
 
 size_t dds::xrce::DATA_Payload_PackedSamples::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getMaxCdrSerializedSize(current_alignment);
     current_alignment += dds::xrce::PackedSamples::getMaxCdrSerializedSize(current_alignment);
 
@@ -9057,7 +9137,7 @@ size_t dds::xrce::DATA_Payload_PackedSamples::getMaxCdrSerializedSize(size_t cur
 size_t dds::xrce::DATA_Payload_PackedSamples::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += dds::xrce::BaseObjectRequest::getCdrSerializedSize(current_alignment);
     current_alignment += m_packed_samples.getCdrSerializedSize(current_alignment);
 
@@ -9105,7 +9185,7 @@ dds::xrce::ACKNACK_Payload& dds::xrce::ACKNACK_Payload::operator=(const ACKNACK_
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = x.m_nack_bitmap;
     m_stream_id = x.m_stream_id;
-    
+
     return *this;
 }
 
@@ -9114,14 +9194,14 @@ dds::xrce::ACKNACK_Payload& dds::xrce::ACKNACK_Payload::operator=(ACKNACK_Payloa
     m_first_unacked_seq_num = x.m_first_unacked_seq_num;
     m_nack_bitmap = std::move(x.m_nack_bitmap);
     m_stream_id = x.m_stream_id;
-    
+
     return *this;
 }
 
 size_t dds::xrce::ACKNACK_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -9132,7 +9212,7 @@ size_t dds::xrce::ACKNACK_Payload::getMaxCdrSerializedSize(size_t current_alignm
 size_t dds::xrce::ACKNACK_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += ((2) * 1) + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -9184,7 +9264,7 @@ dds::xrce::HEARTBEAT_Payload& dds::xrce::HEARTBEAT_Payload::operator=(const HEAR
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
     m_stream_id = x.m_stream_id;
-    
+
     return *this;
 }
 
@@ -9193,14 +9273,14 @@ dds::xrce::HEARTBEAT_Payload& dds::xrce::HEARTBEAT_Payload::operator=(HEARTBEAT_
     m_first_unacked_seq_nr = x.m_first_unacked_seq_nr;
     m_last_unacked_seq_nr = x.m_last_unacked_seq_nr;
     m_stream_id = x.m_stream_id;
-    
+
     return *this;
 }
 
 size_t dds::xrce::HEARTBEAT_Payload::getMaxCdrSerializedSize(size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
@@ -9211,7 +9291,7 @@ size_t dds::xrce::HEARTBEAT_Payload::getMaxCdrSerializedSize(size_t current_alig
 size_t dds::xrce::HEARTBEAT_Payload::getCdrSerializedSize(size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);

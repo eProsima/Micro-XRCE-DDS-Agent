@@ -34,7 +34,7 @@ public:
         : buf_(new uint8_t[len]{0}),
           len_(len),
           fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          serializer_(fastbuffer_)
+          serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         serialize(header);
     }
@@ -51,7 +51,7 @@ public:
 
     uint8_t* get_buf() const { return buf_; }
 
-    size_t get_len() const { return serializer_.getSerializedDataLength(); }
+    size_t get_len() const { return serializer_.get_serialized_data_length(); }
 
     template<class T>
     bool append_submessage(
@@ -113,7 +113,7 @@ inline bool OutputMessage::append_raw_payload(
     {
         try
         {
-            serializer_.serializeArray(buf, len, fastcdr::Cdr::BIG_ENDIANNESS);
+            serializer_.serialize_array(buf, len, fastcdr::Cdr::BIG_ENDIANNESS);
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
         {
@@ -134,13 +134,13 @@ inline bool OutputMessage::append_fragment(
         size_t len)
 {
     bool rv = false;
-    serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
+    serializer_.jump((4 - ((serializer_.get_current_position() - serializer_.get_buffer_pointer()) & 3)) & 3);
     if (serialize(subheader))
     {
         try
         {
             rv = true;
-            serializer_.serializeArray(buf, len);
+            serializer_.serialize_array(buf, len);
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
         {
@@ -161,7 +161,7 @@ inline bool OutputMessage::append_subheader(
     subheader.flags(flags);
     subheader.submessage_length(uint16_t(submessage_len));
 
-    serializer_.jump((4 - ((serializer_.getCurrentPosition() - serializer_.getBufferPointer()) & 3)) & 3);
+    serializer_.jump((4 - ((serializer_.get_current_position() - serializer_.get_buffer_pointer()) & 3)) & 3);
     return serialize(subheader);
 }
 

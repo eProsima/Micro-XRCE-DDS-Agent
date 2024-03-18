@@ -43,7 +43,7 @@ std::unique_ptr<Subscriber> Subscriber::create(
 
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
-            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness);
+            eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
             subscriber_xrce.deserialize(cdr);
 
             created_entity = proxy_client->get_middleware().create_subscriber_by_bin(raw_object_id, participant_id, subscriber_xrce);
