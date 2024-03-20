@@ -41,8 +41,8 @@ if(NOT((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
     include(CMakePackageConfigHelpers)
     configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/packaging/Config.cmake.in
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
-        INSTALL_DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
-        PATH_VARS BIN_INSTALL_DIR INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+        PATH_VARS CMAKE_INSTALL_BINDIR CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_LIBDIR
         )
     write_basic_package_version_file(${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}ConfigVersion.cmake
         VERSION ${PROJECT_VERSION}
@@ -50,7 +50,7 @@ if(NOT((MSVC OR MSVC_IDE) AND EPROSIMA_INSTALLER))
         )
     install(FILES ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}Config.cmake
         ${PROJECT_BINARY_DIR}/cmake/config/${PROJECT_NAME}ConfigVersion.cmake
-        DESTINATION ${LIB_INSTALL_DIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}${DIR_EXTENSION}/${PROJECT_NAME}/cmake
         COMPONENT cmake
         )
 endif()
@@ -64,7 +64,7 @@ set(CPACK_COMPONENTS_ALL ${CPACK_COMPONENTS_ALL} cmake)
 if(WIN32)
     if(EPROSIMA_INSTALLER_MINION)
         install(FILES ${PROJECT_SOURCE_DIR}/cmake/packaging/windows/${PROJECT_NAME}Config.cmake
-            DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake
             COMPONENT cmake
             )
     endif()
