@@ -35,7 +35,7 @@ public:
           header_(),
           subheader_(),
           fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          deserializer_(fastbuffer_)
+          deserializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         memcpy(buf_, buf, len);
 
@@ -96,8 +96,8 @@ private:
 inline bool InputMessage::prepare_next_submessage()
 {
     bool rv = false;
-    deserializer_.jump((4 - ((deserializer_.getCurrentPosition() - deserializer_.getBufferPointer()) & 3)) & 3);
-    if (fastbuffer_.getBufferSize() > deserializer_.getSerializedDataLength())
+    deserializer_.jump((4 - ((deserializer_.get_current_position() - deserializer_.get_buffer_pointer()) & 3)) & 3);
+    if (fastbuffer_.getBufferSize() > deserializer_.get_serialized_data_length())
     {
         rv = deserialize(subheader_);
 
@@ -105,7 +105,7 @@ inline bool InputMessage::prepare_next_submessage()
         fastcdr::Cdr::Endianness endianness = static_cast<fastcdr::Cdr::Endianness>(subheader_.flags() & 0x01);
         if (endianness != deserializer_.endianness())
         {
-            deserializer_.changeEndianness(endianness);
+            deserializer_.change_endianness(endianness);
         }
     }
     return rv;
@@ -113,7 +113,7 @@ inline bool InputMessage::prepare_next_submessage()
 
 inline size_t InputMessage::count_submessages()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_);
+    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 
@@ -124,8 +124,8 @@ inline size_t InputMessage::count_submessages()
 
     do
     {
-        local_deserializer.jump((4 - ((local_deserializer.getCurrentPosition() - local_deserializer.getBufferPointer()) & 3)) & 3);
-        if (fastbuffer_.getBufferSize() > local_deserializer.getSerializedDataLength())
+        local_deserializer.jump((4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3)) & 3);
+        if (fastbuffer_.getBufferSize() > local_deserializer.get_serialized_data_length())
         {
             try
             {
@@ -146,14 +146,14 @@ inline size_t InputMessage::count_submessages()
 
 inline dds::xrce::SubmessageId InputMessage::get_submessage_id()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_);
+    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 
     local_header.deserialize(local_deserializer);
 
-    local_deserializer.jump((4 - ((local_deserializer.getCurrentPosition() - local_deserializer.getBufferPointer()) & 3)) & 3);
-    if (fastbuffer_.getBufferSize() > local_deserializer.getSerializedDataLength())
+    local_deserializer.jump((4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3)) & 3);
+    if (fastbuffer_.getBufferSize() > local_deserializer.get_serialized_data_length())
     {
         local_subheader.deserialize(local_deserializer);
     }
@@ -191,7 +191,7 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
         rv = true;
         try
         {
-            deserializer_.deserializeArray(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
+            deserializer_.deserialize_array(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
         }
         catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
         {

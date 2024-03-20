@@ -328,7 +328,7 @@ inline bool ReliableOutputStream::push_submessage(
             /* Serialize submessage. */
             std::unique_ptr<uint8_t[]> buf(new uint8_t[submessage_size]);
             fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(buf.get()), submessage_size);
-            fastcdr::Cdr serializer(fastbuffer);
+            fastcdr::Cdr serializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
             submessage_header.serialize(serializer);
             submessage.serialize(serializer);
 
