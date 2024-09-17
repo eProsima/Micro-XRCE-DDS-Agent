@@ -80,7 +80,7 @@ set(_deps "")
 if(UAGENT_USE_SYSTEM_FASTCDR)
     set(_fastcdr_version 2)
 else()
-    set(_fastcdr_version 2.2.0)
+    set(_fastcdr_version 2.2.4)
     set(_fastcdr_tag 2.2.x)
 endif()
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
@@ -93,13 +93,13 @@ endif()
 
 if(UAGENT_FAST_PROFILE)
     if(UAGENT_USE_SYSTEM_FASTDDS)
-        set(_fastdds_version 2)
+        set(_fastdds_version 3)
     else()
-        set(_fastdds_version 2.14)
-        set(_fastdds_tag 2.14.x)
+        set(_fastdds_version 3.0.1)
+        set(_fastdds_tag 3.0.x)
         set(_foonathan_memory_tag v0.7-3) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
     endif()
-    list(APPEND _deps "fastrtps\;${_fastdds_version}")
+    list(APPEND _deps "fastdds\;${_fastdds_version}")
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -298,7 +298,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Windows>:iphlpapi>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
     PRIVATE
-        $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastdds>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
@@ -312,7 +312,7 @@ target_include_directories(${PROJECT_NAME} BEFORE
         $<TARGET_PROPERTY:fastcdr,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastrtps,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastdds,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:$<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microxrcedds_client,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microcdr,INTERFACE_INCLUDE_DIRECTORIES>>
