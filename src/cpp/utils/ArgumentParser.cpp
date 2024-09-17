@@ -80,10 +80,6 @@ eprosima::uxr::Middleware::Kind eprosima::uxr::agent::parser::utils::get_mw_kind
     {
         return eprosima::uxr::Middleware::Kind::FASTDDS;
     }
-    if ("rtps" == kind)
-    {
-        return eprosima::uxr::Middleware::Kind::FASTRTPS;
-    }
 #endif
 #ifdef UAGENT_CED_PROFILE
     if ("ced" == kind)

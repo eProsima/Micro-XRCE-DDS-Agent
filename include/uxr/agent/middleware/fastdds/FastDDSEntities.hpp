@@ -15,7 +15,6 @@
 #ifndef UXR__AGENT__MIDDLEWARE__FASTDDS__ENTITIES_HPP_
 #define UXR__AGENT__MIDDLEWARE__FASTDDS__ENTITIES_HPP_
 
-//#include <dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>

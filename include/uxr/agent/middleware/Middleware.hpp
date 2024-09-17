@@ -38,7 +38,6 @@ public:
     {
         NONE,
     #ifdef UAGENT_FAST_PROFILE
-        FASTRTPS,
         FASTDDS,
     #endif
 
