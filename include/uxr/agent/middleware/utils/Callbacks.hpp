@@ -19,9 +19,9 @@
 
 #ifdef UAGENT_FAST_PROFILE
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
-#include <fastrtps/participant/ParticipantListener.h>
-#include <fastrtps/publisher/PublisherListener.h>
-#include <fastrtps/subscriber/SubscriberListener.h>
+#include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/publisher/PublisherListener.hpp>
+#include <fastdds/dds/subscriber/SubscriberListener.hpp>
 #endif // UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
