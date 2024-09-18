@@ -96,7 +96,7 @@ if(UAGENT_FAST_PROFILE)
         set(_fastdds_version 3)
     else()
         set(_fastdds_version 3.0.1)
-        set(_fastdds_tag 3.0.x)
+        set(_fastdds_tag feature/get-qos-from-xml)
         set(_foonathan_memory_tag v0.7-3) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
     endif()
     list(APPEND _deps "fastdds\;${_fastdds_version}")

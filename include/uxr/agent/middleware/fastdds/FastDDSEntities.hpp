@@ -158,10 +158,9 @@ public:
 
     ~FastDDSTopic();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
     bool create_by_name_type(const std::string& name,
-        const std::shared_ptr<FastDDSType>& type);
+        const std::shared_ptr<FastDDSType>& type,
+        const fastdds::dds::TopicQos& qos);
     bool match_from_ref(const std::string& ref) const;
     bool match_from_xml(const std::string& xml) const;
     bool match_from_bin(const dds::xrce::OBJK_Topic_Binary& topic_xrce) const;
@@ -193,11 +192,17 @@ public:
     bool create_by_xml(const std::string& xml);
     bool create_by_bin(const dds::xrce::OBJK_Publisher_Binary&  publisher_xrce);
 
+    fastdds::dds::Publisher* get_ptr() const { return ptr_; }
+
     fastdds::dds::DataWriter* create_datawriter(
             fastdds::dds::Topic* topic,
             const fastdds::dds::DataWriterQos& qos = fastdds::dds::DATAWRITER_QOS_DEFAULT,
             fastdds::dds::DataWriterListener* listener = nullptr,
             const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    fastdds::dds::DataWriter* create_datawriter_with_profile(
+            fastdds::dds::Topic* topic,
+            const std::string& profile_name);
 
     fastdds::dds::ReturnCode_t delete_datawriter(
         fastdds::dds::DataWriter* writer);
@@ -226,11 +231,17 @@ public:
     bool create_by_xml(const std::string& xml);
     bool create_by_bin(const dds::xrce::OBJK_Subscriber_Binary&  subscriber_xrce);
 
+    fastdds::dds::Subscriber* get_ptr() const { return ptr_; }
+
     fastdds::dds::DataReader* create_datareader(
             fastdds::dds::TopicDescription* topic,
             const fastdds::dds::DataReaderQos& reader_qos,
             fastdds::dds::DataReaderListener* listener = nullptr,
             const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+
+    fastdds::dds::DataReader* create_datareader_with_profile(
+            fastdds::dds::TopicDescription* topic,
+            const std::string& profile_name);
 
     fastdds::dds::ReturnCode_t delete_datareader(
         fastdds::dds::DataReader* reader);
@@ -265,6 +276,8 @@ public:
     bool create_by_bin(
         const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
         std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
+    bool match_from_ref(const std::string& ref) const;
+    bool match_from_xml(const std::string& xml) const;
     bool match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
     bool write(const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;
@@ -333,6 +346,9 @@ public:
 
     ~FastDDSRequester();
 
+    bool create_by_qos(
+        const fastdds::dds::RequesterQos& qos);
+
     fastdds::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
     fastdds::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
 
@@ -393,6 +409,10 @@ public:
     {}
 
     ~FastDDSReplier();
+
+
+    bool create_by_qos(
+        const fastdds::dds::ReplierQos& qos);
 
     fastdds::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
     fastdds::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }

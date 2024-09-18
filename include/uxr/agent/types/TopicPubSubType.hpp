@@ -15,27 +15,40 @@
 #ifndef _UXR_AGENT_TYPES_TOPICPUBSUBTYPES_HPP_
 #define _UXR_AGENT_TYPES_TOPICPUBSUBTYPES_HPP_
 
-#include <fastrtps/TopicDataType.h>
-
+#include <fastdds/dds/topic/TopicDataType.hpp>
 #include <vector>
 
-using namespace eprosima::fastrtps;
 namespace eprosima {
 namespace uxr {
 
-class TopicPubSubType: public TopicDataType
+class TopicPubSubType: public fastdds::dds::TopicDataType
 {
 public:
     typedef std::vector<unsigned char> type;
 
     explicit TopicPubSubType(bool with_key);
     ~TopicPubSubType() override = default;
-    bool serialize(void* data, rtps::SerializedPayload_t* payload) override;
-    bool deserialize(rtps::SerializedPayload_t* payload, void* data) override;
-    std::function<uint32_t()> getSerializedSizeProvider(void* data) override;
-    bool getKey(void* data, rtps::InstanceHandle_t* ihandle, bool force_md5 = false) override;
-    void* createData() override;
-    void deleteData(void* data) override;
+    bool serialize(const void* const data, fastdds::rtps::SerializedPayload_t& payload, fastdds::dds::DataRepresentationId_t data_representation) override;
+    bool deserialize(fastdds::rtps::SerializedPayload_t& payload, void* data) override;
+
+    uint32_t calculate_serialized_size(
+        const void* const data,
+        eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
+
+    void* create_data() override;
+
+    void delete_data(
+                void* data) override;
+
+    bool compute_key(
+                fastdds::rtps::SerializedPayload_t& payload,
+                fastdds::rtps::InstanceHandle_t& ihandle,
+                bool force_md5) override;
+
+    bool compute_key(
+            const void* const data,
+            fastdds::rtps::InstanceHandle_t& ihandle,
+            bool force_md5) override;
 };
 
 } // namespace uxr
