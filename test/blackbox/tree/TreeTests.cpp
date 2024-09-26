@@ -51,7 +51,7 @@ TEST_F(TreeTests, XMLTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FASTRTPS);
+                Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -260,7 +260,7 @@ TEST_F(TreeTests, REFTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FASTRTPS);
+                Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -515,7 +515,7 @@ TEST_F(TreeTests, CreationModeXMLTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                eprosima::uxr::Middleware::Kind::FASTRTPS);
+                eprosima::uxr::Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -801,7 +801,7 @@ TEST_F(TreeTests, CreationModeREFTree)
     dds::xrce::ResultStatus response = root_.create_client(
                 client_representation,
                 agent_representation,
-                Middleware::Kind::FASTRTPS);
+                Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */

@@ -998,33 +998,6 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
 
     switch (GetParam())
     {
-        case Middleware::Kind::FASTRTPS:
-        {
-            std::function<void (
-                const fastrtps::Participant *)> on_create_participant
-                ([&](
-                    const fastrtps::Participant* /*participant*/) -> void
-                {
-                    participant_callback_flag = true;
-                });
-            agent_.add_middleware_callback(
-                Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::CREATE_PARTICIPANT,
-                std::move(on_create_participant));
-
-            std::function<void (
-                const fastrtps::Participant *)> on_delete_participant
-                ([&](
-                    const fastrtps::Participant* /*participant*/) -> void
-                {
-                    participant_callback_flag = false;
-                });
-            agent_.add_middleware_callback(
-                Middleware::Kind::FASTRTPS,
-                middleware::CallbackKind::DELETE_PARTICIPANT,
-                std::move(on_delete_participant));
-            break;
-        }
         case Middleware::Kind::FASTDDS:
         {
             std::function<void (
@@ -1085,7 +1058,7 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
 
 GTEST_INSTANTIATE_TEST_MACRO(AgentUnitTestsParams,
                         AgentUnitTests,
-                        ::testing::Values(Middleware::Kind::FASTRTPS,Middleware::Kind::FASTDDS));
+                        ::testing::Values(Middleware::Kind::FASTDDS));
 
 } // namespace testing
 } // namespace uxr

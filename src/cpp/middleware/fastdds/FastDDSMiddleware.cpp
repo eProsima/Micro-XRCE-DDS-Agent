@@ -74,7 +74,6 @@ bool FastDDSMiddleware::create_participant_by_ref(
     }
 
     bool rv = false;
-    // fastrtps::ParticipantAttributes attrs;
     auto participant_domain_id = domain_id;
 
     if (domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF)
@@ -174,7 +173,8 @@ std::shared_ptr<FastDDSTopic> create_topic(
     {
         if (type_name == topic->get_type()->get_type_support()->get_name())
         {
-            topic.reset();
+            // TODO(pgarrido): Shall we reuse topics?
+            // topic.reset();
         }
     }
     else

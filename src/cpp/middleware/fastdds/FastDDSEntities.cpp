@@ -740,12 +740,17 @@ bool FastDDSDataWriter::create_by_ref(const std::string& ref)
     bool rv = false;
     if (nullptr == ptr_)
     {
-        topic_ = publisher_->get_participant()->find_local_topic(ref.c_str());
-
-        if (topic_)
+        fastdds::dds::DataWriterQos qos;
+        std::string topic_name;
+        if (fastdds::dds::RETCODE_OK == publisher_->get_ptr()->get_datawriter_qos_from_profile(ref, qos, topic_name))
         {
-            ptr_ = publisher_->create_datawriter_with_profile(topic_->get_ptr(), ref);
-            rv = (nullptr != ptr_);
+            topic_ = publisher_->get_participant()->find_local_topic(topic_name);
+
+            if (topic_)
+            {
+                ptr_ = publisher_->create_datawriter_with_profile(topic_->get_ptr(), ref);
+                rv = (nullptr != ptr_);
+            }
         }
     }
     return rv;
@@ -863,12 +868,18 @@ bool FastDDSDataReader::create_by_ref(const std::string& ref)
 
     if (nullptr == ptr_)
     {
-        topic_ = subscriber_->get_participant()->find_local_topic(ref.c_str());
+        fastdds::dds::DataReaderQos qos;
+        std::string topic_name;
 
-        if (topic_)
+        if (fastdds::dds::RETCODE_OK == subscriber_->get_ptr()->get_datareader_qos_from_profile(ref, qos, topic_name))
         {
-            ptr_ = subscriber_->create_datareader_with_profile(topic_->get_ptr(), ref);
-            rv = (nullptr != ptr_);
+            topic_ = subscriber_->get_participant()->find_local_topic(topic_name);
+
+            if (topic_)
+            {
+                ptr_ = subscriber_->create_datareader_with_profile(topic_->get_ptr(), ref);
+                rv = (nullptr != ptr_);
+            }
         }
     }
     return rv;

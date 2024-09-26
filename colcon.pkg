@@ -3,7 +3,7 @@
     "type": "cmake",
     "dependencies":[
         "fastcdr",
-        "fastrtps"
+        "fastdds"
     ],
     "cmake-args":[
         "-DUAGENT_ISOLATED_INSTALL=OFF",

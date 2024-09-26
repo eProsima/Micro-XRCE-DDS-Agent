@@ -30,9 +30,6 @@ if(GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp/replier/Replier.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/object/XRCEObject.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/types/TopicPubSubType.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/xmlobjects/xmlobjects.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastEntities.cpp
-        ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fast/FastMiddleware.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fastdds/FastDDSEntities.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/fastdds/FastDDSMiddleware.cpp
         ${PROJECT_SOURCE_DIR}/src/cpp/middleware/ced/CedEntities.cpp
@@ -44,7 +41,7 @@ if(GMOCK_FOUND)
         SOURCES
             ${SRCS}
         DEPENDENCIES
-            fastrtps
+            fastdds
             fastcdr
         )
     target_include_directories(tree_test PRIVATE
@@ -56,7 +53,7 @@ if(GMOCK_FOUND)
         )
     target_link_libraries(tree_test
         PRIVATE
-            fastrtps
+            fastdds
             fastcdr
             $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
             ${GTEST_LIBRARIES}
