@@ -63,7 +63,7 @@ uint32_t TopicPubSubType::calculate_serialized_size(
     void * non_const_data = const_cast<void*>(data);
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(non_const_data);
 
-    return buffer->size() + 4 /*encapsulation*/;
+    return static_cast<uint32_t>(buffer->size() + 4); /*encapsulation*/
 }
 
 void* TopicPubSubType::create_data()
