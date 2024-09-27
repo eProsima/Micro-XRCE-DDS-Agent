@@ -50,8 +50,6 @@ ExternalProject_Add(microxrcedds_agent_isolated
     TEST_COMMAND
         COMMAND ${CMAKE_CTEST_COMMAND} -VV -T Test
         COMMAND ${CMAKE_CTEST_COMMAND} -VV -T MemCheck -E "test-case*"
-        # TODO(pgarrido): Skip coverage due to ctest/gcov issues with Fast DDS 3.0.1 and duplicated Time_t.hpp
-        # COMMAND ${CMAKE_CTEST_COMMAND} -VV -T Coverage -E "test-case*"
     CMAKE_CACHE_ARGS
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
