@@ -442,7 +442,7 @@ size_t FramingIO::transport_read(
         TransportRc& transport_rc,
         size_t max_size)
 {
-    const auto time_init = std::chrono::system_clock::now();
+    const auto time_init = std::chrono::steady_clock::now();
 
     /**
      * Compute read-buffer available size.
@@ -520,7 +520,7 @@ size_t FramingIO::transport_read(
 
     int time_elapsed = static_cast<int>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now() - time_init)
+            std::chrono::steady_clock::now() - time_init)
             .count());
 
     timeout -= (time_elapsed == 0) ? 1 : time_elapsed;
