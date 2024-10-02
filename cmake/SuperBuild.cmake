@@ -118,7 +118,7 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
     # Fast DDS.
     unset(fastdds_DIR CACHE)
     find_package(fastdds ${_fastdds_version} EXACT QUIET)
-    if(NOT fastrtps_FOUND)
+    if(NOT fastdds_FOUND)
         ExternalProject_Add(fastdds
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-DDS.git
