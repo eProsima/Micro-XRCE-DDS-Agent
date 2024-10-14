@@ -117,7 +117,7 @@ void AgentInstance::stop()
     {
         exit_signal.notify_all();
         agent_thread_.join();
-    }    
+    }
 }
 #endif
 
@@ -139,22 +139,6 @@ UXR_AGENT_EXPORT void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
     std::function<void(__VA_ARGS__)> &&);
 
 #ifdef UAGENT_FAST_PROFILE
-AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *)
-
-AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *)
-
-AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Subscriber *)
-
-AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *,
-    const eprosima::fastrtps::Subscriber *)
-
 AGENTINSTANCE_ADD_MW_CB(
     const eprosima::fastdds::dds::DomainParticipant *)
 

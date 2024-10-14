@@ -17,10 +17,7 @@
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
-#ifdef UAGENT_FAST_PROFILE
-// TODO (#5047): replace Fast RTPS dependency by XML parser library.
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-#endif
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 
 #include <memory>
 #include <chrono>
@@ -86,7 +83,7 @@ dds::xrce::ResultStatus Root::create_client(
                 std::unordered_map<std::string, std::string> client_properties;
 
                 if (client_representation.properties())
-                {   
+                {
                     auto v = *client_representation.properties();
                     for (auto it_props = v.begin(); it_props != v.end(); ++it_props)
                     {
@@ -238,7 +235,7 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
 bool Root::load_config_file(const std::string& file_path)
 {
 #ifdef UAGENT_FAST_PROFILE
-    return fastrtps::xmlparser::XMLP_ret::XML_OK == fastrtps::xmlparser::XMLProfileManager::loadXMLFile(file_path);
+    return fastdds::dds::RETCODE_OK == fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(file_path.c_str());
 #else
     (void) file_path;
     return false;

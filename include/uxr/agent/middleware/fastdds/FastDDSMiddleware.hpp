@@ -276,14 +276,6 @@ public:
             uint16_t replier_id,
             const dds::xrce::OBJK_Replier_Binary& replier_xrce) const override;
 private:
-    std::shared_ptr<FastDDSRequester> create_requester(
-        std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::RequesterAttributes& attrs);
-
-    std::shared_ptr<FastDDSReplier> create_replier(
-        std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::ReplierAttributes& attrs);
-
     int16_t get_domain_id_from_env();
 
     int16_t agent_domain_id_ = 0;

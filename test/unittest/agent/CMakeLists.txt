@@ -25,7 +25,7 @@ add_gtest(${TEST_NAME}
         ${SRCS}
     DEPENDENCIES
         microxrcedds_agent
-        fastrtps
+        fastdds
         fastcdr
         microxrcedds_client
         microcdr
@@ -41,7 +41,7 @@ target_include_directories(${TEST_NAME}
 
 target_link_libraries(${TEST_NAME}
     PRIVATE
-        fastrtps
+        fastdds
         microxrcedds_agent
         ${GTEST_LIBRARIES}
         ${GMOCK_LIBRARIES}

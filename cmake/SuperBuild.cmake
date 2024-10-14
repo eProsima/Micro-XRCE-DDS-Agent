@@ -117,8 +117,8 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
 
     # Fast DDS.
     unset(fastdds_DIR CACHE)
-    find_package(fastrtps ${_fastdds_version} EXACT QUIET)
-    if(NOT fastrtps_FOUND)
+    find_package(fastdds ${_fastdds_version} EXACT QUIET)
+    if(NOT fastdds_FOUND)
         ExternalProject_Add(fastdds
             GIT_REPOSITORY
                 https://github.com/eProsima/Fast-DDS.git
@@ -127,7 +127,7 @@ if(UAGENT_FAST_PROFILE AND NOT UAGENT_USE_SYSTEM_FASTDDS)
             PREFIX
                 ${PROJECT_BINARY_DIR}/fastdds
             INSTALL_DIR
-                ${PROJECT_BINARY_DIR}/temp_install/fastrtps-${_fastdds_version}
+                ${PROJECT_BINARY_DIR}/temp_install/fastdds-${_fastdds_version}
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/temp_install

@@ -658,22 +658,6 @@ UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
 
 #ifdef UAGENT_FAST_PROFILE
 AGENT_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *)
-
-AGENT_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *)
-
-AGENT_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Subscriber *)
-
-AGENT_ADD_MW_CB(
-    const eprosima::fastrtps::Participant *,
-    const eprosima::fastrtps::Publisher *,
-    const eprosima::fastrtps::Subscriber *)
-
-AGENT_ADD_MW_CB(
     const eprosima::fastdds::dds::DomainParticipant *)
 
 AGENT_ADD_MW_CB(

@@ -20,57 +20,79 @@ namespace eprosima {
 namespace uxr {
 
 TopicPubSubType::TopicPubSubType(bool with_key) {
-    m_typeSize = 1024 + 4 /*encapsulation*/;
-    m_isGetKeyDefined = with_key;
+    max_serialized_type_size = 1024 + 4 /*encapsulation*/;
+    is_compute_key_provided = with_key;
 }
 
-bool TopicPubSubType::serialize(void *data, rtps::SerializedPayload_t *payload)
+bool TopicPubSubType::serialize(const void* const data, fastdds::rtps::SerializedPayload_t &payload, fastdds::dds::DataRepresentationId_t /* data_representation */)
 {
     bool rv = false;
-    std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
-    payload->data[0] = 0;
-    payload->data[1] = 1;
-    payload->data[2] = 0;
-    payload->data[3] = 0;
-    if (buffer->size() <= (payload->max_size - 4))
+
+    // Reinterpret cast back to a std::vector from data pointer
+    void * non_const_data = const_cast<void*>(data);
+    std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(non_const_data);
+
+    // Representation header
+    payload.data[0] = 0;
+    payload.data[1] = 1;
+    payload.data[2] = 0;
+    payload.data[3] = 0;
+
+    if (buffer->size() <= (payload.max_size - 4))
     {
-        memcpy(&payload->data[4], buffer->data(), buffer->size());
-        payload->length = uint32_t(buffer->size() + 4); //Get the serialized length
+        memcpy(&payload.data[4], buffer->data(), buffer->size());
+        payload.length = uint32_t(buffer->size() + 4); //Get the serialized length
         rv = true;
     }
+
     return rv;
 }
 
-bool TopicPubSubType::deserialize(rtps::SerializedPayload_t* payload, void* data)
+bool TopicPubSubType::deserialize(fastdds::rtps::SerializedPayload_t& payload, void* data)
 {
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
-    buffer->assign(payload->data + 4, payload->data + payload->length);
+    buffer->assign(payload.data + 4, payload.data + payload.length);
 
     return true;
 }
 
-std::function<uint32_t()> TopicPubSubType::getSerializedSizeProvider(void* data) {
-    return [data]() -> uint32_t
-    {
-        return (uint32_t)reinterpret_cast<std::vector<unsigned char>*>(data)->size() + 4 /*encapsulation*/;
-    };
+uint32_t TopicPubSubType::calculate_serialized_size(
+    const void* const data,
+    eprosima::fastdds::dds::DataRepresentationId_t /* data_representation */)
+{
+    void * non_const_data = const_cast<void*>(data);
+    std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(non_const_data);
+
+    return static_cast<uint32_t>(buffer->size() + 4); /*encapsulation*/
 }
 
-void* TopicPubSubType::createData() {
+void* TopicPubSubType::create_data()
+{
     return (void*)new std::vector<unsigned char>;
 }
 
-void TopicPubSubType::deleteData(void* data) {
+void TopicPubSubType::delete_data(
+    void* data)
+{
     delete((std::vector<unsigned char>*)data);
 }
 
-bool TopicPubSubType::getKey(void *data, rtps::InstanceHandle_t* handle, bool force_md5)
+bool TopicPubSubType::compute_key(
+    fastdds::rtps::SerializedPayload_t& /* payload */,
+    fastdds::rtps::InstanceHandle_t& /* ihandle */,
+    bool /* force_md5 */)
 {
-    // TODO.
-    (void) data;
-    (void) handle;
-    (void) force_md5;
-    return m_isGetKeyDefined;
+    // TODO(pgarrido): Implement this function.
+    return false;
+}
+
+bool TopicPubSubType::compute_key(
+    const void* const /* data */,
+    fastdds::rtps::InstanceHandle_t& /* ihandle */,
+    bool /* force_md5 */)
+{
+    // TODO(pgarrido): Implement this function.
+    return false;
 }
 
 } // namespace uxr
