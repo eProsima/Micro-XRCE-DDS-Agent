@@ -14,18 +14,6 @@
 
 #include "DataReaderTests.h"
 
-// DataReader(eprosima::fastrtps::Participant* rtps_participant, ReaderListener* read_list);
-// ~DataReader() noexcept override;
-
-// bool init();
-// bool init(const std::string& xmlrep);
-// int read(const READ_DATA_Payload& read_data);
-
-// void on_max_timeout(const asio::error_code& error);
-// void on_rate_timeout(const asio::error_code& error);
-// void onSubscriptionMatched(eprosima::fastrtps::rtps::MatchingInfo& info);
-// void onNewDataMessage(fastrtps::Subscriber* sub);
-
 #include <gtest/gtest.h>
 
 namespace eprosima {

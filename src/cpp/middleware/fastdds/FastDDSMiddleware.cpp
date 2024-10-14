@@ -16,16 +16,11 @@
 #include <uxr/agent/utils/Conversion.hpp>
 #include <uxr/agent/logger/Logger.hpp>
 
-#include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include "../../xmlobjects/xmlobjects.h"
-
 #include <uxr/agent/middleware/utils/Callbacks.hpp>
 
 namespace eprosima {
 namespace uxr {
-
-using namespace fastrtps::xmlparser;
 
 FastDDSMiddleware::FastDDSMiddleware()
     : participants_()
@@ -79,12 +74,20 @@ bool FastDDSMiddleware::create_participant_by_ref(
     }
 
     bool rv = false;
-    fastrtps::ParticipantAttributes attrs;
     auto participant_domain_id = domain_id;
-    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+
+    if (domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF)
     {
-        participant_domain_id = static_cast<int16_t>(attrs.domainId);
+        fastdds::dds::DomainParticipantExtendedQos qos;
+
+        auto factory = fastdds::dds::DomainParticipantFactory::get_instance();
+
+        if (fastdds::dds::RETCODE_OK == factory->get_participant_extended_qos_from_profile(ref, qos))
+        {
+            participant_domain_id = static_cast<int16_t>(qos.domainId());
+        }
     }
+
     std::shared_ptr<FastDDSParticipant> participant(new FastDDSParticipant(participant_domain_id));
     if (participant->create_by_ref(ref))
     {
@@ -161,25 +164,28 @@ bool FastDDSMiddleware::create_participant_by_bin(
 static
 std::shared_ptr<FastDDSTopic> create_topic(
         std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::TopicAttributes& attrs)
+        const fastdds::dds::TopicQos& qos,
+        const std::string& topic_name,
+        const std::string& type_name)
 {
-    std::shared_ptr<FastDDSTopic> topic = participant->find_local_topic(attrs.getTopicName().c_str());
+    std::shared_ptr<FastDDSTopic> topic = participant->find_local_topic(topic_name);
     if (topic)
     {
-        if (0 != std::strcmp(attrs.getTopicDataType().c_str(), topic->get_type()->get_type_support()->getName()))
+        if (type_name == topic->get_type()->get_type_support()->get_name())
         {
-            topic.reset();
+            // TODO(pgarrido): Shall we reuse topics?
+            // topic.reset();
         }
     }
     else
     {
-        const char * type_name = attrs.getTopicDataType().c_str();
         std::shared_ptr<FastDDSType> type = participant->find_local_type(type_name);
         if (!type)
         {
             fastdds::dds::TypeSupport type_support(new TopicPubSubType{false});
-            type_support->setName(type_name);
-            type_support->m_isGetKeyDefined = (attrs.getTopicKind() == fastrtps::rtps::TopicKind_t::WITH_KEY);
+            type_support->set_name(type_name);
+            // TODO(pgarrido): Handle topics with keys
+            type_support->is_compute_key_provided = false;
             type = std::make_shared<FastDDSType>(type_support, participant);
             if (!participant->register_local_type(type))
             {
@@ -190,7 +196,8 @@ std::shared_ptr<FastDDSTopic> create_topic(
         if (type)
         {
             topic = std::make_shared<FastDDSTopic>(participant);
-            topic->create_by_name_type(attrs.getTopicName().c_str(), type);
+            topic->create_by_name_type(topic_name, type, qos);
+
             if (!participant->register_local_topic(topic))
             {
                 topic.reset();
@@ -206,16 +213,27 @@ bool FastDDSMiddleware::create_topic_by_ref(
         const std::string& ref)
 {
     bool rv = false;
-    fastrtps::TopicAttributes attrs;
-    if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
+    auto it_participant = participants_.find(participant_id);
+
+    if (participants_.end() != it_participant)
     {
-        auto it_participant = participants_.find(participant_id);
-        if (participants_.end() != it_participant)
+        fastdds::dds::TopicQos qos = fastdds::dds::TOPIC_QOS_DEFAULT;
+        std::string topic_name;
+        std::string type_name;
+
+        auto & participant = it_participant->second;
+
+        if (fastdds::dds::RETCODE_OK == participant->get_ptr()->get_topic_qos_from_profile(ref, qos, topic_name, type_name))
         {
-            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
-            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+            std::shared_ptr<FastDDSTopic> topic = create_topic(participant, qos, topic_name, type_name);
+            if (topic)
+            {
+                auto emplace_res = topics_.emplace(topic_id, std::move(topic));
+                rv = emplace_res.second;
+            }
         }
     }
+
     return rv;
 }
 
@@ -225,16 +243,27 @@ bool FastDDSMiddleware::create_topic_by_xml(
         const std::string& xml)
 {
     bool rv = false;
-    fastrtps::TopicAttributes attrs;
-    if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
+    auto it_participant = participants_.find(participant_id);
+
+    if (participants_.end() != it_participant)
     {
-        auto it_participant = participants_.find(participant_id);
-        if (participants_.end() != it_participant)
+        auto & participant = it_participant->second;
+
+        fastdds::dds::TopicQos qos = participant->get_ptr()->get_default_topic_qos();
+        std::string topic_name;
+        std::string type_name;
+
+        if (xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_topic_qos_from_xml(xml, qos, topic_name, type_name))
         {
-            std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
-            rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+            std::shared_ptr<FastDDSTopic> topic = create_topic(participant, qos, topic_name, type_name);
+            if (topic)
+            {
+                auto emplace_res = topics_.emplace(topic_id, std::move(topic));
+                rv = emplace_res.second;
+            }
         }
     }
+
     return rv;
 }
 
@@ -245,15 +274,26 @@ bool FastDDSMiddleware::create_topic_by_bin(
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
+
     if (participants_.end() != it_participant)
     {
-        fastrtps::TopicAttributes attrs(
-            topic_xrce.topic_name().c_str(),
-            topic_xrce.type_name().c_str()
-        );
-        std::shared_ptr<FastDDSTopic> topic = create_topic(it_participant->second, attrs);
-        rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
+        fastdds::dds::TopicQos qos = fastdds::dds::TOPIC_QOS_DEFAULT;
+        std::string topic_name = topic_xrce.topic_name();
+        std::string type_name = topic_xrce.type_name();
+
+        auto & participant = it_participant->second;
+
+        // Nothing to fill in TopicQoS from binary representation
+        {
+            std::shared_ptr<FastDDSTopic> topic = create_topic(participant, qos, topic_name, type_name);
+            if (topic)
+            {
+                auto emplace_res = topics_.emplace(topic_id, std::move(topic));
+                rv = emplace_res.second;
+            }
+        }
     }
+
     return rv;
 }
 
@@ -497,18 +537,19 @@ bool FastDDSMiddleware::create_datareader_by_bin(
     return rv;
 }
 
-std::shared_ptr<FastDDSRequester> FastDDSMiddleware::create_requester(
+static std::shared_ptr<FastDDSRequester> create_requester(
         std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::RequesterAttributes& attrs)
+        const fastdds::dds::RequesterQos& qos)
 {
     std::shared_ptr<FastDDSRequester> requester{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.publisher.topic);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.subscriber.topic);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
+
     if (request_topic && reply_topic)
     {
         requester =
             std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
-        if (!requester->create_by_attributes(attrs))
+        if (!requester->create_by_qos(qos))
         {
             requester.reset();
         }
@@ -526,17 +567,20 @@ bool FastDDSMiddleware::create_requester_by_ref(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::RequesterAttributes attrs;
-        if (XMLP_ret::XML_OK == XMLProfileManager::fillRequesterAttributes(ref, attrs))
+
+        fastdds::dds::RequesterQos qos;
+        if(fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_profile(ref, qos))
         {
-            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
+            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, qos);
+
             if (nullptr == requester)
             {
                 return false;
             }
+
             auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
             rv = emplace_res.second;
-            if (rv)
+            if(rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_REQUESTER,
@@ -544,6 +588,7 @@ bool FastDDSMiddleware::create_requester_by_ref(
                     emplace_res.first->second->get_request_datawriter(),
                     emplace_res.first->second->get_reply_datareader());
             }
+
         }
     }
     return rv;
@@ -559,17 +604,20 @@ bool FastDDSMiddleware::create_requester_by_xml(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::RequesterAttributes attrs;
-        if (xmlobjects::parse_requester(xml.data(), xml.size(), attrs))
+
+        fastdds::dds::RequesterQos qos;
+        if(xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_xml(xml, qos))
         {
-            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
+            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, qos);
+
             if (nullptr == requester)
             {
                 return false;
             }
+
             auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
             rv = emplace_res.second;
-            if (rv)
+            if(rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_REQUESTER,
@@ -577,6 +625,7 @@ bool FastDDSMiddleware::create_requester_by_xml(
                     emplace_res.first->second->get_request_datawriter(),
                     emplace_res.first->second->get_reply_datareader());
             }
+
         }
     }
     return rv;
@@ -592,55 +641,55 @@ bool FastDDSMiddleware::create_requester_by_bin(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::RequesterAttributes attrs;
 
-        attrs.service_name = requester_xrce.service_name();
-        attrs.reply_topic_name = requester_xrce.reply_topic_name();
-        attrs.request_topic_name = requester_xrce.request_topic_name();
-        attrs.reply_type = requester_xrce.reply_type();
-        attrs.request_type = requester_xrce.request_type();
+        fastdds::dds::RequesterQos qos;
+        qos.reply_topic_name = requester_xrce.reply_topic_name();
+        qos.request_topic_name = requester_xrce.request_topic_name();
+        qos.reply_type = requester_xrce.reply_type();
+        qos.request_type = requester_xrce.request_type();
 
-        attrs.publisher.topic.topicName = requester_xrce.request_topic_name();
-        attrs.publisher.topic.topicDataType = requester_xrce.request_type();
+        qos.writer_qos.endpoint().history_memory_policy = fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        qos.reader_qos.endpoint().history_memory_policy = fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
 
-        attrs.subscriber.topic.topicName = requester_xrce.reply_topic_name();
-        attrs.subscriber.topic.topicDataType = requester_xrce.reply_type();
+        qos.reader_qos.reliability().kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
-        attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
-        attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
-        attrs.subscriber.qos.m_reliability.kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
-
-        std::shared_ptr<FastDDSRequester> requester = create_requester(participant, attrs);
-        if (nullptr == requester)
         {
-            return false;
-        }
-        auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
-        rv = emplace_res.second;
-        if (rv)
-        {
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_REQUESTER,
-                participant->get_ptr(),
-                emplace_res.first->second->get_request_datawriter(),
-                emplace_res.first->second->get_reply_datareader());
+            std::shared_ptr<FastDDSRequester> requester = create_requester(participant, qos);
+
+            if (nullptr == requester)
+            {
+                return false;
+            }
+
+            auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
+            rv = emplace_res.second;
+            if(rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REQUESTER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_request_datawriter(),
+                    emplace_res.first->second->get_reply_datareader());
+            }
+
         }
     }
     return rv;
 }
 
-std::shared_ptr<FastDDSReplier> FastDDSMiddleware::create_replier(
+static std::shared_ptr<FastDDSReplier> create_replier(
         std::shared_ptr<FastDDSParticipant>& participant,
-        const fastrtps::ReplierAttributes& attrs)
+        const fastdds::dds::ReplierQos& qos)
 {
     std::shared_ptr<FastDDSReplier> replier{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, attrs.subscriber.topic);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, attrs.publisher.topic);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
+
     if (request_topic && reply_topic)
     {
         replier =
             std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
-        if (!replier->create_by_attributes(attrs))
+        if (!replier->create_by_qos(qos))
         {
             replier.reset();
         }
@@ -658,17 +707,20 @@ bool FastDDSMiddleware::create_replier_by_ref(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::ReplierAttributes attrs;
-        if (XMLP_ret::XML_OK == XMLProfileManager::fillReplierAttributes(ref, attrs))
+
+        fastdds::dds::ReplierQos qos;
+        if(fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_profile(ref, qos))
         {
-            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
+            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, qos);
+
             if (nullptr == replier)
             {
                 return false;
             }
+
             auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
             rv = emplace_res.second;
-            if (rv)
+            if(rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_REPLIER,
@@ -676,6 +728,7 @@ bool FastDDSMiddleware::create_replier_by_ref(
                     emplace_res.first->second->get_reply_datawriter(),
                     emplace_res.first->second->get_request_datareader());
             }
+
         }
     }
     return rv;
@@ -691,17 +744,20 @@ bool FastDDSMiddleware::create_replier_by_xml(
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::ReplierAttributes attrs;
-        if (xmlobjects::parse_replier(xml.data(), xml.size(), attrs))
+
+        fastdds::dds::ReplierQos qos;
+        if(xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_xml(xml, qos))
         {
-            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
+            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, qos);
+
             if (nullptr == replier)
             {
                 return false;
             }
+
             auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
             rv = emplace_res.second;
-            if (rv)
+            if(rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
                     middleware::CallbackKind::CREATE_REPLIER,
@@ -709,6 +765,7 @@ bool FastDDSMiddleware::create_replier_by_xml(
                     emplace_res.first->second->get_reply_datawriter(),
                     emplace_res.first->second->get_request_datareader());
             }
+
         }
     }
     return rv;
@@ -719,43 +776,41 @@ bool FastDDSMiddleware::create_replier_by_bin(
         uint16_t participant_id,
         const dds::xrce::OBJK_Replier_Binary& replier_xrce)
 {
-    bool rv = false;
+        bool rv = false;
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
-        fastrtps::ReplierAttributes attrs;
 
-        attrs.service_name = replier_xrce.service_name();
-        attrs.reply_topic_name = replier_xrce.reply_topic_name();
-        attrs.request_topic_name = replier_xrce.request_topic_name();
-        attrs.reply_type = replier_xrce.reply_type();
-        attrs.request_type = replier_xrce.request_type();
+        fastdds::dds::ReplierQos qos;
+        qos.reply_topic_name = replier_xrce.reply_topic_name();
+        qos.request_topic_name = replier_xrce.request_topic_name();
+        qos.reply_type = replier_xrce.reply_type();
+        qos.request_type = replier_xrce.request_type();
 
-        attrs.subscriber.topic.topicName = replier_xrce.request_topic_name();
-        attrs.subscriber.topic.topicDataType = replier_xrce.request_type();
+        qos.writer_qos.endpoint().history_memory_policy = fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        qos.reader_qos.endpoint().history_memory_policy = fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+        qos.reader_qos.reliability().kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
 
-        attrs.publisher.topic.topicName = replier_xrce.reply_topic_name();
-        attrs.publisher.topic.topicDataType = replier_xrce.reply_type();
-
-        attrs.publisher.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
-        attrs.subscriber.historyMemoryPolicy = fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
-        attrs.subscriber.qos.m_reliability.kind = fastdds::dds::RELIABLE_RELIABILITY_QOS;
-
-        std::shared_ptr<FastDDSReplier> replier = create_replier(participant, attrs);
-        if (nullptr == replier)
         {
-            return false;
-        }
-        auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
-        rv = emplace_res.second;
-        if (rv)
-        {
-            callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_REPLIER,
-                participant->get_ptr(),
-                emplace_res.first->second->get_reply_datawriter(),
-                emplace_res.first->second->get_request_datareader());
+            std::shared_ptr<FastDDSReplier> replier = create_replier(participant, qos);
+
+            if (nullptr == replier)
+            {
+                return false;
+            }
+
+            auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
+            rv = emplace_res.second;
+            if(rv)
+            {
+                callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
+                    middleware::CallbackKind::CREATE_REPLIER,
+                    participant->get_ptr(),
+                    emplace_res.first->second->get_reply_datawriter(),
+                    emplace_res.first->second->get_request_datareader());
+            }
+
         }
     }
     return rv;
@@ -1026,11 +1081,12 @@ bool FastDDSMiddleware::matched_participant_from_ref(
     auto it = participants_.find(participant_id);
     if (participants_.end() != it)
     {
-        fastrtps::ParticipantAttributes attrs;
+        fastdds::dds::DomainParticipantExtendedQos qos;
+        auto factory = fastdds::dds::DomainParticipantFactory::get_instance();
         auto participant_domain_id = domain_id;
-        if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && XMLP_ret::XML_OK == XMLProfileManager::fillParticipantAttributes(ref, attrs))
+        if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && fastdds::dds::RETCODE_OK == factory->get_participant_extended_qos_from_profile(ref, qos))
         {
-            participant_domain_id = static_cast<int16_t>(attrs.domainId);
+            participant_domain_id = static_cast<int16_t>(qos.domainId());
         }
         rv = (participant_domain_id== it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
@@ -1073,11 +1129,7 @@ bool FastDDSMiddleware::matched_topic_from_ref(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        fastrtps::TopicAttributes attrs;
-        if (XMLP_ret::XML_OK == XMLProfileManager::fillTopicAttributes(ref, attrs))
-        {
-            rv = it->second->match(attrs);
-        }
+        rv = it->second->match_from_ref(ref);
     }
     return rv;
 }
@@ -1090,11 +1142,7 @@ bool FastDDSMiddleware::matched_topic_from_xml(
     auto it = topics_.find(topic_id);
     if (topics_.end() != it)
     {
-        fastrtps::TopicAttributes attrs;
-        if (xmlobjects::parse_topic(xml.data(), xml.size(), attrs))
-        {
-            rv = it->second->match(attrs);
-        }
+        rv = it->second->match_from_xml(xml);
     }
     return rv;
 }
@@ -1120,11 +1168,7 @@ bool FastDDSMiddleware::matched_datawriter_from_ref(
     auto it = datawriters_.find(datawriter_id);
     if (datawriters_.end() != it)
     {
-        fastrtps::PublisherAttributes attrs;
-        if (XMLP_ret::XML_OK == XMLProfileManager::fillPublisherAttributes(ref, attrs))
-        {
-            rv = it->second->match(attrs);
-        }
+        rv = it->second->match_from_ref(ref);
     }
     return rv;
 }
@@ -1137,11 +1181,7 @@ bool FastDDSMiddleware::matched_datawriter_from_xml(
     auto it = datawriters_.find(datawriter_id);
     if (datawriters_.end() != it)
     {
-        fastrtps::PublisherAttributes attrs;
-        if (xmlobjects::parse_publisher(xml.data(), xml.size(), attrs))
-        {
-            rv = it->second->match(attrs);
-        }
+        rv = it->second->match_from_xml(xml);
     }
     return rv;
 }

@@ -22,7 +22,7 @@ project(PackagingTest)
 
 # Find package.
 find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
+find_package(fastdds REQUIRED)
 find_package(microxrcedds_agent REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp)

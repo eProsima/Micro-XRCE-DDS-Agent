@@ -31,7 +31,7 @@ add_gtest(test-root
     SOURCES
         ${SRCS}
     DEPENDENCIES
-        fastrtps
+        fastdds
         fastcdr
     )
 target_include_directories(test-root
@@ -46,7 +46,7 @@ target_include_directories(test-root
 
 target_link_libraries(test-root
     PRIVATE
-        fastrtps
+        fastdds
         fastcdr
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
         ${GTEST_LIBRARIES}

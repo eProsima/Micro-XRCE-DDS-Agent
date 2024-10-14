@@ -40,8 +40,8 @@ option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
 option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
 
-set(UAGENT_P2P_CLIENT_VERSION 2.4.3 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
-set(UAGENT_P2P_CLIENT_TAG v2.4.3 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
+set(UAGENT_P2P_CLIENT_VERSION 3.0.0 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG v3.0.0 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -80,7 +80,7 @@ set(_deps "")
 if(UAGENT_USE_SYSTEM_FASTCDR)
     set(_fastcdr_version 2)
 else()
-    set(_fastcdr_version 2.2.0)
+    set(_fastcdr_version 2.2.4)
     set(_fastcdr_tag 2.2.x)
 endif()
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
@@ -93,13 +93,13 @@ endif()
 
 if(UAGENT_FAST_PROFILE)
     if(UAGENT_USE_SYSTEM_FASTDDS)
-        set(_fastdds_version 2)
+        set(_fastdds_version 3)
     else()
-        set(_fastdds_version 2.14)
-        set(_fastdds_tag 2.14.x)
+        set(_fastdds_version 3.1)
+        set(_fastdds_tag 3.x)
         set(_foonathan_memory_tag v0.7-3) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
     endif()
-    list(APPEND _deps "fastrtps\;${_fastdds_version}")
+    list(APPEND _deps "fastdds\;${_fastdds_version}")
 endif()
 
 if(UAGENT_LOGGER_PROFILE)
@@ -117,7 +117,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "2.4.3" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "3.0.0" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -210,9 +210,6 @@ set(SRCS
     ${TRANSPORT_SRCS}
     $<$<BOOL:${UAGENT_DISCOVERY_PROFILE}>:src/cpp/transport/discovery/DiscoveryServer.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/types/TopicPubSubType.cpp>
-    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/xmlobjects/xmlobjects.cpp>
-    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastEntities.cpp>
-    $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fast/FastMiddleware.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSEntities.cpp>
     $<$<BOOL:${UAGENT_FAST_PROFILE}>:src/cpp/middleware/fastdds/FastDDSMiddleware.cpp>
     $<$<BOOL:${UAGENT_CED_PROFILE}>:src/cpp/middleware/ced/CedEntities.cpp>
@@ -300,7 +297,7 @@ target_link_libraries(${PROJECT_NAME}
         $<$<PLATFORM_ID:Windows>:iphlpapi>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:spdlog::spdlog>
     PRIVATE
-        $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastrtps>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:fastdds>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microxrcedds_client>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:microcdr>
         $<$<PLATFORM_ID:Linux>:pthread>
@@ -314,7 +311,7 @@ target_include_directories(${PROJECT_NAME} BEFORE
         $<TARGET_PROPERTY:fastcdr,INTERFACE_INCLUDE_DIRECTORIES>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
-        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastrtps,INTERFACE_INCLUDE_DIRECTORIES>>
+        $<$<BOOL:${UAGENT_FAST_PROFILE}>:$<TARGET_PROPERTY:fastdds,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_LOGGER_PROFILE}>:$<TARGET_PROPERTY:spdlog::spdlog,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microxrcedds_client,INTERFACE_INCLUDE_DIRECTORIES>>
         $<$<BOOL:${UAGENT_P2P_PROFILE}>:$<TARGET_PROPERTY:microcdr,INTERFACE_INCLUDE_DIRECTORIES>>

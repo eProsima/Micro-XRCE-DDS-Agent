@@ -50,7 +50,6 @@ ExternalProject_Add(microxrcedds_agent_isolated
     TEST_COMMAND
         COMMAND ${CMAKE_CTEST_COMMAND} -VV -T Test
         COMMAND ${CMAKE_CTEST_COMMAND} -VV -T MemCheck -E "test-case*"
-        COMMAND ${CMAKE_CTEST_COMMAND} -VV -T Coverage -E "test-case*"
     CMAKE_CACHE_ARGS
         -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}

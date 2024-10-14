@@ -89,7 +89,7 @@ public:
      * @brief Constructor.
      * @param name Name of the middleware to be implemented by this CustomAgent.
      * @param middleware_kind The middleware selected to represent the XRCE entities
-     *        in the DDS world (FastDDS, FastRTPS, CED...)
+     *        in the DDS world (FastDDS, CED...)
      * @param framing Whether this agent transport shall use framing or not.
      * @param init_function Custom user-defined function, called during initialization.
      * @param fini_function Custom user-defined function, called upon agent's destruction.
