@@ -30,6 +30,11 @@ An *Agent* using any of these built-in transports can be launched by means of th
 
 This built-in *Agent* can also be installed and launched using the provided [Snap package](https://snapcraft.io/micro-xrce-dds-agent) or the provided [Docker image](https://hub.docker.com/r/eprosima/micro-xrce-dds-agent/).
 
+## Commercial support
+
+Looking for commercial support? Write us to info@eprosima.com
+
+Find more about us at [eProsima’s webpage](https://eprosima.com/).
 
 ## Documentation
 
@@ -38,7 +43,3 @@ You can access the *eProsima Micro XRCE-DDS* user documentation online, which is
 * [Start Page](http://micro-xrce-dds.readthedocs.io)
 * [Installation manual](http://micro-xrce-dds.readthedocs.io/en/latest/installation.html)
 * [User manual](http://micro-xrce-dds.readthedocs.io/en/latest/introduction.html)
-
-## Getting Help
-
-If you need support you can reach us by mail at `support@eProsima.com` or by phone at `+34 91 804 34 48`.
