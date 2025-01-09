@@ -64,6 +64,11 @@ bool AgentInstance::create(
             agent_thread_ = std::move(agent::create_agent_thread<TCPv6Agent>(argc, argv, exit_signal, valid_transport));
             break;
         }
+        case agent::TransportKind::SERIAL:
+        {
+            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));
+            break;
+        }
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
         case agent::TransportKind::CAN:
@@ -72,11 +77,6 @@ bool AgentInstance::create(
             break;
         }
 #endif // UAGENT_SOCKETCAN_PROFILE
-        case agent::TransportKind::SERIAL:
-        {
-            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));
-            break;
-        }
         case agent::TransportKind::MULTISERIAL:
         {
             agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, exit_signal, valid_transport));
