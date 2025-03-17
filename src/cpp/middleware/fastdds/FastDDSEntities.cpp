@@ -838,7 +838,7 @@ bool FastDDSDataWriter::match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& 
 
 bool FastDDSDataWriter::write(const std::vector<uint8_t>& data)
 {
-    return ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
+    return fastdds::dds::RETCODE_OK == ptr_->write(&const_cast<std::vector<uint8_t>&>(data));
 }
 
 const fastdds::dds::DataWriter* FastDDSDataWriter::ptr() const
@@ -1105,8 +1105,7 @@ bool FastDDSRequester::write(
     try
     {
         fastdds::rtps::WriteParams wparams;
-        rv = datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(data), wparams);
-        if (rv)
+        if (fastdds::dds::RETCODE_OK == datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(data), wparams))
         {
             int64_t sequence = (int64_t)wparams.sample_identity().sequence_number().high << 32;
             sequence += wparams.sample_identity().sequence_number().low;
@@ -1303,7 +1302,7 @@ bool FastDDSReplier::write(
     std::vector<uint8_t> output_data(data.size() - deserializer.get_serialized_data_length());
     deserializer.deserialize_array(output_data.data(), output_data.size());
 
-    return datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data), wparams);
+    return fastdds::dds::RETCODE_OK == datawriter_ptr_->write(&const_cast<std::vector<uint8_t>&>(output_data), wparams);
 }
 
 void FastDDSReplier::transform_sample_identity(
