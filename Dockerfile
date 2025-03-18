@@ -25,14 +25,14 @@ RUN apt-get install -y gradle
 RUN apt-get clean
 
 # Prepare Micro XRCE-DDS Agent workspace
-RUN mkdir -p /agent/build
+RUN mkdir -p /agent
 ADD . /agent/
 
 # Build Micro XRCE-DDS Agent and install
-RUN cd /agent/build && \
-    cmake -DCMAKE_INSTALL_PREFIX=../install \
-    .. &&\
-    make -j $(nproc) && make install
+RUN cd /agent && \
+    cmake -B build && \
+    cmake --build build -j $(nproc) && \
+    cmake --install build --prefix install
 
 # Prepare Micro XRCE-DDS Agent artifacts
 RUN cd /agent && \
