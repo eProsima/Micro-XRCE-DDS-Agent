@@ -74,58 +74,70 @@ dds::xrce::ResultStatus Root::create_client(
     {
         if (client_representation.xrce_version()[0] == dds::xrce::XRCE_VERSION_MAJOR)
         {
-            std::lock_guard<std::mutex> lock(mtx_);
-            dds::xrce::ClientKey client_key = client_representation.client_key();
-            dds::xrce::SessionId session_id = client_representation.session_id();
-            auto it = clients_.find(client_key);
-            if (it == clients_.end())
+            if (client_representation.mtu() > 0)
             {
-                std::unordered_map<std::string, std::string> client_properties;
-
-                if (client_representation.properties())
+                std::lock_guard<std::mutex> lock(mtx_);
+                dds::xrce::ClientKey client_key = client_representation.client_key();
+                dds::xrce::SessionId session_id = client_representation.session_id();
+                auto it = clients_.find(client_key);
+                if (it == clients_.end())
                 {
-                    auto v = *client_representation.properties();
-                    for (auto it_props = v.begin(); it_props != v.end(); ++it_props)
+                    std::unordered_map<std::string, std::string> client_properties;
+
+                    if (client_representation.properties())
                     {
-                        client_properties.insert(std::pair<std::string, std::string>(it_props->name(), it_props->value()));
+                        auto v = *client_representation.properties();
+                        for (auto it_props = v.begin(); it_props != v.end(); ++it_props)
+                        {
+                            client_properties.insert(std::pair<std::string, std::string>(it_props->name(), it_props->value()));
+                        }
                     }
-                }
 
-                std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(
-                    client_representation,
-                    middleware_kind,
-                    std::move(client_properties));
-                if (clients_.emplace(client_key, std::move(new_client)).second)
-                {
-                    UXR_AGENT_LOG_INFO(
-                        UXR_DECORATE_GREEN("create"),
-                        UXR_CREATE_SESSION_PATTERN,
-                        conversion::clientkey_to_raw(client_key),
-                        session_id);
+                    std::shared_ptr<ProxyClient> new_client = std::make_shared<ProxyClient>(
+                        client_representation,
+                        middleware_kind,
+                        std::move(client_properties));
+                    if (clients_.emplace(client_key, std::move(new_client)).second)
+                    {
+                        UXR_AGENT_LOG_INFO(
+                            UXR_DECORATE_GREEN("create"),
+                            UXR_CREATE_SESSION_PATTERN,
+                            conversion::clientkey_to_raw(client_key),
+                            session_id);
+                    }
+                    else
+                    {
+                        result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
+
+                        UXR_AGENT_LOG_INFO(
+                            UXR_DECORATE_RED("resources error"),
+                            UXR_CLIENT_KEY_PATTERN,
+                            conversion::clientkey_to_raw(client_representation.client_key()));
+                    }
                 }
                 else
                 {
-                    result_status.status(dds::xrce::STATUS_ERR_RESOURCES);
-
-                    UXR_AGENT_LOG_INFO(
-                        UXR_DECORATE_RED("resources error"),
-                        UXR_CLIENT_KEY_PATTERN,
-                        conversion::clientkey_to_raw(client_representation.client_key()));
+                    std::shared_ptr<ProxyClient> client = clients_.at(client_key);
+                    if (session_id != client->get_session_id())
+                    {
+                        it->second = std::make_shared<ProxyClient>(
+                            client_representation,
+                            middleware_kind);
+                    }
+                    else
+                    {
+                        client->session().reset();
+                    }
                 }
             }
             else
             {
-                std::shared_ptr<ProxyClient> client = clients_.at(client_key);
-                if (session_id != client->get_session_id())
-                {
-                    it->second = std::make_shared<ProxyClient>(
-                        client_representation,
-                        middleware_kind);
-                }
-                else
-                {
-                    client->session().reset();
-                }
+                result_status.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+                UXR_AGENT_LOG_INFO(
+                    UXR_DECORATE_RED("invalid mtu"),
+                    UXR_CLIENT_KEY_PATTERN,
+                    conversion::clientkey_to_raw(client_representation.client_key()));
             }
         }
         else
