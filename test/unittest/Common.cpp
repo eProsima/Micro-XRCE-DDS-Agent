@@ -71,6 +71,7 @@ dds::xrce::CLIENT_Representation CommonData::generate_client_representation() co
     client_representation.client_key(client_key);
     client_representation.session_id();
     client_representation.properties();
+    client_representation.mtu(512);
     return client_representation;
 }
 
