@@ -44,7 +44,18 @@ std::unique_ptr<Publisher> Publisher::create(
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            publisher_xrce.deserialize(cdr);
+            try
+            {
+                publisher_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             created_entity = proxy_client->get_middleware().create_publisher_by_bin(raw_object_id, participant_id, publisher_xrce);
             break;

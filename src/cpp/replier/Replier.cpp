@@ -54,7 +54,18 @@ std::unique_ptr<Replier> Replier::create(
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            replier_xrce.deserialize(cdr);
+            try
+            {
+                replier_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             created_entity = proxy_client->get_middleware().create_replier_by_bin(raw_object_id, participant_id, replier_xrce);
             break;
@@ -111,7 +122,18 @@ bool Replier::matched(
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            replier_xrce.deserialize(cdr);
+            try
+            {
+                replier_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             rv = proxy_client_->get_middleware().matched_replier_from_bin(get_raw_id(), replier_xrce);
             break;

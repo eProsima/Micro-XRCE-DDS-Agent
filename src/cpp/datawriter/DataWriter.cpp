@@ -54,7 +54,18 @@ std::unique_ptr<DataWriter> DataWriter::create(
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            datawriter_xrce.deserialize(cdr);
+            try
+            {
+                datawriter_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             created_entity = proxy_client->get_middleware().create_datawriter_by_bin(raw_object_id, publisher_id, datawriter_xrce);
             break;
@@ -108,7 +119,18 @@ bool DataWriter::matched(const dds::xrce::ObjectVariant& new_object_rep) const
             fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
             eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            datawriter_xrce.deserialize(cdr);
+            try
+            {
+                datawriter_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             rv = proxy_client_->get_middleware().matched_datawriter_from_bin(get_raw_id(), datawriter_xrce);
             break;

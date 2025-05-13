@@ -210,7 +210,7 @@ inline bool InputMessage::deserialize(T& data)
     {
         data.deserialize(deserializer_);
     }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
+    catch(eprosima::fastcdr::exception::Exception & /*exception*/)
     {
         log_error();
         rv = false;
