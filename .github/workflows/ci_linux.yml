@@ -36,8 +36,8 @@ jobs:
 
           # CMake 3.31.8
           CMAKE_VER=3.31.8
-          curl -L "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz" -o cmake-old.tgz
-          sudo tar -C /opt -xzf cmake-old.tgz
+          curl -L "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz" -o cmake-${CMAKE_VER}.tgz
+          sudo tar -C /opt -xzf cmake-${CMAKE_VER}.tgz
           echo "/opt/cmake-${CMAKE_VER}-linux-x86_64/bin" >> "$GITHUB_PATH"
 
       - name: Show cmake version
