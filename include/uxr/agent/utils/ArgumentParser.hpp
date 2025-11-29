@@ -669,6 +669,7 @@ class PseudoTerminalArgs
 public:
     PseudoTerminalArgs()
         : baudrate_("-b", "--baudrate", DEFAULT_BAUDRATE_LEVEL)
+        , flow_control_("-fc", "--flow-control", ArgumentKind::NO_VALUE)
     {
     }
 
@@ -677,6 +678,7 @@ public:
             char** argv)
     {
         bool result = static_cast<bool>(baudrate_.parse_argument(argc, argv));
+        flow_control_.parse_argument(argc, argv);
         return result;
     }
 
@@ -685,15 +687,22 @@ public:
         return baudrate_.value();
     }
 
+    bool flow_control()
+    {
+        return flow_control_.found();
+    }
+
     const std::string get_help() const
     {
         std::stringstream ss;
         ss << "    " << baudrate_.get_help() << std::endl;
+        ss << "    " << flow_control_.get_help() << std::endl;
         return ss.str();
     }
 
 protected:
     Argument<std::string> baudrate_;
+    Argument<dummy_type> flow_control_;
 };
 
 /*************************************************************************************************
@@ -773,7 +782,7 @@ public:
     const std::string get_help() const
     {
         std::stringstream ss;
-        ss << "    " << dev_.get_help();
+        ss << "    " << dev_.get_help() << std::endl;
         return ss.str();
     }
 
@@ -1030,7 +1039,7 @@ public:
     }
 
 #ifndef _WIN32
-    termios init_termios(const char * baudrate_str)
+    termios init_termios(const char * baudrate_str, bool flow_control)
     {
         struct termios attr = {};
 
@@ -1041,7 +1050,10 @@ public:
         attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
         attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
         attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
-        attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+        if (flow_control)
+            attr.c_cflag |= unsigned(CRTSCTS);  // Enable hardware flow control.
+        else
+            attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
 
         /* Setting LOCAL OPTIONS. */
         attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
@@ -1122,7 +1134,7 @@ private:
 #ifndef _WIN32
 template<> inline bool ArgumentParser<TermiosAgent>::launch_agent()
 {
-    struct termios attr = init_termios(serial_args_.baud_rate().c_str());
+    struct termios attr = init_termios(serial_args_.baud_rate().c_str(), serial_args_.flow_control());
     
     agent_server_.reset(new TermiosAgent(
         serial_args_.dev().c_str(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
@@ -1142,7 +1154,7 @@ template<> inline bool ArgumentParser<TermiosAgent>::launch_agent()
 
 template<> inline bool ArgumentParser<MultiTermiosAgent>::launch_agent()
 {
-    struct termios attr = init_termios(multiserial_args_.baud_rate().c_str());
+    struct termios attr = init_termios(multiserial_args_.baud_rate().c_str(), multiserial_args_.flow_control());
 
     agent_server_.reset(new MultiTermiosAgent(
         multiserial_args_.devs(),  O_RDWR | O_NOCTTY, attr, 0, utils::get_mw_kind(common_args_.middleware())));
