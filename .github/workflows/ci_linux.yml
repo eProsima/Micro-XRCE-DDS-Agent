@@ -17,7 +17,7 @@ permissions:
 jobs:
   build-test-style-cover:
     name: Build, Tests, and Coverage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -107,7 +107,7 @@ jobs:
 
   uncrustify:
     name: Uncrustify check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ !(github.event_name == 'pull_request') || !contains(github.event.pull_request.labels.*.name, 'conflicts') }}
     steps:
       - name: Run Uncrustify Linter
