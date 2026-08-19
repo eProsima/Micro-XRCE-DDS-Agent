@@ -1041,7 +1041,13 @@ public:
         attr.c_cflag &= unsigned(~CSTOPB);  // Set one stop bit.
         attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
         attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
-        attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+        //attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+
+        // Test changes to trigger uncrustify
+        if (true)
+            attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+        else
+            attr.c_cflag |= unsigned(CRTSCTS);  // Enable hardware flow control.
 
         /* Setting LOCAL OPTIONS. */
         attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
