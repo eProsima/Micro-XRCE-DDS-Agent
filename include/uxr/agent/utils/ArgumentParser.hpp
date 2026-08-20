@@ -1039,7 +1039,9 @@ public:
     }
 
 #ifndef _WIN32
-    termios init_termios(const char * baudrate_str, bool flow_control)
+    termios init_termios(
+            const char * baudrate_str,
+            bool flow_control)
     {
         struct termios attr = {};
 
@@ -1051,9 +1053,13 @@ public:
         attr.c_cflag &= unsigned(~CSIZE);   // Mask the character size bits.
         attr.c_cflag |= unsigned(CS8);      // Set 8 data bits.
         if (flow_control)
+        {
             attr.c_cflag |= unsigned(CRTSCTS);  // Enable hardware flow control.
+        }
         else
+        {
             attr.c_cflag &= unsigned(~CRTSCTS); // Disable hardware flow control.
+        }
 
         /* Setting LOCAL OPTIONS. */
         attr.c_lflag &= unsigned(~ICANON);  // Set non-canonical input.
