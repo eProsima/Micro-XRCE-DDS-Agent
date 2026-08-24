@@ -108,7 +108,7 @@ jobs:
   uncrustify:
     name: Uncrustify check
     runs-on: ubuntu-24.04
-    if: ${{ !(github.event_name == 'pull_request') || !contains(github.event.pull_request.labels.*.name, 'conflicts') }}
+    if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'conflicts') }}
     steps:
       - name: Run Uncrustify Linter
         uses: eProsima/eProsima-CI/ubuntu/uncrustify@v0
