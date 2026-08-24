@@ -27,15 +27,16 @@ namespace uxr {
 class InputMessage
 {
 public:
+
     InputMessage(
             uint8_t* buf,
             size_t len)
-        : buf_(new uint8_t[len]),
-          len_(len),
-          header_(),
-          subheader_(),
-          fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          deserializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
+        : buf_(new uint8_t[len])
+        , len_(len)
+        , header_()
+        , subheader_()
+        , fastbuffer_(reinterpret_cast<char*>(buf_), len_)
+        , deserializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         memcpy(buf_, buf, len);
 
@@ -44,46 +45,72 @@ public:
         valid_xrce_message_ = valid_xrce_message_ && count_submessages() > 0;
     }
 
-    uint8_t* get_buf() const { return buf_; }
+    uint8_t* get_buf() const
+    {
+        return buf_;
+    }
 
-    size_t get_len() const { return len_; }
+    size_t get_len() const
+    {
+        return len_;
+    }
 
     ~InputMessage()
     {
         delete[] buf_;
     }
 
-    InputMessage(InputMessage&&) = delete;
-    InputMessage(const InputMessage&) = delete;
-    InputMessage& operator=(InputMessage&&) = delete;
-    InputMessage& operator=(const InputMessage&) = delete;
+    InputMessage(
+            InputMessage&&) = delete;
+    InputMessage(
+            const InputMessage&) = delete;
+    InputMessage& operator =(
+            InputMessage&&) = delete;
+    InputMessage& operator =(
+            const InputMessage&) = delete;
 
-    const dds::xrce::MessageHeader& get_header() const { return header_; }
+    const dds::xrce::MessageHeader& get_header() const
+    {
+        return header_;
+    }
 
-    const dds::xrce::SubmessageHeader& get_subheader() const { return subheader_; }
+    const dds::xrce::SubmessageHeader& get_subheader() const
+    {
+        return subheader_;
+    }
 
     template<class T>
-    bool get_payload(T& data);
+    bool get_payload(
+            T& data);
 
-    uint8_t get_raw_header(std::array<uint8_t, 8>& buf);
+    uint8_t get_raw_header(
+            std::array<uint8_t, 8>& buf);
 
-    bool get_raw_payload(uint8_t* buf, size_t len);
+    bool get_raw_payload(
+            uint8_t* buf,
+            size_t len);
 
     bool prepare_next_submessage();
 
     size_t count_submessages();
 
-    bool is_valid_xrce_message() { return valid_xrce_message_; }
+    bool is_valid_xrce_message()
+    {
+        return valid_xrce_message_;
+    }
 
     dds::xrce::SubmessageId get_submessage_id();
 
 private:
+
     template<class T>
-    bool deserialize(T& data);
+    bool deserialize(
+            T& data);
 
     void log_error();
 
 private:
+
     uint8_t* buf_;
     size_t len_;
     dds::xrce::MessageHeader header_;
@@ -113,7 +140,9 @@ inline bool InputMessage::prepare_next_submessage()
 
 inline size_t InputMessage::count_submessages()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
+    fastcdr::Cdr local_deserializer(fastbuffer_,
+            eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
+            eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 
@@ -124,7 +153,9 @@ inline size_t InputMessage::count_submessages()
 
     do
     {
-        local_deserializer.jump((4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3)) & 3);
+        local_deserializer.jump(
+            (4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3))
+            & 3);
         if (fastbuffer_.getBufferSize() > local_deserializer.get_serialized_data_length())
         {
             try
@@ -132,27 +163,33 @@ inline size_t InputMessage::count_submessages()
                 local_subheader.deserialize(local_deserializer);
                 count++;
             }
-            catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+            catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
             {
                 rv = false;
             }
-        } else {
+        }
+        else
+        {
             rv = false;
         }
-    } while (rv);
+    }
+    while (rv);
 
     return count;
 }
 
 inline dds::xrce::SubmessageId InputMessage::get_submessage_id()
 {
-    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
+    fastcdr::Cdr local_deserializer(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
+            eprosima::fastcdr::CdrVersion::XCDRv1);
     dds::xrce::MessageHeader local_header;
     dds::xrce::SubmessageHeader local_subheader;
 
     local_header.deserialize(local_deserializer);
 
-    local_deserializer.jump((4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3)) & 3);
+    local_deserializer.jump(
+        (4 - ((local_deserializer.get_current_position() - local_deserializer.get_buffer_pointer()) & 3))
+        & 3);
     if (fastbuffer_.getBufferSize() > local_deserializer.get_serialized_data_length())
     {
         local_subheader.deserialize(local_deserializer);
@@ -162,12 +199,14 @@ inline dds::xrce::SubmessageId InputMessage::get_submessage_id()
 }
 
 template<class T>
-inline bool InputMessage::get_payload(T& data)
+inline bool InputMessage::get_payload(
+        T& data)
 {
     return deserialize(data);
 }
 
-inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
+inline uint8_t InputMessage::get_raw_header(
+        std::array<uint8_t, 8>& buf)
 {
     uint8_t rv;
     if (128 > header_.session_id())
@@ -183,7 +222,9 @@ inline uint8_t InputMessage::get_raw_header(std::array<uint8_t, 8>& buf)
     return rv;
 }
 
-inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
+inline bool InputMessage::get_raw_payload(
+        uint8_t* buf,
+        size_t len)
 {
     bool rv = false;
     if (subheader_.submessage_length() <= len)
@@ -193,7 +234,7 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
         {
             deserializer_.deserialize_array(buf, subheader_.submessage_length(), fastcdr::Cdr::BIG_ENDIANNESS);
         }
-        catch(eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
+        catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
         {
             log_error();
             rv = false;
@@ -203,14 +244,15 @@ inline bool InputMessage::get_raw_payload(uint8_t* buf, size_t len)
 }
 
 template<class T>
-inline bool InputMessage::deserialize(T& data)
+inline bool InputMessage::deserialize(
+        T& data)
 {
     bool rv = true;
     try
     {
         data.deserialize(deserializer_);
     }
-    catch(eprosima::fastcdr::exception::Exception & /*exception*/)
+    catch (eprosima::fastcdr::exception::Exception& /*exception*/)
     {
         log_error();
         rv = false;

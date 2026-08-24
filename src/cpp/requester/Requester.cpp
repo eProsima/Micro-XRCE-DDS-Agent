@@ -53,14 +53,16 @@ std::unique_ptr<Requester> Requester::create(
             auto rep = representation.representation();
             dds::xrce::OBJK_Requester_Binary request_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
             try
             {
                 request_xrce.deserialize(cdr);
             }
-            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("deserialization error"),
@@ -69,7 +71,8 @@ std::unique_ptr<Requester> Requester::create(
                 break;
             }
 
-            created_entity = proxy_client->get_middleware().create_requester_by_bin(raw_object_id, participant_id, request_xrce);
+            created_entity = proxy_client->get_middleware().create_requester_by_bin(raw_object_id, participant_id,
+                            request_xrce);
             break;
         }
         default:
@@ -85,7 +88,8 @@ Requester::Requester(
     : XRCEObject{object_id}
     , proxy_client_{proxy_client}
     , reader_{}
-{}
+{
+}
 
 Requester::~Requester()
 {
@@ -121,14 +125,16 @@ bool Requester::matched(
             auto rep = new_object_rep.requester().representation();
             dds::xrce::OBJK_Requester_Binary request_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
             try
             {
                 request_xrce.deserialize(cdr);
             }
-            catch (eprosima::fastcdr::exception::Exception & /*exception*/)
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
             {
                 UXR_AGENT_LOG_ERROR(
                     UXR_DECORATE_RED("deserialization error"),
@@ -153,7 +159,8 @@ bool Requester::write(
     bool rv = false;
     uint32_t sequence_number = (get_raw_id() << 16) + (request_id[0] << 8) + (request_id[1]);
 
-    if (proxy_client_->get_middleware().write_request(get_raw_id(), sequence_number,  write_data.data().serialized_data()))
+    if (proxy_client_->get_middleware().write_request(get_raw_id(), sequence_number,
+            write_data.data().serialized_data()))
     {
         UXR_AGENT_LOG_MESSAGE(
             UXR_DECORATE_YELLOW("[** <<DDS>> **]"),
@@ -184,8 +191,8 @@ bool Requester::read(
     }
 
     /* TODO (julianbermudez): implement different formats.
-    switch (read_data.read_specification().data_format())
-    {
+       switch (read_data.read_specification().data_format())
+       {
         case dds::xrce::FORMAT_DATA:
             break;
         case dds::xrce::FORMAT_SAMPLE:
@@ -198,14 +205,17 @@ bool Requester::read(
             break;
         default:
             break;
-    }
-    */
+       }
+     */
 
     write_args.client = proxy_client_;
 
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
-            reader_.start_reading(delivery_control, std::bind(&Requester::read_fn, this, _1, _2, _3), false, write_fn, write_args));
+           reader_.start_reading(delivery_control,
+           std::bind(&Requester::read_fn, this, _1, _2, _3),
+           false, write_fn,
+           write_args));
     return false;
 }
 
@@ -227,7 +237,8 @@ bool Requester::read_fn(
 
         data.resize(request.getMaxCdrSerializedSize() + temp_data.size());
         fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(data.data()), data.size()};
-        fastcdr::Cdr serializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
+        fastcdr::Cdr serializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
+                eprosima::fastcdr::CdrVersion::XCDRv1);
 
         request.serialize(serializer);
         serializer.serialize_array(temp_data.data(), temp_data.size());

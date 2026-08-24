@@ -28,8 +28,9 @@ dds::xrce::MessageHeader CommonData::generate_message_header() const
     return message_header;
 }
 
-dds::xrce::SubmessageHeader CommonData::generate_submessage_header(const dds::xrce::SubmessageId& submessage_id,
-                                                                   uint16_t length) const
+dds::xrce::SubmessageHeader CommonData::generate_submessage_header(
+        const dds::xrce::SubmessageId& submessage_id,
+        uint16_t length) const
 {
     dds::xrce::SubmessageHeader submessage_header;
     submessage_header.submessage_id(submessage_id);
@@ -45,7 +46,8 @@ dds::xrce::CREATE_CLIENT_Payload CommonData::generate_create_client_payload() co
     return create_data;
 }
 
-dds::xrce::CREATE_Payload CommonData::generate_create_payload(const dds::xrce::ObjectKind& object_kind) const
+dds::xrce::CREATE_Payload CommonData::generate_create_payload(
+        const dds::xrce::ObjectKind& object_kind) const
 {
     dds::xrce::CREATE_Payload create_data;
     create_data.request_id(request_id);
@@ -54,7 +56,8 @@ dds::xrce::CREATE_Payload CommonData::generate_create_payload(const dds::xrce::O
     return create_data;
 }
 
-dds::xrce::DELETE_Payload CommonData::generate_delete_resource_payload(const dds::xrce::ObjectId& obj_id) const
+dds::xrce::DELETE_Payload CommonData::generate_delete_resource_payload(
+        const dds::xrce::ObjectId& obj_id) const
 {
     dds::xrce::DELETE_Payload delete_payload;
     delete_payload.object_id(obj_id);
@@ -79,7 +82,7 @@ dds::xrce::OBJK_PUBLISHER_Representation CommonData::generate_publisher_represen
 {
     dds::xrce::OBJK_PUBLISHER_Representation publisher_rep;
     /* TODO (Julian): publisher do not support refenrence representation in the new standard. */
-//    publisher_rep.representation().object_reference("PUBLISHER");
+    // publisher_rep.representation().object_reference("PUBLISHER");
     publisher_rep.participant_id({{4, 4}});
     return publisher_rep;
 }
@@ -88,7 +91,7 @@ dds::xrce::OBJK_SUBSCRIBER_Representation CommonData::generate_subscriber_repres
 {
     dds::xrce::OBJK_SUBSCRIBER_Representation subscriber_rep;
     /* TODO (Julian): subscriber do not support refenrence representation in the new standard. */
-//    subscriber_rep.representation().object_reference("SUBSCRIBER");
+    // subscriber_rep.representation().object_reference("SUBSCRIBER");
     subscriber_rep.participant_id({{4, 4}});
     return subscriber_rep;
 }
@@ -100,10 +103,11 @@ dds::xrce::OBJK_PARTICIPANT_Representation CommonData::generate_participant_repr
     return participant_rep;
 }
 
-dds::xrce::ObjectVariant CommonData::generate_object_variant(const dds::xrce::ObjectKind& object_kind) const
+dds::xrce::ObjectVariant CommonData::generate_object_variant(
+        const dds::xrce::ObjectKind& object_kind) const
 {
     dds::xrce::ObjectVariant variant;
-    switch(object_kind)
+    switch (object_kind)
     {
         case dds::xrce::OBJK_PUBLISHER:
         {
@@ -121,21 +125,22 @@ dds::xrce::ObjectVariant CommonData::generate_object_variant(const dds::xrce::Ob
             break;
         }
         /* TODO (Julian). */
-//        case OBJECTKIND::INVALID:
-//        case OBJECTKIND::TOPIC:
-//        case OBJECTKIND::DATAWRITER:
-//        case OBJECTKIND::DATAREADER:
-//        case OBJECTKIND::TYPE:
-//        case OBJECTKIND::QOSPROFILE:
-//        case OBJECTKIND::APPLICATION:
+        //        case OBJECTKIND::INVALID:
+        //        case OBJECTKIND::TOPIC:
+        //        case OBJECTKIND::DATAWRITER:
+        //        case OBJECTKIND::DATAREADER:
+        //        case OBJECTKIND::TYPE:
+        //        case OBJECTKIND::QOSPROFILE:
+        //        case OBJECTKIND::APPLICATION:
         default:
             break;
     }
     return variant;
 }
 
-dds::xrce::STATUS_Payload CommonData::generate_resource_status_payload(uint8_t status,
-                                                                       uint8_t implementation_status) const
+dds::xrce::STATUS_Payload CommonData::generate_resource_status_payload(
+        uint8_t status,
+        uint8_t implementation_status) const
 {
     dds::xrce::STATUS_Payload status_payload;
     status_payload.related_request().object_id(object_id);
@@ -145,14 +150,15 @@ dds::xrce::STATUS_Payload CommonData::generate_resource_status_payload(uint8_t s
     return status_payload;
 }
 
-dds::xrce::READ_DATA_Payload CommonData::generate_read_data_payload(const Optional<std::string>& filter,
-                                                                    const dds::xrce::DataFormat& format) const
+dds::xrce::READ_DATA_Payload CommonData::generate_read_data_payload(
+        const Optional<std::string>& filter,
+        const dds::xrce::DataFormat& format) const
 {
     dds::xrce::READ_DATA_Payload read_data;
     read_data.object_id(object_id);
     read_data.request_id(request_id);
     read_data.read_specification().data_format(format);
-    if(filter)
+    if (filter)
     {
         read_data.read_specification().content_filter_expression(*filter);
     }
@@ -186,6 +192,7 @@ dds::xrce::DATA_Payload_Data CommonData::generate_data_payload_data() const
     data_payload.data(sample);
     return data_payload;
 }
+
 } // namespace testing
 } // namespace uxr
 } // namespace eprosima
