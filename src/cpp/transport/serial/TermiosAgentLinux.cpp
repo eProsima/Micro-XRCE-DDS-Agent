@@ -104,10 +104,10 @@ bool TermiosAgent::init()
 
 #if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
             cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
-#endif
+#endif // if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
 #if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
             cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
-#endif
+#endif // if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
 
             if (0 == tcsetattr(poll_fd_.fd, TCSANOW, &new_attrs))
             {

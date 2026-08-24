@@ -26,7 +26,7 @@
 typedef SSIZE_T ssize_t;
 #else
 #include <sys/types.h>
-#endif
+#endif // ifdef _WIN32
 
 namespace eprosima {
 namespace uxr {
@@ -34,6 +34,7 @@ namespace uxr {
 class FramingIO
 {
 private:
+
     static constexpr uint16_t crc16_table[256] =
     {
         0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
@@ -90,6 +91,7 @@ private:
     };
 
 public:
+
     /**
      * @brief Write callback function signature.
      * @param buffer Raw octet buffer to write into.
@@ -98,9 +100,9 @@ public:
      * @return size_t Number of written bytes.
      */
     using WriteCallback = std::function<ssize_t (
-            uint8_t* /*buffer*/,
-            size_t /*message_length*/,
-            TransportRc& /*transport_rc*/)>;
+                        uint8_t* /*buffer*/,
+                        size_t /*message_length*/,
+                        TransportRc& /*transport_rc*/)>;
 
     /**
      * @brief Read callback function signature.
@@ -111,10 +113,10 @@ public:
      * @return size_t Number of read bytes.
      */
     using ReadCallback = std::function<ssize_t (
-            uint8_t* /*buffer*/,
-            size_t /*buffer_length*/,
-            int /*timeout*/,
-            TransportRc& /*transport_rc*/)>;
+                        uint8_t* /*buffer*/,
+                        size_t /*buffer_length*/,
+                        int /*timeout*/,
+                        TransportRc& /*transport_rc*/)>;
 
     FramingIO(
             uint8_t local_addr,
@@ -154,6 +156,7 @@ public:
             TransportRc& transport_rc);
 
 private:
+
     /**
      * @brief Static method to update CRC.
      * @param crc CRC code to be updated.

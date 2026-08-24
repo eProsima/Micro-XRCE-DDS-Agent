@@ -31,14 +31,14 @@ namespace util {
 
 template<typename E>
 void get_transport_interfaces(
-    uint16_t agent_port,
-    std::vector<dds::xrce::TransportAddress>& transport_addresses);
+        uint16_t agent_port,
+        std::vector<dds::xrce::TransportAddress>& transport_addresses);
 
 template<>
 inline
 void get_transport_interfaces<IPv4EndPoint>(
-    uint16_t agent_port,
-    std::vector<dds::xrce::TransportAddress>& transport_addresses)
+        uint16_t agent_port,
+        std::vector<dds::xrce::TransportAddress>& transport_addresses)
 {
     struct ifaddrs* ifaddr;
     struct ifaddrs* ptr;
@@ -63,8 +63,7 @@ void get_transport_interfaces<IPv4EndPoint>(
                 UXR_AGENT_LOG_TRACE(
                     UXR_DECORATE_WHITE("interface found"),
                     "address: {}",
-                    transport_addresses.back()
-                );
+                    transport_addresses.back());
             }
         }
     }
@@ -74,8 +73,8 @@ void get_transport_interfaces<IPv4EndPoint>(
 template<>
 inline
 void get_transport_interfaces<IPv6EndPoint>(
-    uint16_t agent_port,
-    std::vector<dds::xrce::TransportAddress>& transport_addresses)
+        uint16_t agent_port,
+        std::vector<dds::xrce::TransportAddress>& transport_addresses)
 {
     struct ifaddrs* ifaddr;
     struct ifaddrs* ptr;
@@ -113,8 +112,7 @@ void get_transport_interfaces<IPv6EndPoint>(
                 UXR_AGENT_LOG_TRACE(
                     UXR_DECORATE_WHITE("interface found"),
                     "address: {}",
-                    transport_addresses.back()
-                );
+                    transport_addresses.back());
             }
         }
     }

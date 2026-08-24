@@ -22,40 +22,52 @@
 #include <map>
 #include <mutex>
 
-namespace eprosima{
-namespace uxr{
+namespace eprosima {
+namespace uxr {
 
 class Root
 {
 public:
+
     Root();
     ~Root();
 
-    Root(Root&&) = delete;
-    Root(const Root&) = delete;
-    Root operator=(Root&&) = delete;
-    Root operator=(const Root&) = delete;
+    Root(
+            Root&&) = delete;
+    Root(
+            const Root&) = delete;
+    Root operator =(
+            Root&&) = delete;
+    Root operator =(
+            const Root&) = delete;
 
     dds::xrce::ResultStatus create_client(
             const dds::xrce::CLIENT_Representation& client_representation,
             dds::xrce::AGENT_Representation& agent_representation,
             Middleware::Kind middleware_kind);
 
-    dds::xrce::ResultStatus get_info(dds::xrce::ObjectInfo& agent_info);
+    dds::xrce::ResultStatus get_info(
+            dds::xrce::ObjectInfo& agent_info);
 
-    dds::xrce::ResultStatus delete_client(const dds::xrce::ClientKey& client_key);
+    dds::xrce::ResultStatus delete_client(
+            const dds::xrce::ClientKey& client_key);
 
-    std::shared_ptr<ProxyClient> get_client(const dds::xrce::ClientKey& client_key);
+    std::shared_ptr<ProxyClient> get_client(
+            const dds::xrce::ClientKey& client_key);
 
-    bool get_next_client(std::shared_ptr<ProxyClient>& next_client);
+    bool get_next_client(
+            std::shared_ptr<ProxyClient>& next_client);
 
-    bool load_config_file(const std::string& file_path);
+    bool load_config_file(
+            const std::string& file_path);
 
-    void set_verbose_level(uint8_t verbose_level);
+    void set_verbose_level(
+            uint8_t verbose_level);
 
     void reset();
 
 private:
+
     std::mutex mtx_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>> clients_;
     std::map<dds::xrce::ClientKey, std::shared_ptr<ProxyClient>>::iterator current_client_;

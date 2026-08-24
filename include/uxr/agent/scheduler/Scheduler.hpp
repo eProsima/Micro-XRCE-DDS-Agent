@@ -24,13 +24,19 @@ template<class T>
 class Scheduler
 {
 public:
+
     Scheduler() = default;
-    virtual ~Scheduler() {}
+    virtual ~Scheduler()
+    {
+    }
 
     virtual void init() = 0;
     virtual void deinit() = 0;
-    virtual void push(T&& element, uint8_t priority) = 0;
-    virtual bool pop(T& element) = 0;
+    virtual void push(
+            T&& element,
+            uint8_t priority) = 0;
+    virtual bool pop(
+            T& element) = 0;
 };
 
 } // namespace uxr

@@ -33,7 +33,8 @@ DiscoveryServerLinux<EndPoint>::DiscoveryServerLinux(
     : DiscoveryServer<EndPoint>(processor)
     , poll_fd_{-1, 0, 0}
     , buffer_{0}
-{}
+{
+}
 
 template<typename EndPoint>
 bool DiscoveryServerLinux<EndPoint>::init(
@@ -209,11 +210,11 @@ bool DiscoveryServerLinux<EndPoint>::send_message(
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
     ssize_t bytes_sent =
             sendto(poll_fd_.fd,
-                   output_packet.message->get_buf(),
-                   output_packet.message->get_len(),
-                   0,
-                   reinterpret_cast<struct sockaddr*>(&client_addr),
-                   sizeof(client_addr));
+                    output_packet.message->get_buf(),
+                    output_packet.message->get_len(),
+                    0,
+                    reinterpret_cast<struct sockaddr*>(&client_addr),
+                    sizeof(client_addr));
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());

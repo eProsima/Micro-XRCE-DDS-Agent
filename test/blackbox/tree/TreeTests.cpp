@@ -23,6 +23,7 @@ namespace testing {
 class TreeTests : public ::testing::Test
 {
 protected:
+
     TreeTests()
     {
         root_.load_config_file("./agent.refs");
@@ -50,9 +51,9 @@ TEST_F(TreeTests, XMLTree)
     client_representation.session_id(0x00);
     client_representation.mtu(512);
     dds::xrce::ResultStatus response = root_.create_client(
-                client_representation,
-                agent_representation,
-                Middleware::Kind::FASTDDS);
+        client_representation,
+        agent_representation,
+        Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -64,13 +65,15 @@ TEST_F(TreeTests, XMLTree)
      * Create participant.
      */
     dds::xrce::ObjectVariant object_variant;
-    std::string participant_xml = "<dds>"
-                                      "<participant>"
-                                          "<rtps>"
-                                              "<name>default_xrce_participant</name>"
-                                          "</rtps>"
-                                      "</participant>"
-                                  "</dds>";
+    std::string participant_xml =
+            R"(
+        <dds>
+            <participant>
+                <rtps>
+                    <name>default_xrce_participant</name>
+                </rtps>
+            </participant>
+        </dds>)";
     dds::xrce::OBJK_PARTICIPANT_Representation participant_representation;
     participant_representation.domain_id(0);
     participant_representation.representation().xml_string_representation(participant_xml);
@@ -83,12 +86,14 @@ TEST_F(TreeTests, XMLTree)
     /*
      * Create topic.
      */
-    std::string topic_xml = "<dds>"
-                                "<topic>"
-                                    "<name>HelloWorldTopic</name>"
-                                    "<dataType>HelloWorld</dataType>"
-                                "</topic>"
-                            "</dds>";
+    std::string topic_xml =
+            R"(
+        <dds>
+            <topic>
+                <name>HelloWorldTopic</name>
+                <dataType>HelloWorld</dataType>
+            </topic>
+        </dds>)";
     dds::xrce::OBJK_TOPIC_Representation topic_representation;
     topic_representation.participant_id(participant_id);
     topic_representation.representation().xml_string_representation(topic_xml);
@@ -114,15 +119,17 @@ TEST_F(TreeTests, XMLTree)
     /*
      * Create datawriter.
      */
-    std::string datawriter_xml = "<dds>"
-                                     "<data_writer>"
-                                         "<topic>"
-                                             "<kind>NO_KEY</kind>"
-                                             "<name>HelloWorldTopic</name>"
-                                             "<dataType>HelloWorld</dataType>"
-                                         "</topic>"
-                                     "</data_writer>"
-                                 "</dds>";
+    std::string datawriter_xml =
+            R"(
+        <dds>
+            <data_writer>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                </topic>
+            </data_writer>
+        </dds>)";
     dds::xrce::DATAWRITER_Representation datawriter_representation;
     datawriter_representation.publisher_id(publisher_id);
     datawriter_representation.representation().xml_string_representation(datawriter_xml);
@@ -148,15 +155,17 @@ TEST_F(TreeTests, XMLTree)
     /*
      * Create datareader.
      */
-    std::string datareader_xml = "<dds>"
-                                     "<data_reader>"
-                                         "<topic>"
-                                             "<kind>NO_KEY</kind>"
-                                             "<name>HelloWorldTopic</name>"
-                                             "<dataType>HelloWorld</dataType>"
-                                         "</topic>"
-                                     "</data_reader>"
-                                 "</dds>";
+    std::string datareader_xml =
+            R"(
+        <dds>
+            <data_reader>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                </topic>
+            </data_reader>
+        </dds>)";
     dds::xrce::DATAREADER_Representation datareader_representation;
     datareader_representation.subscriber_id(subscriber_id);
     datareader_representation.representation().xml_string_representation(datareader_xml);
@@ -169,7 +178,8 @@ TEST_F(TreeTests, XMLTree)
     /*
      * Create requester.
      */
-    std::string requester_xml = R"(
+    std::string requester_xml =
+            R"(
         <dds>
             <requester profile_name="test_requester_profile"
                        service_name="service_name"
@@ -207,7 +217,8 @@ TEST_F(TreeTests, XMLTree)
     /*
      * Create replier.
      */
-    std::string replier_xml = R"(
+    std::string replier_xml =
+            R"(
         <dds>
             <replier profile_name="test_replier_profile"
                      service_name="service_name"
@@ -260,9 +271,9 @@ TEST_F(TreeTests, REFTree)
     client_representation.session_id(0x00);
     client_representation.mtu(512);
     dds::xrce::ResultStatus response = root_.create_client(
-                client_representation,
-                agent_representation,
-                Middleware::Kind::FASTDDS);
+        client_representation,
+        agent_representation,
+        Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -383,128 +394,147 @@ TEST_F(TreeTests, REFTree)
 TEST_F(TreeTests, CreationModeXMLTree)
 {
     /* Participant XMLs. */
-    std::string participant_xml = "<dds>"
-                                      "<participant>"
-                                          "<domainId>0</domainId>"
-                                          "<rtps>"
-                                              "<builtin>"
-                                                  "<discovery_config>"
-                                                      "<leaseDuration>"
-                                                          "<sec>DURATION_INFINITY</sec>"
-                                                      "</leaseDuration>"
-                                                  "</discovery_config>"
-                                              "</builtin>"
-                                              "<name>default_xrce_participant</name>"
-                                          "</rtps>"
-                                      "</participant>"
-                                  "</dds>";
+    std::string participant_xml =
+            R"(
+        <dds>
+            <participant>
+                <domainId>0</domainId>
+                <rtps>
+                    <builtin>
+                        <discovery_config>
+                            <leaseDuration>
+                                <sec>DURATION_INFINITY</sec>
+                            </leaseDuration>
+                        </discovery_config>
+                    </builtin>
+                    <name>default_xrce_participant</name>
+                </rtps>
+            </participant>
+        </dds>)";
 
-    std::string participant_xml_two = "<dds>"
-                                          "<participant>"
-                                              "<domainId>0</domainId>"
-                                              "<rtps>"
-                                                  "<builtin>"
-                                                      "<discovery_config>"
-                                                          "<leaseDuration>"
-                                                              "<sec>DURATION_INFINITY</sec>"
-                                                          "</leaseDuration>"
-                                                      "</discovery_config>"
-                                                  "</builtin>"
-                                                  "<name>default_xrce_participant_two</name>"
-                                              "</rtps>"
-                                          "</participant>"
-                                      "</dds>";
+    std::string participant_xml_two =
+            R"(
+        <dds>
+            <participant>
+                <domainId>0</domainId>
+                <rtps>
+                    <builtin>
+                        <discovery_config>
+                            <leaseDuration>
+                                <sec>DURATION_INFINITY</sec>
+                            </leaseDuration>
+                        </discovery_config>
+                    </builtin>
+                    <name>default_xrce_participant_two</name>
+                </rtps>
+            </participant>
+        </dds>)";
 
     /* Topic XMLs. */
-    std::string shapetype_topic_xml = "<dds>"
-                                          "<topic>"
-                                              "<kind>WITH_KEY</kind>"
-                                              "<name>Square</name>"
-                                              "<dataType>ShapeType</dataType>"
-                                          "</topic>"
-                                      "</dds>";
-    std::string helloworld_topic_xml = "<dds>"
-                                           "<topic>"
-                                               "<name>HelloWorldTopic</name>"
-                                               "<dataType>HelloWorld</dataType>"
-                                           "</topic>"
-                                       "</dds>";
+    std::string shapetype_topic_xml =
+            R"(
+        <dds>
+            <topic>
+                <kind>WITH_KEY</kind>
+                <name>Square</name>
+                <dataType>ShapeType</dataType>
+            </topic>
+        </dds>)";
+
+    std::string helloworld_topic_xml =
+            R"(
+        <dds>
+            <topic>
+                <name>HelloWorldTopic</name>
+                <dataType>HelloWorld</dataType>
+            </topic>
+        </dds>)";
 
     /* Datawriter XMLs. */
-    std::string datawriter_xml = "<dds>"
-                                     "<data_writer>"
-                                         "<topic>"
-                                             "<kind>NO_KEY</kind>"
-                                             "<name>HelloWorldTopic</name>"
-                                             "<dataType>HelloWorld</dataType>"
-                                             "<historyQos>"
-                                                 "<kind>KEEP_LAST</kind>"
-                                                 "<depth>5</depth>"
-                                             "</historyQos>"
-                                         "</topic>"
-                                         "<qos>"
-                                             "<durability>"
-                                                 "<kind>TRANSIENT_LOCAL</kind>"
-                                             "</durability>"
-                                         "</qos>"
-                                     "</data_writer>"
-                                 "</dds>";
-    std::string datawriter_xml_two = "<dds>"
-                                         "<data_writer>"
-                                             "<topic>"
-                                                 "<kind>NO_KEY</kind>"
-                                                 "<name>HelloWorldTopic</name>"
-                                                 "<dataType>HelloWorld</dataType>"
-                                                 "<historyQos>"
-                                                     "<kind>KEEP_LAST</kind>"
-                                                     "<depth>10</depth>"
-                                                 "</historyQos>"
-                                             "</topic>"
-                                             "<qos>"
-                                                 "<durability>"
-                                                     "<kind>TRANSIENT_LOCAL</kind>"
-                                                 "</durability>"
-                                             "</qos>"
-                                         "</data_writer>"
+    std::string datawriter_xml =
+            R"(
+        <dds>
+            <data_writer>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>5</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_writer>
+        </dds>)";
 
-                                     "</dds>";
+    std::string datawriter_xml_two =
+            R"(
+        <dds>
+            <data_writer>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>10</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_writer>
+        </dds>)";
+
     /* Datareader XMLs. */
-    std::string datareader_xml = "<dds>"
-                                     "<data_reader>"
-                                         "<topic>"
-                                             "<kind>NO_KEY</kind>"
-                                             "<name>HelloWorldTopic</name>"
-                                             "<dataType>HelloWorld</dataType>"
-                                             "<historyQos>"
-                                                 "<kind>KEEP_LAST</kind>"
-                                                 "<depth>5</depth>"
-                                             "</historyQos>"
-                                         "</topic>"
-                                         "<qos>"
-                                             "<durability>"
-                                                 "<kind>TRANSIENT_LOCAL</kind>"
-                                             "</durability>"
-                                         "</qos>"
-                                     "</data_reader>"
-                                 "</dds>";
-    std::string datareader_xml_two = "<dds>"
-                                         "<data_reader>"
-                                             "<topic>"
-                                                 "<kind>NO_KEY</kind>"
-                                                 "<name>HelloWorldTopic</name>"
-                                                 "<dataType>HelloWorld</dataType>"
-                                                 "<historyQos>"
-                                                     "<kind>KEEP_LAST</kind>"
-                                                     "<depth>10</depth>"
-                                                 "</historyQos>"
-                                             "</topic>"
-                                             "<qos>"
-                                                 "<durability>"
-                                                     "<kind>TRANSIENT_LOCAL</kind>"
-                                                 "</durability>"
-                                             "</qos>"
-                                         "</data_reader>"
-                                     "</dds>";
+    std::string datareader_xml =
+            R"(
+        <dds>
+            <data_reader>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>5</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_reader>
+        </dds>)";
+
+    std::string datareader_xml_two =
+            R"(
+        <dds>
+            <data_reader>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>10</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_reader>
+        </dds>)";
 
     /* Create client. */
     dds::xrce::AGENT_Representation agent_representation;
@@ -516,9 +546,9 @@ TEST_F(TreeTests, CreationModeXMLTree)
     client_representation.session_id(0x00);
     client_representation.mtu(512);
     dds::xrce::ResultStatus response = root_.create_client(
-                client_representation,
-                agent_representation,
-                eprosima::uxr::Middleware::Kind::FASTDDS);
+        client_representation,
+        agent_representation,
+        eprosima::uxr::Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -803,9 +833,9 @@ TEST_F(TreeTests, CreationModeREFTree)
     client_representation.session_id(0x00);
     client_representation.mtu(512);
     dds::xrce::ResultStatus response = root_.create_client(
-                client_representation,
-                agent_representation,
-                Middleware::Kind::FASTDDS);
+        client_representation,
+        agent_representation,
+        Middleware::Kind::FASTDDS);
     std::shared_ptr<ProxyClient> client = root_.get_client(client_representation.client_key());
 
     /* Common creation mode. */
@@ -1090,7 +1120,9 @@ TEST_F(TreeTests, CreationModeREFTree)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

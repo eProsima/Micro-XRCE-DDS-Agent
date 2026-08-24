@@ -28,11 +28,12 @@ namespace eprosima {
 namespace uxr {
 
 /**************************************************************************************************
- * None Input Streams.
- **************************************************************************************************/
+* None Input Streams.
+**************************************************************************************************/
 class NoneInputStream
 {
 public:
+
     NoneInputStream() = default;
 
     bool push_message(
@@ -40,7 +41,7 @@ public:
 
     template<typename ... Args>
     bool emplace_message(
-            Args&& ... args);
+        Args && ... args);
 
     bool pop_message(
             InputMessagePtr& input_message);
@@ -48,6 +49,7 @@ public:
     void reset();
 
 private:
+
     std::queue<InputMessagePtr> messages_;
     std::mutex mtx_;
 };
@@ -79,7 +81,8 @@ inline bool NoneInputStream::emplace_message(
     return rv;
 }
 
-inline bool NoneInputStream::pop_message(InputMessagePtr& input_message)
+inline bool NoneInputStream::pop_message(
+        InputMessagePtr& input_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -102,21 +105,27 @@ inline void NoneInputStream::reset()
 }
 
 /**************************************************************************************************
- * Best-Effort Input Streams.
- **************************************************************************************************/
+* Best-Effort Input Streams.
+**************************************************************************************************/
 class BestEffortInputStream
 {
 public:
+
     BestEffortInputStream()
         : last_received_(UINT16_MAX)
-    {}
+    {
+    }
 
     ~BestEffortInputStream() = default;
 
-    BestEffortInputStream(BestEffortInputStream&&) = delete;
-    BestEffortInputStream(const BestEffortInputStream&) = delete;
-    BestEffortInputStream& operator=(BestEffortInputStream&&) = delete;
-    BestEffortInputStream& operator=(const BestEffortInputStream) = delete;
+    BestEffortInputStream(
+            BestEffortInputStream&&) = delete;
+    BestEffortInputStream(
+            const BestEffortInputStream&) = delete;
+    BestEffortInputStream& operator =(
+            BestEffortInputStream&&) = delete;
+    BestEffortInputStream& operator =(
+            const BestEffortInputStream) = delete;
 
     bool push_message(
             SeqNum seq_num,
@@ -124,14 +133,16 @@ public:
 
     template<typename ... Args>
     bool emplace_message(
-            SeqNum seq_num,
-            Args&& ... args);
+        SeqNum seq_num,
+        Args && ... args);
 
-    bool pop_message(InputMessagePtr& input_message);
+    bool pop_message(
+            InputMessagePtr& input_message);
 
     void reset();
 
 private:
+
     std::queue<InputMessagePtr> messages_;
     SeqNum last_received_;
     std::mutex mtx_;
@@ -168,7 +179,8 @@ inline bool BestEffortInputStream::emplace_message(
     return rv;
 }
 
-inline bool BestEffortInputStream::pop_message(InputMessagePtr& input_message)
+inline bool BestEffortInputStream::pop_message(
+        InputMessagePtr& input_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -192,24 +204,30 @@ inline void BestEffortInputStream::reset()
 }
 
 /**************************************************************************************************
- * Reliable Input Stream.
- **************************************************************************************************/
+* Reliable Input Stream.
+**************************************************************************************************/
 class ReliableInputStream
 {
 public:
+
     ReliableInputStream()
-        : last_handled_(UINT16_MAX),
-          last_announced_(UINT16_MAX),
-          fragment_msg_{},
-          fragment_message_available_(false)
-    {}
+        : last_handled_(UINT16_MAX)
+        , last_announced_(UINT16_MAX)
+        , fragment_msg_{}
+        , fragment_message_available_(false)
+    {
+    }
 
     ~ReliableInputStream() = default;
 
-    ReliableInputStream(ReliableInputStream&&) = delete;
-    ReliableInputStream(const ReliableInputStream&) = delete;
-    ReliableInputStream& operator=(ReliableInputStream&&) = delete;
-    ReliableInputStream& operator=(const ReliableInputStream) = delete;
+    ReliableInputStream(
+            ReliableInputStream&&) = delete;
+    ReliableInputStream(
+            const ReliableInputStream&) = delete;
+    ReliableInputStream& operator =(
+            ReliableInputStream&&) = delete;
+    ReliableInputStream& operator =(
+            const ReliableInputStream) = delete;
 
     bool push_message(
             SeqNum seq_num,
@@ -217,24 +235,29 @@ public:
 
     template<typename ... Args>
     bool emplace_message(
-            SeqNum seq_num,
-            Args ... args);
+        SeqNum seq_num,
+        Args ... args);
 
-    bool pop_message(InputMessagePtr& message);
+    bool pop_message(
+            InputMessagePtr& message);
 
     void update_from_heartbeat(
             SeqNum first_unacked,
             SeqNum last_unacked);
 
-    void fill_acknack(dds::xrce::ACKNACK_Payload& acknack);
+    void fill_acknack(
+            dds::xrce::ACKNACK_Payload& acknack);
 
-    void push_fragment(InputMessagePtr& message);
+    void push_fragment(
+            InputMessagePtr& message);
 
-    bool pop_fragment_message(InputMessagePtr& message);
+    bool pop_fragment_message(
+            InputMessagePtr& message);
 
     void reset();
 
 private:
+
     SeqNum last_handled_;
     SeqNum last_announced_;
     std::map<uint16_t, InputMessagePtr> messages_;
@@ -270,7 +293,8 @@ inline bool ReliableInputStream::push_message(
     return rv;
 }
 
-inline bool ReliableInputStream::pop_message(InputMessagePtr& message)
+inline bool ReliableInputStream::pop_message(
+        InputMessagePtr& message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -298,8 +322,9 @@ inline bool ReliableInputStream::emplace_message(
         {
             last_announced_ = seq_num;
             // gcc5 doesn't not support raw pointer as argument in std::pair when std::unique_ptr is create.
-            messages_.emplace(seq_num,
-                              std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
+            messages_.emplace(
+                seq_num,
+                std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
             rv = true;
         }
         else
@@ -307,8 +332,9 @@ inline bool ReliableInputStream::emplace_message(
             auto it = messages_.find(seq_num);
             if (it == messages_.end())
             {
-                messages_.emplace(seq_num,
-                                  std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
+                messages_.emplace(
+                    seq_num,
+                    std::unique_ptr<InputMessage>(new InputMessage(std::forward<Args>(args)...)));
                 rv = true;
             }
         }
@@ -331,7 +357,8 @@ inline void ReliableInputStream::update_from_heartbeat(
     }
 }
 
-inline void ReliableInputStream::fill_acknack(dds::xrce::ACKNACK_Payload& acknack)
+inline void ReliableInputStream::fill_acknack(
+        dds::xrce::ACKNACK_Payload& acknack)
 {
     acknack.nack_bitmap() = {0, 0};
     std::lock_guard<std::mutex> lock(mtx_);
@@ -365,7 +392,8 @@ inline void ReliableInputStream::reset()
     messages_.clear();
 }
 
-inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
+inline void ReliableInputStream::push_fragment(
+        InputMessagePtr& message)
 {
     std::lock_guard<std::mutex> lock(mtx_);
 
@@ -387,7 +415,8 @@ inline void ReliableInputStream::push_fragment(InputMessagePtr& message)
     fragment_message_available_ = (0 != (dds::xrce::FLAG_LAST_FRAGMENT & message->get_subheader().flags()));
 }
 
-inline bool ReliableInputStream::pop_fragment_message(InputMessagePtr& message)
+inline bool ReliableInputStream::pop_fragment_message(
+        InputMessagePtr& message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);

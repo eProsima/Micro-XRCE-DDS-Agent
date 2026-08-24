@@ -19,64 +19,69 @@
 
 namespace eprosima {
 
-template <typename T>
+template<typename T>
 class Optional
 {
-  public:
+public:
+
     Optional() = default;
 
-    Optional(const T& value)
+    Optional(
+            const T& value)
     {
         present_ = true;
         data_    = value;
     }
 
-    Optional(T&& value)
+    Optional(
+            T&& value)
     {
         present_ = true;
         data_    = std::move(value);
     }
 
-    Optional& operator=(const T& value)
+    Optional& operator =(
+            const T& value)
     {
         present_ = true;
         data_    = value;
         return *this;
     }
 
-    Optional& operator=(T&& value)
+    Optional& operator =(
+            T&& value)
     {
         present_ = true;
         data_    = std::move(value);
         return *this;
     }
 
-    const T* operator->() const
+    const T* operator ->() const
     {
         return present_ ? &data_ : nullptr;
     }
 
-    T* operator->()
+    T* operator ->()
     {
         return present_ ? &data_ : nullptr;
     }
 
-    const T& operator*() const &
+    const T& operator *() const&
     {
         return data_;
     }
 
-    T& operator*() &
+    T& operator *() &
     {
         return data_;
     }
 
-    const T&& operator*() const &&
+    const T&& operator *() const&&
     {
         return std::move(data_);
     }
 
-    T&& operator*() &&
+    T&& operator *() &&
     {
         return std::move(data_);
     }
@@ -86,7 +91,8 @@ class Optional
         return present_;
     }
 
-  private:
+private:
+
     bool present_ = false;
     T data_;
 };

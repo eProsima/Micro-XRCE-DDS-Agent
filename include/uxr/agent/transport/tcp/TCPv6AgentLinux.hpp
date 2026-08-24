@@ -19,7 +19,7 @@
 #include <uxr/agent/transport/Server.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #include <netinet/in.h>
 #include <sys/poll.h>
@@ -41,6 +41,7 @@ extern template class Server<IPv6EndPoint>;
 class TCPv6Agent : public Server<IPv6EndPoint>, public TCPServerBase<TCPv6ConnectionLinux>
 {
 public:
+
     TCPv6Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
@@ -48,14 +49,23 @@ public:
     ~TCPv6Agent() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-#endif
+    bool has_discovery() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return true; }
-#endif
+    bool has_p2p() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     bool init() final;
 
     bool fini() final;
@@ -65,13 +75,14 @@ private:
             uint16_t discovery_port) final;
 
     bool fini_discovery() final;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(uint16_t p2p_port) final;
+    bool init_p2p(
+            uint16_t p2p_port) final;
 
     bool fini_p2p() final;
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
 
     bool recv_message(
             InputPacket<IPv6EndPoint>& input_packet,
@@ -103,7 +114,11 @@ private:
     static void init_input_buffer(
             TCPInputBuffer& buffer);
 
-    static void sigpipe_handler(int fd) { (void)fd; }
+    static void sigpipe_handler(
+            int fd)
+    {
+        (void)fd;
+    }
 
     size_t recv_data(
             TCPv6ConnectionLinux& connection,
@@ -118,6 +133,7 @@ private:
             TransportRc& transport_rc) final;
 
 private:
+
     std::array<TCPv6ConnectionLinux, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
@@ -132,7 +148,7 @@ private:
     std::queue<InputPacket<IPv6EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux<IPv6EndPoint> discovery_server_;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 };
 
 } // namespace uxr

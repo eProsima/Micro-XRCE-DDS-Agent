@@ -32,19 +32,24 @@ namespace eprosima {
 namespace uxr {
 
 /****************************************************************************************
- * None Output Stream.
- ****************************************************************************************/
+* None Output Stream.
+****************************************************************************************/
 class NoneOutputStream
 {
 public:
+
     NoneOutputStream() = default;
 
     ~NoneOutputStream() = default;
 
-    NoneOutputStream(NoneOutputStream&&) = delete;
-    NoneOutputStream(const NoneOutputStream&) = delete;
-    NoneOutputStream& operator=(NoneOutputStream&&) = delete;
-    NoneOutputStream& operator=(const NoneOutputStream) = delete;
+    NoneOutputStream(
+            NoneOutputStream&&) = delete;
+    NoneOutputStream(
+            const NoneOutputStream&) = delete;
+    NoneOutputStream& operator =(
+            NoneOutputStream&&) = delete;
+    NoneOutputStream& operator =(
+            const NoneOutputStream) = delete;
 
     void reset();
 
@@ -54,9 +59,11 @@ public:
             dds::xrce::SubmessageId id,
             const T& submessage);
 
-    bool pop_message(OutputMessagePtr& output_message);
+    bool pop_message(
+            OutputMessagePtr& output_message);
 
 private:
+
     std::queue<OutputMessagePtr> messages_;
     std::mutex mtx_;
 };
@@ -99,7 +106,8 @@ inline bool NoneOutputStream::push_submessage(
     return rv;
 }
 
-inline bool NoneOutputStream::pop_message(OutputMessagePtr& output_message)
+inline bool NoneOutputStream::pop_message(
+        OutputMessagePtr& output_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -113,24 +121,30 @@ inline bool NoneOutputStream::pop_message(OutputMessagePtr& output_message)
 }
 
 /****************************************************************************************
- * Best-Effort Output Stream.
- ****************************************************************************************/
+* Best-Effort Output Stream.
+****************************************************************************************/
 class BestEffortOutputStream
 {
 public:
+
     BestEffortOutputStream()
         : last_sent_(UINT16_MAX)
-    {}
+    {
+    }
 
     ~BestEffortOutputStream() = default;
 
-    BestEffortOutputStream(BestEffortOutputStream&&) = delete;
-    BestEffortOutputStream(const BestEffortOutputStream&) = delete;
-    BestEffortOutputStream& operator=(BestEffortOutputStream&&) = delete;
-    BestEffortOutputStream& operator=(const BestEffortOutputStream) = delete;
+    BestEffortOutputStream(
+            BestEffortOutputStream&&) = delete;
+    BestEffortOutputStream(
+            const BestEffortOutputStream&) = delete;
+    BestEffortOutputStream& operator =(
+            BestEffortOutputStream&&) = delete;
+    BestEffortOutputStream& operator =(
+            const BestEffortOutputStream) = delete;
 
-//    SeqNum get_last_handled() const { return last_sent_; }
-//    void promote_stream() { last_sent_ += 1; }
+    //    SeqNum get_last_handled() const { return last_sent_; }
+    //    void promote_stream() { last_sent_ += 1; }
     void reset();
 
     template<class T>
@@ -140,9 +154,11 @@ public:
             dds::xrce::SubmessageId submessage_id,
             const T& submessage);
 
-    bool pop_message(OutputMessagePtr& output_message);
+    bool pop_message(
+            OutputMessagePtr& output_message);
 
 private:
+
     std::queue<OutputMessagePtr> messages_;
     SeqNum last_sent_;
     std::mutex mtx_;
@@ -198,7 +214,8 @@ inline bool BestEffortOutputStream::push_submessage(
     return rv;
 }
 
-inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message)
+inline bool BestEffortOutputStream::pop_message(
+        OutputMessagePtr& output_message)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     bool rv = false;
@@ -212,18 +229,20 @@ inline bool BestEffortOutputStream::pop_message(OutputMessagePtr& output_message
 }
 
 /****************************************************************************************
- * Reliable Output Stream.
- ****************************************************************************************/
+* Reliable Output Stream.
+****************************************************************************************/
 class ReliableOutputStream
 {
 public:
+
     ReliableOutputStream()
         : last_unacked_(UINT16_MAX)
         , last_sent_(UINT16_MAX)
         , first_unacked_(0x0000)
-    {}
+    {
+    }
 
-//    bool push_message(OutputMessagePtr& output_message);
+    //    bool push_message(OutputMessagePtr& output_message);
 
     void reset();
 
@@ -235,17 +254,21 @@ public:
             const T& submessage,
             std::chrono::milliseconds timeout);
 
-    bool get_next_message(OutputMessagePtr& output_message);
+    bool get_next_message(
+            OutputMessagePtr& output_message);
 
     bool get_message(
             SeqNum seq_num,
             OutputMessagePtr& output_message);
 
-    void update_from_acknack(SeqNum first_unacked);
+    void update_from_acknack(
+            SeqNum first_unacked);
 
-    bool fill_heartbeat(dds::xrce::HEARTBEAT_Payload& heartbeat);
+    bool fill_heartbeat(
+            dds::xrce::HEARTBEAT_Payload& heartbeat);
 
 private:
+
     std::map<uint16_t, OutputMessagePtr> messages_;
     SeqNum last_unacked_;
     SeqNum last_sent_;
@@ -289,8 +312,12 @@ inline bool ReliableOutputStream::push_submessage(
     auto now = std::chrono::steady_clock::now();
 
     if (cv_.wait_until(
-            lock,
-            now + timeout, [&](){ return last_unacked_ < first_unacked_ + SeqNum(RELIABLE_STREAM_DEPTH - 1); }))
+                lock,
+                now + timeout,
+                [&]()
+                {
+                    return last_unacked_ < first_unacked_ + SeqNum(RELIABLE_STREAM_DEPTH - 1);
+                }))
     {
         /* Message header. */
         dds::xrce::MessageHeader message_header;
@@ -328,7 +355,10 @@ inline bool ReliableOutputStream::push_submessage(
             /* Serialize submessage. */
             std::unique_ptr<uint8_t[]> buf(new uint8_t[submessage_size]);
             fastcdr::FastBuffer fastbuffer(reinterpret_cast<char*>(buf.get()), submessage_size);
-            fastcdr::Cdr serializer(fastbuffer, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1);
+            fastcdr::Cdr serializer(
+                fastbuffer,
+                eprosima::fastcdr::Cdr::DEFAULT_ENDIAN,
+                eprosima::fastcdr::CdrVersion::XCDRv1);
             submessage_header.serialize(serializer);
             submessage.serialize(serializer);
 
@@ -370,14 +400,16 @@ inline bool ReliableOutputStream::push_submessage(
                     break;
                 }
 
-            } while (serialized_size < submessage_size);
+            }
+            while (serialized_size < submessage_size);
             rv = (serialized_size == submessage_size);
         }
     }
     return rv;
 }
 
-inline bool ReliableOutputStream::get_next_message(OutputMessagePtr& output_message)
+inline bool ReliableOutputStream::get_next_message(
+        OutputMessagePtr& output_message)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -405,7 +437,8 @@ inline bool ReliableOutputStream::get_message(
     return rv;
 }
 
-inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
+inline void ReliableOutputStream::update_from_acknack(
+        SeqNum first_unacked)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     if (first_unacked <= last_sent_ + 1)
@@ -419,7 +452,8 @@ inline void ReliableOutputStream::update_from_acknack(SeqNum first_unacked)
     }
 }
 
-inline bool ReliableOutputStream::fill_heartbeat(dds::xrce::HEARTBEAT_Payload& heartbeat)
+inline bool ReliableOutputStream::fill_heartbeat(
+        dds::xrce::HEARTBEAT_Payload& heartbeat)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     heartbeat.first_unacked_seq_nr(first_unacked_);

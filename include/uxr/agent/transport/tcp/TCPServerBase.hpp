@@ -28,6 +28,7 @@ template<typename Connection>
 class TCPServerBase
 {
 private:
+
     virtual size_t recv_data(
             Connection& connection,
             uint8_t* buffer,
@@ -41,6 +42,7 @@ private:
             TransportRc& transport_rc) = 0;
 
 protected:
+
     uint16_t read_data(
             Connection& connection,
             TransportRc& transport_rc);
@@ -89,7 +91,9 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                 size_t bytes_received = recv_data(connection, &size_msb, 1, transport_rc);
                 if (0 < bytes_received)
                 {
-                    connection.input_buffer.msg_size = uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
+                    connection.input_buffer.msg_size =
+                            uint16_t((uint16_t(size_msb) << 8) | connection.input_buffer.msg_size);
+
                     if (connection.input_buffer.msg_size != 0)
                     {
                         connection.input_buffer.state = TCP_SIZE_READ;
@@ -106,9 +110,10 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                 connection.input_buffer.buffer.resize(connection.input_buffer.msg_size);
                 size_t bytes_received =
                         recv_data(connection,
-                                  connection.input_buffer.buffer.data(),
-                                  connection.input_buffer.buffer.size(),
-                                  transport_rc);
+                                connection.input_buffer.buffer.data(),
+                                connection.input_buffer.buffer.size(),
+                                transport_rc);
+
                 if (0 < bytes_received)
                 {
                     if (uint16_t(bytes_received) == connection.input_buffer.msg_size)
@@ -128,9 +133,10 @@ inline uint16_t TCPServerBase<Connection>::read_data(
             {
                 size_t bytes_received =
                         recv_data(connection,
-                                  connection.input_buffer.buffer.data() + connection.input_buffer.position,
-                                  connection.input_buffer.buffer.size() - connection.input_buffer.position,
-                                  transport_rc);
+                                connection.input_buffer.buffer.data() + connection.input_buffer.position,
+                                connection.input_buffer.buffer.size() - connection.input_buffer.position,
+                                transport_rc);
+
                 if (0 < bytes_received)
                 {
                     connection.input_buffer.position += uint16_t(bytes_received);
@@ -153,7 +159,8 @@ inline uint16_t TCPServerBase<Connection>::read_data(
                 break;
             }
         }
-    } while(!exit_flag && (TransportRc::ok == transport_rc));
+    }
+    while (!exit_flag && (TransportRc::ok == transport_rc));
 
     return rv;
 }

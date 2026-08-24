@@ -30,26 +30,35 @@ class Middleware;
 class Topic : public XRCEObject
 {
 public:
-    static std::unique_ptr<Topic> create(const dds::xrce::ObjectId& object_id,
-        uint16_t participant_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::OBJK_TOPIC_Representation& representation);
+
+    static std::unique_ptr<Topic> create(
+            const dds::xrce::ObjectId& object_id,
+            uint16_t participant_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::OBJK_TOPIC_Representation& representation);
 
     ~Topic() override;
 
-    Topic(Topic&&) = delete;
-    Topic(const Topic&) = delete;
-    Topic& operator=(Topic&&) = delete;
-    Topic& operator=(const Topic&) = delete;
-
-    bool matched(const dds::xrce::ObjectVariant& new_object_rep) const final;
-
-private:
     Topic(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+            Topic&&) = delete;
+    Topic(
+            const Topic&) = delete;
+    Topic& operator =(
+            Topic&&) = delete;
+    Topic& operator =(
+            const Topic&) = delete;
+
+    bool matched(
+            const dds::xrce::ObjectVariant& new_object_rep) const final;
 
 private:
+
+    Topic(
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
+
+private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
 };
 

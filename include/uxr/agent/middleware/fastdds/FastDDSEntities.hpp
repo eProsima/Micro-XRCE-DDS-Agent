@@ -35,12 +35,14 @@ class FastDDSTopic;
 
 
 /**********************************************************************************************************************
- * FastDDSParticipant
- **********************************************************************************************************************/
+* FastDDSParticipant
+**********************************************************************************************************************/
 class FastDDSParticipant
 {
 public:
-    FastDDSParticipant(int16_t domain_id)
+
+    FastDDSParticipant(
+            int16_t domain_id)
         : ptr_{nullptr}
         , factory_{fastdds::dds::DomainParticipantFactory::get_instance()}
         , domain_id_{domain_id}
@@ -50,31 +52,48 @@ public:
 
     ~FastDDSParticipant();
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
-    bool create_by_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce);
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const;
+    bool create_by_ref(
+            const std::string& ref);
+    bool create_by_xml(
+            const std::string& xml);
+    bool create_by_bin(
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce);
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce) const;
 
     // Proxy methods
 
-    int16_t domain_id() const { return domain_id_; }
-    fastdds::rtps::GUID_t guid() const { return ptr_->guid(); }
-    fastdds::dds::DomainParticipant* get_ptr() const { return ptr_; }
+    int16_t domain_id() const
+    {
+        return domain_id_;
+    }
+
+    fastdds::rtps::GUID_t guid() const
+    {
+        return ptr_->guid();
+    }
+
+    fastdds::dds::DomainParticipant* get_ptr() const
+    {
+        return ptr_;
+    }
 
     fastdds::dds::ReturnCode_t unregister_type(
             const std::string& typeName);
 
     fastdds::dds::Topic* create_topic(
-        const std::string& topic_name,
-        const std::string& type_name,
-        const fastdds::dds::TopicQos& qos,
-        fastdds::dds::TopicListener* listener = nullptr,
-        const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
+            const std::string& topic_name,
+            const std::string& type_name,
+            const fastdds::dds::TopicQos& qos,
+            fastdds::dds::TopicListener* listener = nullptr,
+            const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
 
     fastdds::dds::ReturnCode_t delete_topic(
-        fastdds::dds::Topic* topic);
+            fastdds::dds::Topic* topic);
 
     fastdds::dds::Publisher* create_publisher(
             const fastdds::dds::PublisherQos& qos,
@@ -82,7 +101,7 @@ public:
             const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
 
     fastdds::dds::ReturnCode_t delete_publisher(
-        fastdds::dds::Publisher* publisher);
+            fastdds::dds::Publisher* publisher);
 
     fastdds::dds::Subscriber* create_subscriber(
             const fastdds::dds::SubscriberQos& qos,
@@ -90,7 +109,7 @@ public:
             const fastdds::dds::StatusMask& mask = fastdds::dds::StatusMask::all());
 
     fastdds::dds::ReturnCode_t delete_subscriber(
-        fastdds::dds::Subscriber* subscriber);
+            fastdds::dds::Subscriber* subscriber);
 
     // Types and topics registration
 
@@ -117,6 +136,7 @@ public:
     const fastdds::dds::DomainParticipant* operator * () const;
 
 private:
+
     fastdds::dds::DomainParticipant* ptr_;
     fastdds::dds::DomainParticipantFactory* factory_;
     int16_t domain_id_;
@@ -125,24 +145,34 @@ private:
 };
 
 /**********************************************************************************************************************
- * FastDDSTopic
- **********************************************************************************************************************/
+* FastDDSTopic
+**********************************************************************************************************************/
 class FastDDSType
 {
 public:
+
     FastDDSType(
             const fastdds::dds::TypeSupport& type_support,
             const std::shared_ptr<FastDDSParticipant>& participant)
         : type_support_{type_support}
         , participant_{participant}
-    {}
+    {
+    }
 
     ~FastDDSType();
 
-    fastdds::dds::TypeSupport& get_type_support() { return type_support_; }
-    const fastdds::dds::TypeSupport& get_type_support() const { return type_support_; }
+    fastdds::dds::TypeSupport& get_type_support()
+    {
+        return type_support_;
+    }
+
+    const fastdds::dds::TypeSupport& get_type_support() const
+    {
+        return type_support_;
+    }
 
 private:
+
     fastdds::dds::TypeSupport type_support_;
     std::shared_ptr<FastDDSParticipant> participant_;
 };
@@ -150,26 +180,45 @@ private:
 class FastDDSTopic
 {
 public:
-    FastDDSTopic(const std::shared_ptr<FastDDSParticipant>& participant)
+
+    FastDDSTopic(
+            const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_(participant)
         , type_{nullptr}
         , ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSTopic();
 
-    bool create_by_name_type(const std::string& name,
-        const std::shared_ptr<FastDDSType>& type,
-        const fastdds::dds::TopicQos& qos);
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_Topic_Binary& topic_xrce) const;
+    bool create_by_name_type(
+            const std::string& name,
+            const std::shared_ptr<FastDDSType>& type,
+            const fastdds::dds::TopicQos& qos);
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_Topic_Binary& topic_xrce) const;
 
-    const std::string& get_name() const { return ptr_->get_name(); }
-    const std::shared_ptr<FastDDSType>& get_type() const { return type_; }
-    fastdds::dds::Topic* get_ptr() const { return ptr_; }
+    const std::string& get_name() const
+    {
+        return ptr_->get_name();
+    }
+
+    const std::shared_ptr<FastDDSType>& get_type() const
+    {
+        return type_;
+    }
+
+    fastdds::dds::Topic* get_ptr() const
+    {
+        return ptr_;
+    }
 
 private:
+
     std::shared_ptr<FastDDSParticipant> participant_;
     std::shared_ptr<FastDDSType> type_;
     fastdds::dds::Topic* ptr_;
@@ -177,22 +226,30 @@ private:
 
 
 /**********************************************************************************************************************
- * FastDDSPublisher
- **********************************************************************************************************************/
+* FastDDSPublisher
+**********************************************************************************************************************/
 class FastDDSPublisher
 {
 public:
-    FastDDSPublisher(const std::shared_ptr<FastDDSParticipant>& participant)
+
+    FastDDSPublisher(
+            const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSPublisher();
 
-    bool create_by_xml(const std::string& xml);
-    bool create_by_bin(const dds::xrce::OBJK_Publisher_Binary&  publisher_xrce);
+    bool create_by_xml(
+            const std::string& xml);
+    bool create_by_bin(
+            const dds::xrce::OBJK_Publisher_Binary&  publisher_xrce);
 
-    fastdds::dds::Publisher* get_ptr() const { return ptr_; }
+    fastdds::dds::Publisher* get_ptr() const
+    {
+        return ptr_;
+    }
 
     fastdds::dds::DataWriter* create_datawriter(
             fastdds::dds::Topic* topic,
@@ -205,33 +262,45 @@ public:
             const std::string& profile_name);
 
     fastdds::dds::ReturnCode_t delete_datawriter(
-        fastdds::dds::DataWriter* writer);
+            fastdds::dds::DataWriter* writer);
 
-    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
+    std::shared_ptr<FastDDSParticipant> get_participant() const
+    {
+        return participant_;
+    }
 
 private:
+
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Publisher* ptr_;
 };
 
 
 /**********************************************************************************************************************
- * FastDDSSubscriber
- **********************************************************************************************************************/
+* FastDDSSubscriber
+**********************************************************************************************************************/
 class FastDDSSubscriber
 {
 public:
-    FastDDSSubscriber(const std::shared_ptr<FastDDSParticipant>& participant)
+
+    FastDDSSubscriber(
+            const std::shared_ptr<FastDDSParticipant>& participant)
         : participant_{participant}
         , ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSSubscriber();
 
-    bool create_by_xml(const std::string& xml);
-    bool create_by_bin(const dds::xrce::OBJK_Subscriber_Binary&  subscriber_xrce);
+    bool create_by_xml(
+            const std::string& xml);
+    bool create_by_bin(
+            const dds::xrce::OBJK_Subscriber_Binary&  subscriber_xrce);
 
-    fastdds::dds::Subscriber* get_ptr() const { return ptr_; }
+    fastdds::dds::Subscriber* get_ptr() const
+    {
+        return ptr_;
+    }
 
     fastdds::dds::DataReader* create_datareader(
             fastdds::dds::TopicDescription* topic,
@@ -244,74 +313,102 @@ public:
             const std::string& profile_name);
 
     fastdds::dds::ReturnCode_t delete_datareader(
-        fastdds::dds::DataReader* reader);
+            fastdds::dds::DataReader* reader);
 
 
-    std::shared_ptr<FastDDSParticipant> get_participant() const { return participant_; }
+    std::shared_ptr<FastDDSParticipant> get_participant() const
+    {
+        return participant_;
+    }
 
 private:
+
     std::shared_ptr<FastDDSParticipant> participant_;
     fastdds::dds::Subscriber* ptr_;
 
 };
 
 /**********************************************************************************************************************
- * FastDDSDataWriter
- **********************************************************************************************************************/
+* FastDDSDataWriter
+**********************************************************************************************************************/
 class FastDDSDataWriter
 {
 public:
-    FastDDSDataWriter(const std::shared_ptr<FastDDSPublisher>& publisher)
+
+    FastDDSDataWriter(
+            const std::shared_ptr<FastDDSPublisher>& publisher)
         : publisher_{publisher}
         , topic_{nullptr}
         , ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSDataWriter();
 
-    fastdds::rtps::GUID_t guid() const { return ptr_->guid(); }
+    fastdds::rtps::GUID_t guid() const
+    {
+        return ptr_->guid();
+    }
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_ref(
+            const std::string& ref);
+    bool create_by_xml(
+            const std::string& xml);
     bool create_by_bin(
-        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
-        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
-    bool write(const std::vector<uint8_t>& data);
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce,
+            std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const;
+    bool write(
+            const std::vector<uint8_t>& data);
     const fastdds::dds::DataWriter* ptr() const;
     const fastdds::dds::DomainParticipant* participant() const;
 
 private:
+
     std::shared_ptr<FastDDSPublisher> publisher_;
     std::shared_ptr<FastDDSTopic> topic_;
     fastdds::dds::DataWriter* ptr_;
 };
 
 /**********************************************************************************************************************
- * FastDataReader
- **********************************************************************************************************************/
+* FastDataReader
+**********************************************************************************************************************/
 class FastDDSDataReader
 {
 public:
-    FastDDSDataReader(const std::shared_ptr<FastDDSSubscriber>& subscriber)
+
+    FastDDSDataReader(
+            const std::shared_ptr<FastDDSSubscriber>& subscriber)
         : subscriber_{subscriber}
         , ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSDataReader();
 
-    fastdds::rtps::GUID_t guid() const { return ptr_->guid(); }
+    fastdds::rtps::GUID_t guid() const
+    {
+        return ptr_->guid();
+    }
 
-    bool create_by_ref(const std::string& ref);
-    bool create_by_xml(const std::string& xml);
+    bool create_by_ref(
+            const std::string& ref);
+    bool create_by_xml(
+            const std::string& xml);
     bool create_by_bin(
-        const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce,
-        std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const;
+            const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce,
+            std::shared_ptr<eprosima::uxr::FastDDSTopic> topic);
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_DataReader_Binary& datawriter_xrce) const;
     bool read(
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout,
@@ -320,17 +417,19 @@ public:
     const fastdds::dds::DomainParticipant* participant() const;
 
 private:
+
     std::shared_ptr<FastDDSSubscriber> subscriber_;
     std::shared_ptr<FastDDSTopic> topic_;
     fastdds::dds::DataReader* ptr_;
 };
 
 /**********************************************************************************************************************
- * FastRequester
- **********************************************************************************************************************/
+* FastRequester
+**********************************************************************************************************************/
 class FastDDSRequester
 {
 public:
+
     FastDDSRequester(
             const std::shared_ptr<FastDDSParticipant>& participant,
             const std::shared_ptr<FastDDSTopic>& request_topic,
@@ -342,29 +441,40 @@ public:
         , subscriber_ptr_{nullptr}
         , publisher_id_{}
         , sequence_to_sequence_{}
-    {}
+    {
+    }
 
     ~FastDDSRequester();
 
     bool create_by_qos(
-        const fastdds::dds::RequesterQos& qos);
+            const fastdds::dds::RequesterQos& qos);
 
-    fastdds::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
-    fastdds::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
+    fastdds::rtps::GUID_t guid_datareader() const
+    {
+        return datareader_ptr_->guid();
+    }
 
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_Requester_Binary& requester_xrce) const;
+    fastdds::rtps::GUID_t guid_datawriter() const
+    {
+        return datawriter_ptr_->guid();
+    }
+
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_Requester_Binary& requester_xrce) const;
 
     bool write(
-        uint32_t sequence_number,
-        const std::vector<uint8_t>& data);
+            uint32_t sequence_number,
+            const std::vector<uint8_t>& data);
 
     bool read(
-        uint32_t& sequence_number,
-        std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout,
-        fastdds::dds::SampleInfo& info);
+            uint32_t& sequence_number,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout,
+            fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 
@@ -373,6 +483,7 @@ public:
     const fastdds::dds::DataReader* get_reply_datareader() const;
 
 private:
+
     std::shared_ptr<FastDDSParticipant> participant_;
 
     std::shared_ptr<FastDDSType> request_type_;
@@ -392,11 +503,12 @@ private:
 };
 
 /**********************************************************************************************************************
- * FastReplier
- **********************************************************************************************************************/
+* FastReplier
+**********************************************************************************************************************/
 class FastDDSReplier
 {
 public:
+
     FastDDSReplier(
             const std::shared_ptr<FastDDSParticipant>& participant,
             const std::shared_ptr<FastDDSTopic>& request_topic,
@@ -406,25 +518,38 @@ public:
         , reply_topic_{reply_topic}
         , publisher_ptr_{nullptr}
         , subscriber_ptr_{nullptr}
-    {}
+    {
+    }
 
     ~FastDDSReplier();
 
 
     bool create_by_qos(
-        const fastdds::dds::ReplierQos& qos);
+            const fastdds::dds::ReplierQos& qos);
 
-    fastdds::rtps::GUID_t guid_datareader() const { return datareader_ptr_->guid(); }
-    fastdds::rtps::GUID_t guid_datawriter() const { return datawriter_ptr_->guid(); }
+    fastdds::rtps::GUID_t guid_datareader() const
+    {
+        return datareader_ptr_->guid();
+    }
 
-    bool match_from_ref(const std::string& ref) const;
-    bool match_from_xml(const std::string& xml) const;
-    bool match_from_bin(const dds::xrce::OBJK_Replier_Binary& replier_xrce) const;
+    fastdds::rtps::GUID_t guid_datawriter() const
+    {
+        return datawriter_ptr_->guid();
+    }
 
-    bool write(const std::vector<uint8_t>& data);
-    bool read(std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout,
-        fastdds::dds::SampleInfo& info);
+    bool match_from_ref(
+            const std::string& ref) const;
+    bool match_from_xml(
+            const std::string& xml) const;
+    bool match_from_bin(
+            const dds::xrce::OBJK_Replier_Binary& replier_xrce) const;
+
+    bool write(
+            const std::vector<uint8_t>& data);
+    bool read(
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout,
+            fastdds::dds::SampleInfo& info);
 
     const fastdds::dds::DomainParticipant* get_participant() const;
 
@@ -433,14 +558,16 @@ public:
     const fastdds::dds::DataWriter* get_reply_datawriter() const;
 
 private:
+
     void transform_sample_identity(
-        const fastdds::rtps::SampleIdentity& fast_identity,
-        dds::SampleIdentity& dds_identity);
+            const fastdds::rtps::SampleIdentity& fast_identity,
+            dds::SampleIdentity& dds_identity);
     void transport_sample_identity(
-        const dds::SampleIdentity& dds_identity,
-        fastdds::rtps::SampleIdentity& fast_identity);
+            const dds::SampleIdentity& dds_identity,
+            fastdds::rtps::SampleIdentity& fast_identity);
 
 private:
+
     std::shared_ptr<FastDDSParticipant> participant_;
 
     std::shared_ptr<FastDDSType> request_type_;

@@ -42,8 +42,9 @@ UDPv6Agent::UDPv6Agent(
     , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
-#endif
-{}
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
+{
+}
 
 UDPv6Agent::~UDPv6Agent()
 {
@@ -68,7 +69,7 @@ bool UDPv6Agent::init()
 
     if (-1 != poll_fd_.fd)
     {
-        struct sockaddr_in6 address{};
+        struct sockaddr_in6 address {};
 
         memset(&address, 0, sizeof(address));
         address.sin6_family = AF_INET6;
@@ -149,10 +150,12 @@ bool UDPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-bool UDPv6Agent::init_p2p(uint16_t /*p2p_port*/)
+bool UDPv6Agent::init_p2p(
+        uint16_t /*p2p_port*/)
 {
     // TODO (julibert): implement UDP/IPv6 InternalClient.
     return true;
@@ -163,7 +166,8 @@ bool UDPv6Agent::fini_p2p()
     // TODO (julibert): implement UDP/IPv6 InternalClient.
     return true;
 }
-#endif
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 bool UDPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
@@ -171,20 +175,20 @@ bool UDPv6Agent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    struct sockaddr_in6 client_addr{};
+    struct sockaddr_in6 client_addr {};
     socklen_t client_addr_len = sizeof(struct sockaddr_in6);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received =
-            recvfrom(
-                poll_fd_.fd,
-                buffer_,
-                sizeof(buffer_),
-                0,
-                reinterpret_cast<sockaddr*>(&client_addr),
-                &client_addr_len);
+        ssize_t bytes_received = recvfrom(
+            poll_fd_.fd,
+            buffer_,
+            sizeof(buffer_),
+            0,
+            reinterpret_cast<sockaddr*>(&client_addr),
+            &client_addr_len);
+
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
@@ -219,7 +223,7 @@ bool UDPv6Agent::send_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    struct sockaddr_in6 client_addr{};
+    struct sockaddr_in6 client_addr {};
 
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin6_family = AF_INET6;
@@ -227,14 +231,14 @@ bool UDPv6Agent::send_message(
     const std::array<uint8_t, 16>& destination = output_packet.destination.get_addr();
     std::copy(destination.begin(), destination.end(), std::begin(client_addr.sin6_addr.s6_addr));
 
-    ssize_t bytes_sent =
-        sendto(
-            poll_fd_.fd,
-            output_packet.message->get_buf(),
-            output_packet.message->get_len(),
-            0,
-            reinterpret_cast<struct sockaddr*>(&client_addr),
-            sizeof(client_addr));
+    ssize_t bytes_sent = sendto(
+        poll_fd_.fd,
+        output_packet.message->get_buf(),
+        output_packet.message->get_len(),
+        0,
+        reinterpret_cast<struct sockaddr*>(&client_addr),
+        sizeof(client_addr));
+
     if (-1 != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())
@@ -253,7 +257,6 @@ bool UDPv6Agent::send_message(
     {
         transport_rc = TransportRc::server_error;
     }
-    
 
     return rv;
 }

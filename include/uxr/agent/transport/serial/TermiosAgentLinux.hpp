@@ -25,24 +25,30 @@ namespace uxr {
 class TermiosAgent : public SerialAgent
 {
 public:
+
     TermiosAgent(
             char const * dev,
             int open_flags,
-            termios const & termios_attrs,
+            termios const& termios_attrs,
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
     ~TermiosAgent();
 
-    int getfd() { return poll_fd_.fd; };
+    int getfd()
+    {
+        return poll_fd_.fd;
+    }
 
 private:
+
     bool init() final;
     bool fini() final;
     bool handle_error(
             TransportRc transport_rc) final;
 
 private:
+
     const std::string dev_;
     const int open_flags_;
     const termios termios_attrs_;

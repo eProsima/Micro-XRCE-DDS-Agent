@@ -26,8 +26,8 @@ namespace xrce {
 
 class TransportAddress;
 
-}
-}
+} // namespace xrce
+} // namespace dds
 
 namespace eprosima {
 namespace uxr {
@@ -52,6 +52,7 @@ template<typename EndPoint>
 class Processor
 {
 public:
+
     Processor(
             Server<EndPoint>& server,
             Root& root,
@@ -74,6 +75,7 @@ public:
     void check_heartbeats();
 
 private:
+
     void process_input_message(
             ProxyClient& client,
             InputPacket<EndPoint>& input_packet);
@@ -131,6 +133,7 @@ private:
             std::chrono::milliseconds timeout);
 
 private:
+
     Server<EndPoint>& server_;
     Middleware::Kind middleware_kind_;
     Root& root_;

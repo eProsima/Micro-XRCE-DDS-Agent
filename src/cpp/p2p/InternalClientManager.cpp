@@ -42,8 +42,8 @@ void InternalClientManager::create_client(
     auto it = clients_.find(remote_client_key);
     if (clients_.end() == it)
     {
-        std::unique_ptr<InternalClient>
-                client(new InternalClient(agent, ip, port, remote_client_key, local_client_key_));
+        std::unique_ptr<InternalClient> client(
+            new InternalClient(agent, ip, port, remote_client_key, local_client_key_));
         if (client->run())
         {
             clients_.emplace(remote_client_key, std::move(client));

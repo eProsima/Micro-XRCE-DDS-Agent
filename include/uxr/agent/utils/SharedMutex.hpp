@@ -26,6 +26,7 @@ namespace utils {
 class SharedMutex
 {
 public:
+
     friend class SharedLock;
     friend class ExclusiveLock;
 
@@ -34,9 +35,11 @@ public:
         , cv_{}
         , shared_counter_{0}
         , exclusively_locked_{false}
-    {}
+    {
+    }
 
 private:
+
     std::mutex mtx_;
     std::condition_variable cv_;
     size_t shared_counter_;
@@ -47,6 +50,7 @@ private:
 class SharedLock
 {
 public:
+
     SharedLock(
             SharedMutex& shared_mtx)
         : shared_mtx_{shared_mtx}
@@ -68,7 +72,10 @@ public:
             std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
             shared_mtx_.cv_.wait(
                 lock,
-                [&]{ return !shared_mtx_.exclusively_locked_ || thread_id == shared_mtx_.exclusive_thread_id_; });
+                [&]
+                {
+                    return !shared_mtx_.exclusively_locked_ || thread_id == shared_mtx_.exclusive_thread_id_;
+                });
             ++shared_mtx_.shared_counter_;
             locked_ = true;
         }
@@ -89,6 +96,7 @@ public:
     }
 
 private:
+
     SharedMutex& shared_mtx_;
     bool locked_;
 };
@@ -96,6 +104,7 @@ private:
 class ExclusiveLock
 {
 public:
+
     ExclusiveLock(
             SharedMutex& shared_mtx)
         : shared_mtx_{shared_mtx}
@@ -116,7 +125,10 @@ public:
             std::unique_lock<std::mutex> lock{shared_mtx_.mtx_};
             shared_mtx_.cv_.wait(
                 lock,
-                [&]{ return (0 == shared_mtx_.shared_counter_) &&  !shared_mtx_.exclusively_locked_; });
+                [&]
+                {
+                    return (0 == shared_mtx_.shared_counter_) &&  !shared_mtx_.exclusively_locked_;
+                });
             shared_mtx_.exclusively_locked_ = true;
             shared_mtx_.exclusive_thread_id_ = std::this_thread::get_id();
             locked_ = true;
@@ -135,6 +147,7 @@ public:
     }
 
 private:
+
     SharedMutex& shared_mtx_;
     bool locked_;
 };

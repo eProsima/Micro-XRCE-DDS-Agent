@@ -32,18 +32,22 @@ MultiSerialAgent::MultiSerialAgent(
     FD_ZERO(&read_fds);
 }
 
-void MultiSerialAgent::insert_serial(int serial_fd)
+void MultiSerialAgent::insert_serial(
+        int serial_fd)
 {
     utils::ExclusiveLockPriority lk(framing_mtx);
     FD_SET(serial_fd, &read_fds);
     FramingIO aux_framing_io(addr_,
-        std::bind(&MultiSerialAgent::write_data, this, (uint8_t) serial_fd, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
-        std::bind(&MultiSerialAgent::read_data, this, (uint8_t) serial_fd, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    
+            std::bind(&MultiSerialAgent::write_data, this, (uint8_t) serial_fd, std::placeholders::_1,
+            std::placeholders::_2, std::placeholders::_3),
+            std::bind(&MultiSerialAgent::read_data, this, (uint8_t) serial_fd, std::placeholders::_1,
+            std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+
     framing_io.insert(std::pair<int, FramingIO>(serial_fd, aux_framing_io));
 }
 
-bool MultiSerialAgent::remove_serial(int serial_fd)
+bool MultiSerialAgent::remove_serial(
+        int serial_fd)
 {
     bool rv = false;
     utils::ExclusiveLockPriority lk(framing_mtx);
@@ -83,7 +87,7 @@ bool MultiSerialAgent::recv_message(
 
     utils::SharedLockPriority lk(framing_mtx);
     fd_set fds = read_fds;
-    int ret = select(framing_io.rbegin()->first+1, &fds, NULL, NULL, &timeout_);
+    int ret = select(framing_io.rbegin()->first + 1, &fds, NULL, NULL, &timeout_);
 
     if (0 < ret)
     {
@@ -93,7 +97,7 @@ bool MultiSerialAgent::recv_message(
             {
                 uint8_t remote_addr = 0x00;
                 ssize_t bytes_read = 0;
-                int timeout_ms = timeout_.tv_sec*1000 + timeout_.tv_usec/1000;
+                int timeout_ms = timeout_.tv_sec * 1000 + timeout_.tv_usec / 1000;
 
                 do
                 {
@@ -104,7 +108,7 @@ bool MultiSerialAgent::recv_message(
 
                 if (0 < bytes_read)
                 {
-                    struct InputPacket<MultiSerialEndPoint> aux_pack{};
+                    struct InputPacket<MultiSerialEndPoint> aux_pack {};
                     aux_pack.message.reset(new InputMessage(buffer_, static_cast<size_t>(bytes_read)));
                     aux_pack.source = MultiSerialEndPoint(it->first, remote_addr);
                     rv = true;
@@ -149,15 +153,13 @@ bool MultiSerialAgent::send_message(
         return rv;
     }
 
-    ssize_t bytes_written =
-            it->second.write_framed_msg(
-                output_packet.message->get_buf(),
-                output_packet.message->get_len(),
-                output_packet.destination.get_addr(),
-                transport_rc);
+    ssize_t bytes_written = it->second.write_framed_msg(
+        output_packet.message->get_buf(),
+        output_packet.message->get_len(),
+        output_packet.destination.get_addr(),
+        transport_rc);
 
-    if ((0 < bytes_written) && (
-         static_cast<size_t>(bytes_written) == output_packet.message->get_len()))
+    if ((0 < bytes_written) && (static_cast<size_t>(bytes_written) == output_packet.message->get_len()))
     {
         rv = true;
 
@@ -188,9 +190,9 @@ ssize_t MultiSerialAgent::read_data(
 
     int poll_rv = poll(&read_file, 1, timeout);
 
-    if(read_file.revents & (POLLERR+POLLHUP))
+    if (read_file.revents & (POLLERR + POLLHUP))
     {
-        transport_rc = TransportRc::server_error;;
+        transport_rc = TransportRc::server_error;
     }
     else if (0 < poll_rv)
     {

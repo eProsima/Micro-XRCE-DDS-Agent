@@ -23,29 +23,40 @@ namespace uxr {
 class SerialEndPoint
 {
 public:
+
     SerialEndPoint() = default;
 
     SerialEndPoint(
             uint8_t addr)
         : addr_{addr}
-    {}
+    {
+    }
 
-    ~SerialEndPoint() {}
+    ~SerialEndPoint()
+    {
+    }
 
-    bool operator<(const SerialEndPoint& other) const
+    bool operator <(
+            const SerialEndPoint& other) const
     {
         return (addr_ < other.addr_);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const SerialEndPoint& endpoint)
+    friend std::ostream& operator <<(
+            std::ostream& os,
+            const SerialEndPoint& endpoint)
     {
         os << static_cast<int>(endpoint.addr_);
         return os;
     }
 
-    uint8_t get_addr() const { return addr_; }
+    uint8_t get_addr() const
+    {
+        return addr_;
+    }
 
 private:
+
     uint8_t addr_;
 };
 

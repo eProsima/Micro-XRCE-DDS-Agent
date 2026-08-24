@@ -18,7 +18,9 @@
 namespace eprosima {
 namespace uxr {
 
-XRCEObject::~XRCEObject() {}
+XRCEObject::~XRCEObject()
+{
+}
 
 dds::xrce::ObjectId XRCEObject::get_id() const
 {

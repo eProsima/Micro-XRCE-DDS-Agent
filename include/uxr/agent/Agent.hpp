@@ -37,6 +37,7 @@ class Root;
 class Agent
 {
 public:
+
     /**
      * @brief Indicates the result status of the operation perform over the Agent.
      */
@@ -516,7 +517,8 @@ public:
      * @param file_path The file path relative to the working directory.
      * @return true in case of successful reading, false in other case.
      */
-    UXR_AGENT_EXPORT bool load_config_file(const std::string& file_path);
+    UXR_AGENT_EXPORT bool load_config_file(
+            const std::string& file_path);
 
     /**
      * @brief Resets the Root object, that is, removes all the ProxyClients and their entities.
@@ -551,7 +553,8 @@ public:
      *                      * Level 5: debug, info, warning, error and critical message will be logged.
      *                      * Level 6: trace, debug, info, warning, error and critical message will be logged.
      */
-    UXR_AGENT_EXPORT void set_verbose_level(uint8_t verbose_level);
+    UXR_AGENT_EXPORT void set_verbose_level(
+            uint8_t verbose_level);
 
     /**
      * @brief Sets a callback function for an specific create/delete middleware entity operation.
@@ -563,13 +566,14 @@ public:
      * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
      *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
      */
-    template <typename ... Args>
+    template<typename ... Args>
     UXR_AGENT_EXPORT void add_middleware_callback(
             const Middleware::Kind& middleware_kind,
             const middleware::CallbackKind& callback_kind,
             std::function<void (Args ...)>&& callback_function);
 
 private:
+
     template<Agent::ObjectKind object_kind, typename U, typename T>
     bool create_object(
             uint32_t client_key,
@@ -586,6 +590,7 @@ private:
             Agent::OpResult& op_result);
 
 protected:
+
     std::unique_ptr<Root> root_;
     middleware::CallbackFactory& callback_factory_;
 };

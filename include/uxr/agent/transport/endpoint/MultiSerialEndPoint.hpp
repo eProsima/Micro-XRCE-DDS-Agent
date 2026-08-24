@@ -23,31 +23,47 @@ namespace uxr {
 class MultiSerialEndPoint
 {
 public:
+
     MultiSerialEndPoint() = default;
 
     MultiSerialEndPoint(
-            int fd, uint8_t addr)
+            int fd,
+            uint8_t addr)
         : fd_{fd}
         , addr_{addr}
-    {}
+    {
+    }
 
-    ~MultiSerialEndPoint() {}
+    ~MultiSerialEndPoint()
+    {
+    }
 
-    bool operator<(const MultiSerialEndPoint& other) const
+    bool operator <(
+            const MultiSerialEndPoint& other) const
     {
         return (fd_ < other.fd_);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const MultiSerialEndPoint& endpoint)
+    friend std::ostream& operator <<(
+            std::ostream& os,
+            const MultiSerialEndPoint& endpoint)
     {
         os << static_cast<int>(endpoint.fd_);
         return os;
     }
 
-    int get_fd() const { return fd_; }
-    uint8_t get_addr() const { return addr_; }
+    int get_fd() const
+    {
+        return fd_;
+    }
+
+    uint8_t get_addr() const
+    {
+        return addr_;
+    }
 
 private:
+
     int fd_;
     uint8_t addr_;
 };

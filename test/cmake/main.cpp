@@ -21,7 +21,8 @@
 #include <uxr/agent/transport/tcp/TCPServerLinux.hpp>
 #endif //_WIN32
 
-void create_agents(eprosima::uxr::Middleware::Kind middleware)
+void create_agents(
+        eprosima::uxr::Middleware::Kind middleware)
 {
     std::unique_ptr<eprosima::uxr::UDPv4Agent> udp_server(new eprosima::uxr::UDPv4Agent(2018, middleware));
     std::unique_ptr<eprosima::uxr::TCPv4Agent> tcp_server(new eprosima::uxr::TCPv4Agent(2018, middleware));
@@ -30,8 +31,9 @@ void create_agents(eprosima::uxr::Middleware::Kind middleware)
 #endif //_WIN32
 }
 
-
-int main(int /*argc*/, char** /*argv*/)
+int main(
+        int /*argc*/,
+        char** /*argv*/)
 {
 #ifdef UAGENT_FAST_PROFILE
     create_agents(eprosima::uxr::Middleware::Kind::FAST);
@@ -43,4 +45,3 @@ int main(int /*argc*/, char** /*argv*/)
 
     return 0;
 }
-

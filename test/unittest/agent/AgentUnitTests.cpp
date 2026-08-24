@@ -27,6 +27,7 @@ using namespace eprosima::uxr;
 class AgentUnitTests : public ::testing::TestWithParam<Middleware::Kind>
 {
 protected:
+
     AgentUnitTests()
     {
         agent_.load_config_file("./agent.refs");
@@ -129,20 +130,25 @@ TEST_P(AgentUnitTests, CreateParticipantByXml)
     Agent::OpResult result;
     agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
-    const char* xml_one = "<dds>"
-                              "<participant>"
-                                  "<rtps>"
-                                      "<name>default_xrce_participant_one</name>"
-                                  "</rtps>"
-                              "</participant>"
-                          "</dds>";
-    const char* xml_two = "<dds>"
-                              "<participant>"
-                                  "<rtps>"
-                                      "<name>default_xrce_participant_two</name>"
-                                  "</rtps>"
-                              "</participant>"
-                          "</dds>";
+    const char* xml_one =
+            R"(
+        <dds>
+            <participant>
+                <rtps>
+                    <name>default_xrce_participant_one</name>
+                </rtps>
+            </participant>
+        </dds>)";
+
+    const char* xml_two =
+            R"(
+        <dds>
+            <participant>
+                <rtps>
+                    <name>default_xrce_participant_two</name>
+                </rtps>
+            </participant>
+        </dds>)";
 
     const uint16_t participant_id = 0x00;
     const int16_t domain_id = 0x00;
@@ -218,7 +224,8 @@ TEST_P(AgentUnitTests, CreateTopicByRef)
     /*
      * Create Topic.
      */
-    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag,
+            result));
     EXPECT_TRUE(agent_.create_topic_by_ref(client_key_, topic_id, participant_id, ref_one, flag, result));
 
     /*
@@ -281,19 +288,23 @@ TEST_P(AgentUnitTests, CreateTopicByXml)
     agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
-    const char* xml_one = "<dds>"
-                              "<topic>"
-                                  "<kind>WITH_KEY</kind>"
-                                  "<name>Square</name>"
-                                  "<dataType>ShapeType</dataType>"
-                              "</topic>"
-                          "</dds>";
-    const char* xml_two = "<dds>"
-                              "<topic>"
-                                  "<name>HelloWorldTopic</name>"
-                                  "<dataType>HelloWorld</dataType>"
-                              "</topic>"
-                          "</dds>";
+    const char* xml_one =
+            R"(
+        <dds>
+            <topic>
+                <kind>WITH_KEY</kind>
+                <name>Square</name>
+                <dataType>ShapeType</dataType>
+            </topic>
+        </dds>)";
+    const char* xml_two =
+            R"(
+        <dds>
+            <topic>
+                <name>HelloWorldTopic</name>
+                <dataType>HelloWorld</dataType>
+            </topic>
+        </dds>)";
 
     const uint16_t topic_id = 0x00;
     const uint16_t participant_id = 0x00;
@@ -303,7 +314,8 @@ TEST_P(AgentUnitTests, CreateTopicByXml)
     /*
      * Create Topic.
      */
-    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag,
+            result));
     EXPECT_TRUE(agent_.create_topic_by_xml(client_key_, topic_id, participant_id, xml_one, flag, result));
 
     /*
@@ -377,7 +389,8 @@ TEST_P(AgentUnitTests, CreatePublisherByXml)
     /*
      * Create Publisher.
      */
-    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag,
+            result));
     EXPECT_TRUE(agent_.create_publisher_by_xml(client_key_, publisher_id, participant_id, xml_one, flag, result));
 
     /*
@@ -441,7 +454,8 @@ TEST_P(AgentUnitTests, CreateSubscriberByXml)
     /*
      * Create Subscriber.
      */
-    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag,
+            result));
     EXPECT_TRUE(agent_.create_subscriber_by_xml(client_key_, subscriber_id, participant_id, xml_one, flag, result));
 
     /*
@@ -577,42 +591,47 @@ TEST_P(AgentUnitTests, CreateDataWriterByXml)
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
     const char* publisher_xml = "publisher";
-    const char* xml_one = "<dds>"
-                              "<data_writer>"
-                                  "<topic>"
-                                      "<kind>NO_KEY</kind>"
-                                      "<name>HelloWorldTopic</name>"
-                                      "<dataType>HelloWorld</dataType>"
-                                      "<historyQos>"
-                                          "<kind>KEEP_LAST</kind>"
-                                          "<depth>5</depth>"
-                                      "</historyQos>"
-                                  "</topic>"
-                                  "<qos>"
-                                      "<durability>"
-                                          "<kind>TRANSIENT_LOCAL</kind>"
-                                      "</durability>"
-                                  "</qos>"
-                              "</data_writer>"
-                          "</dds>";
-    const char* xml_two = "<dds>"
-                              "<data_writer>"
-                                  "<topic>"
-                                      "<kind>NO_KEY</kind>"
-                                      "<name>HelloWorldTopic</name>"
-                                      "<dataType>HelloWorld</dataType>"
-                                      "<historyQos>"
-                                          "<kind>KEEP_LAST</kind>"
-                                          "<depth>10</depth>"
-                                      "</historyQos>"
-                                  "</topic>"
-                                  "<qos>"
-                                      "<durability>"
-                                          "<kind>TRANSIENT_LOCAL</kind>"
-                                      "</durability>"
-                                  "</qos>"
-                              "</data_writer>"
-                          "</dds>";
+    const char* xml_one =
+            R"(
+        <dds>
+            <data_writer>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>5</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_writer>
+        </dds>)";
+
+    const char* xml_two =
+            R"(
+        <dds>
+            <data_writer>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>10</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_writer>
+        </dds>)";
 
     const int16_t domain_id = 0x00;
     const uint16_t participant_id = 0x00;
@@ -774,42 +793,47 @@ TEST_P(AgentUnitTests, CreateDataReaderByXml)
     const char* participant_ref = "default_xrce_participant";
     const char* topic_ref = "helloworld_topic";
     const char* subscriber_xml = "subscriber";
-    const char* xml_one = "<dds>"
-                              "<data_reader>"
-                                  "<topic>"
-                                      "<kind>NO_KEY</kind>"
-                                      "<name>HelloWorldTopic</name>"
-                                      "<dataType>HelloWorld</dataType>"
-                                      "<historyQos>"
-                                          "<kind>KEEP_LAST</kind>"
-                                          "<depth>5</depth>"
-                                      "</historyQos>"
-                                  "</topic>"
-                                  "<qos>"
-                                      "<durability>"
-                                          "<kind>TRANSIENT_LOCAL</kind>"
-                                      "</durability>"
-                                  "</qos>"
-                              "</data_reader>"
-                          "</dds>";
-    const char* xml_two = "<dds>"
-                              "<data_reader>"
-                                  "<topic>"
-                                      "<kind>NO_KEY</kind>"
-                                      "<name>HelloWorldTopic</name>"
-                                      "<dataType>HelloWorld</dataType>"
-                                      "<historyQos>"
-                                          "<kind>KEEP_LAST</kind>"
-                                          "<depth>10</depth>"
-                                      "</historyQos>"
-                                  "</topic>"
-                                  "<qos>"
-                                      "<durability>"
-                                          "<kind>TRANSIENT_LOCAL</kind>"
-                                      "</durability>"
-                                  "</qos>"
-                              "</data_reader>"
-                          "</dds>";
+    const char* xml_one =
+            R"(
+        <dds>
+            <data_reader>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>5</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_reader>
+        </dds>)";
+
+    const char* xml_two =
+            R"(
+        <dds>
+            <data_reader>
+                <topic>
+                    <kind>NO_KEY</kind>
+                    <name>HelloWorldTopic</name>
+                    <dataType>HelloWorld</dataType>
+                    <historyQos>
+                        <kind>KEEP_LAST</kind>
+                        <depth>10</depth>
+                    </historyQos>
+                </topic>
+                <qos>
+                    <durability>
+                        <kind>TRANSIENT_LOCAL</kind>
+                    </durability>
+                </qos>
+            </data_reader>
+        </dds>)";
 
     const int16_t domain_id = 0x00;
     const uint16_t participant_id = 0x00;
@@ -910,15 +934,15 @@ TEST_P(AgentUnitTests, CreateRequesterByXML)
     agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
-    const char* xml_one = R"(
+    const char* xml_one =
+            R"(
         <dds>
             <requester profile_name="test_requester_profile"
                        service_name="service_name"
                        request_type="request_type"
                        reply_type="reply_type">
             </requester>
-        </dds>
-    )";
+        </dds>)";
 
     const uint16_t domain_id = 0x00;
     const uint16_t participant_id = 0x00;
@@ -964,15 +988,15 @@ TEST_P(AgentUnitTests, CreateReplierByXML)
     agent_.create_client(client_key_, 0x01, 512, GetParam(), result);
 
     const char* participant_ref = "default_xrce_participant";
-    const char* xml_one = R"(
+    const char* xml_one =
+            R"(
         <dds>
             <replier profile_name="test_requester_profile"
                      service_name="service_name"
                      request_type="request_type"
                      reply_type="reply_type">
             </replier>
-        </dds>
-    )";
+        </dds>)";
 
     const uint16_t domain_id = 0x00;
     const uint16_t participant_id = 0x00;
@@ -1000,25 +1024,21 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
     {
         case Middleware::Kind::FASTDDS:
         {
-            std::function<void (
-                const fastdds::dds::DomainParticipant *)> on_create_participant
-                ([&](
-                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
-                {
-                    participant_callback_flag = true;
-                });
+            std::function<void (const fastdds::dds::DomainParticipant*)>
+            on_create_participant([&](const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                    {
+                        participant_callback_flag = true;
+                    });
             agent_.add_middleware_callback(
                 Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::CREATE_PARTICIPANT,
                 std::move(on_create_participant));
 
-            std::function<void (
-                const fastdds::dds::DomainParticipant *)> on_delete_participant
-                ([&](
-                    const fastdds::dds::DomainParticipant* /*participant*/) -> void
-                {
-                    participant_callback_flag = false;
-                });
+            std::function<void (const fastdds::dds::DomainParticipant*)>
+            on_delete_participant([&](const fastdds::dds::DomainParticipant* /*participant*/) -> void
+                    {
+                        participant_callback_flag = false;
+                    });
             agent_.add_middleware_callback(
                 Middleware::Kind::FASTDDS,
                 middleware::CallbackKind::DELETE_PARTICIPANT,
@@ -1038,8 +1058,8 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
 
     EXPECT_FALSE(participant_callback_flag);
 
-    EXPECT_TRUE(agent_.create_participant_by_ref(
-        client_key_, participant_id, domain_id, participant_ref, flag, result));
+    EXPECT_TRUE(agent_.create_participant_by_ref(client_key_, participant_id, domain_id, participant_ref, flag,
+            result));
     EXPECT_TRUE(participant_callback_flag);
 
     EXPECT_TRUE(agent_.delete_participant(client_key_, participant_id, result));
@@ -1057,14 +1077,16 @@ TEST_P(AgentUnitTests, RegisterCallbackFunctions)
 #endif // ifdef INSTANTIATE_TEST_SUITE_P
 
 GTEST_INSTANTIATE_TEST_MACRO(AgentUnitTestsParams,
-                        AgentUnitTests,
-                        ::testing::Values(Middleware::Kind::FASTDDS));
+        AgentUnitTests,
+        ::testing::Values(Middleware::Kind::FASTDDS));
 
 } // namespace testing
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

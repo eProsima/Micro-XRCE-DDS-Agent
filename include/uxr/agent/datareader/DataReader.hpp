@@ -31,38 +31,45 @@ class Topic;
 class DataReader : public XRCEObject
 {
 public:
+
     static std::unique_ptr<DataReader> create(
-        const dds::xrce::ObjectId& object_id,
-        uint16_t subscriber_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::DATAREADER_Representation& representation);
+            const dds::xrce::ObjectId& object_id,
+            uint16_t subscriber_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::DATAREADER_Representation& representation);
 
     virtual ~DataReader() noexcept override;
 
-    DataReader(DataReader&&) = delete;
-    DataReader(const DataReader&) = delete;
-    DataReader& operator=(DataReader&&) = delete;
-    DataReader& operator=(const DataReader&) = delete;
+    DataReader(
+            DataReader&&) = delete;
+    DataReader(
+            const DataReader&) = delete;
+    DataReader& operator =(
+            DataReader&&) = delete;
+    DataReader& operator =(
+            const DataReader&) = delete;
 
     bool matched(
             const dds::xrce::ObjectVariant& new_object_rep) const final;
 
     bool read(
-        const dds::xrce::READ_DATA_Payload& read_data,
-        Reader<bool>::WriteFn write_fn,
-        WriteFnArgs& cb_args);
+            const dds::xrce::READ_DATA_Payload& read_data,
+            Reader<bool>::WriteFn write_fn,
+            WriteFnArgs& cb_args);
 
 private:
+
     DataReader(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
 
     bool read_fn(
-        bool,
-        std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+            bool,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout);
 
 private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
     Reader<bool> reader_;
 };

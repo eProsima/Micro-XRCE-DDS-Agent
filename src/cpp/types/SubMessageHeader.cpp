@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*! 
+/*!
  * @file SubMessageHeader.cpp
  * This source file contains the definition of the described types in the IDL file.
  *
@@ -22,7 +22,7 @@
 #ifdef _WIN32
 // Remove linker warning LNK4221 on Visual Studio
 namespace { char dummy; }
-#endif
+#endif // ifdef _WIN32
 
 #include <uxr/agent/types/SubMessageHeader.hpp>
 #include <fastcdr/Cdr.h>
@@ -44,42 +44,47 @@ dds::xrce::SubmessageHeader::~SubmessageHeader()
 {
 }
 
-dds::xrce::SubmessageHeader::SubmessageHeader(const SubmessageHeader &x)
+dds::xrce::SubmessageHeader::SubmessageHeader(
+        const SubmessageHeader& x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
 }
 
-dds::xrce::SubmessageHeader::SubmessageHeader(SubmessageHeader &&x)
+dds::xrce::SubmessageHeader::SubmessageHeader(
+        SubmessageHeader&& x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
 }
 
-dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator=(const SubmessageHeader &x)
+dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator =(
+        const SubmessageHeader& x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
-    
+
     return *this;
 }
 
-dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator=(SubmessageHeader &&x)
+dds::xrce::SubmessageHeader& dds::xrce::SubmessageHeader::operator =(
+        SubmessageHeader&& x)
 {
     m_submessage_id = x.m_submessage_id;
     m_flags = x.m_flags;
     m_submessage_length = x.m_submessage_length;
-    
+
     return *this;
 }
 
-size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
+size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(
+        size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -87,10 +92,11 @@ size_t dds::xrce::SubmessageHeader::getMaxCdrSerializedSize(size_t current_align
     return current_alignment - initial_alignment;
 }
 
-size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(size_t current_alignment) const
+size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(
+        size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
-            
+
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 1 + eprosima::fastcdr::Cdr::alignment(current_alignment, 1);
     current_alignment += 2 + eprosima::fastcdr::Cdr::alignment(current_alignment, 2);
@@ -98,19 +104,21 @@ size_t dds::xrce::SubmessageHeader::getCdrSerializedSize(size_t current_alignmen
     return current_alignment - initial_alignment;
 }
 
-void dds::xrce::SubmessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void dds::xrce::SubmessageHeader::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << static_cast<std::underlying_type<dds::xrce::SubmessageId>::type const&>(m_submessage_id);
     scdr << m_flags;
     scdr.serialize(m_submessage_length, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
 }
 
-void dds::xrce::SubmessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void dds::xrce::SubmessageHeader::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
 {
     std::underlying_type<dds::xrce::SubmessageId>::type temp_underlying_value;
     dcdr >> temp_underlying_value;
     m_submessage_id = static_cast<dds::xrce::SubmessageId>(temp_underlying_value);
-    
+
     dcdr >> m_flags;
 
     dcdr.deserialize(m_submessage_length, eprosima::fastcdr::Cdr::LITTLE_ENDIANNESS);
