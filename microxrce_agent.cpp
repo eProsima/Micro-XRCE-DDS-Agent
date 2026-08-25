@@ -14,7 +14,9 @@
 
 #include <uxr/agent/AgentInstance.hpp>
 
-int main(int argc, char** argv)
+int main(
+        int argc,
+        char** argv)
 {
     eprosima::uxr::AgentInstance& agent_instance = agent_instance.getInstance();
 

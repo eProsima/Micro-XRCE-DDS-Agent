@@ -29,10 +29,12 @@ SerialAgent::SerialAgent(
     , poll_fd_{}
     , buffer_{0}
     , framing_io_(
-          addr,
-          std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
-          std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
-{}
+        addr,
+        std::bind(&SerialAgent::write_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+        std::bind(&SerialAgent::read_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
+        std::placeholders::_4))
+{
+}
 
 ssize_t SerialAgent::write_data(
         uint8_t* buf,
@@ -60,9 +62,9 @@ ssize_t SerialAgent::read_data(
 {
     ssize_t bytes_read = 0;
     int poll_rv = poll(&poll_fd_, 1, timeout);
-    if(poll_fd_.revents & (POLLERR+POLLHUP))
+    if (poll_fd_.revents & (POLLERR + POLLHUP))
     {
-        transport_rc = TransportRc::server_error;;
+        transport_rc = TransportRc::server_error;
     }
     else if (0 < poll_rv)
     {
@@ -119,14 +121,14 @@ bool SerialAgent::send_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    ssize_t bytes_written =
-            framing_io_.write_framed_msg(
-                output_packet.message->get_buf(),
-                output_packet.message->get_len(),
-                output_packet.destination.get_addr(),
-                transport_rc);
+    ssize_t bytes_written = framing_io_.write_framed_msg(
+        output_packet.message->get_buf(),
+        output_packet.message->get_len(),
+        output_packet.destination.get_addr(),
+        transport_rc);
+
     if ((0 < bytes_written) && (
-         static_cast<size_t>(bytes_written) == output_packet.message->get_len()))
+                static_cast<size_t>(bytes_written) == output_packet.message->get_len()))
     {
         rv = true;
 

@@ -31,13 +31,15 @@ class CallbackFactory;
 class FastDDSMiddleware : public Middleware
 {
 public:
+
     FastDDSMiddleware();
-    FastDDSMiddleware(bool intraprocess_enabled);
+    FastDDSMiddleware(
+            bool intraprocess_enabled);
     ~FastDDSMiddleware() final = default;
 
-/**********************************************************************************************************************
- * Create functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Create functions.
+    **********************************************************************************************************************/
     bool create_participant_by_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -147,28 +149,36 @@ public:
             uint16_t participant_id,
             const dds::xrce::OBJK_Replier_Binary& replier_xrce) override;
 
-/**********************************************************************************************************************
- * Delete functions.
- **********************************************************************************************************************/
-    bool delete_participant(uint16_t participant_id) override;
+    /**********************************************************************************************************************
+    * Delete functions.
+    **********************************************************************************************************************/
+    bool delete_participant(
+            uint16_t participant_id) override;
 
-    bool delete_topic(uint16_t topic_id) override;
+    bool delete_topic(
+            uint16_t topic_id) override;
 
-    bool delete_publisher(uint16_t publisher_id) override;
+    bool delete_publisher(
+            uint16_t publisher_id) override;
 
-    bool delete_subscriber(uint16_t subscriber_id) override;
+    bool delete_subscriber(
+            uint16_t subscriber_id) override;
 
-    bool delete_datawriter(uint16_t datawriter_id) override;
+    bool delete_datawriter(
+            uint16_t datawriter_id) override;
 
-    bool delete_datareader(uint16_t datareader_id) override;
+    bool delete_datareader(
+            uint16_t datareader_id) override;
 
-    bool delete_requester(uint16_t requester_id) override;
+    bool delete_requester(
+            uint16_t requester_id) override;
 
-    bool delete_replier(uint16_t replier_id) override;
+    bool delete_replier(
+            uint16_t replier_id) override;
 
-/**********************************************************************************************************************
- * Write/Read functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Write/Read functions.
+    **********************************************************************************************************************/
     bool write_data(
             uint16_t datawriter_id,
             const std::vector<uint8_t>& data) override;
@@ -198,9 +208,9 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) override;
 
-/**********************************************************************************************************************
- * Matched functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Matched functions.
+    **********************************************************************************************************************/
     bool matched_participant_from_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -275,7 +285,9 @@ public:
     bool matched_replier_from_bin(
             uint16_t replier_id,
             const dds::xrce::OBJK_Replier_Binary& replier_xrce) const override;
+
 private:
+
     int16_t get_domain_id_from_env();
 
     int16_t agent_domain_id_ = 0;

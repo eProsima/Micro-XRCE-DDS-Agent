@@ -29,19 +29,29 @@ namespace uxr {
 class SerialAgent : public Server<SerialEndPoint>
 {
 public:
+
     SerialAgent(
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return false; }
-#endif
+    bool has_discovery() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
-#endif
+    bool has_p2p() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     virtual bool init() = 0;
 
     virtual bool fini() = 0;
@@ -67,6 +77,7 @@ private:
             TransportRc& transport_rc);
 
 protected:
+
     const uint8_t addr_;
     struct pollfd poll_fd_;
     uint8_t buffer_[SERVER_BUFFER_SIZE];

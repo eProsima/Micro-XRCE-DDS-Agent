@@ -33,7 +33,8 @@ DiscoveryServerWindows<EndPoint>::DiscoveryServerWindows(
     : DiscoveryServer<EndPoint>(processor)
     , poll_fd_{INVALID_SOCKET, 0, 0}
     , buffer_{0}
-{}
+{
+}
 
 template<typename EndPoint>
 bool DiscoveryServerWindows<EndPoint>::init(
@@ -136,10 +137,10 @@ bool DiscoveryServerWindows<EndPoint>::recv_message(
     {
         int bytes_received =
                 recvfrom(poll_fd_.fd,
-                         reinterpret_cast<char*>(buffer_),
-                         sizeof(buffer_),
-                         0,
-                         &client_addr, &client_addr_len);
+                        reinterpret_cast<char*>(buffer_),
+                        sizeof(buffer_),
+                        0,
+                        &client_addr, &client_addr_len);
 
         if (SOCKET_ERROR != bytes_received)
         {
@@ -202,11 +203,11 @@ bool DiscoveryServerWindows<EndPoint>::send_message(
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
     int bytes_sent =
             sendto(poll_fd_.fd,
-                   reinterpret_cast<char*>(output_packet.message->get_buf()),
-                   int(output_packet.message->get_len()),
-                   0,
-                   reinterpret_cast<struct sockaddr*>(&client_addr),
-                   int(sizeof(client_addr)));
+                    reinterpret_cast<char*>(output_packet.message->get_buf()),
+                    int(output_packet.message->get_len()),
+                    0,
+                    reinterpret_cast<struct sockaddr*>(&client_addr),
+                    int(sizeof(client_addr)));
     if (SOCKET_ERROR != bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_packet.message->get_len());

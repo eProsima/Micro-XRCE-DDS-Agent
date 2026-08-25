@@ -42,11 +42,12 @@ UDPv4Agent::UDPv4Agent(
     , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 #ifdef UAGENT_P2P_PROFILE
     , agent_discoverer_{*this}
-#endif
-{}
+#endif // ifdef UAGENT_P2P_PROFILE
+{
+}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -71,7 +72,7 @@ bool UDPv4Agent::init()
 
     if (-1 != poll_fd_.fd)
     {
-        struct sockaddr_in address{};
+        struct sockaddr_in address {};
 
         address.sin_family = AF_INET;
         address.sin_port = htons(agent_port_);
@@ -140,7 +141,8 @@ bool UDPv4Agent::fini()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPv4Agent::init_discovery(uint16_t discovery_port)
+bool UDPv4Agent::init_discovery(
+        uint16_t discovery_port)
 {
     std::vector<dds::xrce::TransportAddress> transport_addresses;
     util::get_transport_interfaces<IPv4EndPoint>(this->agent_port_, transport_addresses);
@@ -151,14 +153,16 @@ bool UDPv4Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-bool UDPv4Agent::init_p2p(uint16_t p2p_port)
+bool UDPv4Agent::init_p2p(
+        uint16_t p2p_port)
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(p2p_port);
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
     return agent_discoverer_.start(p2p_port, agent_port_);
 }
 
@@ -166,10 +170,11 @@ bool UDPv4Agent::fini_p2p()
 {
 #ifdef UAGENT_DISCOVERY_PROFILE
     discovery_server_.set_filter_port(0);
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
     return agent_discoverer_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 bool UDPv4Agent::recv_message(
         InputPacket<IPv4EndPoint>& input_packet,
@@ -177,19 +182,20 @@ bool UDPv4Agent::recv_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    struct sockaddr_in client_addr{};
+    struct sockaddr_in client_addr {};
     socklen_t client_addr_len = sizeof(struct sockaddr_in);
 
     int poll_rv = poll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        ssize_t bytes_received =
-                recvfrom(poll_fd_.fd,
-                         buffer_,
-                         sizeof(buffer_),
-                         0,
-                         reinterpret_cast<struct sockaddr*>(&client_addr),
-                         &client_addr_len);
+        ssize_t bytes_received = recvfrom(
+            poll_fd_.fd,
+            buffer_,
+            sizeof(buffer_),
+            0,
+            reinterpret_cast<struct sockaddr*>(&client_addr),
+            &client_addr_len);
+
         if (-1 != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
@@ -224,21 +230,21 @@ bool UDPv4Agent::send_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    struct sockaddr_in client_addr{};
+    struct sockaddr_in client_addr {};
 
     memset(&client_addr, 0, sizeof(client_addr));
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = output_packet.destination.get_port();
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
 
-    ssize_t bytes_sent =
-        sendto(
-            poll_fd_.fd,
-            output_packet.message->get_buf(),
-            output_packet.message->get_len(),
-            0,
-            reinterpret_cast<struct sockaddr*>(&client_addr),
-            sizeof(client_addr));
+    ssize_t bytes_sent = sendto(
+        poll_fd_.fd,
+        output_packet.message->get_buf(),
+        output_packet.message->get_len(),
+        0,
+        reinterpret_cast<struct sockaddr*>(&client_addr),
+        sizeof(client_addr));
+
     if (-1 != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())

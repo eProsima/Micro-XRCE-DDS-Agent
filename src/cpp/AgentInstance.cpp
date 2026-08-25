@@ -74,17 +74,20 @@ bool AgentInstance::create(
 #endif // UAGENT_SOCKETCAN_PROFILE
         case agent::TransportKind::SERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal, valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<TermiosAgent>(argc, argv, exit_signal,
+                            valid_transport));
             break;
         }
         case agent::TransportKind::MULTISERIAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, exit_signal, valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<MultiTermiosAgent>(argc, argv, exit_signal,
+                            valid_transport));
             break;
         }
         case agent::TransportKind::PSEUDOTERMINAL:
         {
-            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, exit_signal, valid_transport));
+            agent_thread_ = std::move(agent::create_agent_thread<PseudoTerminalAgent>(argc, argv, exit_signal,
+                            valid_transport));
             break;
         }
 #endif  // _WIN32
@@ -119,9 +122,10 @@ void AgentInstance::stop()
         agent_thread_.join();
     }
 }
-#endif
 
-template <typename ... Args>
+#endif // ifndef _WIN32
+
+template<typename ... Args>
 void AgentInstance::add_middleware_callback(
         const Middleware::Kind& middleware_kind,
         const middleware::CallbackKind& callback_kind,
@@ -132,28 +136,29 @@ void AgentInstance::add_middleware_callback(
 
 // Specific template specializations for used callback signatures.
 #define AGENTINSTANCE_ADD_MW_CB(...) \
-template \
-UXR_AGENT_EXPORT void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
-    const Middleware::Kind &, \
-    const middleware::CallbackKind &, \
-    std::function<void(__VA_ARGS__)> &&);
+    template \
+    UXR_AGENT_EXPORT void AgentInstance::add_middleware_callback<__VA_ARGS__>( \
+        const Middleware::Kind&, \
+        const middleware::CallbackKind&, \
+        std::function<void(__VA_ARGS__)> &&);
 
 #ifdef UAGENT_FAST_PROFILE
-AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *)
+    const eprosima::fastdds::dds::DomainParticipant*)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataReader *)
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataWriter*)
 
 AGENTINSTANCE_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *,
-    const eprosima::fastdds::dds::DataReader *)
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataReader*)
+
+AGENTINSTANCE_ADD_MW_CB(
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataWriter*,
+    const eprosima::fastdds::dds::DataReader*)
 #endif  // UAGENT_FAST_PROFILE
 
 } // namespace uxr

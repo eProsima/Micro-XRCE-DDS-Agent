@@ -30,12 +30,14 @@ template<typename EndPoint>
 class DiscoveryServerWindows : public DiscoveryServer<EndPoint>
 {
 public:
+
     DiscoveryServerWindows(
             const Processor<EndPoint>& processor);
 
     ~DiscoveryServerWindows() override = default;
 
 private:
+
     bool init(
             uint16_t discovery_port) final;
 
@@ -49,6 +51,7 @@ private:
             OutputPacket<IPv4EndPoint>&& output_packet) final;
 
 private:
+
     struct pollfd poll_fd_;
     uint8_t buffer_[128];
 };

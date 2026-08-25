@@ -28,6 +28,7 @@ namespace uxr {
 class CanAgent : public Server<CanEndPoint>
 {
 public:
+
     CanAgent(
             char const * dev,
             uint32_t can_id,
@@ -36,14 +37,23 @@ public:
     ~CanAgent();
 
     #ifdef UAGENT_DISCOVERY_PROFILE
-        bool has_discovery() final { return false; }
-    #endif
+    bool has_discovery() final
+    {
+        return false;
+    }
+
+    #endif // ifdef UAGENT_DISCOVERY_PROFILE
 
     #ifdef UAGENT_P2P_PROFILE
-        bool has_p2p() final { return false; }
-    #endif
+    bool has_p2p() final
+    {
+        return false;
+    }
+
+    #endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     bool init() final;
     bool fini() final;
     bool handle_error(
@@ -59,6 +69,7 @@ private:
             TransportRc& transport_rc) final;
 
 private:
+
     const std::string dev_;
     const uint32_t can_id_;
     struct pollfd poll_fd_;

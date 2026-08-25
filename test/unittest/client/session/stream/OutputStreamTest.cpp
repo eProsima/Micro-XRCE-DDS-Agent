@@ -29,17 +29,20 @@ constexpr dds::xrce::ClientKey client_key = {0xAA, 0xBB, 0xCC, 0xDD};
 constexpr size_t mtu = 512;
 
 /****************************************************************************************
- * None Output Stream.
- ****************************************************************************************/
+* None Output Stream.
+****************************************************************************************/
 class NoneOutputStreamTest : public ::testing::Test
 {
 public:
+
     NoneOutputStreamTest()
         : none_stream_{}
         , session_info_{client_key, session_id, mtu}
-    {}
+    {
+    }
 
 public:
+
     NoneOutputStream none_stream_;
     SessionInfo session_info_;
 };
@@ -86,18 +89,21 @@ TEST_F(NoneOutputStreamTest, MessageCapacity)
 }
 
 /****************************************************************************************
- * Best-Effort Output Stream.
- ****************************************************************************************/
+* Best-Effort Output Stream.
+****************************************************************************************/
 class BestEffortOutputStreamTest : public ::testing::Test
 {
 public:
+
     BestEffortOutputStreamTest()
         : best_effort_stream_{}
         , session_info_{client_key, session_id, mtu}
         , stream_id_{dds::xrce::STREAMID_BUILTIN_BEST_EFFORTS}
-    {}
+    {
+    }
 
 public:
+
     BestEffortOutputStream best_effort_stream_;
     SessionInfo session_info_;
     dds::xrce::StreamId stream_id_;
@@ -145,18 +151,21 @@ TEST_F(BestEffortOutputStreamTest, MaximumMessageSize)
 }
 
 /****************************************************************************************
- * Reliable Output Stream.
- ****************************************************************************************/
+* Reliable Output Stream.
+****************************************************************************************/
 class ReliableOutputStreamTest : public ::testing::Test
 {
 public:
+
     ReliableOutputStreamTest()
         : reliable_stream_{}
         , session_info_{client_key, session_id, mtu}
         , stream_id_{dds::xrce::STREAMID_BUILTIN_RELIABLE}
-    {}
+    {
+    }
 
 public:
+
     ReliableOutputStream reliable_stream_;
     SessionInfo session_info_;
     dds::xrce::StreamId stream_id_;
@@ -172,18 +181,18 @@ TEST_F(ReliableOutputStreamTest, StreamCapacity)
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
     {
         ASSERT_TRUE(reliable_stream_.push_submessage(
-            session_info_,
-            stream_id_,
-            dds::xrce::WRITE_DATA,
-            write_data,
-            std::chrono::milliseconds(500)));
+                    session_info_,
+                    stream_id_,
+                    dds::xrce::WRITE_DATA,
+                    write_data,
+                    std::chrono::milliseconds(500)));
     }
     ASSERT_FALSE(reliable_stream_.push_submessage(
-        session_info_,
-        stream_id_,
-        dds::xrce::WRITE_DATA,
-        write_data,
-        std::chrono::milliseconds(500)));
+                session_info_,
+                stream_id_,
+                dds::xrce::WRITE_DATA,
+                write_data,
+                std::chrono::milliseconds(500)));
 
     OutputMessagePtr output_message;
     for (int i = 0; i < RELIABLE_STREAM_DEPTH; ++i)
@@ -208,19 +217,19 @@ TEST_F(ReliableOutputStreamTest, MaximumMessageSize)
 
     write_data.data().serialized_data().resize(bounded_size);
     ASSERT_TRUE(reliable_stream_.push_submessage(
-        session_info_,
-        stream_id_,
-        dds::xrce::WRITE_DATA,
-        write_data,
-        std::chrono::milliseconds(500)));
+                session_info_,
+                stream_id_,
+                dds::xrce::WRITE_DATA,
+                write_data,
+                std::chrono::milliseconds(500)));
 
     write_data.data().serialized_data().resize(bounded_size + 1);
     ASSERT_TRUE(reliable_stream_.push_submessage(
-        session_info_,
-        stream_id_,
-        dds::xrce::WRITE_DATA,
-        write_data,
-        std::chrono::milliseconds(500)));
+                session_info_,
+                stream_id_,
+                dds::xrce::WRITE_DATA,
+                write_data,
+                std::chrono::milliseconds(500)));
 }
 
 /**
@@ -256,11 +265,11 @@ TEST_F(ReliableOutputStreamTest, Fragmentation)
     {
         write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size));
         ASSERT_TRUE(reliable_stream_.push_submessage(
-            session_info_,
-            stream_id_,
-            dds::xrce::WRITE_DATA,
-            write_data,
-            std::chrono::milliseconds(500)));
+                    session_info_,
+                    stream_id_,
+                    dds::xrce::WRITE_DATA,
+                    write_data,
+                    std::chrono::milliseconds(500)));
 
         const int n_fragments = i + 1;
         OutputMessagePtr output_message;
@@ -281,11 +290,11 @@ TEST_F(ReliableOutputStreamTest, Fragmentation)
     {
         write_data.data().serialized_data().resize(first_fragment_size + (size_t(i) * max_fragment_size) + 1);
         ASSERT_TRUE(reliable_stream_.push_submessage(
-            session_info_,
-            stream_id_,
-            dds::xrce::WRITE_DATA,
-            write_data,
-            std::chrono::milliseconds(500)));
+                    session_info_,
+                    stream_id_,
+                    dds::xrce::WRITE_DATA,
+                    write_data,
+                    std::chrono::milliseconds(500)));
 
         const int n_fragments = i + 2;
         OutputMessagePtr output_message;
@@ -326,10 +335,10 @@ TEST_F(ReliableOutputStreamTest, PushMessages)
 
     dds::xrce::WRITE_DATA_Payload_Data write_data{};
     ASSERT_TRUE(reliable_stream_.push_submessage(
-        session_info_,
-        stream_id_,
-        dds::xrce::WRITE_DATA, write_data,
-        std::chrono::milliseconds(500)));
+                session_info_,
+                stream_id_,
+                dds::xrce::WRITE_DATA, write_data,
+                std::chrono::milliseconds(500)));
     expected_last_unacked += 1;
 
     reliable_stream_.fill_heartbeat(hearbeat);
@@ -337,10 +346,10 @@ TEST_F(ReliableOutputStreamTest, PushMessages)
     ASSERT_EQ(hearbeat.last_unacked_seq_nr(), expected_last_unacked);
 
     ASSERT_TRUE(reliable_stream_.push_submessage(
-        session_info_,
-        stream_id_,
-        dds::xrce::WRITE_DATA, write_data,
-        std::chrono::milliseconds(500)));
+                session_info_,
+                stream_id_,
+                dds::xrce::WRITE_DATA, write_data,
+                std::chrono::milliseconds(500)));
     expected_last_unacked += 1;
 
     reliable_stream_.fill_heartbeat(hearbeat);
@@ -470,7 +479,9 @@ TEST_F(ReliableOutputStreamTest, UpdateFromAcknack)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

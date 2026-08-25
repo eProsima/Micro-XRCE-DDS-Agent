@@ -24,7 +24,8 @@
 namespace eprosima {
 namespace uxr {
 
-inline constexpr bool has_session_client_key(uint8_t session_id)
+inline constexpr bool has_session_client_key(
+        uint8_t session_id)
 {
     return 128 > session_id;
 }
@@ -33,6 +34,7 @@ template<typename EndPoint>
 class SessionManager
 {
 public:
+
     void establish_session(
             const EndPoint& endpoint,
             uint32_t client_key,
@@ -42,7 +44,7 @@ public:
             const EndPoint& endpoint);
 
     void destroy_session(
-        const uint32_t& client_key);
+            const uint32_t& client_key);
 
     bool get_client_key(
             const EndPoint& endpoint,
@@ -53,6 +55,7 @@ public:
             EndPoint& endpoint);
 
 private:
+
     std::map<EndPoint, uint32_t> endpoint_to_client_map_;
     std::map<uint32_t, EndPoint> client_to_endpoint_map_;
     std::mutex mtx_;

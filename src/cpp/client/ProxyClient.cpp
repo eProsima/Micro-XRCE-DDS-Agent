@@ -24,11 +24,11 @@
 
 #ifdef UAGENT_FAST_PROFILE
 #include <uxr/agent/middleware/fastdds/FastDDSMiddleware.hpp>
-#endif
+#endif // ifdef UAGENT_FAST_PROFILE
 
 #ifdef UAGENT_CED_PROFILE
 #include <uxr/agent/middleware/ced/CedMiddleware.hpp>
-#endif
+#endif // ifdef UAGENT_CED_PROFILE
 
 namespace eprosima {
 namespace uxr {
@@ -59,22 +59,23 @@ ProxyClient::ProxyClient(
         case Middleware::Kind::FASTDDS:
         {
             bool intraprocess_enabled =
-                properties_.find("uxr_sm") != properties_.end() &&
-                properties_["uxr_sm"] == "1";
+                    properties_.find("uxr_sm") != properties_.end() &&
+                    properties_["uxr_sm"] == "1";
             middleware_.reset(new FastDDSMiddleware(intraprocess_enabled));
             break;
         }
-#endif
+#endif // ifdef UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
         case Middleware::Kind::CED:
         {
             middleware_.reset(new CedMiddleware(conversion::clientkey_to_raw(representation.client_key())));
             break;
         }
-#endif
+#endif // ifdef UAGENT_CED_PROFILE
     }
     hard_liveliness_check_ = properties_.find("uxr_hl") != properties_.end();
-    if (hard_liveliness_check_) {
+    if (hard_liveliness_check_)
+    {
         client_dead_time_ = std::chrono::milliseconds(std::stoi(properties_["uxr_hl"]));
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("session hard timeout enabled"),
@@ -173,7 +174,8 @@ dds::xrce::ResultStatus ProxyClient::create_object(
     return result;
 }
 
-dds::xrce::ResultStatus ProxyClient::delete_object(const dds::xrce::ObjectId& object_id)
+dds::xrce::ResultStatus ProxyClient::delete_object(
+        const dds::xrce::ObjectId& object_id)
 {
     dds::xrce::ResultStatus result;
     result.status(dds::xrce::STATUS_OK);
@@ -195,13 +197,15 @@ dds::xrce::ResultStatus ProxyClient::update(
     return dds::xrce::ResultStatus{};
 }
 
-dds::xrce::ObjectInfo ProxyClient::get_info(const dds::xrce::ObjectId& /*object_id*/)
+dds::xrce::ObjectInfo ProxyClient::get_info(
+        const dds::xrce::ObjectId& /*object_id*/)
 {
     // TODO (Borja):
     return dds::xrce::ObjectInfo{};
 }
 
-std::shared_ptr<XRCEObject> ProxyClient::get_object(const dds::xrce::ObjectId& object_id)
+std::shared_ptr<XRCEObject> ProxyClient::get_object(
+        const dds::xrce::ObjectId& object_id)
 {
     std::shared_ptr<XRCEObject> object;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -324,7 +328,8 @@ bool ProxyClient::create_topic(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<Topic> topic = Topic::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
+        if (std::unique_ptr<Topic> topic = Topic::create(object_id, conversion::objectid_to_raw(participant_id),
+                shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(topic)).second)
             {
@@ -382,7 +387,8 @@ bool ProxyClient::create_publisher(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
+        if (std::unique_ptr<Publisher> publisher = Publisher::create(object_id,
+                conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(publisher)).second)
             {
@@ -440,7 +446,8 @@ bool ProxyClient::create_subscriber(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
+        if (std::unique_ptr<Subscriber> subscriber = Subscriber::create(object_id,
+                conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(subscriber)).second)
             {
@@ -498,7 +505,8 @@ bool ProxyClient::create_datawriter(
     auto it = objects_.find(publisher_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id, conversion::objectid_to_raw(publisher_id), shared_from_this(), representation))
+        if (std::unique_ptr<DataWriter> datawriter = DataWriter::create(object_id,
+                conversion::objectid_to_raw(publisher_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datawriter)).second)
             {
@@ -556,7 +564,8 @@ bool ProxyClient::create_datareader(
     auto it = objects_.find(subscriber_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id, conversion::objectid_to_raw(subscriber_id), shared_from_this(), representation))
+        if (std::unique_ptr<DataReader> datareader = DataReader::create(object_id,
+                conversion::objectid_to_raw(subscriber_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(datareader)).second)
             {
@@ -614,7 +623,8 @@ bool ProxyClient::create_requester(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<Requester> requester = Requester::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
+        if (std::unique_ptr<Requester> requester = Requester::create(object_id,
+                conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
@@ -672,7 +682,8 @@ bool ProxyClient::create_replier(
     auto it = objects_.find(participant_id);
     if (it != objects_.end())
     {
-        if (std::unique_ptr<Replier> requester = Replier::create(object_id, conversion::objectid_to_raw(participant_id), shared_from_this(), representation))
+        if (std::unique_ptr<Replier> requester = Replier::create(object_id, conversion::objectid_to_raw(participant_id),
+                shared_from_this(), representation))
         {
             if (objects_.emplace(object_id, std::move(requester)).second)
             {
@@ -756,11 +767,13 @@ ProxyClient::State ProxyClient::get_state()
     return state_;
 }
 
-void ProxyClient::update_state(const ProxyClient::State state)
+void ProxyClient::update_state(
+        const ProxyClient::State state)
 {
     std::lock_guard<std::mutex> lock(state_mtx_);
     state_ = state;
-    if (State::alive == state_) {
+    if (State::alive == state_)
+    {
         timestamp_ = std::chrono::steady_clock::now();
         hard_liveliness_check_tries_ = 0;
     }

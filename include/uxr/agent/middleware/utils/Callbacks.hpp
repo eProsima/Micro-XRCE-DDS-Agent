@@ -36,8 +36,8 @@ namespace uxr {
 namespace middleware {
 
 /**********************************************************************************************************************
- * CallbackKind
- **********************************************************************************************************************/
+* CallbackKind
+**********************************************************************************************************************/
 /**
  * @brief   Enumeration class defining the different types of callbacks available for a middleware.
  */
@@ -56,15 +56,16 @@ enum class CallbackKind : uint8_t
 };
 
 /**********************************************************************************************************************
- * Callback
- **********************************************************************************************************************/
+* Callback
+**********************************************************************************************************************/
 /**
  * @brief   Represents a callback function, which can be called anytime.
  */
-template <typename ... Args>
+template<typename ... Args>
 class Callback
 {
 public:
+
     /**
      * @brief   Constructor.
      * @param callback_function Implementation of the callback function. Must be passed as rvalue.
@@ -106,14 +107,15 @@ private:
 };
 
 /**********************************************************************************************************************
- * CallbackFactory
- **********************************************************************************************************************/
+* CallbackFactory
+**********************************************************************************************************************/
 /**
  * @brief   Represents a factory of all the defined callbacks for each active communication middleware.
  */
 class CallbackFactory
 {
 public:
+
     /**
      * @brief   Default destructor.
      */
@@ -137,13 +139,13 @@ public:
      * @param callback_function std::function rvalue variable implementing the callback method logic to be
      *                          included in the callback database.
      */
-    template <typename ... Args>
+    template<typename ... Args>
     void add_callback(
             const Middleware::Kind& middleware_kind,
             const CallbackKind& callback_kind,
             std::function<void (Args ...)>&& callback_function)
     {
-    switch (middleware_kind)
+        switch (middleware_kind)
         {
 #ifdef UAGENT_FAST_PROFILE
             case Middleware::Kind::FASTDDS:
@@ -172,7 +174,7 @@ public:
      *                          Note that this means that are registered callbacks for a certain Middleware::Kind
      *                          and CallbackKind must receive the same type of input parameters.
      */
-    template <typename ... Args>
+    template<typename ... Args>
     void execute_callbacks(
             const Middleware::Kind& middleware_kind,
             const CallbackKind callback_kind,
@@ -199,6 +201,7 @@ public:
     }
 
 private:
+
     /**
      * @brief   Default constructor.
      */
@@ -208,28 +211,29 @@ private:
      * @brief   CallbackFactory shall not be copy constructible.
      */
     CallbackFactory(
-            const CallbackFactory &) = delete;
+            const CallbackFactory&) = delete;
 
     CallbackFactory(
-            CallbackFactory &&) = delete;
+            CallbackFactory&&) = delete;
 
     /**
      * @brief   CallbackFactory shall not be copy assignable.
      */
     CallbackFactory& operator = (
-            const CallbackFactory &) = delete;
+            const CallbackFactory&) = delete;
 
     CallbackFactory& operator = (
-            CallbackFactory &&) = delete;
+            CallbackFactory&&) = delete;
 
 #ifdef UAGENT_FAST_PROFILE
 
     /**********************************************************************************************************************
-     * FastDDSCallbackFactory
-     **********************************************************************************************************************/
+    * FastDDSCallbackFactory
+    **********************************************************************************************************************/
     class FastDDSCallbackFactory
     {
     public:
+
         /**
          * @brief   Default constructor.
          */
@@ -244,19 +248,19 @@ private:
          * @brief   FastDDSCallbackFactory shall not be copy constructible.
          */
         FastDDSCallbackFactory(
-                const FastDDSCallbackFactory &) = delete;
+                const FastDDSCallbackFactory&) = delete;
 
         FastDDSCallbackFactory(
-                FastDDSCallbackFactory &&) = delete;
+                FastDDSCallbackFactory&&) = delete;
 
         /**
          * @brief   FastDDSCallbackFactory shall not be copy assignable.
          */
         FastDDSCallbackFactory& operator = (
-                const FastDDSCallbackFactory &) = delete;
+                const FastDDSCallbackFactory&) = delete;
 
         FastDDSCallbackFactory& operator = (
-                FastDDSCallbackFactory &&) = delete;
+                FastDDSCallbackFactory&&) = delete;
 
         /**
          * @brief   Adds a callback function to the database.
@@ -265,7 +269,7 @@ private:
          * @param callback_function std::function rvalue variable implementing the callback method logic to be
          *                          included in the callback database.
          */
-        template <typename ... Args>
+        template<typename ... Args>
         void add_callback(
                 const CallbackKind& callback_kind,
                 std::function<void (Args ...)>&& callback_function)
@@ -417,43 +421,34 @@ private:
 
     private:
 
-        using CreateParticipantCallback = Callback<
-                        const fastdds::dds::DomainParticipant*>;
-        using DeleteParticipantCallback = Callback<
-                        const fastdds::dds::DomainParticipant*>;
-        using CreateDataWriterCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using CreateParticipantCallback = Callback<const fastdds::dds::DomainParticipant*>;
+        using DeleteParticipantCallback = Callback<const fastdds::dds::DomainParticipant*>;
+
+        using CreateDataWriterCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*>;
 
-        using DeleteDataWriterCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using DeleteDataWriterCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*>;
 
-        using CreateDataReaderCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using CreateDataReaderCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataReader*>;
 
-        using DeleteDataReaderCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using DeleteDataReaderCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataReader*>;
 
-        using CreateRequesterCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using CreateRequesterCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*,
                         const fastdds::dds::DataReader*>;
 
-        using DeleteRequesterCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using DeleteRequesterCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*,
                         const fastdds::dds::DataReader*>;
 
-        using CreateReplierCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using CreateReplierCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*,
                         const fastdds::dds::DataReader*>;
 
-        using DeleteReplierCallback = Callback<
-                        const fastdds::dds::DomainParticipant*,
+        using DeleteReplierCallback = Callback<const fastdds::dds::DomainParticipant*,
                         const fastdds::dds::DataWriter*,
                         const fastdds::dds::DataReader*>;
 
@@ -474,11 +469,12 @@ private:
 
 #ifdef UAGENT_CED_PROFILE
     /**********************************************************************************************************************
-     * CEDCallbackFactory (skeleton class, not implemented)
-     **********************************************************************************************************************/
+    * CEDCallbackFactory (skeleton class, not implemented)
+    **********************************************************************************************************************/
     class CEDCallbackFactory
     {
     public:
+
         /**
          * @brief   Default constructor.
          */
@@ -493,49 +489,49 @@ private:
          * @brief   CEDCallbackFactory shall not be copy constructible.
          */
         CEDCallbackFactory(
-                const CEDCallbackFactory &) = delete;
+                const CEDCallbackFactory&) = delete;
 
         CEDCallbackFactory(
-                CEDCallbackFactory &&) = delete;
+                CEDCallbackFactory&&) = delete;
 
         /**
          * @brief   CEDCallbackFactory shall not be copy assignable.
          */
         CEDCallbackFactory& operator = (
-                const CEDCallbackFactory &) = delete;
+                const CEDCallbackFactory&) = delete;
 
         CEDCallbackFactory& operator = (
-                CEDCallbackFactory &&) = delete;
+                CEDCallbackFactory&&) = delete;
     };
 #endif // UAGENT_CED_PROFILE
 };
 
 /**********************************************************************************************************************
- * Template specializations for callback methods
- **********************************************************************************************************************/
+* Template specializations for callback methods
+**********************************************************************************************************************/
 #ifdef UAGENT_FAST_PROFILE
-template <>
+template<>
 inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
     const fastdds::dds::DomainParticipant*,
     const fastdds::dds::DataWriter*>(
         const CallbackKind& callback_kind,
         std::function<void (const fastdds::dds::DomainParticipant*,
-                            const fastdds::dds::DataWriter*)>&& callback_function)
+        const fastdds::dds::DataWriter*)>&& callback_function)
 {
     switch (callback_kind)
     {
         case CallbackKind::CREATE_DATAWRITER:
         {
             on_create_datawriter_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*>(std::move(callback_function)));
             break;
         }
         case CallbackKind::DELETE_DATAWRITER:
         {
             on_delete_datawriter_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*>(std::move(callback_function)));
             break;
         }
         default:
@@ -545,28 +541,28 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
     }
 }
 
-template <>
+template<>
 inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
     const fastdds::dds::DomainParticipant*,
     const fastdds::dds::DataReader*>(
         const CallbackKind& callback_kind,
         std::function<void (const fastdds::dds::DomainParticipant*,
-                            const fastdds::dds::DataReader*)>&& callback_function)
+        const fastdds::dds::DataReader*)>&& callback_function)
 {
     switch (callback_kind)
     {
         case CallbackKind::CREATE_DATAREADER:
         {
             on_create_datareader_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         case CallbackKind::DELETE_DATAREADER:
         {
             on_delete_datareader_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         default:
@@ -576,48 +572,48 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
     }
 }
 
-template <>
+template<>
 inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
     const fastdds::dds::DomainParticipant*,
     const fastdds::dds::DataWriter*,
     const fastdds::dds::DataReader*>(
         const CallbackKind& callback_kind,
         std::function<void (const fastdds::dds::DomainParticipant*,
-                            const fastdds::dds::DataWriter*,
-                            const fastdds::dds::DataReader*)>&& callback_function)
+        const fastdds::dds::DataWriter*,
+        const fastdds::dds::DataReader*)>&& callback_function)
 {
     switch (callback_kind)
     {
         case CallbackKind::CREATE_REQUESTER:
         {
             on_create_requester_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         case CallbackKind::CREATE_REPLIER:
         {
             on_create_replier_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         case CallbackKind::DELETE_REQUESTER:
         {
             on_delete_requester_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         case CallbackKind::DELETE_REPLIER:
         {
             on_delete_replier_callbacks_.emplace_back(Callback<
-                const fastdds::dds::DomainParticipant*,
-                const fastdds::dds::DataWriter*,
-                const fastdds::dds::DataReader*>(std::move(callback_function)));
+                        const fastdds::dds::DomainParticipant*,
+                        const fastdds::dds::DataWriter*,
+                        const fastdds::dds::DataReader*>(std::move(callback_function)));
             break;
         }
         default:
@@ -626,28 +622,29 @@ inline void CallbackFactory::FastDDSCallbackFactory::add_callback<
         }
     }
 }
+
 #endif  // UAGENT_FAST_PROFILE
 
 #define CALLBACK_FACTORY_ADD_CALLBACK(MIDDLEWARE, CB_FACTORY, ...) \
-template <> \
-inline void CallbackFactory::add_callback<__VA_ARGS__>( \
+    template<> \
+    inline void CallbackFactory::add_callback<__VA_ARGS__>( \
         const Middleware::Kind& middleware_kind, \
         const CallbackKind& callback_kind, \
         std::function<void (__VA_ARGS__)>&& callback_function) \
-{ \
-    switch (middleware_kind) \
     { \
-        case MIDDLEWARE: \
+        switch (middleware_kind) \
         { \
-            CB_FACTORY.add_callback(callback_kind, std::move(callback_function)); \
-            break; \
+            case MIDDLEWARE: \
+                { \
+                    CB_FACTORY.add_callback(callback_kind, std::move(callback_function)); \
+                    break; \
+                } \
+            default: \
+                { \
+                    break; \
+                } \
         } \
-        default: \
-        { \
-            break; \
-        } \
-    } \
-}
+    }
 
 #ifdef UAGENT_FAST_PROFILE
 #define CALLBACK_FACTORY_ADD_FASTDDS_CALLBACK(...) \

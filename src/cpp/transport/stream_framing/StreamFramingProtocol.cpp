@@ -133,14 +133,11 @@ size_t FramingIO::read_framed_msg(
                 {
                     octet = 0;
                     while ((framing_begin_flag != octet) &&
-                           (read_buffer_head_ != read_buffer_tail_))
+                            (read_buffer_head_ != read_buffer_tail_))
                     {
                         octet = read_buffer_[read_buffer_tail_];
-                        read_buffer_tail_ =
-                            static_cast<uint8_t>(
-                                static_cast<size_t>(
-                                    read_buffer_tail_ + 1) %
-                                    sizeof(read_buffer_));
+                        read_buffer_tail_ = static_cast<uint8_t>(
+                            static_cast<size_t>(read_buffer_tail_ + 1) % sizeof(read_buffer_));
                     }
 
                     if (framing_begin_flag == octet)
@@ -159,7 +156,7 @@ size_t FramingIO::read_framed_msg(
                     {
                         state_ = InputState::UXR_FRAMING_READING_DST_ADDR;
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 4))
+                    else if (0 < transport_read(timeout, transport_rc, 4))
                     {
 
                     }
@@ -180,7 +177,7 @@ size_t FramingIO::read_framed_msg(
                                 ? InputState::UXR_FRAMING_READING_LEN_LSB
                                 : InputState::UXR_FRAMING_UNINITIALIZED;
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 3))
+                    else if (0 < transport_read(timeout, transport_rc, 3))
                     {
 
                     }
@@ -204,7 +201,7 @@ size_t FramingIO::read_framed_msg(
                         msg_len_ = octet;
                         state_ = InputState::UXR_FRAMING_READING_LEN_MSB;
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 2))
+                    else if (0 < transport_read(timeout, transport_rc, 2))
                     {
 
                     }
@@ -238,7 +235,7 @@ size_t FramingIO::read_framed_msg(
                             state_ = InputState::UXR_FRAMING_READING_PAYLOAD;
                         }
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 1))
+                    else if (0 < transport_read(timeout, transport_rc, 1))
                     {
 
                     }
@@ -292,7 +289,7 @@ size_t FramingIO::read_framed_msg(
                         msg_crc_ = octet;
                         state_ = InputState::UXR_FRAMING_READING_CRC_MSB;
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 2))
+                    else if (0 < transport_read(timeout, transport_rc, 2))
                     {
 
                     }
@@ -321,7 +318,7 @@ size_t FramingIO::read_framed_msg(
                         }
                         exit_cond = true;
                     }
-                    else if(0 < transport_read(timeout, transport_rc, 1))
+                    else if (0 < transport_read(timeout, transport_rc, 1))
                     {
 
                     }
@@ -426,7 +423,8 @@ bool FramingIO::transport_write(
         ssize_t write_res = write_callback_(write_buffer_, write_buffer_pos_, transport_rc);
         last_written = (0 < write_res) ? write_res : 0;
         bytes_written += last_written;
-    } while (bytes_written < write_buffer_pos_ && 0 < last_written);
+    }
+    while (bytes_written < write_buffer_pos_ && 0 < last_written);
 
     if (write_buffer_pos_ == bytes_written)
     {
@@ -462,20 +460,20 @@ size_t FramingIO::transport_read(
         if (0 < read_buffer_tail_)
         {
             available_length[0] =
-                static_cast<uint8_t>(sizeof(read_buffer_) - read_buffer_head_);
+                    static_cast<uint8_t>(sizeof(read_buffer_) - read_buffer_head_);
             available_length[1] =
-                static_cast<uint8_t>(read_buffer_tail_ - 1);
+                    static_cast<uint8_t>(read_buffer_tail_ - 1);
         }
         else
         {
             available_length[0] =
-                static_cast<uint8_t>(sizeof(read_buffer_) - read_buffer_head_ - 1);
+                    static_cast<uint8_t>(sizeof(read_buffer_) - read_buffer_head_ - 1);
         }
     }
     else
     {
         available_length[0] =
-            static_cast<uint8_t>(read_buffer_tail_ - read_buffer_head_ - 1);
+                static_cast<uint8_t>(read_buffer_tail_ - read_buffer_head_ - 1);
     }
 
     /**
@@ -484,19 +482,22 @@ size_t FramingIO::transport_read(
     size_t bytes_read[2] = {0, 0};
 
     // Limit the reading size
-    if (max_size < available_length[0]){
+    if (max_size < available_length[0])
+    {
         available_length[0] = (uint8_t)max_size;
         available_length[1] = 0;
-    } else if(max_size < available_length[0] + available_length[1]){
+    }
+    else if (max_size < available_length[0] + available_length[1])
+    {
         available_length[1] = (uint8_t)(max_size - available_length[0]);
     }
 
     if (0 < available_length[0])
     {
         ssize_t read_res = read_callback_(&read_buffer_[read_buffer_head_],
-                                       available_length[0],
-                                       timeout,
-                                       transport_rc);
+                        available_length[0],
+                        timeout,
+                        transport_rc);
         bytes_read[0] = (0 < read_res) ? read_res : 0;
 
         read_buffer_head_ = static_cast<uint8_t>(
@@ -507,9 +508,9 @@ size_t FramingIO::transport_read(
             if ((bytes_read[0] == available_length[0]) && (0 < available_length[1]))
             {
                 read_res = read_callback_(&read_buffer_[read_buffer_head_],
-                                       available_length[1],
-                                       0,
-                                       transport_rc);
+                                available_length[1],
+                                0,
+                                transport_rc);
                 bytes_read[1] = (0 < read_res) ? read_res : 0;
 
                 read_buffer_head_ = static_cast<uint8_t>(
@@ -521,7 +522,7 @@ size_t FramingIO::transport_read(
     int time_elapsed = static_cast<int>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - time_init)
-            .count());
+                .count());
 
     timeout -= (time_elapsed == 0) ? 1 : time_elapsed;
 

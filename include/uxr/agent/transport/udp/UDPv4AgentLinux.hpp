@@ -19,10 +19,10 @@
 #include <uxr/agent/transport/endpoint/IPv4EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerLinux.hpp>
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 #ifdef UAGENT_P2P_PROFILE
 #include <uxr/agent/transport/p2p/AgentDiscovererLinux.hpp>
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
 
 #include <cstdint>
 #include <cstddef>
@@ -37,6 +37,7 @@ extern template class Server<IPv4EndPoint>; // Explicit instantiation declaratio
 class UDPv4Agent : public Server<IPv4EndPoint>
 {
 public:
+
     UDPv4Agent(
             uint16_t port,
             Middleware::Kind middleware_kind);
@@ -44,29 +45,40 @@ public:
     ~UDPv4Agent() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-#endif
+    bool has_discovery() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return true; }
-#endif
+    bool has_p2p() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     bool init() final;
 
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(uint16_t discovery_port) final;
+    bool init_discovery(
+            uint16_t discovery_port) final;
 
     bool fini_discovery() final;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool init_p2p(uint16_t p2p_port) final;
+    bool init_p2p(
+            uint16_t p2p_port) final;
 
     bool fini_p2p() final;
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
 
     bool recv_message(
             InputPacket<IPv4EndPoint>& input_packet,
@@ -81,15 +93,16 @@ private:
             TransportRc transport_rc) final;
 
 private:
+
     struct pollfd poll_fd_;
     uint8_t buffer_[SERVER_BUFFER_SIZE];
     uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerLinux<IPv4EndPoint> discovery_server_;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 #ifdef UAGENT_P2P_PROFILE
     AgentDiscovererLinux agent_discoverer_;
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
 };
 
 } // namespace uxr

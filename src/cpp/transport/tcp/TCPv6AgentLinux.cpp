@@ -53,8 +53,9 @@ TCPv6Agent::TCPv6Agent(
     , messages_queue_{}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_{*processor_}
-#endif
-{}
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
+{
+}
 
 TCPv6Agent::~TCPv6Agent()
 {
@@ -210,10 +211,12 @@ bool TCPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-bool TCPv6Agent::init_p2p(uint16_t /*p2p_port*/)
+bool TCPv6Agent::init_p2p(
+        uint16_t /*p2p_port*/)
 {
     // TODO (julibert): implement TCP InternalClient.
     return true;
@@ -224,7 +227,8 @@ bool TCPv6Agent::fini_p2p()
     // TODO (julibert): implement TCP InternalClient.
     return true;
 }
-#endif
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 bool TCPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
@@ -302,12 +306,12 @@ bool TCPv6Agent::send_message(
             bytes_sent = 0;
             do
             {
-                size_t send_rv =
-                    send_data(
-                        connection,
-                        output_packet.message->get_buf() + bytes_sent,
-                        output_packet.message->get_len() - bytes_sent,
-                        transport_rc);
+                size_t send_rv = send_data(
+                    connection,
+                    output_packet.message->get_buf() + bytes_sent,
+                    output_packet.message->get_len() - bytes_sent,
+                    transport_rc);
+
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -478,13 +482,13 @@ void TCPv6Agent::listener_loop()
             {
                 if (connection_available())
                 {
-                    struct sockaddr_in6 client_addr{};
+                    struct sockaddr_in6 client_addr {};
                     socklen_t client_addr_len = sizeof(client_addr);
-                    int incoming_fd =
-                        accept(
-                            listener_poll_.fd,
-                            reinterpret_cast<struct sockaddr*>(&client_addr),
-                            &client_addr_len);
+                    int incoming_fd = accept(
+                        listener_poll_.fd,
+                        reinterpret_cast<struct sockaddr*>(&client_addr),
+                        &client_addr_len);
+
                     if (-1 != incoming_fd)
                     {
                         open_connection(incoming_fd, client_addr);

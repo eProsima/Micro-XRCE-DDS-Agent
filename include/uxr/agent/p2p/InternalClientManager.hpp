@@ -30,6 +30,7 @@ class Agent;
 class InternalClientManager
 {
 public:
+
     static InternalClientManager& instance();
 
     void set_local_address(
@@ -43,15 +44,21 @@ public:
     void delete_clients();
 
 private:
+
     InternalClientManager();
     ~InternalClientManager();
 
-    InternalClientManager(InternalClientManager&&) = delete;
-    InternalClientManager(const InternalClientManager&) = delete;
-    InternalClientManager& operator=(InternalClientManager&&) = delete;
-    InternalClientManager& operator=(const InternalClientManager&) = delete;
+    InternalClientManager(
+            InternalClientManager&&) = delete;
+    InternalClientManager(
+            const InternalClientManager&) = delete;
+    InternalClientManager& operator =(
+            InternalClientManager&&) = delete;
+    InternalClientManager& operator =(
+            const InternalClientManager&) = delete;
 
 private:
+
     std::mutex mtx_;
     uint32_t local_client_key_;
     std::map<uint32_t, std::unique_ptr<InternalClient>> clients_;

@@ -18,12 +18,14 @@
 namespace eprosima {
 namespace uxr {
 
-template<typename T> constexpr const T& max_mtu(const T& fe, const T& se)
+template<typename T> constexpr const T& max_mtu(
+        const T& fe,
+        const T& se)
 {
-  return fe > se ? fe : se;
+    return fe > se ? fe : se;
 }
 
-}
-}
+} // namespace uxr
+} // namespace eprosima
 
 #endif // !_UXR_AGENT_UTILS_SEQNUM_HPP_

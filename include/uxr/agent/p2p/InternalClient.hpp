@@ -32,6 +32,7 @@ const uint8_t internal_client_history = 8; // TODO (julian): take from config.
 class InternalClient
 {
 public:
+
     InternalClient(
             Agent& agent,
             const std::array<uint8_t, 4>& ip,
@@ -45,9 +46,13 @@ public:
 
     bool stop();
 
-    Agent& get_agent() { return agent_; }
+    Agent& get_agent()
+    {
+        return agent_;
+    }
 
 private:
+
     void set_callback();
 
     void create_streams();
@@ -58,13 +63,15 @@ private:
 
     void loop();
 
-    void on_new_domain(int16_t domain);
+    void on_new_domain(
+            int16_t domain);
 
     void on_new_topic(
             int16_t domain_id,
             const std::string& topic_name);
 
 private:
+
     Agent& agent_;
     std::array<uint8_t, 4> ip_;
     uint16_t port_;

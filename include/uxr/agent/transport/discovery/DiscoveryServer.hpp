@@ -33,6 +33,7 @@ template<typename EndPoint>
 class DiscoveryServer
 {
 public:
+
     DiscoveryServer(
             const Processor<EndPoint>& processor);
 
@@ -45,9 +46,14 @@ public:
 
     bool stop();
 
-    void set_filter_port(uint16_t filter_port) { filter_port_ = filter_port; }
+    void set_filter_port(
+            uint16_t filter_port)
+    {
+        filter_port_ = filter_port;
+    }
 
 private:
+
     virtual bool init(
             uint16_t discovery_port) = 0;
 
@@ -63,12 +69,14 @@ private:
     void discovery_loop();
 
 private:
+
     std::mutex mtx_;
     std::thread thread_;
     std::atomic<bool> running_cond_;
     const Processor<EndPoint>& processor_;
 
 protected:
+
     std::vector<dds::xrce::TransportAddress> transport_addresses_;
     uint16_t agent_port_;
     uint16_t discovery_port_;

@@ -24,7 +24,9 @@ namespace testing {
 class BaudRateTableUnitTests :  public ::testing::Test
 {
 public:
-    BaudRateTableUnitTests() : table{}
+
+    BaudRateTableUnitTests()
+        : table{}
     {
         table.push_back(std::make_tuple("0",          B0));
         table.push_back(std::make_tuple("50",         B50));
@@ -63,6 +65,7 @@ public:
     virtual ~BaudRateTableUnitTests() = default;
 
 public:
+
     std::vector<std::tuple<const char*, speed_t>> table;
 };
 
@@ -78,7 +81,9 @@ TEST_F(BaudRateTableUnitTests, CreateClientOk)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

@@ -27,25 +27,42 @@ namespace utils {
 class TokenBucket
 {
 public:
+
     explicit TokenBucket(
             size_t rate,
             size_t capacity = 0);
 
-    TokenBucket(TokenBucket&&) = delete;
-    TokenBucket(const TokenBucket&) = delete;
-    TokenBucket& operator=(TokenBucket&&) = delete;
-    TokenBucket& operator=(const TokenBucket&) = delete;
+    TokenBucket(
+            TokenBucket&&) = delete;
+    TokenBucket(
+            const TokenBucket&) = delete;
+    TokenBucket& operator =(
+            TokenBucket&&) = delete;
+    TokenBucket& operator =(
+            const TokenBucket&) = delete;
 
     template<typename T>
     bool consume_tokens(
             size_t required_tokens,
             T&& timeout);
 
-    size_t get_rate() { return rate_; }
-    size_t get_capacity() { return capacity_; }
-    size_t get_available_tokens() { return tokens_; }
+    size_t get_rate()
+    {
+        return rate_;
+    }
+
+    size_t get_capacity()
+    {
+        return capacity_;
+    }
+
+    size_t get_available_tokens()
+    {
+        return tokens_;
+    }
 
 private:
+
     const size_t rate_;
     const size_t capacity_;
     size_t tokens_;
@@ -78,18 +95,19 @@ inline bool TokenBucket::consume_tokens(
     const steady_clock::time_point init_time = steady_clock::now();
     const size_t current_tokens = std::min(
         capacity_,
-        tokens_ + size_t((rate_ * uint64_t(duration_cast<milliseconds>(init_time - timestamp_).count())) / std::milli::den));
+        tokens_ +
+        size_t((rate_ * uint64_t(duration_cast<milliseconds>(init_time - timestamp_).count())) / std::milli::den));
 
     if (current_tokens < required_tokens)
     {
-        const steady_clock::time_point final_time =
-            init_time +
-            std::min(
-                milliseconds(uint64_t((std::milli::den * (tokens_ - required_tokens)) / rate_)),
-                duration_cast<milliseconds>(std::forward<T>(timeout)));
+        const steady_clock::time_point final_time = init_time + std::min(
+            milliseconds(uint64_t((std::milli::den * (tokens_ - required_tokens)) / rate_)),
+            duration_cast<milliseconds>(std::forward<T>(timeout)));
+
         const size_t expected_tokens = std::min(
             capacity_,
-            tokens_ + size_t((rate_ * uint64_t(duration_cast<milliseconds>(final_time - timestamp_).count())) / std::milli::den));
+            tokens_ +
+            size_t((rate_ * uint64_t(duration_cast<milliseconds>(final_time - timestamp_).count())) / std::milli::den));
 
         if (expected_tokens >= required_tokens)
         {

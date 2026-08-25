@@ -28,41 +28,48 @@ class Middleware;
 class Replier : public XRCEObject
 {
 public:
+
     static std::unique_ptr<Replier> create(
-        const dds::xrce::ObjectId& object_id,
-        uint16_t participant_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::REPLIER_Representation& representation);
+            const dds::xrce::ObjectId& object_id,
+            uint16_t participant_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::REPLIER_Representation& representation);
 
     ~Replier() override;
 
-    Replier(Replier&&) = delete;
-    Replier(const Replier&) = delete;
-    Replier& operator=(Replier&&) = delete;
-    Replier& operator=(const Replier&) = delete;
+    Replier(
+            Replier&&) = delete;
+    Replier(
+            const Replier&) = delete;
+    Replier& operator =(
+            Replier&&) = delete;
+    Replier& operator =(
+            const Replier&) = delete;
 
     bool write(
-        dds::xrce::WRITE_DATA_Payload_Data& write_data);
+            dds::xrce::WRITE_DATA_Payload_Data& write_data);
 
     bool read(
-        const dds::xrce::READ_DATA_Payload& read_data,
-        Reader<bool>::WriteFn write_fn,
-        WriteFnArgs& write_args);
+            const dds::xrce::READ_DATA_Payload& read_data,
+            Reader<bool>::WriteFn write_fn,
+            WriteFnArgs& write_args);
 
     bool matched(
-        const dds::xrce::ObjectVariant& new_object_rep) const override;
+            const dds::xrce::ObjectVariant& new_object_rep) const override;
 
 private:
+
     Replier(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
 
     bool read_fn(
-        bool,
-        std::vector<uint8_t>& data,
-        std::chrono::milliseconds timeout);
+            bool,
+            std::vector<uint8_t>& data,
+            std::chrono::milliseconds timeout);
 
 private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
     Reader<bool> reader_;
 };

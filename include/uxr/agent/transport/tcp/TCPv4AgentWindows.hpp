@@ -19,7 +19,7 @@
 #include <uxr/agent/transport/Server.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #include <winsock2.h>
 #include <vector>
@@ -41,6 +41,7 @@ extern template class Server<IPv4EndPoint>; // Explicit instantiation declaratio
 class TCPv4Agent : public Server<IPv4EndPoint>, public TCPServerBase<TCPv4ConnectionWindows>
 {
 public:
+
     UXR_AGENT_EXPORT TCPv4Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
@@ -48,23 +49,33 @@ public:
     UXR_AGENT_EXPORT ~TCPv4Agent() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-#endif
+    bool has_discovery() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
-#endif
+    bool has_p2p() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     bool init() final;
 
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(uint16_t discovery_port) final;
+    bool init_discovery(
+            uint16_t discovery_port) final;
 
     bool fini_discovery() final;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
     bool recv_message(
             InputPacket<IPv4EndPoint>& input_packet,
@@ -109,6 +120,7 @@ private:
             TransportRc& transport_rc) final;
 
 private:
+
     std::array<TCPv4ConnectionWindows, TCP_MAX_CONNECTIONS> connections_;
     std::set<uint32_t> active_connections_;
     std::list<uint32_t> free_connections_;
@@ -123,7 +135,7 @@ private:
     std::queue<InputPacket<IPv4EndPoint>> messages_queue_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerWindows<IPv4EndPoint> discovery_server_;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 };
 
 } // namespace uxr

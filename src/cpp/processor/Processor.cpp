@@ -39,7 +39,8 @@ Processor<EndPoint>::Processor(
     : server_(server)
     , middleware_kind_{middleware_kind}
     , root_(root)
-{}
+{
+}
 
 template<typename EndPoint>
 void Processor<EndPoint>::process_input_packet(
@@ -48,7 +49,7 @@ void Processor<EndPoint>::process_input_packet(
     dds::xrce::MessageHeader header = input_packet.message->get_header();
 
     if ((header.session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY) ||
-        (header.session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY))
+            (header.session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY))
     {
         if (input_packet.message->prepare_next_submessage())
         {
@@ -122,8 +123,8 @@ void Processor<EndPoint>::process_input_packet(
                 acknack_subheader.submessage_length(uint16_t(acknack_payload.getCdrSerializedSize()));
 
                 const size_t message_size = acknack_header.getCdrSerializedSize() +
-                                            acknack_subheader.getCdrSerializedSize() +
-                                            acknack_payload.getCdrSerializedSize();
+                        acknack_subheader.getCdrSerializedSize() +
+                        acknack_payload.getCdrSerializedSize();
 
                 OutputPacket<EndPoint> output_packet;
                 output_packet.destination = input_packet.source;
@@ -143,7 +144,7 @@ void Processor<EndPoint>::process_input_packet(
                     {
                         dds::xrce::DELETE_Payload delete_payload;
                         if (input_packet.message->get_payload(delete_payload)
-                            && ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT))
+                                && ((delete_payload.object_id().at(1) & 0x0F) == dds::xrce::OBJK_CLIENT))
                         {
                             dds::xrce::STATUS_Payload status_payload;
                             status_payload.related_request().request_id(delete_payload.request_id());
@@ -151,13 +152,14 @@ void Processor<EndPoint>::process_input_packet(
                             status_payload.result().status() = dds::xrce::STATUS_OK;
 
                             const size_t message_size =
-                                input_packet.message->get_header().getCdrSerializedSize()
-                                + input_packet.message->get_subheader().getCdrSerializedSize()
-                                + status_payload.getCdrSerializedSize();
+                                    input_packet.message->get_header().getCdrSerializedSize()
+                                    + input_packet.message->get_subheader().getCdrSerializedSize()
+                                    + status_payload.getCdrSerializedSize();
 
                             OutputPacket<EndPoint> output_packet;
                             output_packet.destination = input_packet.source;
-                            output_packet.message.reset(new OutputMessage(input_packet.message->get_header(), message_size));
+                            output_packet.message.reset(new OutputMessage(input_packet.message->get_header(),
+                                    message_size));
                             output_packet.message->append_submessage(dds::xrce::STATUS, status_payload);
 
                             server_.push_output_packet(std::move(output_packet));
@@ -248,18 +250,18 @@ bool Processor<EndPoint>::process_create_client_submessage(
     bool rv = true;
     dds::xrce::CREATE_CLIENT_Payload client_payload;
     if (((input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITH_CLIENT_KEY) ||
-         (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
-          input_packet.message->get_payload(client_payload))
+            (input_packet.message->get_header().session_id() == dds::xrce::SESSIONID_NONE_WITHOUT_CLIENT_KEY)) &&
+            input_packet.message->get_payload(client_payload))
     {
         dds::xrce::ClientKey client_key;
         uint32_t raw_client_key;
         if (server_.get_client_key(input_packet.source, raw_client_key) &&
-            (client_payload.client_representation().client_key() != conversion::raw_to_clientkey(raw_client_key)))
+                (client_payload.client_representation().client_key() != conversion::raw_to_clientkey(raw_client_key)))
         {
             client_key = conversion::raw_to_clientkey(raw_client_key);
             dds::xrce::StatusValue delete_status = root_.delete_client(client_key).status();
             if ((dds::xrce::STATUS_OK == delete_status) ||
-                (dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE == delete_status))
+                    (dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE == delete_status))
             {
                 server_.destroy_session(input_packet.source);
             }
@@ -276,15 +278,15 @@ bool Processor<EndPoint>::process_create_client_submessage(
 
             dds::xrce::AGENT_Representation agent_representation;
             dds::xrce::ResultStatus result = root_.create_client(
-                        client_payload.client_representation(),
-                        agent_representation,
-                        middleware_kind_);
+                client_payload.client_representation(),
+                agent_representation,
+                middleware_kind_);
 
             if (dds::xrce::STATUS_OK == result.status())
             {
                 server_.establish_session(input_packet.source,
-                                          conversion::clientkey_to_raw(client_payload.client_representation().client_key()),
-                                          client_payload.client_representation().session_id());
+                        conversion::clientkey_to_raw(client_payload.client_representation().client_key()),
+                        client_payload.client_representation().session_id());
             }
 
             dds::xrce::STATUS_AGENT_Payload status_agent;
@@ -297,8 +299,8 @@ bool Processor<EndPoint>::process_create_client_submessage(
             status_subheader.submessage_length(uint16_t(status_agent.getCdrSerializedSize()));
 
             const size_t message_size = status_header.getCdrSerializedSize() +
-                                        status_subheader.getCdrSerializedSize() +
-                                        status_agent.getCdrSerializedSize();
+                    status_subheader.getCdrSerializedSize() +
+                    status_agent.getCdrSerializedSize();
 
             OutputPacket<EndPoint> output_packet;
             output_packet.destination = input_packet.source;
@@ -332,15 +334,16 @@ bool Processor<EndPoint>::process_create_submessage(
     dds::xrce::CREATE_Payload create_payload;
     if (input_packet.message->get_payload(create_payload))
     {
-        dds::xrce::Endianness endianness = static_cast<dds::xrce::Endianness>(input_packet.message->get_subheader().flags() & 0x01);
+        dds::xrce::Endianness endianness =
+                static_cast<dds::xrce::Endianness>(input_packet.message->get_subheader().flags() & 0x01);
         create_payload.object_representation().endianness(endianness);
 
         dds::xrce::STATUS_Payload status_payload;
         status_payload.related_request().request_id(create_payload.request_id());
         status_payload.related_request().object_id(create_payload.object_id());
         status_payload.result(client.create_object(creation_mode,
-                                                   create_payload.object_id(),
-                                                   create_payload.object_representation()));
+                create_payload.object_id(),
+                create_payload.object_representation()));
 
         client.session().push_output_submessage(
             stream_kind,
@@ -437,11 +440,11 @@ bool Processor<EndPoint>::process_write_data_submessage(
     if (submessage_length == 0)
     {
         submessage_length =
-            input_packet.message->get_len()
-            - input_packet.message->get_header().getCdrSerializedSize(0)
-            - input_packet.message->get_subheader().getCdrSerializedSize(0);
+                input_packet.message->get_len()
+                - input_packet.message->get_header().getCdrSerializedSize(0)
+                - input_packet.message->get_subheader().getCdrSerializedSize(0);
     }
-#endif
+#endif // ifdef UAGENT_TWEAK_XRCE_WRITE_LIMIT
 
     switch (flags)
     {
@@ -555,13 +558,16 @@ bool Processor<EndPoint>::process_read_data_submessage(
             switch (object_id[1] & 0x0F)
             {
                 case dds::xrce::OBJK_DATAREADER:
-                    reading = std::dynamic_pointer_cast<DataReader>(reader_object)->read(read_payload, write_fn, write_args);
+                    reading = std::dynamic_pointer_cast<DataReader>(reader_object)->read(read_payload, write_fn,
+                                    write_args);
                     break;
                 case dds::xrce::OBJK_REQUESTER:
-                    reading = std::dynamic_pointer_cast<Requester>(reader_object)->read(read_payload, write_fn, write_args);
+                    reading = std::dynamic_pointer_cast<Requester>(reader_object)->read(read_payload, write_fn,
+                                    write_args);
                     break;
                 case dds::xrce::OBJK_REPLIER:
-                    reading = std::dynamic_pointer_cast<Replier>(reader_object)->read(read_payload, write_fn, write_args);
+                    reading = std::dynamic_pointer_cast<Replier>(reader_object)->read(read_payload, write_fn,
+                                    write_args);
                     break;
                 default:
                     break;
@@ -589,7 +595,8 @@ bool Processor<EndPoint>::process_read_data_submessage(
 
             OutputPacket<EndPoint> output_packet;
             output_packet.destination = input_packet.source;
-            while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE, output_packet.message))
+            while (client.session().get_next_output_message(dds::xrce::STREAMID_BUILTIN_RELIABLE,
+                    output_packet.message))
             {
                 server_.push_output_packet(std::move(output_packet));
             }
@@ -663,8 +670,8 @@ bool Processor<EndPoint>::process_heartbeat_submessage(
     {
         uint8_t stream_id = heartbeat_payload.stream_id();
         client.session().update_from_heartbeat(stream_id,
-                                               heartbeat_payload.first_unacked_seq_nr(),
-                                               heartbeat_payload.last_unacked_seq_nr());
+                heartbeat_payload.first_unacked_seq_nr(),
+                heartbeat_payload.last_unacked_seq_nr());
 
         dds::xrce::ACKNACK_Payload acknack_payload;
         client.session().fill_acknack(stream_id, acknack_payload);
@@ -730,10 +737,10 @@ bool Processor<EndPoint>::process_timestamp_submessage(
     {
         dds::xrce::TIMESTAMP_REPLY_Payload timestamp_reply;
         time::get_epoch_time(timestamp_reply.receive_timestamp().seconds(),
-                             timestamp_reply.receive_timestamp().nanoseconds());
+                timestamp_reply.receive_timestamp().nanoseconds());
         timestamp_reply.originate_timestamp(timestamp.transmit_timestamp());
         time::get_epoch_time(timestamp_reply.transmit_timestamp().seconds(),
-                             timestamp_reply.transmit_timestamp().nanoseconds());
+                timestamp_reply.transmit_timestamp().nanoseconds());
 
         client.session().push_output_submessage(
             dds::xrce::STREAMID_NONE,
@@ -801,9 +808,9 @@ bool Processor<EndPoint>::process_get_info_submessage(
         header.client_key(client.get_client_key());
 
         const size_t message_size =
-            header.getCdrSerializedSize() +
-            info_subheader.getCdrSerializedSize() +
-            info_payload.getCdrSerializedSize();
+                header.getCdrSerializedSize() +
+                info_subheader.getCdrSerializedSize() +
+                info_payload.getCdrSerializedSize();
 
         output_packet.message = OutputMessagePtr(new OutputMessage(header, message_size));
         rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
@@ -830,7 +837,8 @@ bool Processor<EndPoint>::read_data_callback(
     OutputPacket<EndPoint> output_packet;
     if (server_.get_endpoint(conversion::clientkey_to_raw(cb_args.client_key), output_packet.destination))
     {
-        rv = cb_args.client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload, timeout);
+        rv = cb_args.client->session().push_output_submessage(cb_args.stream_id, dds::xrce::DATA, data_payload,
+                        timeout);
 
         while (cb_args.client->session().get_next_output_message(cb_args.stream_id, output_packet.message))
         {
@@ -887,12 +895,12 @@ bool Processor<EndPoint>::process_get_info_packet(
         info_subheader.submessage_length(uint16_t(info_payload.getCdrSerializedSize()));
 
         const size_t message_size = input_packet.message->get_header().getCdrSerializedSize() +
-                                    info_subheader.getCdrSerializedSize() +
-                                    info_payload.getCdrSerializedSize();
+                info_subheader.getCdrSerializedSize() +
+                info_payload.getCdrSerializedSize();
 
         output_packet.destination = input_packet.source;
         output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header(),
-                                                                    message_size));
+                        message_size));
         rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
     }
 
@@ -919,7 +927,7 @@ bool Processor<EndPoint>::process_get_info_packet(
             if (dds::xrce::STATUS_OK == result_status.status())
             {
                 dds::xrce::AGENT_ActivityInfo agent_info;
-                for (auto &a : address)
+                for (auto& a : address)
                 {
                     agent_info.address_seq().push_back(a);
                 }
@@ -941,12 +949,12 @@ bool Processor<EndPoint>::process_get_info_packet(
                 info_subheader.submessage_length(uint16_t(info_payload.getCdrSerializedSize()));
 
                 const size_t message_size = input_packet.message->get_header().getCdrSerializedSize() +
-                                            info_subheader.getCdrSerializedSize() +
-                                            info_payload.getCdrSerializedSize();
+                        info_subheader.getCdrSerializedSize() +
+                        info_payload.getCdrSerializedSize();
 
                 output_packet.destination = input_packet.source;
                 output_packet.message = OutputMessagePtr(new OutputMessage(input_packet.message->get_header(),
-                                                                           message_size));
+                                message_size));
                 rv = output_packet.message->append_submessage(dds::xrce::INFO, info_payload);
             }
         }
@@ -983,7 +991,7 @@ void Processor<EndPoint>::check_heartbeats()
         uint32_t raw_key = conversion::clientkey_to_raw(client->get_client_key());
 
         if (server_.get_endpoint(raw_key, output_packet.destination) &&
-             ProxyClient::State::alive == state)
+                ProxyClient::State::alive == state)
         {
             header.session_id(client->get_session_id());
             header.client_key(client->get_client_key());
@@ -1010,14 +1018,14 @@ void Processor<EndPoint>::check_heartbeats()
             dds::xrce::GET_INFO_Payload get_info_payload = {};
 
             const size_t get_info_size =
-                header.getCdrSerializedSize() +
-                subheader.getCdrSerializedSize() +
-                get_info_payload.getCdrSerializedSize();
+                    header.getCdrSerializedSize() +
+                    subheader.getCdrSerializedSize() +
+                    get_info_payload.getCdrSerializedSize();
 
             header.session_id(client->get_session_id());
             header.client_key(client->get_client_key());
 
-            get_info_payload.request_id({0,0});
+            get_info_payload.request_id({0, 0});
             get_info_payload.object_id(dds::xrce::OBJECTID_CLIENT);
 
             output_packet.message = OutputMessagePtr(new OutputMessage(header, get_info_size));
@@ -1025,7 +1033,7 @@ void Processor<EndPoint>::check_heartbeats()
 
             server_.push_output_packet(std::move(output_packet));
         }
-        else if (client->has_hard_liveliness_check() &&ProxyClient::State::to_remove == state)
+        else if (client->has_hard_liveliness_check() && ProxyClient::State::to_remove == state)
         {
             if (dds::xrce::STATUS_OK == root_.delete_client(client->get_client_key()).status())
             {

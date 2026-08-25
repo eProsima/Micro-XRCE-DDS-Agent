@@ -14,11 +14,10 @@
 
 #ifdef _WIN32
 // Remove linker warning LNK4221 on Visual Studio
-namespace
-{
+namespace {
 char dummy;
-}
-#endif
+} // namespace
+#endif // ifdef _WIN32
 
 #include <uxr/agent/types/MessageHeader.hpp>
 #include <fastcdr/Cdr.h>
@@ -42,7 +41,8 @@ MessageHeader::~MessageHeader()
 {
 }
 
-MessageHeader::MessageHeader(const MessageHeader &x)
+MessageHeader::MessageHeader(
+        const MessageHeader& x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -50,7 +50,8 @@ MessageHeader::MessageHeader(const MessageHeader &x)
     m_client_key  = x.m_client_key;
 }
 
-MessageHeader::MessageHeader(MessageHeader &&x)
+MessageHeader::MessageHeader(
+        MessageHeader&& x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -58,7 +59,8 @@ MessageHeader::MessageHeader(MessageHeader &&x)
     m_client_key  = std::move(x.m_client_key);
 }
 
-MessageHeader &MessageHeader::operator=(const MessageHeader &x)
+MessageHeader& MessageHeader::operator =(
+        const MessageHeader& x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -68,7 +70,8 @@ MessageHeader &MessageHeader::operator=(const MessageHeader &x)
     return *this;
 }
 
-MessageHeader &MessageHeader::operator=(MessageHeader &&x)
+MessageHeader& MessageHeader::operator =(
+        MessageHeader&& x)
 {
     m_session_id  = x.m_session_id;
     m_stream_id   = x.m_stream_id;
@@ -78,7 +81,8 @@ MessageHeader &MessageHeader::operator=(MessageHeader &&x)
     return *this;
 }
 
-size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
+size_t MessageHeader::getMaxCdrSerializedSize(
+        size_t current_alignment)
 {
     size_t initial_alignment = current_alignment;
 
@@ -90,7 +94,8 @@ size_t MessageHeader::getMaxCdrSerializedSize(size_t current_alignment)
     return current_alignment - initial_alignment;
 }
 
-size_t MessageHeader::getCdrSerializedSize(size_t current_alignment) const
+size_t MessageHeader::getCdrSerializedSize(
+        size_t current_alignment) const
 {
     size_t initial_alignment = current_alignment;
 
@@ -106,7 +111,8 @@ size_t MessageHeader::getCdrSerializedSize(size_t current_alignment) const
     return current_alignment - initial_alignment;
 }
 
-void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
+void MessageHeader::serialize(
+        eprosima::fastcdr::Cdr& scdr) const
 {
     scdr << m_session_id;
     scdr << m_stream_id;
@@ -117,7 +123,8 @@ void MessageHeader::serialize(eprosima::fastcdr::Cdr &scdr) const
     }
 }
 
-void MessageHeader::deserialize(eprosima::fastcdr::Cdr &dcdr)
+void MessageHeader::deserialize(
+        eprosima::fastcdr::Cdr& dcdr)
 {
     dcdr >> m_session_id;
     dcdr >> m_stream_id;

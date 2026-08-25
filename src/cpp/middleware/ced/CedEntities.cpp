@@ -21,8 +21,8 @@ namespace eprosima {
 namespace uxr {
 
 /**********************************************************************************************************************
- * CedTopicManager
- **********************************************************************************************************************/
+* CedTopicManager
+**********************************************************************************************************************/
 std::unordered_map<uint32_t, OnNewDomain> CedTopicManager::on_new_domain_map_;
 std::unordered_map<uint32_t, OnNewTopic> CedTopicManager::on_new_topic_map_;
 std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> CedTopicManager::topics_;
@@ -40,7 +40,8 @@ void CedTopicManager::register_on_new_domain_cb(
     on_new_domain_map_.emplace(key, on_new_domain_cb);
 }
 
-void CedTopicManager::unregister_on_new_domain_cb(uint32_t key)
+void CedTopicManager::unregister_on_new_domain_cb(
+        uint32_t key)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     on_new_domain_map_.erase(key);
@@ -61,7 +62,8 @@ void CedTopicManager::register_on_new_topic_cb(
     on_new_topic_map_.emplace(key, on_new_topic_cb);
 }
 
-void CedTopicManager::unregister_on_new_topic_cb(uint32_t key)
+void CedTopicManager::unregister_on_new_topic_cb(
+        uint32_t key)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     on_new_topic_map_.erase(key);
@@ -134,8 +136,8 @@ bool CedTopicManager::unregister_topic(
 }
 
 /**********************************************************************************************************************
- * CedTopicCloud
- **********************************************************************************************************************/
+* CedTopicCloud
+**********************************************************************************************************************/
 CedGlobalTopic::CedGlobalTopic(
         const std::string& topic_name,
         int16_t domain_id)
@@ -198,15 +200,18 @@ bool CedGlobalTopic::read(
         do
         {
             rv = get_data(data, last_read, read_access);
-        } while(!rv && (last_read != last_write_));
+        }
+        while (!rv && (last_read != last_write_));
     }
 
     if (!rv && (last_read == last_write_))
     {
         /* Try to read data with timeout in case. */
         auto now = std::chrono::steady_clock::now();
-        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&](){
-                           return last_read != last_write_ && get_data(data, last_read, read_access); }))
+        if (cv_.wait_until(lock, now + std::chrono::milliseconds(timeout), [&]()
+                {
+                    return last_read != last_write_ && get_data(data, last_read, read_access);
+                }))
         {
             rv = true;
         }
@@ -252,10 +257,9 @@ bool CedGlobalTopic::get_data(
     return rv;
 }
 
-
 /**********************************************************************************************************************
- * CedParticipant
- **********************************************************************************************************************/
+* CedParticipant
+**********************************************************************************************************************/
 bool CedParticipant::register_topic(
         const std::shared_ptr<CedTopic>& topic)
 {
@@ -263,7 +267,7 @@ bool CedParticipant::register_topic(
 }
 
 bool CedParticipant::unregister_topic(
-        const std::string &topic_name)
+        const std::string& topic_name)
 {
     return (1 == topic_register_.erase(topic_name));
 }
@@ -281,8 +285,8 @@ std::shared_ptr<CedTopic> CedParticipant::find_topic(
 }
 
 /**********************************************************************************************************************
- * CedTopic
- **********************************************************************************************************************/
+* CedTopic
+**********************************************************************************************************************/
 CedTopic::~CedTopic()
 {
     participant_->unregister_topic(global_topic_->name());
@@ -294,8 +298,8 @@ CedGlobalTopic* CedTopic::get_global_topic() const
 }
 
 /**********************************************************************************************************************
- * CedDataWriter
- **********************************************************************************************************************/
+* CedDataWriter
+**********************************************************************************************************************/
 bool CedDataWriter::write(
         const std::vector<uint8_t>& data,
         uint8_t& errcode) const
@@ -304,12 +308,12 @@ bool CedDataWriter::write(
 }
 
 /**********************************************************************************************************************
- * CedDataReader
- **********************************************************************************************************************/
+* CedDataReader
+**********************************************************************************************************************/
 bool CedDataReader::read(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout,
-        uint8_t &errcode)
+        uint8_t& errcode)
 {
     return topic_->get_global_topic()->read(data, timeout, last_read_, read_access_, errcode);
 }

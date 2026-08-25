@@ -21,29 +21,37 @@
 namespace eprosima {
 namespace uxr {
 
-class TopicPubSubType: public fastdds::dds::TopicDataType
+class TopicPubSubType : public fastdds::dds::TopicDataType
 {
 public:
+
     typedef std::vector<unsigned char> type;
 
-    explicit TopicPubSubType(bool with_key);
+    explicit TopicPubSubType(
+            bool with_key);
     ~TopicPubSubType() override = default;
-    bool serialize(const void* const data, fastdds::rtps::SerializedPayload_t& payload, fastdds::dds::DataRepresentationId_t data_representation) override;
-    bool deserialize(fastdds::rtps::SerializedPayload_t& payload, void* data) override;
+
+    bool serialize(
+            const void* const data,
+            fastdds::rtps::SerializedPayload_t& payload,
+            fastdds::dds::DataRepresentationId_t data_representation) override;
+    bool deserialize(
+            fastdds::rtps::SerializedPayload_t& payload,
+            void* data) override;
 
     uint32_t calculate_serialized_size(
-        const void* const data,
-        eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
+            const void* const data,
+            eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
 
     void* create_data() override;
 
     void delete_data(
-                void* data) override;
+            void* data) override;
 
     bool compute_key(
-                fastdds::rtps::SerializedPayload_t& payload,
-                fastdds::rtps::InstanceHandle_t& ihandle,
-                bool force_md5) override;
+            fastdds::rtps::SerializedPayload_t& payload,
+            fastdds::rtps::InstanceHandle_t& ihandle,
+            bool force_md5) override;
 
     bool compute_key(
             const void* const data,

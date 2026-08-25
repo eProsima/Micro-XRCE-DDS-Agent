@@ -25,7 +25,7 @@
 #ifdef _WIN32
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
-#endif
+#endif // ifdef _WIN32
 
 namespace eprosima {
 namespace uxr {
@@ -41,6 +41,7 @@ namespace uxr {
 class CustomAgent : public Server<CustomEndPoint>
 {
 public:
+
     /**
      * @brief Init function signature, to be implemented by final users.
      * return true if successful transport initialization; false otherwise.
@@ -65,11 +66,11 @@ public:
      * @return ssize_t Number of received bytes.
      */
     using RecvMsgFunction = std::function<ssize_t (
-        CustomEndPoint* /*source_endpoint*/,
-        uint8_t* /*buffer*/,
-        size_t /*buffer_length*/,
-        int /*timeout*/,
-        TransportRc& /*transport_rc*/)>;
+                        CustomEndPoint* /*source_endpoint*/,
+                        uint8_t* /*buffer*/,
+                        size_t /*buffer_length*/,
+                        int /*timeout*/,
+                        TransportRc& /*transport_rc*/)>;
     /**
      * @brief Send message function signature, to be implemented by final users.
      * @param destination_endpoint Allows to retrieve the required endpoint
@@ -80,10 +81,10 @@ public:
      * @return ssize_t Number of sent bytes.
      */
     using SendMsgFunction = std::function<ssize_t (
-        const CustomEndPoint* /*destination_endpoint*/,
-        uint8_t* /*buffer*/,
-        size_t /*message_length*/,
-        TransportRc& /*transport_rc*/)>;
+                        const CustomEndPoint* /*destination_endpoint*/,
+                        uint8_t* /*buffer*/,
+                        size_t /*message_length*/,
+                        TransportRc& /*transport_rc*/)>;
 
     /**
      * @brief Constructor.
@@ -112,6 +113,7 @@ public:
     UXR_AGENT_EXPORT ~CustomAgent() final;
 
 private:
+
     /**
      * @brief Override virtual Server operations.
      */
@@ -120,11 +122,19 @@ private:
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return false; }
+    bool has_discovery() final
+    {
+        return false;
+    }
+
 #endif // UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
+    bool has_p2p() final
+    {
+        return false;
+    }
+
 #endif // UAGENT_P2P_PROFILE
 
     bool recv_message(
