@@ -210,18 +210,19 @@ void fill_object_variant<Agent::REPLIER_OBJK>(
 } // unnamed namespace
 
 /**********************************************************************************************************************
- * Des/Constructor.
- **********************************************************************************************************************/
+* Des/Constructor.
+**********************************************************************************************************************/
 Agent::Agent()
     : root_(new Root())
     , callback_factory_(callback_factory_.getInstance())
-{}
+{
+}
 
 Agent::~Agent() = default;
 
 /**********************************************************************************************************************
- * Client.
- **********************************************************************************************************************/
+* Client.
+**********************************************************************************************************************/
 bool Agent::create_client(
         uint32_t key,
         uint8_t session,
@@ -259,8 +260,8 @@ bool Agent::delete_client(
 }
 
 /**********************************************************************************************************************
- * Participant.
- **********************************************************************************************************************/
+* Participant.
+**********************************************************************************************************************/
 bool Agent::create_participant_by_ref(
         uint32_t client_key,
         uint16_t participant_id,
@@ -270,7 +271,7 @@ bool Agent::create_participant_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::PARTICIPANT_OBJK>
-            (client_key, participant_id, domain_id, RefRep{ref}, flag, op_result);
+               (client_key, participant_id, domain_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_participant_by_xml(
@@ -282,7 +283,7 @@ bool Agent::create_participant_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::PARTICIPANT_OBJK>
-            (client_key, participant_id, domain_id, XmlRep{xml}, flag, op_result);
+               (client_key, participant_id, domain_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_participant(
@@ -291,12 +292,12 @@ bool Agent::delete_participant(
         OpResult& op_result)
 {
     return delete_object<Agent::PARTICIPANT_OBJK>
-            (client_key, participant_id, op_result);
+               (client_key, participant_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Topic.
- **********************************************************************************************************************/
+* Topic.
+**********************************************************************************************************************/
 bool Agent::create_topic_by_ref(
         uint32_t client_key,
         uint16_t topic_id,
@@ -306,7 +307,7 @@ bool Agent::create_topic_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::TOPIC_OBJK>
-            (client_key, topic_id, participant_id, RefRep{ref}, flag, op_result);
+               (client_key, topic_id, participant_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_topic_by_xml(
@@ -318,7 +319,7 @@ bool Agent::create_topic_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::TOPIC_OBJK>
-            (client_key, topic_id, participant_id, XmlRep{xml}, flag, op_result);
+               (client_key, topic_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_topic(
@@ -327,12 +328,12 @@ bool Agent::delete_topic(
         OpResult& op_result)
 {
     return delete_object<Agent::TOPIC_OBJK>
-            (client_key, topic_id, op_result);
+               (client_key, topic_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Publisher.
- **********************************************************************************************************************/
+* Publisher.
+**********************************************************************************************************************/
 bool Agent::create_publisher_by_xml(
         uint32_t client_key,
         uint16_t publisher_id,
@@ -342,7 +343,7 @@ bool Agent::create_publisher_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::PUBLISHER_OBJK>
-            (client_key, publisher_id, participant_id, XmlRep{xml}, flag, op_result);
+               (client_key, publisher_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_publisher(
@@ -351,12 +352,12 @@ bool Agent::delete_publisher(
         OpResult& op_result)
 {
     return delete_object<Agent::PUBLISHER_OBJK>
-            (client_key, publisher_id, op_result);
+               (client_key, publisher_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Subscriber.
- **********************************************************************************************************************/
+* Subscriber.
+**********************************************************************************************************************/
 bool Agent::create_subscriber_by_xml(
         uint32_t client_key,
         uint16_t subscriber_id,
@@ -366,7 +367,7 @@ bool Agent::create_subscriber_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::SUBSCRIBER_OBJK>
-            (client_key, subscriber_id, participant_id, XmlRep{xml}, flag, op_result);
+               (client_key, subscriber_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_subscriber(
@@ -375,12 +376,12 @@ bool Agent::delete_subscriber(
         OpResult& op_result)
 {
     return delete_object<Agent::SUBSCRIBER_OBJK>
-            (client_key, subscriber_id, op_result);
+               (client_key, subscriber_id, op_result);
 }
 
 /**********************************************************************************************************************
- * DataWriter.
- **********************************************************************************************************************/
+* DataWriter.
+**********************************************************************************************************************/
 bool Agent::create_datawriter_by_ref(
         uint32_t client_key,
         uint16_t datawriter_id,
@@ -390,7 +391,7 @@ bool Agent::create_datawriter_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::DATAWRITER_OBJK>
-            (client_key, datawriter_id, publisher_id, RefRep{ref}, flag, op_result);
+               (client_key, datawriter_id, publisher_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_datawriter_by_xml(
@@ -402,7 +403,7 @@ bool Agent::create_datawriter_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::DATAWRITER_OBJK>
-            (client_key, datawriter_id, publisher_id, XmlRep{xml}, flag, op_result);
+               (client_key, datawriter_id, publisher_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_datawriter(
@@ -411,12 +412,12 @@ bool Agent::delete_datawriter(
         OpResult& op_result)
 {
     return delete_object<Agent::DATAWRITER_OBJK>
-            (client_key, datawriter_id, op_result);
+               (client_key, datawriter_id, op_result);
 }
 
 /**********************************************************************************************************************
- * DataReader.
- **********************************************************************************************************************/
+* DataReader.
+**********************************************************************************************************************/
 bool Agent::create_datareader_by_ref(
         uint32_t client_key,
         uint16_t datareader_id,
@@ -426,7 +427,7 @@ bool Agent::create_datareader_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::DATAREADER_OBJK>
-            (client_key, datareader_id, subscriber_id, RefRep{ref}, flag, op_result);
+               (client_key, datareader_id, subscriber_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_datareader_by_xml(
@@ -438,7 +439,7 @@ bool Agent::create_datareader_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::DATAREADER_OBJK>
-            (client_key, datareader_id, subscriber_id, XmlRep{xml}, flag, op_result);
+               (client_key, datareader_id, subscriber_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_datareader(
@@ -447,12 +448,12 @@ bool Agent::delete_datareader(
         OpResult& op_result)
 {
     return delete_object<Agent::DATAREADER_OBJK>
-            (client_key, datareader_id, op_result);
+               (client_key, datareader_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Requester.
- **********************************************************************************************************************/
+* Requester.
+**********************************************************************************************************************/
 bool Agent::create_requester_by_ref(
         uint32_t client_key,
         uint16_t requester_id,
@@ -462,7 +463,7 @@ bool Agent::create_requester_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::REQUESTER_OBJK>
-            (client_key, requester_id, participant_id, RefRep{ref}, flag, op_result);
+               (client_key, requester_id, participant_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_requester_by_xml(
@@ -474,7 +475,7 @@ bool Agent::create_requester_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::REQUESTER_OBJK>
-            (client_key, requester_id, participant_id, XmlRep{xml}, flag, op_result);
+               (client_key, requester_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_requester(
@@ -483,12 +484,12 @@ bool Agent::delete_requester(
         OpResult& op_result)
 {
     return delete_object<Agent::REQUESTER_OBJK>
-            (client_key, requester_id, op_result);
+               (client_key, requester_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Replier.
- **********************************************************************************************************************/
+* Replier.
+**********************************************************************************************************************/
 bool Agent::create_replier_by_ref(
         uint32_t client_key,
         uint16_t replier_id,
@@ -498,7 +499,7 @@ bool Agent::create_replier_by_ref(
         OpResult& op_result)
 {
     return create_object<Agent::REPLIER_OBJK>
-            (client_key, replier_id, participant_id, RefRep{ref}, flag, op_result);
+               (client_key, replier_id, participant_id, RefRep{ref}, flag, op_result);
 }
 
 bool Agent::create_replier_by_xml(
@@ -510,7 +511,7 @@ bool Agent::create_replier_by_xml(
         OpResult& op_result)
 {
     return create_object<Agent::REPLIER_OBJK>
-            (client_key, replier_id, participant_id, XmlRep{xml}, flag, op_result);
+               (client_key, replier_id, participant_id, XmlRep{xml}, flag, op_result);
 }
 
 bool Agent::delete_replier(
@@ -519,25 +520,27 @@ bool Agent::delete_replier(
         OpResult& op_result)
 {
     return delete_object<Agent::REPLIER_OBJK>
-            (client_key, replier_id, op_result);
+               (client_key, replier_id, op_result);
 }
 
 /**********************************************************************************************************************
- * Config.
- **********************************************************************************************************************/
-bool Agent::load_config_file(const std::string& file_path)
+* Config.
+**********************************************************************************************************************/
+bool Agent::load_config_file(
+        const std::string& file_path)
 {
     return root_->load_config_file(file_path);
 }
 
-void Agent::set_verbose_level(uint8_t verbose_level)
+void Agent::set_verbose_level(
+        uint8_t verbose_level)
 {
     root_->set_verbose_level(verbose_level);
 }
 
 /**********************************************************************************************************************
- * Write Data.
- **********************************************************************************************************************/
+* Write Data.
+**********************************************************************************************************************/
 bool Agent::write(
         uint32_t client_key,
         uint16_t datawriter_id,
@@ -571,16 +574,16 @@ bool Agent::write(
 }
 
 /**********************************************************************************************************************
- * Reset.
- **********************************************************************************************************************/
+* Reset.
+**********************************************************************************************************************/
 void Agent::reset()
 {
     root_->reset();
 }
 
 /**********************************************************************************************************************
- * Create Object.
- **********************************************************************************************************************/
+* Create Object.
+**********************************************************************************************************************/
 template<Agent::ObjectKind object_kind, typename U, typename T>
 bool Agent::create_object(
         uint32_t client_key,
@@ -615,8 +618,8 @@ bool Agent::create_object(
 }
 
 /**********************************************************************************************************************
- * Delete Object.
- **********************************************************************************************************************/
+* Delete Object.
+**********************************************************************************************************************/
 template<Agent::ObjectKind object_kind>
 bool Agent::delete_object(
         uint32_t client_key,
@@ -639,7 +642,7 @@ bool Agent::delete_object(
     return rv;
 }
 
-template <typename ... Args>
+template<typename ... Args>
 void Agent::add_middleware_callback(
         const Middleware::Kind& middleware_kind,
         const middleware::CallbackKind& callback_kind,
@@ -650,28 +653,28 @@ void Agent::add_middleware_callback(
 
 // Specific template specializations for used callback signatures.
 #define AGENT_ADD_MW_CB(...) \
-template \
-UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
-    const Middleware::Kind &, \
-    const middleware::CallbackKind &, \
-    std::function<void (__VA_ARGS__)> &&);
+    template \
+    UXR_AGENT_EXPORT void Agent::add_middleware_callback<__VA_ARGS__>( \
+        const Middleware::Kind&, \
+        const middleware::CallbackKind&, \
+        std::function<void (__VA_ARGS__)> &&);
 
 #ifdef UAGENT_FAST_PROFILE
 AGENT_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *)
+    const eprosima::fastdds::dds::DomainParticipant*)
 
 AGENT_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *)
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataWriter*)
 
 AGENT_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataReader *)
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataReader*)
 
 AGENT_ADD_MW_CB(
-    const eprosima::fastdds::dds::DomainParticipant *,
-    const eprosima::fastdds::dds::DataWriter *,
-    const eprosima::fastdds::dds::DataReader *)
+    const eprosima::fastdds::dds::DomainParticipant*,
+    const eprosima::fastdds::dds::DataWriter*,
+    const eprosima::fastdds::dds::DataReader*)
 #endif  // UAGENT_FAST_PROFILE
 
 } // namespace uxr

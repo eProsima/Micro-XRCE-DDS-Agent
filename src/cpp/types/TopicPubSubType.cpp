@@ -19,12 +19,17 @@
 namespace eprosima {
 namespace uxr {
 
-TopicPubSubType::TopicPubSubType(bool with_key) {
+TopicPubSubType::TopicPubSubType(
+        bool with_key)
+{
     max_serialized_type_size = 1024 + 4 /*encapsulation*/;
     is_compute_key_provided = with_key;
 }
 
-bool TopicPubSubType::serialize(const void* const data, fastdds::rtps::SerializedPayload_t &payload, fastdds::dds::DataRepresentationId_t /* data_representation */)
+bool TopicPubSubType::serialize(
+        const void* const data,
+        fastdds::rtps::SerializedPayload_t& payload,
+        fastdds::dds::DataRepresentationId_t /* data_representation */)
 {
     bool rv = false;
 
@@ -48,7 +53,9 @@ bool TopicPubSubType::serialize(const void* const data, fastdds::rtps::Serialize
     return rv;
 }
 
-bool TopicPubSubType::deserialize(fastdds::rtps::SerializedPayload_t& payload, void* data)
+bool TopicPubSubType::deserialize(
+        fastdds::rtps::SerializedPayload_t& payload,
+        void* data)
 {
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(data);
     buffer->assign(payload.data + 4, payload.data + payload.length);
@@ -57,8 +64,8 @@ bool TopicPubSubType::deserialize(fastdds::rtps::SerializedPayload_t& payload, v
 }
 
 uint32_t TopicPubSubType::calculate_serialized_size(
-    const void* const data,
-    eprosima::fastdds::dds::DataRepresentationId_t /* data_representation */)
+        const void* const data,
+        eprosima::fastdds::dds::DataRepresentationId_t /* data_representation */)
 {
     void * non_const_data = const_cast<void*>(data);
     std::vector<unsigned char>* buffer = reinterpret_cast<std::vector<unsigned char>*>(non_const_data);
@@ -72,24 +79,24 @@ void* TopicPubSubType::create_data()
 }
 
 void TopicPubSubType::delete_data(
-    void* data)
+        void* data)
 {
     delete((std::vector<unsigned char>*)data);
 }
 
 bool TopicPubSubType::compute_key(
-    fastdds::rtps::SerializedPayload_t& /* payload */,
-    fastdds::rtps::InstanceHandle_t& /* ihandle */,
-    bool /* force_md5 */)
+        fastdds::rtps::SerializedPayload_t& /* payload */,
+        fastdds::rtps::InstanceHandle_t& /* ihandle */,
+        bool /* force_md5 */)
 {
     // TODO(pgarrido): Implement this function.
     return false;
 }
 
 bool TopicPubSubType::compute_key(
-    const void* const /* data */,
-    fastdds::rtps::InstanceHandle_t& /* ihandle */,
-    bool /* force_md5 */)
+        const void* const /* data */,
+        fastdds::rtps::InstanceHandle_t& /* ihandle */,
+        bool /* force_md5 */)
 {
     // TODO(pgarrido): Implement this function.
     return false;

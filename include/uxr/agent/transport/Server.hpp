@@ -34,8 +34,11 @@ template<typename EndPoint>
 class Server : public Agent, public SessionManager<EndPoint>
 {
     friend class Processor<EndPoint>;
+
 public:
-    Server(Middleware::Kind middleware_kind);
+
+    Server(
+            Middleware::Kind middleware_kind);
 
     virtual ~Server();
 
@@ -44,17 +47,20 @@ public:
 
 #ifdef UAGENT_DISCOVERY_PROFILE
     UXR_AGENT_EXPORT virtual bool has_discovery() = 0;
-    UXR_AGENT_EXPORT bool enable_discovery(uint16_t discovery_port = DISCOVERY_PORT);
+    UXR_AGENT_EXPORT bool enable_discovery(
+            uint16_t discovery_port = DISCOVERY_PORT);
     UXR_AGENT_EXPORT bool disable_discovery();
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
     UXR_AGENT_EXPORT virtual bool has_p2p() = 0;
-    UXR_AGENT_EXPORT bool enable_p2p(uint16_t p2p_port);
+    UXR_AGENT_EXPORT bool enable_p2p(
+            uint16_t p2p_port);
     UXR_AGENT_EXPORT bool disable_p2p();
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     void push_output_packet(
             OutputPacket<EndPoint>&& output_packet);
 
@@ -63,24 +69,32 @@ private:
     virtual bool fini() = 0;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    virtual bool init_discovery(uint16_t /* discovery_port */) {
-                    return false;
-                };
+    virtual bool init_discovery(
+            uint16_t /* discovery_port */)
+    {
+        return false;
+    }
 
-    virtual bool fini_discovery() {
-                    return false;
-                };
-#endif
+    virtual bool fini_discovery()
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    virtual bool init_p2p(uint16_t /* p2p_port */) {
-                    return false;
-                };
+    virtual bool init_p2p(
+            uint16_t /* p2p_port */)
+    {
+        return false;
+    }
 
-    virtual bool fini_p2p() {
-                    return false;
-                };
-#endif
+    virtual bool fini_p2p()
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
     virtual bool recv_message(
             InputPacket<EndPoint>& input_packet,
@@ -90,15 +104,17 @@ private:
     virtual bool recv_message(
             std::vector<InputPacket<EndPoint>>& /* input_packet */,
             int /* timeout */,
-            TransportRc& /* transport_rc */) {
-                    return false;
-                };
+            TransportRc& /* transport_rc */)
+    {
+        return false;
+    }
 
     virtual bool send_message(
             OutputPacket<EndPoint> output_packet,
             TransportRc& transport_rc) = 0;
 
-    virtual bool handle_error(TransportRc transport_rc) = 0;
+    virtual bool handle_error(
+            TransportRc transport_rc) = 0;
 
     void receiver_loop();
 
@@ -111,9 +127,11 @@ private:
     void error_handler_loop();
 
 protected:
+
     Processor<EndPoint>* processor_;
 
 private:
+
     std::mutex mtx_;
     std::thread receiver_thread_;
     std::thread sender_thread_;

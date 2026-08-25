@@ -21,30 +21,36 @@ namespace eprosima {
 namespace uxr {
 namespace conversion {
 
-inline uint16_t objectid_to_raw(const dds::xrce::ObjectId& object_id)
+inline uint16_t objectid_to_raw(
+        const dds::xrce::ObjectId& object_id)
 {
     return uint16_t((object_id[1] >> 4) + (object_id[0] << 4));
 }
 
-inline dds::xrce::ObjectId raw_to_objectid(uint16_t raw, dds::xrce::ObjectKind kind)
+inline dds::xrce::ObjectId raw_to_objectid(
+        uint16_t raw,
+        dds::xrce::ObjectKind kind)
 {
     return dds::xrce::ObjectId{uint8_t(raw >> 4), uint8_t((raw << 4) | kind)};
 }
 
-inline dds::xrce::ObjectId raw_to_objectprefix(uint16_t raw)
+inline dds::xrce::ObjectId raw_to_objectprefix(
+        uint16_t raw)
 {
     return dds::xrce::ObjectId{uint8_t(raw >> 4), uint8_t(raw << 4)};
 }
 
-inline uint32_t clientkey_to_raw(const dds::xrce::ClientKey& client_key)
+inline uint32_t clientkey_to_raw(
+        const dds::xrce::ClientKey& client_key)
 {
     return uint32_t(client_key[0] << 24)
-         + uint32_t(client_key[1] << 16)
-         + uint32_t(client_key[2] << 8)
-         + uint32_t(client_key[3]);
+           + uint32_t(client_key[1] << 16)
+           + uint32_t(client_key[2] << 8)
+           + uint32_t(client_key[3]);
 }
 
-inline dds::xrce::ClientKey raw_to_clientkey(uint32_t key)
+inline dds::xrce::ClientKey raw_to_clientkey(
+        uint32_t key)
 {
     dds::xrce::ClientKey client_key{
         uint8_t(key >> 24),

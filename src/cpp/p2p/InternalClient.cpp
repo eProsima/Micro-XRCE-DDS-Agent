@@ -46,7 +46,8 @@ InternalClient::InternalClient(
     , in_stream_id_{}
     , running_cond_{false}
     , thread_{}
-{}
+{
+}
 
 static void on_topic(
         uxrSession* session,
@@ -80,12 +81,12 @@ bool InternalClient::run()
 
     /* Set callbacks. */
     CedTopicManager::register_on_new_domain_cb(
-                remote_client_key_,
-                std::bind(&InternalClient::on_new_domain, this, std::placeholders::_1));
+        remote_client_key_,
+        std::bind(&InternalClient::on_new_domain, this, std::placeholders::_1));
 
     CedTopicManager::register_on_new_topic_cb(
-                remote_client_key_,
-                std::bind(&InternalClient::on_new_topic, this, std::placeholders::_1, std::placeholders::_2));
+        remote_client_key_,
+        std::bind(&InternalClient::on_new_topic, this, std::placeholders::_1, std::placeholders::_2));
 
     std::string ip = std::to_string(ip_[0]) + ".";
     ip += std::to_string(ip_[1]) + ".";
@@ -158,16 +159,16 @@ void InternalClient::set_callback()
 void InternalClient::create_streams()
 {
     out_stream_id_ = uxr_create_output_reliable_stream(
-                &session_,
-                out_buffer_,
-                sizeof(out_buffer_),
-                internal_client_history);
+        &session_,
+        out_buffer_,
+        sizeof(out_buffer_),
+        internal_client_history);
 
     in_stream_id_ = uxr_create_input_reliable_stream(
-                &session_,
-                in_buffer_,
-                sizeof(in_buffer_),
-                internal_client_history);
+        &session_,
+        in_buffer_,
+        sizeof(in_buffer_),
+        internal_client_history);
 }
 
 void InternalClient::create_domain_entities()
@@ -195,7 +196,7 @@ void InternalClient::create_domain_entities()
                         Agent::REUSE_MODE,
                         result)
                     &&
-                agent_.create_publisher_by_xml(
+                    agent_.create_publisher_by_xml(
                         INTERNAL_CLIENT_KEY,
                         internal_publisher_id,
                         internal_participant_id,
@@ -208,19 +209,20 @@ void InternalClient::create_domain_entities()
                 uxrObjectId external_subscriber_id = uxr_object_id(uint16_t(*it), UXR_SUBSCRIBER_ID);
 
                 uint16_t participant_request = uxr_buffer_create_participant_ref(
-                            &session_,
-                            out_stream_id_,
-                            external_participant_id,
-                            0,
-                            ref,
-                            UXR_REUSE);
+                    &session_,
+                    out_stream_id_,
+                    external_participant_id,
+                    0,
+                    ref,
+                    UXR_REUSE);
+
                 uint16_t subscriber_request = uxr_buffer_create_subscriber_xml(
-                            &session_,
-                            out_stream_id_,
-                            external_subscriber_id,
-                            external_participant_id,
-                            ref,
-                            UXR_REUSE);
+                    &session_,
+                    out_stream_id_,
+                    external_subscriber_id,
+                    external_participant_id,
+                    ref,
+                    UXR_REUSE);
 
                 uint8_t status[2];
                 uint16_t request[2] = {participant_request, subscriber_request};
@@ -282,7 +284,7 @@ void InternalClient::create_topic_entities()
                         Agent::REUSE_MODE,
                         result)
                     &&
-                agent_.create_datawriter_by_ref(
+                    agent_.create_datawriter_by_ref(
                         INTERNAL_CLIENT_KEY,
                         internal_datawriter_id,
                         internal_publisher_id,
@@ -298,29 +300,30 @@ void InternalClient::create_topic_entities()
                 const char* ref = it->second.c_str();
 
                 uint16_t topic_request = uxr_buffer_create_topic_ref(
-                            &session_,
-                            out_stream_id_,
-                            external_topic_id,
-                            external_participant_id,
-                            ref,
-                            UXR_REUSE);
+                    &session_,
+                    out_stream_id_,
+                    external_topic_id,
+                    external_participant_id,
+                    ref,
+                    UXR_REUSE);
+
                 uint16_t datareader_request = uxr_buffer_create_datareader_ref(
-                            &session_,
-                            out_stream_id_,
-                            external_datareader_id,
-                            external_subscriber_id,
-                            ref,
-                            UXR_REUSE);
+                    &session_,
+                    out_stream_id_,
+                    external_datareader_id,
+                    external_subscriber_id,
+                    ref,
+                    UXR_REUSE);
 
                 /* Request data. */
                 uxrDeliveryControl delivery_control = {0, 0, 0, 0};
                 delivery_control.max_samples = UXR_MAX_SAMPLES_UNLIMITED;
                 uxr_buffer_request_data(
-                            &session_,
-                            out_stream_id_,
-                            external_datareader_id,
-                            in_stream_id_,
-                            &delivery_control);
+                    &session_,
+                    out_stream_id_,
+                    external_datareader_id,
+                    in_stream_id_,
+                    &delivery_control);
 
                 uint8_t status[2];
                 uint16_t request[2] = {topic_request, datareader_request};
@@ -373,7 +376,8 @@ void InternalClient::loop()
     }
 }
 
-void InternalClient::on_new_domain(int16_t domain)
+void InternalClient::on_new_domain(
+        int16_t domain)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     domains_.insert(domain);

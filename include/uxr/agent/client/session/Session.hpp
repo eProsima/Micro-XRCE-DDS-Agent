@@ -26,17 +26,20 @@
 namespace eprosima {
 namespace uxr {
 
-inline bool is_none_stream(dds::xrce::StreamId stream_id)
+inline bool is_none_stream(
+        dds::xrce::StreamId stream_id)
 {
     return (dds::xrce::STREAMID_NONE == stream_id);
 }
 
-inline bool is_besteffort_stream(dds::xrce::StreamId stream_id)
+inline bool is_besteffort_stream(
+        dds::xrce::StreamId stream_id)
 {
     return (dds::xrce::STREAMID_BUILTIN_RELIABLE > stream_id) && (dds::xrce::STREAMID_NONE != stream_id);
 }
 
-inline bool is_reliable_stream(dds::xrce::StreamId stream_id)
+inline bool is_reliable_stream(
+        dds::xrce::StreamId stream_id)
 {
     return (dds::xrce::STREAMID_BUILTIN_RELIABLE <= stream_id);
 }
@@ -44,17 +47,24 @@ inline bool is_reliable_stream(dds::xrce::StreamId stream_id)
 class Session
 {
 public:
-    Session(const SessionInfo& info)
+
+    Session(
+            const SessionInfo& info)
         : session_info_(info)
         , none_ostream_{}
-    {}
+    {
+    }
 
     ~Session() = default;
 
-    Session(Session&& x) = delete;
-    Session(const Session&) = delete;
-    Session& operator=(Session&& x) = delete;
-    Session& operator=(const Session&) = delete;
+    Session(
+            Session&& x) = delete;
+    Session(
+            const Session&) = delete;
+    Session& operator =(
+            Session&& x) = delete;
+    Session& operator =(
+            const Session&) = delete;
 
     void reset();
 
@@ -113,11 +123,13 @@ public:
             dds::xrce::HEARTBEAT_Payload& heartbeat);
 
 private:
+
     ReliableOutputStream& get_reliable_output_stream(
             dds::xrce::StreamId stream_id,
             utils::SharedLock& shared_lock);
 
 private:
+
     const SessionInfo session_info_;
 
     NoneInputStream none_istream_;
@@ -167,8 +179,8 @@ inline void Session::reset()
 }
 
 /**************************************************************************************************
- * Input Stream Methods.
- **************************************************************************************************/
+* Input Stream Methods.
+**************************************************************************************************/
 inline bool Session::push_input_message(
         InputMessagePtr&& message,
         dds::xrce::StreamId stream_id,
@@ -238,7 +250,9 @@ inline void Session::fill_acknack(
     }
 }
 
-inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMessagePtr& message)
+inline void Session::push_input_fragment(
+        dds::xrce::StreamId stream_id,
+        InputMessagePtr& message)
 {
     if (is_reliable_stream(stream_id))
     {
@@ -247,15 +261,17 @@ inline void Session::push_input_fragment(dds::xrce::StreamId stream_id, InputMes
     }
 }
 
-inline bool Session::pop_input_fragment_message(dds::xrce::StreamId stream_id, InputMessagePtr& message)
+inline bool Session::pop_input_fragment_message(
+        dds::xrce::StreamId stream_id,
+        InputMessagePtr& message)
 {
     std::lock_guard<std::mutex> lock(reliable_imtx_);
     return reliable_istreams_[stream_id].pop_fragment_message(message);
 }
 
 /**************************************************************************************************
- * Output Stream Methods.
- **************************************************************************************************/
+* Output Stream Methods.
+**************************************************************************************************/
 
 inline std::vector<uint8_t> Session::get_output_streams()
 {
@@ -340,7 +356,6 @@ inline void Session::update_from_acknack(
         get_reliable_output_stream(stream_id, shared_lock).update_from_acknack(first_unacked);
     }
 }
-
 
 inline bool Session::fill_heartbeat(
         dds::xrce::StreamId stream_id,

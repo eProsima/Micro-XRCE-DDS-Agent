@@ -40,7 +40,8 @@ extern template class Processor<MultiSerialEndPoint>;
 extern template class Processor<CustomEndPoint>;
 
 template<typename EndPoint>
-Server<EndPoint>::Server(Middleware::Kind middleware_kind)
+Server<EndPoint>::Server(
+        Middleware::Kind middleware_kind)
     : processor_(new Processor<EndPoint>(*this, *root_, middleware_kind))
     , running_cond_(false)
     , input_scheduler_(SERVER_QUEUE_MAX_SIZE)
@@ -48,7 +49,8 @@ Server<EndPoint>::Server(Middleware::Kind middleware_kind)
     , transport_rc_{TransportRc::ok}
     , error_mtx_{}
     , error_cv_{}
-{}
+{
+}
 
 template<typename EndPoint>
 Server<EndPoint>::~Server()
@@ -124,20 +126,21 @@ bool Server<EndPoint>::stop()
     {
         rv = fini_discovery() && rv;
     }
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 #ifdef UAGENT_P2P_PROFILE
     if (has_p2p())
     {
         rv = fini_p2p() && rv;
     }
-#endif
+#endif // ifdef UAGENT_P2P_PROFILE
     rv = fini() && rv;
     return rv;
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
 template<typename EndPoint>
-bool Server<EndPoint>::enable_discovery(uint16_t discovery_port)
+bool Server<EndPoint>::enable_discovery(
+        uint16_t discovery_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -152,11 +155,13 @@ bool Server<EndPoint>::disable_discovery()
 {
     return fini_discovery();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
 template<typename EndPoint>
-bool Server<EndPoint>::enable_p2p(uint16_t p2p_port)
+bool Server<EndPoint>::enable_p2p(
+        uint16_t p2p_port)
 {
     bool rv = false;
     if (running_cond_)
@@ -171,7 +176,8 @@ bool Server<EndPoint>::disable_p2p()
 {
     return fini_p2p();
 }
-#endif
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 template<typename EndPoint>
 void Server<EndPoint>::push_output_packet(
@@ -192,7 +198,9 @@ void Server<EndPoint>::receiver_loop()
         TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
-            if(input_packet.message->is_valid_xrce_message() && 1U == input_packet.message->count_submessages() && dds::xrce::HEARTBEAT == input_packet.message->get_submessage_id()){
+            if (input_packet.message->is_valid_xrce_message() && 1U == input_packet.message->count_submessages() &&
+                    dds::xrce::HEARTBEAT == input_packet.message->get_submessage_id())
+            {
                 input_scheduler_.push(std::move(input_packet), 1);
             }
             else
@@ -200,7 +208,7 @@ void Server<EndPoint>::receiver_loop()
                 input_scheduler_.push(std::move(input_packet), 0);
             }
         }
-        else if(running_cond_)
+        else if (running_cond_)
         {
             if (TransportRc::server_error == transport_rc)
             {
@@ -223,12 +231,12 @@ void Server<MultiSerialEndPoint>::receiver_loop()
         TransportRc transport_rc = TransportRc::ok;
         if (recv_message(input_packet, RECEIVE_TIMEOUT, transport_rc))
         {
-            for (auto & element : input_packet)
+            for (auto& element : input_packet)
             {
                 input_scheduler_.push(std::move(element), 0);
             }
         }
-        else if(running_cond_)
+        else if (running_cond_)
         {
             if (TransportRc::server_error == transport_rc)
             {
@@ -296,7 +304,10 @@ void Server<EndPoint>::error_handler_loop()
     while (running_cond_)
     {
         std::unique_lock<std::mutex> lock(error_mtx_);
-        error_cv_.wait(lock, [&](){ return !running_cond_ || (transport_rc_ == TransportRc::server_error); });
+        error_cv_.wait(lock, [&]()
+                {
+                    return !running_cond_ || (transport_rc_ == TransportRc::server_error);
+                });
         if (running_cond_)
         {
             bool error_handled = handle_error(transport_rc_);

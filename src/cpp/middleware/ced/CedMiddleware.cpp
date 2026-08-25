@@ -18,7 +18,8 @@
 namespace eprosima {
 namespace uxr {
 
-CedMiddleware::CedMiddleware(uint32_t client_key)
+CedMiddleware::CedMiddleware(
+        uint32_t client_key)
     : participants_{}
     , topics_{}
     , publishers_{}
@@ -52,24 +53,27 @@ CedMiddleware::CedMiddleware(uint32_t client_key)
     }
 }
 
-std::string remove_suffix_form_topic_ref(std::string const & ref)
+std::string remove_suffix_form_topic_ref(
+        std::string const& ref)
 {
     return ref.substr(0, ref.find("__t"));
 }
 
-std::string remove_suffix_form_datawriter_ref(std::string const & ref)
+std::string remove_suffix_form_datawriter_ref(
+        std::string const& ref)
 {
     return ref.substr(0, ref.find("__dw"));
 }
 
-std::string remove_suffix_form_datareader_ref(std::string const & ref)
+std::string remove_suffix_form_datareader_ref(
+        std::string const& ref)
 {
     return ref.substr(0, ref.find("__dr"));
 }
 
 /**********************************************************************************************************************
- * Create functions.
- **********************************************************************************************************************/
+* Create functions.
+**********************************************************************************************************************/
 bool CedMiddleware::create_participant_by_ref(
         uint16_t participant_id,
         int16_t domain_id,
@@ -94,8 +98,8 @@ bool CedMiddleware::create_participant_by_xml(
 }
 
 bool CedMiddleware::create_participant_by_bin(
-            uint16_t participant_id,
-            const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
+        uint16_t participant_id,
+        const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
     return create_participant_by_ref(participant_id, (int16_t) participant_xrce.domain_id(), std::string());
 }
@@ -135,7 +139,7 @@ bool CedMiddleware::create_topic_by_ref(
         if (topics_.end() == it_topic)
         {
             std::shared_ptr<CedTopic> topic =
-                create_topic(it_participant->second, remove_suffix_form_topic_ref(ref));
+                    create_topic(it_participant->second, remove_suffix_form_topic_ref(ref));
             rv = topic && topics_.emplace(topic_id, std::move(topic)).second;
         }
     }
@@ -161,7 +165,7 @@ bool CedMiddleware::create_topic_by_bin(
 bool CedMiddleware::create_publisher_by_xml(
         uint16_t publisher_id,
         uint16_t participant_id,
-        const std::string &)
+        const std::string&)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -188,7 +192,7 @@ bool CedMiddleware::create_publisher_by_bin(
 bool CedMiddleware::create_subscriber_by_xml(
         uint16_t subscirber_id,
         uint16_t participant_id,
-        const std::string &)
+        const std::string&)
 {
     bool rv = false;
     auto it_participant = participants_.find(participant_id);
@@ -225,15 +229,15 @@ bool CedMiddleware::create_datawriter_by_ref(
         if (datawriters_.end() == it_datawriter)
         {
             std::shared_ptr<CedTopic> topic =
-                it_publisher->second->get_participant()->find_topic(remove_suffix_form_datawriter_ref(ref));
-            rv = topic
-                && datawriters_.emplace(
-                    datawriter_id,
-                    std::make_shared<CedDataWriter>(
-                        it_publisher->second,
-                        topic,
-                        write_access_,
-                        topics_src_)).second;
+                    it_publisher->second->get_participant()->find_topic(remove_suffix_form_datawriter_ref(ref));
+
+            rv = topic && datawriters_.emplace(
+                datawriter_id,
+                std::make_shared<CedDataWriter>(
+                    it_publisher->second,
+                    topic,
+                    write_access_,
+                    topics_src_)).second;
         }
     }
     return rv;
@@ -255,7 +259,7 @@ bool CedMiddleware::create_datawriter_by_bin(
     bool rv = false;
     auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datawriter_xrce.topic_id()));
 
-     if (topics_.end() != it)
+    if (topics_.end() != it)
     {
         rv = create_datawriter_by_ref(datawriter_id, publisher_id, it->second->get_name());
     }
@@ -276,14 +280,14 @@ bool CedMiddleware::create_datareader_by_ref(
         if (datareaders_.end() == it_datareader)
         {
             std::shared_ptr<CedTopic> topic =
-                it_subscriber->second->get_participant()->find_topic(remove_suffix_form_datareader_ref(ref));
-            rv = topic
-                && datareaders_.emplace(
-                    datareader_id,
-                    std::make_shared<CedDataReader>(
-                        it_subscriber->second,
-                        topic,
-                        read_access_)).second;
+                    it_subscriber->second->get_participant()->find_topic(remove_suffix_form_datareader_ref(ref));
+
+            rv = topic && datareaders_.emplace(
+                datareader_id,
+                std::make_shared<CedDataReader>(
+                    it_subscriber->second,
+                    topic,
+                    read_access_)).second;
         }
     }
     return rv;
@@ -305,7 +309,7 @@ bool CedMiddleware::create_datareader_by_bin(
     bool rv = false;
     auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datareader_xrce.topic_id()));
 
-     if (topics_.end() != it)
+    if (topics_.end() != it)
     {
         rv = create_datareader_by_ref(datareader_id, subscriber_id, it->second->get_name());
     }
@@ -314,41 +318,47 @@ bool CedMiddleware::create_datareader_by_bin(
 }
 
 /**********************************************************************************************************************
- * Delete functions.
- **********************************************************************************************************************/
-bool CedMiddleware::delete_participant(uint16_t participant_id)
+* Delete functions.
+**********************************************************************************************************************/
+bool CedMiddleware::delete_participant(
+        uint16_t participant_id)
 {
     return (0 != participants_.erase(participant_id));
 }
 
-bool CedMiddleware::delete_topic(uint16_t topic_id)
+bool CedMiddleware::delete_topic(
+        uint16_t topic_id)
 {
     return (0 != topics_.erase(topic_id));
 }
 
-bool CedMiddleware::delete_publisher(uint16_t publisher_id)
+bool CedMiddleware::delete_publisher(
+        uint16_t publisher_id)
 {
     return (0 != publishers_.erase(publisher_id));
 }
 
-bool CedMiddleware::delete_subscriber(uint16_t subscriber_id)
+bool CedMiddleware::delete_subscriber(
+        uint16_t subscriber_id)
 {
     return (0 != subscribers_.erase(subscriber_id));
 }
 
-bool CedMiddleware::delete_datawriter(uint16_t datawriter_id)
+bool CedMiddleware::delete_datawriter(
+        uint16_t datawriter_id)
 {
     return (0 != datawriters_.erase(datawriter_id));
 }
 
-bool CedMiddleware::delete_datareader(uint16_t datareader_id)
+bool CedMiddleware::delete_datareader(
+        uint16_t datareader_id)
 {
     return (0 != datareaders_.erase(datareader_id));
 }
 
 /**********************************************************************************************************************
- * Write/Read functions.
- **********************************************************************************************************************/
+* Write/Read functions.
+**********************************************************************************************************************/
 bool CedMiddleware::write_data(
         uint16_t datawriter_id,
         const std::vector<uint8_t>& data)
@@ -379,8 +389,8 @@ bool CedMiddleware::read_data(
 }
 
 /**********************************************************************************************************************
- * Matched functions.
- **********************************************************************************************************************/
+* Matched functions.
+**********************************************************************************************************************/
 bool CedMiddleware::matched_participant_from_ref(
         uint16_t participant_id,
         int16_t domain_id,
@@ -432,8 +442,8 @@ bool CedMiddleware::matched_topic_from_xml(
 }
 
 bool CedMiddleware::matched_topic_from_bin(
-            uint16_t topic_id,
-            const dds::xrce::OBJK_Topic_Binary& topic_xrce) const
+        uint16_t topic_id,
+        const dds::xrce::OBJK_Topic_Binary& topic_xrce) const
 {
     return matched_topic_from_ref(topic_id, topic_xrce.topic_name());
 }
@@ -459,8 +469,8 @@ bool CedMiddleware::matched_datawriter_from_xml(
 }
 
 bool CedMiddleware::matched_datawriter_from_bin(
-            uint16_t datawriter_id,
-            const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const
+        uint16_t datawriter_id,
+        const dds::xrce::OBJK_DataWriter_Binary& datawriter_xrce) const
 {
     bool rv = false;
     auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datawriter_xrce.topic_id()));
@@ -494,8 +504,8 @@ bool CedMiddleware::matched_datareader_from_xml(
 }
 
 bool CedMiddleware::matched_datareader_from_bin(
-            uint16_t datareader_id,
-            const dds::xrce::OBJK_DataReader_Binary&  datareader_xrce) const
+        uint16_t datareader_id,
+        const dds::xrce::OBJK_DataReader_Binary&  datareader_xrce) const
 {
     bool rv = false;
     auto it = topics_.find(eprosima::uxr::conversion::objectid_to_raw(datareader_xrce.topic_id()));

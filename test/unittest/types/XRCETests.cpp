@@ -31,7 +31,9 @@ namespace eprosima {
 namespace uxr {
 namespace testing {
 
-bool operator==(const dds::xrce::MessageHeader& m1, const dds::xrce::MessageHeader& m2)
+bool operator ==(
+        const dds::xrce::MessageHeader& m1,
+        const dds::xrce::MessageHeader& m2)
 {
     bool returned_value = true;
 
@@ -45,7 +47,8 @@ bool operator==(const dds::xrce::MessageHeader& m1, const dds::xrce::MessageHead
 
 class SerializerDeserializerTests : public CommonData, public ::testing::Test
 {
-  protected:
+protected:
+
     SerializerDeserializerTests()
     {
     }
@@ -53,6 +56,7 @@ class SerializerDeserializerTests : public CommonData, public ::testing::Test
     virtual ~SerializerDeserializerTests()
     {
     }
+
 };
 
 TEST_F(SerializerDeserializerTests, MessageHeader)
@@ -71,8 +75,8 @@ TEST_F(SerializerDeserializerTests, SubmessageHeader)
     dds::xrce::CREATE_Payload create_payload;
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          create_payload.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            create_payload.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::CREATE, create_payload, 0x0001);
@@ -92,8 +96,8 @@ TEST_F(SerializerDeserializerTests, CreateSubMessage)
     dds::xrce::CREATE_Payload create_payload = generate_create_payload(dds::xrce::OBJK_PUBLISHER);
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          create_payload.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            create_payload.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::CREATE, create_payload);
@@ -106,7 +110,7 @@ TEST_F(SerializerDeserializerTests, CreateSubMessage)
     ASSERT_EQ(create_payload.request_id(), deserialized_create.request_id());
     ASSERT_EQ(create_payload.object_id(), deserialized_create.object_id());
     ASSERT_EQ(create_payload.object_representation().publisher().participant_id(),
-              deserialized_create.object_representation().publisher().participant_id());
+            deserialized_create.object_representation().publisher().participant_id());
 }
 
 TEST_F(SerializerDeserializerTests, ResourceStatusSubmessage)
@@ -115,8 +119,8 @@ TEST_F(SerializerDeserializerTests, ResourceStatusSubmessage)
     dds::xrce::STATUS_Payload resource_status = generate_resource_status_payload(dds::xrce::STATUS_OK, 0x00);
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          resource_status.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            resource_status.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::STATUS, resource_status);
@@ -136,11 +140,11 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageNoFilter)
 {
     dds::xrce::MessageHeader message_header = generate_message_header();
     dds::xrce::READ_DATA_Payload read_data = generate_read_data_payload(Optional<std::string>(),
-                                                                        dds::xrce::FORMAT_DATA_SEQ);
+                    dds::xrce::FORMAT_DATA_SEQ);
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          read_data.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            read_data.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::READ_DATA, read_data);
@@ -151,17 +155,17 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageNoFilter)
     ASSERT_TRUE(input.get_payload(deserialized_read_data));
 
     ASSERT_THROW(read_data.read_specification().content_filter_expression(),
-                 dds::xrce::XRCETypesException);
+            dds::xrce::XRCETypesException);
     ASSERT_EQ(read_data.object_id(), deserialized_read_data.object_id());
     ASSERT_EQ(read_data.request_id(), deserialized_read_data.request_id());
     ASSERT_EQ(read_data.read_specification().data_format(),
-              deserialized_read_data.read_specification().data_format());
+            deserialized_read_data.read_specification().data_format());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_samples(),
-              deserialized_read_data.read_specification().delivery_control().max_samples());
+            deserialized_read_data.read_specification().delivery_control().max_samples());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_elapsed_time(),
-              deserialized_read_data.read_specification().delivery_control().max_elapsed_time());
+            deserialized_read_data.read_specification().delivery_control().max_elapsed_time());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_bytes_per_second(),
-              deserialized_read_data.read_specification().delivery_control().max_bytes_per_second());
+            deserialized_read_data.read_specification().delivery_control().max_bytes_per_second());
 }
 
 TEST_F(SerializerDeserializerTests, ReadDataSubmessageFilter)
@@ -171,8 +175,8 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageFilter)
     dds::xrce::READ_DATA_Payload read_data = generate_read_data_payload(test_filter, dds::xrce::FORMAT_DATA_SEQ);
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          read_data.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            read_data.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::READ_DATA, read_data);
@@ -185,15 +189,15 @@ TEST_F(SerializerDeserializerTests, ReadDataSubmessageFilter)
     ASSERT_EQ(read_data.object_id(), deserialized_read_data.object_id());
     ASSERT_EQ(read_data.request_id(), deserialized_read_data.request_id());
     ASSERT_EQ(read_data.read_specification().content_filter_expression(),
-              deserialized_read_data.read_specification().content_filter_expression());
+            deserialized_read_data.read_specification().content_filter_expression());
     ASSERT_EQ(read_data.read_specification().data_format(),
-              deserialized_read_data.read_specification().data_format());
+            deserialized_read_data.read_specification().data_format());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_samples(),
-              deserialized_read_data.read_specification().delivery_control().max_samples());
+            deserialized_read_data.read_specification().delivery_control().max_samples());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_elapsed_time(),
-              deserialized_read_data.read_specification().delivery_control().max_elapsed_time());
+            deserialized_read_data.read_specification().delivery_control().max_elapsed_time());
     ASSERT_EQ(read_data.read_specification().delivery_control().max_bytes_per_second(),
-              deserialized_read_data.read_specification().delivery_control().max_bytes_per_second());
+            deserialized_read_data.read_specification().delivery_control().max_bytes_per_second());
 }
 
 TEST_F(SerializerDeserializerTests, WriteDataSubmessage)
@@ -202,8 +206,8 @@ TEST_F(SerializerDeserializerTests, WriteDataSubmessage)
     dds::xrce::WRITE_DATA_Payload_Data write_payload = generate_write_data_payload();
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          write_payload.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            write_payload.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::WRITE_DATA, write_payload);
@@ -217,7 +221,7 @@ TEST_F(SerializerDeserializerTests, WriteDataSubmessage)
     ASSERT_EQ(write_payload.request_id(), deserialized_write_data.request_id());
     ASSERT_EQ(write_payload.object_id(), deserialized_write_data.object_id());
     ASSERT_EQ(write_payload.data().serialized_data(),
-              deserialized_write_data.data().serialized_data());
+            deserialized_write_data.data().serialized_data());
 }
 
 TEST_F(SerializerDeserializerTests, DataSubmessage)
@@ -226,8 +230,8 @@ TEST_F(SerializerDeserializerTests, DataSubmessage)
     dds::xrce::DATA_Payload_Data data_payload = generate_data_payload_data();
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          data_payload.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            data_payload.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::DATA, data_payload);
@@ -249,8 +253,8 @@ TEST_F(SerializerDeserializerTests, DeleteSubmessage)
     dds::xrce::DELETE_Payload delete_payload = generate_delete_resource_payload(object_id);
     dds::xrce::SubmessageHeader submessage_header;
     size_t message_size = message_header.getCdrSerializedSize() +
-                          submessage_header.getCdrSerializedSize() +
-                          delete_payload.getCdrSerializedSize();
+            submessage_header.getCdrSerializedSize() +
+            delete_payload.getCdrSerializedSize();
 
     OutputMessage output(message_header, message_size);
     output.append_submessage(dds::xrce::DELETE_ID, delete_payload);
@@ -268,7 +272,9 @@ TEST_F(SerializerDeserializerTests, DeleteSubmessage)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

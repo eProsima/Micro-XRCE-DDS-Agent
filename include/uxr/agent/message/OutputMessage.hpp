@@ -28,13 +28,14 @@ namespace uxr {
 class OutputMessage
 {
 public:
+
     OutputMessage(
             const dds::xrce::MessageHeader& header,
             size_t len)
         : buf_(new uint8_t[len]{0}),
-          len_(len),
-          fastbuffer_(reinterpret_cast<char*>(buf_), len_),
-          serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
+        len_(len),
+        fastbuffer_(reinterpret_cast<char*>(buf_), len_),
+        serializer_(fastbuffer_, eprosima::fastcdr::Cdr::DEFAULT_ENDIAN, eprosima::fastcdr::CdrVersion::XCDRv1)
     {
         serialize(header);
     }
@@ -44,14 +45,24 @@ public:
         delete[] buf_;
     }
 
-    OutputMessage(OutputMessage&&) = delete;
-    OutputMessage(const OutputMessage&) = delete;
-    OutputMessage& operator=(OutputMessage&&) = delete;
-    OutputMessage& operator=(const OutputMessage&) = delete;
+    OutputMessage(
+            OutputMessage&&) = delete;
+    OutputMessage(
+            const OutputMessage&) = delete;
+    OutputMessage& operator =(
+            OutputMessage&&) = delete;
+    OutputMessage& operator =(
+            const OutputMessage&) = delete;
 
-    uint8_t* get_buf() const { return buf_; }
+    uint8_t* get_buf() const
+    {
+        return buf_;
+    }
 
-    size_t get_len() const { return serializer_.get_serialized_data_length(); }
+    size_t get_len() const
+    {
+        return serializer_.get_serialized_data_length();
+    }
 
     template<class T>
     bool append_submessage(
@@ -71,17 +82,20 @@ public:
             size_t len);
 
 private:
+
     bool append_subheader(
             dds::xrce::SubmessageId submessage_id,
             uint8_t flags,
             size_t submessage_len);
 
     template<class T>
-    bool serialize(const T& data);
+    bool serialize(
+            const T& data);
 
     void log_error();
 
 private:
+
     uint8_t* buf_;
     size_t len_;
     fastcdr::FastBuffer fastbuffer_;
@@ -115,7 +129,7 @@ inline bool OutputMessage::append_raw_payload(
         {
             serializer_.serialize_array(buf, len, fastcdr::Cdr::BIG_ENDIANNESS);
         }
-        catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
+        catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
         {
             log_error();
             rv = false;
@@ -142,7 +156,7 @@ inline bool OutputMessage::append_fragment(
             rv = true;
             serializer_.serialize_array(buf, len);
         }
-        catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
+        catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
         {
             log_error();
             rv = false;
@@ -166,14 +180,15 @@ inline bool OutputMessage::append_subheader(
 }
 
 template<class T>
-inline bool OutputMessage::serialize(const T& data)
+inline bool OutputMessage::serialize(
+        const T& data)
 {
     bool rv = true;
     try
     {
         data.serialize(serializer_);
     }
-    catch(eprosima::fastcdr::exception::NotEnoughMemoryException & /*exception*/)
+    catch (eprosima::fastcdr::exception::NotEnoughMemoryException& /*exception*/)
     {
         log_error();
         rv = false;

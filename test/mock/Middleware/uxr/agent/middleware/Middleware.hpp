@@ -31,15 +31,16 @@ typedef std::function<void ()> OnNewData;
 class Middleware
 {
 public:
+
     enum class Kind : uint8_t
     {
     #ifdef UAGENT_FAST_PROFILE
         FAST,
-    #endif
+    #endif // ifdef UAGENT_FAST_PROFILE
 
     #ifdef UAGENT_CED_PROFILE
         CED,
-    #endif
+    #endif // ifdef UAGENT_CED_PROFILE
     };
 
     Middleware() = default;

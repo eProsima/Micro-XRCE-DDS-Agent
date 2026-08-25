@@ -29,22 +29,32 @@ class Middleware;
 class ProxyClient
 {
 public:
+
     explicit ProxyClient(
-        const dds::xrce::CLIENT_Representation& /*representation*/,
-        Middleware::Kind /*middleware_kind*/,
-        std::unordered_map<std::string, std::string>&& properties = {}) {};
+            const dds::xrce::CLIENT_Representation& /*representation*/,
+            Middleware::Kind /*middleware_kind*/,
+            std::unordered_map<std::string, std::string>&& properties = {})
+    {
+    }
 
     ~ProxyClient() = default;
 
-    ProxyClient(ProxyClient&&) = delete;
-    ProxyClient(const ProxyClient&) = delete;
-    ProxyClient& operator=(ProxyClient&&) = delete;
-    ProxyClient& operator=(const ProxyClient&) = delete;
+    ProxyClient(
+            ProxyClient&&) = delete;
+    ProxyClient(
+            const ProxyClient&) = delete;
+    ProxyClient& operator =(
+            ProxyClient&&) = delete;
+    ProxyClient& operator =(
+            const ProxyClient&) = delete;
 
     MOCK_METHOD0(get_session_id, dds::xrce::SessionId());
-    MOCK_METHOD0(session, Session&());
+    MOCK_METHOD0(session, Session & ());
 
-    void release() {}
+    void release()
+    {
+    }
+
 };
 
 } // namespace uxr

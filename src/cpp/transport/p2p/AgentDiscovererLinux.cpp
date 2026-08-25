@@ -110,11 +110,11 @@ bool AgentDiscovererLinux::send_message(
     address.sin_port = htons(DISCOVERY_PORT);
     ssize_t bytes_sent =
             sendto(poll_fd_.fd,
-                   output_message.get_buf(),
-                   output_message.get_len(),
-                   0,
-                   reinterpret_cast<struct sockaddr*>(&address),
-                   sizeof(address));
+                    output_message.get_buf(),
+                    output_message.get_len(),
+                    0,
+                    reinterpret_cast<struct sockaddr*>(&address),
+                    sizeof(address));
     if (0 < bytes_sent)
     {
         rv = (size_t(bytes_sent) == output_message.get_len());

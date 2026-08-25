@@ -65,30 +65,30 @@ CustomAgent::CustomAgent(
     , custom_recv_msg_func_(recv_msg_function)
     , framing_(framing)
     , framing_io_(0x00,
-        [&](
+            [&](
                 uint8_t* buffer,
                 size_t message_length,
                 TransportRc& transport_rc) -> ssize_t
-        {
-            return custom_send_msg_func_(
-                send_endpoint_,
-                buffer,
-                message_length,
-                transport_rc);
-        },
-        [&](
+            {
+                return custom_send_msg_func_(
+                    send_endpoint_,
+                    buffer,
+                    message_length,
+                    transport_rc);
+            },
+            [&](
                 uint8_t* buffer,
                 size_t buffer_length,
                 int timeout,
                 TransportRc& transport_rc) -> ssize_t
-        {
-            return custom_recv_msg_func_(
-                recv_endpoint_,
-                buffer,
-                buffer_length,
-                timeout,
-                transport_rc);
-        })
+            {
+                return custom_recv_msg_func_(
+                    recv_endpoint_,
+                    buffer,
+                    buffer_length,
+                    timeout,
+                    transport_rc);
+            })
 {
 }
 

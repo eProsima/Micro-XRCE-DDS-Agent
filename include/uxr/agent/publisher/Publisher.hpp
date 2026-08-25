@@ -28,27 +28,38 @@ class Middleware;
 class Publisher : public XRCEObject
 {
 public:
+
     static std::unique_ptr<Publisher> create(
-        const dds::xrce::ObjectId& object_id,
-        uint16_t participant_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::OBJK_PUBLISHER_Representation& representation);
+            const dds::xrce::ObjectId& object_id,
+            uint16_t participant_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::OBJK_PUBLISHER_Representation& representation);
 
     virtual ~Publisher() override;
 
-    Publisher(Publisher&&) = delete;
-    Publisher(const Publisher&) = delete;
-    Publisher& operator=(Publisher&&) = delete;
-    Publisher& operator=(const Publisher&) = delete;
+    Publisher(
+            Publisher&&) = delete;
+    Publisher(
+            const Publisher&) = delete;
+    Publisher& operator =(
+            Publisher&&) = delete;
+    Publisher& operator =(
+            const Publisher&) = delete;
 
     bool matched(
-        const dds::xrce::ObjectVariant& ) const final { return true; }
+            const dds::xrce::ObjectVariant& ) const final
+    {
+        return true;
+    }
 
 private:
-    Publisher(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+
+    Publisher(
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
 };
 

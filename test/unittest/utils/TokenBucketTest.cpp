@@ -28,6 +28,7 @@ using eprosima::uxr::utils::TokenBucket;
 class TokenBucketTest : public ::testing::Test
 {
 protected:
+
     TokenBucketTest() = default;
     ~TokenBucketTest() override = default;
 };
@@ -151,7 +152,9 @@ TEST_F(TokenBucketTest, rate_with_empty_bucket)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

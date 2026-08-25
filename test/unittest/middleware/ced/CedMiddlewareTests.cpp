@@ -23,13 +23,16 @@ namespace testing {
 class CedMiddlewareUnitTests : public ::testing::Test
 {
 public:
+
     CedMiddlewareUnitTests()
         : middleware_(0xAABBCCDD)
-    {}
+    {
+    }
 
     ~CedMiddlewareUnitTests() = default;
 
 protected:
+
     CedMiddleware middleware_;
 };
 
@@ -901,7 +904,9 @@ TEST_F(CedMiddlewareUnitTests, WriteReadData)
 } // namespace uxr
 } // namespace testing
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

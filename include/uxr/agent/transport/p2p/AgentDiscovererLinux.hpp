@@ -25,12 +25,14 @@ namespace uxr {
 class AgentDiscovererLinux : public AgentDiscoverer
 {
 public:
+
     AgentDiscovererLinux(
             Agent& agent);
 
     ~AgentDiscovererLinux() = default;
 
 private:
+
     bool init(
             uint16_t p2p_port) final;
 
@@ -44,6 +46,7 @@ private:
             const OutputMessage& output_message) final;
 
 private:
+
     struct pollfd poll_fd_;
     uint8_t buf_[128];
 };

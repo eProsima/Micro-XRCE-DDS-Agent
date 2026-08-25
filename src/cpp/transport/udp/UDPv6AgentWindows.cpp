@@ -35,8 +35,9 @@ UDPv6Agent::UDPv6Agent(
     , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
-#endif
-{}
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
+{
+}
 
 UDPv6Agent::~UDPv6Agent()
 {
@@ -132,7 +133,8 @@ bool UDPv6Agent::fini()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPv6Agent::init_discovery(uint16_t discovery_port)
+bool UDPv6Agent::init_discovery(
+        uint16_t discovery_port)
 {
     std::vector<dds::xrce::TransportAddress> transport_addresses;
     util::get_transport_interfaces<IPv6EndPoint>(this->agent_port_, transport_addresses);
@@ -143,7 +145,8 @@ bool UDPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 bool UDPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
@@ -157,14 +160,14 @@ bool UDPv6Agent::recv_message(
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received =
-            recvfrom(
-                poll_fd_.fd,
-                reinterpret_cast<char*>(buffer_),
-                sizeof(buffer_),
-                0,
-                reinterpret_cast<struct sockaddr*>(&client_addr),
-                &client_addr_len);
+        int bytes_received = recvfrom(
+            poll_fd_.fd,
+            reinterpret_cast<char*>(buffer_),
+            sizeof(buffer_),
+            0,
+            reinterpret_cast<struct sockaddr*>(&client_addr),
+            &client_addr_len);
+
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
@@ -199,21 +202,21 @@ bool UDPv6Agent::send_message(
         TransportRc& transport_rc)
 {
     bool rv = false;
-    struct sockaddr_in6 client_addr{};
+    struct sockaddr_in6 client_addr {};
 
     client_addr.sin6_family = AF_INET6;
     client_addr.sin6_port = output_packet.destination.get_port();
     const std::array<uint8_t, 16>& destination = output_packet.destination.get_addr();
     std::copy(destination.begin(), destination.end(), std::begin(client_addr.sin6_addr.s6_addr));
 
-    int bytes_sent =
-        sendto(
-            poll_fd_.fd,
-            reinterpret_cast<char*>(output_packet.message->get_buf()),
-            int(output_packet.message->get_len()),
-            0,
-            reinterpret_cast<struct sockaddr*>(&client_addr),
-            sizeof(client_addr));
+    int bytes_sent = sendto(
+        poll_fd_.fd,
+        reinterpret_cast<char*>(output_packet.message->get_buf()),
+        int(output_packet.message->get_len()),
+        0,
+        reinterpret_cast<struct sockaddr*>(&client_addr),
+        sizeof(client_addr));
+
     if (SOCKET_ERROR != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())

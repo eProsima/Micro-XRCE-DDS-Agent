@@ -36,7 +36,7 @@ MultiTermiosAgent::MultiTermiosAgent(
     , open_flags_{open_flags}
     , termios_attrs_{termios_attrs}
 {
-    for (auto & element : devs)
+    for (auto& element : devs)
     {
         devs_.push_back(std::pair<int, std::string>(0, element));
     }
@@ -59,16 +59,16 @@ MultiTermiosAgent::~MultiTermiosAgent()
 
 void MultiTermiosAgent::init_multiport()
 {
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     bool wake_main = false;
     exitSignal = false;
-    
+
     do
     {
         std::unique_lock<std::mutex> lk(devs_mtx);
-        for(auto it = devs_.begin(); it!=devs_.end(); )
+        for (auto it = devs_.begin(); it != devs_.end(); )
         {
-            if(access(it->second.c_str(), W_OK | R_OK ) == 0 || it->first > 10)
+            if (access(it->second.c_str(), W_OK | R_OK ) == 0 || it->first > 10)
             {
                 pollfd aux_poll_fd;
                 aux_poll_fd.fd = open(it->second.c_str(), open_flags_);
@@ -87,10 +87,10 @@ void MultiTermiosAgent::init_multiport()
 
 #if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
                         cfsetispeed(&new_attrs, termios_attrs_.c_ispeed);
-#endif
+#endif // if _HAVE_STRUCT_TERMIOS_C_ISPEED || __APPLE__
 #if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
                         cfsetospeed(&new_attrs, termios_attrs_.c_ospeed);
-#endif
+#endif // if _HAVE_STRUCT_TERMIOS_C_OSPEED || __APPLE__
 
                         if (0 == tcsetattr(aux_poll_fd.fd, TCSANOW, &new_attrs))
                         {
@@ -150,13 +150,16 @@ void MultiTermiosAgent::init_multiport()
                 init_serial_cv.notify_one();
                 wake_main = true;
             }
-            
+
             std::this_thread::sleep_for((std::chrono::milliseconds) 10);
 
             if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - begin).count())
             {
                 std::string aux_str;
-                for (const auto &port : devs_) aux_str += (" " + port.second);
+                for (const auto& port : devs_)
+                {
+                    aux_str += (" " + port.second);
+                }
 
                 begin = std::chrono::steady_clock::now();
                 UXR_AGENT_LOG_INFO(
@@ -176,7 +179,8 @@ void MultiTermiosAgent::init_multiport()
 
         lk.unlock();
 
-    } while (!exitSignal);
+    }
+    while (!exitSignal);
 }
 
 bool MultiTermiosAgent::init()
@@ -240,8 +244,8 @@ bool MultiTermiosAgent::handle_error(
 
     // Delete duplicates on error_fd
     std::unique_lock<std::mutex> error_lk(error_mtx);
-    std::sort( error_fd.begin(), error_fd.end() );
-    error_fd.erase( std::unique( error_fd.begin(), error_fd.end() ), error_fd.end() );
+    std::sort( error_fd.begin(), error_fd.end());
+    error_fd.erase( std::unique( error_fd.begin(), error_fd.end()), error_fd.end());
 
     // Close failed serial port and add to open thread
     if (error_fd.size() == initialized_devs_.size())
@@ -255,13 +259,13 @@ bool MultiTermiosAgent::handle_error(
     {
         std::unique_lock<std::mutex> devs_lk(devs_mtx);
 
-        for(auto serial_fd = error_fd.begin(); serial_fd!=error_fd.end(); )
+        for (auto serial_fd = error_fd.begin(); serial_fd != error_fd.end(); )
         {
             std::map<int, std::string>::iterator it = initialized_devs_.find(*serial_fd);
-            
-            if(it != initialized_devs_.end())
+
+            if (it != initialized_devs_.end())
             {
-                if(restart_serial(it))
+                if (restart_serial(it))
                 {
                     initialized_devs_.erase(it);
                     serial_fd = error_fd.erase(serial_fd);
@@ -276,14 +280,15 @@ bool MultiTermiosAgent::handle_error(
         }
 
         // Wake serial init thread
-        init_serial_cv.notify_one();        
+        init_serial_cv.notify_one();
     }
 
     // TODO: handle close errors
     return rv;
 }
 
-bool MultiTermiosAgent::restart_serial(std::map<int, std::string>::iterator initialized_devs_it)
+bool MultiTermiosAgent::restart_serial(
+        std::map<int, std::string>::iterator initialized_devs_it)
 {
     bool rv = remove_serial(initialized_devs_it->first);
 

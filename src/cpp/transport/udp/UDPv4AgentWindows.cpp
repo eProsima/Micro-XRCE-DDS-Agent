@@ -34,8 +34,9 @@ UDPv4Agent::UDPv4Agent(
     , agent_port_{agent_port}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
-#endif
-{}
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
+{
+}
 
 UDPv4Agent::~UDPv4Agent()
 {
@@ -131,7 +132,8 @@ bool UDPv4Agent::fini()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool UDPv4Agent::init_discovery(uint16_t discovery_port)
+bool UDPv4Agent::init_discovery(
+        uint16_t discovery_port)
 {
     std::vector<dds::xrce::TransportAddress> transport_addresses;
     util::get_transport_interfaces<IPv4EndPoint>(this->agent_port_, transport_addresses);
@@ -142,7 +144,8 @@ bool UDPv4Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 bool UDPv4Agent::recv_message(
         InputPacket<IPv4EndPoint>& input_packet,
@@ -156,14 +159,14 @@ bool UDPv4Agent::recv_message(
     int poll_rv = WSAPoll(&poll_fd_, 1, timeout);
     if (0 < poll_rv)
     {
-        int bytes_received =
-            recvfrom(
-                poll_fd_.fd,
-                reinterpret_cast<char*>(buffer_),
-                sizeof(buffer_),
-                0,
-                reinterpret_cast<struct sockaddr*>(&client_addr),
-                &client_addr_len);
+        int bytes_received = recvfrom(
+            poll_fd_.fd,
+            reinterpret_cast<char*>(buffer_),
+            sizeof(buffer_),
+            0,
+            reinterpret_cast<struct sockaddr*>(&client_addr),
+            &client_addr_len);
+
         if (SOCKET_ERROR != bytes_received)
         {
             input_packet.message.reset(new InputMessage(buffer_, size_t(bytes_received)));
@@ -203,14 +206,15 @@ bool UDPv4Agent::send_message(
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = output_packet.destination.get_port();
     client_addr.sin_addr.s_addr = output_packet.destination.get_addr();
-    int bytes_sent =
-        sendto(
-            poll_fd_.fd,
-            reinterpret_cast<char*>(output_packet.message->get_buf()),
-            int(output_packet.message->get_len()),
-            0,
-            reinterpret_cast<struct sockaddr*>(&client_addr),
-            sizeof(client_addr));
+
+    int bytes_sent = sendto(
+        poll_fd_.fd,
+        reinterpret_cast<char*>(output_packet.message->get_buf()),
+        int(output_packet.message->get_len()),
+        0,
+        reinterpret_cast<struct sockaddr*>(&client_addr),
+        sizeof(client_addr));
+
     if (SOCKET_ERROR != bytes_sent)
     {
         if (size_t(bytes_sent) == output_packet.message->get_len())

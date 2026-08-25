@@ -21,7 +21,8 @@
 #include <termios.h>
 
 inline
-speed_t getBaudRate(const char* baudrate_str)
+speed_t getBaudRate(
+        const char* baudrate_str)
 {
     speed_t rv;
     if (0 == strcmp(baudrate_str, "0"))

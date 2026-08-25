@@ -39,14 +39,21 @@ class Cdr;
 
 namespace dds { namespace xrce {
 
-class XRCETypesException: public std::exception {
+class XRCETypesException : public std::exception
+{
 private:
+
     std::string message_;
+
 public:
-    explicit XRCETypesException(const std::string& message);
-    const char* what() const noexcept override {
+
+    explicit XRCETypesException(
+            const std::string& message);
+    const char* what() const noexcept override
+    {
         return message_.c_str();
     }
+
 };
 
 typedef std::array<uint8_t, 4> ClientKey;
@@ -112,41 +119,46 @@ public:
      * @brief Default constructor.
      */
     Time_t();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~Time_t();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object Time_t that will be copied.
      */
-    Time_t(const Time_t &x);
-    
+    Time_t(
+            const Time_t& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object Time_t that will be copied.
      */
-    Time_t(Time_t &&x);
-    
+    Time_t(
+            Time_t&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object Time_t that will be copied.
      */
-    Time_t& operator=(const Time_t &x);
-    
+    Time_t& operator =(
+            const Time_t& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object Time_t that will be copied.
      */
-    Time_t& operator=(Time_t &&x);
-    
+    Time_t& operator =(
+            Time_t&& x);
+
     /*!
      * @brief This function sets a value in member seconds
      * @param _seconds New value for member seconds
      */
-    inline void seconds(int32_t _seconds)
+    inline void seconds(
+            int32_t _seconds)
     {
         m_seconds = _seconds;
     }
@@ -168,11 +180,13 @@ public:
     {
         return m_seconds;
     }
+
     /*!
      * @brief This function sets a value in member nanoseconds
      * @param _nanoseconds New value for member nanoseconds
      */
-    inline void nanoseconds(uint32_t _nanoseconds)
+    inline void nanoseconds(
+            uint32_t _nanoseconds)
     {
         m_nanoseconds = _nanoseconds;
     }
@@ -194,14 +208,15 @@ public:
     {
         return m_nanoseconds;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -209,22 +224,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     int32_t m_seconds;
     uint32_t m_nanoseconds;
 };
@@ -264,41 +283,46 @@ public:
      * @brief Default constructor.
      */
     TransportAddressSmall();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~TransportAddressSmall();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object TransportAddressSmall that will be copied.
      */
-    TransportAddressSmall(const TransportAddressSmall &x);
-    
+    TransportAddressSmall(
+            const TransportAddressSmall& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TransportAddressSmall that will be copied.
      */
-    TransportAddressSmall(TransportAddressSmall &&x);
-    
+    TransportAddressSmall(
+            TransportAddressSmall&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TransportAddressSmall that will be copied.
      */
-    TransportAddressSmall& operator=(const TransportAddressSmall &x);
-    
+    TransportAddressSmall& operator =(
+            const TransportAddressSmall& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TransportAddressSmall that will be copied.
      */
-    TransportAddressSmall& operator=(TransportAddressSmall &&x);
-    
+    TransportAddressSmall& operator =(
+            TransportAddressSmall&& x);
+
     /*!
      * @brief This function copies the value in member address
      * @param _address New value to be copied in member address
      */
-    inline void address(const std::array<uint8_t, 2> &_address)
+    inline void address(
+            const std::array<uint8_t, 2>& _address)
     {
         m_address = _address;
     }
@@ -307,7 +331,8 @@ public:
      * @brief This function moves the value in member address
      * @param _address New value to be moved in member address
      */
-    inline void address(std::array<uint8_t, 2> &&_address)
+    inline void address(
+            std::array<uint8_t, 2>&& _address)
     {
         m_address = std::move(_address);
     }
@@ -329,11 +354,13 @@ public:
     {
         return m_address;
     }
+
     /*!
      * @brief This function sets a value in member port
      * @param _port New value for member port
      */
-    inline void port(uint8_t _port)
+    inline void port(
+            uint8_t _port)
     {
         m_port = _port;
     }
@@ -355,14 +382,15 @@ public:
     {
         return m_port;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -370,22 +398,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-    
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     std::array<uint8_t, 2> m_address;
     uint8_t m_port;
 };
@@ -401,41 +433,46 @@ public:
      * @brief Default constructor.
      */
     TransportAddressMedium();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~TransportAddressMedium();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object TransportAddressMedium that will be copied.
      */
-    TransportAddressMedium(const TransportAddressMedium &x);
-    
+    TransportAddressMedium(
+            const TransportAddressMedium& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TransportAddressMedium that will be copied.
      */
-    TransportAddressMedium(TransportAddressMedium &&x);
-    
+    TransportAddressMedium(
+            TransportAddressMedium&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TransportAddressMedium that will be copied.
      */
-    TransportAddressMedium& operator=(const TransportAddressMedium &x);
-    
+    TransportAddressMedium& operator =(
+            const TransportAddressMedium& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TransportAddressMedium that will be copied.
      */
-    TransportAddressMedium& operator=(TransportAddressMedium &&x);
-    
+    TransportAddressMedium& operator =(
+            TransportAddressMedium&& x);
+
     /*!
      * @brief This function copies the value in member address
      * @param _address New value to be copied in member address
      */
-    inline void address(const std::array<uint8_t, 4> &_address)
+    inline void address(
+            const std::array<uint8_t, 4>& _address)
     {
         m_address = _address;
     }
@@ -444,7 +481,8 @@ public:
      * @brief This function moves the value in member address
      * @param _address New value to be moved in member address
      */
-    inline void address(std::array<uint8_t, 4> &&_address)
+    inline void address(
+            std::array<uint8_t, 4>&& _address)
     {
         m_address = std::move(_address);
     }
@@ -466,11 +504,13 @@ public:
     {
         return m_address;
     }
+
     /*!
      * @brief This function sets a value in member port
      * @param _port New value for member port
      */
-    inline void port(uint16_t _port)
+    inline void port(
+            uint16_t _port)
     {
         m_port = _port;
     }
@@ -492,14 +532,15 @@ public:
     {
         return m_port;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -507,21 +548,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::array<uint8_t, 4> m_address;
     uint16_t m_port;
 };
@@ -538,41 +583,46 @@ public:
      * @brief Default constructor.
      */
     TransportAddressLarge();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~TransportAddressLarge();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object TransportAddressLarge that will be copied.
      */
-    TransportAddressLarge(const TransportAddressLarge &x);
-    
+    TransportAddressLarge(
+            const TransportAddressLarge& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TransportAddressLarge that will be copied.
      */
-    TransportAddressLarge(TransportAddressLarge &&x);
-    
+    TransportAddressLarge(
+            TransportAddressLarge&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TransportAddressLarge that will be copied.
      */
-    TransportAddressLarge& operator=(const TransportAddressLarge &x);
-    
+    TransportAddressLarge& operator =(
+            const TransportAddressLarge& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TransportAddressLarge that will be copied.
      */
-    TransportAddressLarge& operator=(TransportAddressLarge &&x);
-    
+    TransportAddressLarge& operator =(
+            TransportAddressLarge&& x);
+
     /*!
      * @brief This function copies the value in member address
      * @param _address New value to be copied in member address
      */
-    inline void address(const std::array<uint8_t, 16> &_address)
+    inline void address(
+            const std::array<uint8_t, 16>& _address)
     {
         m_address = _address;
     }
@@ -581,7 +631,8 @@ public:
      * @brief This function moves the value in member address
      * @param _address New value to be moved in member address
      */
-    inline void address(std::array<uint8_t, 16> &&_address)
+    inline void address(
+            std::array<uint8_t, 16>&& _address)
     {
         m_address = std::move(_address);
     }
@@ -603,11 +654,13 @@ public:
     {
         return m_address;
     }
+
     /*!
      * @brief This function sets a value in member port
      * @param _port New value for member port
      */
-    inline void port(uint32_t _port)
+    inline void port(
+            uint32_t _port)
     {
         m_port = _port;
     }
@@ -629,14 +682,15 @@ public:
     {
         return m_port;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -644,22 +698,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-    
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     std::array<uint8_t, 16> m_address;
     uint32_t m_port;
 };
@@ -675,41 +733,46 @@ public:
      * @brief Default constructor.
      */
     TransportAddressString();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~TransportAddressString();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object TransportAddressString that will be copied.
      */
-    TransportAddressString(const TransportAddressString &x);
-    
+    TransportAddressString(
+            const TransportAddressString& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TransportAddressString that will be copied.
      */
-    TransportAddressString(TransportAddressString &&x);
-    
+    TransportAddressString(
+            TransportAddressString&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TransportAddressString that will be copied.
      */
-    TransportAddressString& operator=(const TransportAddressString &x);
-    
+    TransportAddressString& operator =(
+            const TransportAddressString& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TransportAddressString that will be copied.
      */
-    TransportAddressString& operator=(TransportAddressString &&x);
-    
+    TransportAddressString& operator =(
+            TransportAddressString&& x);
+
     /*!
      * @brief This function copies the value in member value
      * @param _value New value to be copied in member value
      */
-    inline void value(const std::string &_value)
+    inline void value(
+            const std::string& _value)
     {
         m_value = _value;
     }
@@ -718,7 +781,8 @@ public:
      * @brief This function moves the value in member value
      * @param _value New value to be moved in member value
      */
-    inline void value(std::string &&_value)
+    inline void value(
+            std::string&& _value)
     {
         m_value = std::move(_value);
     }
@@ -740,14 +804,15 @@ public:
     {
         return m_value;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -755,22 +820,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::string m_value;
 };
 /*!
@@ -785,66 +854,73 @@ public:
      * @brief Default constructor.
      */
     TransportAddress();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~TransportAddress();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object TransportAddress that will be copied.
      */
-    TransportAddress(const TransportAddress &x);
-    
+    TransportAddress(
+            const TransportAddress& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TransportAddress that will be copied.
      */
-    TransportAddress(TransportAddress &&x);
-    
+    TransportAddress(
+            TransportAddress&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TransportAddress that will be copied.
      */
-    TransportAddress& operator=(const TransportAddress &x);
-    
+    TransportAddress& operator =(
+            const TransportAddress& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TransportAddress that will be copied.
      */
-    TransportAddress& operator=(TransportAddress &&x);
-    
+    TransportAddress& operator =(
+            TransportAddress&& x);
+
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(TransportAddressFormat __d);
-    
+    void _d(
+            TransportAddressFormat __d);
+
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
     TransportAddressFormat _d() const;
-    
+
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
     TransportAddressFormat& _d();
-    
+
     /*!
      * @brief This function copies the value in member small_locator
      * @param _small_locator New value to be copied in member small_locator
      */
-    void small_locator(const TransportAddressSmall &_small_locator);
+    void small_locator(
+            const TransportAddressSmall& _small_locator);
 
     /*!
      * @brief This function moves the value in member small_locator
      * @param _small_locator New value to be moved in member small_locator
      */
-    void small_locator(TransportAddressSmall &&_small_locator);
+    void small_locator(
+            TransportAddressSmall&& _small_locator);
 
     /*!
      * @brief This function returns a constant reference to member small_locator
@@ -863,13 +939,15 @@ public:
      * @brief This function copies the value in member medium_locator
      * @param _medium_locator New value to be copied in member medium_locator
      */
-    void medium_locator(const TransportAddressMedium &_medium_locator);
+    void medium_locator(
+            const TransportAddressMedium& _medium_locator);
 
     /*!
      * @brief This function moves the value in member medium_locator
      * @param _medium_locator New value to be moved in member medium_locator
      */
-    void medium_locator(TransportAddressMedium &&_medium_locator);
+    void medium_locator(
+            TransportAddressMedium&& _medium_locator);
 
     /*!
      * @brief This function returns a constant reference to member medium_locator
@@ -888,13 +966,15 @@ public:
      * @brief This function copies the value in member large_locator
      * @param _large_locator New value to be copied in member large_locator
      */
-    void large_locator(const TransportAddressLarge &_large_locator);
+    void large_locator(
+            const TransportAddressLarge& _large_locator);
 
     /*!
      * @brief This function moves the value in member large_locator
      * @param _large_locator New value to be moved in member large_locator
      */
-    void large_locator(TransportAddressLarge &&_large_locator);
+    void large_locator(
+            TransportAddressLarge&& _large_locator);
 
     /*!
      * @brief This function returns a constant reference to member large_locator
@@ -913,13 +993,15 @@ public:
      * @brief This function copies the value in member string_locator
      * @param _string_locator New value to be copied in member string_locator
      */
-    void string_locator(const TransportAddressString &_string_locator);
+    void string_locator(
+            const TransportAddressString& _string_locator);
 
     /*!
      * @brief This function moves the value in member string_locator
      * @param _string_locator New value to be moved in member string_locator
      */
-    void string_locator(TransportAddressString &&_string_locator);
+    void string_locator(
+            TransportAddressString&& _string_locator);
 
     /*!
      * @brief This function returns a constant reference to member string_locator
@@ -934,14 +1016,15 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     TransportAddressString& string_locator();
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -949,73 +1032,79 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-    
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
     /*!
      * @brief This function formats the IP address and port to ostream, for logging purpuses.
      * @param os ostream object.
      * @param address TransportAddress object to format.
      * @return ostream object with formated address.
      */
-    friend std::ostream & operator<<(std::ostream & os, TransportAddress const & address)
+    friend std::ostream& operator <<(
+            std::ostream& os,
+            TransportAddress const& address)
     {
         switch (address._d())
         {
             case ADDRESS_FORMAT_MEDIUM:
                 os << int(address.medium_locator().address().at(0)) << "."
-                << int(address.medium_locator().address().at(1)) << "."
-                << int(address.medium_locator().address().at(2)) << "."
-                << int(address.medium_locator().address().at(3)) << ":"
-                << address.medium_locator().port();
+                   << int(address.medium_locator().address().at(1)) << "."
+                   << int(address.medium_locator().address().at(2)) << "."
+                   << int(address.medium_locator().address().at(3)) << ":"
+                   << address.medium_locator().port();
                 break;
             case ADDRESS_FORMAT_LARGE:
                 os << std::hex << "["
-                << int(address.large_locator().address().at(0))
-                << int(address.large_locator().address().at(1))
-                << ":"
-                << int(address.large_locator().address().at(2))
-                << int(address.large_locator().address().at(3))
-                << ":"
-                << int(address.large_locator().address().at(4))
-                << int(address.large_locator().address().at(5))
-                << ":"
-                << int(address.large_locator().address().at(6))
-                << int(address.large_locator().address().at(7))
-                << ":"
-                << int(address.large_locator().address().at(8))
-                << int(address.large_locator().address().at(9))
-                << ":"
-                << int(address.large_locator().address().at(10))
-                << int(address.large_locator().address().at(11))
-                << ":"
-                << int(address.large_locator().address().at(12))
-                << int(address.large_locator().address().at(13))
-                << ":"
-                << int(address.large_locator().address().at(14))
-                << int(address.large_locator().address().at(15))
-                << "]:" << std::dec
-                << address.large_locator().port();
+                   << int(address.large_locator().address().at(0))
+                   << int(address.large_locator().address().at(1))
+                   << ":"
+                   << int(address.large_locator().address().at(2))
+                   << int(address.large_locator().address().at(3))
+                   << ":"
+                   << int(address.large_locator().address().at(4))
+                   << int(address.large_locator().address().at(5))
+                   << ":"
+                   << int(address.large_locator().address().at(6))
+                   << int(address.large_locator().address().at(7))
+                   << ":"
+                   << int(address.large_locator().address().at(8))
+                   << int(address.large_locator().address().at(9))
+                   << ":"
+                   << int(address.large_locator().address().at(10))
+                   << int(address.large_locator().address().at(11))
+                   << ":"
+                   << int(address.large_locator().address().at(12))
+                   << int(address.large_locator().address().at(13))
+                   << ":"
+                   << int(address.large_locator().address().at(14))
+                   << int(address.large_locator().address().at(15))
+                   << "]:" << std::dec
+                   << address.large_locator().port();
             default:
                 break;
-        } 
+        }
         return os;
     }
 
 private:
+
     TransportAddressFormat m__d;
-    
+
     TransportAddressSmall m_small_locator;
     TransportAddressMedium m_medium_locator;
     TransportAddressLarge m_large_locator;
@@ -1036,41 +1125,46 @@ public:
      * @brief Default constructor.
      */
     Property();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~Property();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object Property that will be copied.
      */
-    Property(const Property &x);
-    
+    Property(
+            const Property& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object Property that will be copied.
      */
-    Property(Property &&x);
-    
+    Property(
+            Property&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object Property that will be copied.
      */
-    Property& operator=(const Property &x);
-    
+    Property& operator =(
+            const Property& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object Property that will be copied.
      */
-    Property& operator=(Property &&x);
-    
+    Property& operator =(
+            Property&& x);
+
     /*!
      * @brief This function copies the value in member name
      * @param _name New value to be copied in member name
      */
-    inline void name(const std::string &_name)
+    inline void name(
+            const std::string& _name)
     {
         m_name = _name;
     }
@@ -1079,7 +1173,8 @@ public:
      * @brief This function moves the value in member name
      * @param _name New value to be moved in member name
      */
-    inline void name(std::string &&_name)
+    inline void name(
+            std::string&& _name)
     {
         m_name = std::move(_name);
     }
@@ -1101,11 +1196,13 @@ public:
     {
         return m_name;
     }
+
     /*!
      * @brief This function copies the value in member value
      * @param _value New value to be copied in member value
      */
-    inline void value(const std::string &_value)
+    inline void value(
+            const std::string& _value)
     {
         m_value = _value;
     }
@@ -1114,7 +1211,8 @@ public:
      * @brief This function moves the value in member value
      * @param _value New value to be moved in member value
      */
-    inline void value(std::string &&_value)
+    inline void value(
+            std::string&& _value)
     {
         m_value = std::move(_value);
     }
@@ -1136,14 +1234,15 @@ public:
     {
         return m_value;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -1151,22 +1250,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::string m_name;
     std::string m_value;
 };
@@ -1185,41 +1288,46 @@ public:
      * @brief Default constructor.
      */
     CLIENT_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~CLIENT_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object CLIENT_Representation that will be copied.
      */
-    CLIENT_Representation(const CLIENT_Representation &x);
-    
+    CLIENT_Representation(
+            const CLIENT_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object CLIENT_Representation that will be copied.
      */
-    CLIENT_Representation(CLIENT_Representation &&x);
-    
+    CLIENT_Representation(
+            CLIENT_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object CLIENT_Representation that will be copied.
      */
-    CLIENT_Representation& operator=(const CLIENT_Representation &x);
-    
+    CLIENT_Representation& operator =(
+            const CLIENT_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object CLIENT_Representation that will be copied.
      */
-    CLIENT_Representation& operator=(CLIENT_Representation &&x);
-    
+    CLIENT_Representation& operator =(
+            CLIENT_Representation&& x);
+
     /*!
      * @brief This function copies the value in member xrce_cookie
      * @param _xrce_cookie New value to be copied in member xrce_cookie
      */
-    inline void xrce_cookie(const XrceCookie &_xrce_cookie)
+    inline void xrce_cookie(
+            const XrceCookie& _xrce_cookie)
     {
         m_xrce_cookie = _xrce_cookie;
     }
@@ -1228,7 +1336,8 @@ public:
      * @brief This function moves the value in member xrce_cookie
      * @param _xrce_cookie New value to be moved in member xrce_cookie
      */
-    inline void xrce_cookie(XrceCookie &&_xrce_cookie)
+    inline void xrce_cookie(
+            XrceCookie&& _xrce_cookie)
     {
         m_xrce_cookie = std::move(_xrce_cookie);
     }
@@ -1250,11 +1359,13 @@ public:
     {
         return m_xrce_cookie;
     }
+
     /*!
      * @brief This function copies the value in member xrce_version
      * @param _xrce_version New value to be copied in member xrce_version
      */
-    inline void xrce_version(const XrceVersion &_xrce_version)
+    inline void xrce_version(
+            const XrceVersion& _xrce_version)
     {
         m_xrce_version = _xrce_version;
     }
@@ -1263,7 +1374,8 @@ public:
      * @brief This function moves the value in member xrce_version
      * @param _xrce_version New value to be moved in member xrce_version
      */
-    inline void xrce_version(XrceVersion &&_xrce_version)
+    inline void xrce_version(
+            XrceVersion&& _xrce_version)
     {
         m_xrce_version = std::move(_xrce_version);
     }
@@ -1285,11 +1397,13 @@ public:
     {
         return m_xrce_version;
     }
+
     /*!
      * @brief This function copies the value in member xrce_vendor_id
      * @param _xrce_vendor_id New value to be copied in member xrce_vendor_id
      */
-    inline void xrce_vendor_id(const XrceVendorId &_xrce_vendor_id)
+    inline void xrce_vendor_id(
+            const XrceVendorId& _xrce_vendor_id)
     {
         m_xrce_vendor_id = _xrce_vendor_id;
     }
@@ -1298,7 +1412,8 @@ public:
      * @brief This function moves the value in member xrce_vendor_id
      * @param _xrce_vendor_id New value to be moved in member xrce_vendor_id
      */
-    inline void xrce_vendor_id(XrceVendorId &&_xrce_vendor_id)
+    inline void xrce_vendor_id(
+            XrceVendorId&& _xrce_vendor_id)
     {
         m_xrce_vendor_id = std::move(_xrce_vendor_id);
     }
@@ -1325,7 +1440,8 @@ public:
      * @brief This function copies the value in member client_key
      * @param _client_key New value to be copied in member client_key
      */
-    inline void client_key(const ClientKey &_client_key)
+    inline void client_key(
+            const ClientKey& _client_key)
     {
         m_client_key = _client_key;
     }
@@ -1334,7 +1450,8 @@ public:
      * @brief This function moves the value in member client_key
      * @param _client_key New value to be moved in member client_key
      */
-    inline void client_key(ClientKey &&_client_key)
+    inline void client_key(
+            ClientKey&& _client_key)
     {
         m_client_key = std::move(_client_key);
     }
@@ -1361,7 +1478,8 @@ public:
      * @brief This function sets a value in member session_id
      * @param _session_id New value for member session_id
      */
-    inline void session_id(SessionId _session_id)
+    inline void session_id(
+            SessionId _session_id)
     {
         m_session_id = _session_id;
     }
@@ -1388,7 +1506,8 @@ public:
      * @brief This function sets a value in member properties
      * @param _properties New value for member properties
      */
-    inline void properties(eprosima::Optional<PropertySeq> _properties)
+    inline void properties(
+            eprosima::Optional<PropertySeq> _properties)
     {
         m_properties = _properties;
     }
@@ -1415,7 +1534,8 @@ public:
      * @brief This function sets a value in member mtu
      * @param _mtu New value for member mtu
      */
-    inline void mtu(uint16_t _mtu)
+    inline void mtu(
+            uint16_t _mtu)
     {
         m_mtu = _mtu;
     }
@@ -1444,7 +1564,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -1452,21 +1573,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-    
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     XrceCookie m_xrce_cookie;
     XrceVersion m_xrce_version;
     XrceVendorId m_xrce_vendor_id;
@@ -1488,41 +1613,46 @@ public:
      * @brief Default constructor.
      */
     AGENT_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~AGENT_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object AGENT_Representation that will be copied.
      */
-    AGENT_Representation(const AGENT_Representation &x);
-    
+    AGENT_Representation(
+            const AGENT_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object AGENT_Representation that will be copied.
      */
-    AGENT_Representation(AGENT_Representation &&x);
-    
+    AGENT_Representation(
+            AGENT_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object AGENT_Representation that will be copied.
      */
-    AGENT_Representation& operator=(const AGENT_Representation &x);
-    
+    AGENT_Representation& operator =(
+            const AGENT_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object AGENT_Representation that will be copied.
      */
-    AGENT_Representation& operator=(AGENT_Representation &&x);
-    
+    AGENT_Representation& operator =(
+            AGENT_Representation&& x);
+
     /*!
      * @brief This function copies the value in member xrce_cookie
      * @param _xrce_cookie New value to be copied in member xrce_cookie
      */
-    inline void xrce_cookie(const XrceCookie &_xrce_cookie)
+    inline void xrce_cookie(
+            const XrceCookie& _xrce_cookie)
     {
         m_xrce_cookie = _xrce_cookie;
     }
@@ -1531,7 +1661,8 @@ public:
      * @brief This function moves the value in member xrce_cookie
      * @param _xrce_cookie New value to be moved in member xrce_cookie
      */
-    inline void xrce_cookie(XrceCookie &&_xrce_cookie)
+    inline void xrce_cookie(
+            XrceCookie&& _xrce_cookie)
     {
         m_xrce_cookie = std::move(_xrce_cookie);
     }
@@ -1553,11 +1684,13 @@ public:
     {
         return m_xrce_cookie;
     }
+
     /*!
      * @brief This function copies the value in member xrce_version
      * @param _xrce_version New value to be copied in member xrce_version
      */
-    inline void xrce_version(const XrceVersion &_xrce_version)
+    inline void xrce_version(
+            const XrceVersion& _xrce_version)
     {
         m_xrce_version = _xrce_version;
     }
@@ -1566,7 +1699,8 @@ public:
      * @brief This function moves the value in member xrce_version
      * @param _xrce_version New value to be moved in member xrce_version
      */
-    inline void xrce_version(XrceVersion &&_xrce_version)
+    inline void xrce_version(
+            XrceVersion&& _xrce_version)
     {
         m_xrce_version = std::move(_xrce_version);
     }
@@ -1588,11 +1722,13 @@ public:
     {
         return m_xrce_version;
     }
+
     /*!
      * @brief This function copies the value in member xrce_vendor_id
      * @param _xrce_vendor_id New value to be copied in member xrce_vendor_id
      */
-    inline void xrce_vendor_id(const XrceVendorId &_xrce_vendor_id)
+    inline void xrce_vendor_id(
+            const XrceVendorId& _xrce_vendor_id)
     {
         m_xrce_vendor_id = _xrce_vendor_id;
     }
@@ -1601,7 +1737,8 @@ public:
      * @brief This function moves the value in member xrce_vendor_id
      * @param _xrce_vendor_id New value to be moved in member xrce_vendor_id
      */
-    inline void xrce_vendor_id(XrceVendorId &&_xrce_vendor_id)
+    inline void xrce_vendor_id(
+            XrceVendorId&& _xrce_vendor_id)
     {
         m_xrce_vendor_id = std::move(_xrce_vendor_id);
     }
@@ -1628,7 +1765,8 @@ public:
      * @brief This function sets a value in member properties
      * @param _properties New value for member properties
      */
-    inline void properties(eprosima::Optional<PropertySeq> _properties)
+    inline void properties(
+            eprosima::Optional<PropertySeq> _properties)
     {
         m_properties = _properties;
     }
@@ -1657,7 +1795,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -1665,22 +1804,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     XrceCookie m_xrce_cookie;
     XrceVersion m_xrce_version;
     XrceVendorId m_xrce_vendor_id;
@@ -1706,66 +1849,73 @@ public:
      * @brief Default constructor.
      */
     OBJK_Representation3Formats();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Representation3Formats();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Representation3Formats that will be copied.
      */
-    OBJK_Representation3Formats(const OBJK_Representation3Formats &x);
-    
+    OBJK_Representation3Formats(
+            const OBJK_Representation3Formats& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Representation3Formats that will be copied.
      */
-    OBJK_Representation3Formats(OBJK_Representation3Formats &&x);
-    
+    OBJK_Representation3Formats(
+            OBJK_Representation3Formats&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Representation3Formats that will be copied.
      */
-    OBJK_Representation3Formats& operator=(const OBJK_Representation3Formats &x);
-    
+    OBJK_Representation3Formats& operator =(
+            const OBJK_Representation3Formats& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Representation3Formats that will be copied.
      */
-    OBJK_Representation3Formats& operator=(OBJK_Representation3Formats &&x);
-    
+    OBJK_Representation3Formats& operator =(
+            OBJK_Representation3Formats&& x);
+
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(RepresentationFormat __d);
-    
+    void _d(
+            RepresentationFormat __d);
+
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
     RepresentationFormat _d() const;
-    
+
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
     RepresentationFormat& _d();
-    
+
     /*!
      * @brief This function copies the value in member object_reference
      * @param _object_reference New value to be copied in member object_reference
      */
-    void object_reference(const std::string &_object_reference);
+    void object_reference(
+            const std::string& _object_reference);
 
     /*!
      * @brief This function moves the value in member object_reference
      * @param _object_reference New value to be moved in member object_reference
      */
-    void object_reference(std::string &&_object_reference);
+    void object_reference(
+            std::string&& _object_reference);
 
     /*!
      * @brief This function returns a constant reference to member object_reference
@@ -1784,13 +1934,15 @@ public:
      * @brief This function copies the value in member xml_string_representation
      * @param _xml_string_representation New value to be copied in member xml_string_representation
      */
-    void xml_string_representation(const std::string &_xml_string_representation);
+    void xml_string_representation(
+            const std::string& _xml_string_representation);
 
     /*!
      * @brief This function moves the value in member xml_string_representation
      * @param _xml_string_representation New value to be moved in member xml_string_representation
      */
-    void xml_string_representation(std::string &&_xml_string_representation);
+    void xml_string_representation(
+            std::string&& _xml_string_representation);
 
     /*!
      * @brief This function returns a constant reference to member xml_string_representation
@@ -1811,13 +1963,15 @@ public:
      * @param _binary_representation New value to be copied in member binary_representation
      */
 
-    void binary_representation(const std::vector<uint8_t> &_binary_representation);
+    void binary_representation(
+            const std::vector<uint8_t>& _binary_representation);
 
     /*!
      * @brief This function moves the value in member binary_representation
      * @param _binary_representation New value to be moved in member binary_representation
      */
-    void binary_representation(std::vector<uint8_t> &&_binary_representation);
+    void binary_representation(
+            std::vector<uint8_t>&& _binary_representation);
 
     /*!
      * @brief This function returns a constant reference to member binary_representation
@@ -1832,14 +1986,15 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     std::vector<uint8_t>& binary_representation();
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -1847,23 +2002,27 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
-    
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     RepresentationFormat m__d;
-    
+
     std::string m_object_reference;
     std::string m_xml_string_representation;
     std::vector<uint8_t> m_binary_representation;
@@ -1891,32 +2050,37 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_RepresentationRefAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationRefAndXMLFormats(const OBJK_RepresentationRefAndXMLFormats &x);
+    OBJK_RepresentationRefAndXMLFormats(
+            const OBJK_RepresentationRefAndXMLFormats& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_RepresentationRefAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationRefAndXMLFormats(OBJK_RepresentationRefAndXMLFormats &&x);
+    OBJK_RepresentationRefAndXMLFormats(
+            OBJK_RepresentationRefAndXMLFormats&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_RepresentationRefAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationRefAndXMLFormats& operator=(const OBJK_RepresentationRefAndXMLFormats &x);
+    OBJK_RepresentationRefAndXMLFormats& operator =(
+            const OBJK_RepresentationRefAndXMLFormats& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_RepresentationRefAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationRefAndXMLFormats& operator=(OBJK_RepresentationRefAndXMLFormats &&x);
+    OBJK_RepresentationRefAndXMLFormats& operator =(
+            OBJK_RepresentationRefAndXMLFormats&& x);
 
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(RepresentationFormat __d);
+    void _d(
+            RepresentationFormat __d);
 
     /*!
      * @brief This function returns the value of the discriminator.
@@ -1934,13 +2098,15 @@ public:
      * @brief This function copies the value in member object_reference
      * @param _object_reference New value to be copied in member object_reference
      */
-    void object_reference(const std::string &_object_reference);
+    void object_reference(
+            const std::string& _object_reference);
 
     /*!
      * @brief This function moves the value in member object_reference
      * @param _object_reference New value to be moved in member object_reference
      */
-    void object_reference(std::string &&_object_reference);
+    void object_reference(
+            std::string&& _object_reference);
 
     /*!
      * @brief This function returns a constant reference to member object_reference
@@ -1959,13 +2125,15 @@ public:
      * @brief This function copies the value in member string_representation
      * @param _string_representation New value to be copied in member string_representation
      */
-    void string_representation(const std::string &_string_representation);
+    void string_representation(
+            const std::string& _string_representation);
 
     /*!
      * @brief This function moves the value in member string_representation
      * @param _string_representation New value to be moved in member string_representation
      */
-    void string_representation(std::string &&_string_representation);
+    void string_representation(
+            std::string&& _string_representation);
 
     /*!
      * @brief This function returns a constant reference to member string_representation
@@ -1987,7 +2155,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -1995,21 +2164,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     RepresentationFormat m__d;
 
     std::string m_object_reference;
@@ -2038,32 +2212,37 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_RepresentationBinAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationBinAndXMLFormats(const OBJK_RepresentationBinAndXMLFormats &x);
+    OBJK_RepresentationBinAndXMLFormats(
+            const OBJK_RepresentationBinAndXMLFormats& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_RepresentationBinAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationBinAndXMLFormats(OBJK_RepresentationBinAndXMLFormats &&x);
+    OBJK_RepresentationBinAndXMLFormats(
+            OBJK_RepresentationBinAndXMLFormats&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_RepresentationBinAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationBinAndXMLFormats& operator=(const OBJK_RepresentationBinAndXMLFormats &x);
+    OBJK_RepresentationBinAndXMLFormats& operator =(
+            const OBJK_RepresentationBinAndXMLFormats& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_RepresentationBinAndXMLFormats that will be copied.
      */
-    OBJK_RepresentationBinAndXMLFormats& operator=(OBJK_RepresentationBinAndXMLFormats &&x);
+    OBJK_RepresentationBinAndXMLFormats& operator =(
+            OBJK_RepresentationBinAndXMLFormats&& x);
 
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(RepresentationFormat __d);
+    void _d(
+            RepresentationFormat __d);
 
     /*!
      * @brief This function returns the value of the discriminator.
@@ -2081,13 +2260,15 @@ public:
      * @brief This function copies the value in member binary_representation
      * @param _binary_representation New value to be copied in member binary_representation
      */
-    void binary_representation(const std::vector<uint8_t> &_binary_representation);
+    void binary_representation(
+            const std::vector<uint8_t>& _binary_representation);
 
     /*!
      * @brief This function moves the value in member binary_representation
      * @param _binary_representation New value to be moved in member binary_representation
      */
-    void binary_representation(std::vector<uint8_t> &&_binary_representation);
+    void binary_representation(
+            std::vector<uint8_t>&& _binary_representation);
 
     /*!
      * @brief This function returns a constant reference to member binary_representation
@@ -2106,13 +2287,15 @@ public:
      * @brief This function copies the value in member string_representation
      * @param _string_representation New value to be copied in member string_representation
      */
-    void string_representation(const std::string &_string_representation);
+    void string_representation(
+            const std::string& _string_representation);
 
     /*!
      * @brief This function moves the value in member string_representation
      * @param _string_representation New value to be moved in member string_representation
      */
-    void string_representation(std::string &&_string_representation);
+    void string_representation(
+            std::string&& _string_representation);
 
     /*!
      * @brief This function returns a constant reference to member string_representation
@@ -2134,7 +2317,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2142,22 +2326,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     RepresentationFormat m__d;
 
     std::vector<uint8_t> m_binary_representation;
@@ -2186,31 +2374,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_RepresentationRefAndXML_Base that will be copied.
      */
-    OBJK_RepresentationRefAndXML_Base(const OBJK_RepresentationRefAndXML_Base &x);
+    OBJK_RepresentationRefAndXML_Base(
+            const OBJK_RepresentationRefAndXML_Base& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_RepresentationRefAndXML_Base that will be copied.
      */
-    OBJK_RepresentationRefAndXML_Base(OBJK_RepresentationRefAndXML_Base &&x);
+    OBJK_RepresentationRefAndXML_Base(
+            OBJK_RepresentationRefAndXML_Base&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_RepresentationRefAndXML_Base that will be copied.
      */
-    OBJK_RepresentationRefAndXML_Base& operator=(const OBJK_RepresentationRefAndXML_Base &x);
+    OBJK_RepresentationRefAndXML_Base& operator =(
+            const OBJK_RepresentationRefAndXML_Base& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_RepresentationRefAndXML_Base that will be copied.
      */
-    OBJK_RepresentationRefAndXML_Base& operator=(OBJK_RepresentationRefAndXML_Base &&x);
+    OBJK_RepresentationRefAndXML_Base& operator =(
+            OBJK_RepresentationRefAndXML_Base&& x);
 
     /*!
      * @brief This function copies the value in member representation
      * @param _representation New value to be copied in member representation
      */
-    inline void representation(const OBJK_RepresentationRefAndXMLFormats &_representation)
+    inline void representation(
+            const OBJK_RepresentationRefAndXMLFormats& _representation)
     {
         m_representation = _representation;
     }
@@ -2219,7 +2412,8 @@ public:
      * @brief This function moves the value in member representation
      * @param _representation New value to be moved in member representation
      */
-    inline void representation(OBJK_RepresentationRefAndXMLFormats &&_representation)
+    inline void representation(
+            OBJK_RepresentationRefAndXMLFormats&& _representation)
     {
         m_representation = std::move(_representation);
     }
@@ -2248,7 +2442,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2256,20 +2451,23 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-     virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 
 
@@ -2279,7 +2477,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getKeyMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getKeyMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function tells you if the Key has been defined for this type
@@ -2290,9 +2489,11 @@ public:
      * @brief This function serializes the key members of an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serializeKey(eprosima::fastcdr::Cdr &cdr) const;
+    void serializeKey(
+            eprosima::fastcdr::Cdr& cdr) const;
 
 private:
+
     OBJK_RepresentationRefAndXMLFormats m_representation;
 };
 /*!
@@ -2317,31 +2518,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_RepresentationBinAndXML_Base that will be copied.
      */
-    OBJK_RepresentationBinAndXML_Base(const OBJK_RepresentationBinAndXML_Base &x);
+    OBJK_RepresentationBinAndXML_Base(
+            const OBJK_RepresentationBinAndXML_Base& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_RepresentationBinAndXML_Base that will be copied.
      */
-    OBJK_RepresentationBinAndXML_Base(OBJK_RepresentationBinAndXML_Base &&x);
+    OBJK_RepresentationBinAndXML_Base(
+            OBJK_RepresentationBinAndXML_Base&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_RepresentationBinAndXML_Base that will be copied.
      */
-    OBJK_RepresentationBinAndXML_Base& operator=(const OBJK_RepresentationBinAndXML_Base &x);
+    OBJK_RepresentationBinAndXML_Base& operator =(
+            const OBJK_RepresentationBinAndXML_Base& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_RepresentationBinAndXML_Base that will be copied.
      */
-    OBJK_RepresentationBinAndXML_Base& operator=(OBJK_RepresentationBinAndXML_Base &&x);
+    OBJK_RepresentationBinAndXML_Base& operator =(
+            OBJK_RepresentationBinAndXML_Base&& x);
 
     /*!
      * @brief This function copies the value in member representation
      * @param _representation New value to be copied in member representation
      */
-    inline void representation(const OBJK_RepresentationBinAndXMLFormats &_representation)
+    inline void representation(
+            const OBJK_RepresentationBinAndXMLFormats& _representation)
     {
         m_representation = _representation;
     }
@@ -2350,7 +2556,8 @@ public:
      * @brief This function moves the value in member representation
      * @param _representation New value to be moved in member representation
      */
-    inline void representation(OBJK_RepresentationBinAndXMLFormats &&_representation)
+    inline void representation(
+            OBJK_RepresentationBinAndXMLFormats&& _representation)
     {
         m_representation = std::move(_representation);
     }
@@ -2377,7 +2584,8 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(Endianness endianness)
+    inline void endianness(
+            Endianness endianness)
     {
         m_endianness = endianness;
     }
@@ -2397,7 +2605,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2405,22 +2614,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    void deserialize(eprosima::fastcdr::Cdr &cdr);
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     OBJK_RepresentationBinAndXMLFormats m_representation;
     Endianness m_endianness;
 };
@@ -2437,41 +2650,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_Representation3_Base();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Representation3_Base();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Representation3_Base that will be copied.
      */
-    OBJK_Representation3_Base(const OBJK_Representation3_Base &x);
-    
+    OBJK_Representation3_Base(
+            const OBJK_Representation3_Base& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Representation3_Base that will be copied.
      */
-    OBJK_Representation3_Base(OBJK_Representation3_Base &&x);
-    
+    OBJK_Representation3_Base(
+            OBJK_Representation3_Base&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Representation3_Base that will be copied.
      */
-    OBJK_Representation3_Base& operator=(const OBJK_Representation3_Base &x);
-    
+    OBJK_Representation3_Base& operator =(
+            const OBJK_Representation3_Base& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Representation3_Base that will be copied.
      */
-    OBJK_Representation3_Base& operator=(OBJK_Representation3_Base &&x);
-    
+    OBJK_Representation3_Base& operator =(
+            OBJK_Representation3_Base&& x);
+
     /*!
      * @brief This function copies the value in member representation
      * @param _representation New value to be copied in member representation
      */
-    inline void representation(const OBJK_Representation3Formats &_representation)
+    inline void representation(
+            const OBJK_Representation3Formats& _representation)
     {
         m_representation = _representation;
     }
@@ -2480,7 +2698,8 @@ public:
      * @brief This function moves the value in member representation
      * @param _representation New value to be moved in member representation
      */
-    inline void representation(OBJK_Representation3Formats &&_representation)
+    inline void representation(
+            OBJK_Representation3Formats&& _representation)
     {
         m_representation = std::move(_representation);
     }
@@ -2507,7 +2726,8 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(Endianness endianness)
+    inline void endianness(
+            Endianness endianness)
     {
         m_endianness = endianness;
     }
@@ -2527,7 +2747,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2535,21 +2756,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     OBJK_Representation3Formats m_representation;
     Endianness m_endianness;
 };
@@ -2566,43 +2791,48 @@ public:
      * @brief Default constructor.
      */
     OBJK_QOSPROFILE_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_QOSPROFILE_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_QOSPROFILE_Representation that will be copied.
      */
-    OBJK_QOSPROFILE_Representation(const OBJK_QOSPROFILE_Representation &x);
-    
+    OBJK_QOSPROFILE_Representation(
+            const OBJK_QOSPROFILE_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_QOSPROFILE_Representation that will be copied.
      */
-    OBJK_QOSPROFILE_Representation(OBJK_QOSPROFILE_Representation &&x);
-    
+    OBJK_QOSPROFILE_Representation(
+            OBJK_QOSPROFILE_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_QOSPROFILE_Representation that will be copied.
      */
-    OBJK_QOSPROFILE_Representation& operator=(const OBJK_QOSPROFILE_Representation &x);
-    
+    OBJK_QOSPROFILE_Representation& operator =(
+            const OBJK_QOSPROFILE_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_QOSPROFILE_Representation that will be copied.
      */
-    OBJK_QOSPROFILE_Representation& operator=(OBJK_QOSPROFILE_Representation &&x);
-    
+    OBJK_QOSPROFILE_Representation& operator =(
+            OBJK_QOSPROFILE_Representation&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2610,19 +2840,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 
 /*!
@@ -2637,43 +2870,48 @@ public:
      * @brief Default constructor.
      */
     OBJK_TYPE_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_TYPE_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_TYPE_Representation that will be copied.
      */
-    OBJK_TYPE_Representation(const OBJK_TYPE_Representation &x);
-    
+    OBJK_TYPE_Representation(
+            const OBJK_TYPE_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_TYPE_Representation that will be copied.
      */
-    OBJK_TYPE_Representation(OBJK_TYPE_Representation &&x);
-    
+    OBJK_TYPE_Representation(
+            OBJK_TYPE_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_TYPE_Representation that will be copied.
      */
-    OBJK_TYPE_Representation& operator=(const OBJK_TYPE_Representation &x);
-    
+    OBJK_TYPE_Representation& operator =(
+            const OBJK_TYPE_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_TYPE_Representation that will be copied.
      */
-    OBJK_TYPE_Representation& operator=(OBJK_TYPE_Representation &&x);
-    
+    OBJK_TYPE_Representation& operator =(
+            OBJK_TYPE_Representation&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2681,19 +2919,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 
 /*!
@@ -2708,43 +2949,48 @@ public:
      * @brief Default constructor.
      */
     OBJK_DOMAIN_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_DOMAIN_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_DOMAIN_Representation that will be copied.
      */
-    OBJK_DOMAIN_Representation(const OBJK_DOMAIN_Representation &x);
-    
+    OBJK_DOMAIN_Representation(
+            const OBJK_DOMAIN_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_DOMAIN_Representation that will be copied.
      */
-    OBJK_DOMAIN_Representation(OBJK_DOMAIN_Representation &&x);
-    
+    OBJK_DOMAIN_Representation(
+            OBJK_DOMAIN_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_DOMAIN_Representation that will be copied.
      */
-    OBJK_DOMAIN_Representation& operator=(const OBJK_DOMAIN_Representation &x);
-    
+    OBJK_DOMAIN_Representation& operator =(
+            const OBJK_DOMAIN_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_DOMAIN_Representation that will be copied.
      */
-    OBJK_DOMAIN_Representation& operator=(OBJK_DOMAIN_Representation &&x);
-    
+    OBJK_DOMAIN_Representation& operator =(
+            OBJK_DOMAIN_Representation&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2752,19 +2998,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 
 /*!
@@ -2779,43 +3028,48 @@ public:
      * @brief Default constructor.
      */
     OBJK_APPLICATION_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_APPLICATION_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_APPLICATION_Representation that will be copied.
      */
-    OBJK_APPLICATION_Representation(const OBJK_APPLICATION_Representation &x);
-    
+    OBJK_APPLICATION_Representation(
+            const OBJK_APPLICATION_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_APPLICATION_Representation that will be copied.
      */
-    OBJK_APPLICATION_Representation(OBJK_APPLICATION_Representation &&x);
-    
+    OBJK_APPLICATION_Representation(
+            OBJK_APPLICATION_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_APPLICATION_Representation that will be copied.
      */
-    OBJK_APPLICATION_Representation& operator=(const OBJK_APPLICATION_Representation &x);
-    
+    OBJK_APPLICATION_Representation& operator =(
+            const OBJK_APPLICATION_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_APPLICATION_Representation that will be copied.
      */
-    OBJK_APPLICATION_Representation& operator=(OBJK_APPLICATION_Representation &&x);
-    
+    OBJK_APPLICATION_Representation& operator =(
+            OBJK_APPLICATION_Representation&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2823,19 +3077,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 
 /*!
@@ -2850,41 +3107,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_PARTICIPANT_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_PARTICIPANT_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_PARTICIPANT_Representation that will be copied.
      */
-    OBJK_PARTICIPANT_Representation(const OBJK_PARTICIPANT_Representation &x);
-    
+    OBJK_PARTICIPANT_Representation(
+            const OBJK_PARTICIPANT_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_PARTICIPANT_Representation that will be copied.
      */
-    OBJK_PARTICIPANT_Representation(OBJK_PARTICIPANT_Representation &&x);
-    
+    OBJK_PARTICIPANT_Representation(
+            OBJK_PARTICIPANT_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_PARTICIPANT_Representation that will be copied.
      */
-    OBJK_PARTICIPANT_Representation& operator=(const OBJK_PARTICIPANT_Representation &x);
-    
+    OBJK_PARTICIPANT_Representation& operator =(
+            const OBJK_PARTICIPANT_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_PARTICIPANT_Representation that will be copied.
      */
-    OBJK_PARTICIPANT_Representation& operator=(OBJK_PARTICIPANT_Representation &&x);
+    OBJK_PARTICIPANT_Representation& operator =(
+            OBJK_PARTICIPANT_Representation&& x);
 
     /*!
      * @brief This function sets a value in member availability
      * @param _domain_id New value for member domain_id
      */
-    inline void domain_id(int16_t _domain_id)
+    inline void domain_id(
+            int16_t _domain_id)
     {
         m_domain_id = _domain_id;
     }
@@ -2913,7 +3175,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -2921,21 +3184,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     int16_t m_domain_id;
 };
 
@@ -2951,41 +3218,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_TOPIC_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_TOPIC_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_TOPIC_Representation that will be copied.
      */
-    OBJK_TOPIC_Representation(const OBJK_TOPIC_Representation &x);
-    
+    OBJK_TOPIC_Representation(
+            const OBJK_TOPIC_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_TOPIC_Representation that will be copied.
      */
-    OBJK_TOPIC_Representation(OBJK_TOPIC_Representation &&x);
-    
+    OBJK_TOPIC_Representation(
+            OBJK_TOPIC_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_TOPIC_Representation that will be copied.
      */
-    OBJK_TOPIC_Representation& operator=(const OBJK_TOPIC_Representation &x);
-    
+    OBJK_TOPIC_Representation& operator =(
+            const OBJK_TOPIC_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_TOPIC_Representation that will be copied.
      */
-    OBJK_TOPIC_Representation& operator=(OBJK_TOPIC_Representation &&x);
-    
+    OBJK_TOPIC_Representation& operator =(
+            OBJK_TOPIC_Representation&& x);
+
     /*!
      * @brief This function copies the value in member participant_id
      * @param _participant_id New value to be copied in member participant_id
      */
-    inline void participant_id(const ObjectId &_participant_id)
+    inline void participant_id(
+            const ObjectId& _participant_id)
     {
         m_participant_id = _participant_id;
     }
@@ -2994,7 +3266,8 @@ public:
      * @brief This function moves the value in member participant_id
      * @param _participant_id New value to be moved in member participant_id
      */
-    inline void participant_id(ObjectId &&_participant_id)
+    inline void participant_id(
+            ObjectId&& _participant_id)
     {
         m_participant_id = std::move(_participant_id);
     }
@@ -3016,14 +3289,15 @@ public:
     {
         return m_participant_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3031,21 +3305,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_participant_id;
 };
 
@@ -3061,41 +3339,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_PUBLISHER_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_PUBLISHER_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUBLISHER_Representation(const OBJK_PUBLISHER_Representation &x);
-    
+    OBJK_PUBLISHER_Representation(
+            const OBJK_PUBLISHER_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUBLISHER_Representation(OBJK_PUBLISHER_Representation &&x);
-    
+    OBJK_PUBLISHER_Representation(
+            OBJK_PUBLISHER_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUBLISHER_Representation& operator=(const OBJK_PUBLISHER_Representation &x);
-    
+    OBJK_PUBLISHER_Representation& operator =(
+            const OBJK_PUBLISHER_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_PUBLISHER_Representation that will be copied.
      */
-    OBJK_PUBLISHER_Representation& operator=(OBJK_PUBLISHER_Representation &&x);
-    
+    OBJK_PUBLISHER_Representation& operator =(
+            OBJK_PUBLISHER_Representation&& x);
+
     /*!
      * @brief This function copies the value in member participant_id
      * @param _participant_id New value to be copied in member participant_id
      */
-    inline void participant_id(const ObjectId &_participant_id)
+    inline void participant_id(
+            const ObjectId& _participant_id)
     {
         m_participant_id = _participant_id;
     }
@@ -3104,7 +3387,8 @@ public:
      * @brief This function moves the value in member participant_id
      * @param _participant_id New value to be moved in member participant_id
      */
-    inline void participant_id(ObjectId &&_participant_id)
+    inline void participant_id(
+            ObjectId&& _participant_id)
     {
         m_participant_id = std::move(_participant_id);
     }
@@ -3126,14 +3410,15 @@ public:
     {
         return m_participant_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3141,21 +3426,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_participant_id;
 };
 
@@ -3171,41 +3460,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_SUBSCRIBER_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_SUBSCRIBER_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUBSCRIBER_Representation(const OBJK_SUBSCRIBER_Representation &x);
-    
+    OBJK_SUBSCRIBER_Representation(
+            const OBJK_SUBSCRIBER_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUBSCRIBER_Representation(OBJK_SUBSCRIBER_Representation &&x);
-    
+    OBJK_SUBSCRIBER_Representation(
+            OBJK_SUBSCRIBER_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUBSCRIBER_Representation& operator=(const OBJK_SUBSCRIBER_Representation &x);
-    
+    OBJK_SUBSCRIBER_Representation& operator =(
+            const OBJK_SUBSCRIBER_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_SUBSCRIBER_Representation that will be copied.
      */
-    OBJK_SUBSCRIBER_Representation& operator=(OBJK_SUBSCRIBER_Representation &&x);
-    
+    OBJK_SUBSCRIBER_Representation& operator =(
+            OBJK_SUBSCRIBER_Representation&& x);
+
     /*!
      * @brief This function copies the value in member participant_id
      * @param _participant_id New value to be copied in member participant_id
      */
-    inline void participant_id(const ObjectId &_participant_id)
+    inline void participant_id(
+            const ObjectId& _participant_id)
     {
         m_participant_id = _participant_id;
     }
@@ -3214,7 +3508,8 @@ public:
      * @brief This function moves the value in member participant_id
      * @param _participant_id New value to be moved in member participant_id
      */
-    inline void participant_id(ObjectId &&_participant_id)
+    inline void participant_id(
+            ObjectId&& _participant_id)
     {
         m_participant_id = std::move(_participant_id);
     }
@@ -3236,14 +3531,15 @@ public:
     {
         return m_participant_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3251,21 +3547,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_participant_id;
 };
 /*!
@@ -3280,41 +3580,46 @@ public:
      * @brief Default constructor.
      */
     DATAWRITER_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATAWRITER_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATAWRITER_Representation that will be copied.
      */
-    DATAWRITER_Representation(const DATAWRITER_Representation &x);
-    
+    DATAWRITER_Representation(
+            const DATAWRITER_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATAWRITER_Representation that will be copied.
      */
-    DATAWRITER_Representation(DATAWRITER_Representation &&x);
-    
+    DATAWRITER_Representation(
+            DATAWRITER_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATAWRITER_Representation that will be copied.
      */
-    DATAWRITER_Representation& operator=(const DATAWRITER_Representation &x);
-    
+    DATAWRITER_Representation& operator =(
+            const DATAWRITER_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATAWRITER_Representation that will be copied.
      */
-    DATAWRITER_Representation& operator=(DATAWRITER_Representation &&x);
-    
+    DATAWRITER_Representation& operator =(
+            DATAWRITER_Representation&& x);
+
     /*!
      * @brief This function copies the value in member publisher_id
      * @param _publisher_id New value to be copied in member publisher_id
      */
-    inline void publisher_id(const ObjectId &_publisher_id)
+    inline void publisher_id(
+            const ObjectId& _publisher_id)
     {
         m_publisher_id = _publisher_id;
     }
@@ -3323,7 +3628,8 @@ public:
      * @brief This function moves the value in member publisher_id
      * @param _publisher_id New value to be moved in member publisher_id
      */
-    inline void publisher_id(ObjectId &&_publisher_id)
+    inline void publisher_id(
+            ObjectId&& _publisher_id)
     {
         m_publisher_id = std::move(_publisher_id);
     }
@@ -3345,14 +3651,15 @@ public:
     {
         return m_publisher_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3360,21 +3667,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_publisher_id;
 };
 
@@ -3390,41 +3701,46 @@ public:
      * @brief Default constructor.
      */
     DATAREADER_Representation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATAREADER_Representation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATAREADER_Representation that will be copied.
      */
-    DATAREADER_Representation(const DATAREADER_Representation &x);
-    
+    DATAREADER_Representation(
+            const DATAREADER_Representation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATAREADER_Representation that will be copied.
      */
-    DATAREADER_Representation(DATAREADER_Representation &&x);
-    
+    DATAREADER_Representation(
+            DATAREADER_Representation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATAREADER_Representation that will be copied.
      */
-    DATAREADER_Representation& operator=(const DATAREADER_Representation &x);
-    
+    DATAREADER_Representation& operator =(
+            const DATAREADER_Representation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATAREADER_Representation that will be copied.
      */
-    DATAREADER_Representation& operator=(DATAREADER_Representation &&x);
-    
+    DATAREADER_Representation& operator =(
+            DATAREADER_Representation&& x);
+
     /*!
      * @brief This function copies the value in member subscriber_id
      * @param _subscriber_id New value to be copied in member subscriber_id
      */
-    inline void subscriber_id(const ObjectId &_subscriber_id)
+    inline void subscriber_id(
+            const ObjectId& _subscriber_id)
     {
         m_subscriber_id = _subscriber_id;
     }
@@ -3433,7 +3749,8 @@ public:
      * @brief This function moves the value in member subscriber_id
      * @param _subscriber_id New value to be moved in member subscriber_id
      */
-    inline void subscriber_id(ObjectId &&_subscriber_id)
+    inline void subscriber_id(
+            ObjectId&& _subscriber_id)
     {
         m_subscriber_id = std::move(_subscriber_id);
     }
@@ -3455,14 +3772,15 @@ public:
     {
         return m_subscriber_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3470,21 +3788,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_subscriber_id;
 };
 
@@ -3510,31 +3832,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object REQUESTER_Representation that will be copied.
      */
-    REQUESTER_Representation(const REQUESTER_Representation &x);
+    REQUESTER_Representation(
+            const REQUESTER_Representation& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object REQUESTER_Representation that will be copied.
      */
-    REQUESTER_Representation(REQUESTER_Representation &&x);
+    REQUESTER_Representation(
+            REQUESTER_Representation&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object REQUESTER_Representation that will be copied.
      */
-    REQUESTER_Representation& operator=(const REQUESTER_Representation &x);
+    REQUESTER_Representation& operator =(
+            const REQUESTER_Representation& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object REQUESTER_Representation that will be copied.
      */
-    REQUESTER_Representation& operator=(REQUESTER_Representation &&x);
+    REQUESTER_Representation& operator =(
+            REQUESTER_Representation&& x);
 
     /*!
      * @brief This function copies the value in member participant_id
      * @param _participant_id New value to be copied in member participant_id
      */
-    inline void participant_id(const ObjectId &_participant_id)
+    inline void participant_id(
+            const ObjectId& _participant_id)
     {
         m_participant_id = _participant_id;
     }
@@ -3543,7 +3870,8 @@ public:
      * @brief This function moves the value in member participant_id
      * @param _participant_id New value to be moved in member participant_id
      */
-    inline void participant_id(ObjectId &&_participant_id)
+    inline void participant_id(
+            ObjectId&& _participant_id)
     {
         m_participant_id = std::move(_participant_id);
     }
@@ -3572,7 +3900,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3580,21 +3909,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_participant_id;
 };
 
@@ -3620,31 +3953,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object REPLIER_Representation that will be copied.
      */
-    REPLIER_Representation(const REPLIER_Representation &x);
+    REPLIER_Representation(
+            const REPLIER_Representation& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object REPLIER_Representation that will be copied.
      */
-    REPLIER_Representation(REPLIER_Representation &&x);
+    REPLIER_Representation(
+            REPLIER_Representation&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object REPLIER_Representation that will be copied.
      */
-    REPLIER_Representation& operator=(const REPLIER_Representation &x);
+    REPLIER_Representation& operator =(
+            const REPLIER_Representation& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object REPLIER_Representation that will be copied.
      */
-    REPLIER_Representation& operator=(REPLIER_Representation &&x);
+    REPLIER_Representation& operator =(
+            REPLIER_Representation&& x);
 
     /*!
      * @brief This function copies the value in member participant_id
      * @param _participant_id New value to be copied in member participant_id
      */
-    inline void participant_id(const ObjectId &_participant_id)
+    inline void participant_id(
+            const ObjectId& _participant_id)
     {
         m_participant_id = _participant_id;
     }
@@ -3653,7 +3991,8 @@ public:
      * @brief This function moves the value in member participant_id
      * @param _participant_id New value to be moved in member participant_id
      */
-    inline void participant_id(ObjectId &&_participant_id)
+    inline void participant_id(
+            ObjectId&& _participant_id)
     {
         m_participant_id = std::move(_participant_id);
     }
@@ -3682,7 +4021,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3690,21 +4030,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_participant_id;
 };
 
@@ -3720,41 +4064,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_DomainParticipant_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_DomainParticipant_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_DomainParticipant_Binary that will be copied.
      */
-    OBJK_DomainParticipant_Binary(const OBJK_DomainParticipant_Binary &x);
-    
+    OBJK_DomainParticipant_Binary(
+            const OBJK_DomainParticipant_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_DomainParticipant_Binary that will be copied.
      */
-    OBJK_DomainParticipant_Binary(OBJK_DomainParticipant_Binary &&x);
-    
+    OBJK_DomainParticipant_Binary(
+            OBJK_DomainParticipant_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_DomainParticipant_Binary that will be copied.
      */
-    OBJK_DomainParticipant_Binary& operator=(const OBJK_DomainParticipant_Binary &x);
-    
+    OBJK_DomainParticipant_Binary& operator =(
+            const OBJK_DomainParticipant_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_DomainParticipant_Binary that will be copied.
      */
-    OBJK_DomainParticipant_Binary& operator=(OBJK_DomainParticipant_Binary &&x);
-    
+    OBJK_DomainParticipant_Binary& operator =(
+            OBJK_DomainParticipant_Binary&& x);
+
     /*!
      * @brief This function sets a value in member domain_id
      * @param _domain_id New value for member domain_id
      */
-    inline void domain_id(int32_t _domain_id)
+    inline void domain_id(
+            int32_t _domain_id)
     {
         m_domain_id = _domain_id;
     }
@@ -3776,11 +4125,13 @@ public:
     {
         return m_domain_id;
     }
+
     /*!
      * @brief This function copies the value in member domain_referente
      * @param _domain_referente New value to be copied in member domain_referente
      */
-    inline void domain_referente(const std::string &_domain_referente)
+    inline void domain_referente(
+            const std::string& _domain_referente)
     {
         m_domain_reference = _domain_referente;
     }
@@ -3789,7 +4140,8 @@ public:
      * @brief This function moves the value in member domain_referente
      * @param _domain_referente New value to be moved in member domain_referente
      */
-    inline void domain_referente(std::string &&_domain_referente)
+    inline void domain_referente(
+            std::string&& _domain_referente)
     {
         m_domain_reference = std::move(_domain_referente);
     }
@@ -3825,7 +4177,8 @@ public:
      * @brief This function copies the value in member qos_profile
      * @param _qos_profile New value to be copied in member qos_profile
      */
-    inline void qos_profile(const std::string &_qos_profile)
+    inline void qos_profile(
+            const std::string& _qos_profile)
     {
         m_qos_profile = _qos_profile;
     }
@@ -3834,7 +4187,8 @@ public:
      * @brief This function moves the value in member qos_profile
      * @param _qos_profile New value to be moved in member qos_profile
      */
-    inline void qos_profile(std::string &&_qos_profile)
+    inline void qos_profile(
+            std::string&& _qos_profile)
     {
         m_qos_profile = std::move(_qos_profile);
     }
@@ -3856,14 +4210,15 @@ public:
     {
         return *m_qos_profile;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -3871,21 +4226,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     int32_t m_domain_id;
     eprosima::Optional<std::string> m_domain_reference;
     eprosima::Optional<std::string> m_qos_profile;
@@ -3902,41 +4261,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_Topic_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Topic_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Topic_Binary that will be copied.
      */
-    OBJK_Topic_Binary(const OBJK_Topic_Binary &x);
-    
+    OBJK_Topic_Binary(
+            const OBJK_Topic_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Topic_Binary that will be copied.
      */
-    OBJK_Topic_Binary(OBJK_Topic_Binary &&x);
-    
+    OBJK_Topic_Binary(
+            OBJK_Topic_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Topic_Binary that will be copied.
      */
-    OBJK_Topic_Binary& operator=(const OBJK_Topic_Binary &x);
-    
+    OBJK_Topic_Binary& operator =(
+            const OBJK_Topic_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Topic_Binary that will be copied.
      */
-    OBJK_Topic_Binary& operator=(OBJK_Topic_Binary &&x);
-    
+    OBJK_Topic_Binary& operator =(
+            OBJK_Topic_Binary&& x);
+
     /*!
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_name(const std::string &_topic_name)
+    inline void topic_name(
+            const std::string& _topic_name)
     {
         m_topic_name = _topic_name;
     }
@@ -3945,7 +4309,8 @@ public:
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_name(std::string &&_topic_name)
+    inline void topic_name(
+            std::string&& _topic_name)
     {
         m_topic_name = std::move(_topic_name);
     }
@@ -3967,11 +4332,13 @@ public:
     {
         return m_topic_name;
     }
+
     /*!
      * @brief This function copies the value in member type_name
      * @param _type_name New value to be copied in member type_name
      */
-    inline void type_name(const std::string &_type_name)
+    inline void type_name(
+            const std::string& _type_name)
     {
         m_type_name = _type_name;
     }
@@ -3980,7 +4347,8 @@ public:
      * @brief This function moves the value in member type_name
      * @param _type_name New value to be moved in member type_name
      */
-    inline void type_name(std::string &&_type_name)
+    inline void type_name(
+            std::string&& _type_name)
     {
         m_type_name = std::move(_type_name);
     }
@@ -4002,11 +4370,13 @@ public:
     {
         return *m_type_name;
     }
+
     /*!
      * @brief This function copies the value in member type_identifier
      * @param _type_identifier New value to be copied in member type_identifier
      */
-    inline void type_identifier(const std::string &_type_identifier)
+    inline void type_identifier(
+            const std::string& _type_identifier)
     {
         m_type_identifier = _type_identifier;
     }
@@ -4015,7 +4385,8 @@ public:
      * @brief This function moves the value in member type_identifier
      * @param _type_identifier New value to be moved in member type_identifier
      */
-    inline void type_identifier(std::string &&_type_identifier)
+    inline void type_identifier(
+            std::string&& _type_identifier)
     {
         m_type_identifier = std::move(_type_identifier);
     }
@@ -4037,14 +4408,15 @@ public:
     {
         return *m_type_identifier;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4052,21 +4424,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::string m_topic_name;
     eprosima::Optional<std::string> m_type_name;
     eprosima::Optional<std::string> m_type_identifier;
@@ -4083,41 +4459,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_PUBLISHER_QosBinary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_PUBLISHER_QosBinary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_PUBLISHER_QosBinary that will be copied.
      */
-    OBJK_PUBLISHER_QosBinary(const OBJK_PUBLISHER_QosBinary &x);
-    
+    OBJK_PUBLISHER_QosBinary(
+            const OBJK_PUBLISHER_QosBinary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_PUBLISHER_QosBinary that will be copied.
      */
-    OBJK_PUBLISHER_QosBinary(OBJK_PUBLISHER_QosBinary &&x);
-    
+    OBJK_PUBLISHER_QosBinary(
+            OBJK_PUBLISHER_QosBinary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_PUBLISHER_QosBinary that will be copied.
      */
-    OBJK_PUBLISHER_QosBinary& operator=(const OBJK_PUBLISHER_QosBinary &x);
-    
+    OBJK_PUBLISHER_QosBinary& operator =(
+            const OBJK_PUBLISHER_QosBinary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_PUBLISHER_QosBinary that will be copied.
      */
-    OBJK_PUBLISHER_QosBinary& operator=(OBJK_PUBLISHER_QosBinary &&x);
-    
+    OBJK_PUBLISHER_QosBinary& operator =(
+            OBJK_PUBLISHER_QosBinary&& x);
+
     /*!
      * @brief This function copies the value in member partitions
      * @param _partitions New value to be copied in member partitions
      */
-    inline void partitions(const std::vector<std::string> &_partitions)
+    inline void partitions(
+            const std::vector<std::string>& _partitions)
     {
         m_partitions = _partitions;
     }
@@ -4126,7 +4507,8 @@ public:
      * @brief This function moves the value in member partitions
      * @param _partitions New value to be moved in member partitions
      */
-    inline void partitions(std::vector<std::string> &&_partitions)
+    inline void partitions(
+            std::vector<std::string>&& _partitions)
     {
         m_partitions = std::move(_partitions);
     }
@@ -4148,11 +4530,13 @@ public:
     {
         return m_partitions;
     }
+
     /*!
      * @brief This function copies the value in member group_data
      * @param _group_data New value to be copied in member group_data
      */
-    inline void group_data(const std::vector<std::string> &_group_data)
+    inline void group_data(
+            const std::vector<std::string>& _group_data)
     {
         m_group_data = _group_data;
     }
@@ -4161,7 +4545,8 @@ public:
      * @brief This function moves the value in member group_data
      * @param _group_data New value to be moved in member group_data
      */
-    inline void group_data(std::vector<std::string> &&_group_data)
+    inline void group_data(
+            std::vector<std::string>&& _group_data)
     {
         m_group_data = std::move(_group_data);
     }
@@ -4183,14 +4568,15 @@ public:
     {
         return m_group_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4198,21 +4584,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<std::string> m_partitions;
     std::vector<std::string> m_group_data;
 };
@@ -4228,41 +4618,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_Publisher_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Publisher_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Publisher_Binary that will be copied.
      */
-    OBJK_Publisher_Binary(const OBJK_Publisher_Binary &x);
-    
+    OBJK_Publisher_Binary(
+            const OBJK_Publisher_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Publisher_Binary that will be copied.
      */
-    OBJK_Publisher_Binary(OBJK_Publisher_Binary &&x);
-    
+    OBJK_Publisher_Binary(
+            OBJK_Publisher_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Publisher_Binary that will be copied.
      */
-    OBJK_Publisher_Binary& operator=(const OBJK_Publisher_Binary &x);
-    
+    OBJK_Publisher_Binary& operator =(
+            const OBJK_Publisher_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Publisher_Binary that will be copied.
      */
-    OBJK_Publisher_Binary& operator=(OBJK_Publisher_Binary &&x);
-    
+    OBJK_Publisher_Binary& operator =(
+            OBJK_Publisher_Binary&& x);
+
     /*!
      * @brief This function copies the value in member publisher_name
      * @param _publisher_name New value to be copied in member publisher_name
      */
-    inline void publisher_name(const std::string &_publisher_name)
+    inline void publisher_name(
+            const std::string& _publisher_name)
     {
         m_publisher_name = _publisher_name;
     }
@@ -4271,7 +4666,8 @@ public:
      * @brief This function moves the value in member publisher_name
      * @param _publisher_name New value to be moved in member publisher_name
      */
-    inline void publisher_name(std::string &&_publisher_name)
+    inline void publisher_name(
+            std::string&& _publisher_name)
     {
         m_publisher_name = std::move(_publisher_name);
     }
@@ -4293,11 +4689,13 @@ public:
     {
         return *m_publisher_name;
     }
+
     /*!
      * @brief This function copies the value in member qos
      * @param _qos New value to be copied in member qos
      */
-    inline void qos(const OBJK_PUBLISHER_QosBinary &_qos)
+    inline void qos(
+            const OBJK_PUBLISHER_QosBinary& _qos)
     {
         m_qos = _qos;
     }
@@ -4306,7 +4704,8 @@ public:
      * @brief This function moves the value in member qos
      * @param _qos New value to be moved in member qos
      */
-    inline void qos(OBJK_PUBLISHER_QosBinary &&_qos)
+    inline void qos(
+            OBJK_PUBLISHER_QosBinary&& _qos)
     {
         m_qos = std::move(_qos);
     }
@@ -4337,14 +4736,15 @@ public:
     {
         return *m_qos;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4352,21 +4752,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     eprosima::Optional<std::string> m_publisher_name;
     eprosima::Optional<OBJK_PUBLISHER_QosBinary> m_qos;
 };
@@ -4382,41 +4786,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_SUBSCRIBER_QosBinary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_SUBSCRIBER_QosBinary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_SUBSCRIBER_QosBinary that will be copied.
      */
-    OBJK_SUBSCRIBER_QosBinary(const OBJK_SUBSCRIBER_QosBinary &x);
-    
+    OBJK_SUBSCRIBER_QosBinary(
+            const OBJK_SUBSCRIBER_QosBinary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_SUBSCRIBER_QosBinary that will be copied.
      */
-    OBJK_SUBSCRIBER_QosBinary(OBJK_SUBSCRIBER_QosBinary &&x);
-    
+    OBJK_SUBSCRIBER_QosBinary(
+            OBJK_SUBSCRIBER_QosBinary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_SUBSCRIBER_QosBinary that will be copied.
      */
-    OBJK_SUBSCRIBER_QosBinary& operator=(const OBJK_SUBSCRIBER_QosBinary &x);
-    
+    OBJK_SUBSCRIBER_QosBinary& operator =(
+            const OBJK_SUBSCRIBER_QosBinary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_SUBSCRIBER_QosBinary that will be copied.
      */
-    OBJK_SUBSCRIBER_QosBinary& operator=(OBJK_SUBSCRIBER_QosBinary &&x);
-    
+    OBJK_SUBSCRIBER_QosBinary& operator =(
+            OBJK_SUBSCRIBER_QosBinary&& x);
+
     /*!
      * @brief This function copies the value in member partitions
      * @param _partitions New value to be copied in member partitions
      */
-    inline void partitions(const std::vector<std::string> &_partitions)
+    inline void partitions(
+            const std::vector<std::string>& _partitions)
     {
         m_partitions = _partitions;
     }
@@ -4425,7 +4834,8 @@ public:
      * @brief This function moves the value in member partitions
      * @param _partitions New value to be moved in member partitions
      */
-    inline void partitions(std::vector<std::string> &&_partitions)
+    inline void partitions(
+            std::vector<std::string>&& _partitions)
     {
         m_partitions = std::move(_partitions);
     }
@@ -4447,11 +4857,13 @@ public:
     {
         return m_partitions;
     }
+
     /*!
      * @brief This function copies the value in member group_data
      * @param _group_data New value to be copied in member group_data
      */
-    inline void group_data(const std::vector<uint8_t> &_group_data)
+    inline void group_data(
+            const std::vector<uint8_t>& _group_data)
     {
         m_group_data = _group_data;
     }
@@ -4460,7 +4872,8 @@ public:
      * @brief This function moves the value in member group_data
      * @param _group_data New value to be moved in member group_data
      */
-    inline void group_data(std::vector<uint8_t> &&_group_data)
+    inline void group_data(
+            std::vector<uint8_t>&& _group_data)
     {
         m_group_data = std::move(_group_data);
     }
@@ -4482,14 +4895,15 @@ public:
     {
         return m_group_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4497,21 +4911,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<std::string> m_partitions;
     std::vector<uint8_t> m_group_data;
 };
@@ -4527,41 +4945,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_Subscriber_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Subscriber_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Subscriber_Binary that will be copied.
      */
-    OBJK_Subscriber_Binary(const OBJK_Subscriber_Binary &x);
-    
+    OBJK_Subscriber_Binary(
+            const OBJK_Subscriber_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Subscriber_Binary that will be copied.
      */
-    OBJK_Subscriber_Binary(OBJK_Subscriber_Binary &&x);
-    
+    OBJK_Subscriber_Binary(
+            OBJK_Subscriber_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Subscriber_Binary that will be copied.
      */
-    OBJK_Subscriber_Binary& operator=(const OBJK_Subscriber_Binary &x);
-    
+    OBJK_Subscriber_Binary& operator =(
+            const OBJK_Subscriber_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Subscriber_Binary that will be copied.
      */
-    OBJK_Subscriber_Binary& operator=(OBJK_Subscriber_Binary &&x);
-    
+    OBJK_Subscriber_Binary& operator =(
+            OBJK_Subscriber_Binary&& x);
+
     /*!
      * @brief This function copies the value in member subscriber_name
      * @param _subscriber_name New value to be copied in member subscriber_name
      */
-    inline void subscriber_name(const std::string &_subscriber_name)
+    inline void subscriber_name(
+            const std::string& _subscriber_name)
     {
         m_subscriber_name = _subscriber_name;
     }
@@ -4570,7 +4993,8 @@ public:
      * @brief This function moves the value in member subscriber_name
      * @param _subscriber_name New value to be moved in member subscriber_name
      */
-    inline void subscriber_name(std::string &&_subscriber_name)
+    inline void subscriber_name(
+            std::string&& _subscriber_name)
     {
         m_subscriber_name = std::move(_subscriber_name);
     }
@@ -4606,7 +5030,8 @@ public:
      * @brief This function copies the value in member qos
      * @param _qos New value to be copied in member qos
      */
-    inline void qos(const OBJK_SUBSCRIBER_QosBinary &_qos)
+    inline void qos(
+            const OBJK_SUBSCRIBER_QosBinary& _qos)
     {
         m_qos = _qos;
     }
@@ -4615,7 +5040,8 @@ public:
      * @brief This function moves the value in member qos
      * @param _qos New value to be moved in member qos
      */
-    inline void qos(OBJK_SUBSCRIBER_QosBinary &&_qos)
+    inline void qos(
+            OBJK_SUBSCRIBER_QosBinary&& _qos)
     {
         m_qos = std::move(_qos);
     }
@@ -4637,14 +5063,15 @@ public:
     {
         return *m_qos;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4652,21 +5079,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     eprosima::Optional<std::string> m_subscriber_name;
     eprosima::Optional<OBJK_SUBSCRIBER_QosBinary> m_qos;
 };
@@ -4676,12 +5107,12 @@ private:
  */
 enum EndpointQosFlags : uint16_t
 {
-    is_reliable						= 0x01 << 0,
-    is_history_keep_last			= 0x01 << 1,
-    is_ownership_exclusive			= 0x01 << 2,
-    is_durability_transient_local	= 0x01 << 3,
-    is_durability_transient			= 0x01 << 4,
-    is_durability_persistent		= 0x01 << 5
+    is_reliable                     = 0x01 << 0,
+    is_history_keep_last            = 0x01 << 1,
+    is_ownership_exclusive          = 0x01 << 2,
+    is_durability_transient_local   = 0x01 << 3,
+    is_durability_transient         = 0x01 << 4,
+    is_durability_persistent        = 0x01 << 5
 };
 /*!
  * @brief This class represents the structure OBJK_Endpoint_QosBinary defined by the user in the IDL file.
@@ -4695,41 +5126,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_Endpoint_QosBinary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_Endpoint_QosBinary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_Endpoint_QosBinary that will be copied.
      */
-    OBJK_Endpoint_QosBinary(const OBJK_Endpoint_QosBinary &x);
-    
+    OBJK_Endpoint_QosBinary(
+            const OBJK_Endpoint_QosBinary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_Endpoint_QosBinary that will be copied.
      */
-    OBJK_Endpoint_QosBinary(OBJK_Endpoint_QosBinary &&x);
-    
+    OBJK_Endpoint_QosBinary(
+            OBJK_Endpoint_QosBinary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_Endpoint_QosBinary that will be copied.
      */
-    OBJK_Endpoint_QosBinary& operator=(const OBJK_Endpoint_QosBinary &x);
-    
+    OBJK_Endpoint_QosBinary& operator =(
+            const OBJK_Endpoint_QosBinary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_Endpoint_QosBinary that will be copied.
      */
-    OBJK_Endpoint_QosBinary& operator=(OBJK_Endpoint_QosBinary &&x);
-    
+    OBJK_Endpoint_QosBinary& operator =(
+            OBJK_Endpoint_QosBinary&& x);
+
     /*!
      * @brief This function sets a value in member qos_flags
      * @param _qos_flags New value for member qos_flags
      */
-    inline void qos_flags(EndpointQosFlags _qos_flags)
+    inline void qos_flags(
+            EndpointQosFlags _qos_flags)
     {
         m_qos_flags = _qos_flags;
     }
@@ -4751,11 +5187,13 @@ public:
     {
         return m_qos_flags;
     }
+
     /*!
      * @brief This function sets a value in member history_depth
      * @param _history_depth New value for member history_depth
      */
-    inline void history_depth(uint16_t _history_depth)
+    inline void history_depth(
+            uint16_t _history_depth)
     {
         m_history_depth = _history_depth;
     }
@@ -4802,7 +5240,8 @@ public:
      * @brief This function sets a value in member deadline_msec
      * @param _deadline_msec New value for member deadline_msec
      */
-    inline void deadline_msec(uint32_t _deadline_msec)
+    inline void deadline_msec(
+            uint32_t _deadline_msec)
     {
         m_deadline_msec = _deadline_msec;
     }
@@ -4839,7 +5278,8 @@ public:
      * @brief This function sets a value in member lifespan_msec
      * @param _lifespan_msec New value for member lifespan_msec
      */
-    inline void lifespan_msec(uint32_t _lifespan_msec)
+    inline void lifespan_msec(
+            uint32_t _lifespan_msec)
     {
         m_lifespan_msec = _lifespan_msec;
     }
@@ -4861,11 +5301,13 @@ public:
     {
         return *m_lifespan_msec;
     }
+
     /*!
      * @brief This function copies the value in member user_data
      * @param _user_data New value to be copied in member user_data
      */
-    inline void user_data(const std::vector<uint8_t> &_user_data)
+    inline void user_data(
+            const std::vector<uint8_t>& _user_data)
     {
         m_user_data = _user_data;
     }
@@ -4874,7 +5316,8 @@ public:
      * @brief This function moves the value in member user_data
      * @param _user_data New value to be moved in member user_data
      */
-    inline void user_data(std::vector<uint8_t> &&_user_data)
+    inline void user_data(
+            std::vector<uint8_t>&& _user_data)
     {
         m_user_data = std::move(_user_data);
     }
@@ -4896,14 +5339,15 @@ public:
     {
         return *m_user_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -4911,21 +5355,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     EndpointQosFlags m_qos_flags;
     eprosima::Optional<uint16_t> m_history_depth;
     eprosima::Optional<uint32_t> m_deadline_msec;
@@ -4933,80 +5381,80 @@ private:
     eprosima::Optional<std::vector<uint8_t>> m_user_data;
 };
 /*!
-* @brief This class represents the structure OBJK_DataReader_Binary_Qos defined by the user in the IDL file.
-* @ingroup TEST
-*/
+ * @brief This class represents the structure OBJK_DataReader_Binary_Qos defined by the user in the IDL file.
+ * @ingroup TEST
+ */
 class OBJK_DataReader_Binary_Qos
 {
 public:
 
     /*!
-        * @brief Default constructor.
-        */
+     * @brief Default constructor.
+     */
     OBJK_DataReader_Binary_Qos();
 
     /*!
-        * @brief Default destructor.
-        */
+     * @brief Default destructor.
+     */
     ~OBJK_DataReader_Binary_Qos();
 
     /*!
-        * @brief Copy constructor.
-        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
-        */
+     * @brief Copy constructor.
+     * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+     */
     OBJK_DataReader_Binary_Qos(
             const OBJK_DataReader_Binary_Qos& x);
 
     /*!
-        * @brief Move constructor.
-        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
-        */
+     * @brief Move constructor.
+     * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+     */
     OBJK_DataReader_Binary_Qos(
             OBJK_DataReader_Binary_Qos&& x);
 
     /*!
-        * @brief Copy assignment.
-        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
-        */
+     * @brief Copy assignment.
+     * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+     */
     OBJK_DataReader_Binary_Qos& operator =(
             const OBJK_DataReader_Binary_Qos& x);
 
     /*!
-        * @brief Move assignment.
-        * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
-        */
+     * @brief Move assignment.
+     * @param x Reference to the object dds::xrce::OBJK_DataReader_Binary_Qos that will be copied.
+     */
     OBJK_DataReader_Binary_Qos& operator =(
             OBJK_DataReader_Binary_Qos&& x);
 
     /*!
-        * @brief This function copies the value in member base
-        * @param _base New value to be copied in member base
-        */
+     * @brief This function copies the value in member base
+     * @param _base New value to be copied in member base
+     */
     void base(
             const dds::xrce::OBJK_Endpoint_QosBinary& _base);
 
     /*!
-        * @brief This function moves the value in member base
-        * @param _base New value to be moved in member base
-        */
+     * @brief This function moves the value in member base
+     * @param _base New value to be moved in member base
+     */
     void base(
             dds::xrce::OBJK_Endpoint_QosBinary&& _base);
 
     /*!
-        * @brief This function returns a constant reference to member base
-        * @return Constant reference to member base
-        */
+     * @brief This function returns a constant reference to member base
+     * @return Constant reference to member base
+     */
     const dds::xrce::OBJK_Endpoint_QosBinary& base() const;
 
     /*!
-        * @brief This function returns a reference to member base
-        * @return Reference to member base
-        */
+     * @brief This function returns a reference to member base
+     * @return Reference to member base
+     */
     dds::xrce::OBJK_Endpoint_QosBinary& base();
     /*!
-        * @brief This function sets a value in member timebasedfilter_msec
-        * @param _timebasedfilter_msec New value for member timebasedfilter_msec
-        */
+     * @brief This function sets a value in member timebasedfilter_msec
+     * @param _timebasedfilter_msec New value for member timebasedfilter_msec
+     */
     void timebasedfilter_msec(
             uint32_t _timebasedfilter_msec);
 
@@ -5020,97 +5468,97 @@ public:
     }
 
     /*!
-        * @brief This function returns the value of member timebasedfilter_msec
-        * @return Value of member timebasedfilter_msec
-        */
+     * @brief This function returns the value of member timebasedfilter_msec
+     * @return Value of member timebasedfilter_msec
+     */
     uint32_t timebasedfilter_msec() const;
 
     /*!
-        * @brief This function returns a reference to member timebasedfilter_msec
-        * @return Reference to member timebasedfilter_msec
-        */
+     * @brief This function returns a reference to member timebasedfilter_msec
+     * @return Reference to member timebasedfilter_msec
+     */
     uint32_t& timebasedfilter_msec();
 
     /*!
-        * @brief This function copies the value in member contentbased_filter
-        * @param _contentbased_filter New value to be copied in member contentbased_filter
-        */
+     * @brief This function copies the value in member contentbased_filter
+     * @param _contentbased_filter New value to be copied in member contentbased_filter
+     */
     void contentbased_filter(
             const std::string& _contentbased_filter);
 
     /*!
-        * @brief This function moves the value in member contentbased_filter
-        * @param _contentbased_filter New value to be moved in member contentbased_filter
-        */
+     * @brief This function moves the value in member contentbased_filter
+     * @param _contentbased_filter New value to be moved in member contentbased_filter
+     */
     void contentbased_filter(
             std::string&& _contentbased_filter);
 
     /*!
-        * @brief This function returns a constant reference to member contentbased_filter
-        * @return Constant reference to member contentbased_filter
-        */
+     * @brief This function returns a constant reference to member contentbased_filter
+     * @return Constant reference to member contentbased_filter
+     */
     const std::string& contentbased_filter() const;
 
     /*!
-        * @brief This function returns a reference to member contentbased_filter
-        * @return Reference to member contentbased_filter
-        */
+     * @brief This function returns a reference to member contentbased_filter
+     * @return Reference to member contentbased_filter
+     */
     std::string& contentbased_filter();
 
     /*!
-        * @brief This function returns the maximum serialized size of an object
-        * depending on the buffer alignment.
-        * @param current_alignment Buffer alignment.
-        * @return Maximum serialized size.
-        */
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
     static size_t getMaxCdrSerializedSize(
             size_t current_alignment = 0);
 
     /*!
-        * @brief This function returns the serialized size of a data depending on the buffer alignment.
-        * @param data Data which is calculated its serialized size.
-        * @param current_alignment Buffer alignment.
-        * @return Serialized size.
-        */
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
     static size_t getCdrSerializedSize(
             const dds::xrce::OBJK_DataReader_Binary_Qos& data,
             size_t current_alignment = 0);
 
 
     /*!
-        * @brief This function serializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void serialize(
             eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
-        * @brief This function deserializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void deserialize(
             eprosima::fastcdr::Cdr& cdr);
 
 
 
     /*!
-        * @brief This function returns the maximum serialized size of the Key of an object
-        * depending on the buffer alignment.
-        * @param current_alignment Buffer alignment.
-        * @return Maximum serialized size.
-        */
+     * @brief This function returns the maximum serialized size of the Key of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
     static size_t getKeyMaxCdrSerializedSize(
             size_t current_alignment = 0);
 
     /*!
-        * @brief This function tells you if the Key has been defined for this type
-        */
+     * @brief This function tells you if the Key has been defined for this type
+     */
     static bool isKeyDefined();
 
     /*!
-        * @brief This function serializes the key members of an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function serializes the key members of an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void serializeKey(
             eprosima::fastcdr::Cdr& cdr) const;
 
@@ -5132,41 +5580,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_DataReader_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_DataReader_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_DataReader_Binary that will be copied.
      */
-    OBJK_DataReader_Binary(const OBJK_DataReader_Binary &x);
-    
+    OBJK_DataReader_Binary(
+            const OBJK_DataReader_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_DataReader_Binary that will be copied.
      */
-    OBJK_DataReader_Binary(OBJK_DataReader_Binary &&x);
-    
+    OBJK_DataReader_Binary(
+            OBJK_DataReader_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_DataReader_Binary that will be copied.
      */
-    OBJK_DataReader_Binary& operator=(const OBJK_DataReader_Binary &x);
-    
+    OBJK_DataReader_Binary& operator =(
+            const OBJK_DataReader_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_DataReader_Binary that will be copied.
      */
-    OBJK_DataReader_Binary& operator=(OBJK_DataReader_Binary &&x);
-    
+    OBJK_DataReader_Binary& operator =(
+            OBJK_DataReader_Binary&& x);
+
     /*!
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_id(const ObjectId &_topic_id)
+    inline void topic_id(
+            const ObjectId& _topic_id)
     {
         m_topic_id = _topic_id;
     }
@@ -5175,7 +5628,8 @@ public:
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_id(ObjectId &&_topic_id)
+    inline void topic_id(
+            ObjectId&& _topic_id)
     {
         m_topic_id = std::move(_topic_id);
     }
@@ -5197,17 +5651,18 @@ public:
     {
         return m_topic_id;
     }
+
     /*!
-        * @brief This function copies the value in member qos
-        * @param _qos New value to be copied in member qos
-        */
+     * @brief This function copies the value in member qos
+     * @param _qos New value to be copied in member qos
+     */
     void qos(
             const dds::xrce::OBJK_DataReader_Binary_Qos& _qos);
 
     /*!
-        * @brief This function moves the value in member qos
-        * @param _qos New value to be moved in member qos
-        */
+     * @brief This function moves the value in member qos
+     * @param _qos New value to be moved in member qos
+     */
     void qos(
             dds::xrce::OBJK_DataReader_Binary_Qos&& _qos);
 
@@ -5221,51 +5676,53 @@ public:
     }
 
     /*!
-        * @brief This function returns a constant reference to member qos
-        * @return Constant reference to member qos
-        */
+     * @brief This function returns a constant reference to member qos
+     * @return Constant reference to member qos
+     */
     const dds::xrce::OBJK_DataReader_Binary_Qos& qos() const;
 
     /*!
-        * @brief This function returns a reference to member qos
-        * @return Reference to member qos
-        */
+     * @brief This function returns a reference to member qos
+     * @return Reference to member qos
+     */
     dds::xrce::OBJK_DataReader_Binary_Qos& qos();
 
     /*!
-        * @brief This function returns the maximum serialized size of an object
-        * depending on the buffer alignment.
-        * @param current_alignment Buffer alignment.
-        * @return Maximum serialized size.
-        */
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
     static size_t getMaxCdrSerializedSize(
             size_t current_alignment = 0);
 
     /*!
-        * @brief This function returns the serialized size of a data depending on the buffer alignment.
-        * @param data Data which is calculated its serialized size.
-        * @param current_alignment Buffer alignment.
-        * @return Serialized size.
-        */
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
     static size_t getCdrSerializedSize(
             const dds::xrce::OBJK_DataReader_Binary& data,
             size_t current_alignment = 0);
 
 
     /*!
-        * @brief This function serializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void serialize(
             eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
-        * @brief This function deserializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void deserialize(
             eprosima::fastcdr::Cdr& cdr);
+
 private:
+
     ObjectId m_topic_id;
     eprosima::Optional<dds::xrce::OBJK_DataReader_Binary_Qos> m_qos;
 };
@@ -5422,41 +5879,46 @@ public:
      * @brief Default constructor.
      */
     OBJK_DataWriter_Binary();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~OBJK_DataWriter_Binary();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object OBJK_DataWriter_Binary that will be copied.
      */
-    OBJK_DataWriter_Binary(const OBJK_DataWriter_Binary &x);
-    
+    OBJK_DataWriter_Binary(
+            const OBJK_DataWriter_Binary& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object OBJK_DataWriter_Binary that will be copied.
      */
-    OBJK_DataWriter_Binary(OBJK_DataWriter_Binary &&x);
-    
+    OBJK_DataWriter_Binary(
+            OBJK_DataWriter_Binary&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object OBJK_DataWriter_Binary that will be copied.
      */
-    OBJK_DataWriter_Binary& operator=(const OBJK_DataWriter_Binary &x);
-    
+    OBJK_DataWriter_Binary& operator =(
+            const OBJK_DataWriter_Binary& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object OBJK_DataWriter_Binary that will be copied.
      */
-    OBJK_DataWriter_Binary& operator=(OBJK_DataWriter_Binary &&x);
-    
+    OBJK_DataWriter_Binary& operator =(
+            OBJK_DataWriter_Binary&& x);
+
     /*!
      * @brief This function copies the value in member topic_name
      * @param _topic_name New value to be copied in member topic_name
      */
-    inline void topic_id(const ObjectId &_topic_id)
+    inline void topic_id(
+            const ObjectId& _topic_id)
     {
         m_topic_id = _topic_id;
     }
@@ -5465,7 +5927,8 @@ public:
      * @brief This function moves the value in member topic_name
      * @param _topic_name New value to be moved in member topic_name
      */
-    inline void topic_id(const ObjectId &&_topic_id)
+    inline void topic_id(
+            const ObjectId&& _topic_id)
     {
         m_topic_id = std::move(_topic_id);
     }
@@ -5487,11 +5950,13 @@ public:
     {
         return m_topic_id;
     }
+
     /*!
      * @brief This function copies the value in member qos
      * @param _qos New value to be copied in member qos
      */
-    inline void qos(const OBJK_DataWriter_Binary_Qos& _qos)
+    inline void qos(
+            const OBJK_DataWriter_Binary_Qos& _qos)
     {
         m_qos = _qos;
     }
@@ -5500,7 +5965,8 @@ public:
      * @brief This function moves the value in member qos
      * @param _qos New value to be moved in member qos
      */
-    inline void qos(OBJK_DataWriter_Binary_Qos&& _qos)
+    inline void qos(
+            OBJK_DataWriter_Binary_Qos&& _qos)
     {
         m_qos = std::move(_qos);
     }
@@ -5529,7 +5995,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -5537,21 +6004,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectId m_topic_id;
     eprosima::Optional<OBJK_DataWriter_Binary_Qos> m_qos;
 };
@@ -5567,66 +6038,73 @@ public:
      * @brief Default constructor.
      */
     ObjectVariant();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ObjectVariant();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ObjectVariant that will be copied.
      */
-    ObjectVariant(const ObjectVariant &x);
-    
+    ObjectVariant(
+            const ObjectVariant& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ObjectVariant that will be copied.
      */
-    ObjectVariant(ObjectVariant &&x);
-    
+    ObjectVariant(
+            ObjectVariant&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ObjectVariant that will be copied.
      */
-    ObjectVariant& operator=(const ObjectVariant &x);
-    
+    ObjectVariant& operator =(
+            const ObjectVariant& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ObjectVariant that will be copied.
      */
-    ObjectVariant& operator=(ObjectVariant &&x);
-    
+    ObjectVariant& operator =(
+            ObjectVariant&& x);
+
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(ObjectKind __d);
-    
+    void _d(
+            ObjectKind __d);
+
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
     ObjectKind _d() const;
-    
+
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
     ObjectKind& _d();
-    
+
     /*!
      * @brief This function copies the value in member agent
      * @param _agent New value to be copied in member agent
      */
-    void agent(const AGENT_Representation &_agent);
+    void agent(
+            const AGENT_Representation& _agent);
 
     /*!
      * @brief This function moves the value in member agent
      * @param _agent New value to be moved in member agent
      */
-    void agent(AGENT_Representation &&_agent);
+    void agent(
+            AGENT_Representation&& _agent);
 
     /*!
      * @brief This function returns a constant reference to member agent
@@ -5645,13 +6123,15 @@ public:
      * @brief This function copies the value in member client
      * @param _client New value to be copied in member client
      */
-    void client(const CLIENT_Representation &_client);
+    void client(
+            const CLIENT_Representation& _client);
 
     /*!
      * @brief This function moves the value in member client
      * @param _client New value to be moved in member client
      */
-    void client(CLIENT_Representation &&_client);
+    void client(
+            CLIENT_Representation&& _client);
 
     /*!
      * @brief This function returns a constant reference to member client
@@ -5671,13 +6151,15 @@ public:
      * @brief This function copies the value in member application
      * @param _application New value to be copied in member application
      */
-    void application(const OBJK_APPLICATION_Representation &_application);
+    void application(
+            const OBJK_APPLICATION_Representation& _application);
 
     /*!
      * @brief This function moves the value in member application
      * @param _application New value to be moved in member application
      */
-    void application(OBJK_APPLICATION_Representation &&_application);
+    void application(
+            OBJK_APPLICATION_Representation&& _application);
 
     /*!
      * @brief This function returns a constant reference to member application
@@ -5696,13 +6178,15 @@ public:
      * @brief This function copies the value in member participant
      * @param _participant New value to be copied in member participant
      */
-    void participant(const OBJK_PARTICIPANT_Representation &_participant);
+    void participant(
+            const OBJK_PARTICIPANT_Representation& _participant);
 
     /*!
      * @brief This function moves the value in member participant
      * @param _participant New value to be moved in member participant
      */
-    void participant(OBJK_PARTICIPANT_Representation &&_participant);
+    void participant(
+            OBJK_PARTICIPANT_Representation&& _participant);
 
     /*!
      * @brief This function returns a constant reference to member participant
@@ -5721,13 +6205,15 @@ public:
      * @brief This function copies the value in member qos_profile
      * @param _qos_profile New value to be copied in member qos_profile
      */
-    void qos_profile(const OBJK_QOSPROFILE_Representation &_qos_profile);
+    void qos_profile(
+            const OBJK_QOSPROFILE_Representation& _qos_profile);
 
     /*!
      * @brief This function moves the value in member qos_profile
      * @param _qos_profile New value to be moved in member qos_profile
      */
-    void qos_profile(OBJK_QOSPROFILE_Representation &&_qos_profile);
+    void qos_profile(
+            OBJK_QOSPROFILE_Representation&& _qos_profile);
 
     /*!
      * @brief This function returns a constant reference to member qos_profile
@@ -5747,13 +6233,15 @@ public:
      * @brief This function copies the value in member type
      * @param _type New value to be copied in member type
      */
-    void type(const OBJK_TYPE_Representation &_type);
+    void type(
+            const OBJK_TYPE_Representation& _type);
 
     /*!
      * @brief This function moves the value in member type
      * @param _type New value to be moved in member type
      */
-    void type(OBJK_TYPE_Representation &&_type);
+    void type(
+            OBJK_TYPE_Representation&& _type);
 
     /*!
      * @brief This function returns a constant reference to member type
@@ -5772,13 +6260,15 @@ public:
      * @brief This function copies the value in member topic
      * @param _topic New value to be copied in member topic
      */
-    void topic(const OBJK_TOPIC_Representation &_topic);
+    void topic(
+            const OBJK_TOPIC_Representation& _topic);
 
     /*!
      * @brief This function moves the value in member topic
      * @param _topic New value to be moved in member topic
      */
-    void topic(OBJK_TOPIC_Representation &&_topic);
+    void topic(
+            OBJK_TOPIC_Representation&& _topic);
 
     /*!
      * @brief This function returns a constant reference to member topic
@@ -5798,13 +6288,15 @@ public:
      * @brief This function copies the value in member publisher
      * @param _publisher New value to be copied in member publisher
      */
-    void publisher(const OBJK_PUBLISHER_Representation &_publisher);
+    void publisher(
+            const OBJK_PUBLISHER_Representation& _publisher);
 
     /*!
      * @brief This function moves the value in member publisher
      * @param _publisher New value to be moved in member publisher
      */
-    void publisher(OBJK_PUBLISHER_Representation &&_publisher);
+    void publisher(
+            OBJK_PUBLISHER_Representation&& _publisher);
 
     /*!
      * @brief This function returns a constant reference to member publisher
@@ -5824,13 +6316,15 @@ public:
      * @brief This function copies the value in member subscriber
      * @param _subscriber New value to be copied in member subscriber
      */
-    void subscriber(const OBJK_SUBSCRIBER_Representation &_subscriber);
+    void subscriber(
+            const OBJK_SUBSCRIBER_Representation& _subscriber);
 
     /*!
      * @brief This function moves the value in member subscriber
      * @param _subscriber New value to be moved in member subscriber
      */
-    void subscriber(OBJK_SUBSCRIBER_Representation &&_subscriber);
+    void subscriber(
+            OBJK_SUBSCRIBER_Representation&& _subscriber);
 
     /*!
      * @brief This function returns a constant reference to member subscriber
@@ -5845,18 +6339,20 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     OBJK_SUBSCRIBER_Representation& subscriber();
-    
+
     /*!
      * @brief This function copies the value in member data_writer
      * @param _data_writer New value to be copied in member data_writer
      */
-    void data_writer(const DATAWRITER_Representation &_data_writer);
+    void data_writer(
+            const DATAWRITER_Representation& _data_writer);
 
     /*!
      * @brief This function moves the value in member data_writer
      * @param _data_writer New value to be moved in member data_writer
      */
-    void data_writer(DATAWRITER_Representation &&_data_writer);
+    void data_writer(
+            DATAWRITER_Representation&& _data_writer);
 
     /*!
      * @brief This function returns a constant reference to member data_writer
@@ -5876,13 +6372,15 @@ public:
      * @brief This function copies the value in member data_reader
      * @param _data_reader New value to be copied in member data_reader
      */
-    void data_reader(const DATAREADER_Representation &_data_reader);
+    void data_reader(
+            const DATAREADER_Representation& _data_reader);
 
     /*!
      * @brief This function moves the value in member data_reader
      * @param _data_reader New value to be moved in member data_reader
      */
-    void data_reader(DATAREADER_Representation &&_data_reader);
+    void data_reader(
+            DATAREADER_Representation&& _data_reader);
 
     /*!
      * @brief This function returns a constant reference to member data_reader
@@ -5902,13 +6400,15 @@ public:
      * @brief This function copies the value in member requester
      * @param _requester New value to be copied in member requester
      */
-    void requester(const REQUESTER_Representation &_requester);
+    void requester(
+            const REQUESTER_Representation& _requester);
 
     /*!
      * @brief This function moves the value in member requester
      * @param _requester New value to be moved in member requester
      */
-    void requester(REQUESTER_Representation &&_requester);
+    void requester(
+            REQUESTER_Representation&& _requester);
 
     /*!
      * @brief This function returns a constant reference to member requester
@@ -5928,13 +6428,15 @@ public:
      * @brief This function copies the value in member replier
      * @param _replier New value to be copied in member replier
      */
-    void replier(const REPLIER_Representation &_replier);
+    void replier(
+            const REPLIER_Representation& _replier);
 
     /*!
      * @brief This function moves the value in member replier
      * @param _replier New value to be moved in member replier
      */
-    void replier(REPLIER_Representation &&_replier);
+    void replier(
+            REPLIER_Representation&& _replier);
 
     /*!
      * @brief This function returns a constant reference to member replier
@@ -5954,7 +6456,8 @@ public:
      * @brief This function updates the value in representation endianness
      * @param endianness New value of representation endianness
      */
-    inline void endianness(Endianness endianness)
+    inline void endianness(
+            Endianness endianness)
     {
         m_endianness = endianness;
 
@@ -5983,7 +6486,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -5991,21 +6495,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectKind m__d;
     Endianness m_endianness;
 
@@ -6035,41 +6543,46 @@ public:
      * @brief Default constructor.
      */
     CreationMode();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~CreationMode();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object CreationMode that will be copied.
      */
-    CreationMode(const CreationMode &x);
-    
+    CreationMode(
+            const CreationMode& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object CreationMode that will be copied.
      */
-    CreationMode(CreationMode &&x);
-    
+    CreationMode(
+            CreationMode&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object CreationMode that will be copied.
      */
-    CreationMode& operator=(const CreationMode &x);
-    
+    CreationMode& operator =(
+            const CreationMode& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object CreationMode that will be copied.
      */
-    CreationMode& operator=(CreationMode &&x);
-    
+    CreationMode& operator =(
+            CreationMode&& x);
+
     /*!
      * @brief This function sets a value in member reuse
      * @param _reuse New value for member reuse
      */
-    inline void reuse(bool _reuse)
+    inline void reuse(
+            bool _reuse)
     {
         m_reuse = _reuse;
     }
@@ -6091,11 +6604,13 @@ public:
     {
         return m_reuse;
     }
+
     /*!
      * @brief This function sets a value in member replace
      * @param _replace New value for member replace
      */
-    inline void replace(bool _replace)
+    inline void replace(
+            bool _replace)
     {
         m_replace = _replace;
     }
@@ -6117,14 +6632,15 @@ public:
     {
         return m_replace;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6132,21 +6648,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     bool m_reuse;
     bool m_replace;
 };
@@ -6157,16 +6677,16 @@ typedef std::array<uint8_t, 2> RequestId;
  */
 enum StatusValue : uint8_t
 {
-    STATUS_OK						= 0x00,
-    STATUS_OK_MATCHED				= 0x01,
-    STATUS_ERR_DDS_ERROR			= 0x80,
-    STATUS_ERR_MISMATCH				= 0x81,
-    STATUS_ERR_ALREADY_EXISTS		= 0x82,
-    STATUS_ERR_DENIED				= 0x83,
-    STATUS_ERR_UNKNOWN_REFERENCE	= 0x84,
-    STATUS_ERR_INVALID_DATA			= 0x85,
-    STATUS_ERR_INCOMPATIBLE			= 0x86,
-    STATUS_ERR_RESOURCES			= 0x87
+    STATUS_OK                       = 0x00,
+    STATUS_OK_MATCHED               = 0x01,
+    STATUS_ERR_DDS_ERROR            = 0x80,
+    STATUS_ERR_MISMATCH             = 0x81,
+    STATUS_ERR_ALREADY_EXISTS       = 0x82,
+    STATUS_ERR_DENIED               = 0x83,
+    STATUS_ERR_UNKNOWN_REFERENCE    = 0x84,
+    STATUS_ERR_INVALID_DATA         = 0x85,
+    STATUS_ERR_INCOMPATIBLE         = 0x86,
+    STATUS_ERR_RESOURCES            = 0x87
 };
 /*!
  * @brief This class represents the structure ResultStatus defined by the user in the IDL file.
@@ -6180,41 +6700,46 @@ public:
      * @brief Default constructor.
      */
     ResultStatus();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ResultStatus();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ResultStatus that will be copied.
      */
-    ResultStatus(const ResultStatus &x);
-    
+    ResultStatus(
+            const ResultStatus& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ResultStatus that will be copied.
      */
-    ResultStatus(ResultStatus &&x);
-    
+    ResultStatus(
+            ResultStatus&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ResultStatus that will be copied.
      */
-    ResultStatus& operator=(const ResultStatus &x);
-    
+    ResultStatus& operator =(
+            const ResultStatus& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ResultStatus that will be copied.
      */
-    ResultStatus& operator=(ResultStatus &&x);
-    
+    ResultStatus& operator =(
+            ResultStatus&& x);
+
     /*!
      * @brief This function sets a value in member status
      * @param _status New value for member status
      */
-    inline void status(StatusValue _status)
+    inline void status(
+            StatusValue _status)
     {
         m_status = _status;
     }
@@ -6236,11 +6761,13 @@ public:
     {
         return m_status;
     }
+
     /*!
      * @brief This function sets a value in member implementation_status
      * @param _implementation_status New value for member implementation_status
      */
-    inline void implementation_status(uint8_t _implementation_status)
+    inline void implementation_status(
+            uint8_t _implementation_status)
     {
         m_implementation_status = _implementation_status;
     }
@@ -6262,14 +6789,15 @@ public:
     {
         return m_implementation_status;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6277,21 +6805,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     StatusValue m_status;
     uint8_t m_implementation_status;
 };
@@ -6302,8 +6834,8 @@ private:
  */
 enum InfoMask : uint32_t
 {
-    INFO_CONFIGURATION	= 0x01 << 0,
-    INFO_ACTIVITY		= 0x01 << 1
+    INFO_CONFIGURATION  = 0x01 << 0,
+    INFO_ACTIVITY       = 0x01 << 1
 };
 
 /*!
@@ -6318,41 +6850,46 @@ public:
      * @brief Default constructor.
      */
     AGENT_ActivityInfo();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~AGENT_ActivityInfo();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object AGENT_ActivityInfo that will be copied.
      */
-    AGENT_ActivityInfo(const AGENT_ActivityInfo &x);
-    
+    AGENT_ActivityInfo(
+            const AGENT_ActivityInfo& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object AGENT_ActivityInfo that will be copied.
      */
-    AGENT_ActivityInfo(AGENT_ActivityInfo &&x);
-    
+    AGENT_ActivityInfo(
+            AGENT_ActivityInfo&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object AGENT_ActivityInfo that will be copied.
      */
-    AGENT_ActivityInfo& operator=(const AGENT_ActivityInfo &x);
-    
+    AGENT_ActivityInfo& operator =(
+            const AGENT_ActivityInfo& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object AGENT_ActivityInfo that will be copied.
      */
-    AGENT_ActivityInfo& operator=(AGENT_ActivityInfo &&x);
-    
+    AGENT_ActivityInfo& operator =(
+            AGENT_ActivityInfo&& x);
+
     /*!
      * @brief This function sets a value in member availability
      * @param _availability New value for member availability
      */
-    inline void availability(int16_t _availability)
+    inline void availability(
+            int16_t _availability)
     {
         m_availability = _availability;
     }
@@ -6374,11 +6911,13 @@ public:
     {
         return m_availability;
     }
+
     /*!
      * @brief This function copies the value in member address_seq
      * @param _address_seq New value to be copied in member address_seq
      */
-    inline void address_seq(const TransportAddressSeq &_address_seq)
+    inline void address_seq(
+            const TransportAddressSeq& _address_seq)
     {
         m_address_seq = _address_seq;
     }
@@ -6387,7 +6926,8 @@ public:
      * @brief This function moves the value in member address_seq
      * @param _address_seq New value to be moved in member address_seq
      */
-    inline void address_seq(TransportAddressSeq &&_address_seq)
+    inline void address_seq(
+            TransportAddressSeq&& _address_seq)
     {
         m_address_seq = std::move(_address_seq);
     }
@@ -6409,14 +6949,15 @@ public:
     {
         return m_address_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6424,21 +6965,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     int16_t m_availability;
     TransportAddressSeq m_address_seq;
 };
@@ -6454,41 +6999,46 @@ public:
      * @brief Default constructor.
      */
     DATAREADER_ActivityInfo();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATAREADER_ActivityInfo();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATAREADER_ActivityInfo that will be copied.
      */
-    DATAREADER_ActivityInfo(const DATAREADER_ActivityInfo &x);
-    
+    DATAREADER_ActivityInfo(
+            const DATAREADER_ActivityInfo& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATAREADER_ActivityInfo that will be copied.
      */
-    DATAREADER_ActivityInfo(DATAREADER_ActivityInfo &&x);
-    
+    DATAREADER_ActivityInfo(
+            DATAREADER_ActivityInfo&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATAREADER_ActivityInfo that will be copied.
      */
-    DATAREADER_ActivityInfo& operator=(const DATAREADER_ActivityInfo &x);
-    
+    DATAREADER_ActivityInfo& operator =(
+            const DATAREADER_ActivityInfo& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATAREADER_ActivityInfo that will be copied.
      */
-    DATAREADER_ActivityInfo& operator=(DATAREADER_ActivityInfo &&x);
-    
+    DATAREADER_ActivityInfo& operator =(
+            DATAREADER_ActivityInfo&& x);
+
     /*!
      * @brief This function sets a value in member highest_acked_num
      * @param _highest_acked_num New value for member highest_acked_num
      */
-    inline void highest_acked_num(uint16_t _highest_acked_num)
+    inline void highest_acked_num(
+            uint16_t _highest_acked_num)
     {
         m_highest_acked_num = _highest_acked_num;
     }
@@ -6510,14 +7060,15 @@ public:
     {
         return m_highest_acked_num;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6525,21 +7076,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     uint16_t m_highest_acked_num;
 };
 
@@ -6555,41 +7110,46 @@ public:
      * @brief Default constructor.
      */
     DATAWRITER_ActivityInfo();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATAWRITER_ActivityInfo();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATAWRITER_ActivityInfo that will be copied.
      */
-    DATAWRITER_ActivityInfo(const DATAWRITER_ActivityInfo &x);
-    
+    DATAWRITER_ActivityInfo(
+            const DATAWRITER_ActivityInfo& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATAWRITER_ActivityInfo that will be copied.
      */
-    DATAWRITER_ActivityInfo(DATAWRITER_ActivityInfo &&x);
-    
+    DATAWRITER_ActivityInfo(
+            DATAWRITER_ActivityInfo&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATAWRITER_ActivityInfo that will be copied.
      */
-    DATAWRITER_ActivityInfo& operator=(const DATAWRITER_ActivityInfo &x);
-    
+    DATAWRITER_ActivityInfo& operator =(
+            const DATAWRITER_ActivityInfo& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATAWRITER_ActivityInfo that will be copied.
      */
-    DATAWRITER_ActivityInfo& operator=(DATAWRITER_ActivityInfo &&x);
-    
+    DATAWRITER_ActivityInfo& operator =(
+            DATAWRITER_ActivityInfo&& x);
+
     /*!
      * @brief This function sets a value in member stream_seq_num
      * @param _stream_seq_num New value for member stream_seq_num
      */
-    inline void stream_seq_num(uint16_t _stream_seq_num)
+    inline void stream_seq_num(
+            uint16_t _stream_seq_num)
     {
         m_stream_seq_num = _stream_seq_num;
     }
@@ -6611,11 +7171,13 @@ public:
     {
         return m_stream_seq_num;
     }
+
     /*!
      * @brief This function sets a value in member sample_seq_num
      * @param _sample_seq_num New value for member sample_seq_num
      */
-    inline void sample_seq_num(uint64_t _sample_seq_num)
+    inline void sample_seq_num(
+            uint64_t _sample_seq_num)
     {
         m_sample_seq_num = _sample_seq_num;
     }
@@ -6637,14 +7199,15 @@ public:
     {
         return m_sample_seq_num;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6652,21 +7215,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     uint16_t m_stream_seq_num;
     uint64_t m_sample_seq_num;
 };
@@ -6683,49 +7250,54 @@ public:
      * @brief Default constructor.
      */
     ActivityInfoVariant();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ActivityInfoVariant();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ActivityInfoVariant that will be copied.
      */
-    ActivityInfoVariant(const ActivityInfoVariant &x);
-    
+    ActivityInfoVariant(
+            const ActivityInfoVariant& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ActivityInfoVariant that will be copied.
      */
-    ActivityInfoVariant(ActivityInfoVariant &&x);
-    
+    ActivityInfoVariant(
+            ActivityInfoVariant&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ActivityInfoVariant that will be copied.
      */
-    ActivityInfoVariant& operator=(const ActivityInfoVariant &x);
-    
+    ActivityInfoVariant& operator =(
+            const ActivityInfoVariant& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ActivityInfoVariant that will be copied.
      */
-    ActivityInfoVariant& operator=(ActivityInfoVariant &&x);
-    
+    ActivityInfoVariant& operator =(
+            ActivityInfoVariant&& x);
+
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(ObjectKind __d);
-    
+    void _d(
+            ObjectKind __d);
+
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
     ObjectKind _d() const;
-    
+
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
@@ -6736,13 +7308,15 @@ public:
      * @brief This function copies the value in member agent
      * @param _agent New value to be copied in member agent
      */
-    void agent(const AGENT_ActivityInfo &_agent);
+    void agent(
+            const AGENT_ActivityInfo& _agent);
 
     /*!
      * @brief This function moves the value in member agent
      * @param _agent New value to be moved in member agent
      */
-    void agent(AGENT_ActivityInfo &&_agent);
+    void agent(
+            AGENT_ActivityInfo&& _agent);
 
     /*!
      * @brief This function returns a constant reference to member agent
@@ -6762,13 +7336,15 @@ public:
      * @brief This function copies the value in member data_writer
      * @param _data_writer New value to be copied in member data_writer
      */
-    void data_writer(const DATAWRITER_ActivityInfo &_data_writer);
+    void data_writer(
+            const DATAWRITER_ActivityInfo& _data_writer);
 
     /*!
      * @brief This function moves the value in member data_writer
      * @param _data_writer New value to be moved in member data_writer
      */
-    void data_writer(DATAWRITER_ActivityInfo &&_data_writer);
+    void data_writer(
+            DATAWRITER_ActivityInfo&& _data_writer);
 
     /*!
      * @brief This function returns a constant reference to member data_writer
@@ -6788,13 +7364,15 @@ public:
      * @brief This function copies the value in member data_reader
      * @param _data_reader New value to be copied in member data_reader
      */
-    void data_reader(const DATAREADER_ActivityInfo &_data_reader);
+    void data_reader(
+            const DATAREADER_ActivityInfo& _data_reader);
 
     /*!
      * @brief This function moves the value in member data_reader
      * @param _data_reader New value to be moved in member data_reader
      */
-    void data_reader(DATAREADER_ActivityInfo &&_data_reader);
+    void data_reader(
+            DATAREADER_ActivityInfo&& _data_reader);
 
     /*!
      * @brief This function returns a constant reference to member data_reader
@@ -6809,14 +7387,15 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     DATAREADER_ActivityInfo& data_reader();
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6824,23 +7403,27 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectKind m__d;
-    
+
     AGENT_ActivityInfo m_agent;
     DATAWRITER_ActivityInfo m_data_writer;
     DATAREADER_ActivityInfo m_data_reader;
@@ -6858,41 +7441,46 @@ public:
      * @brief Default constructor.
      */
     ObjectInfo();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ObjectInfo();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ObjectInfo that will be copied.
      */
-    ObjectInfo(const ObjectInfo &x);
-    
+    ObjectInfo(
+            const ObjectInfo& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ObjectInfo that will be copied.
      */
-    ObjectInfo(ObjectInfo &&x);
-    
+    ObjectInfo(
+            ObjectInfo&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ObjectInfo that will be copied.
      */
-    ObjectInfo& operator=(const ObjectInfo &x);
-    
+    ObjectInfo& operator =(
+            const ObjectInfo& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ObjectInfo that will be copied.
      */
-    ObjectInfo& operator=(ObjectInfo &&x);
-    
+    ObjectInfo& operator =(
+            ObjectInfo&& x);
+
     /*!
      * @brief This function copies the value in member config
      * @param _config New value to be copied in member config
      */
-    inline void config(const ObjectVariant &_config)
+    inline void config(
+            const ObjectVariant& _config)
     {
         m_config = _config;
     }
@@ -6901,7 +7489,8 @@ public:
      * @brief This function moves the value in member config
      * @param _config New value to be moved in member config
      */
-    inline void config(ObjectVariant &&_config)
+    inline void config(
+            ObjectVariant&& _config)
     {
         m_config = std::move(_config);
     }
@@ -6936,11 +7525,13 @@ public:
         }
         return *m_config;
     }
+
     /*!
      * @brief This function copies the value in member activity
      * @param _activity New value to be copied in member activity
      */
-    inline void activity(const ActivityInfoVariant &_activity)
+    inline void activity(
+            const ActivityInfoVariant& _activity)
     {
         m_activity = _activity;
     }
@@ -6949,7 +7540,8 @@ public:
      * @brief This function moves the value in member activity
      * @param _activity New value to be moved in member activity
      */
-    inline void activity(ActivityInfoVariant &&_activity)
+    inline void activity(
+            ActivityInfoVariant&& _activity)
     {
         m_activity = std::move(_activity);
     }
@@ -6984,14 +7576,15 @@ public:
         }
         return *m_activity;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -6999,21 +7592,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     eprosima::Optional<ObjectVariant> m_config;
     eprosima::Optional<ActivityInfoVariant> m_activity;
 };
@@ -7030,41 +7627,46 @@ public:
      * @brief Default constructor.
      */
     BaseObjectRequest();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~BaseObjectRequest();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object BaseObjectRequest that will be copied.
      */
-    BaseObjectRequest(const BaseObjectRequest &x);
-    
+    BaseObjectRequest(
+            const BaseObjectRequest& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object BaseObjectRequest that will be copied.
      */
-    BaseObjectRequest(BaseObjectRequest &&x);
-    
+    BaseObjectRequest(
+            BaseObjectRequest&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object BaseObjectRequest that will be copied.
      */
-    BaseObjectRequest& operator=(const BaseObjectRequest &x);
-    
+    BaseObjectRequest& operator =(
+            const BaseObjectRequest& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object BaseObjectRequest that will be copied.
      */
-    BaseObjectRequest& operator=(BaseObjectRequest &&x);
-    
+    BaseObjectRequest& operator =(
+            BaseObjectRequest&& x);
+
     /*!
      * @brief This function copies the value in member request_id
      * @param _request_id New value to be copied in member request_id
      */
-    inline void request_id(const RequestId &_request_id)
+    inline void request_id(
+            const RequestId& _request_id)
     {
         m_request_id = _request_id;
     }
@@ -7073,7 +7675,8 @@ public:
      * @brief This function moves the value in member request_id
      * @param _request_id New value to be moved in member request_id
      */
-    inline void request_id(RequestId &&_request_id)
+    inline void request_id(
+            RequestId&& _request_id)
     {
         m_request_id = std::move(_request_id);
     }
@@ -7095,11 +7698,13 @@ public:
     {
         return m_request_id;
     }
+
     /*!
      * @brief This function copies the value in member object_id
      * @param _object_id New value to be copied in member object_id
      */
-    inline void object_id(const ObjectId &_object_id)
+    inline void object_id(
+            const ObjectId& _object_id)
     {
         m_object_id = _object_id;
     }
@@ -7108,7 +7713,8 @@ public:
      * @brief This function moves the value in member object_id
      * @param _object_id New value to be moved in member object_id
      */
-    inline void object_id(ObjectId &&_object_id)
+    inline void object_id(
+            ObjectId&& _object_id)
     {
         m_object_id = std::move(_object_id);
     }
@@ -7130,14 +7736,15 @@ public:
     {
         return m_object_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -7145,21 +7752,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     RequestId m_request_id;
     ObjectId m_object_id;
 };
@@ -7177,41 +7788,46 @@ public:
      * @brief Default constructor.
      */
     BaseObjectReply();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~BaseObjectReply();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object BaseObjectReply that will be copied.
      */
-    BaseObjectReply(const BaseObjectReply &x);
-    
+    BaseObjectReply(
+            const BaseObjectReply& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object BaseObjectReply that will be copied.
      */
-    BaseObjectReply(BaseObjectReply &&x);
-    
+    BaseObjectReply(
+            BaseObjectReply&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object BaseObjectReply that will be copied.
      */
-    BaseObjectReply& operator=(const BaseObjectReply &x);
-    
+    BaseObjectReply& operator =(
+            const BaseObjectReply& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object BaseObjectReply that will be copied.
      */
-    BaseObjectReply& operator=(BaseObjectReply &&x);
-    
+    BaseObjectReply& operator =(
+            BaseObjectReply&& x);
+
     /*!
      * @brief This function copies the value in member related_request
      * @param _related_request New value to be copied in member related_request
      */
-    inline void related_request(const BaseObjectRequest &_related_request)
+    inline void related_request(
+            const BaseObjectRequest& _related_request)
     {
         m_related_request = _related_request;
     }
@@ -7220,7 +7836,8 @@ public:
      * @brief This function moves the value in member related_request
      * @param _related_request New value to be moved in member related_request
      */
-    inline void related_request(BaseObjectRequest &&_related_request)
+    inline void related_request(
+            BaseObjectRequest&& _related_request)
     {
         m_related_request = std::move(_related_request);
     }
@@ -7242,11 +7859,13 @@ public:
     {
         return m_related_request;
     }
+
     /*!
      * @brief This function copies the value in member result
      * @param _result New value to be copied in member result
      */
-    inline void result(const ResultStatus &_result)
+    inline void result(
+            const ResultStatus& _result)
     {
         m_result = _result;
     }
@@ -7255,7 +7874,8 @@ public:
      * @brief This function moves the value in member result
      * @param _result New value to be moved in member result
      */
-    inline void result(ResultStatus &&_result)
+    inline void result(
+            ResultStatus&& _result)
     {
         m_result = std::move(_result);
     }
@@ -7277,14 +7897,15 @@ public:
     {
         return m_result;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -7292,21 +7913,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     BaseObjectRequest m_related_request;
     ResultStatus m_result;
 };
@@ -7331,41 +7956,46 @@ public:
      * @brief Default constructor.
      */
     DataDeliveryControl();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DataDeliveryControl();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DataDeliveryControl that will be copied.
      */
-    DataDeliveryControl(const DataDeliveryControl &x);
-    
+    DataDeliveryControl(
+            const DataDeliveryControl& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DataDeliveryControl that will be copied.
      */
-    DataDeliveryControl(DataDeliveryControl &&x);
-    
+    DataDeliveryControl(
+            DataDeliveryControl&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DataDeliveryControl that will be copied.
      */
-    DataDeliveryControl& operator=(const DataDeliveryControl &x);
-    
+    DataDeliveryControl& operator =(
+            const DataDeliveryControl& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DataDeliveryControl that will be copied.
      */
-    DataDeliveryControl& operator=(DataDeliveryControl &&x);
-    
+    DataDeliveryControl& operator =(
+            DataDeliveryControl&& x);
+
     /*!
      * @brief This function sets a value in member max_samples
      * @param _max_samples New value for member max_samples
      */
-    inline void max_samples(uint16_t _max_samples)
+    inline void max_samples(
+            uint16_t _max_samples)
     {
         m_max_samples = _max_samples;
     }
@@ -7387,11 +8017,13 @@ public:
     {
         return m_max_samples;
     }
+
     /*!
      * @brief This function sets a value in member max_elapsed_time
      * @param _max_elapsed_time New value for member max_elapsed_time
      */
-    inline void max_elapsed_time(uint16_t _max_elapsed_time)
+    inline void max_elapsed_time(
+            uint16_t _max_elapsed_time)
     {
         m_max_elapsed_time = _max_elapsed_time;
     }
@@ -7413,11 +8045,13 @@ public:
     {
         return m_max_elapsed_time;
     }
+
     /*!
      * @brief This function sets a value in member max_bytes_per_second
      * @param _max_bytes_per_second New value for member max_bytes_per_second
      */
-    inline void max_bytes_per_second(uint16_t _max_bytes_per_second)
+    inline void max_bytes_per_second(
+            uint16_t _max_bytes_per_second)
     {
         m_max_bytes_per_second = _max_bytes_per_second;
     }
@@ -7464,7 +8098,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -7472,21 +8107,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     uint16_t m_max_samples;
     uint16_t m_max_elapsed_time;
     uint16_t m_max_bytes_per_second;
@@ -7504,41 +8143,46 @@ public:
      * @brief Default constructor.
      */
     ReadSpecification();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ReadSpecification();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ReadSpecification that will be copied.
      */
-    ReadSpecification(const ReadSpecification &x);
-    
+    ReadSpecification(
+            const ReadSpecification& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ReadSpecification that will be copied.
      */
-    ReadSpecification(ReadSpecification &&x);
-    
+    ReadSpecification(
+            ReadSpecification&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ReadSpecification that will be copied.
      */
-    ReadSpecification& operator=(const ReadSpecification &x);
-    
+    ReadSpecification& operator =(
+            const ReadSpecification& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ReadSpecification that will be copied.
      */
-    ReadSpecification& operator=(ReadSpecification &&x);
+    ReadSpecification& operator =(
+            ReadSpecification&& x);
 
     /*!
      * @brief This function sets a value in member preferred_stream_id
      * @param _preferred_stream_id New value for member preferred_stream_id
      */
-    inline void preferred_stream_id(StreamId _preferred_stream_id)
+    inline void preferred_stream_id(
+            StreamId _preferred_stream_id)
     {
         m_preferred_stream_id = _preferred_stream_id;
     }
@@ -7565,7 +8209,8 @@ public:
      * @brief This function sets a value in member data_format
      * @param _data_format New value for member data_format
      */
-    inline void data_format(DataFormat _data_format)
+    inline void data_format(
+            DataFormat _data_format)
     {
         m_data_format = _data_format;
     }
@@ -7592,7 +8237,8 @@ public:
      * @brief This function copies the value in member delivery_control
      * @param _content_filter_expression New value to be copied in member delivery_control
      */
-    inline void content_filter_expression(const std::string &_content_filter_expression)
+    inline void content_filter_expression(
+            const std::string& _content_filter_expression)
     {
         m_content_filter_expression = _content_filter_expression;
     }
@@ -7601,7 +8247,8 @@ public:
      * @brief This function moves the value in member delivery_control
      * @param _content_filter_expression New value to be moved in member delivery_control
      */
-    inline void content_filter_expression(std::string &&_content_filter_expression)
+    inline void content_filter_expression(
+            std::string&& _content_filter_expression)
     {
         m_content_filter_expression = std::move(_content_filter_expression);
     }
@@ -7641,7 +8288,8 @@ public:
      * @brief This function copies the value in member delivery_control
      * @param _delivery_control New value to be copied in member delivery_control
      */
-    inline void delivery_control(const DataDeliveryControl &_delivery_control)
+    inline void delivery_control(
+            const DataDeliveryControl& _delivery_control)
     {
         m_delivery_control = _delivery_control;
     }
@@ -7650,7 +8298,8 @@ public:
      * @brief This function moves the value in member delivery_control
      * @param _delivery_control New value to be moved in member delivery_control
      */
-    inline void delivery_control(DataDeliveryControl &&_delivery_control)
+    inline void delivery_control(
+            DataDeliveryControl&& _delivery_control)
     {
         m_delivery_control = std::move(_delivery_control);
     }
@@ -7685,14 +8334,15 @@ public:
         }
         return *m_delivery_control;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -7700,21 +8350,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     StreamId m_preferred_stream_id;
     DataFormat m_data_format;
     eprosima::Optional<std::string> m_content_filter_expression;
@@ -7727,10 +8381,10 @@ private:
  */
 enum SampleInfoFlags : uint8_t
 {
-    INSTANCE_STATE_UNREGISTERED	= 0x01 << 0,
-    INSTANCE_STATE_DISPOSED		= 0x01 << 1,
-    VIEW_STATE_NEW				= 0x01 << 2,
-    SAMPLE_STATE_READ			= 0x01 << 3
+    INSTANCE_STATE_UNREGISTERED = 0x01 << 0,
+    INSTANCE_STATE_DISPOSED     = 0x01 << 1,
+    VIEW_STATE_NEW              = 0x01 << 2,
+    SAMPLE_STATE_READ           = 0x01 << 3
 };
 
 /*!
@@ -7745,41 +8399,46 @@ public:
      * @brief Default constructor.
      */
     SampleInfo();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~SampleInfo();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object SampleInfo that will be copied.
      */
-    SampleInfo(const SampleInfo &x);
-    
+    SampleInfo(
+            const SampleInfo& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object SampleInfo that will be copied.
      */
-    SampleInfo(SampleInfo &&x);
-    
+    SampleInfo(
+            SampleInfo&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object SampleInfo that will be copied.
      */
-    SampleInfo& operator=(const SampleInfo &x);
-    
+    SampleInfo& operator =(
+            const SampleInfo& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object SampleInfo that will be copied.
      */
-    SampleInfo& operator=(SampleInfo &&x);
-    
+    SampleInfo& operator =(
+            SampleInfo&& x);
+
     /*!
      * @brief This function sets a value in member state
      * @param _state New value for member state
      */
-    inline void state(SampleInfoFlags _state)
+    inline void state(
+            SampleInfoFlags _state)
     {
         m_state = _state;
     }
@@ -7801,11 +8460,13 @@ public:
     {
         return m_state;
     }
+
     /*!
      * @brief This function sets a value in member sequence_number
      * @param _sequence_number New value for member sequence_number
      */
-    inline void sequence_number(uint32_t _sequence_number)
+    inline void sequence_number(
+            uint32_t _sequence_number)
     {
         m_sequence_number = _sequence_number;
     }
@@ -7827,11 +8488,13 @@ public:
     {
         return m_sequence_number;
     }
+
     /*!
      * @brief This function sets a value in member session_time_offset
      * @param _session_time_offset New value for member session_time_offset
      */
-    inline void session_time_offset(uint32_t _session_time_offset)
+    inline void session_time_offset(
+            uint32_t _session_time_offset)
     {
         m_session_time_offset = _session_time_offset;
     }
@@ -7853,14 +8516,15 @@ public:
     {
         return m_session_time_offset;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -7868,21 +8532,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleInfoFlags m_state;
     uint32_t m_sequence_number;
     uint32_t m_session_time_offset;
@@ -7902,41 +8570,46 @@ public:
      * @brief Default constructor.
      */
     SampleInfoDelta();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~SampleInfoDelta();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object SampleInfoDelta that will be copied.
      */
-    SampleInfoDelta(const SampleInfoDelta &x);
-    
+    SampleInfoDelta(
+            const SampleInfoDelta& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object SampleInfoDelta that will be copied.
      */
-    SampleInfoDelta(SampleInfoDelta &&x);
-    
+    SampleInfoDelta(
+            SampleInfoDelta&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object SampleInfoDelta that will be copied.
      */
-    SampleInfoDelta& operator=(const SampleInfoDelta &x);
-    
+    SampleInfoDelta& operator =(
+            const SampleInfoDelta& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object SampleInfoDelta that will be copied.
      */
-    SampleInfoDelta& operator=(SampleInfoDelta &&x);
-    
+    SampleInfoDelta& operator =(
+            SampleInfoDelta&& x);
+
     /*!
      * @brief This function sets a value in member state
      * @param _state New value for member state
      */
-    inline void state(SampleInfoFlags _state)
+    inline void state(
+            SampleInfoFlags _state)
     {
         m_state = _state;
     }
@@ -7958,11 +8631,13 @@ public:
     {
         return m_state;
     }
+
     /*!
      * @brief This function sets a value in member seq_number_delta
      * @param _seq_number_delta New value for member seq_number_delta
      */
-    inline void seq_number_delta(uint8_t _seq_number_delta)
+    inline void seq_number_delta(
+            uint8_t _seq_number_delta)
     {
         m_seq_number_delta = _seq_number_delta;
     }
@@ -7984,11 +8659,13 @@ public:
     {
         return m_seq_number_delta;
     }
+
     /*!
      * @brief This function sets a value in member timestamp_delta
      * @param _timestamp_delta New value for member timestamp_delta
      */
-    inline void timestamp_delta(DeciSecond _timestamp_delta)
+    inline void timestamp_delta(
+            DeciSecond _timestamp_delta)
     {
         m_timestamp_delta = _timestamp_delta;
     }
@@ -8010,14 +8687,15 @@ public:
     {
         return m_timestamp_delta;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8025,21 +8703,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleInfoFlags m_state;
     uint8_t m_seq_number_delta;
     DeciSecond m_timestamp_delta;
@@ -8057,41 +8739,46 @@ public:
      * @brief Default constructor.
      */
     SampleData();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~SampleData();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object SampleData that will be copied.
      */
-    SampleData(const SampleData &x);
-    
+    SampleData(
+            const SampleData& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object SampleData that will be copied.
      */
-    SampleData(SampleData &&x);
-    
+    SampleData(
+            SampleData&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object SampleData that will be copied.
      */
-    SampleData& operator=(const SampleData &x);
-    
+    SampleData& operator =(
+            const SampleData& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object SampleData that will be copied.
      */
-    SampleData& operator=(SampleData &&x);
-    
+    SampleData& operator =(
+            SampleData&& x);
+
     /*!
      * @brief This function copies the value in member serialized_data
      * @param _serialized_data New value to be copied in member serialized_data
      */
-    inline virtual void serialized_data(const std::vector<uint8_t> &_serialized_data)
+    inline virtual void serialized_data(
+            const std::vector<uint8_t>& _serialized_data)
     {
         m_serialized_data = _serialized_data;
     }
@@ -8100,7 +8787,8 @@ public:
      * @brief This function moves the value in member serialized_data
      * @param _serialized_data New value to be moved in member serialized_data
      */
-    inline virtual void serialized_data(std::vector<uint8_t> &&_serialized_data)
+    inline virtual void serialized_data(
+            std::vector<uint8_t>&& _serialized_data)
     {
         m_serialized_data = std::move(_serialized_data);
     }
@@ -8122,14 +8810,15 @@ public:
     {
         return m_serialized_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8137,26 +8826,31 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
-    inline void resize(size_t new_size)
+    inline void resize(
+            size_t new_size)
     {
         m_serialized_data.resize(new_size);
     }
 
 private:
+
     std::vector<uint8_t> m_serialized_data;
 };
 
@@ -8174,41 +8868,46 @@ public:
      * @brief Default constructor.
      */
     Sample();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~Sample();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object Sample that will be copied.
      */
-    Sample(const Sample &x);
-    
+    Sample(
+            const Sample& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object Sample that will be copied.
      */
-    Sample(Sample &&x);
-    
+    Sample(
+            Sample&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object Sample that will be copied.
      */
-    Sample& operator=(const Sample &x);
-    
+    Sample& operator =(
+            const Sample& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object Sample that will be copied.
      */
-    Sample& operator=(Sample &&x);
-    
+    Sample& operator =(
+            Sample&& x);
+
     /*!
      * @brief This function copies the value in member info
      * @param _info New value to be copied in member info
      */
-    inline void info(const SampleInfo &_info)
+    inline void info(
+            const SampleInfo& _info)
     {
         m_info = _info;
     }
@@ -8217,7 +8916,8 @@ public:
      * @brief This function moves the value in member info
      * @param _info New value to be moved in member info
      */
-    inline void info(SampleInfo &&_info)
+    inline void info(
+            SampleInfo&& _info)
     {
         m_info = std::move(_info);
     }
@@ -8239,11 +8939,13 @@ public:
     {
         return m_info;
     }
+
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    inline void data(const SampleData &_data)
+    inline void data(
+            const SampleData& _data)
     {
         m_data = _data;
     }
@@ -8252,7 +8954,8 @@ public:
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    inline void data(SampleData &&_data)
+    inline void data(
+            SampleData&& _data)
     {
         m_data = std::move(_data);
     }
@@ -8274,14 +8977,15 @@ public:
     {
         return m_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8289,21 +8993,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleInfo m_info;
     SampleData m_data;
 };
@@ -8322,41 +9030,46 @@ public:
      * @brief Default constructor.
      */
     SampleDelta();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~SampleDelta();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object SampleDelta that will be copied.
      */
-    SampleDelta(const SampleDelta &x);
-    
+    SampleDelta(
+            const SampleDelta& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object SampleDelta that will be copied.
      */
-    SampleDelta(SampleDelta &&x);
-    
+    SampleDelta(
+            SampleDelta&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object SampleDelta that will be copied.
      */
-    SampleDelta& operator=(const SampleDelta &x);
-    
+    SampleDelta& operator =(
+            const SampleDelta& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object SampleDelta that will be copied.
      */
-    SampleDelta& operator=(SampleDelta &&x);
-    
+    SampleDelta& operator =(
+            SampleDelta&& x);
+
     /*!
      * @brief This function copies the value in member info_delta
      * @param _info_delta New value to be copied in member info_delta
      */
-    inline void info_delta(const SampleInfoDelta &_info_delta)
+    inline void info_delta(
+            const SampleInfoDelta& _info_delta)
     {
         m_info_delta = _info_delta;
     }
@@ -8365,7 +9078,8 @@ public:
      * @brief This function moves the value in member info_delta
      * @param _info_delta New value to be moved in member info_delta
      */
-    inline void info_delta(SampleInfoDelta &&_info_delta)
+    inline void info_delta(
+            SampleInfoDelta&& _info_delta)
     {
         m_info_delta = std::move(_info_delta);
     }
@@ -8387,11 +9101,13 @@ public:
     {
         return m_info_delta;
     }
+
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    inline void data(const SampleData &_data)
+    inline void data(
+            const SampleData& _data)
     {
         m_data = _data;
     }
@@ -8400,7 +9116,8 @@ public:
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    inline void data(SampleData &&_data)
+    inline void data(
+            SampleData&& _data)
     {
         m_data = std::move(_data);
     }
@@ -8422,14 +9139,15 @@ public:
     {
         return m_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8437,21 +9155,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleInfoDelta m_info_delta;
     SampleData m_data;
 };
@@ -8468,41 +9190,46 @@ public:
      * @brief Default constructor.
      */
     PackedSamples();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~PackedSamples();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object PackedSamples that will be copied.
      */
-    PackedSamples(const PackedSamples &x);
-    
+    PackedSamples(
+            const PackedSamples& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object PackedSamples that will be copied.
      */
-    PackedSamples(PackedSamples &&x);
-    
+    PackedSamples(
+            PackedSamples&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object PackedSamples that will be copied.
      */
-    PackedSamples& operator=(const PackedSamples &x);
-    
+    PackedSamples& operator =(
+            const PackedSamples& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object PackedSamples that will be copied.
      */
-    PackedSamples& operator=(PackedSamples &&x);
-    
+    PackedSamples& operator =(
+            PackedSamples&& x);
+
     /*!
      * @brief This function copies the value in member info_base
      * @param _info_base New value to be copied in member info_base
      */
-    inline void info_base(const SampleInfo &_info_base)
+    inline void info_base(
+            const SampleInfo& _info_base)
     {
         m_info_base = _info_base;
     }
@@ -8511,7 +9238,8 @@ public:
      * @brief This function moves the value in member info_base
      * @param _info_base New value to be moved in member info_base
      */
-    inline void info_base(SampleInfo &&_info_base)
+    inline void info_base(
+            SampleInfo&& _info_base)
     {
         m_info_base = std::move(_info_base);
     }
@@ -8533,11 +9261,13 @@ public:
     {
         return m_info_base;
     }
+
     /*!
      * @brief This function copies the value in member sample_delta_seq
      * @param _sample_delta_seq New value to be copied in member sample_delta_seq
      */
-    inline void sample_delta_seq(const std::vector<SampleDelta> &_sample_delta_seq)
+    inline void sample_delta_seq(
+            const std::vector<SampleDelta>& _sample_delta_seq)
     {
         m_sample_delta_seq = _sample_delta_seq;
     }
@@ -8546,7 +9276,8 @@ public:
      * @brief This function moves the value in member sample_delta_seq
      * @param _sample_delta_seq New value to be moved in member sample_delta_seq
      */
-    inline void sample_delta_seq(std::vector<SampleDelta> &&_sample_delta_seq)
+    inline void sample_delta_seq(
+            std::vector<SampleDelta>&& _sample_delta_seq)
     {
         m_sample_delta_seq = std::move(_sample_delta_seq);
     }
@@ -8568,14 +9299,15 @@ public:
     {
         return m_sample_delta_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8583,21 +9315,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleInfo m_info_base;
     std::vector<SampleDelta> m_sample_delta_seq;
 };
@@ -8616,66 +9352,73 @@ public:
      * @brief Default constructor.
      */
     DataRepresentation();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DataRepresentation();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DataRepresentation that will be copied.
      */
-    DataRepresentation(const DataRepresentation &x);
-    
+    DataRepresentation(
+            const DataRepresentation& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DataRepresentation that will be copied.
      */
-    DataRepresentation(DataRepresentation &&x);
-    
+    DataRepresentation(
+            DataRepresentation&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DataRepresentation that will be copied.
      */
-    DataRepresentation& operator=(const DataRepresentation &x);
-    
+    DataRepresentation& operator =(
+            const DataRepresentation& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DataRepresentation that will be copied.
      */
-    DataRepresentation& operator=(DataRepresentation &&x);
-    
+    DataRepresentation& operator =(
+            DataRepresentation&& x);
+
     /*!
      * @brief This function sets the discriminator value.
      * @param __d New value for the discriminator.
      * @exception dds::xrce::XRCETypesException This exception is thrown if the new value doesn't correspond to the selected union member.
      */
-    void _d(DataFormat __d);
-    
+    void _d(
+            DataFormat __d);
+
     /*!
      * @brief This function returns the value of the discriminator.
      * @return Value of the discriminator
      */
     DataFormat _d() const;
-    
+
     /*!
      * @brief This function returns a reference to the discriminator.
      * @return Reference to the discriminator.
      */
     DataFormat& _d();
-    
+
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    void data(const SampleData &_data);
+    void data(
+            const SampleData& _data);
 
     /*!
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    void data(SampleData &&_data);
+    void data(
+            SampleData&& _data);
 
     /*!
      * @brief This function returns a constant reference to member data
@@ -8694,13 +9437,15 @@ public:
      * @brief This function copies the value in member sample
      * @param _sample New value to be copied in member sample
      */
-    void sample(const Sample &_sample);
+    void sample(
+            const Sample& _sample);
 
     /*!
      * @brief This function moves the value in member sample
      * @param _sample New value to be moved in member sample
      */
-    void sample(Sample &&_sample);
+    void sample(
+            Sample&& _sample);
 
     /*!
      * @brief This function returns a constant reference to member sample
@@ -8719,13 +9464,15 @@ public:
      * @brief This function copies the value in member data_seq
      * @param _data_seq New value to be copied in member data_seq
      */
-    void data_seq(const SampleDataSeq &_data_seq);
+    void data_seq(
+            const SampleDataSeq& _data_seq);
 
     /*!
      * @brief This function moves the value in member data_seq
      * @param _data_seq New value to be moved in member data_seq
      */
-    void data_seq(SampleDataSeq &&_data_seq);
+    void data_seq(
+            SampleDataSeq&& _data_seq);
 
     /*!
      * @brief This function returns a constant reference to member data_seq
@@ -8744,13 +9491,15 @@ public:
      * @brief This function copies the value in member sample_seq
      * @param _sample_seq New value to be copied in member sample_seq
      */
-    void sample_seq(const SampleSeq &_sample_seq);
+    void sample_seq(
+            const SampleSeq& _sample_seq);
 
     /*!
      * @brief This function moves the value in member sample_seq
      * @param _sample_seq New value to be moved in member sample_seq
      */
-    void sample_seq(SampleSeq &&_sample_seq);
+    void sample_seq(
+            SampleSeq&& _sample_seq);
 
     /*!
      * @brief This function returns a constant reference to member sample_seq
@@ -8769,13 +9518,15 @@ public:
      * @brief This function copies the value in member packed_samples
      * @param _packed_samples New value to be copied in member packed_samples
      */
-    void packed_samples(const PackedSamples &_packed_samples);
+    void packed_samples(
+            const PackedSamples& _packed_samples);
 
     /*!
      * @brief This function moves the value in member packed_samples
      * @param _packed_samples New value to be moved in member packed_samples
      */
-    void packed_samples(PackedSamples &&_packed_samples);
+    void packed_samples(
+            PackedSamples&& _packed_samples);
 
     /*!
      * @brief This function returns a constant reference to member packed_samples
@@ -8790,14 +9541,15 @@ public:
      * @exception dds::xrce::XRCETypesException This exception is thrown if the requested union member is not the current selection.
      */
     PackedSamples& packed_samples();
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8805,23 +9557,27 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     DataFormat m__d;
-    
+
     SampleData m_data;
     Sample m_sample;
     SampleDataSeq m_data_seq;
@@ -8841,41 +9597,46 @@ public:
      * @brief Default constructor.
      */
     CREATE_CLIENT_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~CREATE_CLIENT_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object CREATE_CLIENT_Payload that will be copied.
      */
-    CREATE_CLIENT_Payload(const CREATE_CLIENT_Payload &x);
-    
+    CREATE_CLIENT_Payload(
+            const CREATE_CLIENT_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object CREATE_CLIENT_Payload that will be copied.
      */
-    CREATE_CLIENT_Payload(CREATE_CLIENT_Payload &&x);
-    
+    CREATE_CLIENT_Payload(
+            CREATE_CLIENT_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object CREATE_CLIENT_Payload that will be copied.
      */
-    CREATE_CLIENT_Payload& operator=(const CREATE_CLIENT_Payload &x);
-    
+    CREATE_CLIENT_Payload& operator =(
+            const CREATE_CLIENT_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object CREATE_CLIENT_Payload that will be copied.
      */
-    CREATE_CLIENT_Payload& operator=(CREATE_CLIENT_Payload &&x);
-    
+    CREATE_CLIENT_Payload& operator =(
+            CREATE_CLIENT_Payload&& x);
+
     /*!
      * @brief This function copies the value in member client_representation
      * @param _client_representation New value to be copied in member client_representation
      */
-    inline void client_representation(const CLIENT_Representation &_client_representation)
+    inline void client_representation(
+            const CLIENT_Representation& _client_representation)
     {
         m_client_representation = _client_representation;
     }
@@ -8884,7 +9645,8 @@ public:
      * @brief This function moves the value in member client_representation
      * @param _client_representation New value to be moved in member client_representation
      */
-    inline void client_representation(CLIENT_Representation &&_client_representation)
+    inline void client_representation(
+            CLIENT_Representation&& _client_representation)
     {
         m_client_representation = std::move(_client_representation);
     }
@@ -8906,14 +9668,15 @@ public:
     {
         return m_client_representation;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -8921,21 +9684,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     CLIENT_Representation m_client_representation;
 };
 
@@ -8951,41 +9718,46 @@ public:
      * @brief Default constructor.
      */
     CREATE_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~CREATE_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object CREATE_Payload that will be copied.
      */
-    CREATE_Payload(const CREATE_Payload &x);
-    
+    CREATE_Payload(
+            const CREATE_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object CREATE_Payload that will be copied.
      */
-    CREATE_Payload(CREATE_Payload &&x);
-    
+    CREATE_Payload(
+            CREATE_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object CREATE_Payload that will be copied.
      */
-    CREATE_Payload& operator=(const CREATE_Payload &x);
-    
+    CREATE_Payload& operator =(
+            const CREATE_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object CREATE_Payload that will be copied.
      */
-    CREATE_Payload& operator=(CREATE_Payload &&x);
-    
+    CREATE_Payload& operator =(
+            CREATE_Payload&& x);
+
     /*!
      * @brief This function copies the value in member object_representation
      * @param _object_representation New value to be copied in member object_representation
      */
-    inline void object_representation(const ObjectVariant &_object_representation)
+    inline void object_representation(
+            const ObjectVariant& _object_representation)
     {
         m_object_representation = _object_representation;
     }
@@ -8994,7 +9766,8 @@ public:
      * @brief This function moves the value in member object_representation
      * @param _object_representation New value to be moved in member object_representation
      */
-    inline void object_representation(ObjectVariant &&_object_representation)
+    inline void object_representation(
+            ObjectVariant&& _object_representation)
     {
         m_object_representation = std::move(_object_representation);
     }
@@ -9016,14 +9789,15 @@ public:
     {
         return m_object_representation;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9031,21 +9805,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectVariant m_object_representation;
 };
 
@@ -9061,41 +9839,46 @@ public:
      * @brief Default constructor.
      */
     GET_INFO_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~GET_INFO_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload(const GET_INFO_Payload &x);
-    
+    GET_INFO_Payload(
+            const GET_INFO_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload(GET_INFO_Payload &&x);
-    
+    GET_INFO_Payload(
+            GET_INFO_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload& operator=(const GET_INFO_Payload &x);
-    
+    GET_INFO_Payload& operator =(
+            const GET_INFO_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object GET_INFO_Payload that will be copied.
      */
-    GET_INFO_Payload& operator=(GET_INFO_Payload &&x);
-    
+    GET_INFO_Payload& operator =(
+            GET_INFO_Payload&& x);
+
     /*!
      * @brief This function sets a value in member info_mask
      * @param _info_mask New value for member info_mask
      */
-    inline void info_mask(InfoMask _info_mask)
+    inline void info_mask(
+            InfoMask _info_mask)
     {
         m_info_mask = _info_mask;
     }
@@ -9117,14 +9900,15 @@ public:
     {
         return m_info_mask;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9132,21 +9916,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     InfoMask m_info_mask;
 };
 
@@ -9162,43 +9950,48 @@ public:
      * @brief Default constructor.
      */
     DELETE_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DELETE_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DELETE_Payload that will be copied.
      */
-    DELETE_Payload(const DELETE_Payload &x);
-    
+    DELETE_Payload(
+            const DELETE_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DELETE_Payload that will be copied.
      */
-    DELETE_Payload(DELETE_Payload &&x);
-    
+    DELETE_Payload(
+            DELETE_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DELETE_Payload that will be copied.
      */
-    DELETE_Payload& operator=(const DELETE_Payload &x);
-    
+    DELETE_Payload& operator =(
+            const DELETE_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DELETE_Payload that will be copied.
      */
-    DELETE_Payload& operator=(DELETE_Payload &&x);
-    
+    DELETE_Payload& operator =(
+            DELETE_Payload&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9206,19 +9999,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 
 /*!
@@ -9233,41 +10029,46 @@ public:
      * @brief Default constructor.
      */
     STATUS_AGENT_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~STATUS_AGENT_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object STATUS_AGENT_Payload that will be copied.
      */
-    STATUS_AGENT_Payload(const STATUS_AGENT_Payload &x);
-    
+    STATUS_AGENT_Payload(
+            const STATUS_AGENT_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object STATUS_AGENT_Payload that will be copied.
      */
-    STATUS_AGENT_Payload(STATUS_AGENT_Payload &&x);
-    
+    STATUS_AGENT_Payload(
+            STATUS_AGENT_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object STATUS_AGENT_Payload that will be copied.
      */
-    STATUS_AGENT_Payload& operator=(const STATUS_AGENT_Payload &x);
-    
+    STATUS_AGENT_Payload& operator =(
+            const STATUS_AGENT_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object STATUS_AGENT_Payload that will be copied.
      */
-    STATUS_AGENT_Payload& operator=(STATUS_AGENT_Payload &&x);
+    STATUS_AGENT_Payload& operator =(
+            STATUS_AGENT_Payload&& x);
 
     /*
      * @brief This function copies the value in member result
      * @param _retuls New value to be copied in member result
      */
-    inline void result(const ResultStatus &_result)
+    inline void result(
+            const ResultStatus& _result)
     {
         m_result = _result;
     }
@@ -9276,7 +10077,8 @@ public:
      * @brief This function moves the value in member result
      * @param _result New value to be moved in member result
      */
-    inline void result(ResultStatus &&_result)
+    inline void result(
+            ResultStatus&& _result)
     {
         m_result = std::move(_result);
     }
@@ -9303,7 +10105,8 @@ public:
      * @brief This function copies the value in member agent_info
      * @param _agent_info New value to be copied in member agent_info
      */
-    inline void agent_info(const AGENT_Representation &_agent_info)
+    inline void agent_info(
+            const AGENT_Representation& _agent_info)
     {
         m_agent_info = _agent_info;
     }
@@ -9312,7 +10115,8 @@ public:
      * @brief This function moves the value in member agent_info
      * @param _agent_info New value to be moved in member agent_info
      */
-    inline void agent_info(AGENT_Representation &&_agent_info)
+    inline void agent_info(
+            AGENT_Representation&& _agent_info)
     {
         m_agent_info = std::move(_agent_info);
     }
@@ -9334,14 +10138,15 @@ public:
     {
         return m_agent_info;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9349,21 +10154,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ResultStatus m_result;
     AGENT_Representation m_agent_info;
 };
@@ -9380,43 +10189,48 @@ public:
      * @brief Default constructor.
      */
     STATUS_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~STATUS_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object STATUS_Payload that will be copied.
      */
-    STATUS_Payload(const STATUS_Payload &x);
-    
+    STATUS_Payload(
+            const STATUS_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object STATUS_Payload that will be copied.
      */
-    STATUS_Payload(STATUS_Payload &&x);
-    
+    STATUS_Payload(
+            STATUS_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object STATUS_Payload that will be copied.
      */
-    STATUS_Payload& operator=(const STATUS_Payload &x);
-    
+    STATUS_Payload& operator =(
+            const STATUS_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object STATUS_Payload that will be copied.
      */
-    STATUS_Payload& operator=(STATUS_Payload &&x);
-    
+    STATUS_Payload& operator =(
+            STATUS_Payload&& x);
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9424,19 +10238,22 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 };
 /*!
  * @brief This class represents the structure INFO_Payload defined by the user in the IDL file.
@@ -9450,41 +10267,46 @@ public:
      * @brief Default constructor.
      */
     INFO_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~INFO_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object INFO_Payload that will be copied.
      */
-    INFO_Payload(const INFO_Payload &x);
-    
+    INFO_Payload(
+            const INFO_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object INFO_Payload that will be copied.
      */
-    INFO_Payload(INFO_Payload &&x);
-    
+    INFO_Payload(
+            INFO_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object INFO_Payload that will be copied.
      */
-    INFO_Payload& operator=(const INFO_Payload &x);
-    
+    INFO_Payload& operator =(
+            const INFO_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object INFO_Payload that will be copied.
      */
-    INFO_Payload& operator=(INFO_Payload &&x);
-    
+    INFO_Payload& operator =(
+            INFO_Payload&& x);
+
     /*!
      * @brief This function copies the value in member object_info
      * @param _object_info New value to be copied in member object_info
      */
-    inline void object_info(const ObjectInfo &_object_info)
+    inline void object_info(
+            const ObjectInfo& _object_info)
     {
         m_object_info = _object_info;
     }
@@ -9493,7 +10315,8 @@ public:
      * @brief This function moves the value in member object_info
      * @param _object_info New value to be moved in member object_info
      */
-    inline void object_info(ObjectInfo &&_object_info)
+    inline void object_info(
+            ObjectInfo&& _object_info)
     {
         m_object_info = std::move(_object_info);
     }
@@ -9515,14 +10338,15 @@ public:
     {
         return m_object_info;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9530,21 +10354,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ObjectInfo m_object_info;
 };
 
@@ -9560,41 +10388,46 @@ public:
      * @brief Default constructor.
      */
     READ_DATA_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~READ_DATA_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload(const READ_DATA_Payload &x);
-    
+    READ_DATA_Payload(
+            const READ_DATA_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload(READ_DATA_Payload &&x);
-    
+    READ_DATA_Payload(
+            READ_DATA_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload& operator=(const READ_DATA_Payload &x);
-    
+    READ_DATA_Payload& operator =(
+            const READ_DATA_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object READ_DATA_Payload that will be copied.
      */
-    READ_DATA_Payload& operator=(READ_DATA_Payload &&x);
-    
+    READ_DATA_Payload& operator =(
+            READ_DATA_Payload&& x);
+
     /*!
      * @brief This function copies the value in member read_specification
      * @param _read_specification New value to be copied in member read_specification
      */
-    inline void read_specification(const ReadSpecification &_read_specification)
+    inline void read_specification(
+            const ReadSpecification& _read_specification)
     {
         m_read_specification = _read_specification;
     }
@@ -9603,7 +10436,8 @@ public:
      * @brief This function moves the value in member read_specification
      * @param _read_specification New value to be moved in member read_specification
      */
-    inline void read_specification(ReadSpecification &&_read_specification)
+    inline void read_specification(
+            ReadSpecification&& _read_specification)
     {
         m_read_specification = std::move(_read_specification);
     }
@@ -9625,14 +10459,15 @@ public:
     {
         return m_read_specification;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9640,21 +10475,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     ReadSpecification m_read_specification;
 };
 
@@ -9670,41 +10509,46 @@ public:
      * @brief Default constructor.
      */
     WRITE_DATA_Payload_Data();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~WRITE_DATA_Payload_Data();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object WRITE_DATA_Payload_Data that will be copied.
      */
-    WRITE_DATA_Payload_Data(const WRITE_DATA_Payload_Data &x);
-    
+    WRITE_DATA_Payload_Data(
+            const WRITE_DATA_Payload_Data& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object WRITE_DATA_Payload_Data that will be copied.
      */
-    WRITE_DATA_Payload_Data(WRITE_DATA_Payload_Data &&x);
-    
+    WRITE_DATA_Payload_Data(
+            WRITE_DATA_Payload_Data&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object WRITE_DATA_Payload_Data that will be copied.
      */
-    WRITE_DATA_Payload_Data& operator=(const WRITE_DATA_Payload_Data &x);
-    
+    WRITE_DATA_Payload_Data& operator =(
+            const WRITE_DATA_Payload_Data& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object WRITE_DATA_Payload_Data that will be copied.
      */
-    WRITE_DATA_Payload_Data& operator=(WRITE_DATA_Payload_Data &&x);
-    
+    WRITE_DATA_Payload_Data& operator =(
+            WRITE_DATA_Payload_Data&& x);
+
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    inline void data(const SampleData &_data)
+    inline void data(
+            const SampleData& _data)
     {
         m_data = _data;
     }
@@ -9713,7 +10557,8 @@ public:
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    inline void data(SampleData &&_data)
+    inline void data(
+            SampleData&& _data)
     {
         m_data = std::move(_data);
     }
@@ -9735,14 +10580,15 @@ public:
     {
         return m_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9750,21 +10596,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleData m_data;
 };
 
@@ -9780,41 +10630,46 @@ public:
      * @brief Default constructor.
      */
     WRITE_DATA_Payload_Sample();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~WRITE_DATA_Payload_Sample();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object WRITE_DATA_Payload_Sample that will be copied.
      */
-    WRITE_DATA_Payload_Sample(const WRITE_DATA_Payload_Sample &x);
-    
+    WRITE_DATA_Payload_Sample(
+            const WRITE_DATA_Payload_Sample& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object WRITE_DATA_Payload_Sample that will be copied.
      */
-    WRITE_DATA_Payload_Sample(WRITE_DATA_Payload_Sample &&x);
-    
+    WRITE_DATA_Payload_Sample(
+            WRITE_DATA_Payload_Sample&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object WRITE_DATA_Payload_Sample that will be copied.
      */
-    WRITE_DATA_Payload_Sample& operator=(const WRITE_DATA_Payload_Sample &x);
-    
+    WRITE_DATA_Payload_Sample& operator =(
+            const WRITE_DATA_Payload_Sample& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object WRITE_DATA_Payload_Sample that will be copied.
      */
-    WRITE_DATA_Payload_Sample& operator=(WRITE_DATA_Payload_Sample &&x);
-    
+    WRITE_DATA_Payload_Sample& operator =(
+            WRITE_DATA_Payload_Sample&& x);
+
     /*!
      * @brief This function copies the value in member sample
      * @param _sample New value to be copied in member sample
      */
-    inline void sample(const Sample &_sample)
+    inline void sample(
+            const Sample& _sample)
     {
         m_sample = _sample;
     }
@@ -9823,7 +10678,8 @@ public:
      * @brief This function moves the value in member sample
      * @param _sample New value to be moved in member sample
      */
-    inline void sample(Sample &&_sample)
+    inline void sample(
+            Sample&& _sample)
     {
         m_sample = std::move(_sample);
     }
@@ -9845,14 +10701,15 @@ public:
     {
         return m_sample;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9860,21 +10717,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     Sample m_sample;
 };
 
@@ -9890,41 +10751,46 @@ public:
      * @brief Default constructor.
      */
     WRITE_DATA_Payload_DataSeq();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~WRITE_DATA_Payload_DataSeq();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object WRITE_DATA_Payload_DataSeq that will be copied.
      */
-    WRITE_DATA_Payload_DataSeq(const WRITE_DATA_Payload_DataSeq &x);
-    
+    WRITE_DATA_Payload_DataSeq(
+            const WRITE_DATA_Payload_DataSeq& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object WRITE_DATA_Payload_DataSeq that will be copied.
      */
-    WRITE_DATA_Payload_DataSeq(WRITE_DATA_Payload_DataSeq &&x);
-    
+    WRITE_DATA_Payload_DataSeq(
+            WRITE_DATA_Payload_DataSeq&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object WRITE_DATA_Payload_DataSeq that will be copied.
      */
-    WRITE_DATA_Payload_DataSeq& operator=(const WRITE_DATA_Payload_DataSeq &x);
-    
+    WRITE_DATA_Payload_DataSeq& operator =(
+            const WRITE_DATA_Payload_DataSeq& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object WRITE_DATA_Payload_DataSeq that will be copied.
      */
-    WRITE_DATA_Payload_DataSeq& operator=(WRITE_DATA_Payload_DataSeq &&x);
-    
+    WRITE_DATA_Payload_DataSeq& operator =(
+            WRITE_DATA_Payload_DataSeq&& x);
+
     /*!
      * @brief This function copies the value in member data_seq
      * @param _data_seq New value to be copied in member data_seq
      */
-    inline void data_seq(const std::vector<SampleData> &_data_seq)
+    inline void data_seq(
+            const std::vector<SampleData>& _data_seq)
     {
         m_data_seq = _data_seq;
     }
@@ -9933,7 +10799,8 @@ public:
      * @brief This function moves the value in member data_seq
      * @param _data_seq New value to be moved in member data_seq
      */
-    inline void data_seq(std::vector<SampleData> &&_data_seq)
+    inline void data_seq(
+            std::vector<SampleData>&& _data_seq)
     {
         m_data_seq = std::move(_data_seq);
     }
@@ -9955,14 +10822,15 @@ public:
     {
         return m_data_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -9970,21 +10838,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<SampleData> m_data_seq;
 };
 
@@ -10000,41 +10872,46 @@ public:
      * @brief Default constructor.
      */
     WRITE_DATA_Payload_SampleSeq();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~WRITE_DATA_Payload_SampleSeq();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object WRITE_DATA_Payload_SampleSeq that will be copied.
      */
-    WRITE_DATA_Payload_SampleSeq(const WRITE_DATA_Payload_SampleSeq &x);
-    
+    WRITE_DATA_Payload_SampleSeq(
+            const WRITE_DATA_Payload_SampleSeq& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object WRITE_DATA_Payload_SampleSeq that will be copied.
      */
-    WRITE_DATA_Payload_SampleSeq(WRITE_DATA_Payload_SampleSeq &&x);
-    
+    WRITE_DATA_Payload_SampleSeq(
+            WRITE_DATA_Payload_SampleSeq&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object WRITE_DATA_Payload_SampleSeq that will be copied.
      */
-    WRITE_DATA_Payload_SampleSeq& operator=(const WRITE_DATA_Payload_SampleSeq &x);
-    
+    WRITE_DATA_Payload_SampleSeq& operator =(
+            const WRITE_DATA_Payload_SampleSeq& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object WRITE_DATA_Payload_SampleSeq that will be copied.
      */
-    WRITE_DATA_Payload_SampleSeq& operator=(WRITE_DATA_Payload_SampleSeq &&x);
-    
+    WRITE_DATA_Payload_SampleSeq& operator =(
+            WRITE_DATA_Payload_SampleSeq&& x);
+
     /*!
      * @brief This function copies the value in member sample_seq
      * @param _sample_seq New value to be copied in member sample_seq
      */
-    inline void sample_seq(const std::vector<Sample> &_sample_seq)
+    inline void sample_seq(
+            const std::vector<Sample>& _sample_seq)
     {
         m_sample_seq = _sample_seq;
     }
@@ -10043,7 +10920,8 @@ public:
      * @brief This function moves the value in member sample_seq
      * @param _sample_seq New value to be moved in member sample_seq
      */
-    inline void sample_seq(std::vector<Sample> &&_sample_seq)
+    inline void sample_seq(
+            std::vector<Sample>&& _sample_seq)
     {
         m_sample_seq = std::move(_sample_seq);
     }
@@ -10065,14 +10943,15 @@ public:
     {
         return m_sample_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10080,21 +10959,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<Sample> m_sample_seq;
 };
 /*!
@@ -10109,41 +10992,46 @@ public:
      * @brief Default constructor.
      */
     WRITE_DATA_Payload_PackedSamples();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~WRITE_DATA_Payload_PackedSamples();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object WRITE_DATA_Payload_PackedSamples that will be copied.
      */
-    WRITE_DATA_Payload_PackedSamples(const WRITE_DATA_Payload_PackedSamples &x);
-    
+    WRITE_DATA_Payload_PackedSamples(
+            const WRITE_DATA_Payload_PackedSamples& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object WRITE_DATA_Payload_PackedSamples that will be copied.
      */
-    WRITE_DATA_Payload_PackedSamples(WRITE_DATA_Payload_PackedSamples &&x);
-    
+    WRITE_DATA_Payload_PackedSamples(
+            WRITE_DATA_Payload_PackedSamples&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object WRITE_DATA_Payload_PackedSamples that will be copied.
      */
-    WRITE_DATA_Payload_PackedSamples& operator=(const WRITE_DATA_Payload_PackedSamples &x);
-    
+    WRITE_DATA_Payload_PackedSamples& operator =(
+            const WRITE_DATA_Payload_PackedSamples& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object WRITE_DATA_Payload_PackedSamples that will be copied.
      */
-    WRITE_DATA_Payload_PackedSamples& operator=(WRITE_DATA_Payload_PackedSamples &&x);
-    
+    WRITE_DATA_Payload_PackedSamples& operator =(
+            WRITE_DATA_Payload_PackedSamples&& x);
+
     /*!
      * @brief This function copies the value in member packed_samples
      * @param _packed_samples New value to be copied in member packed_samples
      */
-    inline void packed_samples(const PackedSamples &_packed_samples)
+    inline void packed_samples(
+            const PackedSamples& _packed_samples)
     {
         m_packed_samples = _packed_samples;
     }
@@ -10152,7 +11040,8 @@ public:
      * @brief This function moves the value in member packed_samples
      * @param _packed_samples New value to be moved in member packed_samples
      */
-    inline void packed_samples(PackedSamples &&_packed_samples)
+    inline void packed_samples(
+            PackedSamples&& _packed_samples)
     {
         m_packed_samples = std::move(_packed_samples);
     }
@@ -10174,14 +11063,15 @@ public:
     {
         return m_packed_samples;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10189,21 +11079,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     PackedSamples m_packed_samples;
 };
 
@@ -10219,41 +11113,46 @@ public:
      * @brief Default constructor.
      */
     DATA_Payload_Data();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATA_Payload_Data();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data(const DATA_Payload_Data &x);
-    
+    DATA_Payload_Data(
+            const DATA_Payload_Data& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data(DATA_Payload_Data &&x);
-    
+    DATA_Payload_Data(
+            DATA_Payload_Data&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data& operator=(const DATA_Payload_Data &x);
-    
+    DATA_Payload_Data& operator =(
+            const DATA_Payload_Data& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATA_Payload_Data that will be copied.
      */
-    DATA_Payload_Data& operator=(DATA_Payload_Data &&x);
-    
+    DATA_Payload_Data& operator =(
+            DATA_Payload_Data&& x);
+
     /*!
      * @brief This function copies the value in member data
      * @param _data New value to be copied in member data
      */
-    inline void data(const SampleData &_data)
+    inline void data(
+            const SampleData& _data)
     {
         m_data = _data;
     }
@@ -10262,7 +11161,8 @@ public:
      * @brief This function moves the value in member data
      * @param _data New value to be moved in member data
      */
-    inline void data(SampleData &&_data)
+    inline void data(
+            SampleData&& _data)
     {
         m_data = std::move(_data);
     }
@@ -10284,14 +11184,15 @@ public:
     {
         return m_data;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10299,21 +11200,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     SampleData m_data;
 };
 
@@ -10329,41 +11234,46 @@ public:
      * @brief Default constructor.
      */
     DATA_Payload_Sample();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATA_Payload_Sample();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample(const DATA_Payload_Sample &x);
-    
+    DATA_Payload_Sample(
+            const DATA_Payload_Sample& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample(DATA_Payload_Sample &&x);
-    
+    DATA_Payload_Sample(
+            DATA_Payload_Sample&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample& operator=(const DATA_Payload_Sample &x);
-    
+    DATA_Payload_Sample& operator =(
+            const DATA_Payload_Sample& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATA_Payload_Sample that will be copied.
      */
-    DATA_Payload_Sample& operator=(DATA_Payload_Sample &&x);
-    
+    DATA_Payload_Sample& operator =(
+            DATA_Payload_Sample&& x);
+
     /*!
      * @brief This function copies the value in member sample
      * @param _sample New value to be copied in member sample
      */
-    inline void sample(const Sample &_sample)
+    inline void sample(
+            const Sample& _sample)
     {
         m_sample = _sample;
     }
@@ -10372,7 +11282,8 @@ public:
      * @brief This function moves the value in member sample
      * @param _sample New value to be moved in member sample
      */
-    inline void sample(Sample &&_sample)
+    inline void sample(
+            Sample&& _sample)
     {
         m_sample = std::move(_sample);
     }
@@ -10394,14 +11305,15 @@ public:
     {
         return m_sample;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10409,21 +11321,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     Sample m_sample;
 };
 
@@ -10439,41 +11355,46 @@ public:
      * @brief Default constructor.
      */
     DATA_Payload_DataSeq();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATA_Payload_DataSeq();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq(const DATA_Payload_DataSeq &x);
-    
+    DATA_Payload_DataSeq(
+            const DATA_Payload_DataSeq& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq(DATA_Payload_DataSeq &&x);
-    
+    DATA_Payload_DataSeq(
+            DATA_Payload_DataSeq&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq& operator=(const DATA_Payload_DataSeq &x);
-    
+    DATA_Payload_DataSeq& operator =(
+            const DATA_Payload_DataSeq& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATA_Payload_DataSeq that will be copied.
      */
-    DATA_Payload_DataSeq& operator=(DATA_Payload_DataSeq &&x);
-    
+    DATA_Payload_DataSeq& operator =(
+            DATA_Payload_DataSeq&& x);
+
     /*!
      * @brief This function copies the value in member data_seq
      * @param _data_seq New value to be copied in member data_seq
      */
-    inline void data_seq(const std::vector<SampleData> &_data_seq)
+    inline void data_seq(
+            const std::vector<SampleData>& _data_seq)
     {
         m_data_seq = _data_seq;
     }
@@ -10482,7 +11403,8 @@ public:
      * @brief This function moves the value in member data_seq
      * @param _data_seq New value to be moved in member data_seq
      */
-    inline void data_seq(std::vector<SampleData> &&_data_seq)
+    inline void data_seq(
+            std::vector<SampleData>&& _data_seq)
     {
         m_data_seq = std::move(_data_seq);
     }
@@ -10504,14 +11426,15 @@ public:
     {
         return m_data_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10519,22 +11442,26 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<SampleData> m_data_seq;
 };
 
@@ -10550,41 +11477,46 @@ public:
      * @brief Default constructor.
      */
     DATA_Payload_SampleSeq();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATA_Payload_SampleSeq();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq(const DATA_Payload_SampleSeq &x);
-    
+    DATA_Payload_SampleSeq(
+            const DATA_Payload_SampleSeq& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq(DATA_Payload_SampleSeq &&x);
-    
+    DATA_Payload_SampleSeq(
+            DATA_Payload_SampleSeq&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq& operator=(const DATA_Payload_SampleSeq &x);
-    
+    DATA_Payload_SampleSeq& operator =(
+            const DATA_Payload_SampleSeq& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATA_Payload_SampleSeq that will be copied.
      */
-    DATA_Payload_SampleSeq& operator=(DATA_Payload_SampleSeq &&x);
-    
+    DATA_Payload_SampleSeq& operator =(
+            DATA_Payload_SampleSeq&& x);
+
     /*!
      * @brief This function copies the value in member sample_seq
      * @param _sample_seq New value to be copied in member sample_seq
      */
-    inline void sample_seq(const std::vector<Sample> &_sample_seq)
+    inline void sample_seq(
+            const std::vector<Sample>& _sample_seq)
     {
         m_sample_seq = _sample_seq;
     }
@@ -10593,7 +11525,8 @@ public:
      * @brief This function moves the value in member sample_seq
      * @param _sample_seq New value to be moved in member sample_seq
      */
-    inline void sample_seq(std::vector<Sample> &&_sample_seq)
+    inline void sample_seq(
+            std::vector<Sample>&& _sample_seq)
     {
         m_sample_seq = std::move(_sample_seq);
     }
@@ -10615,14 +11548,15 @@ public:
     {
         return m_sample_seq;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10630,21 +11564,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::vector<Sample> m_sample_seq;
 };
 
@@ -10660,41 +11598,46 @@ public:
      * @brief Default constructor.
      */
     DATA_Payload_PackedSamples();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~DATA_Payload_PackedSamples();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples(const DATA_Payload_PackedSamples &x);
-    
+    DATA_Payload_PackedSamples(
+            const DATA_Payload_PackedSamples& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples(DATA_Payload_PackedSamples &&x);
-    
+    DATA_Payload_PackedSamples(
+            DATA_Payload_PackedSamples&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples& operator=(const DATA_Payload_PackedSamples &x);
-    
+    DATA_Payload_PackedSamples& operator =(
+            const DATA_Payload_PackedSamples& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object DATA_Payload_PackedSamples that will be copied.
      */
-    DATA_Payload_PackedSamples& operator=(DATA_Payload_PackedSamples &&x);
-    
+    DATA_Payload_PackedSamples& operator =(
+            DATA_Payload_PackedSamples&& x);
+
     /*!
      * @brief This function copies the value in member packed_samples
      * @param _packed_samples New value to be copied in member packed_samples
      */
-    inline void packed_samples(const PackedSamples &_packed_samples)
+    inline void packed_samples(
+            const PackedSamples& _packed_samples)
     {
         m_packed_samples = _packed_samples;
     }
@@ -10703,7 +11646,8 @@ public:
      * @brief This function moves the value in member packed_samples
      * @param _packed_samples New value to be moved in member packed_samples
      */
-    inline void packed_samples(PackedSamples &&_packed_samples)
+    inline void packed_samples(
+            PackedSamples&& _packed_samples)
     {
         m_packed_samples = std::move(_packed_samples);
     }
@@ -10725,14 +11669,15 @@ public:
     {
         return m_packed_samples;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10740,21 +11685,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     PackedSamples m_packed_samples;
 };
 
@@ -10770,41 +11719,46 @@ public:
      * @brief Default constructor.
      */
     ACKNACK_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~ACKNACK_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object ACKNACK_Payload that will be copied.
      */
-    ACKNACK_Payload(const ACKNACK_Payload &x);
-    
+    ACKNACK_Payload(
+            const ACKNACK_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object ACKNACK_Payload that will be copied.
      */
-    ACKNACK_Payload(ACKNACK_Payload &&x);
-    
+    ACKNACK_Payload(
+            ACKNACK_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object ACKNACK_Payload that will be copied.
      */
-    ACKNACK_Payload& operator=(const ACKNACK_Payload &x);
-    
+    ACKNACK_Payload& operator =(
+            const ACKNACK_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object ACKNACK_Payload that will be copied.
      */
-    ACKNACK_Payload& operator=(ACKNACK_Payload &&x);
-    
+    ACKNACK_Payload& operator =(
+            ACKNACK_Payload&& x);
+
     /*!
      * @brief This function sets a value in member first_unacked_seq_num
      * @param _first_unacked_seq_num New value for member first_unacked_seq_num
      */
-    inline void first_unacked_seq_num(uint16_t _first_unacked_seq_num)
+    inline void first_unacked_seq_num(
+            uint16_t _first_unacked_seq_num)
     {
         m_first_unacked_seq_num = _first_unacked_seq_num;
     }
@@ -10831,7 +11785,8 @@ public:
      * @brief This function copies the value in member nack_bitmap
      * @param _nack_bitmap New value to be copied in member nack_bitmap
      */
-    inline void nack_bitmap(const std::array<uint8_t, 2> &_nack_bitmap)
+    inline void nack_bitmap(
+            const std::array<uint8_t, 2>& _nack_bitmap)
     {
         m_nack_bitmap = _nack_bitmap;
     }
@@ -10840,7 +11795,8 @@ public:
      * @brief This function moves the value in member nack_bitmap
      * @param _nack_bitmap New value to be moved in member nack_bitmap
      */
-    inline void nack_bitmap(std::array<uint8_t, 2> &&_nack_bitmap)
+    inline void nack_bitmap(
+            std::array<uint8_t, 2>&& _nack_bitmap)
     {
         m_nack_bitmap = std::move(_nack_bitmap);
     }
@@ -10867,7 +11823,8 @@ public:
      * @brief This function sets a value in member stream_id
      * @param _stream_id New value for member stream_id
      */
-    inline void stream_id(uint8_t _stream_id)
+    inline void stream_id(
+            uint8_t _stream_id)
     {
         m_stream_id = _stream_id;
     }
@@ -10889,14 +11846,15 @@ public:
     {
         return m_stream_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -10904,21 +11862,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     uint16_t m_first_unacked_seq_num;
     std::array<uint8_t, 2> m_nack_bitmap;
     uint8_t m_stream_id;
@@ -10936,41 +11898,46 @@ public:
      * @brief Default constructor.
      */
     HEARTBEAT_Payload();
-    
+
     /*!
      * @brief Default destructor.
      */
     ~HEARTBEAT_Payload();
-    
+
     /*!
      * @brief Copy constructor.
      * @param x Reference to the object HEARTBEAT_Payload that will be copied.
      */
-    HEARTBEAT_Payload(const HEARTBEAT_Payload &x);
-    
+    HEARTBEAT_Payload(
+            const HEARTBEAT_Payload& x);
+
     /*!
      * @brief Move constructor.
      * @param x Reference to the object HEARTBEAT_Payload that will be copied.
      */
-    HEARTBEAT_Payload(HEARTBEAT_Payload &&x);
-    
+    HEARTBEAT_Payload(
+            HEARTBEAT_Payload&& x);
+
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object HEARTBEAT_Payload that will be copied.
      */
-    HEARTBEAT_Payload& operator=(const HEARTBEAT_Payload &x);
-    
+    HEARTBEAT_Payload& operator =(
+            const HEARTBEAT_Payload& x);
+
     /*!
      * @brief Move assignment.
      * @param x Reference to the object HEARTBEAT_Payload that will be copied.
      */
-    HEARTBEAT_Payload& operator=(HEARTBEAT_Payload &&x);
-    
+    HEARTBEAT_Payload& operator =(
+            HEARTBEAT_Payload&& x);
+
     /*!
      * @brief This function sets a value in member first_unacked_seq_nr
      * @param _first_unacked_seq_nr New value for member first_unacked_seq_nr
      */
-    inline void first_unacked_seq_nr(uint16_t _first_unacked_seq_nr)
+    inline void first_unacked_seq_nr(
+            uint16_t _first_unacked_seq_nr)
     {
         m_first_unacked_seq_nr = _first_unacked_seq_nr;
     }
@@ -10997,7 +11964,8 @@ public:
      * @brief This function sets a value in member last_unacked_seq_nr
      * @param _last_unacked_seq_nr New value for member last_unacked_seq_nr
      */
-    inline void last_unacked_seq_nr(uint16_t _last_unacked_seq_nr)
+    inline void last_unacked_seq_nr(
+            uint16_t _last_unacked_seq_nr)
     {
         m_last_unacked_seq_nr = _last_unacked_seq_nr;
     }
@@ -11024,7 +11992,8 @@ public:
      * @brief This function sets a value in member stream_id
      * @param _stream_id New value for member stream_id
      */
-    inline void stream_id(uint8_t _stream_id)
+    inline void stream_id(
+            uint8_t _stream_id)
     {
         m_stream_id = _stream_id;
     }
@@ -11046,14 +12015,15 @@ public:
     {
         return m_stream_id;
     }
-    
+
     /*!
      * @brief This function returns the maximum serialized size of an object
      * depending on the buffer alignment.
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -11061,21 +12031,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     uint16_t m_first_unacked_seq_nr;
     uint16_t m_last_unacked_seq_nr;
     uint8_t m_stream_id;
@@ -11103,31 +12077,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object TIMESTAMP_Payload that will be copied.
      */
-    TIMESTAMP_Payload(const TIMESTAMP_Payload &x);
+    TIMESTAMP_Payload(
+            const TIMESTAMP_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TIMESTAMP_Payload that will be copied.
      */
-    TIMESTAMP_Payload(TIMESTAMP_Payload &&x);
+    TIMESTAMP_Payload(
+            TIMESTAMP_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TIMESTAMP_Payload that will be copied.
      */
-    TIMESTAMP_Payload& operator=(const TIMESTAMP_Payload &x);
+    TIMESTAMP_Payload& operator =(
+            const TIMESTAMP_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TIMESTAMP_Payload that will be copied.
      */
-    TIMESTAMP_Payload& operator=(TIMESTAMP_Payload &&x);
+    TIMESTAMP_Payload& operator =(
+            TIMESTAMP_Payload&& x);
 
     /*!
      * @brief This function sets a value in member transmit_timestamp
      * @param _transmit_timestamp New value for member transmit_timestamp
      */
-    inline void transmit_timestamp(const Time_t& _transmit_timestamp)
+    inline void transmit_timestamp(
+            const Time_t& _transmit_timestamp)
     {
         m_transmit_timestamp = _transmit_timestamp;
     }
@@ -11136,7 +12115,8 @@ public:
      * @brief This function moves the value in member transmit_timestamp
      * @param _transmit_timestamp New value to be moved in member transmit_timestamp
      */
-    inline void transmit_timestamp(Time_t &&_transmit_timestamp)
+    inline void transmit_timestamp(
+            Time_t&& _transmit_timestamp)
     {
         m_transmit_timestamp = std::move(_transmit_timestamp);
     }
@@ -11165,7 +12145,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -11173,21 +12154,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     Time_t m_transmit_timestamp;
 };
 
@@ -11213,31 +12198,36 @@ public:
      * @brief Copy constructor.
      * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
      */
-    TIMESTAMP_REPLY_Payload(const TIMESTAMP_REPLY_Payload &x);
+    TIMESTAMP_REPLY_Payload(
+            const TIMESTAMP_REPLY_Payload& x);
 
     /*!
      * @brief Move constructor.
      * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
      */
-    TIMESTAMP_REPLY_Payload(TIMESTAMP_REPLY_Payload &&x);
+    TIMESTAMP_REPLY_Payload(
+            TIMESTAMP_REPLY_Payload&& x);
 
     /*!
      * @brief Copy assignment.
      * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
      */
-    TIMESTAMP_REPLY_Payload& operator=(const TIMESTAMP_REPLY_Payload &x);
+    TIMESTAMP_REPLY_Payload& operator =(
+            const TIMESTAMP_REPLY_Payload& x);
 
     /*!
      * @brief Move assignment.
      * @param x Reference to the object TIMESTAMP_REPLY_Payload that will be copied.
      */
-    TIMESTAMP_REPLY_Payload& operator=(TIMESTAMP_REPLY_Payload &&x);
+    TIMESTAMP_REPLY_Payload& operator =(
+            TIMESTAMP_REPLY_Payload&& x);
 
     /*!
      * @brief This function sets a value in member transmit_timestamp
      * @param _transmit_timestamp New value for member transmit_timestamp
      */
-    inline void transmit_timestamp(const Time_t& _transmit_timestamp)
+    inline void transmit_timestamp(
+            const Time_t& _transmit_timestamp)
     {
         m_transmit_timestamp = _transmit_timestamp;
     }
@@ -11246,7 +12236,8 @@ public:
      * @brief This function moves the value in member transmit_timestamp
      * @param _transmit_timestamp New value to be moved in member transmit_timestamp
      */
-    inline void transmit_timestamp(Time_t &&_transmit_timestamp)
+    inline void transmit_timestamp(
+            Time_t&& _transmit_timestamp)
     {
         m_transmit_timestamp = std::move(_transmit_timestamp);
     }
@@ -11273,7 +12264,8 @@ public:
      * @brief This function sets a value in member receive_timestamp
      * @param _receive_timestamp New value for member receive_timestamp
      */
-    inline void receive_timestamp(const Time_t& _receive_timestamp)
+    inline void receive_timestamp(
+            const Time_t& _receive_timestamp)
     {
         m_receive_timestamp = _receive_timestamp;
     }
@@ -11282,7 +12274,8 @@ public:
      * @brief This function moves the value in member receive_timestamp
      * @param _receive_timestamp New value to be moved in member receive_timestamp
      */
-    inline void receive_timestamp(Time_t &&_receive_timestamp)
+    inline void receive_timestamp(
+            Time_t&& _receive_timestamp)
     {
         m_receive_timestamp = std::move(_receive_timestamp);
     }
@@ -11309,7 +12302,8 @@ public:
      * @brief This function sets a value in member originate_timestamp
      * @param _originate_timestamp New value for member originate_timestamp
      */
-    inline void originate_timestamp(const Time_t& _originate_timestamp)
+    inline void originate_timestamp(
+            const Time_t& _originate_timestamp)
     {
         m_originate_timestamp = _originate_timestamp;
     }
@@ -11318,7 +12312,8 @@ public:
      * @brief This function moves the value in member originate_timestamp
      * @param _originate_timestamp New value to be moved in member originate_timestamp
      */
-    inline void originate_timestamp(Time_t &&_originate_timestamp)
+    inline void originate_timestamp(
+            Time_t&& _originate_timestamp)
     {
         m_originate_timestamp = std::move(_originate_timestamp);
     }
@@ -11347,7 +12342,8 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Maximum serialized size.
      */
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
     /*!
      * @brief This function returns the serialized size of a data depending on the buffer alignment.
@@ -11355,21 +12351,25 @@ public:
      * @param current_alignment Buffer alignment.
      * @return Serialized size.
      */
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
     /*!
      * @brief This function serializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
      * @brief This function deserializes an object using CDR serialization.
      * @param cdr CDR serialization object.
      */
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     Time_t m_transmit_timestamp;
     Time_t m_receive_timestamp;
     Time_t m_originate_timestamp;
@@ -11401,212 +12401,213 @@ enum SubmessageId : uint8_t
 };
 
 /*!
-    * @brief This class represents the structure OBJK_Requester_Binary defined by the user in the IDL file.
-    * @ingroup TEST
-    */
+ * @brief This class represents the structure OBJK_Requester_Binary defined by the user in the IDL file.
+ * @ingroup TEST
+ */
 class OBJK_Requester_Binary
 {
 public:
 
     /*!
-        * @brief Default constructor.
-        */
+     * @brief Default constructor.
+     */
     OBJK_Requester_Binary();
 
     /*!
-        * @brief Default destructor.
-        */
+     * @brief Default destructor.
+     */
     ~OBJK_Requester_Binary();
 
     /*!
-        * @brief Copy constructor.
-        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
-        */
+     * @brief Copy constructor.
+     * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+     */
     OBJK_Requester_Binary(
             const OBJK_Requester_Binary& x);
 
     /*!
-        * @brief Move constructor.
-        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
-        */
+     * @brief Move constructor.
+     * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+     */
     OBJK_Requester_Binary(
             OBJK_Requester_Binary&& x);
 
     /*!
-        * @brief Copy assignment.
-        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
-        */
+     * @brief Copy assignment.
+     * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+     */
     OBJK_Requester_Binary& operator =(
             const OBJK_Requester_Binary& x);
 
     /*!
-        * @brief Move assignment.
-        * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
-        */
+     * @brief Move assignment.
+     * @param x Reference to the object dds::xrce::OBJK_Requester_Binary that will be copied.
+     */
     OBJK_Requester_Binary& operator =(
             OBJK_Requester_Binary&& x);
 
     /*!
-        * @brief This function copies the value in member service_name
-        * @param _service_name New value to be copied in member service_name
-        */
+     * @brief This function copies the value in member service_name
+     * @param _service_name New value to be copied in member service_name
+     */
     void service_name(
             const std::string& _service_name);
 
     /*!
-        * @brief This function moves the value in member service_name
-        * @param _service_name New value to be moved in member service_name
-        */
+     * @brief This function moves the value in member service_name
+     * @param _service_name New value to be moved in member service_name
+     */
     void service_name(
             std::string&& _service_name);
 
     /*!
-        * @brief This function returns a constant reference to member service_name
-        * @return Constant reference to member service_name
-        */
+     * @brief This function returns a constant reference to member service_name
+     * @return Constant reference to member service_name
+     */
     const std::string& service_name() const;
 
     /*!
-        * @brief This function returns a reference to member service_name
-        * @return Reference to member service_name
-        */
+     * @brief This function returns a reference to member service_name
+     * @return Reference to member service_name
+     */
     std::string& service_name();
     /*!
-        * @brief This function copies the value in member request_type
-        * @param _request_type New value to be copied in member request_type
-        */
+     * @brief This function copies the value in member request_type
+     * @param _request_type New value to be copied in member request_type
+     */
     void request_type(
             const std::string& _request_type);
 
     /*!
-        * @brief This function moves the value in member request_type
-        * @param _request_type New value to be moved in member request_type
-        */
+     * @brief This function moves the value in member request_type
+     * @param _request_type New value to be moved in member request_type
+     */
     void request_type(
             std::string&& _request_type);
 
     /*!
-        * @brief This function returns a constant reference to member request_type
-        * @return Constant reference to member request_type
-        */
+     * @brief This function returns a constant reference to member request_type
+     * @return Constant reference to member request_type
+     */
     const std::string& request_type() const;
 
     /*!
-        * @brief This function returns a reference to member request_type
-        * @return Reference to member request_type
-        */
+     * @brief This function returns a reference to member request_type
+     * @return Reference to member request_type
+     */
     std::string& request_type();
     /*!
-        * @brief This function copies the value in member reply_type
-        * @param _reply_type New value to be copied in member reply_type
-        */
+     * @brief This function copies the value in member reply_type
+     * @param _reply_type New value to be copied in member reply_type
+     */
     void reply_type(
             const std::string& _reply_type);
 
     /*!
-        * @brief This function moves the value in member reply_type
-        * @param _reply_type New value to be moved in member reply_type
-        */
+     * @brief This function moves the value in member reply_type
+     * @param _reply_type New value to be moved in member reply_type
+     */
     void reply_type(
             std::string&& _reply_type);
 
     /*!
-        * @brief This function returns a constant reference to member reply_type
-        * @return Constant reference to member reply_type
-        */
+     * @brief This function returns a constant reference to member reply_type
+     * @return Constant reference to member reply_type
+     */
     const std::string& reply_type() const;
 
     /*!
-        * @brief This function returns a reference to member reply_type
-        * @return Reference to member reply_type
-        */
+     * @brief This function returns a reference to member reply_type
+     * @return Reference to member reply_type
+     */
     std::string& reply_type();
     /*!
-        * @brief This function copies the value in member reply_topic_name
-        * @param _reply_topic_name New value to be copied in member reply_topic_name
-        */
+     * @brief This function copies the value in member reply_topic_name
+     * @param _reply_topic_name New value to be copied in member reply_topic_name
+     */
     void reply_topic_name(
             const std::string& _reply_topic_name);
 
     /*!
-        * @brief This function moves the value in member reply_topic_name
-        * @param _reply_topic_name New value to be moved in member reply_topic_name
-        */
+     * @brief This function moves the value in member reply_topic_name
+     * @param _reply_topic_name New value to be moved in member reply_topic_name
+     */
     void reply_topic_name(
             std::string&& _reply_topic_name);
 
     /*!
-        * @brief This function returns a constant reference to member reply_topic_name
-        * @return Constant reference to member reply_topic_name
-        */
+     * @brief This function returns a constant reference to member reply_topic_name
+     * @return Constant reference to member reply_topic_name
+     */
     const std::string& reply_topic_name() const;
 
     /*!
-        * @brief This function returns a reference to member reply_topic_name
-        * @return Reference to member reply_topic_name
-        */
+     * @brief This function returns a reference to member reply_topic_name
+     * @return Reference to member reply_topic_name
+     */
     std::string& reply_topic_name();
     /*!
-        * @brief This function copies the value in member request_topic_name
-        * @param _request_topic_name New value to be copied in member request_topic_name
-        */
+     * @brief This function copies the value in member request_topic_name
+     * @param _request_topic_name New value to be copied in member request_topic_name
+     */
     void request_topic_name(
             const std::string& _request_topic_name);
 
     /*!
-        * @brief This function moves the value in member request_topic_name
-        * @param _request_topic_name New value to be moved in member request_topic_name
-        */
+     * @brief This function moves the value in member request_topic_name
+     * @param _request_topic_name New value to be moved in member request_topic_name
+     */
     void request_topic_name(
             std::string&& _request_topic_name);
 
     /*!
-        * @brief This function returns a constant reference to member request_topic_name
-        * @return Constant reference to member request_topic_name
-        */
+     * @brief This function returns a constant reference to member request_topic_name
+     * @return Constant reference to member request_topic_name
+     */
     const std::string& request_topic_name() const;
 
     /*!
-        * @brief This function returns a reference to member request_topic_name
-        * @return Reference to member request_topic_name
-        */
+     * @brief This function returns a reference to member request_topic_name
+     * @return Reference to member request_topic_name
+     */
     std::string& request_topic_name();
 
     /*!
-        * @brief This function returns the maximum serialized size of an object
-        * depending on the buffer alignment.
-        * @param current_alignment Buffer alignment.
-        * @return Maximum serialized size.
-        */
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
     static size_t getMaxCdrSerializedSize(
             size_t current_alignment = 0);
 
     /*!
-        * @brief This function returns the serialized size of a data depending on the buffer alignment.
-        * @param data Data which is calculated its serialized size.
-        * @param current_alignment Buffer alignment.
-        * @return Serialized size.
-        */
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
     static size_t getCdrSerializedSize(
             const OBJK_Requester_Binary& data,
             size_t current_alignment = 0);
 
 
     /*!
-        * @brief This function serializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void serialize(
             eprosima::fastcdr::Cdr& cdr) const;
 
     /*!
-        * @brief This function deserializes an object using CDR serialization.
-        * @param cdr CDR serialization object.
-        */
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
     void deserialize(
             eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::string m_service_name;
     std::string m_request_type;
     std::string m_reply_type;
@@ -11615,218 +12616,218 @@ private:
 };
 
 /*!
-* @brief This class represents the structure OBJK_Replier_Binary defined by the user in the IDL file.
-* @ingroup TEST
-*/
+ * @brief This class represents the structure OBJK_Replier_Binary defined by the user in the IDL file.
+ * @ingroup TEST
+ */
 class OBJK_Replier_Binary
 {
 public:
 
-/*!
-    * @brief Default constructor.
-    */
-OBJK_Replier_Binary();
+    /*!
+     * @brief Default constructor.
+     */
+    OBJK_Replier_Binary();
 
-/*!
-    * @brief Default destructor.
-    */
-~OBJK_Replier_Binary();
+    /*!
+     * @brief Default destructor.
+     */
+    ~OBJK_Replier_Binary();
 
-/*!
-    * @brief Copy constructor.
-    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
-    */
-OBJK_Replier_Binary(
-        const OBJK_Replier_Binary& x);
+    /*!
+     * @brief Copy constructor.
+     * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+     */
+    OBJK_Replier_Binary(
+            const OBJK_Replier_Binary& x);
 
-/*!
-    * @brief Move constructor.
-    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
-    */
-OBJK_Replier_Binary(
-        OBJK_Replier_Binary&& x);
+    /*!
+     * @brief Move constructor.
+     * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+     */
+    OBJK_Replier_Binary(
+            OBJK_Replier_Binary&& x);
 
-/*!
-    * @brief Copy assignment.
-    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
-    */
-OBJK_Replier_Binary& operator =(
-        const OBJK_Replier_Binary& x);
+    /*!
+     * @brief Copy assignment.
+     * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+     */
+    OBJK_Replier_Binary& operator =(
+            const OBJK_Replier_Binary& x);
 
-/*!
-    * @brief Move assignment.
-    * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
-    */
-OBJK_Replier_Binary& operator =(
-        OBJK_Replier_Binary&& x);
+    /*!
+     * @brief Move assignment.
+     * @param x Reference to the object dds::xrce::OBJK_Replier_Binary that will be copied.
+     */
+    OBJK_Replier_Binary& operator =(
+            OBJK_Replier_Binary&& x);
 
-/*!
-    * @brief This function copies the value in member service_name
-    * @param _service_name New value to be copied in member service_name
-    */
-void service_name(
-        const std::string& _service_name);
+    /*!
+     * @brief This function copies the value in member service_name
+     * @param _service_name New value to be copied in member service_name
+     */
+    void service_name(
+            const std::string& _service_name);
 
-/*!
-    * @brief This function moves the value in member service_name
-    * @param _service_name New value to be moved in member service_name
-    */
-void service_name(
-        std::string&& _service_name);
+    /*!
+     * @brief This function moves the value in member service_name
+     * @param _service_name New value to be moved in member service_name
+     */
+    void service_name(
+            std::string&& _service_name);
 
-/*!
-    * @brief This function returns a constant reference to member service_name
-    * @return Constant reference to member service_name
-    */
-const std::string& service_name() const;
+    /*!
+     * @brief This function returns a constant reference to member service_name
+     * @return Constant reference to member service_name
+     */
+    const std::string& service_name() const;
 
-/*!
-    * @brief This function returns a reference to member service_name
-    * @return Reference to member service_name
-    */
-std::string& service_name();
-/*!
-    * @brief This function copies the value in member request_type
-    * @param _request_type New value to be copied in member request_type
-    */
-void request_type(
-        const std::string& _request_type);
+    /*!
+     * @brief This function returns a reference to member service_name
+     * @return Reference to member service_name
+     */
+    std::string& service_name();
+    /*!
+     * @brief This function copies the value in member request_type
+     * @param _request_type New value to be copied in member request_type
+     */
+    void request_type(
+            const std::string& _request_type);
 
-/*!
-    * @brief This function moves the value in member request_type
-    * @param _request_type New value to be moved in member request_type
-    */
-void request_type(
-        std::string&& _request_type);
+    /*!
+     * @brief This function moves the value in member request_type
+     * @param _request_type New value to be moved in member request_type
+     */
+    void request_type(
+            std::string&& _request_type);
 
-/*!
-    * @brief This function returns a constant reference to member request_type
-    * @return Constant reference to member request_type
-    */
-const std::string& request_type() const;
+    /*!
+     * @brief This function returns a constant reference to member request_type
+     * @return Constant reference to member request_type
+     */
+    const std::string& request_type() const;
 
-/*!
-    * @brief This function returns a reference to member request_type
-    * @return Reference to member request_type
-    */
-std::string& request_type();
-/*!
-    * @brief This function copies the value in member reply_type
-    * @param _reply_type New value to be copied in member reply_type
-    */
-void reply_type(
-        const std::string& _reply_type);
+    /*!
+     * @brief This function returns a reference to member request_type
+     * @return Reference to member request_type
+     */
+    std::string& request_type();
+    /*!
+     * @brief This function copies the value in member reply_type
+     * @param _reply_type New value to be copied in member reply_type
+     */
+    void reply_type(
+            const std::string& _reply_type);
 
-/*!
-    * @brief This function moves the value in member reply_type
-    * @param _reply_type New value to be moved in member reply_type
-    */
-void reply_type(
-        std::string&& _reply_type);
+    /*!
+     * @brief This function moves the value in member reply_type
+     * @param _reply_type New value to be moved in member reply_type
+     */
+    void reply_type(
+            std::string&& _reply_type);
 
-/*!
-    * @brief This function returns a constant reference to member reply_type
-    * @return Constant reference to member reply_type
-    */
-const std::string& reply_type() const;
+    /*!
+     * @brief This function returns a constant reference to member reply_type
+     * @return Constant reference to member reply_type
+     */
+    const std::string& reply_type() const;
 
-/*!
-    * @brief This function returns a reference to member reply_type
-    * @return Reference to member reply_type
-    */
-std::string& reply_type();
-/*!
-    * @brief This function copies the value in member reply_topic_name
-    * @param _reply_topic_name New value to be copied in member reply_topic_name
-    */
-void reply_topic_name(
-        const std::string& _reply_topic_name);
+    /*!
+     * @brief This function returns a reference to member reply_type
+     * @return Reference to member reply_type
+     */
+    std::string& reply_type();
+    /*!
+     * @brief This function copies the value in member reply_topic_name
+     * @param _reply_topic_name New value to be copied in member reply_topic_name
+     */
+    void reply_topic_name(
+            const std::string& _reply_topic_name);
 
-/*!
-    * @brief This function moves the value in member reply_topic_name
-    * @param _reply_topic_name New value to be moved in member reply_topic_name
-    */
-void reply_topic_name(
-        std::string&& _reply_topic_name);
+    /*!
+     * @brief This function moves the value in member reply_topic_name
+     * @param _reply_topic_name New value to be moved in member reply_topic_name
+     */
+    void reply_topic_name(
+            std::string&& _reply_topic_name);
 
-/*!
-    * @brief This function returns a constant reference to member reply_topic_name
-    * @return Constant reference to member reply_topic_name
-    */
-const std::string& reply_topic_name() const;
+    /*!
+     * @brief This function returns a constant reference to member reply_topic_name
+     * @return Constant reference to member reply_topic_name
+     */
+    const std::string& reply_topic_name() const;
 
-/*!
-    * @brief This function returns a reference to member reply_topic_name
-    * @return Reference to member reply_topic_name
-    */
-std::string& reply_topic_name();
-/*!
-    * @brief This function copies the value in member request_topic_name
-    * @param _request_topic_name New value to be copied in member request_topic_name
-    */
-void request_topic_name(
-        const std::string& _request_topic_name);
+    /*!
+     * @brief This function returns a reference to member reply_topic_name
+     * @return Reference to member reply_topic_name
+     */
+    std::string& reply_topic_name();
+    /*!
+     * @brief This function copies the value in member request_topic_name
+     * @param _request_topic_name New value to be copied in member request_topic_name
+     */
+    void request_topic_name(
+            const std::string& _request_topic_name);
 
-/*!
-    * @brief This function moves the value in member request_topic_name
-    * @param _request_topic_name New value to be moved in member request_topic_name
-    */
-void request_topic_name(
-        std::string&& _request_topic_name);
+    /*!
+     * @brief This function moves the value in member request_topic_name
+     * @param _request_topic_name New value to be moved in member request_topic_name
+     */
+    void request_topic_name(
+            std::string&& _request_topic_name);
 
-/*!
-    * @brief This function returns a constant reference to member request_topic_name
-    * @return Constant reference to member request_topic_name
-    */
-const std::string& request_topic_name() const;
+    /*!
+     * @brief This function returns a constant reference to member request_topic_name
+     * @return Constant reference to member request_topic_name
+     */
+    const std::string& request_topic_name() const;
 
-/*!
-    * @brief This function returns a reference to member request_topic_name
-    * @return Reference to member request_topic_name
-    */
-std::string& request_topic_name();
+    /*!
+     * @brief This function returns a reference to member request_topic_name
+     * @return Reference to member request_topic_name
+     */
+    std::string& request_topic_name();
 
-/*!
-    * @brief This function returns the maximum serialized size of an object
-    * depending on the buffer alignment.
-    * @param current_alignment Buffer alignment.
-    * @return Maximum serialized size.
-    */
-static size_t getMaxCdrSerializedSize(
-        size_t current_alignment = 0);
+    /*!
+     * @brief This function returns the maximum serialized size of an object
+     * depending on the buffer alignment.
+     * @param current_alignment Buffer alignment.
+     * @return Maximum serialized size.
+     */
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
-/*!
-    * @brief This function returns the serialized size of a data depending on the buffer alignment.
-    * @param data Data which is calculated its serialized size.
-    * @param current_alignment Buffer alignment.
-    * @return Serialized size.
-    */
-static size_t getCdrSerializedSize(
-        const dds::xrce::OBJK_Replier_Binary& data,
-        size_t current_alignment = 0);
+    /*!
+     * @brief This function returns the serialized size of a data depending on the buffer alignment.
+     * @param data Data which is calculated its serialized size.
+     * @param current_alignment Buffer alignment.
+     * @return Serialized size.
+     */
+    static size_t getCdrSerializedSize(
+            const dds::xrce::OBJK_Replier_Binary& data,
+            size_t current_alignment = 0);
 
 
-/*!
-    * @brief This function serializes an object using CDR serialization.
-    * @param cdr CDR serialization object.
-    */
-void serialize(
-        eprosima::fastcdr::Cdr& cdr) const;
+    /*!
+     * @brief This function serializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
-/*!
-    * @brief This function deserializes an object using CDR serialization.
-    * @param cdr CDR serialization object.
-    */
-void deserialize(
-        eprosima::fastcdr::Cdr& cdr);
+    /*!
+     * @brief This function deserializes an object using CDR serialization.
+     * @param cdr CDR serialization object.
+     */
+    void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
 
-std::string m_service_name;
-std::string m_request_type;
-std::string m_reply_type;
-eprosima::Optional<std::string> m_reply_topic_name;
-eprosima::Optional<std::string> m_request_topic_name;
+    std::string m_service_name;
+    std::string m_request_type;
+    std::string m_reply_type;
+    eprosima::Optional<std::string> m_reply_topic_name;
+    eprosima::Optional<std::string> m_request_topic_name;
 };
 
 } // namespace xrce
@@ -11836,29 +12837,37 @@ typedef std::array<uint8_t, 12> GuidPrefix_t;
 class EntityId_t
 {
 public:
+
     EntityId_t() = default;
 
     ~EntityId_t() = default;
 
-    EntityId_t(const EntityId_t &x) = default;
+    EntityId_t(
+            const EntityId_t& x) = default;
 
-    EntityId_t(EntityId_t &&x) = default;
+    EntityId_t(
+            EntityId_t&& x) = default;
 
-    EntityId_t& operator=(const EntityId_t &x) = default;
+    EntityId_t& operator =(
+            const EntityId_t& x) = default;
 
-    EntityId_t& operator=(EntityId_t &&x) = default;
+    EntityId_t& operator =(
+            EntityId_t&& x) = default;
 
-    bool operator==(const EntityId_t& b) const
+    bool operator ==(
+            const EntityId_t& b) const
     {
         return (this->m_entityKey == b.m_entityKey) && (this->m_entityKind == b.m_entityKind);
     }
 
-    inline void entityKey(const std::array<uint8_t, 3> &_entityKey)
+    inline void entityKey(
+            const std::array<uint8_t, 3>& _entityKey)
     {
         m_entityKey = _entityKey;
     }
 
-    inline void entityKey(std::array<uint8_t, 3> &&_entityKey)
+    inline void entityKey(
+            std::array<uint8_t, 3>&& _entityKey)
     {
         m_entityKey = std::move(_entityKey);
     }
@@ -11873,7 +12882,8 @@ public:
         return m_entityKey;
     }
 
-    inline void entityKind(uint8_t _entityKind)
+    inline void entityKind(
+            uint8_t _entityKind)
     {
         m_entityKind = _entityKind;
     }
@@ -11888,15 +12898,20 @@ public:
         return m_entityKind;
     }
 
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     std::array<uint8_t, 3> m_entityKey;
     uint8_t m_entityKind;
 };
@@ -11904,29 +12919,37 @@ private:
 class GUID_t
 {
 public:
+
     GUID_t() = default;
 
     ~GUID_t() = default;
 
-    GUID_t(const GUID_t &x);
+    GUID_t(
+            const GUID_t& x);
 
-    GUID_t(GUID_t &&x);
+    GUID_t(
+            GUID_t&& x);
 
-    GUID_t& operator=(const GUID_t &x) = default;
+    GUID_t& operator =(
+            const GUID_t& x) = default;
 
-    GUID_t& operator=(GUID_t &&x) = default;
+    GUID_t& operator =(
+            GUID_t&& x) = default;
 
-    bool operator==(const GUID_t& b) const
+    bool operator ==(
+            const GUID_t& b) const
     {
         return (this->m_guidPrefix == b.m_guidPrefix) && (this->m_entityId == b.m_entityId);
     }
 
-    inline void guidPrefix(const GuidPrefix_t &_guidPrefix)
+    inline void guidPrefix(
+            const GuidPrefix_t& _guidPrefix)
     {
         m_guidPrefix = _guidPrefix;
     }
 
-    inline void guidPrefix(GuidPrefix_t &&_guidPrefix)
+    inline void guidPrefix(
+            GuidPrefix_t&& _guidPrefix)
     {
         m_guidPrefix = std::move(_guidPrefix);
     }
@@ -11941,12 +12964,14 @@ public:
         return m_guidPrefix;
     }
 
-    inline void entityId(const EntityId_t &_entityId)
+    inline void entityId(
+            const EntityId_t& _entityId)
     {
         m_entityId = _entityId;
     }
 
-    inline void entityId(EntityId_t &&_entityId)
+    inline void entityId(
+            EntityId_t&& _entityId)
     {
         m_entityId = _entityId;
     }
@@ -11961,15 +12986,20 @@ public:
         return m_entityId;
     }
 
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     GuidPrefix_t m_guidPrefix;
     EntityId_t m_entityId;
 };
@@ -11977,19 +13007,25 @@ private:
 class SequenceNumber_t
 {
 public:
+
     SequenceNumber_t() = default;
 
     ~SequenceNumber_t() = default;
 
-    SequenceNumber_t(const SequenceNumber_t &x) = default;
+    SequenceNumber_t(
+            const SequenceNumber_t& x) = default;
 
-    SequenceNumber_t(SequenceNumber_t &&x) = default;
+    SequenceNumber_t(
+            SequenceNumber_t&& x) = default;
 
-    SequenceNumber_t& operator=(const SequenceNumber_t &x) = default;
+    SequenceNumber_t& operator =(
+            const SequenceNumber_t& x) = default;
 
-    SequenceNumber_t& operator=(SequenceNumber_t &&x) = default;
+    SequenceNumber_t& operator =(
+            SequenceNumber_t&& x) = default;
 
-    inline void high(int32_t _high)
+    inline void high(
+            int32_t _high)
     {
         m_high = _high;
     }
@@ -12004,7 +13040,8 @@ public:
         return m_high;
     }
 
-    inline void low(uint32_t _low)
+    inline void low(
+            uint32_t _low)
     {
         m_low = _low;
     }
@@ -12019,15 +13056,20 @@ public:
         return m_low;
     }
 
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     int32_t m_high;
     uint32_t m_low;
 };
@@ -12035,24 +13077,31 @@ private:
 class SampleIdentity
 {
 public:
+
     SampleIdentity() = default;
 
     ~SampleIdentity() = default;
 
-    SampleIdentity(const SampleIdentity &x);
+    SampleIdentity(
+            const SampleIdentity& x);
 
-    SampleIdentity(SampleIdentity &&x);
+    SampleIdentity(
+            SampleIdentity&& x);
 
-    SampleIdentity& operator=(const SampleIdentity &x);
+    SampleIdentity& operator =(
+            const SampleIdentity& x);
 
-    SampleIdentity& operator=(SampleIdentity &&x);
+    SampleIdentity& operator =(
+            SampleIdentity&& x);
 
-    inline void writer_guid(const GUID_t &_writer_guid)
+    inline void writer_guid(
+            const GUID_t& _writer_guid)
     {
         m_writer_guid = _writer_guid;
     }
 
-    inline void writer_guid(GUID_t &&_writer_guid)
+    inline void writer_guid(
+            GUID_t&& _writer_guid)
     {
         m_writer_guid = std::move(_writer_guid);
     }
@@ -12067,12 +13116,14 @@ public:
         return m_writer_guid;
     }
 
-    inline void sequence_number(const SequenceNumber_t &_sequece_number)
+    inline void sequence_number(
+            const SequenceNumber_t& _sequece_number)
     {
         m_sequence_number = _sequece_number;
     }
 
-    inline void sequence_number(SequenceNumber_t &&_sequence_number)
+    inline void sequence_number(
+            SequenceNumber_t&& _sequence_number)
     {
         m_sequence_number = std::move(_sequence_number);
     }
@@ -12087,19 +13138,22 @@ public:
         return m_sequence_number;
     }
 
-    static size_t getMaxCdrSerializedSize(size_t current_alignment = 0);
+    static size_t getMaxCdrSerializedSize(
+            size_t current_alignment = 0);
 
-    virtual size_t getCdrSerializedSize(size_t current_alignment = 0) const;
+    virtual size_t getCdrSerializedSize(
+            size_t current_alignment = 0) const;
 
-    virtual void serialize(eprosima::fastcdr::Cdr &cdr) const;
+    virtual void serialize(
+            eprosima::fastcdr::Cdr& cdr) const;
 
-    virtual void deserialize(eprosima::fastcdr::Cdr &cdr);
+    virtual void deserialize(
+            eprosima::fastcdr::Cdr& cdr);
 
 private:
+
     GUID_t m_writer_guid;
     SequenceNumber_t m_sequence_number;
-};
-
-} // namespace dds
+};} // namespace dds
 
 #endif //_UXR_AGENT_TYPES_XRCETYPES_HPP_

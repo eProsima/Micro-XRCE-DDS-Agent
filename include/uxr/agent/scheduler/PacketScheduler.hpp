@@ -29,6 +29,7 @@ template<class T>
 class PacketScheduler : public Scheduler<T>
 {
 public:
+
     PacketScheduler(
             size_t max_size)
         : deque_()
@@ -36,9 +37,12 @@ public:
         , cond_var_()
         , running_cond_(false)
         , max_size_{max_size}
-    {}
+    {
+    }
 
-    void set_priority_size(uint8_t priority, size_t size);
+    void set_priority_size(
+            uint8_t priority,
+            size_t size);
 
     void init() final;
 
@@ -56,6 +60,7 @@ public:
             T& element) final;
 
 private:
+
     bool empty();
 
     std::map<uint8_t, std::deque<T>> deque_;
@@ -67,7 +72,9 @@ private:
 };
 
 template<class T>
-inline void PacketScheduler<T>::set_priority_size(uint8_t priority, size_t size)
+inline void PacketScheduler<T>::set_priority_size(
+        uint8_t priority,
+        size_t size)
 {
     std::lock_guard<std::mutex> lock(mtx_);
     sizes_[priority] = size;
@@ -115,7 +122,8 @@ inline void PacketScheduler<T>::push_front(
 template<class T>
 inline bool PacketScheduler<T>::empty()
 {
-    for (auto& deque : deque_) {
+    for (auto& deque : deque_)
+    {
         if (!deque.second.empty())
         {
             return false;
@@ -131,13 +139,18 @@ inline bool PacketScheduler<T>::pop(
 {
     bool rv = false;
     std::unique_lock<std::mutex> lock(mtx_);
-    cond_var_.wait(lock, [this] { return !(empty() && running_cond_); });
+    cond_var_.wait(lock, [this]
+            {
+                return !(empty() && running_cond_);
+            });
     if (running_cond_)
     {
         uint8_t available_priority;
 
-        for(auto iter = deque_.rbegin(); iter != deque_.rend(); ++iter){
-            if(iter->second.size() > 0){
+        for (auto iter = deque_.rbegin(); iter != deque_.rend(); ++iter)
+        {
+            if (iter->second.size() > 0)
+            {
                 available_priority = iter->first;
                 break;
             }
