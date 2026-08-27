@@ -49,21 +49,48 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake ../ci/linux -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          COVERAGE_FLAGS="-fwrapv -fprofile-arcs -ftest-coverage --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DUAGENT_BUILD_CI_TESTS=ON \
+            -DGTEST_INDIVIDUAL=ON \
+            -DCMAKE_C_FLAGS="${COVERAGE_FLAGS} -fprofile-abs-path" \
+            -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS} -fprofile-abs-path" \
+            -DCMAKE_EXE_LINKER_FLAGS="${COVERAGE_FLAGS}" \
+            -DCMAKE_SHARED_LINKER_FLAGS="${COVERAGE_FLAGS}" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/build/install"
 
       - name: Build
         run: |
           cd build
           make -j"$(nproc)"
 
+      - name: Install
+        run: |
+          cd build
+          cmake --install .
+
       # --- Run tests with newer CTest to produce JUnit ---
       - name: Run tests and export JUnit
         shell: bash
         run: |
-          ctest --test-dir build/microxrcedds_agent-build \
+          ctest --test-dir build \
             --output-on-failure \
             --no-tests=error \
             --output-junit "$GITHUB_WORKSPACE/build/CTestResults.xml"
+
+      - name: Run memcheck
+        shell: bash
+        run: |
+          ctest --test-dir build -VV -T MemCheck -E "test-case*"
+
+      - name: Re-test under isolated install layout
+        shell: bash
+        run: |
+          cd build
+          cmake . -DUAGENT_ISOLATED_INSTALL=ON -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/build/install-isolated"
+          cmake --install .
+          ctest --output-on-failure --no-tests=error -R "test-case*"
 
       - name: Generate coverage (gcovr Cobertura XML + HTML)
         shell: bash
@@ -71,7 +98,6 @@ jobs:
           EXCLUDES=(
             '--exclude-unreachable-branches'
             '--exclude' 'build/'
-            '--exclude' 'ci/'
             '--exclude' 'test/'
             '--exclude' 'examples/'
             '--exclude' 'thirdparty/'

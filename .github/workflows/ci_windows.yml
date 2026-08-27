@@ -45,11 +45,13 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..\ci\windows `
+          cmake .. `
             -G "Visual Studio 17 2022" `
             -A x64 `
             -T $env:TOOLSET `
-            -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_BUILD_TYPE=Release `
+            -DUAGENT_BUILD_CI_TESTS=ON `
+            -DGTEST_INDIVIDUAL=ON
 
       - name: Build
         shell: pwsh
@@ -66,7 +68,7 @@ jobs:
       - name: Run tests and export JUnit
         shell: pwsh
         run: |
-          ctest --test-dir build\microxrcedds_agent-build `
+          ctest --test-dir build `
             -C Release `
             --output-on-failure `
             --no-tests=error `
