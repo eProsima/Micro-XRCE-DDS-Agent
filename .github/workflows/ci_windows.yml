@@ -51,13 +51,20 @@ jobs:
             -T $env:TOOLSET `
             -DCMAKE_BUILD_TYPE=Release `
             -DUAGENT_BUILD_CI_TESTS=ON `
-            -DGTEST_INDIVIDUAL=ON
+            -DGTEST_INDIVIDUAL=ON `
+            -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE\build\temp_install"
 
       - name: Build
         shell: pwsh
         run: |
           cd build
           cmake --build . --config Release
+
+      - name: Install
+        shell: pwsh
+        run: |
+          cd build
+          cmake --install . --config Release
 
       - name: Tests
         shell: pwsh
