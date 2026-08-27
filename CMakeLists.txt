@@ -76,6 +76,8 @@ option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WR
 # Dependencies
 ###############################################################################
 set(_deps "")
+# Dependencies pinned to a full, precise version must be found with EXACT
+set(_deps_exact "")
 
 if(UAGENT_USE_SYSTEM_FASTCDR)
     set(_fastcdr_version 2)
@@ -108,6 +110,7 @@ if(UAGENT_LOGGER_PROFILE)
     else()
         set(_spdlog_version 1.9.2)
         set(_spdlog_tag v1.9.2)
+        list(APPEND _deps_exact "spdlog")
     endif()
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
