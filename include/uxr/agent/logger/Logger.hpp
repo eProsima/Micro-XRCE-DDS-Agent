@@ -52,6 +52,7 @@
 #define UXR_DATAREADER_ID_STR   "datareader_id"
 #define UXR_REQUESTER_ID_STR    "requester_id"
 #define UXR_REPLIER_ID_STR      "replier_id"
+#define UXR_MTU_STR             "mtu"
 #define UXR_LEN_STR             "len"
 #define UXR_DATA_STR            "data"
 
@@ -67,6 +68,7 @@
 #define UXR_DATAREADER_ID_FORMAT    "0x{:03X}(6)"
 #define UXR_REQUESTER_ID_FORMAT     "0x{:03X}(7)"
 #define UXR_REPLIER_ID_FORMAT       "0x{:03X}(8)"
+#define UXR_MTU_FORMAT              "{}"
 #define UXR_LEN_FORMAT              "{}"
 #define UXR_DATA_FORMAT             "{:X}"
 #define UXR_STATUS_FORMAT           "{:<30} | "

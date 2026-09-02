@@ -354,6 +354,11 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_CI_TESTS OR UAGENT_BUILD_TESTS)
+    # Must be set before include(CTest) so that it reaches DartConfiguration.tcl and is
+    # picked up by 'ctest -T MemCheck'.
+    set(MEMORYCHECK_SUPPRESSIONS_FILE
+        "${PROJECT_SOURCE_DIR}/test/valgrind.supp"
+        CACHE FILEPATH "Valgrind suppressions used by 'ctest -T MemCheck'")
     include(CTest)
 endif()
 

@@ -24,6 +24,20 @@
 
 constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
+/**
+ * @brief Smallest MTU a client is allowed to announce on CREATE_CLIENT.
+ *
+ * ReliableOutputStream::push_submessage() fragments a submessage into chunks of
+ * `mtu - message_header_size - submessage_header_size` bytes. A smaller MTU makes that
+ * subtraction underflow, and an MTU equal to the header overhead yields a zero-sized
+ * fragment that never advances the fragmentation loop, so at least one payload byte
+ * must fit alongside both headers.
+ *
+ * The message header is 8 bytes when it carries the client key (session_id < 128) and
+ * the submessage header is 4 bytes.
+ */
+constexpr uint16_t MIN_CLIENT_MTU = 8 + 4 + 1;
+
 namespace eprosima {
 namespace uxr {
 
@@ -67,15 +81,16 @@ dds::xrce::ResultStatus Root::create_client(
         return invalid_result;
     }
 
-    if (client_representation.mtu() <= 0)
+    if (MIN_CLIENT_MTU > client_representation.mtu())
     {
         dds::xrce::ResultStatus invalid_result;
         invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
 
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_RED("invalid mtu"),
-            UXR_CLIENT_KEY_PATTERN,
-            conversion::clientkey_to_raw(client_representation.client_key()));
+            UXR_CLIENT_KEY_PATTERN UXR_ADD_FIELD(MTU),
+            conversion::clientkey_to_raw(client_representation.client_key()),
+            client_representation.mtu());
 
         return invalid_result;
     }

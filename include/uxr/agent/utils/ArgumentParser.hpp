@@ -678,7 +678,6 @@ public:
 
     PseudoTerminalArgs()
         : baudrate_("-b", "--baudrate", DEFAULT_BAUDRATE_LEVEL)
-        , flow_control_("-fc", "--flow-control", ArgumentKind::NO_VALUE)
     {
     }
 
@@ -686,9 +685,7 @@ public:
             int argc,
             char** argv)
     {
-        bool result = static_cast<bool>(baudrate_.parse_argument(argc, argv));
-        flow_control_.parse_argument(argc, argv);
-        return result;
+        return static_cast<bool>(baudrate_.parse_argument(argc, argv));
     }
 
     const std::string baud_rate() const
@@ -696,23 +693,16 @@ public:
         return baudrate_.value();
     }
 
-    bool flow_control()
-    {
-        return flow_control_.found();
-    }
-
     const std::string get_help() const
     {
         std::stringstream ss;
         ss << "    " << baudrate_.get_help() << std::endl;
-        ss << "    " << flow_control_.get_help() << std::endl;
         return ss.str();
     }
 
 protected:
 
     Argument<std::string> baudrate_;
-    Argument<dummy_type> flow_control_;
 };
 
 /*************************************************************************************************
@@ -727,6 +717,7 @@ public:
         : PseudoTerminalArgs<AgentType>()
         , dev_("-D", "--dev")
         , file_("-f", "--file")
+        , flow_control_("-fc", "--flow-control", ArgumentKind::NO_VALUE)
     {
     }
 
@@ -738,6 +729,7 @@ public:
         {
             return false;
         }
+        flow_control_.parse_argument(argc, argv);
         ParseResult parse_dev = dev_.parse_argument(argc, argv);
         ParseResult parse_file = file_.parse_argument(argc, argv);
         if (ParseResult::VALID != parse_dev && ParseResult::VALID != parse_file)
@@ -790,10 +782,16 @@ public:
         return port;
     }
 
+    bool flow_control()
+    {
+        return flow_control_.found();
+    }
+
     const std::string get_help() const
     {
         std::stringstream ss;
         ss << "    " << dev_.get_help() << std::endl;
+        ss << "    " << flow_control_.get_help() << std::endl;
         return ss.str();
     }
 
@@ -801,6 +799,7 @@ private:
 
     Argument<std::string> dev_;
     Argument<std::string> file_;
+    Argument<dummy_type> flow_control_;
 };
 
 /*************************************************************************************************
@@ -815,6 +814,7 @@ public:
         : PseudoTerminalArgs<AgentType>()
         , devs_("-D", "--devs")
         , file_("-f", "--file")
+        , flow_control_("-fc", "--flow-control", ArgumentKind::NO_VALUE)
     {
     }
 
@@ -826,6 +826,7 @@ public:
         {
             return false;
         }
+        flow_control_.parse_argument(argc, argv);
         ParseResult parse_devs = devs_.parse_argument(argc, argv);
         ParseResult parse_file = file_.parse_argument(argc, argv);
         if (ParseResult::VALID != parse_devs && ParseResult::VALID != parse_file)
@@ -883,6 +884,11 @@ public:
         return ports;
     }
 
+    bool flow_control()
+    {
+        return flow_control_.found();
+    }
+
     const std::string get_help() const
     {
         std::stringstream ss;
@@ -894,6 +900,7 @@ private:
 
     Argument<std::string> devs_;
     Argument<std::string> file_;
+    Argument<dummy_type> flow_control_;
 };
 
 #ifdef UAGENT_SOCKETCAN_PROFILE
