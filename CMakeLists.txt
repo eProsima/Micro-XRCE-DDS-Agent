@@ -98,7 +98,7 @@ if(UAGENT_FAST_PROFILE)
         set(_fastdds_version 3)
     else()
         set(_fastdds_version 3.3)
-        set(_fastdds_tag 3.x)
+        set(_fastdds_tag 3.3.x)
         set(_foonathan_memory_tag v0.7-4) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
     endif()
     list(APPEND _deps "fastdds\;${_fastdds_version}")
