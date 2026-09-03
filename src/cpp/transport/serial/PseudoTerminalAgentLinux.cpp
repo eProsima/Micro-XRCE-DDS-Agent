@@ -30,7 +30,8 @@ PseudoTerminalAgent::PseudoTerminalAgent(
     : SerialAgent(addr, middleware_kind)
     , open_flags_{open_flags}
     , baudrate_{getBaudRate(baudrate)}
-{}
+{
+}
 
 PseudoTerminalAgent::~PseudoTerminalAgent()
 {
@@ -53,7 +54,10 @@ bool PseudoTerminalAgent::init()
     char* dev = nullptr;
 
     poll_fd_.fd = posix_openpt(open_flags_);
-    if ((-1 != poll_fd_.fd) && (0 == grantpt(poll_fd_.fd)) && (0 == unlockpt(poll_fd_.fd)) && (dev = ptsname(poll_fd_.fd)))
+    if ((-1 != poll_fd_.fd)
+            && (0 == grantpt(poll_fd_.fd))
+            && (0 == unlockpt(poll_fd_.fd))
+            && (dev = ptsname(poll_fd_.fd)))
     {
         UXR_AGENT_LOG_INFO(
             UXR_DECORATE_GREEN("Pseudoterminal opened at"),

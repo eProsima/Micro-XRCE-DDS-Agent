@@ -29,6 +29,7 @@ namespace testing {
 class RootTests : public CommonData, public ::testing::Test
 {
 protected:
+
     RootTests() = default;
 
     ~RootTests()
@@ -43,9 +44,9 @@ TEST_F(RootTests, CreateClientOk)
 {
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(
-                generate_create_client_payload().client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        generate_create_client_payload().client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -55,9 +56,9 @@ TEST_F(RootTests, CreateClientBadCookie)
     dds::xrce::AGENT_Representation agent_representation;
     create_data.client_representation().xrce_cookie({0x00, 0x00});
     dds::xrce::ResultStatus response = root_.create_client(
-                create_data.client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        create_data.client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INVALID_DATA, response.status());
 }
 
@@ -67,9 +68,9 @@ TEST_F(RootTests, CreateClientCompatibleVersion)
     create_data.client_representation().xrce_version({{dds::xrce::XRCE_VERSION_MAJOR, 0x20}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(
-                create_data.client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        create_data.client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 }
 
@@ -79,9 +80,9 @@ TEST_F(RootTests, CreateClientIncompatibleVersion)
     create_data.client_representation().xrce_version({{0x02, dds::xrce::XRCE_VERSION_MINOR}});
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(
-                create_data.client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        create_data.client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_ERR_INCOMPATIBLE, response.status());
 }
 
@@ -90,9 +91,9 @@ TEST_F(RootTests, DeleteExistingClient)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(
-                create_data.client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        create_data.client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(client_key);
@@ -112,9 +113,9 @@ TEST_F(RootTests, DeleteNoExistingClient)
     dds::xrce::CREATE_CLIENT_Payload create_data = generate_create_client_payload();
     dds::xrce::AGENT_Representation agent_representation;
     dds::xrce::ResultStatus response = root_.create_client(
-                create_data.client_representation(),
-                agent_representation,
-                Middleware::Kind::FAST);
+        create_data.client_representation(),
+        agent_representation,
+        Middleware::Kind::FAST);
     ASSERT_EQ(dds::xrce::STATUS_OK, response.status());
 
     response = root_.delete_client(fake_client_key);
@@ -122,15 +123,15 @@ TEST_F(RootTests, DeleteNoExistingClient)
 }
 
 /*
-class ProxyClientTests : public CommonData, public ::testing::Test
-{
+   class ProxyClientTests : public CommonData, public ::testing::Test
+   {
     protected:
         ProxyClientTests()          = default;
         virtual ~ProxyClientTests() = default;
 
         ProxyClient client_;
-};
-*/
+   };
+ */
 
 /* TODO (Julian): participant is need for creating a  subscriber. */
 //TEST_F(ProxyClientTests, CreateSubscriberOK)
@@ -163,12 +164,12 @@ class ProxyClientTests : public CommonData, public ::testing::Test
 //}
 
 /*
-TEST_F(ProxyClientTests, DeleteOnEmpty)
-{
+   TEST_F(ProxyClientTests, DeleteOnEmpty)
+   {
     dds::xrce::ResultStatus result_status = client_.delete_object(object_id);
     ASSERT_EQ(dds::xrce::STATUS_ERR_UNKNOWN_REFERENCE, result_status.status());
-}
-*/
+   }
+ */
 
 /* TODO (Julian): participant is need for creating a  subscriber. */
 //TEST_F(ProxyClientTests, DeleteWrongId)
@@ -197,7 +198,9 @@ TEST_F(ProxyClientTests, DeleteOnEmpty)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

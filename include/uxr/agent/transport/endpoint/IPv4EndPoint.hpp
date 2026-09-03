@@ -24,6 +24,7 @@ namespace uxr {
 class IPv4EndPoint
 {
 public:
+
     IPv4EndPoint() = default;
 
     IPv4EndPoint(
@@ -31,29 +32,41 @@ public:
             uint16_t port)
         : addr_(addr)
         , port_(port)
-    {}
+    {
+    }
 
     ~IPv4EndPoint() = default;
 
-    bool operator<(const IPv4EndPoint& other) const
+    bool operator <(
+            const IPv4EndPoint& other) const
     {
         return (addr_ < other.addr_) || ((addr_ == other.addr_) && (port_ < other.port_));
     }
 
-   friend std::ostream& operator<<(std::ostream& os, const IPv4EndPoint& endpoint)
-   {
-       os << static_cast<int>(static_cast<uint8_t>(endpoint.addr_)) << "."
-          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 8)) << "."
-          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 16)) << "."
-          << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 24)) << ":"
-          << endpoint.get_port();
-       return os;
-   }
+    friend std::ostream& operator <<(
+            std::ostream& os,
+            const IPv4EndPoint& endpoint)
+    {
+        os << static_cast<int>(static_cast<uint8_t>(endpoint.addr_)) << "."
+           << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 8)) << "."
+           << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 16)) << "."
+           << static_cast<int>(static_cast<uint8_t>(endpoint.addr_ >> 24)) << ":"
+           << endpoint.get_port();
+        return os;
+    }
 
-    uint32_t get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
+    uint32_t get_addr() const
+    {
+        return addr_;
+    }
+
+    uint16_t get_port() const
+    {
+        return port_;
+    }
 
 private:
+
     uint32_t addr_;
     uint16_t port_;
 };

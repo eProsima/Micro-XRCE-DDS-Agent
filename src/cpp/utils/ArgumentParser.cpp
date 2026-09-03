@@ -49,20 +49,20 @@ eprosima::uxr::agent::TransportKind eprosima::uxr::agent::parser::utils::check_t
         const char* transport)
 {
     const std::unordered_map<std::string, TransportKind> valid_transports = {
-    {"udp4", eprosima::uxr::agent::TransportKind::UDP4},
-    {"udp6", eprosima::uxr::agent::TransportKind::UDP6},
-    {"tcp4", eprosima::uxr::agent::TransportKind::TCP4},
-    {"tcp6", eprosima::uxr::agent::TransportKind::TCP6},
+        {"udp4", eprosima::uxr::agent::TransportKind::UDP4},
+        {"udp6", eprosima::uxr::agent::TransportKind::UDP6},
+        {"tcp4", eprosima::uxr::agent::TransportKind::TCP4},
+        {"tcp6", eprosima::uxr::agent::TransportKind::TCP6},
 #ifndef _WIN32
 #ifdef UAGENT_SOCKETCAN_PROFILE
-    {"canfd", eprosima::uxr::agent::TransportKind::CAN},
+        {"canfd", eprosima::uxr::agent::TransportKind::CAN},
 #endif // UAGENT_SOCKETCAN_PROFILE
-    {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
-    {"multiserial", eprosima::uxr::agent::TransportKind::MULTISERIAL},
-    {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},
+        {"serial", eprosima::uxr::agent::TransportKind::SERIAL},
+        {"multiserial", eprosima::uxr::agent::TransportKind::MULTISERIAL},
+        {"pseudoterminal", eprosima::uxr::agent::TransportKind::PSEUDOTERMINAL},
 #endif // _WIN32
-    {"-h", eprosima::uxr::agent::TransportKind::HELP},
-    {"--help", eprosima::uxr::agent::TransportKind::HELP}
+        {"-h", eprosima::uxr::agent::TransportKind::HELP},
+        {"--help", eprosima::uxr::agent::TransportKind::HELP}
     };
 
     if (valid_transports.find(transport) != valid_transports.end())
@@ -80,13 +80,13 @@ eprosima::uxr::Middleware::Kind eprosima::uxr::agent::parser::utils::get_mw_kind
     {
         return eprosima::uxr::Middleware::Kind::FASTDDS;
     }
-#endif
+#endif // ifdef UAGENT_FAST_PROFILE
 #ifdef UAGENT_CED_PROFILE
     if ("ced" == kind)
     {
         return eprosima::uxr::Middleware::Kind::CED;
     }
-#endif
+#endif // ifdef UAGENT_CED_PROFILE
     return eprosima::uxr::Middleware::Kind::NONE;
 }
 

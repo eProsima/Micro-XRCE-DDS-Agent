@@ -28,29 +28,39 @@ class ProxyClient;
 class Participant : public XRCEObject
 {
 public:
+
     static std::unique_ptr<Participant> create(
-        const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::OBJK_PARTICIPANT_Representation& representation);
 
     virtual ~Participant() override;
 
-    Participant(Participant&&) = delete;
-    Participant(const Participant&) = delete;
-    Participant& operator=(Participant&&) = delete;
-    Participant& operator=(const Participant&) = delete;
+    Participant(
+            Participant&&) = delete;
+    Participant(
+            const Participant&) = delete;
+    Participant& operator =(
+            Participant&&) = delete;
+    Participant& operator =(
+            const Participant&) = delete;
 
     bool matched(
-        const dds::xrce::ObjectVariant& new_object_rep) const final;
+            const dds::xrce::ObjectVariant& new_object_rep) const final;
 
-    const std::shared_ptr<ProxyClient>& get_proxy_client() { return proxy_client_; };
+    const std::shared_ptr<ProxyClient>& get_proxy_client()
+    {
+        return proxy_client_;
+    }
 
 private:
+
     Participant(
-        const dds::xrce::ObjectId& id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+            const dds::xrce::ObjectId& id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
 };
 

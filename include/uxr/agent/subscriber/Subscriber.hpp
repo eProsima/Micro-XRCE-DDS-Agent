@@ -28,26 +28,38 @@ class Middleware;
 class Subscriber : public XRCEObject
 {
 public:
-    static std::unique_ptr<Subscriber> create(const dds::xrce::ObjectId& object_id,
-        uint16_t participant_id,
-        const std::shared_ptr<ProxyClient>& proxy_client,
-        const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
+
+    static std::unique_ptr<Subscriber> create(
+            const dds::xrce::ObjectId& object_id,
+            uint16_t participant_id,
+            const std::shared_ptr<ProxyClient>& proxy_client,
+            const dds::xrce::OBJK_SUBSCRIBER_Representation& representation);
 
     virtual ~Subscriber() override;
 
-    Subscriber(Subscriber&&) = delete;
-    Subscriber(const Subscriber&) = delete;
-    Subscriber& operator=(Subscriber&&) = delete;
-    Subscriber& operator=(const Subscriber&) = delete;
+    Subscriber(
+            Subscriber&&) = delete;
+    Subscriber(
+            const Subscriber&) = delete;
+    Subscriber& operator =(
+            Subscriber&&) = delete;
+    Subscriber& operator =(
+            const Subscriber&) = delete;
 
     bool matched(
-        const dds::xrce::ObjectVariant& ) const final { return true; }
+            const dds::xrce::ObjectVariant& ) const final
+    {
+        return true;
+    }
 
 private:
-    Subscriber(const dds::xrce::ObjectId& object_id,
-        const std::shared_ptr<ProxyClient>& proxy_client);
+
+    Subscriber(
+            const dds::xrce::ObjectId& object_id,
+            const std::shared_ptr<ProxyClient>& proxy_client);
 
 private:
+
     std::shared_ptr<ProxyClient> proxy_client_;
     std::set<dds::xrce::ObjectId> tied_objects_;
 };

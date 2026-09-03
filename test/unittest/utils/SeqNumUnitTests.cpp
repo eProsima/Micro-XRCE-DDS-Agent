@@ -27,11 +27,15 @@ namespace testing {
 class SeqNumUnitTests : public ::testing::Test
 {
 public:
-    SeqNumUnitTests() :
-        foo_seqnum(0xFFFF),
-        bar_seqnum(0xFFFF) {}
+
+    SeqNumUnitTests()
+        : foo_seqnum(0xFFFF)
+        , bar_seqnum(0xFFFF)
+    {
+    }
 
 public:
+
     SeqNum foo_seqnum;
     SeqNum bar_seqnum;
 };
@@ -89,7 +93,9 @@ TEST_F(SeqNumUnitTests, ComparisonOperations)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

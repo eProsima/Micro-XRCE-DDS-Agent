@@ -25,16 +25,19 @@ namespace uxr {
 namespace testing {
 
 /****************************************************************************************
- * None Input Stream.
- ****************************************************************************************/
+* None Input Stream.
+****************************************************************************************/
 class NoneInputStreamTest : public ::testing::Test
 {
 public:
+
     NoneInputStreamTest()
         : none_stream_{}
-    {}
+    {
+    }
 
 public:
+
     NoneInputStream none_stream_;
 };
 
@@ -96,16 +99,19 @@ TEST_F(NoneInputStreamTest, Reset)
 }
 
 /****************************************************************************************
- * Best-Effort Input Stream.
- ****************************************************************************************/
+* Best-Effort Input Stream.
+****************************************************************************************/
 class BestEffortInputStreamTest : public ::testing::Test
 {
 public:
+
     BestEffortInputStreamTest()
         : best_effort_stream_{}
-    {}
+    {
+    }
 
 public:
+
     BestEffortInputStream best_effort_stream_;
 };
 
@@ -185,16 +191,19 @@ TEST_F(BestEffortInputStreamTest, BorderCases)
 }
 
 /****************************************************************************************
- * Reliable Input Stream.
- ****************************************************************************************/
+* Reliable Input Stream.
+****************************************************************************************/
 class ReliableInputStreamTest : public ::testing::Test
 {
 public:
+
     ReliableInputStreamTest()
         : reliable_stream_{}
-    {}
+    {
+    }
 
 public:
+
     ReliableInputStream reliable_stream_;
 };
 
@@ -344,7 +353,9 @@ TEST_F(ReliableInputStreamTest, FillAcknack)
 } // namespace uxr
 } // namespace eprosima
 
-int main(int args, char** argv)
+int main(
+        int args,
+        char** argv)
 {
     ::testing::InitGoogleTest(&args, argv);
     return RUN_ALL_TESTS();

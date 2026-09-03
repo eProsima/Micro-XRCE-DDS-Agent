@@ -27,6 +27,7 @@ namespace uxr {
 class ProxyClient : public std::enable_shared_from_this<ProxyClient>
 {
 public:
+
     enum class State : uint8_t
     {
         alive,
@@ -41,10 +42,14 @@ public:
 
     ~ProxyClient() = default;
 
-    ProxyClient(ProxyClient&&) = delete;
-    ProxyClient(const ProxyClient&) = delete;
-    ProxyClient& operator=(ProxyClient&&) = delete;
-    ProxyClient& operator=(const ProxyClient&) = delete;
+    ProxyClient(
+            ProxyClient&&) = delete;
+    ProxyClient(
+            const ProxyClient&) = delete;
+    ProxyClient& operator =(
+            ProxyClient&&) = delete;
+    ProxyClient& operator =(
+            const ProxyClient&) = delete;
 
     dds::xrce::ResultStatus create_object(
             const dds::xrce::CreationMode& creation_mode,
@@ -58,13 +63,21 @@ public:
             const dds::xrce::ObjectId& object_id,
             const dds::xrce::ObjectVariant& representation);
 
-    dds::xrce::ObjectInfo get_info(const dds::xrce::ObjectId& object_id);
+    dds::xrce::ObjectInfo get_info(
+            const dds::xrce::ObjectId& object_id);
 
-    std::shared_ptr<XRCEObject> get_object(const dds::xrce::ObjectId& object_id);
+    std::shared_ptr<XRCEObject> get_object(
+            const dds::xrce::ObjectId& object_id);
 
-    const dds::xrce::ClientKey& get_client_key() const { return representation_.client_key(); }
+    const dds::xrce::ClientKey& get_client_key() const
+    {
+        return representation_.client_key();
+    }
 
-    dds::xrce::SessionId get_session_id() const { return representation_.session_id(); }
+    dds::xrce::SessionId get_session_id() const
+    {
+        return representation_.session_id();
+    }
 
     void release();
 
@@ -72,14 +85,26 @@ public:
 
     State get_state();
 
-    void update_state(const ProxyClient::State state = State::alive);
+    void update_state(
+            const ProxyClient::State state = State::alive);
 
-    Middleware& get_middleware() { return *middleware_ ; };
+    Middleware& get_middleware()
+    {
+        return *middleware_;
+    }
 
-    bool has_hard_liveliness_check() const { return hard_liveliness_check_; }
+    bool has_hard_liveliness_check() const
+    {
+        return hard_liveliness_check_;
+    }
 
-    uint8_t & get_hard_liveliness_check_tries() { return hard_liveliness_check_tries_; }
+    uint8_t& get_hard_liveliness_check_tries()
+    {
+        return hard_liveliness_check_tries_;
+    }
+
 private:
+
     bool create_object(
             const dds::xrce::ObjectId& object_id,
             const dds::xrce::ObjectVariant& representation,
@@ -129,6 +154,7 @@ private:
             const dds::xrce::ObjectId& object_id);
 
 private:
+
     const dds::xrce::CLIENT_Representation representation_;
     std::unique_ptr<Middleware> middleware_;
     std::mutex mtx_;
@@ -140,7 +166,7 @@ private:
     std::unordered_map<std::string, std::string> properties_;
     std::chrono::milliseconds client_dead_time_;
     bool hard_liveliness_check_;
-    uint8_t  hard_liveliness_check_tries_;
+    uint8_t hard_liveliness_check_tries_;
 };
 
 } // namespace uxr

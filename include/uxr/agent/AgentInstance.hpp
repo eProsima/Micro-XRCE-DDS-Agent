@@ -37,6 +37,7 @@ class CallbackFactory;
 class AgentInstance
 {
 private:
+
     /**
      * @brief   Default constructor.
      */
@@ -45,21 +46,22 @@ private:
      * @brief   AgentInstance class shall not be copy constructible.
      */
     UXR_AGENT_EXPORT AgentInstance(
-            const AgentInstance &) = delete;
+            const AgentInstance&) = delete;
 
     UXR_AGENT_EXPORT AgentInstance(
-            AgentInstance &&) = delete;
+            AgentInstance&&) = delete;
 
     /**
      * @brief   AgentInstance class shall not be copy assignable.
      */
     UXR_AGENT_EXPORT AgentInstance& operator =(
-            const AgentInstance &) = delete;
+            const AgentInstance&) = delete;
 
     UXR_AGENT_EXPORT AgentInstance& operator =(
-            AgentInstance &&) = delete;
+            AgentInstance&&) = delete;
 
 public:
+
     /**
      * @brief   Get instance associated to this class.
      * @return  Static reference to the singleton AgentInstance object.
@@ -83,7 +85,7 @@ public:
 
 #ifndef _WIN32
     UXR_AGENT_EXPORT void stop();
-#endif
+#endif // ifndef _WIN32
 
     /**
      * @brief Sets a callback function for a specific create/delete middleware entity operation.
@@ -95,13 +97,14 @@ public:
      * @param callback_function std::function rvalue variable implementing the callback logic. Desirable
      *                          to be implemented using lambda expressions wrapped inside a std::function descriptor.
      */
-    template <typename ... Args>
+    template<typename ... Args>
     UXR_AGENT_EXPORT void add_middleware_callback(
             const Middleware::Kind& middleware_kind,
             const middleware::CallbackKind& callback_kind,
             std::function<void (Args ...)>&& callback_function);
 
 private:
+
     std::thread agent_thread_;
     std::condition_variable exit_signal;
     middleware::CallbackFactory& callback_factory_;

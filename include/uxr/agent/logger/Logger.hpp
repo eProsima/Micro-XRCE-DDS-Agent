@@ -24,21 +24,21 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/sinks/stdout_sinks.h>
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef _WIN32
 #define UXR_LOG_PATTERN "[%E.%f]" \
-                        " %^%-8l%$ | " \
-                        "%-18s" " | " \
-                        "%-24!" " | " \
-                        "%v"
+    " %^%-8l%$ | " \
+    "%-18s" " | " \
+    "%-24!" " | " \
+    "%v"
 #else
 #define UXR_LOG_PATTERN UXR_COLOR_MAGENTA "[%E.%f]" UXR_COLOR_RESET \
-                        " %^%-8l%$ | " \
-                        UXR_COLOR_BLUE "%-18s" UXR_COLOR_RESET  " | " \
-                        UXR_COLOR_WHITE "%-24!" UXR_COLOR_RESET " | " \
-                        "%v"
-#endif
+    " %^%-8l%$ | " \
+    UXR_COLOR_BLUE "%-18s" UXR_COLOR_RESET  " | " \
+    UXR_COLOR_WHITE "%-24!" UXR_COLOR_RESET " | " \
+    "%v"
+#endif // ifdef _WIN32
 
 #define UXR_CLIENT_KEY_STR      "client_key"
 #define UXR_FILE_FD_STR         "fd"
@@ -52,6 +52,7 @@
 #define UXR_DATAREADER_ID_STR   "datareader_id"
 #define UXR_REQUESTER_ID_STR    "requester_id"
 #define UXR_REPLIER_ID_STR      "replier_id"
+#define UXR_MTU_STR             "mtu"
 #define UXR_LEN_STR             "len"
 #define UXR_DATA_STR            "data"
 
@@ -67,6 +68,7 @@
 #define UXR_DATAREADER_ID_FORMAT    "0x{:03X}(6)"
 #define UXR_REQUESTER_ID_FORMAT     "0x{:03X}(7)"
 #define UXR_REPLIER_ID_FORMAT       "0x{:03X}(8)"
+#define UXR_MTU_FORMAT              "{}"
 #define UXR_LEN_FORMAT              "{}"
 #define UXR_DATA_FORMAT             "{:X}"
 #define UXR_STATUS_FORMAT           "{:<30} | "
@@ -74,8 +76,8 @@
 #define UXR_STR_FORMAT_SEP  ": "
 #define UXR_FIELD_SEP       ", "
 
-#define UXR_FIELD(NAME)                 UXR_ ## NAME ## _STR  UXR_STR_FORMAT_SEP  UXR_ ## NAME ## _FORMAT
-#define UXR_ADD_FIELD(NAME)             UXR_FIELD_SEP  UXR_FIELD(NAME)
+#define UXR_FIELD(NAME)                 UXR_ ## NAME ## _STR UXR_STR_FORMAT_SEP UXR_ ## NAME ## _FORMAT
+#define UXR_ADD_FIELD(NAME)             UXR_FIELD_SEP UXR_FIELD(NAME)
 #define UXR_CREATE_FORMAT_BASE(NAME)    UXR_FIELD(CLIENT_KEY)   UXR_ADD_FIELD(NAME)
 
 #define UXR_CLIENT_KEY_PATTERN          UXR_FIELD(CLIENT_KEY)
@@ -90,8 +92,9 @@
 #define UXR_CREATE_REQUESTER_PATTERN    UXR_CREATE_FORMAT_BASE(REQUESTER_ID)    UXR_ADD_FIELD(PARTICIPANT_ID)
 #define UXR_CREATE_REPLIER_PATTERN      UXR_CREATE_FORMAT_BASE(REPLIER_ID)      UXR_ADD_FIELD(PARTICIPANT_ID)
 #define UXR_MESSAGE_PATTERN             UXR_FIELD(CLIENT_KEY)                   UXR_ADD_FIELD(LEN)
-#define UXR_MESSAGE_WITH_DATA_PATTERN   UXR_MESSAGE_PATTERN                     UXR_ADD_FIELD(DATA)
-#define UXR_MESSAGE_WITH_FD_PATTERN     UXR_CREATE_FORMAT_BASE(FILE_FD)         UXR_ADD_FIELD(LEN)      UXR_ADD_FIELD(DATA)
+#define UXR_MESSAGE_WITH_DATA_PATTERN   UXR_MESSAGE_PATTERN UXR_ADD_FIELD(DATA)
+#define UXR_MESSAGE_WITH_FD_PATTERN     UXR_CREATE_FORMAT_BASE(FILE_FD)         UXR_ADD_FIELD(LEN)      UXR_ADD_FIELD( \
+        DATA)
 
 
 
@@ -99,43 +102,43 @@
 #define UXR_AGENT_LOG_TRACE(X, Y, ...) SPDLOG_TRACE(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_TRACE(...) void(0)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_DEBUG(X, Y, ...) SPDLOG_DEBUG(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_DEBUG(...) void(0)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_INFO(X, Y, ...) SPDLOG_INFO(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_INFO(...) void(0)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_WARN(X, Y, ...) SPDLOG_WARN(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_WARN(...) (void)0
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_ERROR(X, Y, ...) SPDLOG_ERROR(UXR_STATUS_FORMAT Y, X, __VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_ERROR(...) (void)0
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_CRITICAL(X, Y, ...) SPDLOG_CRITICAL(UXR_STATUS_FORMAT Y, X, __VA_ARGS__); std::exit(EXIT_FAILURE)
 #else
 #define UXR_AGENT_LOG_CRITICAL(...) std::exit(EXIT_FAILURE)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_TO_HEX(...) spdlog::to_hex(__VA_ARGS__)
 #else
 #define UXR_AGENT_LOG_HEX(...) void(0)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #ifdef UAGENT_LOGGER_PROFILE
 #define UXR_AGENT_LOG_MESSAGE(STATUS, CLIENT_KEY, BUF, LEN) \
@@ -162,6 +165,6 @@
 #else
 #define UXR_AGENT_LOG_MESSAGE(...) void(0)
 #define UXR_MULTIAGENT_LOG_MESSAGE(...) void(0)
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 
 #endif // UXR_AGENT_LOGGER_LOGGER_HPP_

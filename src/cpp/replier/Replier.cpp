@@ -51,12 +51,26 @@ std::unique_ptr<Replier> Replier::create(
             auto rep = representation.representation();
             dds::xrce::OBJK_Replier_Binary replier_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            replier_xrce.deserialize(cdr);
+            try
+            {
+                replier_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
-            created_entity = proxy_client->get_middleware().create_replier_by_bin(raw_object_id, participant_id, replier_xrce);
+            created_entity = proxy_client->get_middleware().create_replier_by_bin(raw_object_id, participant_id,
+                            replier_xrce);
             break;
         }
         default:
@@ -72,7 +86,8 @@ Replier::Replier(
     : XRCEObject{object_id}
     , proxy_client_{proxy_client}
     , reader_{}
-{}
+{
+}
 
 Replier::~Replier()
 {
@@ -108,10 +123,23 @@ bool Replier::matched(
             auto rep = new_object_rep.replier().representation();
             dds::xrce::OBJK_Replier_Binary replier_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            replier_xrce.deserialize(cdr);
+            try
+            {
+                replier_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             rv = proxy_client_->get_middleware().matched_replier_from_bin(get_raw_id(), replier_xrce);
             break;
@@ -156,8 +184,8 @@ bool Replier::read(
     }
 
     /* TODO (julianbermudez): implement different formats.
-    switch (read_data.read_specification().data_format())
-    {
+       switch (read_data.read_specification().data_format())
+       {
         case dds::xrce::FORMAT_DATA:
             break;
         case dds::xrce::FORMAT_SAMPLE:
@@ -170,14 +198,18 @@ bool Replier::read(
             break;
         default:
             break;
-    }
-    */
+       }
+     */
 
     write_args.client = proxy_client_;
 
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
-            reader_.start_reading(delivery_control, std::bind(&Replier::read_fn, this, _1, _2, _3), false, write_fn, write_args));
+           reader_.start_reading(delivery_control,
+           std::bind(&Replier::read_fn, this, _1, _2, _3),
+           false,
+           write_fn,
+           write_args));
 }
 
 bool Replier::read_fn(

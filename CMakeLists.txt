@@ -40,8 +40,8 @@ option(UAGENT_SECURITY_PROFILE "Build security profile." OFF)
 option(UAGENT_BUILD_EXECUTABLE "Build Micro XRCE-DDS Agent provided executable." ON)
 option(UAGENT_BUILD_USAGE_EXAMPLES "Build Micro XRCE-DDS Agent built-in usage examples" OFF)
 
-set(UAGENT_P2P_CLIENT_VERSION 3.0.0 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
-set(UAGENT_P2P_CLIENT_TAG v3.0.0 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
+set(UAGENT_P2P_CLIENT_VERSION 3.0.1 CACHE STRING "Sets Micro XRCE-DDS client version for P2P")
+set(UAGENT_P2P_CLIENT_TAG v3.0.1 CACHE STRING "Sets Micro XRCE-DDS client tag for P2P")
 
 option(UAGENT_BUILD_CI_TESTS "Build CI test cases.")
 if(UAGENT_BUILD_CI_TESTS)
@@ -76,12 +76,14 @@ option(UAGENT_TWEAK_XRCE_WRITE_LIMIT "This feature uses a tweak to allow XRCE WR
 # Dependencies
 ###############################################################################
 set(_deps "")
+# Dependencies pinned to a full, precise version must be found with EXACT
+set(_deps_exact "")
 
 if(UAGENT_USE_SYSTEM_FASTCDR)
     set(_fastcdr_version 2)
 else()
-    set(_fastcdr_version 2.2.4)
-    set(_fastcdr_tag 2.2.x)
+    set(_fastcdr_version 2.3.1)
+    set(_fastcdr_tag 2.3.x)
 endif()
 list(APPEND _deps "fastcdr\;${_fastcdr_version}")
 
@@ -95,9 +97,9 @@ if(UAGENT_FAST_PROFILE)
     if(UAGENT_USE_SYSTEM_FASTDDS)
         set(_fastdds_version 3)
     else()
-        set(_fastdds_version 3.1)
-        set(_fastdds_tag 3.x)
-        set(_foonathan_memory_tag v0.7-3) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
+        set(_fastdds_version 3.3)
+        set(_fastdds_tag 3.3.x)
+        set(_foonathan_memory_tag v0.7-4) # This tag should be updated every time it gets updated in foonathan_memory_vendor eProsima's package
     endif()
     list(APPEND _deps "fastdds\;${_fastdds_version}")
 endif()
@@ -108,6 +110,7 @@ if(UAGENT_LOGGER_PROFILE)
     else()
         set(_spdlog_version 1.9.2)
         set(_spdlog_tag v1.9.2)
+        list(APPEND _deps_exact "spdlog")
     endif()
     list(APPEND _deps "spdlog\;${_spdlog_version}")
 endif()
@@ -117,7 +120,7 @@ endif()
 ###############################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 if(NOT UAGENT_SUPERBUILD)
-    project(microxrcedds_agent VERSION "3.0.1" LANGUAGES C CXX)
+    project(microxrcedds_agent VERSION "3.0.2" LANGUAGES C CXX)
 else()
     project(uagent_superbuild NONE)
     include(${PROJECT_SOURCE_DIR}/cmake/SuperBuild.cmake)
@@ -351,6 +354,11 @@ file(COPY ${PROJECT_SOURCE_DIR}/agent.refs
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 if(UAGENT_BUILD_CI_TESTS OR UAGENT_BUILD_TESTS)
+    # Must be set before include(CTest) so that it reaches DartConfiguration.tcl and is
+    # picked up by 'ctest -T MemCheck'.
+    set(MEMORYCHECK_SUPPRESSIONS_FILE
+        "${PROJECT_SOURCE_DIR}/test/valgrind.supp"
+        CACHE FILEPATH "Valgrind suppressions used by 'ctest -T MemCheck'")
     include(CTest)
 endif()
 

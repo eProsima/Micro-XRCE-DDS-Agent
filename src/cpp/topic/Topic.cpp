@@ -48,12 +48,26 @@ std::unique_ptr<Topic> Topic::create(
             auto rep = representation.representation();
             dds::xrce::OBJK_Topic_Binary topic_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            topic_xrce.deserialize(cdr);
+            try
+            {
+                topic_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
-            created_entity = proxy_client->get_middleware().create_topic_by_bin(raw_object_id, participant_id, topic_xrce);
+            created_entity = proxy_client->get_middleware().create_topic_by_bin(raw_object_id, participant_id,
+                            topic_xrce);
             break;
         }
         default:
@@ -68,14 +82,16 @@ Topic::Topic(
         const std::shared_ptr<ProxyClient>& proxy_client)
     : XRCEObject{object_id}
     , proxy_client_{proxy_client}
-{}
+{
+}
 
 Topic::~Topic()
 {
     proxy_client_->get_middleware().delete_topic(get_raw_id());
 }
 
-bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
+bool Topic::matched(
+        const dds::xrce::ObjectVariant& new_object_rep) const
 {
     /* Check ObjectKind. */
     if ((get_id().at(1) & 0x0F) != new_object_rep._d())
@@ -103,15 +119,29 @@ bool Topic::matched(const dds::xrce::ObjectVariant& new_object_rep) const
             auto rep = new_object_rep.topic().representation();
             dds::xrce::OBJK_Topic_Binary topic_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            topic_xrce.deserialize(cdr);
+            try
+            {
+                topic_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             rv = proxy_client_->get_middleware().matched_topic_from_bin(get_raw_id(), topic_xrce);
             break;
         }
-            break;
+        break;
+
         default:
             break;
     }

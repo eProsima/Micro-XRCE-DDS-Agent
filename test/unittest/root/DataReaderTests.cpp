@@ -24,10 +24,11 @@ DataReaderTests::DataReaderTests()
 {
 }
 
-void DataReaderTests::on_read_data(const dds::xrce::StreamId& stream_id,
-                                   const dds::xrce::ObjectId& object_id,
-                                   const dds::xrce::RequestId& req_id,
-                                   const std::vector<unsigned char>& buffer)
+void DataReaderTests::on_read_data(
+        const dds::xrce::StreamId& stream_id,
+        const dds::xrce::ObjectId& object_id,
+        const dds::xrce::RequestId& req_id,
+        const std::vector<unsigned char>& buffer)
 {
     // TODO.
     (void) buffer;

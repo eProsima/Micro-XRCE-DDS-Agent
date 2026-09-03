@@ -24,19 +24,33 @@
 
 constexpr dds::xrce::XrceVendorId EPROSIMA_VENDOR_ID = {0x01, 0x0F};
 
+/**
+ * @brief Smallest MTU a client is allowed to announce on CREATE_CLIENT.
+ *
+ * ReliableOutputStream::push_submessage() fragments a submessage into chunks of
+ * `mtu - message_header_size - submessage_header_size` bytes. A smaller MTU makes that
+ * subtraction underflow, and an MTU equal to the header overhead yields a zero-sized
+ * fragment that never advances the fragmentation loop, so at least one payload byte
+ * must fit alongside both headers.
+ *
+ * The message header is 8 bytes when it carries the client key (session_id < 128) and
+ * the submessage header is 4 bytes.
+ */
+constexpr uint16_t MIN_CLIENT_MTU = 8 + 4 + 1;
+
 namespace eprosima {
 namespace uxr {
 
 Root::Root()
-    : mtx_(),
-      clients_(),
-      current_client_()
+    : mtx_()
+    , clients_()
+    , current_client_()
 {
     current_client_ = clients_.begin();
 #ifdef UAGENT_LOGGER_PROFILE
     spdlog::set_level(spdlog::level::info);
     spdlog::set_pattern(UXR_LOG_PATTERN);
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 }
 
 /* It must be here instead of the hpp because the forward declaration of Middleware in the hpp. */
@@ -67,6 +81,20 @@ dds::xrce::ResultStatus Root::create_client(
         return invalid_result;
     }
 
+    if (MIN_CLIENT_MTU > client_representation.mtu())
+    {
+        dds::xrce::ResultStatus invalid_result;
+        invalid_result.status(dds::xrce::STATUS_ERR_INVALID_DATA);
+
+        UXR_AGENT_LOG_INFO(
+            UXR_DECORATE_RED("invalid mtu"),
+            UXR_CLIENT_KEY_PATTERN UXR_ADD_FIELD(MTU),
+            conversion::clientkey_to_raw(client_representation.client_key()),
+            client_representation.mtu());
+
+        return invalid_result;
+    }
+
     dds::xrce::ResultStatus result_status;
     result_status.status(dds::xrce::STATUS_OK);
 
@@ -87,7 +115,8 @@ dds::xrce::ResultStatus Root::create_client(
                     auto v = *client_representation.properties();
                     for (auto it_props = v.begin(); it_props != v.end(); ++it_props)
                     {
-                        client_properties.insert(std::pair<std::string, std::string>(it_props->name(), it_props->value()));
+                        client_properties.insert(
+                            std::pair<std::string, std::string>(it_props->name(), it_props->value()));
                     }
                 }
 
@@ -155,7 +184,8 @@ dds::xrce::ResultStatus Root::create_client(
     return result_status;
 }
 
-dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
+dds::xrce::ResultStatus Root::get_info(
+        dds::xrce::ObjectInfo& agent_info)
 {
     dds::xrce::ResultStatus result_status;
 
@@ -173,7 +203,8 @@ dds::xrce::ResultStatus Root::get_info(dds::xrce::ObjectInfo& agent_info)
     return result_status;
 }
 
-dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_key)
+dds::xrce::ResultStatus Root::delete_client(
+        const dds::xrce::ClientKey& client_key)
 {
     dds::xrce::ResultStatus result_status;
     if (std::shared_ptr<ProxyClient> client = get_client(client_key))
@@ -203,7 +234,8 @@ dds::xrce::ResultStatus Root::delete_client(const dds::xrce::ClientKey& client_k
     return result_status;
 }
 
-std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client_key)
+std::shared_ptr<ProxyClient> Root::get_client(
+        const dds::xrce::ClientKey& client_key)
 {
     std::shared_ptr<ProxyClient> client;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -215,7 +247,8 @@ std::shared_ptr<ProxyClient> Root::get_client(const dds::xrce::ClientKey& client
     return client;
 }
 
-bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
+bool Root::get_next_client(
+        std::shared_ptr<ProxyClient>& next_client)
 {
     bool rv = false;
     std::lock_guard<std::mutex> lock(mtx_);
@@ -232,17 +265,20 @@ bool Root::get_next_client(std::shared_ptr<ProxyClient>& next_client)
     return rv;
 }
 
-bool Root::load_config_file(const std::string& file_path)
+bool Root::load_config_file(
+        const std::string& file_path)
 {
 #ifdef UAGENT_FAST_PROFILE
-    return fastdds::dds::RETCODE_OK == fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(file_path.c_str());
+    return fastdds::dds::RETCODE_OK ==
+           fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(file_path.c_str());
 #else
     (void) file_path;
     return false;
-#endif
+#endif // ifdef UAGENT_FAST_PROFILE
 }
 
-void Root::set_verbose_level(uint8_t verbose_level)
+void Root::set_verbose_level(
+        uint8_t verbose_level)
 {
 #ifdef UAGENT_LOGGER_PROFILE
     switch (verbose_level)
@@ -297,7 +333,7 @@ void Root::set_verbose_level(uint8_t verbose_level)
     }
 #else
     (void) verbose_level;
-#endif
+#endif // ifdef UAGENT_LOGGER_PROFILE
 }
 
 void Root::reset()

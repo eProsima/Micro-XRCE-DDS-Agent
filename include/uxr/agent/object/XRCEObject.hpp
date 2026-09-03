@@ -30,33 +30,49 @@ namespace uxr {
 class XRCEObject
 {
 private:
+
     struct ObjectIdHash
     {
-        uint16_t operator()(const dds::xrce::ObjectId& object_id) const
+        uint16_t operator ()(
+                const dds::xrce::ObjectId& object_id) const
         {
             return conversion::objectid_to_raw(object_id);
         }
+
     };
 
 public:
+
     typedef std::unordered_map<dds::xrce::ObjectId, std::shared_ptr<XRCEObject>, ObjectIdHash> ObjectContainer;
 
-    explicit XRCEObject(const dds::xrce::ObjectId& object_id)
+    explicit XRCEObject(
+            const dds::xrce::ObjectId& object_id)
         : id_(object_id)
-    {}
+    {
+    }
 
     virtual ~XRCEObject() = 0;
 
-    XRCEObject(XRCEObject &&) = delete;
-    XRCEObject(const XRCEObject &) = delete;
-    XRCEObject& operator=(XRCEObject &&) = delete;
-    XRCEObject& operator=(const XRCEObject &) = delete;
+    XRCEObject(
+            XRCEObject&&) = delete;
+    XRCEObject(
+            const XRCEObject&) = delete;
+    XRCEObject& operator =(
+            XRCEObject&&) = delete;
+    XRCEObject& operator =(
+            const XRCEObject&) = delete;
 
     dds::xrce::ObjectId get_id() const;
-    uint16_t get_raw_id() const { return conversion::objectid_to_raw(id_); }
-    virtual bool matched(const dds::xrce::ObjectVariant& new_object_rep) const = 0;
+    uint16_t get_raw_id() const
+    {
+        return conversion::objectid_to_raw(id_);
+    }
+
+    virtual bool matched(
+            const dds::xrce::ObjectVariant& new_object_rep) const = 0;
 
 private:
+
     dds::xrce::ObjectId id_;
 };
 

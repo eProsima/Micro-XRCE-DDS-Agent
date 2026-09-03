@@ -33,22 +33,34 @@ namespace uxr {
 class MultiSerialAgent : public Server<MultiSerialEndPoint>
 {
 public:
+
     MultiSerialAgent(
             uint8_t addr,
             Middleware::Kind middleware_kind);
-    
-    void insert_serial(int serial_fd);
-    bool remove_serial(int serial_fd);
+
+    void insert_serial(
+            int serial_fd);
+    bool remove_serial(
+            int serial_fd);
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return false; }
-#endif
+    bool has_discovery() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
-#endif
+    bool has_p2p() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     virtual bool init() = 0;
 
     virtual bool fini() = 0;
@@ -56,9 +68,10 @@ private:
     bool recv_message(
             InputPacket<MultiSerialEndPoint>& /* input_packet */,
             int /* timeout */,
-            TransportRc& /* transport_rc */) final { 
-                    return false; 
-                };
+            TransportRc& /* transport_rc */) final
+    {
+        return false;
+    }
 
     bool recv_message(
             std::vector<InputPacket<MultiSerialEndPoint>>& input_packet,
@@ -83,9 +96,10 @@ private:
             TransportRc& transport_rc);
 
 protected:
+
     std::mutex error_mtx;
     std::vector<int> error_fd;
-    
+
     utils::SharedMutexPriority framing_mtx;
     std::map<int, FramingIO> framing_io;
     fd_set read_fds;

@@ -42,27 +42,31 @@ template<typename RA, typename WA = const WriteFnArgs&>
 class Reader
 {
 public:
+
     typedef const std::function<bool (RA, std::vector<uint8_t>&, std::chrono::milliseconds)> ReadFn;
     typedef const std::function<bool (WA, const std::vector<uint8_t>&, std::chrono::milliseconds)> WriteFn;
 
 public:
+
     ~Reader();
 
     bool start_reading(
-        const dds::xrce::DataDeliveryControl& delivery_control,
-        ReadFn read_fn,
-        RA read_args,
-        WriteFn write_fn,
-        WA write_args);
+            const dds::xrce::DataDeliveryControl& delivery_control,
+            ReadFn read_fn,
+            RA read_args,
+            WriteFn write_fn,
+            WA write_args);
 
     bool stop_reading();
 
 private:
+
     void read_task(
-        ReadFn read_fn,
-        WriteFn write_fn);
+            ReadFn read_fn,
+            WriteFn write_fn);
 
 private:
+
     dds::xrce::DataDeliveryControl delivery_control_;
     typename std::decay<RA>::type read_args_;
     typename std::decay<WA>::type write_args_;
@@ -143,7 +147,7 @@ inline void Reader<RA, WA>::read_task(
     uint16_t message_count = 0;
     std::vector<uint8_t> data;
     time_point<steady_clock> init_time = steady_clock::now();
-    time_point<steady_clock> final_time = (max_elapsed_time_unlimited == delivery_control_.max_elapsed_time()) 
+    time_point<steady_clock> final_time = (max_elapsed_time_unlimited == delivery_control_.max_elapsed_time())
         ? time_point<steady_clock>::max()
         : init_time + seconds(delivery_control_.max_elapsed_time());
 
@@ -154,25 +158,29 @@ inline void Reader<RA, WA>::read_task(
         if (read_fn(read_args_, data, timeout))
         {
             bool submessage_pushed = false;
-            do {
+            do
+            {
                 if (token_bucket.consume_tokens(data.size(), timeout))
                 {
-                    do {
+                    do
+                    {
                         timeout = std::min(max_timeout, duration_cast<milliseconds>(final_time - steady_clock::now()));
                         submessage_pushed = write_fn(write_args_, data, timeout);
-                    } while (running_cond_ && !submessage_pushed);
+                    }
+                    while (running_cond_ && !submessage_pushed);
 
                     if (submessage_pushed)
                     {
                         ++message_count;
                     }
                 }
-            } while(running_cond_ && !submessage_pushed);
+            }
+            while (running_cond_ && !submessage_pushed);
         }
 
         stop_cond = ((max_samples_unlimited != delivery_control_.max_samples()) &&
-                     (message_count == delivery_control_.max_samples())) || 
-                    (std::chrono::steady_clock::now() > final_time);
+                (message_count == delivery_control_.max_samples())) ||
+                (std::chrono::steady_clock::now() > final_time);
     }
 }
 

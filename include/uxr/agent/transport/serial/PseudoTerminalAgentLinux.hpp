@@ -25,6 +25,7 @@ namespace uxr {
 class PseudoTerminalAgent : public SerialAgent
 {
 public:
+
     PseudoTerminalAgent(
             int open_flags,
             char const * baudrate,
@@ -34,12 +35,14 @@ public:
     ~PseudoTerminalAgent();
 
 private:
+
     bool init() final;
     bool fini() final;
     bool handle_error(
             TransportRc transport_rc);
 
 private:
+
     int open_flags_;
     speed_t baudrate_;
 };

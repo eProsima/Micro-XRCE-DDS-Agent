@@ -76,7 +76,8 @@ public:
                 lock,
                 [&]
                 {
-                    return !(shared_mtx_.exclusively_locked_ || shared_mtx_.exclusive_counter_) || thread_id == shared_mtx_.exclusive_thread_id_;
+                    return !(shared_mtx_.exclusively_locked_ || shared_mtx_.exclusive_counter_) ||
+                           thread_id == shared_mtx_.exclusive_thread_id_;
                 });
             ++shared_mtx_.shared_counter_;
             locked_ = true;

@@ -19,7 +19,7 @@
 #include <uxr/agent/transport/endpoint/IPv6EndPoint.hpp>
 #ifdef UAGENT_DISCOVERY_PROFILE
 #include <uxr/agent/transport/discovery/DiscoveryServerWindows.hpp>
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #include <winsock2.h>
 #include <cstdint>
@@ -33,6 +33,7 @@ extern template class Server<IPv6EndPoint>; // Explicit instantiation declaratio
 class UDPv6Agent : public Server<IPv6EndPoint>
 {
 public:
+
     UXR_AGENT_EXPORT UDPv6Agent(
             uint16_t agent_port,
             Middleware::Kind middleware_kind);
@@ -40,23 +41,33 @@ public:
     UXR_AGENT_EXPORT ~UDPv6Agent() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool has_discovery() final { return true; }
-#endif
+    bool has_discovery() final
+    {
+        return true;
+    }
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 #ifdef UAGENT_P2P_PROFILE
-    bool has_p2p() final { return false; }
-#endif
+    bool has_p2p() final
+    {
+        return false;
+    }
+
+#endif // ifdef UAGENT_P2P_PROFILE
 
 private:
+
     bool init() final;
 
     bool fini() final;
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-    bool init_discovery(uint16_t discovery_port) final;
+    bool init_discovery(
+            uint16_t discovery_port) final;
 
     bool fini_discovery() final;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
     bool recv_message(
             InputPacket<IPv6EndPoint>& input_packet,
@@ -71,12 +82,13 @@ private:
             TransportRc transport_rc) final;
 
 private:
+
     WSAPOLLFD poll_fd_;
     uint8_t buffer_[SERVER_BUFFER_SIZE];
     uint16_t agent_port_;
 #ifdef UAGENT_DISCOVERY_PROFILE
     DiscoveryServerWindows<IPv6EndPoint> discovery_server_;
-#endif
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 };
 
 } // namespace uxr

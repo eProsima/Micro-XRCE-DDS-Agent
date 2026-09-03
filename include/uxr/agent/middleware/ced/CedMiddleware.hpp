@@ -25,7 +25,9 @@ namespace uxr {
 class CedMiddleware : public Middleware
 {
 public:
-    CedMiddleware(uint32_t client_key);
+
+    CedMiddleware(
+            uint32_t client_key);
 
     ~CedMiddleware() override = default;
 
@@ -114,7 +116,7 @@ public:
      * @brief Creates a CedTopic associated to a CedParticipant from a binary reference.
      * @param topic_id          The CedTopic identifier.
      * @param participant_id    The CedParticipant identifier to which the CedTopic is associated.
-     * @param topic_xrce  		XRCE Topic binary representation.
+     * @param topic_xrce        XRCE Topic binary representation.
      * @return  true in case of creation and false in other case.
      */
     bool create_topic_by_bin(
@@ -141,7 +143,7 @@ public:
      * @brief Creates a CedPublisher associated to a CedParticipant using a binary reference.
      * @param publisher_id      The CedPublisher identifier.
      * @param participant_id    The CedParticipant identifier to which the CedPublisher is associated.
-     * @param publisher_xrce  	XRCE Publisher binary representation, NOT USED.
+     * @param publisher_xrce    XRCE Publisher binary representation, NOT USED.
      * @return  true in case of creation and false in other case.
      */
     bool create_publisher_by_bin(
@@ -175,7 +177,7 @@ public:
             uint16_t subscriber_id,
             uint16_t participant_id,
             const dds::xrce::OBJK_Subscriber_Binary& subscriber_xrce) override;
-            
+
     /**
      * @startuml
      * !include agent/middleware/ced/create_datawriter.puml!0
@@ -206,9 +208,9 @@ public:
 
     /**
      * @brief Creates a CedDataWriter associated to a CedPublisher from a binary reference.
-     * @param datawriter_id  	The CedDataWriter identifier.
-     * @param publisher_id  	The CedPublisher identifier.
-	 * @param datawriter_xrce  	XRCE DataWriter binary representation.
+     * @param datawriter_id     The CedDataWriter identifier.
+     * @param publisher_id      The CedPublisher identifier.
+     * @param datawriter_xrce   XRCE DataWriter binary representation.
      * @return  true in case of creation and false in other case.
      */
     bool create_datawriter_by_bin(
@@ -246,9 +248,9 @@ public:
 
     /**
      * @brief Creates a CedDataReader associated to a CedSubscriber from a binary reference.
-     * @param datareader_id   	The CedDataReader identifier.
-     * @param subscriber_id  	The CedSubscriber identifier.
-     * @param datawriter_xrce 	XRCE DataReader binary representation.
+     * @param datareader_id     The CedDataReader identifier.
+     * @param subscriber_id     The CedSubscriber identifier.
+     * @param datawriter_xrce   XRCE DataReader binary representation.
      * @return  true in case of creation and false in other case.
      */
     bool create_datareader_by_bin(
@@ -258,139 +260,171 @@ public:
 
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @param participant_id 
-     * @param ref 
-     * @return false 
+     *
+     * @param requester_id
+     * @param participant_id
+     * @param ref
+     * @return false
      */
     bool create_requester_by_ref(
             uint16_t,
             uint16_t,
-            const std::string&) override { return false; };
+            const std::string&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @param participant_id 
+     *
+     * @param requester_id
+     * @param participant_id
      * @param xml
-     * @return false 
+     * @return false
      */
     bool create_requester_by_xml(
             uint16_t,
             uint16_t,
-            const std::string&) override { return false; };
+            const std::string&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @param participant_id 
+     *
+     * @param requester_id
+     * @param participant_id
      * @param requester_xrce
-     * @return false 
+     * @return false
      */
     bool create_requester_by_bin(
             uint16_t,
             uint16_t,
-            const dds::xrce::OBJK_Requester_Binary&) override { return false; };
+            const dds::xrce::OBJK_Requester_Binary&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param replier_id 
-     * @param participant_id 
-     * @param ref 
-     * @return false 
+     *
+     * @param replier_id
+     * @param participant_id
+     * @param ref
+     * @return false
      */
     bool create_replier_by_ref(
             uint16_t,
             uint16_t,
-            const std::string&) override { return false; };
+            const std::string&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param replier_id 
-     * @param participant_id 
+     *
+     * @param replier_id
+     * @param participant_id
      * @param xml
-     * @return false 
+     * @return false
      */
     bool create_replier_by_xml(
             uint16_t,
             uint16_t,
-            const std::string&) override { return false; };
+            const std::string&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param replier_id 
-     * @param participant_id 
+     *
+     * @param replier_id
+     * @param participant_id
      * @param replier_xrce
-     * @return false 
+     * @return false
      */
     bool create_replier_by_bin(
             uint16_t,
             uint16_t,
-            const dds::xrce::OBJK_Replier_Binary&) override { return false; };
+            const dds::xrce::OBJK_Replier_Binary&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Removes a CedParticipant from the participants register.
      * @param participant_id    The CedParticipant identifier.
      * @return  true in case of the CedParticipant was found and removed, false in other case.
      */
-    bool delete_participant(uint16_t participant_id) override;
+    bool delete_participant(
+            uint16_t participant_id) override;
 
     /**
      * @brief Removes a CedTopic from the topic register.
      * @param topic_id  The CedTopic identifier.
      * @return  true in case of the CedTopic was found and removed, false in other case.
      */
-    bool delete_topic(uint16_t topic_id) override;
+    bool delete_topic(
+            uint16_t topic_id) override;
 
     /**
      * @brief Removes a CedPublisher from the publisher register.
      * @param publisher_id  The CedPublisher identifier.
      * @return  true in case of the CedPublisher was found and removed, false in other case.
      */
-    bool delete_publisher(uint16_t publisher_id) override;
+    bool delete_publisher(
+            uint16_t publisher_id) override;
 
     /**
      * @brief Removes a CedSubscriber from the subscriber register.
      * @param subscriber_id The CedSubscriber identifier.
      * @return  true in case of the CedSubscriber was found and removed, false in other case.
      */
-    bool delete_subscriber(uint16_t subscriber_id) override;
+    bool delete_subscriber(
+            uint16_t subscriber_id) override;
 
     /**
      * @brief Removes a CedDataWriter from the datawriters register.
      * @param datawriter_id The CedDataWriter identifier.
      * @return  true in case of the CedDataWriter was found and removed, false in other case.
      */
-    bool delete_datawriter(uint16_t datawriter_id) override;
+    bool delete_datawriter(
+            uint16_t datawriter_id) override;
 
     /**
      * @brief Removes a CedDataReader from the datawriters register.
      * @param datareader_id The CedDataReader identifier.
      * @return  true in case of the CedDataReader was found and removed, false in other case.
      */
-    bool delete_datareader(uint16_t datareader_id) override;
+    bool delete_datareader(
+            uint16_t datareader_id) override;
 
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @return false 
+     *
+     * @param requester_id
+     * @return false
      */
-    bool delete_requester(uint16_t) override { return false; };
+    bool delete_requester(
+            uint16_t) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented
-     * 
-     * @param replier_id 
-     * @return false 
+     *
+     * @param replier_id
+     * @return false
      */
-    bool delete_replier(uint16_t) override { return false; };
+    bool delete_replier(
+            uint16_t) override
+    {
+        return false;
+    }
 
     /**
      * @brief Writes data using the CedDataWriter identified by the datawriter_id parameter.
@@ -408,14 +442,20 @@ public:
     bool write_request(
             uint16_t,
             uint32_t,
-            const std::vector<uint8_t>&) override { return false; }
+            const std::vector<uint8_t>&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
      */
     bool write_reply(
             uint16_t,
-            const std::vector<uint8_t>&) override { return false; }
+            const std::vector<uint8_t>&) override
+    {
+        return false;
+    }
 
     /**
      * @brief Read data using the CedDataReader identified by the datareader_id paramenter.
@@ -436,7 +476,10 @@ public:
     bool read_request(
             uint16_t,
             std::vector<uint8_t>&,
-            std::chrono::milliseconds) override { return false; };
+            std::chrono::milliseconds) override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
@@ -445,7 +488,10 @@ public:
             uint16_t,
             uint32_t&,
             std::vector<uint8_t>&,
-            std::chrono::milliseconds) override { return false; };
+            std::chrono::milliseconds) override
+    {
+        return false;
+    }
 
     /**
      * @brief Checks whether an existing CedParticipant, identified by the participant_id, matches with a new
@@ -522,9 +568,9 @@ public:
      * @brief Checks whether an existing CedTopic, identified by the topic_id, matches with a new CedTopic that would
      *        result from the creation of a new one using the binary reference.
      *        It is considered that the CedTopics match if both have the same topic name.
-     * @param topic_id  	The existing CedTopic identifier.
-	 * @param topic_xrce   	XRCE Topic binary representation.
-     *                  	It defines the CedGlobalTopic name.
+     * @param topic_id      The existing CedTopic identifier.
+     * @param topic_xrce    XRCE Topic binary representation.
+     *                      It defines the CedGlobalTopic name.
      * @return  true if both CedTopic have associated the same CedGlobalTopic, and false in other case.
      */
     bool matched_topic_from_bin(
@@ -561,9 +607,9 @@ public:
      * @brief Checks whether an existing CedDataWriter, identified by the datawriter_id, matches with the new
      *        CedDataWriter that would result from the creation of a new one using the binary reference.
      *        It is considered that the CedDataWriters match if both are associated to the same CedGlobalTopic.
-     * @param datawriter_id 	The existing CedDataWriter identifier.
-     * @param datawriter_xrce 	XRCE DataWriter binary representation.
-     *                      	It defines the name of the associated CedGlobalTopic.
+     * @param datawriter_id     The existing CedDataWriter identifier.
+     * @param datawriter_xrce   XRCE DataWriter binary representation.
+     *                          It defines the name of the associated CedGlobalTopic.
      * @return true if both CedDataWriter have associated the same CedGlobalTopic name
      */
     bool matched_datawriter_from_bin(
@@ -596,86 +642,105 @@ public:
             uint16_t datareader_id,
             const std::string& xml) const override;
 
-     /**
+    /**
      * @brief Checks whether an existing CedDataReader, identified by the datareader_id, matches with the new
      *        CedDataReader that would result from the creation of a new one using the binary reference.
      *        It is considered that the CedDataReaders match if both are associated to the same CedGlobalTopic.
-     * @param datareader_id 	The existing CedDataReader identifier.
+     * @param datareader_id     The existing CedDataReader identifier.
      * @param datawriter_xrce   XRCE DataReader binary representation.
-     *                      	It defines the name of the associated CedGlobalTopic.
+     *                          It defines the name of the associated CedGlobalTopic.
      * @return true if both CedDataReader have associated the same CedGlobalTopic name
      */
     bool matched_datareader_from_bin(
-            uint16_t datareader_id ,
+            uint16_t datareader_id,
             const dds::xrce::OBJK_DataReader_Binary&  datareader_xrce) const override;
 
     /**
      * @brief Not implemented.
-     * 
-     * @param participant_id 
-     * @param ref 
-     * @return false 
+     *
+     * @param participant_id
+     * @param ref
+     * @return false
      */
     bool matched_requester_from_ref(
             uint16_t,
-            const std::string&) const override { return false; };
+            const std::string&) const override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param participant_id 
-     * @param xml 
-     * @return false 
+     *
+     * @param participant_id
+     * @param xml
+     * @return false
      */
     bool matched_requester_from_xml(
             uint16_t,
-            const std::string&) const override { return false; };
-   
+            const std::string&) const override
+    {
+        return false;
+    }
+
     /**
      * @brief Not implemented.
-     * 
-     * @param requester_id 
-     * @param requester_xrce 
-     * @return false 
+     *
+     * @param requester_id
+     * @param requester_xrce
+     * @return false
      */
     bool matched_requester_from_bin(
             uint16_t,
-            const dds::xrce::OBJK_Requester_Binary&) const override { return false; };
+            const dds::xrce::OBJK_Requester_Binary&) const override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param participant_id 
-     * @param ref 
-     * @return false 
+     *
+     * @param participant_id
+     * @param ref
+     * @return false
      */
     bool matched_replier_from_ref(
             uint16_t,
-            const std::string&) const override { return false; };
+            const std::string&) const override
+    {
+        return false;
+    }
 
     /**
      * @brief Not implemented.
-     * 
-     * @param participant_id 
-     * @param xml 
-     * @return false 
+     *
+     * @param participant_id
+     * @param xml
+     * @return false
      */
     bool matched_replier_from_xml(
             uint16_t,
-            const std::string&) const override { return false; };
-    
+            const std::string&) const override
+    {
+        return false;
+    }
+
     /**
      * @brief Not implemented.
-     * 
-     * @param replier_id 
-     * @param replier_xrce 
-     * @return false 
+     *
+     * @param replier_id
+     * @param replier_xrce
+     * @return false
      */
     bool matched_replier_from_bin(
             uint16_t,
-            const dds::xrce::OBJK_Replier_Binary&) const override { return false; };
+            const dds::xrce::OBJK_Replier_Binary&) const override
+    {
+        return false;
+    }
 
 private:
+
     std::unordered_map<uint16_t, std::shared_ptr<CedParticipant>> participants_;
     std::unordered_map<uint16_t, std::shared_ptr<CedTopic>> topics_;
     std::unordered_map<uint16_t, std::shared_ptr<CedPublisher>> publishers_;

@@ -38,14 +38,14 @@ std::unique_ptr<DataReader> DataReader::create(
         {
             const std::string& ref = representation.representation().object_reference();
             created_entity =
-                middleware.create_datareader_by_ref(raw_object_id, subscriber_id, ref);
+                    middleware.create_datareader_by_ref(raw_object_id, subscriber_id, ref);
             break;
         }
         case dds::xrce::REPRESENTATION_AS_XML_STRING:
         {
             const std::string& xml = representation.representation().xml_string_representation();
             created_entity =
-                middleware.create_datareader_by_xml(raw_object_id, subscriber_id, xml);
+                    middleware.create_datareader_by_xml(raw_object_id, subscriber_id, xml);
             break;
         }
         case dds::xrce::REPRESENTATION_IN_BINARY:
@@ -53,12 +53,26 @@ std::unique_ptr<DataReader> DataReader::create(
             auto rep = representation.representation();
             dds::xrce::OBJK_DataReader_Binary datareader_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(representation.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            datareader_xrce.deserialize(cdr);
+            try
+            {
+                datareader_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
-            created_entity = proxy_client->get_middleware().create_datareader_by_bin(raw_object_id, subscriber_id, datareader_xrce);
+            created_entity = proxy_client->get_middleware().create_datareader_by_bin(raw_object_id, subscriber_id,
+                            datareader_xrce);
             break;
         }
         default:
@@ -74,7 +88,8 @@ DataReader::DataReader(
     : XRCEObject{object_id}
     , proxy_client_{proxy_client}
     , reader_{}
-{}
+{
+}
 
 DataReader::~DataReader() noexcept
 {
@@ -111,10 +126,23 @@ bool DataReader::matched(
             auto rep = new_object_rep.data_reader().representation();
             dds::xrce::OBJK_DataReader_Binary datareader_xrce;
 
-            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())), rep.binary_representation().size()};
-            eprosima::fastcdr::Cdr::Endianness endianness = static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
+            fastcdr::FastBuffer fastbuffer{reinterpret_cast<char*>(const_cast<uint8_t*>(rep.binary_representation().data())),
+                                           rep.binary_representation().size()};
+            eprosima::fastcdr::Cdr::Endianness endianness =
+                    static_cast<eprosima::fastcdr::Cdr::Endianness>(new_object_rep.endianness());
             eprosima::fastcdr::Cdr cdr(fastbuffer, endianness, eprosima::fastcdr::CdrVersion::XCDRv1);
-            datareader_xrce.deserialize(cdr);
+            try
+            {
+                datareader_xrce.deserialize(cdr);
+            }
+            catch (eprosima::fastcdr::exception::Exception& /*exception*/)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("deserialization error"),
+                    "buffer: {:X}",
+                    UXR_AGENT_LOG_TO_HEX(fastbuffer.getBuffer(), fastbuffer.getBuffer() + fastbuffer.getBufferSize()));
+                break;
+            }
 
             rv = proxy_client_->get_middleware().matched_datareader_from_bin(get_raw_id(), datareader_xrce);
             break;
@@ -143,8 +171,8 @@ bool DataReader::read(
     }
 
     /* TODO (julianbermudez): implement different data formats.
-    switch (read_data.read_specification().data_format())
-    {
+       switch (read_data.read_specification().data_format())
+       {
         case dds::xrce::FORMAT_DATA:
             break;
         case dds::xrce::FORMAT_SAMPLE:
@@ -157,14 +185,18 @@ bool DataReader::read(
             break;
         default:
             break;
-    }
-    */
+       }
+     */
 
     write_args.client = proxy_client_;
 
     using namespace std::placeholders;
     return (reader_.stop_reading() &&
-            reader_.start_reading(delivery_control, std::bind(&DataReader::read_fn, this, _1, _2, _3), false, write_fn, write_args));
+           reader_.start_reading(delivery_control,
+           std::bind(&DataReader::read_fn, this, _1, _2, _3),
+           false,
+           write_fn,
+           write_args));
 }
 
 bool DataReader::read_fn(

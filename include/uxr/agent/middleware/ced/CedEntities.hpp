@@ -34,8 +34,8 @@ const uint32_t INTERNAL_CLIENT_KEY = 0xEAEAEAEA;
 const uint8_t EXTERNAL_CLIENT_KEY_PREFIX = 0xEA;
 
 /**********************************************************************************************************************
- * CedController
- **********************************************************************************************************************/
+* CedController
+**********************************************************************************************************************/
 enum class TopicSource : uint8_t
 {
     INTERNAL = 0,
@@ -59,8 +59,8 @@ enum class ReadAccess : uint8_t
 };
 
 /**********************************************************************************************************************
- * CedTopicManager
- **********************************************************************************************************************/
+* CedTopicManager
+**********************************************************************************************************************/
 class CedGlobalTopic;
 typedef const std::function<void (int16_t)> OnNewDomain;
 typedef const std::function<void (int16_t, const std::string&)> OnNewTopic;
@@ -68,7 +68,9 @@ typedef const std::function<void (int16_t, const std::string&)> OnNewTopic;
 class CedTopicManager
 {
     friend class CedGlobalTopic;
+
 public:
+
     static void register_on_new_domain_cb(
             uint32_t key,
             const OnNewDomain& on_new_domain_cb);
@@ -89,6 +91,7 @@ public:
             std::shared_ptr<CedGlobalTopic>& topic);
 
 private:
+
     CedTopicManager() = default;
     ~CedTopicManager() = default;
 
@@ -97,6 +100,7 @@ private:
             int16_t domain_id);
 
 private:
+
     static std::unordered_map<uint32_t, OnNewDomain> on_new_domain_map_;
     static std::unordered_map<uint32_t, OnNewTopic> on_new_topic_map_;
     static std::unordered_map<int16_t, std::unordered_map<std::string, std::weak_ptr<CedGlobalTopic>>> topics_;
@@ -104,13 +108,15 @@ private:
 };
 
 /**********************************************************************************************************************
- * CedTopicCloud
- **********************************************************************************************************************/
+* CedTopicCloud
+**********************************************************************************************************************/
 class CedGlobalTopic
 {
     friend class CedDataReader;
     friend class CedDataWriter;
+
 public:
+
     CedGlobalTopic(
             const std::string& topic_name,
             int16_t domain_id);
@@ -120,6 +126,7 @@ public:
     const std::string& name() const;
 
 private:
+
     bool write(
             const std::vector<uint8_t>& data,
             WriteAccess write_access,
@@ -147,6 +154,7 @@ private:
             ReadAccess read_access);
 
 private:
+
     const std::string name_;
     int16_t domain_id_;
     SeqNum last_write_;
@@ -157,16 +165,20 @@ private:
 };
 
 /**********************************************************************************************************************
- * CedParticipant
- **********************************************************************************************************************/
+* CedParticipant
+**********************************************************************************************************************/
 class CedTopic;
 
 class CedParticipant
 {
 public:
-    CedParticipant(int16_t domain_id)
+
+    CedParticipant(
+            int16_t domain_id)
         : domain_id_(domain_id)
-    {}
+    {
+    }
+
     ~CedParticipant() = default;
 
     bool register_topic(
@@ -178,78 +190,108 @@ public:
     std::shared_ptr<CedTopic> find_topic(
             const std::string& topic_name) const;
 
-    int16_t get_domain_id() const { return domain_id_; }
+    int16_t get_domain_id() const
+    {
+        return domain_id_;
+    }
 
 private:
+
     int16_t domain_id_;
     std::unordered_map<std::string, std::weak_ptr<CedTopic>> topic_register_;
 };
 
 /**********************************************************************************************************************
- * CedTopic
- **********************************************************************************************************************/
+* CedTopic
+**********************************************************************************************************************/
 class CedTopic
 {
 public:
+
     CedTopic(
             const std::shared_ptr<CedParticipant>& participant,
             const std::shared_ptr<CedGlobalTopic>& global_topic)
         : participant_(participant)
         , global_topic_(global_topic)
-    {}
+    {
+    }
+
     ~CedTopic();
 
     CedGlobalTopic* get_global_topic() const;
 
-    const std::string& get_name() { return global_topic_->name(); }
+    const std::string& get_name()
+    {
+        return global_topic_->name();
+    }
 
 private:
+
     std::shared_ptr<CedParticipant> participant_;
     std::shared_ptr<CedGlobalTopic> global_topic_;
 };
 
 /**********************************************************************************************************************
- * CedPublisher
- **********************************************************************************************************************/
+* CedPublisher
+**********************************************************************************************************************/
 class CedPublisher
 {
     friend class CedDataWriter;
+
 public:
-    CedPublisher(const std::shared_ptr<CedParticipant>& participant)
+
+    CedPublisher(
+            const std::shared_ptr<CedParticipant>& participant)
         : participant_(participant)
-    {}
+    {
+    }
+
     ~CedPublisher() = default;
 
-    const std::shared_ptr<CedParticipant>& get_participant() const { return participant_; }
+    const std::shared_ptr<CedParticipant>& get_participant() const
+    {
+        return participant_;
+    }
 
 private:
+
     const std::shared_ptr<CedParticipant> participant_;
 };
 
 /**********************************************************************************************************************
- * CedSubscriber
- **********************************************************************************************************************/
+* CedSubscriber
+**********************************************************************************************************************/
 class CedSubscriber
 {
     friend class CedDataReader;
+
 public:
-    CedSubscriber(const std::shared_ptr<CedParticipant>& participant)
+
+    CedSubscriber(
+            const std::shared_ptr<CedParticipant>& participant)
         : participant_(participant)
-    {}
+    {
+    }
+
     ~CedSubscriber() = default;
 
-    const std::shared_ptr<CedParticipant>& get_participant() const { return  participant_; }
+    const std::shared_ptr<CedParticipant>& get_participant() const
+    {
+        return participant_;
+    }
 
 private:
+
     const std::shared_ptr<CedParticipant>& participant_;
 };
 
 /**********************************************************************************************************************
- * CedDataWriter
- **********************************************************************************************************************/
+* CedDataWriter
+**********************************************************************************************************************/
 class CedDataWriter
 {
 public:
+
     CedDataWriter(
             const std::shared_ptr<CedPublisher>& publisher,
             const std::shared_ptr<CedTopic>& topic,
@@ -259,16 +301,22 @@ public:
         , topic_(topic)
         , write_access_(write_access)
         , topic_src_(topic_src)
-    {}
+    {
+    }
+
     ~CedDataWriter() = default;
 
     bool write(
-        const std::vector<uint8_t>& data,
-        uint8_t& errcode) const;
+            const std::vector<uint8_t>& data,
+            uint8_t& errcode) const;
 
-    const std::string& topic_name() const { return topic_->get_global_topic()->name(); }
+    const std::string& topic_name() const
+    {
+        return topic_->get_global_topic()->name();
+    }
 
 private:
+
     const std::shared_ptr<CedPublisher> publisher_;
     const std::shared_ptr<CedTopic> topic_;
     const WriteAccess write_access_;
@@ -276,11 +324,12 @@ private:
 };
 
 /**********************************************************************************************************************
- * CedDataReader
- **********************************************************************************************************************/
+* CedDataReader
+**********************************************************************************************************************/
 class CedDataReader
 {
 public:
+
     CedDataReader(
             const std::shared_ptr<CedSubscriber> subscriber,
             const std::shared_ptr<CedTopic> topic,
@@ -289,7 +338,9 @@ public:
         , topic_(topic)
         , last_read_(UINT16_MAX)
         , read_access_(read_access)
-    {}
+    {
+    }
+
     ~CedDataReader() = default;
 
     bool read(
@@ -297,9 +348,13 @@ public:
             std::chrono::milliseconds timeout,
             uint8_t& errcode);
 
-    const std::string& topic_name() const { return topic_->get_global_topic()->name(); }
+    const std::string& topic_name() const
+    {
+        return topic_->get_global_topic()->name();
+    }
 
 private:
+
     const std::shared_ptr<CedSubscriber> subscriber_;
     const std::shared_ptr<CedTopic> topic_;
     SeqNum last_read_;

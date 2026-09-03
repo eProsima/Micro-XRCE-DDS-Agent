@@ -24,7 +24,8 @@ AgentDiscoverer::AgentDiscoverer(
     , mtx_{}
     , thread_{}
     , running_cond_{false}
-{}
+{
+}
 
 bool AgentDiscoverer::start(
         uint16_t p2p_port,
@@ -105,7 +106,8 @@ void AgentDiscoverer::loop()
                 InternalClientManager& manager = InternalClientManager::instance();
                 manager.create_client(agent_, address.address(), address.port());
             }
-        } while(message_received);
+        }
+        while (message_received);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }

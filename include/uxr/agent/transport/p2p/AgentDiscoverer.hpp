@@ -29,15 +29,20 @@ class Agent;
 class AgentDiscoverer
 {
 public:
+
     AgentDiscoverer(
             Agent& agent);
 
     virtual ~AgentDiscoverer() = default;
 
-    AgentDiscoverer(AgentDiscoverer&&) = delete;
-    AgentDiscoverer(const AgentDiscoverer&) = delete;
-    AgentDiscoverer& operator=(AgentDiscoverer&&) = delete;
-    AgentDiscoverer& operator=(const AgentDiscoverer&) = delete;
+    AgentDiscoverer(
+            AgentDiscoverer&&) = delete;
+    AgentDiscoverer(
+            const AgentDiscoverer&) = delete;
+    AgentDiscoverer& operator =(
+            AgentDiscoverer&&) = delete;
+    AgentDiscoverer& operator =(
+            const AgentDiscoverer&) = delete;
 
     bool start(
             uint16_t p2p_port,
@@ -46,6 +51,7 @@ public:
     bool stop();
 
 private:
+
     virtual bool init(
             uint16_t p2p_port) = 0;
 
@@ -61,6 +67,7 @@ private:
     void loop();
 
 private:
+
     Agent& agent_;
     std::mutex mtx_;
     std::thread thread_;

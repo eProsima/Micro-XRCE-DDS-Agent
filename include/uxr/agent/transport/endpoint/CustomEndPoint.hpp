@@ -31,6 +31,7 @@ namespace uxr {
 class CustomEndPoint
 {
 private:
+
     /**
      * @brief Enum class which holds all the available type kinds for an endpoint member.
      */
@@ -63,6 +64,7 @@ private:
     class SameKeyException : public std::exception
     {
     public:
+
         SameKeyException(
                 const char* file,
                 int line,
@@ -82,12 +84,14 @@ private:
         }
 
     private:
+
         std::string message_;
     };
 
     class NoExistingMemberException : public std::exception
     {
     public:
+
         NoExistingMemberException(
                 const char* file,
                 int line,
@@ -107,12 +111,14 @@ private:
         }
 
     private:
+
         std::string message_;
     };
 
     class EmptyMemberException : public std::exception
     {
     public:
+
         EmptyMemberException(
                 const std::string& member_name)
         {
@@ -129,9 +135,12 @@ private:
         }
 
     private:
+
         std::string message_;
     };
+
 public:
+
     /**
      * @brief Default constructor.
      */
@@ -173,7 +182,7 @@ public:
      * @param name The new member name.
      * @returns true if the insert was successful, false otherwise.
      */
-    template <typename T>
+    template<typename T>
     bool add_member(
             const std::string& name);
 
@@ -194,7 +203,7 @@ public:
      * @param value A const reference to the value to be set.
      * @throw NoExistingMemberException if trying to set a value not registered in the map.
      */
-    template <typename T>
+    template<typename T>
     void set_member_value(
             const std::string& name,
             const T& value)
@@ -215,7 +224,7 @@ public:
      * @param value A movable reference to the value to be set.
      * @throw NoExistingMemberException if trying to set a value not registered in the map.
      */
-    template <typename T>
+    template<typename T>
     void set_member_value(
             const std::string& name,
             T&& value)
@@ -231,7 +240,7 @@ public:
     }
 
     /**
-     * 
+     *
      */
     void check_non_empty_members()
     {
@@ -250,13 +259,13 @@ public:
      * @param second Second member to be compared against the first.
      * @return 0 if the members are equal, -1 if first < second, 1 if second > first.
      */
-    template <typename T>
+    template<typename T>
     static int8_t less_than_members(
             const Member& first,
             const Member& second)
     {
-        T first_data = *static_cast<T *>(first.data.get());
-        T second_data = *static_cast<T *>(second.data.get());
+        T first_data = *static_cast<T*>(first.data.get());
+        T second_data = *static_cast<T*>(second.data.get());
 
         if (first_data == second_data)
         {
@@ -372,36 +381,36 @@ public:
                 {
                     case MemberKind::UINT8:
                     {
-                        os << *static_cast<uint8_t *>(member.second.data.get());
+                        os << *static_cast<uint8_t*>(member.second.data.get());
                         break;
                     }
                     case MemberKind::UINT16:
                     {
-                        os << *static_cast<uint16_t *>(member.second.data.get());
+                        os << *static_cast<uint16_t*>(member.second.data.get());
                         break;
                     }
                     case MemberKind::UINT32:
                     {
-                        os << *static_cast<uint32_t *>(member.second.data.get());
+                        os << *static_cast<uint32_t*>(member.second.data.get());
                         break;
                     }
                     case MemberKind::UINT64:
                     {
-                        os << *static_cast<uint64_t *>(member.second.data.get());
+                        os << *static_cast<uint64_t*>(member.second.data.get());
                         break;
                     }
 #ifdef __SIZEOF_UINT128__
                     case MemberKind::UINT128:
                     {
-                        os << *static_cast<uint128_t *>(member.second.data.get());
+                        os << *static_cast<uint128_t*>(member.second.data.get());
                         break;
                     }
 #endif // __SIZEOF_UINT128__
                     case MemberKind::STRING:
                     {
                         os << "'"
-                        << *static_cast<std::string *>(member.second.data.get())
-                        << "'";
+                           << *static_cast<std::string*>(member.second.data.get())
+                           << "'";
                         break;
                     }
                 }
@@ -422,7 +431,7 @@ public:
      * @throw NoExistingMemberException if the member is not found.
      * @return Const reference to the requested value.
      */
-    template <typename T>
+    template<typename T>
     const T& get_member(
             const char* key) const
     {
@@ -432,7 +441,7 @@ public:
         }
         else
         {
-            return *static_cast<T *>(members_.at(key).data.get());
+            return *static_cast<T*>(members_.at(key).data.get());
         }
     }
 
@@ -442,7 +451,7 @@ public:
      * @throw NoExistingMemberException if the member is not found.
      * @return Const reference to the requested value.
      */
-    template <typename T>
+    template<typename T>
     const T& get_member(
             const std::string& key) const
     {
@@ -450,6 +459,7 @@ public:
     }
 
 private:
+
     std::map<std::string, Member> members_;
 };
 
@@ -457,28 +467,28 @@ private:
  * @brief CustomEndPoint::add_member template method specializations,
  *        for each of the available MemberKind types.
  */
-template <>
+template<>
 inline bool CustomEndPoint::add_member<uint8_t>(
         const std::string& name)
 {
     return add_member(name, MemberKind::UINT8);
 }
 
-template <>
+template<>
 inline bool CustomEndPoint::add_member<uint16_t>(
         const std::string& name)
 {
     return add_member(name, MemberKind::UINT16);
 }
 
-template <>
+template<>
 inline bool CustomEndPoint::add_member<uint32_t>(
         const std::string& name)
 {
     return add_member(name, MemberKind::UINT32);
 }
 
-template <>
+template<>
 inline bool CustomEndPoint::add_member<uint64_t>(
         const std::string& name)
 {
@@ -486,15 +496,16 @@ inline bool CustomEndPoint::add_member<uint64_t>(
 }
 
 #ifdef __SIZEOF_UINT128__
-template <>
+template<>
 inline bool CustomEndPoint::add_member<uint128_t>(
         const std::string& name)
 {
     return add_member(name, MemberKind::UINT128);
 }
+
 #endif // __SIZEOF_UINT128__
 
-template <>
+template<>
 inline bool CustomEndPoint::add_member<std::string>(
         const std::string& name)
 {

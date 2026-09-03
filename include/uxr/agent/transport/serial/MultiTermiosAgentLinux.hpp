@@ -27,21 +27,24 @@ namespace uxr {
 class MultiTermiosAgent : public MultiSerialAgent
 {
 public:
+
     MultiTermiosAgent(
             std::vector<std::string> devs,
             int open_flags,
-            termios const & termios_attrs,
+            termios const& termios_attrs,
             uint8_t addr,
             Middleware::Kind middleware_kind);
 
     ~MultiTermiosAgent();
 
-    bool restart_serial(std::map<int, std::string>::iterator initialized_devs_it);
+    bool restart_serial(
+            std::map<int, std::string>::iterator initialized_devs_it);
 
-    std::vector<int> getfds(){
+    std::vector<int> getfds()
+    {
         std::vector<int> result;
         std::unique_lock<std::mutex> lk(devs_mtx);
-        for (auto & element : initialized_devs_)
+        for (auto& element : initialized_devs_)
         {
             result.push_back(element.first);
         }
@@ -50,6 +53,7 @@ public:
     }
 
 private:
+
     void init_multiport();
     bool init() final;
     bool fini() final;

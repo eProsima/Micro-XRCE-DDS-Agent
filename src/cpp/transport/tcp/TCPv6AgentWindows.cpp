@@ -44,8 +44,9 @@ TCPv6Agent::TCPv6Agent(
     , messages_queue_{}
 #ifdef UAGENT_DISCOVERY_PROFILE
     , discovery_server_(*processor_)
-#endif
-{}
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
+{
+}
 
 TCPv6Agent::~TCPv6Agent()
 {
@@ -186,7 +187,8 @@ bool TCPv6Agent::fini()
 }
 
 #ifdef UAGENT_DISCOVERY_PROFILE
-bool TCPv6Agent::init_discovery(uint16_t discovery_port)
+bool TCPv6Agent::init_discovery(
+        uint16_t discovery_port)
 {
     std::vector<dds::xrce::TransportAddress> transport_addresses;
     util::get_transport_interfaces<IPv6EndPoint>(this->agent_port_, transport_addresses);
@@ -197,7 +199,8 @@ bool TCPv6Agent::fini_discovery()
 {
     return discovery_server_.stop();
 }
-#endif
+
+#endif // ifdef UAGENT_DISCOVERY_PROFILE
 
 bool TCPv6Agent::recv_message(
         InputPacket<IPv6EndPoint>& input_packet,
@@ -274,12 +277,12 @@ bool TCPv6Agent::send_message(
             bytes_sent = 0;
             do
             {
-                size_t send_rv =
-                    send_data(
-                        connection,
-                        (output_packet.message->get_buf() + bytes_sent),
-                        size_t(output_packet.message->get_len() - bytes_sent),
-                        transport_rc);
+                size_t send_rv = send_data(
+                    connection,
+                    (output_packet.message->get_buf() + bytes_sent),
+                    size_t(output_packet.message->get_len() - bytes_sent),
+                    transport_rc);
+
                 if (0 < send_rv)
                 {
                     bytes_sent += uint16_t(send_rv);
@@ -324,7 +327,6 @@ bool TCPv6Agent::handle_error(
 {
     return fini() && init();
 }
-
 
 bool TCPv6Agent::open_connection(
         SOCKET fd,
@@ -381,7 +383,8 @@ bool TCPv6Agent::close_connection(
     return rv;
 }
 
-void TCPv6Agent::init_input_buffer(TCPInputBuffer& buffer)
+void TCPv6Agent::init_input_buffer(
+        TCPInputBuffer& buffer)
 {
     buffer.state = TCP_BUFFER_EMPTY;
     buffer.msg_size = 0;
@@ -452,13 +455,13 @@ void TCPv6Agent::listener_loop()
             {
                 if (connection_available())
                 {
-                    struct sockaddr_in6 client_addr{};
+                    struct sockaddr_in6 client_addr {};
                     int client_addr_len = sizeof(client_addr);
-                    SOCKET incoming_fd =
-                        accept(
-                            listener_poll_.fd,
-                            reinterpret_cast<struct sockaddr*>(&client_addr),
-                            &client_addr_len);
+                    SOCKET incoming_fd = accept(
+                        listener_poll_.fd,
+                        reinterpret_cast<struct sockaddr*>(&client_addr),
+                        &client_addr_len);
+
                     if (INVALID_SOCKET != incoming_fd)
                     {
                         open_connection(incoming_fd, client_addr);

@@ -35,7 +35,8 @@ FastDDSMiddleware::FastDDSMiddleware()
 {
 }
 
-FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
+FastDDSMiddleware::FastDDSMiddleware(
+        bool intraprocess_enabled)
     : Middleware(intraprocess_enabled)
     , participants_()
     , topics_()
@@ -51,26 +52,26 @@ FastDDSMiddleware::FastDDSMiddleware(bool intraprocess_enabled)
     if (agent_domain_id_)
     {
         UXR_AGENT_LOG_INFO(
-                UXR_DECORATE_GREEN("Micro XRCE-DDS Agent DOMAIN_ID read from env"),
-                "domain_id: {}", agent_domain_id_);
+            UXR_DECORATE_GREEN("Micro XRCE-DDS Agent DOMAIN_ID read from env"),
+            "domain_id: {}", agent_domain_id_);
     }
 
 }
 
 /**********************************************************************************************************************
- * Create functions.
- **********************************************************************************************************************/
+* Create functions.
+**********************************************************************************************************************/
 bool FastDDSMiddleware::create_participant_by_ref(
         uint16_t participant_id,
         int16_t domain_id,
         const std::string& ref)
 {
-    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+    if (domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV)
+    {
         domain_id = agent_domain_id_;
         UXR_AGENT_LOG_WARN(
-                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
-                "domain_id: {}", domain_id
-        );
+            UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+            "domain_id: {}", domain_id);
     }
 
     bool rv = false;
@@ -96,8 +97,8 @@ bool FastDDSMiddleware::create_participant_by_ref(
         if (rv)
         {
             callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_PARTICIPANT,
-                **(emplace_res.first->second));
+                    middleware::CallbackKind::CREATE_PARTICIPANT,
+                    **(emplace_res.first->second));
         }
     }
     return rv;
@@ -108,12 +109,12 @@ bool FastDDSMiddleware::create_participant_by_xml(
         int16_t domain_id,
         const std::string& xml)
 {
-    if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+    if (domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV)
+    {
         domain_id = agent_domain_id_;
         UXR_AGENT_LOG_WARN(
-                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
-                "domain_id: {}", domain_id
-        );
+            UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+            "domain_id: {}", domain_id);
     }
 
     bool rv = false;
@@ -125,8 +126,8 @@ bool FastDDSMiddleware::create_participant_by_xml(
         if (rv)
         {
             callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_PARTICIPANT,
-                **(emplace_res.first->second));
+                    middleware::CallbackKind::CREATE_PARTICIPANT,
+                    **(emplace_res.first->second));
         }
     }
     return rv;
@@ -137,12 +138,12 @@ bool FastDDSMiddleware::create_participant_by_bin(
         const dds::xrce::OBJK_DomainParticipant_Binary& participant_xrce)
 {
     auto participant_domain_id = static_cast<int16_t>(participant_xrce.domain_id());
-    if(participant_domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV){
+    if (participant_domain_id == UXR_CLIENT_DOMAIN_ID_TO_OVERRIDE_WITH_ENV)
+    {
         participant_domain_id = agent_domain_id_;
         UXR_AGENT_LOG_WARN(
-                UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
-                "domain_id: {}", participant_domain_id
-        );
+            UXR_DECORATE_YELLOW("Overriding Micro XRCE-DDS Client DOMAIN_ID"),
+            "domain_id: {}", participant_domain_id);
     }
 
     bool rv = false;
@@ -154,8 +155,8 @@ bool FastDDSMiddleware::create_participant_by_bin(
         if (rv)
         {
             callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                middleware::CallbackKind::CREATE_PARTICIPANT,
-                **(emplace_res.first->second));
+                    middleware::CallbackKind::CREATE_PARTICIPANT,
+                    **(emplace_res.first->second));
         }
     }
     return rv;
@@ -221,9 +222,10 @@ bool FastDDSMiddleware::create_topic_by_ref(
         std::string topic_name;
         std::string type_name;
 
-        auto & participant = it_participant->second;
+        auto& participant = it_participant->second;
 
-        if (fastdds::dds::RETCODE_OK == participant->get_ptr()->get_topic_qos_from_profile(ref, qos, topic_name, type_name))
+        if (fastdds::dds::RETCODE_OK
+                == participant->get_ptr()->get_topic_qos_from_profile(ref, qos, topic_name, type_name))
         {
             std::shared_ptr<FastDDSTopic> topic = create_topic(participant, qos, topic_name, type_name);
             if (topic)
@@ -247,13 +249,14 @@ bool FastDDSMiddleware::create_topic_by_xml(
 
     if (participants_.end() != it_participant)
     {
-        auto & participant = it_participant->second;
+        auto& participant = it_participant->second;
 
         fastdds::dds::TopicQos qos = participant->get_ptr()->get_default_topic_qos();
         std::string topic_name;
         std::string type_name;
 
-        if (xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_topic_qos_from_xml(xml, qos, topic_name, type_name))
+        if ((xml.size() == 0) || (fastdds::dds::RETCODE_OK ==
+                participant->get_ptr()->get_topic_qos_from_xml(xml, qos, topic_name, type_name)))
         {
             std::shared_ptr<FastDDSTopic> topic = create_topic(participant, qos, topic_name, type_name);
             if (topic)
@@ -281,7 +284,7 @@ bool FastDDSMiddleware::create_topic_by_bin(
         std::string topic_name = topic_xrce.topic_name();
         std::string type_name = topic_xrce.type_name();
 
-        auto & participant = it_participant->second;
+        auto& participant = it_participant->second;
 
         // Nothing to fill in TopicQoS from binary representation
         {
@@ -390,9 +393,9 @@ bool FastDDSMiddleware::create_datawriter_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAWRITER,
-                    **it_publisher->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                        middleware::CallbackKind::CREATE_DATAWRITER,
+                        **it_publisher->second->get_participant(),
+                        emplace_res.first->second->ptr());
             }
         }
     }
@@ -416,9 +419,9 @@ bool FastDDSMiddleware::create_datawriter_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAWRITER,
-                    **it_publisher->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                        middleware::CallbackKind::CREATE_DATAWRITER,
+                        **it_publisher->second->get_participant(),
+                        emplace_res.first->second->ptr());
             }
         }
     }
@@ -445,9 +448,9 @@ bool FastDDSMiddleware::create_datawriter_by_bin(
                 if (rv)
                 {
                     callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                        middleware::CallbackKind::CREATE_DATAWRITER,
-                        **it_publisher->second->get_participant(),
-                        emplace_res.first->second->ptr());
+                            middleware::CallbackKind::CREATE_DATAWRITER,
+                            **it_publisher->second->get_participant(),
+                            emplace_res.first->second->ptr());
                 }
             }
         }
@@ -472,9 +475,9 @@ bool FastDDSMiddleware::create_datareader_by_ref(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAREADER,
-                    **it_subscriber->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                        middleware::CallbackKind::CREATE_DATAREADER,
+                        **it_subscriber->second->get_participant(),
+                        emplace_res.first->second->ptr());
             }
         }
     }
@@ -498,9 +501,9 @@ bool FastDDSMiddleware::create_datareader_by_xml(
             if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_DATAREADER,
-                    **it_subscriber->second->get_participant(),
-                    emplace_res.first->second->ptr());
+                        middleware::CallbackKind::CREATE_DATAREADER,
+                        **it_subscriber->second->get_participant(),
+                        emplace_res.first->second->ptr());
             }
         }
     }
@@ -527,9 +530,9 @@ bool FastDDSMiddleware::create_datareader_by_bin(
                 if (rv)
                 {
                     callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                        middleware::CallbackKind::CREATE_DATAREADER,
-                        **it_subscriber->second->get_participant(),
-                        emplace_res.first->second->ptr());
+                            middleware::CallbackKind::CREATE_DATAREADER,
+                            **it_subscriber->second->get_participant(),
+                            emplace_res.first->second->ptr());
                 }
             }
         }
@@ -542,13 +545,14 @@ static std::shared_ptr<FastDDSRequester> create_requester(
         const fastdds::dds::RequesterQos& qos)
 {
     std::shared_ptr<FastDDSRequester> requester{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant,
+                    participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant,
+                    participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
 
     if (request_topic && reply_topic)
     {
-        requester =
-            std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
+        requester = std::make_shared<FastDDSRequester>(participant, request_topic, reply_topic);
         if (!requester->create_by_qos(qos))
         {
             requester.reset();
@@ -569,7 +573,7 @@ bool FastDDSMiddleware::create_requester_by_ref(
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
 
         fastdds::dds::RequesterQos qos;
-        if(fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_profile(ref, qos))
+        if (fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_profile(ref, qos))
         {
             std::shared_ptr<FastDDSRequester> requester = create_requester(participant, qos);
 
@@ -580,13 +584,13 @@ bool FastDDSMiddleware::create_requester_by_ref(
 
             auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REQUESTER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_request_datawriter(),
-                    emplace_res.first->second->get_reply_datareader());
+                        middleware::CallbackKind::CREATE_REQUESTER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_request_datawriter(),
+                        emplace_res.first->second->get_reply_datareader());
             }
 
         }
@@ -606,7 +610,7 @@ bool FastDDSMiddleware::create_requester_by_xml(
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
 
         fastdds::dds::RequesterQos qos;
-        if(xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_xml(xml, qos))
+        if (xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_requester_qos_from_xml(xml, qos))
         {
             std::shared_ptr<FastDDSRequester> requester = create_requester(participant, qos);
 
@@ -617,13 +621,13 @@ bool FastDDSMiddleware::create_requester_by_xml(
 
             auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REQUESTER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_request_datawriter(),
-                    emplace_res.first->second->get_reply_datareader());
+                        middleware::CallbackKind::CREATE_REQUESTER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_request_datawriter(),
+                        emplace_res.first->second->get_reply_datareader());
             }
 
         }
@@ -663,13 +667,13 @@ bool FastDDSMiddleware::create_requester_by_bin(
 
             auto emplace_res = requesters_.emplace(requester_id, std::move(requester));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REQUESTER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_request_datawriter(),
-                    emplace_res.first->second->get_reply_datareader());
+                        middleware::CallbackKind::CREATE_REQUESTER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_request_datawriter(),
+                        emplace_res.first->second->get_reply_datareader());
             }
 
         }
@@ -682,13 +686,15 @@ static std::shared_ptr<FastDDSReplier> create_replier(
         const fastdds::dds::ReplierQos& qos)
 {
     std::shared_ptr<FastDDSReplier> replier{};
-    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
-    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant, participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
+    std::shared_ptr<FastDDSTopic> request_topic = create_topic(participant,
+                    participant->get_ptr()->get_default_topic_qos(), qos.request_topic_name, qos.request_type);
+    std::shared_ptr<FastDDSTopic> reply_topic = create_topic(participant,
+                    participant->get_ptr()->get_default_topic_qos(), qos.reply_topic_name, qos.reply_type);
 
     if (request_topic && reply_topic)
     {
         replier =
-            std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
+                std::make_shared<FastDDSReplier>(participant, request_topic, reply_topic);
         if (!replier->create_by_qos(qos))
         {
             replier.reset();
@@ -709,7 +715,7 @@ bool FastDDSMiddleware::create_replier_by_ref(
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
 
         fastdds::dds::ReplierQos qos;
-        if(fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_profile(ref, qos))
+        if (fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_profile(ref, qos))
         {
             std::shared_ptr<FastDDSReplier> replier = create_replier(participant, qos);
 
@@ -720,13 +726,13 @@ bool FastDDSMiddleware::create_replier_by_ref(
 
             auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REPLIER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_reply_datawriter(),
-                    emplace_res.first->second->get_request_datareader());
+                        middleware::CallbackKind::CREATE_REPLIER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_reply_datawriter(),
+                        emplace_res.first->second->get_request_datareader());
             }
 
         }
@@ -746,7 +752,7 @@ bool FastDDSMiddleware::create_replier_by_xml(
         std::shared_ptr<FastDDSParticipant>& participant = it_participant->second;
 
         fastdds::dds::ReplierQos qos;
-        if(xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_xml(xml, qos))
+        if (xml.size() == 0 || fastdds::dds::RETCODE_OK == participant->get_ptr()->get_replier_qos_from_xml(xml, qos))
         {
             std::shared_ptr<FastDDSReplier> replier = create_replier(participant, qos);
 
@@ -757,13 +763,13 @@ bool FastDDSMiddleware::create_replier_by_xml(
 
             auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REPLIER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_reply_datawriter(),
-                    emplace_res.first->second->get_request_datareader());
+                        middleware::CallbackKind::CREATE_REPLIER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_reply_datawriter(),
+                        emplace_res.first->second->get_request_datareader());
             }
 
         }
@@ -776,7 +782,7 @@ bool FastDDSMiddleware::create_replier_by_bin(
         uint16_t participant_id,
         const dds::xrce::OBJK_Replier_Binary& replier_xrce)
 {
-        bool rv = false;
+    bool rv = false;
     auto it_participant = participants_.find(participant_id);
     if (participants_.end() != it_participant)
     {
@@ -802,13 +808,13 @@ bool FastDDSMiddleware::create_replier_by_bin(
 
             auto emplace_res = repliers_.emplace(replier_id, std::move(replier));
             rv = emplace_res.second;
-            if(rv)
+            if (rv)
             {
                 callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-                    middleware::CallbackKind::CREATE_REPLIER,
-                    participant->get_ptr(),
-                    emplace_res.first->second->get_reply_datawriter(),
-                    emplace_res.first->second->get_request_datareader());
+                        middleware::CallbackKind::CREATE_REPLIER,
+                        participant->get_ptr(),
+                        emplace_res.first->second->get_reply_datawriter(),
+                        emplace_res.first->second->get_request_datareader());
             }
 
         }
@@ -817,8 +823,8 @@ bool FastDDSMiddleware::create_replier_by_bin(
 }
 
 /**********************************************************************************************************************
- * Delete functions.
- **********************************************************************************************************************/
+* Delete functions.
+**********************************************************************************************************************/
 bool FastDDSMiddleware::delete_participant(
         uint16_t participant_id)
 {
@@ -831,8 +837,8 @@ bool FastDDSMiddleware::delete_participant(
     {
         auto participant = it->second;
         callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            middleware::CallbackKind::DELETE_PARTICIPANT,
-            participant->get_ptr());
+                middleware::CallbackKind::DELETE_PARTICIPANT,
+                participant->get_ptr());
 
         participants_.erase(participant_id);
         return true;
@@ -869,9 +875,9 @@ bool FastDDSMiddleware::delete_datawriter(
     {
         auto datawriter = it->second;
         callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            middleware::CallbackKind::DELETE_DATAWRITER,
-            datawriter->participant(),
-            datawriter->ptr());
+                middleware::CallbackKind::DELETE_DATAWRITER,
+                datawriter->participant(),
+                datawriter->ptr());
 
         datawriters_.erase(datawriter_id);
         return true;
@@ -890,9 +896,9 @@ bool FastDDSMiddleware::delete_datareader(
     {
         auto datareader = it->second;
         callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            middleware::CallbackKind::DELETE_DATAREADER,
-            datareader->participant(),
-            datareader->ptr());
+                middleware::CallbackKind::DELETE_DATAREADER,
+                datareader->participant(),
+                datareader->ptr());
 
         datareaders_.erase(datareader_id);
         return true;
@@ -911,10 +917,10 @@ bool FastDDSMiddleware::delete_requester(
     {
         auto requester = it->second;
         callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            middleware::CallbackKind::DELETE_REQUESTER,
-            requester->get_participant(),
-            requester->get_request_datawriter(),
-            requester->get_reply_datareader());
+                middleware::CallbackKind::DELETE_REQUESTER,
+                requester->get_participant(),
+                requester->get_request_datawriter(),
+                requester->get_reply_datareader());
 
         requesters_.erase(requester_id);
         return true;
@@ -933,10 +939,10 @@ bool FastDDSMiddleware::delete_replier(
     {
         auto replier = it->second;
         callback_factory_.execute_callbacks(Middleware::Kind::FASTDDS,
-            middleware::CallbackKind::DELETE_REPLIER,
-            replier->get_participant(),
-            replier->get_reply_datawriter(),
-            replier->get_request_datareader());
+                middleware::CallbackKind::DELETE_REPLIER,
+                replier->get_participant(),
+                replier->get_reply_datawriter(),
+                replier->get_request_datareader());
 
         repliers_.erase(replier_id);
         return true;
@@ -944,19 +950,19 @@ bool FastDDSMiddleware::delete_replier(
 }
 
 /**********************************************************************************************************************
- * Write/Read functions.
- **********************************************************************************************************************/
+* Write/Read functions.
+**********************************************************************************************************************/
 bool FastDDSMiddleware::write_data(
         uint16_t datawriter_id,
         const std::vector<uint8_t>& data)
 {
-   bool rv = false;
-   auto it = datawriters_.find(datawriter_id);
-   if (datawriters_.end() != it)
-   {
-       rv = it->second->write(data);
-   }
-   return rv;
+    bool rv = false;
+    auto it = datawriters_.find(datawriter_id);
+    if (datawriters_.end() != it)
+    {
+        rv = it->second->write(data);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::write_request(
@@ -964,26 +970,26 @@ bool FastDDSMiddleware::write_request(
         uint32_t sequence_number,
         const std::vector<uint8_t>& data)
 {
-   bool rv = false;
-   auto it = requesters_.find(requester_id);
-   if (requesters_.end() != it)
-   {
-       rv = it->second->write(sequence_number, data);
-   }
-   return rv;
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        rv = it->second->write(sequence_number, data);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::write_reply(
         uint16_t replier_id,
         const std::vector<uint8_t>& data)
 {
-   bool rv = false;
-   auto it = repliers_.find(replier_id);
-   if (repliers_.end() != it)
-   {
-       rv = it->second->write(data);
-   }
-   return rv;
+    bool rv = false;
+    auto it = repliers_.find(replier_id);
+    if (repliers_.end() != it)
+    {
+        rv = it->second->write(data);
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::read_data(
@@ -991,15 +997,15 @@ bool FastDDSMiddleware::read_data(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-   bool rv = false;
-   auto it = datareaders_.find(datareader_id);
-   if (datareaders_.end() != it)
-   {
-       fastdds::dds::SampleInfo sample_info;
-       rv = it->second->read(data, timeout, sample_info);
+    bool rv = false;
+    auto it = datareaders_.find(datareader_id);
+    if (datareaders_.end() != it)
+    {
+        fastdds::dds::SampleInfo sample_info;
+        rv = it->second->read(data, timeout, sample_info);
 
-       if (intraprocess_enabled_)
-       {
+        if (intraprocess_enabled_)
+        {
             for (auto dw = datawriters_.begin(); dw != datawriters_.end(); dw++)
             {
                 if (dw->second->guid() == sample_info.sample_identity.writer_guid())
@@ -1008,9 +1014,9 @@ bool FastDDSMiddleware::read_data(
                     break;
                 }
             }
-       }
-   }
-   return rv;
+        }
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::read_request(
@@ -1018,10 +1024,10 @@ bool FastDDSMiddleware::read_request(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-   bool rv = false;
-   auto it = repliers_.find(replier_id);
-   if (repliers_.end() != it)
-   {
+    bool rv = false;
+    auto it = repliers_.find(replier_id);
+    if (repliers_.end() != it)
+    {
         fastdds::dds::SampleInfo sample_info;
         rv = it->second->read(data, timeout, sample_info);
 
@@ -1037,8 +1043,8 @@ bool FastDDSMiddleware::read_request(
             }
         }
 
-   }
-   return rv;
+    }
+    return rv;
 }
 
 bool FastDDSMiddleware::read_reply(
@@ -1047,14 +1053,14 @@ bool FastDDSMiddleware::read_reply(
         std::vector<uint8_t>& data,
         std::chrono::milliseconds timeout)
 {
-   bool rv = false;
-   auto it = requesters_.find(requester_id);
-   if (requesters_.end() != it)
-   {
-       fastdds::dds::SampleInfo sample_info;
-       rv = it->second->read(sequence_number, data, timeout, sample_info);
+    bool rv = false;
+    auto it = requesters_.find(requester_id);
+    if (requesters_.end() != it)
+    {
+        fastdds::dds::SampleInfo sample_info;
+        rv = it->second->read(sequence_number, data, timeout, sample_info);
 
-       if (intraprocess_enabled_)
+        if (intraprocess_enabled_)
         {
             for (auto rp = repliers_.begin(); rp != repliers_.end(); rp++)
             {
@@ -1065,13 +1071,13 @@ bool FastDDSMiddleware::read_reply(
                 }
             }
         }
-   }
-   return rv;
+    }
+    return rv;
 }
 
 /**********************************************************************************************************************
- * Matched functions.
- **********************************************************************************************************************/
+* Matched functions.
+**********************************************************************************************************************/
 bool FastDDSMiddleware::matched_participant_from_ref(
         uint16_t participant_id,
         int16_t domain_id,
@@ -1084,11 +1090,12 @@ bool FastDDSMiddleware::matched_participant_from_ref(
         fastdds::dds::DomainParticipantExtendedQos qos;
         auto factory = fastdds::dds::DomainParticipantFactory::get_instance();
         auto participant_domain_id = domain_id;
-        if(domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF && fastdds::dds::RETCODE_OK == factory->get_participant_extended_qos_from_profile(ref, qos))
+        if (domain_id == UXR_CLIENT_DOMAIN_ID_TO_USE_FROM_REF &&
+                fastdds::dds::RETCODE_OK == factory->get_participant_extended_qos_from_profile(ref, qos))
         {
             participant_domain_id = static_cast<int16_t>(qos.domainId());
         }
-        rv = (participant_domain_id== it->second->domain_id()) && (it->second->match_from_ref(ref));
+        rv = (participant_domain_id == it->second->domain_id()) && (it->second->match_from_ref(ref));
     }
     return rv;
 }
@@ -1316,7 +1323,8 @@ bool FastDDSMiddleware::matched_replier_from_bin(
     return rv;
 }
 
-int16_t FastDDSMiddleware::get_domain_id_from_env(){
+int16_t FastDDSMiddleware::get_domain_id_from_env()
+{
     int16_t agent_domain_id = 0;
     const char * agent_domain_id_env = std::getenv( "XRCE_DOMAIN_ID_OVERRIDE" );
     if (nullptr != agent_domain_id_env)

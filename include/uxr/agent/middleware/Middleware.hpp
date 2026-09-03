@@ -34,16 +34,17 @@ namespace uxr {
 class Middleware
 {
 public:
+
     enum class Kind : uint8_t
     {
         NONE,
     #ifdef UAGENT_FAST_PROFILE
         FASTDDS,
-    #endif
+    #endif // ifdef UAGENT_FAST_PROFILE
 
     #ifdef UAGENT_CED_PROFILE
         CED,
-    #endif
+    #endif // ifdef UAGENT_CED_PROFILE
     };
 
     Middleware() = default;
@@ -51,12 +52,13 @@ public:
             bool intraprocess_enabled)
         : intraprocess_enabled_(intraprocess_enabled)
     {
-    };
+    }
+
     virtual ~Middleware() = default;
 
-/**********************************************************************************************************************
- * Create functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Create functions.
+    **********************************************************************************************************************/
     virtual bool create_participant_by_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -166,28 +168,36 @@ public:
             uint16_t participant_id,
             const dds::xrce::OBJK_Replier_Binary& replier_xrce) = 0;
 
-/**********************************************************************************************************************
- * Delete functions.
- **********************************************************************************************************************/
-    virtual bool delete_participant(uint16_t participant_id) = 0;
+    /**********************************************************************************************************************
+    * Delete functions.
+    **********************************************************************************************************************/
+    virtual bool delete_participant(
+            uint16_t participant_id) = 0;
 
-    virtual bool delete_topic(uint16_t topic_id) = 0;
+    virtual bool delete_topic(
+            uint16_t topic_id) = 0;
 
-    virtual bool delete_publisher(uint16_t publisher_id) = 0;
+    virtual bool delete_publisher(
+            uint16_t publisher_id) = 0;
 
-    virtual bool delete_subscriber(uint16_t subscriber_id) = 0;
+    virtual bool delete_subscriber(
+            uint16_t subscriber_id) = 0;
 
-    virtual bool delete_datawriter(uint16_t datawriter_id) = 0;
+    virtual bool delete_datawriter(
+            uint16_t datawriter_id) = 0;
 
-    virtual bool delete_datareader(uint16_t datareader_id) = 0;
+    virtual bool delete_datareader(
+            uint16_t datareader_id) = 0;
 
-    virtual bool delete_requester(uint16_t requester_id) = 0;
+    virtual bool delete_requester(
+            uint16_t requester_id) = 0;
 
-    virtual bool delete_replier(uint16_t replier_id) = 0;
+    virtual bool delete_replier(
+            uint16_t replier_id) = 0;
 
-/**********************************************************************************************************************
- * Write/Read functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Write/Read functions.
+    **********************************************************************************************************************/
     virtual bool write_data(
             uint16_t datawriter_id,
             const std::vector<uint8_t>& data) = 0;
@@ -217,9 +227,9 @@ public:
             std::vector<uint8_t>& data,
             std::chrono::milliseconds timeout) = 0;
 
-/**********************************************************************************************************************
- * Matched functions.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Matched functions.
+    **********************************************************************************************************************/
     virtual bool matched_participant_from_ref(
             uint16_t participant_id,
             int16_t domain_id,
@@ -295,10 +305,12 @@ public:
             uint16_t replier_id,
             const dds::xrce::OBJK_Replier_Binary& replier_xrce) const = 0;
 
-/**********************************************************************************************************************
- * Members.
- **********************************************************************************************************************/
+    /**********************************************************************************************************************
+    * Members.
+    **********************************************************************************************************************/
+
 protected:
+
     bool intraprocess_enabled_;
 };
 

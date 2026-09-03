@@ -26,6 +26,7 @@ namespace uxr {
 class IPv6EndPoint
 {
 public:
+
     IPv6EndPoint() = default;
 
     IPv6EndPoint(
@@ -33,16 +34,20 @@ public:
             uint16_t port)
         : addr_(addr)
         , port_(port)
-    {}
+    {
+    }
 
     ~IPv6EndPoint() = default;
 
-    bool operator<(const IPv6EndPoint& other) const
+    bool operator <(
+            const IPv6EndPoint& other) const
     {
         return (addr_ < other.addr_) || ((addr_ == other.addr_) && (port_ < other.port_));
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const IPv6EndPoint& endpoint)
+    friend std::ostream& operator <<(
+            std::ostream& os,
+            const IPv6EndPoint& endpoint)
     {
         os << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(0))
            << std::setfill('0') << std::setw(2) << std::hex << int(endpoint.addr_.at(1))
@@ -72,10 +77,18 @@ public:
         return os;
     }
 
-    const std::array<uint8_t, 16>& get_addr() const { return addr_; }
-    uint16_t get_port() const { return port_; }
+    const std::array<uint8_t, 16>& get_addr() const
+    {
+        return addr_;
+    }
+
+    uint16_t get_port() const
+    {
+        return port_;
+    }
 
 private:
+
     std::array<uint8_t, 16> addr_;
     uint16_t port_;
 };
