@@ -55,6 +55,11 @@ Server<EndPoint>::Server(
 template<typename EndPoint>
 Server<EndPoint>::~Server()
 {
+    // Release all clients before deleting the Processor. DataReader threads owned by
+    // the clients call back into the Processor (read_data_callback), and the Root lives
+    // in the Agent base, which is destroyed after this destructor, so it would otherwise
+    // only join those threads after the Processor has been freed.
+    root_->reset();
     delete processor_;
 }
 
