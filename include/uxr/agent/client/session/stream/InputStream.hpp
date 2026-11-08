@@ -390,6 +390,8 @@ inline void ReliableInputStream::reset()
     last_handled_ = UINT16_MAX;
     last_announced_ = UINT16_MAX;
     messages_.clear();
+    fragment_msg_.clear();
+    fragment_message_available_ = false;
 }
 
 inline void ReliableInputStream::push_fragment(
