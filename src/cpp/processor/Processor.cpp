@@ -451,7 +451,18 @@ bool Processor<EndPoint>::process_write_data_submessage(
         case dds::xrce::FORMAT_DATA_FLAG:
         {
             dds::xrce::WRITE_DATA_Payload_Data data_payload;
-            data_payload.data().resize(submessage_length - data_payload.BaseObjectRequest::getCdrSerializedSize(0));
+
+            const size_t base_size = data_payload.BaseObjectRequest::getCdrSerializedSize(0);
+            if (submessage_length < base_size)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("invalid WRITE_DATA submessage length"),
+                    UXR_CLIENT_KEY_PATTERN,
+                    conversion::clientkey_to_raw(client.get_client_key()));
+                break;
+            }
+            data_payload.data().resize(submessage_length - base_size);
+
             if (input_packet.message->get_payload(data_payload))
             {
                 const dds::xrce::ObjectId& object_id = data_payload.object_id();

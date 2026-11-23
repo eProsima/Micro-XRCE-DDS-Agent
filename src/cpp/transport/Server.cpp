@@ -288,7 +288,24 @@ void Server<EndPoint>::processing_loop()
     {
         if (input_scheduler_.pop(input_packet))
         {
-            processor_->process_input_packet(std::move(input_packet));
+            try
+            {
+                processor_->process_input_packet(std::move(input_packet));
+            }
+            catch (const std::exception& e)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("exception processing input packet"),
+                    "exception: {}",
+                    e.what());
+            }
+            catch (...)
+            {
+                UXR_AGENT_LOG_ERROR(
+                    UXR_DECORATE_RED("exception processing input packet"),
+                    "exception: {}",
+                    "unknown");
+            }
         }
     }
 }
