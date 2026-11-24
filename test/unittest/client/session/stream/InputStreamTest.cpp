@@ -14,6 +14,7 @@
 
 
 #include <uxr/agent/client/session/stream/InputStream.hpp>
+#include <cstring>
 #include <map>
 #include <queue>
 #include <mutex>
@@ -289,6 +290,45 @@ TEST_F(ReliableInputStreamTest, Reset)
 
     InputMessagePtr input_message;
     ASSERT_FALSE(reliable_stream_.pop_message(input_message));
+}
+
+TEST_F(ReliableInputStreamTest, ResetDiscardsFragments)
+{
+    /* A message with one FRAGMENT submessage: 4 bytes of header, as the session ID has no client key,
+     * 4 bytes of subheader and 4 bytes of payload. */
+    auto push_fragment = [this](uint8_t payload, bool last)
+            {
+                uint8_t flags = dds::xrce::FLAG_LITTLE_ENDIANNESS;
+                if (last)
+                {
+                    flags |= dds::xrce::FLAG_LAST_FRAGMENT;
+                }
+                uint8_t buf[] = {
+                    0x81, 0x80, 0x00, 0x00,
+                    dds::xrce::FRAGMENT, flags, 0x04, 0x00,
+                    payload, payload, payload, payload
+                };
+                InputMessagePtr fragment(new InputMessage(buf, sizeof(buf)));
+                ASSERT_TRUE(fragment->prepare_next_submessage());
+                reliable_stream_.push_fragment(fragment);
+            };
+
+    /* A client is interrupted in the middle of a fragmented message. */
+    push_fragment(0xAA, false);
+    reliable_stream_.reset();
+
+    /* The first message of its next session holds the fragments of that session only. */
+    push_fragment(0xBB, true);
+    InputMessagePtr input_message;
+    ASSERT_TRUE(reliable_stream_.pop_fragment_message(input_message));
+    const uint8_t expected[] = {0x81, 0x80, 0x00, 0x00, 0xBB, 0xBB, 0xBB, 0xBB};
+    ASSERT_EQ(input_message->get_len(), sizeof(expected));
+    ASSERT_EQ(0, memcmp(input_message->get_buf(), expected, sizeof(expected)));
+
+    /* A complete message that was not popped is discarded as well. */
+    push_fragment(0xCC, true);
+    reliable_stream_.reset();
+    ASSERT_FALSE(reliable_stream_.pop_fragment_message(input_message));
 }
 
 TEST_F(ReliableInputStreamTest, BorderCases)
